@@ -55,11 +55,16 @@ namespace bpp
   /**
    * @brief The SubstitutionsCount interface.
    *
-   * Provide a method to compute the @f$n_{x,y}(t)@f$ function,
-   * namely the number of substitutions on a branch of length @f$t@f$, with initial state @f$x@f$ and final state @f$y@f$.
+   * Provide a method to compute the @f$n_{x,y}(t)@f$ function, namely
+   * the number of substitutions on a branch of length @f$t@f$, with
+   * initial state @f$x@f$ and final state @f$y@f$.
    * 
-   * The new implementation offers to perform several counts simultaneously, distinguishing between different types of substitutions. Therefore substitution count object takes as input a SubstitutionRegister, which describes all
-   * types of substitutions and associate them with an index. All counts can be retrieved in one go as a vector, the type serving as an indice.
+   * The new implementation offers to perform several counts
+   * simultaneously, distinguishing between different types of
+   * substitutions. Therefore substitution count object takes as input
+   * a SubstitutionRegister, which describes all types of
+   * substitutions and associate them with an index. All counts can be
+   * retrieved in one go as a vector, the type serving as an indice.
    *
    * @author Julien Dutheil
    *
@@ -68,6 +73,7 @@ namespace bpp
    * A model-based approach for detecting coevolving positions in a molecule.
    * Mol Biol Evol. 2005 Sep;22(9):1919-28. Epub 2005 Jun 8.
    */
+  
   class SubstitutionCount:
     public virtual Clonable
   {
@@ -140,6 +146,18 @@ namespace bpp
      * @return A matrix with all numbers of substitutions for each initial and final states.
      */
     virtual Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type) const = 0;
+
+    /**
+     * @brief Stores the numbers of susbstitutions on a branch, for
+     * each initial and final states, and given the branch length.
+     *
+     * @param length       The length of the branch.
+     * @param type         The type of susbstitution to count.
+     * @param mat          The matrix filled with all numbers of substitutions
+     * for each initial and final states.
+     */
+    
+    virtual void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const = 0;
 
     /**
      * @brief Get the numbers of susbstitutions on a branch for all types, for an initial and final states, given the branch length.

@@ -135,13 +135,49 @@ Matrix<double>* LaplaceSubstitutionCount::getAllNumbersOfSubstitutions(double le
 
 /******************************************************************************/
 
+void LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
+{
+  size_t s = model_->getAlphabet()->getSize();
+  if (length == currentLength_)
+    mat = Eigen::MatrixXd::Zero(s, s);
+  
+  if (length < 0.000001) // Limit case!
+  {
+
+    for (size_t i = 0; i < s; i++)
+    {
+      for (size_t j = 0; j < s; j++)
+      {
+        mat(i, j) = i == j ? 0. : 1.;
+      }
+    }
+  }
+  else
+  {
+    // Else we need to recompute M:
+    computeCounts(length);
+  }
+
+  currentLength_ = length;
+
+  mat.resize(s, s);
+
+  for (size_t i=0; i<s; i++)
+    for (size_t j=0; j<s; j++)
+      mat(i,j) = std::isnan(m_(i,j))?0:m_(i,j);
+
+}
+
+/******************************************************************************/
+
 void LaplaceSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
 {
   model_ = model;
   size_t n = model->getAlphabet()->getSize();
   m_.resize(n, n);
   // Recompute counts:
-  computeCounts(currentLength_);
+  if (currentLength_>0)
+    computeCounts(currentLength_);
 }
 
 /******************************************************************************/

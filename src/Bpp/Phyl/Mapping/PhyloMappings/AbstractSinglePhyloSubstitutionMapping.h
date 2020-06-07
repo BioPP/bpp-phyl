@@ -40,7 +40,7 @@
 #ifndef _ABSTRACT_SINGLE_PHYLO_SUBSTITUTION_MAPPING_H_
 #define _ABSTRACT_SINGLE_PHYLO_SUBSTITUTION_MAPPING_H_
 
-#include "../../Model/BranchedModelSet.h"
+#include "../BranchedModelSet.h"
 #include "../ProbabilisticSubstitutionMapping.h"
 #include "PhyloSubstitutionMapping.h"
 #include "../../Tree/PhyloTree.h"

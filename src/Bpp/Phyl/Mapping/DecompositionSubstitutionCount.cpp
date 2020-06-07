@@ -145,6 +145,26 @@ Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(dou
 
 /******************************************************************************/
 
+void DecompositionSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
+{
+  if (length < 0)
+    throw Exception("DecompositionSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
+  if (length != currentLength_)
+  {
+    computeCounts_(length);
+    currentLength_ = length;
+  }
+
+  mat.resize(nbStates_, nbStates_);
+
+  const auto& ct = counts_[type - 1];
+  for (size_t i=0; i<nbStates_; i++)
+    for (size_t j=0; j<nbStates_; j++)
+      mat(i,j) = isnan(ct(i,j))?0:ct(i,j);
+}
+
+/******************************************************************************/
+
 double DecompositionSubstitutionCount::getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type) const
 {
   if (length < 0)
@@ -191,7 +211,8 @@ void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionMode
   computeProducts_();
   
   //Recompute counts:
-  computeCounts_(currentLength_);
+  if (currentLength_>0)
+    computeCounts_(currentLength_);
 }
 
 /******************************************************************************/

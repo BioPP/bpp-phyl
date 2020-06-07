@@ -44,7 +44,7 @@
 #include "SubstitutionCount.h"
 #include "OneJumpSubstitutionCount.h"
 #include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
-#include "../Model/BranchedModelSet.h"
+#include "BranchedModelSet.h"
 #include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
 namespace bpp

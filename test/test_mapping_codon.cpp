@@ -76,9 +76,9 @@ int main() {
 
   //-------------
 
-  CodonAlphabet* alphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
-  GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
-  auto model = std::make_shared<YN98>(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, gc));
+  auto gc = std::make_shared<StandardGeneticCode>(AlphabetTools::DNA_ALPHABET);
+  
+  auto model = std::make_shared<YN98>(gc.get(), CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, gc.get()));
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
   unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), pTree->clone()));
@@ -92,7 +92,7 @@ int main() {
   vector< vector<double> > realMap(n);
   vector< vector< vector<double> > > realMapTotal(n);
   vector< vector< vector<double> > > realMapDnDs(n);
-  VectorSiteContainer sites(new_tree->getAllLeavesNames(), alphabet);
+  VectorSiteContainer sites(new_tree->getAllLeavesNames(), gc->getSourceAlphabet());
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1, '=');
     unique_ptr<New_SiteSimulationResult> result(simulator.dSimulateSite());
@@ -201,7 +201,6 @@ int main() {
   }
 
   //-------------
-  delete alphabet;
   delete rdist;
   delete sCountTot;
   delete sCountDnDs;

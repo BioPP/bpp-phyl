@@ -99,7 +99,7 @@ double PseudoNewtonOptimizer::doStep()
   // Compute derivative at current point:
   std::vector<double> movements(n_);
   ParameterList newPoint = getParameters();
-
+  
   for (size_t i = 0; i < n_; i++)
   {
     double firstOrderDerivative = getFunction()->getFirstOrderDerivative(params_[i]);

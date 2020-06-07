@@ -386,7 +386,7 @@ AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsFo
 //     makeLikelihoodsAtRoot_();
   
 //   if (vRateCatTrees_[nCat].clt==0)
-//     makeLikelihoodsAtNode_(getTreeNode_()->getRootIndex());
+//     makeLikelihoodsAtNode_(getTreeNode()->getRootIndex());
   
 //   return vRateCatTrees_[nCat].clt;       
 // }
@@ -653,8 +653,55 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
     makeLikelihoodsAtRoot_();
   
   if (vRateCatTrees_[nCat].lt==0)
-    makeLikelihoodsAtNode_(getTreeNode_()->getRoot()->getSpeciesIndex());
+    makeLikelihoodsAtNode_(getTreeNode(nCat)->getRoot()->getSpeciesIndex());
   
   return vRateCatTrees_[nCat].lt;
+}
+
+
+ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getForwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
+{
+  // compute likelihoods for all nodes with similar species index
+  // (not the quickest, but in pratice they are all needed)
+      
+  if (!getLikelihoodNode_())
+    makeLikelihoods();
+
+  if (nCat>=vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getForwardLikelihoodsAtNodeForClass : bad class number " + TextTools::toString(nCat));
+       
+  return vRateCatTrees_[nCat].flt->getNode(nodeId);
+}
+
+ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtEdgeForClass(uint edgeId, size_t nCat)
+{
+  // compute likelihoods for all edges with similar species index
+  // (not the quickest, but in pratice they are all needed)
+
+  auto spId = getTreeNode(nCat)->getEdge(edgeId)->getSpeciesIndex();
+  
+  if (!(condLikelihoodTree_ && condLikelihoodTree_->hasNode(spId)))
+    makeLikelihoodsAtNode_(spId);
+
+  if (nCat>=vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getForwardLikelihoodsAtNodeForClass : bad class number " + TextTools::toString(nCat));
+
+  return vRateCatTrees_[nCat].blt->getEdge(edgeId);
+}
+
+const DAGindexes& LikelihoodCalculationSingleProcess::getNodesIds(uint speciesId) const
+{
+  if (vRateCatTrees_.size()==0)
+    throw Exception("LikelihoodCalculationSingleProcess::getNodeIds. ForwardLikelihoodTree not computed.");
+
+  return vRateCatTrees_[0].flt->getDAGNodesIndexes(speciesId);
+}
+
+const DAGindexes& LikelihoodCalculationSingleProcess::getEdgesIds(uint speciesId, size_t nCat) const
+{
+  if (nCat >= vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getEdgesIds : bad class number " + TextTools::toString(nCat));
+      
+  return vRateCatTrees_[nCat].flt->getDAGEdgesIndexes(speciesId);
 }
 

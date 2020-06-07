@@ -79,8 +79,9 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
     if (dynamic_cast<const TransitionModel*>(model->getTargetValue()))
     {
       auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, zero, nMod}, transitionMatrixDimension (nbState_));
+      processEdge->setTransitionMatrix(transitionMatrix);
       forwardEdge = ForwardTransition::create (
-      context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
+        context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
     }
     else{
       auto transitionFunction = TransitionFunctionFromModel::create(context_, {model, brlen, zero}, transitionFunctionDimension(nbState_));
@@ -106,6 +107,15 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
 
     link(getRoot(),childConditionalLikelihood,forwardEdge);
     setEdgeIndex(forwardEdge, processTree_->getEdgeIndex(processEdge)); // gets the index of the corresponding branch in the processTree_
+
+    auto spIndex = processEdge->getSpeciesIndex();
+    
+    if (brprob || brlen)
+    {
+      if (mapEdgesIndexes_.find(spIndex)==mapEdgesIndexes_.end())
+        mapEdgesIndexes_[spIndex]=DAGindexes();
+      mapEdgesIndexes_[spIndex].push_back(getEdgeIndex(forwardEdge));
+    }
   }
 
   return forwardEdge;
@@ -126,9 +136,9 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
     {
       createNode(forwardNode);
       setNodeIndex(forwardNode, processTree_->getNodeIndex(processNode));
-      if (mapIndexes_.find(spIndex)==mapIndexes_.end())
-        mapIndexes_[spIndex]=DAGindexes();
-      mapIndexes_[spIndex].push_back(getNodeIndex(forwardNode));
+      if (mapNodesIndexes_.find(spIndex)==mapNodesIndexes_.end())
+        mapNodesIndexes_[spIndex]=DAGindexes();
+      mapNodesIndexes_[spIndex].push_back(getNodeIndex(forwardNode));
     }
   }
   else {
@@ -165,15 +175,14 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
       if (processTree_->hasFather(processNode))
       {
         auto fatherNode = processTree_->getFatherOfNode (processNode);
-        auto propfath=dynamic_cast<NodeEvent*>(fatherNode->getProperty("event"));
-        fathmixture = propfath && propfath->isMixture();
+        fathmixture = fatherNode->isMixture();
       }
       
       if (!fathmixture)
       {
-        if (mapIndexes_.find(spIndex)==mapIndexes_.end())
-          mapIndexes_[spIndex]=DAGindexes();
-        mapIndexes_[spIndex].push_back(getNodeIndex(forwardNode));
+        if (mapNodesIndexes_.find(spIndex)==mapNodesIndexes_.end())
+          mapNodesIndexes_[spIndex]=DAGindexes();
+        mapNodesIndexes_[spIndex].push_back(getNodeIndex(forwardNode));
       }
 
       for (size_t i = 0; i < depE.size (); ++i)
@@ -198,10 +207,10 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
 //     auto dagId = getNodeIndex(**nodeIter);
 //     auto speciesId = processTree_->getNodeIndex(mapNode_[**nodeIter]);
     
-//     if (mapIndexes_.find(speciesId)!=mapIndexes_.end())
-//       mapIndexes_[speciesId].push_back(dagId);
+//     if (mapNodesIndexes_.find(speciesId)!=mapNodesIndexes_.end())
+//       mapNodesIndexes_[speciesId].push_back(dagId);
 //     else
-//       mapIndexes_[speciesId]=DAGindexes(1,dagId);
+//       mapNodesIndexes_[speciesId]=DAGindexes(1,dagId);
 
 //     nodeIter->next();
 //   }

@@ -40,7 +40,8 @@
 #ifndef _BRANCHED_MODELS_H_
 #define _BRANCHED_MODELS_H_
 
-#include "SubstitutionModel.h"
+#include <cstddef>
+#include <vector>
 
 namespace bpp
 {
@@ -51,7 +52,8 @@ namespace bpp
  *
  */
 
-
+  class TransitionModel;
+  
   class BranchedModelSet 
   {
   public:
@@ -90,9 +92,9 @@ namespace bpp
      * @throw Exception If no model is found for this branch.
      */
 
-    virtual const TransitionModel* getModelForBranch(uint branchId) const = 0;
+    virtual const TransitionModel* getModelForBranch(unsigned int branchId) const = 0;
 
-    virtual TransitionModel* getModelForBranch(uint branchId) = 0;
+    virtual TransitionModel* getModelForBranch(unsigned int branchId) = 0;
 
     /**
      * @brief Get a list of branches id for which the given model is associated.
@@ -101,7 +103,7 @@ namespace bpp
      * @return A vector with the ids of the branch associated to this model.
      */
 
-    virtual std::vector<uint> getBranchesWithModel(size_t index) const = 0;
+    virtual std::vector<unsigned int> getBranchesWithModel(size_t index) const = 0;
 
   };
 } // end of namespace bpp.

@@ -59,7 +59,7 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
   s_(reg->getNumberOfSubstitutionTypes()),
   miu_(0),
   counts_(reg->getNumberOfSubstitutionTypes()),
-  currentLength_(1.)
+  currentLength_(0)
 {
   //Check compatiblity between model and substitution register:
   if (model->getAlphabet()->getAlphabetType() != reg->getAlphabet()->getAlphabetType())
@@ -204,6 +204,26 @@ Matrix<double>* UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(do
 
 /******************************************************************************/
 
+void UniformizationSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
+{
+  if (length < 0)
+    throw Exception("UniformizationSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
+  if (length != currentLength_)
+  {
+    computeCounts_(length);
+    currentLength_ = length;
+  }
+
+  mat.resize(nbStates_, nbStates_);
+
+  const auto& ct = counts_[type - 1];
+  for (size_t i=0; i<nbStates_; i++)
+    for (size_t j=0; j<nbStates_; j++)
+      mat(i,j) = isnan(ct(i,j))?0:ct(i,j);
+}
+
+/******************************************************************************/
+
 double UniformizationSubstitutionCount::getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type) const
 {
   if (length < 0)
@@ -262,7 +282,8 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
     throw Exception("UniformizationSubstitutionCount::setSubstitutionModel(). The maximum diagonal values of generator is above 10000. Abort, chose another mapping method.");
 
   //Recompute counts:
-  computeCounts_(currentLength_);
+  if (currentLength_>0)
+    computeCounts_(currentLength_);
 }
 
 /******************************************************************************/

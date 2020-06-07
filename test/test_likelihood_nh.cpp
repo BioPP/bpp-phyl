@@ -93,12 +93,12 @@ int main() {
 
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model->clone(), rootFreqs, tree, alias, globalParameterVectors);
 
-  unique_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
-
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
 
-  NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, parTree.clone(), rootFreqs2, globalParameterNames);
+  NonHomogeneousSubstitutionProcess* subProSim= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, parTree.clone(), rootFreqs2, globalParameterNames);
+
+  SubstitutionProcess* nsubPro=subProSim->clone();
 
   // Simulation
   size_t nsites = 1000;
@@ -111,11 +111,11 @@ int main() {
   for (size_t i = 0; i < nmodels; ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.9) + 0.05;
     cout << "Theta" << i << " set to " << theta << endl; 
-    modelSetSim->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
+    subProSim->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas[i] = theta;
   }
 
-  SimpleSubstitutionProcessSequenceSimulator simulator(*subPro);
+  SimpleSubstitutionProcessSequenceSimulator simulator(*subProSim);
 
   nrep=20;
   
@@ -132,15 +132,12 @@ int main() {
     RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist, true, true, false);
     tl.initialize();
 
-    
-    SubstitutionProcess* nsubPro=subPro->clone();
-
     Context context;
     auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *sites->clone(), *nsubPro);
+    
     SingleProcessPhyloLikelihood ntl(context, lik, lik->getParameters());
 
     cout << setprecision(10) << "OldTL init: "  << tl.getValue()  << endl;
-
     cout << setprecision(10) << "NewTL init: "  << ntl.getValue()  << endl;
 
     unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(

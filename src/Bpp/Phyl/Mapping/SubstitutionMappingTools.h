@@ -44,7 +44,7 @@
 #include "SubstitutionCount.h"
 #include "OneJumpSubstitutionCount.h"
 #include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
-#include "../Model/BranchedModelSet.h"
+#include "BranchedModelSet.h"
 #include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
 namespace bpp
@@ -93,8 +93,8 @@ namespace bpp
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeCounts(rltc, nodeIds, substitutionCount, threshold, verbose);
+      std::vector<uint> edgeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeCounts(rltc, edgeIds, substitutionCount, threshold, verbose);
     }
 
     /**
@@ -111,6 +111,7 @@ namespace bpp
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose           Print info to screen.
+     *
      * @return A tree <PhyloNode, PhyloBranchMapping>
      */
 
@@ -122,27 +123,27 @@ namespace bpp
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeCounts(rltc, nodeIds, reg, weights, distances, threshold, verbose);
+      std::vector<uint> edgeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeCounts(rltc, edgeIds, reg, weights, distances, threshold, verbose);
     }
 
     /**
      * @brief Compute the substitutions tree for a particular dataset
      *
      * @param rltc              A LikelihoodCalculationSingleProcess object.
-     * @param nodeIds           The Ids of the nodes the substitutions
-     *                          are counted on. If empty, count substitutions
-     *                          on all nodes.
+     * @param speciesIds        The Species Ids of the edges the substitutions
+     *                          are counted on. 
      * @param substitutionCount The SubstitutionCount to use.
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose           Print info to screen.
+     *
      * @return A tree <PhyloNode, PhyloBranchMapping>
      */
 
     static ProbabilisticSubstitutionMapping* computeCounts(
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& speciesIds,
       SubstitutionCount& substitutionCount,
       double threshold = -1,
       bool verbose = true);
@@ -151,7 +152,7 @@ namespace bpp
      * @brief Compute the substitutions tree for a particular dataset
      *
      * @param rltc              A LikelihoodCalculationSingleProcess object.
-     * @param nodeIds           The Ids of the nodes the substitutions
+     * @param edgeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param reg               The SubstitutionRegister to use.
@@ -164,12 +165,13 @@ namespace bpp
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose           Print info to screen.
+     *
      * @return A tree <PhyloNode, PhyloBranchMapping>
      */
 
     static ProbabilisticSubstitutionMapping* computeCounts(
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
       std::shared_ptr<const AlphabetIndex2> distances = 0,
@@ -181,7 +183,7 @@ namespace bpp
      * process on each branch, for each register.
      *
      * @param rltc              A LikelihoodCalculationSingleProcess object.
-     * @param nodeIds           The Ids of the nodes the substitutions
+     * @param edgeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param nullModels        The "null" models used for normalization
@@ -190,12 +192,13 @@ namespace bpp
      *                          for all substitutions (default: null
      *                          means each distance = 1),
      * @param verbose           Display progress messages.
+     *
      * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
      */
 
     static ProbabilisticSubstitutionMapping* computeNormalizations(
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> distances = 0,
@@ -212,6 +215,7 @@ namespace bpp
      *                          for all substitutions (default: null
      *                          means each distance = 1),
      * @param verbose           Display progress messages.
+     *
      * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
      */
 
@@ -222,8 +226,8 @@ namespace bpp
       std::shared_ptr<const AlphabetIndex2> distances = 0,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeNormalizations(rltc, nodeIds, nullModels, reg, distances, verbose);
+      std::vector<uint> edgeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeNormalizations(rltc, edgeIds, nullModels, reg, distances, verbose);
     }
 
     /**
@@ -231,7 +235,7 @@ namespace bpp
      * models of "null" process on each branch, for each register.
      *
      * @param rltc              A LikelihoodCalculationSingleProcess object.
-     * @param nodeIds           The Ids of the nodes the substitutions
+     * @param edgeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param nullModels        The "null" models used for normalization
@@ -252,12 +256,13 @@ namespace bpp
      *                          considered saturated (default: -1
      *                          means no threshold).
      * @param verbose           Display progress messages.
+     *
      * @return A tree <PhyloNode, PhyloBranchMapping> of normalized counts..
      */
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
@@ -270,7 +275,7 @@ namespace bpp
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       const ProbabilisticSubstitutionMapping* counts,
       const ProbabilisticSubstitutionMapping* factors,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       bool perTimeUnit = false,
       uint siteSize = 1);
 
@@ -285,8 +290,8 @@ namespace bpp
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeNormalizedCounts(rltc, nodeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
+      std::vector<uint> edgeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeNormalizedCounts(rltc, edgeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
     }
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
@@ -295,77 +300,9 @@ namespace bpp
       bool perTimeUnit,
       uint siteSize = 1)
     {
-      std::vector<uint> nodeIds=factors->getAllEdgesIndexes();
-      return computeNormalizedCounts(counts, factors, nodeIds, perTimeUnit, siteSize);
+      std::vector<uint> edgeIds=factors->getAllEdgesIndexes();
+      return computeNormalizedCounts(counts, factors, edgeIds, perTimeUnit, siteSize);
     }
-
-    /**
-     * @brief Compute the substitutions std::vectors for a particular dataset using the
-     * double-recursive likelihood computation.
-     *
-     * In this method, substitution counts are computed using the pair of ancestral
-     * states with maximum likelihood.
-     * This is a kind of joint-pair ancestral reconstruction, as in Galtier and Boursot (1998).
-     * This reconstruction possibly takes into account several rate classes, and
-     * substitution counts are averaged over all rate classes, weighted by their conditional
-     * likelihood.
-     *
-     * This function is mainly for testing purpose (see Dutheil et al. 2005).
-     * For practical use, consider using the 'getSubstitutionVectors' method instead.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param substitutionCount The substitutionsCount to use.
-     * @param verbose           Print info to screen.
-     * @return A std::vector of substitutions std::vectors (one for each site).
-     * @throw Exception If the likelihood object is not initialized.
-     */
-    // static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveraging(
-    //   const DRTreeLikelihood& drtl,
-    //   SubstitutionCount& substitutionCount,
-    //   bool verbose = true) throw (Exception);
-
-    /**
-     * @brief Compute the substitutions std::vectors for a particular dataset using the
-     * double-recursive likelihood computation.
-     *
-     * In this method, all ancestral states are estimated using marginal likelihoods,
-     * putatively intregated over several rate classes.
-     * For each branch, the number of substitution given marginal states is used.
-     * This method, used with a SimpleSubstitutionCount objet is equivalent to
-     * Tufféry and Darlu's (2000) computation of substitution std::vectors.
-     *
-     * Use with another substitution count objet is in most cases irrelevent.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param substitutionCount The substitutionsCount to use.
-     * @param verbose           Print info to screen.
-     * @return A std::vector of substitutions std::vectors (one for each site).
-     * @throw Exception If the likelihood object is not initialized.
-     */
-    // static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveragingMarginal(
-    //   const DRTreeLikelihood& drtl,
-    //   SubstitutionCount& substitutionCount,
-    //   bool verbose = true) throw (Exception);
-
-    /**
-     * @brief Compute the substitutions std::vectors for a particular dataset using the
-     * double-recursive likelihood computation.
-     *
-     * The marginal probability is used for weighting, i.e. the product of probabilities for the pair.
-     *
-     * This function is mainly for testing purpose (see Dutheil et al. 2005).
-     * For practical use, consider using the 'getSubstitutionVectors' method instead.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param substitutionCount The substitutionsCount to use.
-     * @param verbose           Print info to screen.
-     * @return A std::vector of substitutions std::vectors (one for each site).
-     * @throw Exception If the likelihood object is not initialized.
-     */
-    // static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsMarginal(
-    //   const DRTreeLikelihood& drtl,
-    //   SubstitutionCount& substitutionCount,
-    //   bool verbose = true) throw (Exception);
 
     /**
      * @brief This method computes for each site and for each branch

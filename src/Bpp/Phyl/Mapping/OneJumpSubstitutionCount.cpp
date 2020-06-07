@@ -52,3 +52,15 @@ Matrix<double>* OneJumpSubstitutionCount::getAllNumbersOfSubstitutions(double le
   return probs;
 }
 
+void OneJumpSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
+{
+  tmp_ = model_->getPij_t(length);
+  size_t n = model_->getNumberOfStates();
+  
+  mat.resize(n, n);
+  for (size_t i = 0; i < n; i++) 
+    for (size_t j = 0; j < n; j++)
+      mat(i, j) = (i == j ? 1. - tmp_(i, j) : 1.);
+
+}
+

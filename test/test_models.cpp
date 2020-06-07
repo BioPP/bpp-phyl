@@ -116,7 +116,7 @@ int main() {
   if (!testModel(gtr)) return 1;
 
   //Codon models:
-  StandardGeneticCode gc(AlphabetTools::DNA_ALPHABET.clone());
+  StandardGeneticCode gc(AlphabetTools::DNA_ALPHABET);
   FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, &gc);
   YN98 yn98(&gc, fset);
   

@@ -98,7 +98,9 @@ namespace bpp
     double getReward(size_t initialState, size_t finalState, double length) const;
 
     Matrix<double>* getAllRewards(double length) const;
-    
+
+    void storeAllRewards(double length, Eigen::MatrixXd& mat) const;
+
     /**
      * @brief Set the substitution model.
      *

@@ -55,6 +55,21 @@ Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double leng
   return mat;
 }
 
+void NaiveSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
+{ 
+  size_t n = supportedChars_.size();
+  mat.resize(n, n);
+  
+  for (size_t i = 0; i < n; ++i)
+  {
+    for (size_t j = 0; j < n; ++j)
+    {
+      mat(i, j) = (register_->getType(i, j) == type ? (weights_ ? weights_->getIndex(supportedChars_[i], supportedChars_[j]) : 1.) : 0.);
+    }
+  }
+}
+
+
 LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
   AbstractSubstitutionCount(
     new TotalSubstitutionRegister(model->getStateMap())),

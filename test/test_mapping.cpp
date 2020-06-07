@@ -245,6 +245,10 @@ int main() {
     if (abs(totalReal - totalObs7) / totalReal > 0.1) throw Exception("Decomposition (detailed) substitution mapping failed, observed: " + TextTools::toString(totalObs7) + ", expected " + TextTools::toString(totalReal));
   }
 
+  cout << endl;
+  cout << "Details:" << endl;
+  cout << "-------" << endl << endl;
+  
 //2. Detail:
   for (size_t j = 0; j < ids.size(); ++j) {
     vector<double> real(4, 0);

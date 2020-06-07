@@ -96,6 +96,7 @@ namespace bpp
       
     std::shared_ptr<NumericConstant<size_t>> nMod_;
 
+    ValueRef<Eigen::MatrixXd> transitionMatrix_;
     /*
      *@ brief Probablity of the edge, used in case of mixture models.
      *
@@ -113,7 +114,7 @@ namespace bpp
     ProcessEdge(uint speciesIndex,
                 std::shared_ptr<ConfiguredParameter> brlen,
                 std::shared_ptr<ConfiguredModel> model,
-                std::shared_ptr<NumericConstant<size_t>> nMod=0) : speciesIndex_(speciesIndex), brlen_(brlen), model_(model), nMod_(nMod), brprob_(0){};
+                std::shared_ptr<NumericConstant<size_t>> nMod=0) : speciesIndex_(speciesIndex), brlen_(brlen), model_(model), nMod_(nMod), transitionMatrix_(0), brprob_(0){};
 
     /*
      * @brief Construction with probability ref from Mixture model
@@ -121,14 +122,14 @@ namespace bpp
      */
 
     ProcessEdge(uint speciesIndex,
-                ValueRef<double> brprob) : speciesIndex_(speciesIndex), brlen_(0), model_(0), nMod_(0), brprob_(brprob){};
+                ValueRef<double> brprob) : speciesIndex_(speciesIndex), brlen_(0), model_(0), nMod_(0), transitionMatrix_(0), brprob_(brprob){};
 
     /*
      * @brief Copy construction
      *
      */
       
-    ProcessEdge(const ProcessEdge& edge) : speciesIndex_(edge.speciesIndex_), brlen_(edge.brlen_), model_(edge.model_), nMod_(edge.nMod_), brprob_(edge.brprob_){};
+    ProcessEdge(const ProcessEdge& edge) : speciesIndex_(edge.speciesIndex_), brlen_(edge.brlen_), model_(edge.model_), nMod_(edge.nMod_), transitionMatrix_(edge.transitionMatrix_), brprob_(edge.brprob_){};
       
     std::shared_ptr<ConfiguredModel> getModel()
     {
@@ -148,6 +149,16 @@ namespace bpp
     void setBrLen(std::shared_ptr<ConfiguredParameter> brlen)
     {
       brlen_=brlen;
+    }
+
+    void setTransitionMatrix(ValueRef<Eigen::MatrixXd> transitionMatrix)
+    {
+      transitionMatrix_ = transitionMatrix;
+    }
+
+    ValueRef<Eigen::MatrixXd> getTransitionMatrix()
+    {
+      return transitionMatrix_;
     }
 
     ValueRef<double> getProba()

@@ -103,7 +103,9 @@ namespace bpp
     }
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
-    
+
+    void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const;
+
     std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(getNumberOfSubstitutionTypes());
@@ -155,6 +157,18 @@ namespace bpp
     {
       return dynamic_cast<Matrix<double>*>(label_.clone());
     }
+
+    void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
+    {
+      auto nbStates = supportedChars_.size();
+      
+      mat.resize(nbStates, nbStates);
+
+      for (size_t i=0; i<nbStates; i++)
+        for (size_t j=0; j<nbStates; j++)
+          mat(i,j) = label_(i,j);
+    }
+
     
     std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
     {

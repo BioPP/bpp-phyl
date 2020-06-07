@@ -71,7 +71,7 @@ namespace bpp
      * using the double-recursive likelihood computation.
      *
      * @param drtl              A DRTreeLikelihood object.
-     * @param nodeIds           The Ids of the nodes the reward vectors
+     * @param edgeIds           The Ids of the nodes the reward vectors
      *                          are computed on.
      * @param reward            The Reward to use.
      * @param verbose           Print info to screen.
@@ -80,7 +80,7 @@ namespace bpp
      */
     static ProbabilisticRewardMapping* computeRewardVectors(
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       Reward& reward,
       bool verbose = true);
 

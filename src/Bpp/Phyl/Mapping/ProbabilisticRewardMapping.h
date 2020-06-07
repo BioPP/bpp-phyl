@@ -45,6 +45,7 @@
 
 #include "Reward.h"
 #include "../Tree/TreeExceptions.h"
+#include "../NewLikelihood/DataFlow/DataFlowCWise.h"
 
 #include <Bpp/Text/TextTools.h>
 
@@ -83,7 +84,7 @@ namespace bpp
      * element in the likelihood array.
      */
     
-    std::vector<size_t> rootPatternLinks_;
+    PatternType rootPatternLinks_;
     
     bool usePatterns_;
 
@@ -116,7 +117,7 @@ namespace bpp
      *
      */
     
-    ProbabilisticRewardMapping(const PhyloTree& tree, const std::vector<size_t>& rootpatterns, size_t nbDistinctSites) :
+    ProbabilisticRewardMapping(const PhyloTree& tree, const PatternType& rootpatterns, size_t nbDistinctSites) :
       AbstractMapping(rootpatterns.size()), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
     {
       std::unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
@@ -238,7 +239,7 @@ namespace bpp
      *
      */
 
-    const std::vector<size_t>& getPatterns() const
+    const PatternType& getPatterns() const
     {
       return rootPatternLinks_;
     }

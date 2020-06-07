@@ -60,7 +60,7 @@ using namespace std;
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   LikelihoodCalculationSingleProcess& rltc,
-  const vector<uint>& nodeIds,
+  const vector<uint>& edgeIds,
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> weights,
   std::shared_ptr<const AlphabetIndex2> distances,
@@ -74,22 +74,16 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   const SubstitutionModel* sm(0);
   const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
-  if (nodeIds.size()==0)
-  {
-    const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-    const auto rootPatternLinks = rltc.getRootArrayPositions();
-    size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
-    
-    return new ProbabilisticSubstitutionMapping(ppt, reg.getNumberOfSubstitutionTypes(), rootPatternLinks, nbDistinctSites);    
-  }
+  if (edgeIds.size()==0)
+    return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), reg.getNumberOfSubstitutionTypes(), rltc.getRootArrayPositions(), rltc.getNumberOfDistinctSites());
   
-  for (auto id : nodeIds)
+  for (auto id : edgeIds)
   {
-    if (dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0))==NULL)
+    if (dynamic_cast<const SubstitutionModel*>(sp.getModelForNode(id))==NULL)
       throw Exception("SubstitutionMappingTools::computeSubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(id));
     else
       if (!sm)
-        sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0));
+        sm=dynamic_cast<const SubstitutionModel*>(sp.getModelForNode(id));
   }
 
   // We create a Mapping objects
@@ -99,36 +93,56 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
   unique_ptr<SubstitutionCount> substitutionCount(new DecompositionSubstitutionCount(sm, reg.clone(), weights, distances));
 
-  return computeCounts(rltc, nodeIds, *substitutionCount, threshold, verbose);
+  return computeCounts(rltc, edgeIds, *substitutionCount, threshold, verbose);
 }
 
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   LikelihoodCalculationSingleProcess& rltc,
-  const vector<uint>& nodeIds,
+  const vector<uint>& edgeIds,
   SubstitutionCount& substitutionCount,
   double threshold,
   bool verbose)
 {
   // Preamble:
   if (!rltc.isInitialized())
-    throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
+    throw Exception("SubstitutionMappingTools::computeCounts(). Likelihood object is not initialized.");
 
   const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
-  if (nodeIds.size()==0)
-  {
-    const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-    const auto& rootPatternLinks = rltc.getRootArrayPositions();
-    size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
-    
-    return new ProbabilisticSubstitutionMapping(ppt, substitutionCount.getNumberOfSubstitutionTypes(), rootPatternLinks, nbDistinctSites);
-  }
+  if (edgeIds.size()==0)
+    return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(),
+                                                substitutionCount.getNumberOfSubstitutionTypes(),
+                                                rltc.getRootArrayPositions(),
+                                                rltc.getNumberOfDistinctSites());
+  
+  auto processTree = rltc.getTreeNode(0);
 
-  for (auto id :nodeIds)
+  // Map from models to counts
+  std::map<shared_ptr<ConfiguredModel> , std::shared_ptr<SubstitutionCount> > mModCount;
+  
+  for (auto speciesId :edgeIds)
   {
-    if (dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0))==NULL)
-      throw Exception("SubstitutionMappingTools::computeSubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(id));
+    const auto& dagIndexes = rltc.getEdgesIds(speciesId, 0);
+
+    for (auto id:dagIndexes)
+    {
+      const auto& edge = processTree->getEdge(id);
+      if (edge->getBrLen()) // if edge with model on it
+      {
+        auto model = edge->getModel();
+
+        auto sm = dynamic_cast<const SubstitutionModel*>(model->getTargetValue());
+        
+        if (sm == NULL)
+          throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId));
+        if (mModCount.find(model)==mModCount.end())
+        {
+          mModCount[model] = std::shared_ptr<SubstitutionCount>(substitutionCount.clone());
+          mModCount[model]->setSubstitutionModel(sm);
+        }
+      }
+    }
   }
 
   const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
@@ -136,11 +150,10 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   // A few variables we'll need:
 
   size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
-  size_t nbStates        = sp.getNumberOfStates();
-  // size_t nbClasses       = sp.getNumberOfClasses();
+  size_t nbClasses       = sp.getNumberOfClasses();
 
   size_t nbTypes         = substitutionCount.getNumberOfSubstitutionTypes();
-  size_t nbNodes         = nodeIds.size();
+  size_t nbNodes         = edgeIds.size();
   
   const auto& rootPatternLinks = rltc.getRootArrayPositions();
 
@@ -150,10 +163,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
   // Store likelihood for each compressed site :
 
-  Vdouble Lr(nbDistinctSites, 0);
-
-  // for (size_t i = 0; i < nbDistinctSites; i++)
-  //   Lr[i]=rltc.getLogLikelihoodForASiteIndex(i);
+  auto Lr = rltc.getSiteLikelihoods(true)->getTargetValue();
 
   // Compute the number of substitutions for each class and each branch in the tree:
   if (verbose)
@@ -171,201 +181,78 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     shared_ptr<PhyloBranchMapping> br=**brIt;
     
     // For each branch
-    uint edid=substitutions->getEdgeIndex(br);
+    uint speciesId = substitutions->getEdgeIndex(br);
 
-    if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
+    if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
       continue;
 
-    // uint fathid=substitutions->getFatherOfEdge(edid);
-    // uint icid=substitutions->getSon(edid);
+    vector<Eigen::RowVectorXd> substitutionsForCurrentNode(nbTypes);
+     for (auto& sub:substitutionsForCurrentNode)
+      sub.setZero(nbDistinctSites);
 
-    // double d=br->getLength();
-    
-    VVdouble likelihoodsFatherConstantPart;    
-    VectorTools::resize2(likelihoodsFatherConstantPart, nbDistinctSites, nbStates);
-
-    // now the counts
-      
-    VVdouble substitutionsForCurrentNode;
-    VectorTools::resize2(substitutionsForCurrentNode,nbDistinctSites,nbTypes);
-
-
-    /*
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
-      const RecursiveLikelihoodTree::LikTree& rlt_c=rlt[ncl];
+      processTree = rltc.getTreeNode(ncl);
+
+      double pr = sp.getProbabilityForModel(ncl);
+
+      vector<Eigen::RowVectorXd> substitutionsForCurrentClass(nbTypes);
+      for (auto& sub:substitutionsForCurrentClass)
+        sub.setZero(nbDistinctSites);
       
-      shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
+      const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
 
-      // reinit substitutionsForCurrentNode 
-      if (ici->usesLog())
+      Eigen::MatrixXd npxy;
+
+      // Sum on all dag edges for this speciesId
+      for (auto id:dagIndexes)
       {
-        for (auto& vi : substitutionsForCurrentNode)
-          std::fill(vi.begin(), vi.end(), NumConstants::MINF());
-      }
-      else 
-      {
-        for (auto& vi : substitutionsForCurrentNode)
-          std::fill(vi.begin(), vi.end(), 0);
-      }
-        
-      usesLog=ici->usesLog();
+        auto edge = processTree->getEdge(id);
 
-      double pr=sp.getProbabilityForModel(ncl);
-      double rate=sp.getRateForModel(ncl);
-      
-      for (size_t i=0; i<nbDistinctSites; i++)
-        VectorTools::fill(likelihoodsFatherConstantPart[i],usesLog?log(pr):pr);
+        auto subCount = mModCount[edge->getModel()];
 
-      rltc.computeLikelihoodsAtNode(fathid);
+        const auto& likelihoodsFather = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->getTargetValue();
 
-      // up father
-      shared_ptr<RecursiveLikelihoodNode> father = rlt_c.getNode(fathid);
-      
-      // down the brothers
-
-      unique_ptr<RecursiveLikelihoodTree::LikTree::EdgeIterator> brothIt=rlt_c.branchesIterator(father);
-
-      for (;!brothIt->end();brothIt->next())
-      {
-        if (rlt_c.getEdgeIndex(**brothIt)!=edid)
-        {
-          bool slog=rlt_c.getSon(**brothIt)->usesLog();
+        auto sonid = processTree->getSon(id);
           
-          if (!usesLog)
-          {
-            if (!slog)
-              likelihoodsFatherConstantPart *= rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
-            else
-              likelihoodsFatherConstantPart *= VectorTools::exp(rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0));
-          }
-          else {
-            if (slog)
-              likelihoodsFatherConstantPart += rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
-            else
-              likelihoodsFatherConstantPart += VectorTools::log(rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0));
-          }
+        const auto& likelihoodsSon = rltc.getForwardLikelihoodsAtNodeForClass(sonid, ncl)->getTargetValue();
+
+        const Eigen::MatrixXd& pxy = edge->getTransitionMatrix()->accessValueConst();
+
+        for (size_t t = 0; t < nbTypes; ++t)
+        {
+          // compute all nxy * pxy first:
+
+          subCount->storeAllNumbersOfSubstitutions(edge->getBrLen()->getValue(), t + 1, npxy);
+          
+          npxy.array() *= pxy.array();
+          
+          // Now loop over sites:
+
+          auto counts = npxy * likelihoodsSon;
+
+          auto bb = (likelihoodsFather.cwiseProduct(counts)).colwise().sum();
+
+          substitutionsForCurrentClass[t] += bb;
         }
       }
-
-      bool flog=father->usesLog();
-
-      if (!usesLog)
-      {
-        if (!flog)
-          likelihoodsFatherConstantPart *= father->getAboveLikelihoodArray();
-        else
-          likelihoodsFatherConstantPart *= VectorTools::exp(father->getAboveLikelihoodArray());
-      }
-      else {
-        if (flog)
-          likelihoodsFatherConstantPart += father->getAboveLikelihoodArray();
-        else
-          likelihoodsFatherConstantPart += VectorTools::log(father->getAboveLikelihoodArray());
-      }
-      
-      // Then, we deal with the node of interest.
-      // We first average upon 'y' to save computations, and then upon 'x'.
-      // ('y' is the state at 'node' and 'x' the state at 'father'.)
-
-      const VVdouble& likelihoodsFather_node = ici->getBelowLikelihoodArray(ComputingNode::D0);
-
-      const SubstitutionModel* sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(icid,ncl));
-      if (!sm)
-        throw Exception("SubstitutionMappingTools:: non substitution model in node " + TextTools::toString(icid));
-      
-      substitutionCount.setSubstitutionModel(sm);
-      
-      // compute all nxy * pxy first:
-      VVVdouble npxy;
-
-      VectorTools::resize3(npxy,nbTypes,nbStates,nbStates);
-
-      const Matrix<double>& pxy = sp.getTransitionProbabilities(icid,ncl);
       
       for (size_t t = 0; t < nbTypes; ++t)
-      {
-        VVdouble& npxy_t=npxy[t];
-        Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rate, t + 1);
-        MatrixTools::hadamardMult((*nijt),pxy,(*nijt));
-
-        for (size_t x=0; x<nbStates; x++)
-          for (size_t y=0; y<nbStates; y++)
-            npxy_t[x][y]=(*nijt)(x,y);
-        
-        delete nijt;
-      }
-      
-      // Now loop over sites:
-
-      for (size_t i=0; i< nbDistinctSites; i++)
-      {
-        const Vdouble* likelihoodsFather_node_i = &(likelihoodsFather_node[i]);
-        const Vdouble* likelihoodsFatherConstantPart_i = &(likelihoodsFatherConstantPart[i]);
-        
-        for (size_t x = 0; x < nbStates; ++x)
-        {
-          double likelihoodsFatherConstantPart_i_x = (*likelihoodsFatherConstantPart_i)[x];
-          for (size_t y = 0; y < nbStates; ++y)
-          {
-            double likelihood_xy = usesLog
-              ?likelihoodsFatherConstantPart_i_x + (*likelihoodsFather_node_i)[y]
-              :likelihoodsFatherConstantPart_i_x * (*likelihoodsFather_node_i)[y];
-            
-            if (!usesLog)
-            {
-              if (likelihood_xy!=0) // to avoid multiplication per nan
-                                    // (stop codons)
-                for (size_t t = 0; t < nbTypes; ++t)
-                {
-                  substitutionsForCurrentNode[i][t] += likelihood_xy * npxy[t][x][y];
-                 //                                <------------>  <----------->
-                 // Posterior probability              |               |
-                 // for site i *                       |               |
-                 // likelihood for this site ----------+               |
-                 //                                                    |
-                 // Substitution function for site i ------------------+
-                }
-            }
-            else
-            {
-              if (likelihood_xy!=NumConstants::MINF())  // to avoid add per -inf
-                for (size_t t = 0; t < nbTypes; ++t)
-                {
-                  if (npxy[t][x][y]< -NumConstants::MILLI())
-                  {
-                    ApplicationTools::displayWarning("These counts are negative, their logs could not be computed:" + TextTools::toString(npxy[t][x][y]));
-                    throw Exception("Stop in SubstitutionMappingTools");
-                  }
-                  else
-                  {
-                    if (npxy[t][x][y]>0)
-                    {
-                      double ll=likelihood_xy + log(npxy[t][x][y]);
-                      if (ll>substitutionsForCurrentNode[i][t])
-                        substitutionsForCurrentNode[i][t] = ll + log(1 + exp(substitutionsForCurrentNode[i][t] - ll));
-                      else
-                        substitutionsForCurrentNode[i][t] += log(1 + exp(ll - substitutionsForCurrentNode[i][t]));
-                    }
-                  } 
-                }
-            }
-          }
-        }
-      }
+        substitutionsForCurrentNode[t] += substitutionsForCurrentClass[t] * pr;
     }
 
+    
     // Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbDistinctSites; ++i)
     {
       for (size_t t = 0; t < nbTypes; ++t)
       {
-        double x = usesLog?exp(substitutionsForCurrentNode[i][t] - Lr[i]):substitutionsForCurrentNode[i][t]/exp(Lr[i]);
+        double x = substitutionsForCurrentNode[t](i)/Lr(i);
         
         if (std::isnan(x) || std::isinf(x))
         {
           if (verbose)
-            ApplicationTools::displayWarning("On branch " + TextTools::toString(edid) + ", site index " + TextTools::toString(i) + ", and type " + TextTools::toString(t) + ", counts could not be computed.");
+            ApplicationTools::displayWarning("On branch " + TextTools::toString(speciesId) + ", site index " + TextTools::toString(i) + ", and type " + TextTools::toString(t) + ", counts could not be computed.");
           (*br)(i,t)=0;
         }
         else
@@ -373,7 +260,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
           if (threshold>=0 && x > threshold)
           {
             if (verbose)
-              ApplicationTools::displayWarning("On branch " + TextTools::toString(edid) + ", site index" + TextTools::toString(i) + ", and type " + TextTools::toString(t) + " count has been ignored because it is presumably saturated.");
+              ApplicationTools::displayWarning("On branch " + TextTools::toString(speciesId) + ", site index" + TextTools::toString(i) + ", and type " + TextTools::toString(t) + " count has been ignored because it is presumably saturated.");
             (*br)(i,t)=0;
           }
           else     
@@ -381,7 +268,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
         }
       }
     }
-  }
+  } // end of loop on branches
   
   if (verbose)
   {
@@ -389,8 +276,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
       *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
-    */
-  }    
+
   return substitutions.release();
 }
 
@@ -398,7 +284,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizations(
   LikelihoodCalculationSingleProcess& rltc,
-  const vector<uint>& nodeIds,
+  const vector<uint>& edgeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> distances,
@@ -408,40 +294,29 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingTools::computeNormalizations(). Likelihood object is not initialized.");
 
-  const SubstitutionModel* sm(0);
   const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
-
-  if (nodeIds.size()==0)
-  {
-    const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-    const auto& rootPatternLinks = rltc.getRootArrayPositions();
-    size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
-    
-    return new ProbabilisticSubstitutionMapping(ppt, reg.getNumberOfSubstitutionTypes(), rootPatternLinks, nbDistinctSites);    
-  }
+  const auto& statemap = sp.getStateMap();
+  const auto* alphabet = statemap.getAlphabet();
   
-  for (auto id :nodeIds)
-  {
-    if (dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0))==NULL)
-      throw Exception("SubstitutionMappingTools::computeNormalizations possible only for SubstitutionModels, not in branch " + TextTools::toString(id));
-    else
-      if (!sm)
-        sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0));
-  }
+  if (edgeIds.size()==0)
+    return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(),
+                                                reg.getNumberOfSubstitutionTypes(),
+                                                rltc.getRootArrayPositions(),
+                                                rltc.getNumberOfDistinctSites());
 
-  const auto& rootPatternLinks = rltc.getRootArrayPositions();
+  // A few variables we'll need:
 
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
-  size_t nbStates = sm->getAlphabet()->getSize();
-  vector<int> supportedStates = sm->getAlphabetStates();
+
+  size_t nbStates = statemap.getNumberOfModelStates();
+  vector<int> supportedStates = statemap.getAlphabetStates();
+  
   size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
   
-  const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
+  unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), nbTypes, rltc.getRootArrayPositions(), nbDistinctSites));
 
-  unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(ppt, nbTypes, rootPatternLinks, nbDistinctSites));
   
   vector<size_t> vMod=nullModels->getModelNumbers();
-  vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(sm->getAlphabet()));
 
   for (auto& nbm : vMod)
   {
@@ -450,9 +325,12 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
       throw Exception("SubstitutionMappingTools::computeNormalizations possible only for SubstitutionModels, not for model " + nullModels->getModel(nbm)->getName());
   }
 
+
+  vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(alphabet));
+
   for (auto& nbm : vMod)
   {
-    vector<uint> mids = VectorTools::vectorIntersection(nodeIds, nullModels->getBranchesWithModel(nbm));
+    vector<uint> mids = VectorTools::vectorIntersection(edgeIds, nullModels->getBranchesWithModel(nbm));
     
     if (mids.size()>0)
     {
@@ -475,21 +353,21 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
         }
       }
       
-      // for (size_t nbt = 0; nbt < nbTypes; nbt++)
-      // {
-      //   unique_ptr<Reward> reward(new DecompositionReward(modn, &usai[nbt]));
+      for (size_t nbt = 0; nbt < nbTypes; nbt++)
+      {
+        unique_ptr<Reward> reward(new DecompositionReward(modn, &usai[nbt]));
         
-      //   unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, verbose));
+        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, verbose));
 
-      //   for (size_t k = 0; k < mids.size(); k++)
-      //   {
-      //     shared_ptr<PhyloBranchMapping> brn=normalizations->getEdge(mids[k]);
-      //     shared_ptr<PhyloBranchReward> brr=mapping->getEdge(mids[k]);
+        for (size_t k = 0; k < mids.size(); k++)
+        {
+          shared_ptr<PhyloBranchMapping> brn=normalizations->getEdge(mids[k]);
+          shared_ptr<PhyloBranchReward> brr=mapping->getEdge(mids[k]);
 
-      //     for (size_t i = 0; i < nbDistinctSites; ++i)
-      //       (*brn)(i,nbt)=(*brr).getSiteReward(i);
-      //   }
-      // }
+          for (size_t i = 0; i < nbDistinctSites; ++i)
+            (*brn)(i,nbt)=(*brr).getSiteReward(i);
+        }
+      }
     }
   }
 
@@ -500,7 +378,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCounts(
   LikelihoodCalculationSingleProcess& rltc,
-  const vector<uint>& nodeIds,
+  const vector<uint>& edgeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> weights,
@@ -510,11 +388,11 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCou
   double threshold,
   bool verbose)
 {
-  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(rltc,nodeIds,reg,weights,distances,threshold,verbose));
+  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(rltc,edgeIds,reg,weights,distances,threshold,verbose));
   
-  unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(rltc,nodeIds,nullModels,reg,distances,verbose));
+  unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(rltc,edgeIds,nullModels,reg,distances,verbose));
   
-  return computeNormalizedCounts(counts.get(), factors.get(), nodeIds, perTimeUnit, siteSize);  
+  return computeNormalizedCounts(counts.get(), factors.get(), edgeIds, perTimeUnit, siteSize);  
 }
     
 /************************************************************/
@@ -522,7 +400,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCou
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCounts(
   const ProbabilisticSubstitutionMapping* counts,
   const ProbabilisticSubstitutionMapping* factors,
-  const vector<uint>& nodeIds,
+  const vector<uint>& edgeIds,
   bool perTimeUnit,
   uint siteSize)
 {
@@ -544,7 +422,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCou
     // For each branch
     uint edid=normCounts->getEdgeIndex(brNormCount);
 
-    if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
+    if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)edid))
     {
       for (auto& brk : brnCou)
         VectorTools::fill(brk,0.);
@@ -1258,577 +1136,3 @@ void SubstitutionMappingTools::readFromStream(istream& in, ProbabilisticSubstitu
 }
 
 
-/**************************************************************************************************/
-
-/*ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(
-  const DRTreeLikelihood& drtl,
-  SubstitutionCount& substitutionCount,
-  bool verbose) throw (Exception)
-  {
-  // Preamble:
-  if (!drtl.isInitialized())
-  throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(). Likelihood object is not initialized.");
-
-  // A few variables we'll need:
-  const TreeTemplate<Node> tree(drtl.getTree());
-  const AlignedValuesContainer*    sequences = drtl.getData();
-  const DiscreteDistribution* rDist = drtl.getRateDistribution();
-
-  size_t nbSites         = sequences->getNumberOfSites();
-  size_t nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
-  size_t nbStates        = sequences->getAlphabet()->getSize();
-  size_t nbClasses       = rDist->getNumberOfCategories();
-  size_t nbTypes         = substitutionCounts.getNumberOfSubstitutionTypes();
-  vector<const Node*> nodes   = tree.getNodes();
-  const vector<size_t>* rootPatternLinks
-  = &drtl.getLikelihoodData()->getRootArrayPositions();
-  nodes.pop_back(); // Remove root node.
-  size_t nbNodes = nodes.size();
-
-  // We create a new ProbabilisticSubstitutionMapping object:
-  ProbabilisticSubstitutionMapping* substitutions = new ProbabilisticSubstitutionMapping(tree, &substitutionCount, nbSites);
-
-Vdouble rcRates = rDist->getCategories();
-
-// Compute the number of substitutions for each class and each branch in the tree:
-if (verbose)
-ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
-
-for (size_t l = 0; l < nbNodes; ++l)
-{
-// For each node,
-const Node* currentNode = nodes[l];
-
-const Node* father = currentNode->getFather();
-
-double d = currentNode->getDistanceToFather();
-
-if (verbose)
-ApplicationTools::displayGauge(l, nbNodes - 1);
-VVdouble substitutionsForCurrentNode(nbDistinctSites);
-for (size_t i = 0; i < nbDistinctSites; ++i)
-{
-substitutionsForCurrentNode[i].resize(nbTypes);
-}
-
-// Now we've got to compute likelihoods in a smart manner... ;)
-VVVdouble likelihoodsFatherConstantPart(nbDistinctSites);
-for (size_t i = 0; i < nbDistinctSites; ++i)
-{
-VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-likelihoodsFatherConstantPart_i->resize(nbClasses);
-for (size_t c = 0; c < nbClasses; ++c)
-{
-Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-likelihoodsFatherConstantPart_i_c->resize(nbStates);
-double rc = rDist->getProbability(c);
-for (size_t s = 0; s < nbStates; ++s)
-{
-// (* likelihoodsFatherConstantPart_i_c)[s] = rc * model->freq(s);
-// freq is already accounted in the array
-(*likelihoodsFatherConstantPart_i_c)[s] = rc;
-}
-}
-}
-
-// First, what will remain constant:
-size_t nbSons =  father->getNumberOfSons();
-for (size_t n = 0; n < nbSons; ++n)
-{
-const Node* currentSon = father->getSon(n);
-if (currentSon->getId() != currentNode->getId())
-{
-const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
-
-// Now iterate over all site partitions:
-unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
-VVVdouble pxy;
-bool first;
-while (mit->hasNext())
-{
-TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-first = true;
-while (sit->hasNext())
-{
-size_t i = sit->next();
-// We retrieve the transition probabilities for this site partition:
-if (first)
-{
-pxy = drtl.getTransitionProbabilitiesPerRateClass(currentSon->getId(), i);
-first = false;
-}
-const VVdouble* likelihoodsFather_son_i = &(*likelihoodsFather_son)[i];
-VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-for (size_t c = 0; c < nbClasses; ++c)
-{
-const Vdouble* likelihoodsFather_son_i_c = &(*likelihoodsFather_son_i)[c];
-Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-VVdouble* pxy_c = &pxy[c];
-for (size_t x = 0; x < nbStates; ++x)
-{
-Vdouble* pxy_c_x = &(*pxy_c)[x];
-double likelihood = 0.;
-for (size_t y = 0; y < nbStates; ++y)
-{
-likelihood += (*pxy_c_x)[y] * (*likelihoodsFather_son_i_c)[y];
-}
-(*likelihoodsFatherConstantPart_i_c)[x] *= likelihood;
-}
-}
-}
-}
-}
-}
-if (father->hasFather())
-{
-const Node* currentSon = father->getFather();
-const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
-// Now iterate over all site partitions:
-unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
-VVVdouble pxy;
-bool first;
-while (mit->hasNext())
-{
-TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-first = true;
-while (sit->hasNext())
-{
-size_t i = sit->next();
-// We retrieve the transition probabilities for this site partition:
-if (first)
-{
-pxy = drtl.getTransitionProbabilitiesPerRateClass(father->getId(), i);
-first = false;
-}
-const VVdouble* likelihoodsFather_son_i = &(*likelihoodsFather_son)[i];
-VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-for (size_t c = 0; c < nbClasses; ++c)
-{
-const Vdouble* likelihoodsFather_son_i_c = &(*likelihoodsFather_son_i)[c];
-Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-VVdouble* pxy_c = &pxy[c];
-for (size_t x = 0; x < nbStates; ++x)
-{
-double likelihood = 0.;
-for (size_t y = 0; y < nbStates; ++y)
-{
-Vdouble* pxy_c_x = &(*pxy_c)[y];
-likelihood += (*pxy_c_x)[x] * (*likelihoodsFather_son_i_c)[y];
-}
-(*likelihoodsFatherConstantPart_i_c)[x] *= likelihood;
-}
-}
-}
-}
-}
-else
-{
-// Account for root frequencies:
-for (size_t i = 0; i < nbDistinctSites; ++i)
-{
-vector<double> freqs = drtl.getRootFrequencies(i);
-VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-for (size_t c = 0; c < nbClasses; ++c)
-{
-Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-for (size_t x = 0; x < nbStates; ++x)
-{
-(*likelihoodsFatherConstantPart_i_c)[x] *= freqs[x];
-}
-}
-}
-}
-
-// Then, we deal with the node of interest.
-// We first average uppon 'y' to save computations, and then uppon 'x'.
-// ('y' is the state at 'node' and 'x' the state at 'father'.)
-
-// Iterate over all site partitions:
-const VVVdouble* likelihoodsFather_node = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId());
-unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
-VVVdouble pxy;
-bool first;
-while (mit->hasNext())
-{
-TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-substitutionCounts.setSubstitutionModel(bmd->getSubstitutionModel());
-// compute all nxy first:
-VVVVdouble nxy(nbClasses);
-for (size_t c = 0; c < nbClasses; ++c)
-{
-double rc = rcRates[c];
-VVVdouble* nxy_c = &nxy[c];
-nxy_c->resize(nbTypes);
-for (size_t t = 0; t < nbTypes; ++t)
-{
-VVdouble* nxy_c_t = &(*nxy_c)[t];
-nxy_c_t->resize(nbStates);
-Matrix<double>* nijt = substitutionCounts.getAllNumbersOfSubstitutions(d * rc, t + 1);
-for (size_t x = 0; x < nbStates; ++x)
-{
-Vdouble* nxy_c_t_x = &(*nxy_c_t)[x];
-nxy_c_t_x->resize(nbStates);
-for (size_t y = 0; y < nbStates; ++y)
-{
-(*nxy_c_t_x)[y] = (*nijt)(x, y);
-}
-}
-delete nijt;
-}
-}
-
-// Now loop over sites:
-unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-first = true;
-while (sit->hasNext())
-{
-size_t i = sit->next();
-// We retrieve the transition probabilities and substitution counts for this site partition:
-if (first)
-{
-pxy = drtl.getTransitionProbabilitiesPerRateClass(currentNode->getId(), i);
-first = false;
-}
-const VVdouble* likelihoodsFather_node_i = &(*likelihoodsFather_node)[i];
-VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-RowMatrix<double> pairProbabilities(nbStates, nbStates);
-MatrixTools::fill(pairProbabilities, 0.);
-VVVdouble subsCounts(nbStates);
-for (size_t j = 0; j < nbStates; ++j)
-{
-subsCounts[j].resize(nbStates);
-for (size_t k = 0; k < nbStates; ++k)
-{
-subsCounts[j][k].resize(nbTypes);
-}
-}
-for (size_t c = 0; c < nbClasses; ++c)
-{
-const Vdouble* likelihoodsFather_node_i_c = &(*likelihoodsFather_node_i)[c];
-Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-const VVdouble* pxy_c = &pxy[c];
-VVVdouble* nxy_c = &nxy[c];
-for (size_t x = 0; x < nbStates; ++x)
-{
-double* likelihoodsFatherConstantPart_i_c_x = &(*likelihoodsFatherConstantPart_i_c)[x];
-const Vdouble* pxy_c_x = &(*pxy_c)[x];
-for (size_t y = 0; y < nbStates; ++y)
-{
-double likelihood_cxy = (*likelihoodsFatherConstantPart_i_c_x)
-* (*pxy_c_x)[y]
-* (*likelihoodsFather_node_i_c)[y];
-pairProbabilities(x, y) += likelihood_cxy; // Sum over all rate classes.
-for (size_t t = 0; t < nbTypes; ++t)
-{
-subsCounts[x][y][t] += likelihood_cxy * (*nxy_c)[t][x][y];
-}
-}
-}
-}
-// Now the vector computation:
-// Here we do not average over all possible pair of ancestral states,
-// We only consider the one with max likelihood:
-vector<size_t> xy = MatrixTools::whichMax(pairProbabilities);
-for (size_t t = 0; t < nbTypes; ++t)
-{
-substitutionsForCurrentNode[i][t] += subsCounts[xy[0]][xy[1]][t] / pairProbabilities(xy[0], xy[1]);
-}
-}
-}
-// Now we just have to copy the substitutions into the result vector:
-for (size_t i = 0; i < nbSites; i++)
-{
-for (size_t t = 0; t < nbTypes; t++)
-{
-(*substitutions)(l, i, t) = substitutionsForCurrentNode[(*rootPatternLinks)[i]][t];
-}
-}
-}
-if (verbose)
-{
-if (ApplicationTools::message)
-*ApplicationTools::message << " ";
-ApplicationTools::displayTaskDone();
-}
-return substitutions;
-}
-*/
-
-/**************************************************************************************************/
-
-/*ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(
-  const DRTreeLikelihood& drtl,
-  SubstitutionCount& substitutionCount,
-  bool verbose) throw (Exception)
-  {
-  // Preamble:
-  if (!drtl.isInitialized())
-  throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(). Likelihood object is not initialized.");
-
-  // A few variables we'll need:
-
-  const TreeTemplate<Node> tree(drtl.getTree());
-  const AlignedValuesContainer*    sequences = drtl.getData();
-  const DiscreteDistribution* rDist = drtl.getRateDistribution();
-  const Alphabet*             alpha = sequences->getAlphabet();
-
-  size_t nbSites         = sequences->getNumberOfSites();
-  size_t nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
-  size_t nbStates        = alpha->getSize();
-  size_t nbTypes         = substitutionCounts.getNumberOfSubstitutionTypes();
-  vector<const Node*> nodes    = tree.getNodes();
-  const vector<size_t>* rootPatternLinks
-  = &drtl.getLikelihoodData()->getRootArrayPositions();
-  nodes.pop_back(); // Remove root node.
-  size_t nbNodes = nodes.size();
-
-  // We create a new ProbabilisticSubstitutionMapping object:
-  ProbabilisticSubstitutionMapping* substitutions = new ProbabilisticSubstitutionMapping(tree, &substitutionCount, nbSites);
-
-  // Compute the whole likelihood of the tree according to the specified model:
-
-  Vdouble rcRates = rDist->getCategories();
-
-  // Compute the number of substitutions for each class and each branch in the tree:
-  if (verbose)
-  ApplicationTools::displayTask("Compute marginal ancestral states");
-  MarginalAncestralStateReconstruction masr(&drtl);
-  map<int, vector<size_t> > ancestors = masr.getAllAncestralStates();
-  if (verbose)
-  ApplicationTools::displayTaskDone();
-
-  // Now we just have to compute the substitution vectors:
-  if (verbose)
-  ApplicationTools::displayTask("Compute substitution vectors", true);
-
-  for (size_t l = 0; l < nbNodes; l++)
-  {
-  const Node* currentNode = nodes[l];
-
-  const Node* father = currentNode->getFather();
-
-  double d = currentNode->getDistanceToFather();
-
-  vector<size_t> nodeStates = ancestors[currentNode->getId()]; // These are not 'true' ancestors ;)
-  vector<size_t> fatherStates = ancestors[father->getId()];
-
-  // For each node,
-  if (verbose)
-  ApplicationTools::displayGauge(l, nbNodes - 1);
-  VVdouble substitutionsForCurrentNode(nbDistinctSites);
-  for (size_t i = 0; i < nbDistinctSites; ++i)
-  {
-  substitutionsForCurrentNode[i].resize(nbTypes);
-  }
-
-  // Here, we have no likelihood computation to do!
-
-  // Then, we deal with the node of interest.
-  // ('y' is the state at 'node' and 'x' the state at 'father'.)
-  // Iterate over all site partitions:
-  unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
-  while (mit->hasNext())
-  {
-  TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-  substitutionCounts.setSubstitutionModel(bmd->getSubstitutionModel());
-  // compute all nxy first:
-  VVVdouble nxyt(nbTypes);
-  for (size_t t = 0; t < nbTypes; ++t)
-  {
-  nxyt[t].resize(nbStates);
-  Matrix<double>* nxy = substitutionCounts.getAllNumbersOfSubstitutions(d, t + 1);
-  for (size_t x = 0; x < nbStates; ++x)
-  {
-  nxyt[t][x].resize(nbStates);
-  for (size_t y = 0; y < nbStates; ++y)
-  {
-  nxyt[t][x][y] = (*nxy)(x, y);
-  }
-  }
-  delete nxy;
-  }
-  // Now loop over sites:
-  unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-  while (sit->hasNext())
-  {
-  size_t i = sit->next();
-  size_t fatherState = fatherStates[i];
-  size_t nodeState   = nodeStates[i];
-  if (fatherState >= nbStates || nodeState >= nbStates)
-  for (size_t t = 0; t < nbTypes; ++t)
-  {
-  substitutionsForCurrentNode[i][t] = 0;
-  }                                                    // To be conservative! Only in case there are generic characters.
-  else
-  for (size_t t = 0; t < nbTypes; ++t)
-  {
-  substitutionsForCurrentNode[i][t] = nxyt[t][fatherState][nodeState];
-  }
-  }
-  }
-
-  // Now we just have to copy the substitutions into the result vector:
-  for (size_t i = 0; i < nbSites; i++)
-  {
-  for (size_t t = 0; t < nbTypes; t++)
-  {
-  (*substitutions)(l, i, t) = substitutionsForCurrentNode[(*rootPatternLinks)[i]][t];
-  }
-  }
-  }
-  if (verbose)
-  {
-  if (ApplicationTools::message)
-  *ApplicationTools::message << " ";
-  ApplicationTools::displayTaskDone();
-  }
-  return substitutions;
-  }
-*/
-/**************************************************************************************************/
-
-/*ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsMarginal(
-  const DRTreeLikelihood& drtl,
-  SubstitutionCount& substitutionCount,
-  bool verbose) throw (Exception)
-  {
-  // Preamble:
-  if (!drtl.isInitialized())
-  throw Exception("SubstitutionMappingTools::computeSubstitutionVectorsMarginal(). Likelihood object is not initialized.");
-
-  // A few variables we'll need:
-
-  const TreeTemplate<Node> tree(drtl.getTree());
-  const AlignedValuesContainer*    sequences = drtl.getData();
-  const DiscreteDistribution* rDist = drtl.getRateDistribution();
-
-  size_t nbSites         = sequences->getNumberOfSites();
-  size_t nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
-  size_t nbStates        = sequences->getAlphabet()->getSize();
-  size_t nbClasses       = rDist->getNumberOfCategories();
-  size_t nbTypes         = substitutionCounts.getNumberOfSubstitutionTypes();
-  vector<const Node*> nodes    = tree.getNodes();
-  const vector<size_t>* rootPatternLinks
-  = &drtl.getLikelihoodData()->getRootArrayPositions();
-  nodes.pop_back(); // Remove root node.
-  size_t nbNodes = nodes.size();
-
-  // We create a new ProbabilisticSubstitutionMapping object:
-  ProbabilisticSubstitutionMapping* substitutions = new ProbabilisticSubstitutionMapping(tree, &substitutionCount, nbSites);
-
-  // Compute the whole likelihood of the tree according to the specified model:
-
-  Vdouble rcProbs = rDist->getProbabilities();
-  Vdouble rcRates = rDist->getCategories();
-
-  // II) Compute the number of substitutions for each class and each branch in the tree:
-  if (verbose)
-  ApplicationTools::displayTask("Compute marginal node-pairs likelihoods", true);
-
-  for (size_t l = 0; l < nbNodes; l++)
-  {
-  const Node* currentNode = nodes[l];
-
-  const Node* father = currentNode->getFather();
-
-  double d = currentNode->getDistanceToFather();
-
-  // For each node,
-  if (verbose)
-  ApplicationTools::displayGauge(l, nbNodes - 1);
-  VVdouble substitutionsForCurrentNode(nbDistinctSites);
-  for (size_t i = 0; i < nbDistinctSites; ++i)
-  {
-  substitutionsForCurrentNode[i].resize(nbTypes);
-  }
-
-  // Then, we deal with the node of interest.
-  // ('y' is the state at 'node' and 'x' the state at 'father'.)
-  VVVdouble probsNode   = DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(drtl, currentNode->getId());
-  VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(drtl, father->getId());
-
-  // Iterate over all site partitions:
-  unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
-  while (mit->hasNext())
-  {
-  TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-  substitutionCounts.setSubstitutionModel(bmd->getSubstitutionModel());
-  // compute all nxy first:
-  VVVVdouble nxy(nbClasses);
-  for (size_t c = 0; c < nbClasses; ++c)
-  {
-  VVVdouble* nxy_c = &nxy[c];
-  double rc = rcRates[c];
-  nxy_c->resize(nbTypes);
-  for (size_t t = 0; t < nbTypes; ++t)
-  {
-  VVdouble* nxy_c_t = &(*nxy_c)[t];
-  Matrix<double>* nijt = substitutionCounts.getAllNumbersOfSubstitutions(d * rc, t + 1);
-  nxy_c_t->resize(nbStates);
-  for (size_t x = 0; x < nbStates; ++x)
-  {
-  Vdouble* nxy_c_t_x = &(*nxy_c_t)[x];
-  nxy_c_t_x->resize(nbStates);
-  for (size_t y = 0; y < nbStates; ++y)
-  {
-  (*nxy_c_t_x)[y] = (*nijt)(x, y);
-  }
-  }
-  delete nijt;
-  }
-  }
-
-  // Now loop over sites:
-  unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-  while (sit->hasNext())
-  {
-  size_t i = sit->next();
-  VVdouble* probsNode_i   = &probsNode[i];
-  VVdouble* probsFather_i = &probsFather[i];
-  for (size_t c = 0; c < nbClasses; ++c)
-  {
-  Vdouble* probsNode_i_c   = &(*probsNode_i)[c];
-  Vdouble* probsFather_i_c = &(*probsFather_i)[c];
-  VVVdouble* nxy_c = &nxy[c];
-  for (size_t x = 0; x < nbStates; ++x)
-  {
-  for (size_t y = 0; y < nbStates; ++y)
-  {
-  double prob_cxy = (*probsFather_i_c)[x] * (*probsNode_i_c)[y];
-  // Now the vector computation:
-  for (size_t t = 0; t < nbTypes; ++t)
-  {
-  substitutionsForCurrentNode[i][t] += prob_cxy * (*nxy_c)[t][x][y];
-  //                                   <------>   <--------------->
-  // Posterior probability                 |                |
-  // for site i and rate class c *         |                |
-  // likelihood for this site--------------+                |
-  //                                                        |
-  // Substitution function for site i and rate class c-------+
-  }
-  }
-  }
-  }
-  }
-  }
-
-  // Now we just have to copy the substitutions into the result vector:
-  for (size_t i = 0; i < nbSites; ++i)
-  {
-  for (size_t t = 0; t < nbTypes; ++t)
-  {
-  (*substitutions)(l, i, t) = substitutionsForCurrentNode[(*rootPatternLinks)[i]][t];
-  }
-  }
-  }
-  if (verbose)
-  {
-  if (ApplicationTools::message)
-  *ApplicationTools::message << " ";
-  ApplicationTools::displayTaskDone();
-  }
-  return substitutions;
-  }
-*/

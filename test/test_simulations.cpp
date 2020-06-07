@@ -74,7 +74,7 @@ int main() {
   vector<double> thetas;
   for (unsigned int i = 0; i < process->getNumberOfModels(); ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
-    cout << "Theta" << i << " set to " << theta << endl; 
+    cout << "Theta" << i+1 << " set to " << theta << endl; 
     process->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas.push_back(theta);
   }
@@ -108,10 +108,12 @@ int main() {
       llh, llh.getParameters(), 0,
       0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
+  process->matchParametersValues(llh.getParameters());
+
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
-    cout << thetas[i] << "\t" << process->getModel(i)->getParameter("theta").getValue() << endl;
-    double diff = abs(thetas[i] - process->getModel(i)->getParameter("theta").getValue());
+    cout << thetas[i] << "\t" << process->getModel(i+1)->getParameter("theta").getValue() << endl;
+    double diff = abs(thetas[i] - process->getModel(i+1)->getParameter("theta").getValue());
     if (diff > 0.1)
       return 1;
   }
@@ -124,7 +126,7 @@ int main() {
   VectorSiteContainer sites2(seqNames, alphabet);
   for (unsigned int i = 0; i < n; ++i) {
     auto result = simulator.dSimulateSite();
-    unique_ptr<Site> site(result->getSite(dynamic_cast<const TransitionModel&>(*simulator.getSubstitutionProcess()->getModel(0))));
+    unique_ptr<Site> site(result->getSite(dynamic_cast<const TransitionModel&>(*simulator.getSubstitutionProcess()->getModel(1))));
     site->setPosition(static_cast<int>(i));
     sites2.addSite(*site, false);
     delete result;
@@ -139,10 +141,12 @@ int main() {
     llh2, llh2.getParameters(), 0,
     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
+  process2->matchParametersValues(llh2.getParameters());
+  
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
-    cout << thetas[i] << "\t" << process2->getModel(i)->getParameter("theta").getValue() << endl;
-    double diff = abs(thetas[i] - process2->getModel(i)->getParameter("theta").getValue());
+    cout << thetas[i] << "\t" << process2->getModel(i+1)->getParameter("theta").getValue() << endl;
+    double diff = abs(thetas[i] - process2->getModel(i+1)->getParameter("theta").getValue());
     if (diff > 0.1)
     {
       cout << "difference too large" << endl;

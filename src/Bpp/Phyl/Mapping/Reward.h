@@ -136,6 +136,15 @@ namespace bpp
     virtual Matrix<double>* getAllRewards(double length) const = 0;
 
     /**
+     * @brief Store the rewards on a branch, for each initial and final
+     * states, and given the branch length.
+     *
+     * @param length       The length of the branch.
+     * @param mat A matrix to store  all rewards for each initial and final states.
+     */
+    virtual void storeAllRewards(double length, Eigen::MatrixXd& mat) const = 0;
+
+    /**
      * @brief Set the substitution model associated with this reward, if relevant.
      *
      * @param model The substitution model to use with this reward.

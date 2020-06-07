@@ -72,7 +72,7 @@ namespace bpp
       AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getStateMap())),
       model_        (model),
       cutOff_       (cutOff),
-      currentLength_(-1),
+      currentLength_(0),
       m_            (model->getNumberOfStates(), model->getNumberOfStates())
     {}
 	
@@ -100,7 +100,10 @@ namespace bpp
 	
   public:
     double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const;
+
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
+    void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const;
+
     std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(0);

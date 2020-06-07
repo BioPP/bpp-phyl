@@ -114,7 +114,7 @@ namespace bpp
     {
       setNumberOfSubstitutionTypes(nbTypes);
       
-      std::unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
+      std::unique_ptr<EdgeIterator> nIT=allEdgesIterator();
       for (;!nIT->end(); nIT->next())
         (**nIT)->setNumberOfSitesAndTypes(numberOfDistinctSites_, nbTypes);
     }
@@ -128,7 +128,7 @@ namespace bpp
       AbstractMapping(rootpatterns.size()), AbstractSubstitutionMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
     {
       setNumberOfSubstitutionTypes(nbTypes);
-      std::unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
+      std::unique_ptr<EdgeIterator> nIT=allEdgesIterator();
       for (;!nIT->end(); nIT->next())
         (**nIT)->setNumberOfSitesAndTypes(numberOfDistinctSites_, nbTypes);
     }

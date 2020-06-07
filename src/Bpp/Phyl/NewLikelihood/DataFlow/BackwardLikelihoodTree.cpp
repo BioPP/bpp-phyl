@@ -57,11 +57,11 @@ BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge 
     ? getNode(fatherIndex)
     : makeBackwardLikelihoodAtNode(fatherIndex);
 
-  auto fatherProcess = forwardTree_->getProcessTree()->getNode(fatherIndex);
+  auto fatherNode = forwardTree_->getProcessTree()->getNode(fatherIndex);
 
   BackwardLikelihoodAboveRef backwardEdge;
   
-  if (fatherProcess->isSpeciation())
+  if (fatherNode->isSpeciation())
   {
     // get forward likelihoods of brothers
     auto edgeIds = forwardTree_->getOutgoingEdges(fatherIndex);
@@ -76,12 +76,12 @@ BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge 
     
     backwardEdge = SpeciationBackward::create (context_, std::move (deps), likelihoodMatrixDim_);  
   }
-  else if (fatherProcess->isMixture()) // Transmit array with no modification
+  else if (fatherNode->isMixture()) // Transmit array with no modification
   {
     backwardEdge = backNode;
   }
   else
-    throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge : event not recognized for node " + TextTools::toString(fatherProcess->getSpeciesIndex()));
+    throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge : event not recognized for node " + TextTools::toString(fatherNode->getSpeciesIndex()));
 
   // put object in the tree
   if (!hasEdge(backwardEdge))
@@ -89,6 +89,7 @@ BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge 
     associateEdge(backwardEdge, forwardTree_->getEdgeGraphid(edgeForward));
     setEdgeIndex(backwardEdge, edgeIndex);
   }
+
   return backwardEdge;
 }
 
@@ -130,7 +131,9 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeBackwardLikelihoodAtNode (P
     if (brlen) // Branch with transition through a model
     {      
       // useless, the transitionMatrix already exists, but is not
-      // available directly through a tree
+      // available directly through a tree. This new object will be
+      // deleted since it already exists in the context
+      //
       // ToDo : find another way to get it
 
       auto zero=NumericConstant<size_t>::create(context_, 0);

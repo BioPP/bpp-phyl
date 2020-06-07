@@ -137,6 +137,8 @@ namespace bpp {
 
   using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
 
+  using DAGindexes = std::vector<uint>;
+
   class LikelihoodCalculationSingleProcess :
     public AlignedLikelihoodCalculation
   {
@@ -173,7 +175,12 @@ namespace bpp {
 
     };
 
-
+    /*
+     * @brief DF Nodes used in the process. ProcessTree is used
+     * without any rate multiplier.
+     *
+     */
+    
     class ProcessNodes {
     public:
       std::shared_ptr<ProcessTree> treeNode_;
@@ -304,6 +311,28 @@ namespace bpp {
         
       makeLikelihoodsAtRoot_();
     }
+
+
+    /*
+     * @brief Get indexes of the nodes in the Likelihood DAG that have
+     * a given species index.
+     *
+     * @param speciesId  Looked species Index
+     *
+     */
+    
+    const DAGindexes& getNodesIds(uint speciesId) const;
+
+    /*
+     * @brief Get indexes of the non-empty edges in the Likelihood DAG
+     * that have a given species index for a given rate class index.
+     *
+     * @param speciesId  Looked species Index
+     * @param nCat  Rate class category
+     *
+     */
+    
+    const DAGindexes& getEdgesIds(uint speciesId, size_t nCat) const;
 
     /*
      * @brief Return the loglikehood computation at a given node.
@@ -440,14 +469,19 @@ namespace bpp {
       return rFreqs_;
     }
 
-    /*
-     *@brief Get a tree of site likelihoods, on shrunk data.
-     * 
-     *@param nCat rate category
+    /********************************************************
+     * @Likelihoods
      *
-     *@param shrunk : if returns on shrunked data (default: false)
+     *****************************************************/
+
+    /*
+     * @brief Get Matrix of Conditional Likelihoods at Node *
+     *
+     * @param nodeId  Id of the node in PhyloTree, ie species Tree
+     * @param shrunk if matrix is on shrunked data (default: false)
+     *
      */
-      
+    
     ConditionalLikelihoodRef getLikelihoodsAtNode(uint nodeId, bool shrunk = false)
     {
       if (!(condLikelihoodTree_ && condLikelihoodTree_->hasNode(nodeId)))
@@ -458,18 +492,42 @@ namespace bpp {
       return shrunk?vv:expandMatrix(vv);
     }
 
-    const ConditionalLikelihoodTree& getLikelihoodsTree()
-    {
-        makeLikelihoodsTree();
-        return *condLikelihoodTree_;
-    }
+    /*
+     * @brief Get forward shrunked likelihood matrix at Node (ie just
+     * above the node), for a given rate class.
+     *
+     * @param nodeId Node Index in the forward tree (! ie in the
+     * computation tree, not the species tree).
+     *
+     * @param nCat  Rate class category
+     *
+     */
     
+    ConditionalLikelihoodRef getForwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
+
+    /*
+     * @brief Get backward shrunked likelihood matrix at Edge (ie at
+     * the top of the edge), for a given rate class.
+     *
+     * @param edgeId Node Index in the backward tree (! ie in the
+     * computation tree, not the species tree).
+     *
+     * @param nCat  Rate class category
+     *
+     */
+    
+    ConditionalLikelihoodRef getBackwardLikelihoodsAtEdgeForClass(uint edgeId, size_t nCat);
+
+    /*
+     * @brief backward likelihood tree (only computed when needed)
+     *
+     */
+        
     void makeLikelihoodsTree()
     {
       auto allIndex = process_.getParametrizablePhyloTree().getAllNodesIndexes();
       
       for (auto id: allIndex)
-//        if (!(condLikelihoodTree_ && condLikelihoodTree_->hasNode(nodeId)))
          makeLikelihoodsAtNode_(id);
     }
 
@@ -493,7 +551,23 @@ namespace bpp {
      */
 
     AllRatesSiteLikelihoods getSiteLikelihoodsForAllClasses(bool shrunk = false);
+
+    
+    /*
+     *@brief Get process tree for a rate category
+     *
+     *@param nCat : index of the rate category
+     *
+     */
+    
+    std::shared_ptr<ProcessTree> getTreeNode(size_t nCat)
+    {
+      if (nCat >= vRateCatTrees_.size())
+        throw Exception("LikelihoodCalculationSingleProcess::getTreeNode : bad class number " + TextTools::toString(nCat));
       
+      return vRateCatTrees_[nCat].phyloTree;
+    }
+
   private:
     void setPatterns_();
       
@@ -530,11 +604,6 @@ namespace bpp {
       
     void makeLikelihoodsAtNode_(uint nodeId);
       
-    std::shared_ptr<ProcessTree> getTreeNode_()
-    {
-      return processNodes_.treeNode_;
-    }
-
     std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);
 
   };

@@ -117,6 +117,26 @@ Matrix<double>* DecompositionReward::getAllRewards(double length) const
 
 /******************************************************************************/
 
+void DecompositionReward::storeAllRewards(double length, Eigen::MatrixXd& mat) const
+{
+  if (length < 0)
+    throw Exception("DecompositionReward::storeAllRewards. Negative branch length: " + TextTools::toString(length) + ".");
+  
+  if (length != currentLength_)
+  {
+    computeRewards_(length);
+    currentLength_ = length;
+  }
+
+  mat.resize(nbStates_, nbStates_);
+
+  for (size_t j = 0; j < nbStates_; j++) 
+    for (size_t k = 0; k < nbStates_; k++) 
+      mat(j, k) = rewards_(j, k);
+}
+
+/******************************************************************************/
+
 double DecompositionReward::getReward(size_t initialState, size_t finalState, double length) const
 {
   if (length < 0)
