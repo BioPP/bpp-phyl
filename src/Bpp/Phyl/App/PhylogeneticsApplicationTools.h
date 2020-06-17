@@ -163,7 +163,7 @@ public:
     bool verbose = true,
     int warn = 1);
 
-  
+
   static TransitionModel* getTransitionModel(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
@@ -576,7 +576,7 @@ public:
    * @return A SubstitutionRegister object.
    */
   static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const SubstitutionModel* model, bool verbose = true);
-  
+
 
   /**
    * @brief Write a tree according to options.
@@ -673,4 +673,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif  // _PHYLOGENETICSAPPLICATIONTOOLS_H_
+#endif// _PHYLOGENETICSAPPLICATIONTOOLS_H_

@@ -207,11 +207,11 @@ void JointLikelihoodFunction::updateStatesInNodesNames(Tree* mapping)
 {
     string label = "state";
     vector<Node*> nodes = (dynamic_cast<TreeTemplate<Node>*>(mapping))->getNodes(); 
-    for (int i=0; i < static_cast<int>(nodes.size()); i++) 
+    for (auto node: nodes) 
     {
-        string name = nodes[i]->getName();
-        int state = stocMapping_->getNodeState(nodes[i]);
-        nodes[i]->setName(name + "{" + TextTools::toString(state) + "}");
+        string name = node->getName();
+        int state = stocMapping_->getNodeState(node);
+        node->setName(name + "{" + TextTools::toString(state) + "}");
     }
 }
 
@@ -499,7 +499,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
             }
         }
         
-        vector<size_t> startingPointsByCycle = ApplicationTools::getVectorParameter<size_t>("optimization.starting_points_by_cycle", bppml_->getParams(), ',', "10,3,1", "", "");
+        vector<size_t> startingPointsByCycle = ApplicationTools::getVectorParameter<size_t>("optimization.starting_points_by_cycle", bppml_->getParams(), ',', "10,3,1", "", true);
         size_t numberOfCycles = startingPointsByCycle.size();
 
 		/* step 1: fist cycle of optimizaton: only compute the likelihood over multiple starting points with respect to k */

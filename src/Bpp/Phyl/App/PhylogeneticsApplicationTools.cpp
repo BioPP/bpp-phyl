@@ -327,7 +327,9 @@ FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
     freq->setNamespace("root." + freq->getNamespace());
 
     for (const auto& it:unparams)
+    {
       sharedparams["root." + it.first] = it.second;
+    }
 
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
@@ -527,7 +529,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     unparsedParameters.insert(sharedParameters.begin(), sharedParameters.end());
 
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', "", suffix, suffixIsOptional, warn);
-    
+
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
@@ -575,10 +577,10 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
     ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
 
   vector<string> vdesc;
-  size_t numi=0;
-  while (numi<numd)
+  size_t numi = 0;
+  while (numi < numd)
   {
-    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numi+1), params, "",  suffix, suffixIsOptional, warn);
+    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numi + 1), params, "",  suffix, suffixIsOptional, warn);
     if (desc.size() == 0)
       break;
     else
@@ -610,31 +612,32 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       if (!pSM)
         throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
 
-      string lp2 = submodel.substr(indexo + 1, indexf - indexo - 1);      
+      string lp2 = submodel.substr(indexo + 1, indexf - indexo - 1);
       StringTokenizer stp2(lp2, ",");
       while (stp2.hasMoreToken())
       {
-        string p2=stp2.nextToken();
-        
-        try  {
-          int n2=TextTools::toInt(p2);
-          if (n2<=0 || n2>(int)(pSM->getNumberOfModels()))
+        string p2 = stp2.nextToken();
+
+        try
+        {
+          int n2 = TextTools::toInt(p2);
+          if (n2 <= 0 || n2 > (int)(pSM->getNumberOfModels()))
             throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(n2));
-          submodelNb.push_back(n2-1);
+          submodelNb.push_back(n2 - 1);
         }
         catch (Exception& e)
         {
           Vint submodnb = pSM->getSubmodelNumbers(p2);
-          if (submodelNb.size()==0)
-            submodelNb=submodnb;
+          if (submodelNb.size() == 0)
+            submodelNb = submodnb;
           else
-            submodelNb=VectorTools::vectorIntersection(submodelNb,submodnb);
+            submodelNb = VectorTools::vectorIntersection(submodelNb, submodnb);
         }
       }
-      
+
       mixedModelSet.addToHyperNode(num - 1, submodelNb);
     }
-    
+
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
       throw Exception("A path should own at least a submodel of each mixed model: " + desc);
 
@@ -997,14 +1000,14 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
           }
           string pname  = stp.nextToken();
           string pvalue = stp.nextToken();
-          try {
+          try
+          {
             size_t p = pl.whichParameterHasName(pname);
             pl.setParameter(p, AutoParameter(pl[p]));
             pl[p].setValue(TextTools::toDouble(pvalue));
           }
-          catch(Exception& e)
-          {
-          }
+          catch (Exception& e)
+          {}
         }
       }
       bck.close();
@@ -1169,8 +1172,8 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    string bf=backupFile+".def";
-    rename(backupFile.c_str(),bf.c_str());
+    string bf = backupFile + ".def";
+    rename(backupFile.c_str(), bf.c_str());
   }
   return tl;
 }
@@ -1393,8 +1396,8 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    string bf=backupFile+".def";
-    rename(backupFile.c_str(),bf.c_str());
+    string bf = backupFile + ".def";
+    rename(backupFile.c_str(), bf.c_str());
   }
 }
 
@@ -1430,7 +1433,7 @@ void PhylogeneticsApplicationTools::writeTree(
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, false, false, suffix, suffixIsOptional, "none", warn);
- 
+
   BppOTreeWriterFormat bppoWriter(warn);
   unique_ptr<OTree> oTree(bppoWriter.readOTree(format));
   if (verbose)
@@ -1439,7 +1442,7 @@ void PhylogeneticsApplicationTools::writeTree(
     ApplicationTools::displayResult("Output tree format " + suffix, oTree->getFormatName());
   }
   if (!checkOnly && file != "none")
-    oTree->writeTree(tree, file, true);  
+    oTree->writeTree(tree, file, true);
 }
 
 /******************************************************************************/
@@ -1466,7 +1469,6 @@ void PhylogeneticsApplicationTools::writeTrees(
   }
   if (!checkOnly && file != "none")
     oTrees->writeTrees(trees, file, true);
-  
 }
 
 /******************************************************************************/
@@ -1490,7 +1492,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
   if (modelSet->isStationary())
     (out << "nonhomogeneous.stationarity = yes");
-    
+
   // Get the parameter links:
   map< size_t, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
   map< string, set<size_t> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
@@ -1537,13 +1539,12 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
   if (!modelSet->isStationary())
   {
-    
     const FrequencySet* pFS = modelSet->getRootFrequencySet();
 
     ParameterList plf = pFS->getParameters();
 
     map<string, string> aliases;
-    
+
     if (withAlias)
     {
       for (size_t np = 0; np < plf.size(); np++)
@@ -1553,16 +1554,15 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
           aliases[plf[np].getName()] = nfrom;
       }
     }
-    
+
     // Root frequencies:
     out.endLine();
     (out << "# Root frequencies:").endLine();
     out << "nonhomogeneous.root_freq=";
-    
+
     BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
     bIO.writeFrequencySet(pFS, out, aliases, writtenNames);
   }
-  
 }
 
 /******************************************************************************/
@@ -1582,7 +1582,6 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
 /************************
 * Substitution Mapping *
 ************************/
-
 SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   const Alphabet* alphabet,
   const SubstitutionModel* model,
@@ -1651,26 +1650,26 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   string regType = "";
   map<string, string> regArgs;
   KeyvalTools::parseProcedure(regTypeDesc, regType, regArgs);
-  
+
   SubstitutionRegister* reg = 0;
 
-  if (regType=="Combination")
+  if (regType == "Combination")
   {
-    VectorOfSubstitionRegisters* vreg= new VectorOfSubstitionRegisters(model);
+    VectorOfSubstitionRegisters* vreg = new VectorOfSubstitionRegisters(model);
 
     size_t i = 0;
     while (++i)
     {
       string regDesc = ApplicationTools::getStringParameter("reg" + TextTools::toString(i), regArgs, "", "", false, 1);
-      if (regDesc=="")
+      if (regDesc == "")
         break;
-      
-      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, model);
+
+      SubstitutionRegister* sreg = getSubstitutionRegister(regDesc, model);
 
       vreg->addRegister(sreg);
     }
-    
-    reg=vreg;
+
+    reg = vreg;
   }
   else if (regType == "All")
   {
@@ -1679,32 +1678,33 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   else if (regType == "Total")
   {
     reg = new TotalSubstitutionRegister(model);
-  }    
-  else if (regType == "Selected"){  
+  }
+  else if (regType == "Selected")
+  {
     string subsList = ApplicationTools::getStringParameter("substitution.list", regArgs, "All", "", true, false);
-    reg = new SelectedSubstitutionRegister(model, subsList);  
+    reg = new SelectedSubstitutionRegister(model, subsList);
   }
 
-  
+
   // Alphabet dependent registers
 
-  
+
   else if (AlphabetTools::isNucleicAlphabet(model->getAlphabet()))
   {
-    const NucleotideSubstitutionModel* nmodel=dynamic_cast<const NucleotideSubstitutionModel*>(model);
+    const NucleotideSubstitutionModel* nmodel = dynamic_cast<const NucleotideSubstitutionModel*>(model);
     if (!nmodel)
     {
-      const WrappedSubstitutionModel* wmodel=dynamic_cast<const WrappedSubstitutionModel*>(model);
+      const WrappedSubstitutionModel* wmodel = dynamic_cast<const WrappedSubstitutionModel*>(model);
       if (wmodel)
       {
-        nmodel=dynamic_cast<const NucleotideSubstitutionModel*>(&wmodel->getSubstitutionModel());
+        nmodel = dynamic_cast<const NucleotideSubstitutionModel*>(&wmodel->getSubstitutionModel());
       }
     }
 
     if (!nmodel)
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister : model and alphabet do not fit " + model->getAlphabet()->getAlphabetType() + " vs " + model->getName());
 
-    
+
     if (regType == "GC")
       reg = new GCSubstitutionRegister(nmodel, false);
     else if (regType == "TsTv")
@@ -1714,22 +1714,22 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else
       throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + model->getAlphabet()->getAlphabetType());
   }
-  
+
   else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
   {
-    const CodonSubstitutionModel* cmodel=dynamic_cast<const CodonSubstitutionModel*>(model);
+    const CodonSubstitutionModel* cmodel = dynamic_cast<const CodonSubstitutionModel*>(model);
     if (!cmodel)
     {
-      const WrappedSubstitutionModel* wmodel=dynamic_cast<const WrappedSubstitutionModel*>(model);
+      const WrappedSubstitutionModel* wmodel = dynamic_cast<const WrappedSubstitutionModel*>(model);
       if (wmodel)
       {
-        cmodel=dynamic_cast<const CodonSubstitutionModel*>(&wmodel->getSubstitutionModel());
+        cmodel = dynamic_cast<const CodonSubstitutionModel*>(&wmodel->getSubstitutionModel());
       }
     }
 
     if (!cmodel)
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister : model and alphabet do not fit " + model->getAlphabet()->getAlphabetType() + " vs " + model->getName());
-  
+
     if (regType == "IntraAA")
       reg = new AAInteriorSubstitutionRegister(cmodel);
     else if (regType == "InterAA")
@@ -1747,29 +1747,29 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else
       throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + model->getAlphabet()->getAlphabetType());
   }
-  
+
   else if (AlphabetTools::isProteicAlphabet(model->getAlphabet()))
   {
-    const ProteinSubstitutionModel* pmodel=dynamic_cast<const ProteinSubstitutionModel*>(model);
+    const ProteinSubstitutionModel* pmodel = dynamic_cast<const ProteinSubstitutionModel*>(model);
     if (!pmodel)
     {
-      const WrappedSubstitutionModel* wmodel=dynamic_cast<const WrappedSubstitutionModel*>(model);
+      const WrappedSubstitutionModel* wmodel = dynamic_cast<const WrappedSubstitutionModel*>(model);
       if (wmodel)
       {
-        pmodel=dynamic_cast<const ProteinSubstitutionModel*>(&wmodel->getSubstitutionModel());
+        pmodel = dynamic_cast<const ProteinSubstitutionModel*>(&wmodel->getSubstitutionModel());
       }
     }
 
     if (!pmodel)
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister : model and alphabet do not fit " + model->getAlphabet()->getAlphabetType() + " vs " + model->getName());
-  
+
     if (regType == "KrKc")
       reg = new KrKcSubstitutionRegister(pmodel);
     else
       throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + model->getAlphabet()->getAlphabetType());
   }
-  
-  CategorySubstitutionRegister* csr=dynamic_cast<CategorySubstitutionRegister*>(reg);
+
+  CategorySubstitutionRegister* csr = dynamic_cast<CategorySubstitutionRegister*>(reg);
   if (csr)
     csr->setStationarity(ApplicationTools::getBooleanParameter("stationarity", regArgs, true));
 
@@ -1778,4 +1778,3 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
 
   return reg;
 }
-
