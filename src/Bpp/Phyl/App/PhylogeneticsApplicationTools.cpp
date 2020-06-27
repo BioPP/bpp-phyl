@@ -2428,7 +2428,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
       }
     }
     else
-      throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Process number.");
+      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Process number.", (int)nProcess);
 
     mPhylo->addPhyloLikelihood(phylonum, nPL);
     usedPhylo.push_back(phylonum);

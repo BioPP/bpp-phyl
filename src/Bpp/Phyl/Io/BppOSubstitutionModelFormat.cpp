@@ -1563,11 +1563,6 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
     
       BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
       bIOFreq.write(pfs, out, globalAliases, writtenNames);
-
-      for (auto& n:writtenNames)
-        cerr << n << ":";
-      cerr << endl;
-      
       comma = true;
     }
   }
