@@ -44,6 +44,7 @@
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/DataTable.h>
+#include "../NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
 
 using namespace bpp;
 
@@ -74,7 +75,10 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
 
   auto processTree = rltc.getTreeNode(0);
 
-  std::map<shared_ptr<ConfiguredModel> , std::shared_ptr<Reward> > mModReward;
+  /* First, set substitution rewards */
+
+  std::map<const SubstitutionModel* , std::shared_ptr<Reward> > mModReward;
+  
   for (auto speciesId :edgeIds)
   {
     const auto& dagIndexes = rltc.getEdgesIds(speciesId, 0);
@@ -86,14 +90,37 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       {
         auto model = edge->getModel();
 
-        auto sm = dynamic_cast<const SubstitutionModel*>(model->getTargetValue());
+        auto nMod = edge->getNMod();
         
-        if (sm == NULL)
-          throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId));
-        if (mModReward.find(model)==mModReward.end())
+        auto tm = dynamic_cast<const TransitionModel*>(model->getTargetValue());
+
+        const SubstitutionModel* sm(0);
+        
+        if (nMod==0)
         {
-          mModReward[model] = std::shared_ptr<Reward>(reward.clone());
-          mModReward[model]->setSubstitutionModel(sm);
+          sm = dynamic_cast<const SubstitutionModel*>(tm);
+          
+          if (sm == NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
+        }
+        else
+        {
+          size_t nmod = nMod->getTargetValue();
+
+          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
+          if (ttm == NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : Expecting Mixed model in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
+
+          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+          
+          if (sm==NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : Expecting Substitution model for submodel " + TextTools::toString(nmod) + " of mixed model " + tm->getName() + " in branch " + TextTools::toString(speciesId));
+        }
+
+        if (mModReward.find(sm)==mModReward.end())
+        {
+          mModReward[sm] = std::shared_ptr<Reward>(reward.clone());
+          mModReward[sm]->setSubstitutionModel(sm);
         }
       }
     }
@@ -112,11 +139,11 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   // We create a new ProbabilisticRewardMapping object:
   unique_ptr<ProbabilisticRewardMapping> rewards(new ProbabilisticRewardMapping(ppt, rootPatternLinks, nbDistinctSites));
   
-  // Store likelihood for each compressed site:
-
-  auto Lr = rltc.getSiteLikelihoods(true)->getTargetValue();
-
   // Compute the reward for each class and each branch in the tree:
+
+  // Get the DAG of probabilities of the edges
+  ProbabilityDAG probaDAG(rltc.getForwardLikelihoodTree(0));
+
   if (verbose)
     ApplicationTools::displayTask("Compute rewards", true);
 
@@ -157,28 +184,52 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       {
         auto edge = processTree->getEdge(id);
 
-        auto subReward = mModReward[edge->getModel()];
+        auto tm = dynamic_cast<const TransitionModel*>(edge->getModel()->getTargetValue());
 
-        const auto& likelihoodsFather = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->getTargetValue();
+        auto nMod = edge->getNMod();
+        
+        const SubstitutionModel* sm(0);
+        
+        if (nMod==0)
+          sm = dynamic_cast<const SubstitutionModel*>(tm);
+        else
+        {
+          size_t nmod = nMod->getTargetValue();
 
-        auto sonid = processTree->getSon(id);
+          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
+          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+        }
+
+        auto subReward = mModReward[sm];
+
+        const auto& likelihoodsTopEdge = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->getTargetValue();
+
+        auto sonid = rltc.getForwardLikelihoodTree(ncl)->getSon(id);
+        auto fatid = rltc.getForwardLikelihoodTree(ncl)->getFatherOfEdge(id);
           
-        const auto& likelihoodsSon = rltc.getForwardLikelihoodsAtNodeForClass(sonid, ncl)->getTargetValue();
+        const auto& likelihoodsBotEdge = rltc.getForwardLikelihoodsAtNodeForClass(sonid, ncl)->getTargetValue();
         
         // compute all nxy * pxy first:
 
         const Eigen::MatrixXd& pxy = edge->getTransitionMatrix()->accessValueConst();
+        const auto& likelihoodsFather = rltc.getLikelihoodsAtNodeForClass(fatid, ncl)->getTargetValue();
+        
+
         subReward->storeAllRewards(edge->getBrLen()->getValue(), rpxy);
       
         rpxy.array() *= pxy.array();
 
         // Now loop over sites:
 
-        auto rew = rpxy * likelihoodsSon;
+        auto rew = rpxy * likelihoodsBotEdge;
       
-        auto bb = (likelihoodsFather.cwiseProduct(rew)).colwise().sum();
+        auto bb = (likelihoodsTopEdge.cwiseProduct(rew)).colwise().sum();
 
-        rewardsForCurrentClass += bb;
+        // Normalizes by likelihood on this node
+        Eigen::RowVectorXd cc = bb.array() / likelihoodsFather.array();
+
+        // adds, with branch ponderation  ( * edge / edge * father) probs
+        rewardsForCurrentClass += cc * probaDAG.getProbaAtNode(fatid);
       }
 
       rewardsForCurrentNode += rewardsForCurrentClass * pr;
@@ -186,7 +237,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     
     // Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbDistinctSites; ++i)
-      (*br)(i) = rewardsForCurrentNode(i) / Lr(i);
+      (*br)(i) = rewardsForCurrentNode(i);
 
   }
   if (verbose)

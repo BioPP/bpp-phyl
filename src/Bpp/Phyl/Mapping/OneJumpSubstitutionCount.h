@@ -67,15 +67,19 @@ namespace bpp
     OneJumpSubstitutionCount(const SubstitutionModel* model) :
       AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getStateMap())),
       model_(model), tmp_() {}
-    
+
+    OneJumpSubstitutionCount(const StateMap& statemap) :
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(statemap)),
+      model_(0), tmp_() {}
+
     OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
       AbstractSubstitutionCount(ojsc),
       model_(ojsc.model_), tmp_(ojsc.tmp_) {}
         
     OneJumpSubstitutionCount& operator=(const OneJumpSubstitutionCount& ojsc)
     {
-      AbstractSubstitutionCount::operator=(ojsc),
-        model_    = ojsc.model_;
+      AbstractSubstitutionCount::operator=(ojsc);
+      model_    = ojsc.model_;
       tmp_      = ojsc.tmp_;
       return *this;
     }
@@ -87,6 +91,9 @@ namespace bpp
   public:
     double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
     {
+      if (!model_)
+        throw Exception("OneJumpSubstitutionCount::getNumberOfSubstitutions: model not defined.");
+
       if (finalState != initialState) return 1.;
       else return 1. - model_->Pij_t(initialState, finalState, length);
     }

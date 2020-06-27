@@ -43,7 +43,7 @@
 #include "../../NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
 #include "../ProbabilisticSubstitutionMapping.h"
 #include "../SubstitutionMappingTools.h"
-#include "../SubstitutionMappingToolsForASite.h"
+//#include "../SubstitutionMappingToolsForASite.h"
 
 #include "AbstractSinglePhyloSubstitutionMapping.h"
 
@@ -72,12 +72,7 @@ namespace bpp
     void setBranchedModelSet_();
     
   public:
-    SingleProcessSubstitutionMapping(SingleProcessPhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1, bool verbose = true) :
-      AbstractSinglePhyloSubstitutionMapping(spp.getTree().getGraph(), reg, weights, distances),
-      pSPP_(&spp)
-    {
-      setBranchedModelSet_();
-    }
+    SingleProcessSubstitutionMapping(SingleProcessPhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1, bool verbose = true);
 
     SingleProcessSubstitutionMapping(const SingleProcessSubstitutionMapping& sppm) :
       AbstractSinglePhyloSubstitutionMapping(sppm),
@@ -111,24 +106,24 @@ namespace bpp
                                                             verbose));
     }
     
-    void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
-    {
-      counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
-                      site,
-                      getLikelihoodCalculationSingleProcess(),
-                      getRegister(),
-                      getWeights(),
-                      getDistances(),
-                      threshold,
-                      verbose));
-    }
+    // void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
+    // {
+    //   counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
+    //                   site,
+    //                   getLikelihoodCalculationSingleProcess(),
+    //                   getRegister(),
+    //                   getWeights(),
+    //                   getDistances(),
+    //                   threshold,
+    //                   verbose));
+    // }
 
     void computeNormalizations(const ParameterList& nullParams,
                                bool verbose = true);
 
-    void computeNormalizationsForASite(size_t site,
-                                       const ParameterList& nullParams,
-                                       bool verbose = true);
+    // void computeNormalizationsForASite(size_t site,
+    //                                    const ParameterList& nullParams,
+    //                                    bool verbose = true);
 
     /*
      * @brief Return the tree of counts

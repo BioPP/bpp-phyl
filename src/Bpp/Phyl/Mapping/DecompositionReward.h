@@ -72,7 +72,9 @@ namespace bpp
 	
   public:
     DecompositionReward(const SubstitutionModel* model, AlphabetIndex1* alphIndex);
-		
+
+    DecompositionReward(const StateMap& statemap, AlphabetIndex1* alphIndex);
+
     DecompositionReward(const DecompositionReward& dr) :
       AbstractReward(dr),
       DecompositionMethods(dr),

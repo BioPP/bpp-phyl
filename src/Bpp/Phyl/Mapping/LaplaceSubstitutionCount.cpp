@@ -94,6 +94,9 @@ void LaplaceSubstitutionCount::computeCounts(double length) const
 
 double LaplaceSubstitutionCount::getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type) const
 {
+  if (!model_)
+    throw Exception("LaplaceSubstitutionCount::getNumberOfSubstitutions: model not defined.");
+
   if (length == currentLength_)
     return m_(initialState, finalState);
   if (length < 0.000001)
@@ -109,6 +112,9 @@ double LaplaceSubstitutionCount::getNumberOfSubstitutions(size_t initialState, s
 
 Matrix<double>* LaplaceSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
+  if (!model_)
+    throw Exception("LaplaceSubstitutionCount::getAllNumbersOfSubstitutions: model not defined.");
+
   if (length == currentLength_)
     return new RowMatrix<double>(m_);
   if (length < 0.000001) // Limit case!
@@ -137,6 +143,9 @@ Matrix<double>* LaplaceSubstitutionCount::getAllNumbersOfSubstitutions(double le
 
 void LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
 {
+  if (!model_)
+    throw Exception("LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions: model not defined.");
+
   size_t s = model_->getAlphabet()->getSize();
   if (length == currentLength_)
     mat = Eigen::MatrixXd::Zero(s, s);
@@ -173,6 +182,9 @@ void LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions(double length, siz
 void LaplaceSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
 {
   model_ = model;
+  if (!model)
+    return;
+  
   size_t n = model->getAlphabet()->getSize();
   m_.resize(n, n);
   // Recompute counts:

@@ -70,7 +70,7 @@ namespace bpp
      * @brief Compute the reward vectors for a particular dataset
      * using the double-recursive likelihood computation.
      *
-     * @param drtl              A DRTreeLikelihood object.
+     * @param rtlc              A LikelihoodCalculationSingleProcess object.
      * @param edgeIds           The Ids of the nodes the reward vectors
      *                          are computed on.
      * @param reward            The Reward to use.

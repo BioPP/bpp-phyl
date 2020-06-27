@@ -135,6 +135,8 @@ namespace bpp {
 
   using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,uint>;
 
+  using SiteLikelihoodsDAG = AssociationDAGlobalGraphObserver<SiteLikelihoods, uint>;
+
   using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
 
   using DAGindexes = std::vector<uint>;
@@ -161,9 +163,17 @@ namespace bpp {
        *
        */
       std::shared_ptr<ConditionalLikelihoodDAG> clt;
-        
+
       /*
-       * Site Likelihoods on the tree, with shrunked positions.
+       * @brief for each node n:  clt[n] = sum_states(clt[n][s])
+       *
+       */
+      
+      std::shared_ptr<SiteLikelihoodsDAG> lt;
+
+      /*
+       * Site Likelihoods on the tree, with shrunked positions, summed
+       * on all paths.
        * 
        * @brief for each node n:  lt[n] = sum_{state s} flt[n][s]
        *
@@ -171,7 +181,7 @@ namespace bpp {
        * computed.
        */
 
-      std::shared_ptr<SiteLikelihoodsTree> lt;
+      std::shared_ptr<SiteLikelihoodsTree> speciesLt;
 
     };
 
@@ -477,7 +487,7 @@ namespace bpp {
     /*
      * @brief Get Matrix of Conditional Likelihoods at Node *
      *
-     * @param nodeId  Id of the node in PhyloTree, ie species Tree
+     * @param nodeId  Id of the node in PhyloTree, ie species id
      * @param shrunk if matrix is on shrunked data (default: false)
      *
      */
@@ -509,6 +519,23 @@ namespace bpp {
      * @brief Get backward shrunked likelihood matrix at Edge (ie at
      * the top of the edge), for a given rate class.
      *
+     * These likelihoods are multiplied by the probability of the edge
+     *
+     * @param edgeId Edge Index in the backward tree (! ie in the
+     * computation tree, not the species tree).
+     *
+     * @param nCat  Rate class category
+     *
+     */
+    
+    ConditionalLikelihoodRef getBackwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
+
+    /*
+     * @brief Get backward shrunked likelihood matrix at Node (ie at
+     * the top of the edge), for a given rate class.
+     *
+     * These likelihoods are multiplied by the probability of the node
+     *
      * @param edgeId Node Index in the backward tree (! ie in the
      * computation tree, not the species tree).
      *
@@ -519,7 +546,37 @@ namespace bpp {
     ConditionalLikelihoodRef getBackwardLikelihoodsAtEdgeForClass(uint edgeId, size_t nCat);
 
     /*
-     * @brief backward likelihood tree (only computed when needed)
+     * @brief Get shrunked conditional likelihood matrix at Node (ie
+     * just above the node), for a given rate class.
+     *
+     * These likelihoods are multiplied by the probability of the node.
+     *
+     * @param nodeId Node Index in the forward tree (! ie in the
+     * computation tree, not the species tree).
+     *
+     * @param nCat  Rate class category
+     *
+     */
+    
+    ConditionalLikelihoodRef getConditionalLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
+
+    /*
+     * @brief Get shrunked conditional likelihood matrix at Node (ie
+     * just above the node), for a given rate class.
+     *
+     * These likelihoods are multiplied by the probability of the node.
+     *
+     * @param nodeId Node Index in the forward tree (! ie in the
+     * computation tree, not the species tree).
+     *
+     * @param nCat  Rate class category
+     *
+     */
+
+    SiteLikelihoodsRef getLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
+    
+    /*
+     * @brief make backward likelihood tree (only computed when needed)
      *
      */
         
@@ -568,6 +625,8 @@ namespace bpp {
       return vRateCatTrees_[nCat].phyloTree;
     }
 
+    std::shared_ptr<ForwardLikelihoodTree> getForwardLikelihoodTree(size_t nCat);
+
   private:
     void setPatterns_();
       
@@ -596,14 +655,26 @@ namespace bpp {
     /*
      * @brief Compute the likelihood at a given node in the tree,
      * which number may not be the same number number in the DAG.
-     * Several node in the DAG may be related to this tree node, in
+     *
+     * Several nodes in the DAG may be related to this tree node, in
      * which case a sum is computed.
      *
      * @param nodeId : index of the node in the phylo Tree
      */
       
     void makeLikelihoodsAtNode_(uint nodeId);
+
+    /*
+     * @brief Compute the likelihood at a given node in the DAG,
+     *
+     * This is not enough to compute likelihoods at species nodes, use
+     * makeLikelihoodsAtNode_ instead.
+     *
+     * @param nodeId : index of the node in the DAG
+     */
       
+    void makeLikelihoodsAtDAGNode_(uint nodeId);
+
     std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);
 
   };

@@ -43,6 +43,9 @@ using namespace bpp;
 
 Matrix<double>* OneJumpSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
+  if (!model_)
+    throw Exception("OneJumpSubstitutionCount::getAllNumberOfSubstitutions: model not defined.");
+
   tmp_ = model_->getPij_t(length);
   size_t n = model_->getNumberOfStates();
   Matrix<double>* probs = new LinearMatrix<double>(n, n);
@@ -54,6 +57,9 @@ Matrix<double>* OneJumpSubstitutionCount::getAllNumbersOfSubstitutions(double le
 
 void OneJumpSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
 {
+  if (!model_)
+    throw Exception("OneJumpSubstitutionCount::storeNumberOfSubstitutions: model not defined.");
+
   tmp_ = model_->getPij_t(length);
   size_t n = model_->getNumberOfStates();
   

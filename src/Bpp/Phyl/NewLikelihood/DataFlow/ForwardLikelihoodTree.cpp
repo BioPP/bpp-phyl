@@ -104,7 +104,6 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
     // false (root) top-node of the edge (only way to build an edge in
     // the DAG). Correct top-node will be set afterwards.
 
-
     link(getRoot(),childConditionalLikelihood,forwardEdge);
     setEdgeIndex(forwardEdge, processTree_->getEdgeIndex(processEdge)); // gets the index of the corresponding branch in the processTree_
 
@@ -199,20 +198,112 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
   return(forwardNode);
 }
 
-// void ForwardLikelihoodTree::setSpeciesMapIndexes_()
-// {
-//   auto nodeIter = allNodesIterator();
-//   while (!nodeIter->end())
-//   {
-//     auto dagId = getNodeIndex(**nodeIter);
-//     auto speciesId = processTree_->getNodeIndex(mapNode_[**nodeIter]);
-    
-//     if (mapNodesIndexes_.find(speciesId)!=mapNodesIndexes_.end())
-//       mapNodesIndexes_[speciesId].push_back(dagId);
-//     else
-//       mapNodesIndexes_[speciesId]=DAGindexes(1,dagId);
+/************************************************************/
+/************************************************************
+ * For ProbabilityDAG
+ */
 
-//     nodeIter->next();
-//   }
-// }
- 
+ProbabilityDAG::ProbabilityDAG(std::shared_ptr<ForwardLikelihoodTree> forwardTree) :
+  DAProb(forwardTree->getGraph()), context_(forwardTree->getContext())
+{
+  auto rootProb = ConstantOne<double>::create(context_, Dimension<double>());
+
+  associateNode(rootProb, forwardTree->getNodeGraphid(forwardTree->getRoot()));
+  setNodeIndex(rootProb, forwardTree->getRootIndex());
+  
+  auto allIndex = forwardTree->getAllNodesIndexes();
+  std::vector<const Node_DF*> vN;
+
+  for (auto id: allIndex)
+  {
+    // Start from external nodes (which may be not leaves)
+    if (forwardTree->getOutgoingEdges(id).size()==0) 
+    {
+      auto n=makeProbaAtNode_(id, forwardTree).get();
+      n->getTargetValue();
+      vN.push_back(n);
+    }
+  }
+
+  using bpp::DotOptions;
+  writeGraphToDot("proba.dot", vN, DotOptions::DetailedNodeInfo);
+
+}
+
+
+ProbaRef ProbabilityDAG::makeProbaAtEdge_ (PhyloTree::EdgeIndex edgeIndex, std::shared_ptr<ForwardLikelihoodTree> forwardTree)
+{
+  auto fatherIndex = forwardTree->getFatherOfEdge(edgeIndex);
+  auto edgeForward = forwardTree->getEdge(edgeIndex);
+
+  // get/check if node with backward likelihood exists
+  auto probaNode = hasNode(fatherIndex)
+    ? getNode(fatherIndex)
+    : makeProbaAtNode_(fatherIndex, forwardTree);
+
+  const auto processEdge = forwardTree->getProcessTree()->getEdge(edgeIndex);
+  
+  const auto brprob = processEdge->getProba();
+
+  ProbaRef probaEdge;
+
+  if (brprob)
+  {
+    probaEdge = ProbaMul::create(context_, {brprob, probaNode}, Dimension<double>());
+  }
+  else
+  {
+    probaEdge = Identity<double>::create(context_, {probaNode}, Dimension<double>(), edgeIndex);
+  }
+
+  // put object in the tree
+  if (!hasEdge(probaEdge))
+  {
+    associateEdge(probaEdge, forwardTree->getEdgeGraphid(edgeForward));
+    setEdgeIndex(probaEdge, edgeIndex);
+  }
+
+  return probaEdge;
+}
+
+
+ProbaRef ProbabilityDAG::makeProbaAtNode_ (PhyloTree::NodeIndex nodeIndex, std::shared_ptr<ForwardLikelihoodTree> forwardTree)
+{
+  // else get incoming edges
+  const auto edgesIndexes = forwardTree->getIncomingEdges(nodeIndex);
+
+  // get upper dependencies
+  NodeRefVec deps;
+
+  ProbaRef probaNode;
+  auto forwardNode = forwardTree->getNode(nodeIndex);
+  
+  for (const auto& edgeIndex:edgesIndexes)
+  {
+    auto backEdge = hasEdge(edgeIndex)
+      ? getEdge(edgeIndex)
+      : makeProbaAtEdge_(edgeIndex, forwardTree);
+
+    if (edgesIndexes.size()==1)
+    {
+      probaNode = Identity<double>::create(context_, {backEdge}, Dimension<double>(), nodeIndex);
+      break;
+    }
+    else
+      deps.push_back(backEdge);
+  }
+
+  // Then compute sum if several incoming nodes
+  if (deps.size()>1)
+    probaNode = ProbaSum::create(context_, std::move(deps), Dimension<double>());
+
+  if (!hasNode(probaNode))
+  {
+    associateNode(probaNode, forwardTree->getNodeGraphid(forwardNode));
+    setNodeIndex(probaNode, nodeIndex);
+  }
+
+  return probaNode;
+}
+
+

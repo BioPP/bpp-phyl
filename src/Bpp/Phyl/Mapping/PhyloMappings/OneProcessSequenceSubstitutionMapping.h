@@ -42,7 +42,7 @@
 
 #include "../../NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
 #include "../SubstitutionMappingTools.h"
-#include "../SubstitutionMappingToolsForASite.h"
+//#include "../SubstitutionMappingToolsForASite.h"
 
 #include "AbstractSinglePhyloSubstitutionMapping.h"
 
@@ -71,12 +71,7 @@ namespace bpp
     void setBranchedModelSet_();
     
   public:
-    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
-      AbstractSinglePhyloSubstitutionMapping(spp.getSubstitutionProcess().getParametrizablePhyloTree().getGraph(), reg, weights, distances),
-      pOPSP_(&spp)
-    {
-      setBranchedModelSet_();
-    }
+    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances);
 
     OneProcessSequenceSubstitutionMapping(const OneProcessSequenceSubstitutionMapping& sppm) :
       AbstractSinglePhyloSubstitutionMapping(sppm),
@@ -111,24 +106,24 @@ namespace bpp
                                                             verbose));
     }
 
-    void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
-    {
-      counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
-                      site,
-                      getLikelihoodCalculationSingleProcess(),
-                      getRegister(),
-                      getWeights(),
-                      getDistances(),
-                      threshold,
-                      verbose));
-    }
+    // void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
+    // {
+    //   counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
+    //                   site,
+    //                   getLikelihoodCalculationSingleProcess(),
+    //                   getRegister(),
+    //                   getWeights(),
+    //                   getDistances(),
+    //                   threshold,
+    //                   verbose));
+    // }
 
     void computeNormalizations(const ParameterList& nullParams,
                                bool verbose = true);
 
-    void computeNormalizationsForASite(size_t site,
-                                       const ParameterList& nullParams,
-                                       bool verbose = true);
+    // void computeNormalizationsForASite(size_t site,
+    //                                    const ParameterList& nullParams,
+    //                                    bool verbose = true);
 
     size_t getNumberOfModels() const
     {

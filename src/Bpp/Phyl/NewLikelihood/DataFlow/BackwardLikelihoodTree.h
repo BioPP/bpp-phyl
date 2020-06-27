@@ -145,7 +145,7 @@ namespace bpp
       {
         auto r2=CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
 
-        associateNode(r2, forwardTree_->getRootIndex());
+        associateNode(r2, forwardTree_->getNodeGraphid(forwardTree_->getRoot()));
         setNodeIndex(r2, forwardTree_->getRootIndex());
         return r2;
       }
@@ -189,7 +189,7 @@ namespace bpp
       friend class LikelihoodCalculationSingleProcess;
 
     };
-  
+
 } //end of namespace bpp.
 
 #endif //_BACKWARD_LIKELIHOOD_TREE_H_

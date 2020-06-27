@@ -91,6 +91,7 @@ namespace bpp {
   template <typename Result, typename From, typename Prop> class CWiseMean;
   template <typename Result, typename From> class CWiseSub;
   template <typename Result, typename From> class CWiseMul;
+  template <typename Result, typename From> class CWiseDiv;
   template <typename T> class CWiseNegate;
   template <typename T> class CWiseInverse;
   template <typename T> class CWiseLog;
@@ -1221,6 +1222,138 @@ namespace bpp {
     Dimension<R> targetDimension_;
   };
 
+
+  /*************************************************************************
+   * @brief r = x0 / x1 for each component.
+   * - r: R.
+   * - x0: T0.
+   * - x1: T1.
+   *
+   * Values converted to R with the semantics of numeric::convert.
+   * Node construction should be done with the create static method.
+   *
+   * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
+   */
+  template <typename R, typename T0, typename T1> class CWiseDiv<R, std::tuple<T0, T1>> : public Value<R> {
+  public:
+    using Self = CWiseDiv;
+
+    /// Build a new CWiseDiv node with the given output dimensions.
+    static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+      // Check dependencies
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 2);
+      checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
+      checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
+      // Select node
+      if (deps[1]->hasNumericalProperty (NumericalProperty::ConstantOne)) 
+        return Convert<R, T0>::create (c, {deps[0]}, dim);
+      else
+        if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne))
+          return CWiseInverse<R>::create (c, {deps[1]}, dim);
+        else
+          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
+    }
+
+    CWiseDiv (NodeRefVec && deps, const Dimension<R> & dim)
+      : Value<R> (std::move (deps)), targetDimension_ (dim) {}
+
+    std::string debugInfo () const override {
+      using namespace numeric;
+      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    std::string shape() const
+    {
+      return "house";
+    }
+
+    std::string color() const
+    {
+      return "#ff9090";
+    }
+
+    std::string description() const
+    {
+      return "Div";
+    }
+
+    // CWiseDiv additional arguments = ().
+    bool compareAdditionalArguments (const Node_DF & other) const final {
+      return dynamic_cast<const Self *> (&other) != nullptr;
+    }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<R>::create (c, targetDimension_);
+      }
+
+      auto f0 = this->dependency (0);
+      auto f1 = this->dependency (1);
+      auto fp0 = this->dependency (0)->derive (c, node);
+      auto fp1 = this->dependency (1)->derive (c, node);
+
+      auto upv = CWiseMul<R, std::tuple<T0, T1>>::create(c, {fp0, f1}, targetDimension_);
+      auto vpu = CWiseMul<R, std::tuple<T0, T1>>::create(c, {fp1, f0}, targetDimension_);
+      auto diff = CWiseSub<R, std::tuple<R, R>>::create(c, {upv, vpu}, targetDimension_);
+      
+      return CWiseMul<R, std::tuple<R, R>>::create (
+        c, {CWiseConstantPow<R>::create(c, {f1}, -2., 1., targetDimension_), diff}, targetDimension_);
+      
+    }
+
+    NodeRef recreate (Context & c, NodeRefVec && deps) final {
+      return Self::create (c, std::move (deps), targetDimension_);
+    }
+
+  private:
+    void compute() { compute<T0,T1>();}
+
+    template<class U, class V>
+      typename std::enable_if<!std::is_same<U, TransitionFunction>::value && !std::is_same<V, TransitionFunction>::value, void>::type
+      compute () {
+      using namespace numeric;
+      auto & result = this->accessValueMutable ();
+      const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
+      const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
+      cwise (result) = cwise (x0) / cwise (x1);
+    }
+
+    template<class U, class V>
+      typename std::enable_if<std::is_same<U, TransitionFunction>::value && std::is_same<V, TransitionFunction>::value, void>::type
+      compute () {
+      using namespace numeric;
+      auto & result = this->accessValueMutable ();
+      const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
+      const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
+        
+      result = [x0, x1](const Eigen::VectorXd& x)->Eigen::VectorXd{return cwise(x0(x)) / cwise(x1(x));};
+    }
+
+    template<class U, class V>
+      typename std::enable_if<std::is_same<U, TransitionFunction>::value && !std::is_same<V, TransitionFunction>::value, void>::type
+      compute () {
+      using namespace numeric;
+      auto & result = this->accessValueMutable ();
+      const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
+      const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
+        
+      result = [x0, x1](const Eigen::VectorXd& x)->Eigen::VectorXd{return cwise(x0(x)) / cwise(x1);};
+    }
+
+    template<class U, class V>
+      typename std::enable_if<!std::is_same<U, TransitionFunction>::value && std::is_same<V, TransitionFunction>::value, void>::type
+      compute () {
+      using namespace numeric;
+      auto & result = this->accessValueMutable ();
+      const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
+      const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
+        
+      result = [x0, x1](const Eigen::VectorXd& x)->Eigen::VectorXd{return cwise(x1(x)) / cwise(x0);};
+    }
+
+    Dimension<R> targetDimension_;
+  };
 
 
   /*************************************************************************

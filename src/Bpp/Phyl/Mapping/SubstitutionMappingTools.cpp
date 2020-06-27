@@ -43,6 +43,7 @@
 #include "ProbabilisticRewardMapping.h"
 #include "ProbabilisticSubstitutionMapping.h"
 #include "RewardMappingTools.h"
+#include "../NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
 
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -71,27 +72,12 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
 
-  const SubstitutionModel* sm(0);
   const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
   if (edgeIds.size()==0)
     return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), reg.getNumberOfSubstitutionTypes(), rltc.getRootArrayPositions(), rltc.getNumberOfDistinctSites());
   
-  for (auto id : edgeIds)
-  {
-    if (dynamic_cast<const SubstitutionModel*>(sp.getModelForNode(id))==NULL)
-      throw Exception("SubstitutionMappingTools::computeSubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(id));
-    else
-      if (!sm)
-        sm=dynamic_cast<const SubstitutionModel*>(sp.getModelForNode(id));
-  }
-
-  // We create a Mapping objects
-
-  if (!sm)
-    throw Exception("SubstitutionMappingTools::computeSubstitutionVectors not possible with null model.");
-
-  unique_ptr<SubstitutionCount> substitutionCount(new DecompositionSubstitutionCount(sm, reg.clone(), weights, distances));
+  unique_ptr<SubstitutionCount> substitutionCount(new DecompositionSubstitutionCount(reg.clone(), weights, distances));
 
   return computeCounts(rltc, edgeIds, *substitutionCount, threshold, verbose);
 }
@@ -118,8 +104,10 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   
   auto processTree = rltc.getTreeNode(0);
 
+  /* First, set substitution counts */
+  
   // Map from models to counts
-  std::map<shared_ptr<ConfiguredModel> , std::shared_ptr<SubstitutionCount> > mModCount;
+  std::map<const SubstitutionModel* , std::shared_ptr<SubstitutionCount> > mModCount;
   
   for (auto speciesId :edgeIds)
   {
@@ -132,14 +120,37 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
       {
         auto model = edge->getModel();
 
-        auto sm = dynamic_cast<const SubstitutionModel*>(model->getTargetValue());
+        auto nMod = edge->getNMod();
         
-        if (sm == NULL)
-          throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId));
-        if (mModCount.find(model)==mModCount.end())
+        auto tm = dynamic_cast<const TransitionModel*>(model->getTargetValue());
+
+        const SubstitutionModel* sm(0);
+        
+        if (nMod==0)
         {
-          mModCount[model] = std::shared_ptr<SubstitutionCount>(substitutionCount.clone());
-          mModCount[model]->setSubstitutionModel(sm);
+          sm = dynamic_cast<const SubstitutionModel*>(tm);
+          
+          if (sm == NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
+        }
+        else
+        {
+          size_t nmod = nMod->getTargetValue();
+
+          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
+          if (ttm == NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : Expecting Mixed model in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
+
+          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+          
+          if (sm==NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : Expecting Substitution model for submodel " + TextTools::toString(nmod) + " of mixed model " + tm->getName() + " in branch " + TextTools::toString(speciesId));
+        }
+            
+        if (mModCount.find(sm)==mModCount.end())
+        {
+          mModCount[sm] = std::shared_ptr<SubstitutionCount>(substitutionCount.clone());
+          mModCount[sm]->setSubstitutionModel(sm);
         }
       }
     }
@@ -161,18 +172,17 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   
   unique_ptr<ProbabilisticSubstitutionMapping> substitutions(new ProbabilisticSubstitutionMapping(ppt, nbTypes, rootPatternLinks, nbDistinctSites));
 
-  // Store likelihood for each compressed site :
+  // Compute the number of substitutions for each class and each branch in the tree
 
-  auto Lr = rltc.getSiteLikelihoods(true)->getTargetValue();
+  // Get the DAG of probabilities of the edges
+  ProbabilityDAG probaDAG(rltc.getForwardLikelihoodTree(0));
 
-  // Compute the number of substitutions for each class and each branch in the tree:
   if (verbose)
     ApplicationTools::displayTask("Compute counts", true);
 
   unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=substitutions->allEdgesIterator();
 
-  size_t nn=0;
-  
+  size_t nn=0;  
   for (;!brIt->end();brIt->next())
   {
     if (verbose)
@@ -193,7 +203,6 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
       processTree = rltc.getTreeNode(ncl);
-
       double pr = sp.getProbabilityForModel(ncl);
 
       vector<Eigen::RowVectorXd> substitutionsForCurrentClass(nbTypes);
@@ -209,15 +218,34 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
       {
         auto edge = processTree->getEdge(id);
 
-        auto subCount = mModCount[edge->getModel()];
+        auto tm = dynamic_cast<const TransitionModel*>(edge->getModel()->getTargetValue());
 
-        const auto& likelihoodsFather = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->getTargetValue();
+        auto nMod = edge->getNMod();
+        
+        const SubstitutionModel* sm(0);
+        
+        if (nMod==0)
+          sm = dynamic_cast<const SubstitutionModel*>(tm);
+        else
+        {
+          size_t nmod = nMod->getTargetValue();
 
-        auto sonid = processTree->getSon(id);
-          
-        const auto& likelihoodsSon = rltc.getForwardLikelihoodsAtNodeForClass(sonid, ncl)->getTargetValue();
+          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
+          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+        }
 
-        const Eigen::MatrixXd& pxy = edge->getTransitionMatrix()->accessValueConst();
+        auto subCount = mModCount[sm];
+
+        const auto& likelihoodsTopEdge = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->getTargetValue();
+
+        auto sonid = rltc.getForwardLikelihoodTree(ncl)->getSon(id);
+        auto fatid = rltc.getForwardLikelihoodTree(ncl)->getFatherOfEdge(id);
+
+        const auto& likelihoodsBotEdge = rltc.getForwardLikelihoodsAtNodeForClass(sonid, ncl)->getTargetValue();
+
+        const Eigen::MatrixXd& pxy = edge->getTransitionMatrix()->getTargetValue();
+
+        const auto& likelihoodsFather = rltc.getLikelihoodsAtNodeForClass(fatid, ncl)->getTargetValue();
 
         for (size_t t = 0; t < nbTypes; ++t)
         {
@@ -226,28 +254,34 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
           subCount->storeAllNumbersOfSubstitutions(edge->getBrLen()->getValue(), t + 1, npxy);
           
           npxy.array() *= pxy.array();
-          
+
           // Now loop over sites:
 
-          auto counts = npxy * likelihoodsSon;
+          auto counts = npxy * likelihoodsBotEdge;
 
-          auto bb = (likelihoodsFather.cwiseProduct(counts)).colwise().sum();
+          auto bb = (likelihoodsTopEdge.cwiseProduct(counts)).colwise().sum();
 
-          substitutionsForCurrentClass[t] += bb;
+          // Normalizes by likelihood on this node
+          Eigen::RowVectorXd cc = bb.array() / likelihoodsFather.array();
+
+          // adds, with branch ponderation  ( * edge / edge * father) probs
+          substitutionsForCurrentClass[t] += cc * probaDAG.getProbaAtNode(fatid);
         }
       }
-      
+
+      // sum for all rate classes, with class ponderation
       for (size_t t = 0; t < nbTypes; ++t)
         substitutionsForCurrentNode[t] += substitutionsForCurrentClass[t] * pr;
     }
 
     
     // Now we just have to copy the substitutions into the result vector:
+
     for (size_t i = 0; i < nbDistinctSites; ++i)
     {
       for (size_t t = 0; t < nbTypes; ++t)
       {
-        double x = substitutionsForCurrentNode[t](i)/Lr(i);
+        double x = substitutionsForCurrentNode[t](i);
         
         if (std::isnan(x) || std::isinf(x))
         {
@@ -295,85 +329,261 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
     throw Exception("SubstitutionMappingTools::computeNormalizations(). Likelihood object is not initialized.");
 
   const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
-  const auto& statemap = sp.getStateMap();
-  const auto* alphabet = statemap.getAlphabet();
-  
+
   if (edgeIds.size()==0)
     return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(),
                                                 reg.getNumberOfSubstitutionTypes(),
                                                 rltc.getRootArrayPositions(),
                                                 rltc.getNumberOfDistinctSites());
 
-  // A few variables we'll need:
+  auto processTree = rltc.getTreeNode(0);
 
+
+  /* First, set substitution rewards */
+  
+  // Map from models to type-vector of rewards
+  std::map<const SubstitutionModel* , std::vector<std::shared_ptr<DecompositionReward> > > mModRewards;
+
+  const auto& statemap = sp.getStateMap();
+  
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
-
+  
   size_t nbStates = statemap.getNumberOfModelStates();
   vector<int> supportedStates = statemap.getAlphabetStates();
-  
-  size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
-  
-  unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), nbTypes, rltc.getRootArrayPositions(), nbDistinctSites));
 
-  
-  vector<size_t> vMod=nullModels->getModelNumbers();
+  vector<UserAlphabetIndex1>  vusai(nbTypes, UserAlphabetIndex1(statemap.getAlphabet()));
 
-  for (auto& nbm : vMod)
+  for (auto speciesId :edgeIds)
   {
-    const SubstitutionModel* modn = dynamic_cast<const SubstitutionModel*>(nullModels->getModel(nbm));
-    if (!modn)
-      throw Exception("SubstitutionMappingTools::computeNormalizations possible only for SubstitutionModels, not for model " + nullModels->getModel(nbm)->getName());
-  }
+    const auto& dagIndexes = rltc.getEdgesIds(speciesId, 0);
 
-
-  vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(alphabet));
-
-  for (auto& nbm : vMod)
-  {
-    vector<uint> mids = VectorTools::vectorIntersection(edgeIds, nullModels->getBranchesWithModel(nbm));
+    // look for matching null model
+    auto nullmodel = nullModels->getModelForBranch(speciesId);
     
-    if (mids.size()>0)
+    for (auto id:dagIndexes)
     {
-      const SubstitutionModel* modn = dynamic_cast<const SubstitutionModel*>(nullModels->getModel(nbm));
-
-      for (size_t nbt = 0; nbt < nbTypes; nbt++)
-        for (size_t i = 0; i < nbStates; i++)
-          usai[nbt].setIndex(supportedStates[i], 0);
-
-      for (size_t i = 0; i < nbStates; i++)
+      const auto& edge = processTree->getEdge(id);
+      if (edge->getBrLen()) // if edge with model on it
       {
-        for (size_t j = 0; j < nbStates; j++)
-        {
-          if (i != j)
-          {
-            size_t nbt = reg.getType(i, j);
-            if (nbt != 0)
-              usai[nbt - 1].setIndex(supportedStates[i], usai[nbt - 1].getIndex(supportedStates[i]) + modn->Qij(i, j)*(distances?distances->getIndex(supportedStates[i],supportedStates[j]):1));
-          }
-        }
-      }
-      
-      for (size_t nbt = 0; nbt < nbTypes; nbt++)
-      {
-        unique_ptr<Reward> reward(new DecompositionReward(modn, &usai[nbt]));
+        auto model = edge->getModel();
+
+        auto nMod = edge->getNMod();
         
-        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, verbose));
+        auto tm = dynamic_cast<const TransitionModel*>(model->getTargetValue());
 
-        for (size_t k = 0; k < mids.size(); k++)
+        const SubstitutionModel* sm(0);
+        if (nMod==0)
         {
-          shared_ptr<PhyloBranchMapping> brn=normalizations->getEdge(mids[k]);
-          shared_ptr<PhyloBranchReward> brr=mapping->getEdge(mids[k]);
+          sm = dynamic_cast<const SubstitutionModel*>(tm);
+          
+          if (sm == NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
+        }
+        else
+        {
+          size_t nmod = nMod->getTargetValue();
 
-          for (size_t i = 0; i < nbDistinctSites; ++i)
-            (*brn)(i,nbt)=(*brr).getSiteReward(i);
+          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
+          if (ttm == NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : Expecting Mixed model in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
+
+          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+          
+          if (sm==NULL)
+            throw Exception("SubstitutionMappingTools::computeCounts : Expecting Substitution model for submodel " + TextTools::toString(nmod) + " of mixed model " + tm->getName() + " in branch " + TextTools::toString(speciesId));
+        }
+
+        // Sets vector of reward counts (depend on nullmodel)
+        if (mModRewards.find(sm)==mModRewards.end())
+        {
+          // Look for matching substitution nullmodel        
+          const SubstitutionModel* nullsm(0);
+
+          if (nMod==0)
+          {
+            nullsm = dynamic_cast<const SubstitutionModel*>(nullmodel);
+          
+            if (nullsm == NULL)
+              throw Exception("SubstitutionMappingTools::computeNormalizations : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId) + "for null model " + nullmodel->getName());
+          }
+          else
+          {
+            size_t nmod = nMod->getTargetValue();
+
+            auto nullttm = dynamic_cast<const MixedTransitionModel*>(nullmodel);
+            if (nullttm == NULL)
+              throw Exception("SubstitutionMappingTools::computeNormalizations : Expecting Mixed model in branch " + TextTools::toString(speciesId) + " for null model " + nullttm->getName());
+
+            nullsm = dynamic_cast<const SubstitutionModel*>(nullttm->getNModel(nmod));
+          
+            if (nullsm==NULL)
+              throw Exception("SubstitutionMappingTools::computeNormalizations : Expecting Substitution model for submodel " + TextTools::toString(nmod) + " of null mixed model " + nullmodel->getName() + " in branch " + TextTools::toString(speciesId));
+          }
+
+          for (auto& usai:vusai)
+            for (size_t i = 0; i < nbStates; i++)
+              usai.setIndex(supportedStates[i], 0);
+
+          for (size_t i = 0; i < nbStates; i++)
+            for (size_t j = 0; j < nbStates; j++)
+              if (i != j)
+              {
+                size_t nbt = reg.getType(i, j);
+                if (nbt != 0)
+                  vusai[nbt-1].setIndex(supportedStates[i], vusai[nbt - 1].getIndex(supportedStates[i]) + nullsm->Qij(i, j)*(distances?distances->getIndex(supportedStates[i],supportedStates[j]):1));
+              }
+          
+          mModRewards[sm] = vector<std::shared_ptr<DecompositionReward>>(nbTypes);
+          auto& mMdodsm = mModRewards[sm];
+          for (size_t t=0; t<nbTypes; t++)
+          {
+            mMdodsm[t] = make_shared<DecompositionReward>(nullsm, vusai[t].clone());
+          }
         }
       }
     }
   }
 
+  //////////////////////////////////////////////////////
+  //// Now the computation
+
+  // A few variables we'll need:
+  
+  size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
+  size_t nbNodes         = edgeIds.size();
+  size_t nbClasses       = sp.getNumberOfClasses();
+
+  const auto& rootPatternLinks = rltc.getRootArrayPositions();
+  
+  // We create a Mapping objects
+  
+  unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), nbTypes, rootPatternLinks, nbDistinctSites));
+  
+  // Compute the reward for each class and each branch in the tree:
+
+  // Get the DAG of probabilities of the edges
+  ProbabilityDAG probaDAG(rltc.getForwardLikelihoodTree(0));
+
+  if (verbose)
+    ApplicationTools::displayTask("Compute rewards", true);
+
+  unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=normalizations->allEdgesIterator();
+  
+  Eigen::MatrixXd rpxy;
+
+  size_t nn=0;
+  for (;!brIt->end();brIt->next())
+  {
+    if (verbose)
+      ApplicationTools::displayGauge(nn++, nbNodes - 1);
+    
+    shared_ptr<PhyloBranchMapping> br=**brIt;
+    
+    // For each branch
+    uint speciesId = normalizations->getEdgeIndex(br);
+
+    if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
+      continue;
+
+    vector<Eigen::RowVectorXd> rewardsForCurrentNode(nbTypes);
+    for (auto& sub:rewardsForCurrentNode)
+      sub.setZero(nbDistinctSites);
+
+    for (size_t ncl=0; ncl<nbClasses; ncl++)
+    {
+      processTree = rltc.getTreeNode(ncl);
+      double pr = sp.getProbabilityForModel(ncl);
+      
+      vector<Eigen::RowVectorXd> rewardsForCurrentClass(nbTypes);
+      for (auto& sub:rewardsForCurrentClass)
+        sub.setZero(nbDistinctSites);
+      
+      const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
+      
+      // Sum on all dag edges for this speciesId
+      for (auto id:dagIndexes)
+      {
+        auto edge = processTree->getEdge(id);
+
+        auto tm = dynamic_cast<const TransitionModel*>(edge->getModel()->getTargetValue());
+
+        auto nMod = edge->getNMod();
+        
+        const SubstitutionModel* sm(0);
+        
+        if (nMod==0)
+          sm = dynamic_cast<const SubstitutionModel*>(tm);
+        else
+        {
+          size_t nmod = nMod->getTargetValue();
+          
+          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
+          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+        }
+
+        // Rewards for this model
+        auto subReward = mModRewards[sm];
+
+        
+        const auto& likelihoodsTopEdge = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->getTargetValue();
+
+        auto sonid = rltc.getForwardLikelihoodTree(ncl)->getSon(id);
+        auto fatid = rltc.getForwardLikelihoodTree(ncl)->getFatherOfEdge(id);
+          
+        const auto& likelihoodsBotEdge = rltc.getForwardLikelihoodsAtNodeForClass(sonid, ncl)->getTargetValue();
+        
+        const Eigen::MatrixXd& pxy = edge->getTransitionMatrix()->accessValueConst();
+
+        const auto& likelihoodsFather = rltc.getLikelihoodsAtNodeForClass(fatid, ncl)->getTargetValue();
+
+        for (size_t t = 0; t < nbTypes; ++t)
+        {
+          // compute all rxy * pxy first:
+          subReward[t]->storeAllRewards(edge->getBrLen()->getValue(), rpxy);
+      
+          rpxy.array() *= pxy.array();
+
+          // Now loop over sites:
+
+          auto rew = rpxy * likelihoodsBotEdge;
+        
+          auto bb = (likelihoodsTopEdge.cwiseProduct(rew)).colwise().sum();
+        
+          // Normalizes by likelihood on this node
+          Eigen::RowVectorXd cc = bb.array() / likelihoodsFather.array();
+
+          // adds, with branch ponderation  ( * edge / edge * father) probs
+          rewardsForCurrentClass[t] += cc  * probaDAG.getProbaAtNode(fatid);
+        }
+      }
+      
+      for (size_t t = 0; t < nbTypes; ++t)
+        rewardsForCurrentNode[t] += rewardsForCurrentClass[t] * pr;
+    }
+    
+    // Now we just have to copy the substitutions into the result vector:
+    for (size_t i = 0; i < nbDistinctSites; ++i)
+    {
+      for (size_t t = 0; t < nbTypes; ++t)
+        (*br)(i,t) = rewardsForCurrentNode[t](i);
+    }
+  } // end of loop on branches
+
+  if (verbose)
+  {
+    if (ApplicationTools::message)
+      *ApplicationTools::message << " ";
+    ApplicationTools::displayTaskDone();
+  }
+  
   return normalizations.release();
 }
 
+
+
+
+
+/************************************************************/
 /************************************************************/
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCounts(

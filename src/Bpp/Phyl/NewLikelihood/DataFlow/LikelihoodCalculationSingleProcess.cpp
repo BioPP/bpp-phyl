@@ -551,7 +551,11 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
       rateCat.clt=std::make_shared<ConditionalLikelihoodDAG>(rateCat.flt->getGraph());
 
     if (!rateCat.lt)
-      rateCat.lt=std::make_shared<SiteLikelihoodsTree>(phylotree.getGraph());
+      rateCat.lt=std::make_shared<SiteLikelihoodsDAG>(rateCat.flt->getGraph());
+
+    
+    if (!rateCat.speciesLt)
+      rateCat.speciesLt=std::make_shared<SiteLikelihoodsTree>(phylotree.getGraph());
 
     auto& dagIndexes = rateCat.flt->getDAGNodesIndexes(speciesId);
 
@@ -578,6 +582,13 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
       
       rateCat.clt->associateNode(cond, rateCat.flt->getNodeGraphid(rateCat.flt->getNode(index)));
       rateCat.clt->setNodeIndex(cond, index);
+
+      // Site Likelihoods on this point
+      auto lt = LikelihoodFromRootConditional::create (
+        getContext_(), {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
+
+      rateCat.lt->associateNode(lt, rateCat.flt->getNodeGraphid(rateCat.flt->getNode(index)));
+      rateCat.lt->setNodeIndex(lt, index);
     }
 
     /*
@@ -593,10 +604,10 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
     auto siteLikelihoodsCat = LikelihoodFromRootConditional::create (
       getContext_(), {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
 
-    if (!rateCat.lt->hasNode(speciesId))
+    if (!rateCat.speciesLt->hasNode(speciesId))
     {
-      rateCat.lt->associateNode(siteLikelihoodsCat, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
-      rateCat.lt->setNodeIndex(siteLikelihoodsCat, speciesId);
+      rateCat.speciesLt->associateNode(siteLikelihoodsCat, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
+      rateCat.speciesLt->setNodeIndex(siteLikelihoodsCat, speciesId);
     }
     
     if (!processNodes_.ratesNode_)
@@ -640,6 +651,57 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
 
 }
 
+void LikelihoodCalculationSingleProcess::makeLikelihoodsAtDAGNode_(uint nodeId)
+{
+  if (vRateCatTrees_.size()==0)
+    makeForwardLikelihoodTree_();
+
+  if (rFreqs_==0)
+    makeRootFreqs_();
+  
+  const auto& stateMap = getStateMap();
+  size_t nbSite = getNumberOfDistinctSites();
+  size_t nbState = stateMap.getNumberOfModelStates();
+  MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
+
+  ValueRef<Eigen::RowVectorXd> siteLikelihoodsNode;
+
+  auto one=ConstantOne<Eigen::RowVectorXd>::create(getContext_(), rowVectorDimension (Eigen::Index (nbState)));
+    
+  for (auto& rateCat: vRateCatTrees_)
+  {
+    if (!rateCat.clt)
+      rateCat.clt=std::make_shared<ConditionalLikelihoodDAG>(rateCat.flt->getGraph());
+
+    if (rateCat.clt->hasNode(nodeId)) //already computed
+      continue;
+
+    if (!rateCat.blt)
+      rateCat.blt=std::make_shared<BackwardLikelihoodTree>(getContext_(), rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbSite);
+
+    if (!rateCat.lt)
+      rateCat.lt=std::make_shared<SiteLikelihoodsDAG>(rateCat.flt->getGraph());
+
+    // Conditional Likelihoods on this node
+
+    auto condAbove = rateCat.blt->getBackwardLikelihoodArray(nodeId);
+    auto condBelow = rateCat.flt->getForwardLikelihoodArray(nodeId);
+
+    auto cond = BuildConditionalLikelihood::create (
+      getContext_(), {condAbove, condBelow}, likelihoodMatrixDim);
+    
+    rateCat.clt->associateNode(cond, rateCat.flt->getNodeGraphid(rateCat.flt->getNode(nodeId)));
+    rateCat.clt->setNodeIndex(cond, nodeId);
+    
+    // Site Likelihoods on this node
+    auto lt = LikelihoodFromRootConditional::create (
+      getContext_(), {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
+
+    rateCat.lt->associateNode(lt, rateCat.flt->getNodeGraphid(rateCat.flt->getNode(nodeId)));
+    rateCat.lt->setNodeIndex(lt, nodeId);
+  }
+}
+
 
 std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSiteLikelihoodsTree_(size_t nCat)
 {
@@ -652,17 +714,17 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
   if (!getLikelihoodNode_())
     makeLikelihoodsAtRoot_();
   
-  if (vRateCatTrees_[nCat].lt==0)
+  if (vRateCatTrees_[nCat].speciesLt==0)
     makeLikelihoodsAtNode_(getTreeNode(nCat)->getRoot()->getSpeciesIndex());
   
-  return vRateCatTrees_[nCat].lt;
+  return vRateCatTrees_[nCat].speciesLt;
 }
 
 
 ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getForwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
 {
-  // compute likelihoods for all nodes with similar species index
-  // (not the quickest, but in pratice they are all needed)
+  // compute forward likelihoods for all nodes (not the quickest, but
+  // in pratice they are all needed)
       
   if (!getLikelihoodNode_())
     makeLikelihoods();
@@ -672,6 +734,33 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getForwardLikelihoo
        
   return vRateCatTrees_[nCat].flt->getNode(nodeId);
 }
+
+ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getConditionalLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
+{
+  // compute likelihoods for all edges with similar species index
+  // (not the quickest, but in pratice they are all needed)
+
+  makeLikelihoodsAtDAGNode_(nodeId);
+
+  if (nCat>=vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getConditionalLikelihoodsAtNodeForClass : bad class number " + TextTools::toString(nCat));
+
+  return vRateCatTrees_[nCat].clt->getNode(nodeId);
+}
+
+SiteLikelihoodsRef LikelihoodCalculationSingleProcess::getLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
+{
+  // compute likelihoods for all edges with similar species index
+  // (not the quickest, but in pratice they are all needed)
+
+  makeLikelihoodsAtDAGNode_(nodeId);
+
+  if (nCat>=vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getConditionalLikelihoodsAtNodeForClass : bad class number " + TextTools::toString(nCat));
+
+  return vRateCatTrees_[nCat].lt->getNode(nodeId);
+}
+
 
 ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtEdgeForClass(uint edgeId, size_t nCat)
 {
@@ -689,6 +778,20 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikeliho
   return vRateCatTrees_[nCat].blt->getEdge(edgeId);
 }
 
+ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
+{
+  // compute likelihoods for all edges with similar species index
+  // (not the quickest, but in pratice they are all needed)
+
+  makeLikelihoodsAtDAGNode_(nodeId);
+
+  if (nCat>=vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getForwardLikelihoodsAtNodeForClass : bad class number " + TextTools::toString(nCat));
+
+  return vRateCatTrees_[nCat].blt->getNode(nodeId);
+}
+
+
 const DAGindexes& LikelihoodCalculationSingleProcess::getNodesIds(uint speciesId) const
 {
   if (vRateCatTrees_.size()==0)
@@ -705,3 +808,10 @@ const DAGindexes& LikelihoodCalculationSingleProcess::getEdgesIds(uint speciesId
   return vRateCatTrees_[nCat].flt->getDAGEdgesIndexes(speciesId);
 }
 
+std::shared_ptr<ForwardLikelihoodTree> LikelihoodCalculationSingleProcess::getForwardLikelihoodTree(size_t nCat)
+{
+  if (nCat >= vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getForwardTree : bad class number " + TextTools::toString(nCat));
+  
+  return vRateCatTrees_[nCat].flt;
+}

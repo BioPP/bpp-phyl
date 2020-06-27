@@ -105,7 +105,7 @@ namespace bpp
 
     virtual void computeNormalizations(const ParameterList& nullParams, bool verbose = true) = 0;
 
-    virtual void computeNormalizationsForASite(size_t site, const ParameterList& nullParams, bool verbose = true) = 0;
+    // virtual void computeNormalizationsForASite(size_t site, const ParameterList& nullParams, bool verbose = true) = 0;
 
     /*
      * @brief return if normalizations have been performed.
@@ -130,7 +130,7 @@ namespace bpp
 
     virtual void computeCounts(double threshold = -1, bool verbose=true) = 0;
 
-    virtual void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true) = 0;
+    // virtual void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true) = 0;
 
     /*
      * @brief Return the tree of counts

@@ -84,5 +84,21 @@ LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
       else label_(i, j) = ++count;
     }
   }
+}
+
+LabelSubstitutionCount::LabelSubstitutionCount(const StateMap& statemap) :
+  AbstractSubstitutionCount(
+    new TotalSubstitutionRegister(statemap)),
+  label_(statemap.getNumberOfModelStates(), statemap.getNumberOfModelStates()),
+  supportedChars_(statemap.getAlphabetStates())
+{
+  size_t n = supportedChars_.size();
+  double count = 0;
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      if (i == j) label_(i, j) = 0;
+      else label_(i, j) = ++count;
+    }
+  }
 }			
 

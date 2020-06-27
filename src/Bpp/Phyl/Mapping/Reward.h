@@ -155,8 +155,10 @@ namespace bpp
   /**
    * @brief Basic implementation of the the Reward interface.
    *
-   * This partial implementation deals with the AlphabetIndex1 gestion, by maintaining a pointer.
+   * This partial implementation deals with the AlphabetIndex1
+   * gestion, by owning a pointer.
    */
+  
   class AbstractReward:
     public virtual Reward
   {
@@ -178,6 +180,7 @@ namespace bpp
     }
 
     ~AbstractReward() {
+      delete alphIndex_;
     }
 
   public:

@@ -64,7 +64,42 @@ DecompositionMethods::DecompositionMethods(const SubstitutionModel* model, Subst
   insideProducts_(reg->getNumberOfSubstitutionTypes()),
   insideIProducts_(0)
 {
+  initBMatrices_();
   setSubstitutionModel(model);
+}				
+
+DecompositionMethods::DecompositionMethods(SubstitutionRegister* reg) :
+  model_(0),
+  nbStates_(reg->getStateMap().getNumberOfModelStates()),
+  nbTypes_(reg->getNumberOfSubstitutionTypes()),
+  jMat_(nbStates_, nbStates_),
+  jIMat_(0,0),
+  rightEigenVectors_(0,0),
+  rightIEigenVectors_(0,0),
+  leftEigenVectors_(0,0),
+  leftIEigenVectors_(0,0),
+  bMatrices_(reg->getNumberOfSubstitutionTypes()),
+  insideProducts_(reg->getNumberOfSubstitutionTypes()),
+  insideIProducts_(0)
+{
+  initBMatrices_();
+}				
+
+DecompositionMethods::DecompositionMethods(const StateMap& statemap) :
+  model_(0),
+  nbStates_(statemap.getNumberOfModelStates()),
+  nbTypes_(1),
+  jMat_(nbStates_, nbStates_),
+  jIMat_(0,0),
+  rightEigenVectors_(0,0),
+  rightIEigenVectors_(0,0),
+  leftEigenVectors_(0,0),
+  leftIEigenVectors_(0,0),
+  bMatrices_(1),
+  insideProducts_(1),
+  insideIProducts_(0)
+{
+  initBMatrices_();
 }				
 
 
@@ -154,6 +189,9 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
 void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, double length) const
 {
+  if (!model_)
+    throw Exception("DecompositionMethods::computeExpectations: model not defined.");
+
   RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
   if (model_->isDiagonalizable())
   {
@@ -181,6 +219,9 @@ void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, doubl
 
 void DecompositionMethods::computeExpectations(std::vector< RowMatrix<double> >& mappings, double length) const
 {
+  if (!model_)
+    throw Exception("DecompositionMethods::computeExpectations 2: model not defined.");
+
   RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
 
   if (model_->isDiagonalizable())
@@ -215,6 +256,7 @@ void DecompositionMethods::computeExpectations(std::vector< RowMatrix<double> >&
 void DecompositionMethods::initStates_()
 {
   jMat_.resize(nbStates_, nbStates_);
+  initBMatrices_();
 }
 
 /******************************************************************************/
@@ -222,6 +264,9 @@ void DecompositionMethods::initStates_()
 void DecompositionMethods::setSubstitutionModel(const SubstitutionModel* model)
 {
   model_ = model;
+  if (!model)
+    return;
+  
   size_t n = model->getNumberOfStates();
   if (n != nbStates_)
   {
@@ -229,7 +274,8 @@ void DecompositionMethods::setSubstitutionModel(const SubstitutionModel* model)
     jMat_.resize(nbStates_, nbStates_);
     initBMatrices_();
   }
-  
+
+
   if (!model_->isDiagonalizable())
   {
     jIMat_.resize(nbStates_, nbStates_);
@@ -288,12 +334,6 @@ void DecompositionMethods::initBMatrices_()
     insideProducts_[i].resize(nbStates_, nbStates_);
   }
 
-  if (!model_->isDiagonalizable())
-  {
-    insideIProducts_.resize(nbTypes_);
-    for (size_t i = 0; i < nbTypes_; ++i) 
-      insideIProducts_[i].resize(nbStates_, nbStates_);
-  }
 }
 
 

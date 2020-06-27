@@ -75,7 +75,15 @@ namespace bpp
       currentLength_(0),
       m_            (model->getNumberOfStates(), model->getNumberOfStates())
     {}
-	
+
+    LaplaceSubstitutionCount(const StateMap& statemap, size_t cutOff) :
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(statemap)),
+      model_        (0),
+      cutOff_       (cutOff),
+      currentLength_(0),
+      m_            (statemap.getNumberOfModelStates(), statemap.getNumberOfModelStates())
+    {}
+
     LaplaceSubstitutionCount(const LaplaceSubstitutionCount& asc) :
     AbstractSubstitutionCount(asc),
     model_        (asc.model_),

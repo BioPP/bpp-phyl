@@ -42,6 +42,35 @@
 using namespace bpp;
 using namespace std;
 
+OneProcessSequenceSubstitutionMapping::OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
+  AbstractSinglePhyloSubstitutionMapping(spp.getSubstitutionProcess().getParametrizablePhyloTree().getGraph(), reg, weights, distances),
+  pOPSP_(&spp)
+{
+  setBranchedModelSet_();
+
+  // assigns edge indexes
+  const auto& tree = spp.getTree();
+
+  unique_ptr<modelTree::EdgeIterator> eIT=allEdgesIterator();
+
+  for (;!eIT->end(); eIT->next())
+  {
+    auto edge1 = tree.getEdgeFromGraphid(getEdgeGraphid(**eIT));
+    if (tree.hasEdgeIndex(edge1))
+      setEdgeIndex(**eIT,tree.getEdgeIndex(edge1));
+  }
+  
+  // assigns node indexes
+  unique_ptr<modelTree::NodeIterator> nIT=allNodesIterator();
+
+  for (;!nIT->end(); nIT->next())
+  {
+    auto node1 = tree.getNodeFromGraphid(getNodeGraphid(**nIT));
+    if (tree.hasNodeIndex(node1))
+      setNodeIndex(**nIT,tree.getNodeIndex(node1));
+  }
+}
+
 void OneProcessSequenceSubstitutionMapping::computeNormalizations(const ParameterList& nullParams,
                                                                   bool verbose)
 {
@@ -54,21 +83,21 @@ void OneProcessSequenceSubstitutionMapping::computeNormalizations(const Paramete
                                                                  verbose));
 }
 
-void OneProcessSequenceSubstitutionMapping::computeNormalizationsForASite(
-  size_t site,
-  const ParameterList& nullParams,
-  bool verbose)
-{
-  matchParametersValues(nullParams);
+// void OneProcessSequenceSubstitutionMapping::computeNormalizationsForASite(
+//   size_t site,
+//   const ParameterList& nullParams,
+//   bool verbose)
+// {
+//   matchParametersValues(nullParams);
 
-  factors_.reset(SubstitutionMappingToolsForASite::computeNormalizations(
-                   site,
-                   getLikelihoodCalculationSingleProcess(),
-                   this,
-                   getRegister(),
-                   getDistances(),
-                   verbose));
-}
+//   factors_.reset(SubstitutionMappingToolsForASite::computeNormalizations(
+//                    site,
+//                    getLikelihoodCalculationSingleProcess(),
+//                    this,
+//                    getRegister(),
+//                    getDistances(),
+//                    verbose));
+// }
 
 void OneProcessSequenceSubstitutionMapping::setBranchedModelSet_()
 {

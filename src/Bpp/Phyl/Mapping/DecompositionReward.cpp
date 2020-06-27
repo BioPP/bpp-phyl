@@ -68,6 +68,14 @@ DecompositionReward::DecompositionReward(const SubstitutionModel* model, Alphabe
   computeProducts_();
 }				
 
+DecompositionReward::DecompositionReward(const StateMap& statemap, AlphabetIndex1* alphIndex) :
+  AbstractReward(alphIndex),
+  DecompositionMethods(statemap),
+  rewards_(nbStates_, nbStates_),
+  currentLength_(-1.)
+{
+}				
+
 /******************************************************************************/
 
 void DecompositionReward::initRewards_()
@@ -105,6 +113,9 @@ void DecompositionReward::computeRewards_(double length) const
 
 Matrix<double>* DecompositionReward::getAllRewards(double length) const
 {
+  if (!model_)
+    throw Exception("DecompositionReward::getAllRewards: model not defined.");
+  
   if (length < 0)
     throw Exception("DecompositionReward::getAllRewards. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
@@ -119,6 +130,9 @@ Matrix<double>* DecompositionReward::getAllRewards(double length) const
 
 void DecompositionReward::storeAllRewards(double length, Eigen::MatrixXd& mat) const
 {
+  if (!model_)
+    throw Exception("DecompositionReward::storeAllRewards: model not defined.");
+
   if (length < 0)
     throw Exception("DecompositionReward::storeAllRewards. Negative branch length: " + TextTools::toString(length) + ".");
   
@@ -153,11 +167,15 @@ double DecompositionReward::getReward(size_t initialState, size_t finalState, do
 
 void DecompositionReward::setSubstitutionModel(const SubstitutionModel* model)
 {
+  DecompositionMethods::setSubstitutionModel(model);
+
+  if (!model)
+    return;
+  
   //Check compatiblity between model and substitution register:
   if (typeid(model->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward::setSubstitutionModel: alphabets do not match between alphabet index and model.");
 
-  DecompositionMethods::setSubstitutionModel(model);
 
   initRewards_();
   
@@ -173,6 +191,9 @@ void DecompositionReward::setSubstitutionModel(const SubstitutionModel* model)
 
 void DecompositionReward::alphabetIndexHasChanged()
 {
+  if (!model_)
+    return;
+  
   //Check compatiblity between model and substitution register:
   if (typeid(model_->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward::AlphabetIndexHasChanged: alphabets do not match between alphbaet index and model.");

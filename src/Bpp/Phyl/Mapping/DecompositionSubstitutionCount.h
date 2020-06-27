@@ -70,6 +70,8 @@ namespace bpp
   public:
     DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0, std::shared_ptr<const AlphabetIndex2> distances = 0);
 		
+    DecompositionSubstitutionCount(SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0, std::shared_ptr<const AlphabetIndex2> distances = 0);
+		
     DecompositionSubstitutionCount(const DecompositionSubstitutionCount& dsc) :
       AbstractSubstitutionCount(dsc),
       AbstractWeightedSubstitutionCount(dsc),

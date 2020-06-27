@@ -85,7 +85,13 @@ namespace bpp
       AbstractWeightedSubstitutionCount(weights),
       allowSelf_(allowSelf),
       supportedChars_(model->getAlphabetStates()) {}				
-		
+
+    NaiveSubstitutionCount(const StateMap& statemap, SubstitutionRegister* reg, bool allowSelf = false, std::shared_ptr<const AlphabetIndex2> weights = 0) :
+      AbstractSubstitutionCount(reg),
+      AbstractWeightedSubstitutionCount(weights),
+      allowSelf_(allowSelf),
+      supportedChars_(statemap.getAlphabetStates()) {}				
+
     virtual ~NaiveSubstitutionCount() {}
 	
     NaiveSubstitutionCount* clone() const { return new NaiveSubstitutionCount(*this); }
@@ -117,7 +123,8 @@ namespace bpp
     
     void setSubstitutionModel(const SubstitutionModel* model)
     {
-      supportedChars_ = model->getAlphabetStates();
+      if (model)
+        supportedChars_ = model->getAlphabetStates();
     }
 
   private:
@@ -142,6 +149,8 @@ namespace bpp
     
   public:
     LabelSubstitutionCount(const SubstitutionModel* model);
+
+    LabelSubstitutionCount(const StateMap& statemap);
 
     virtual ~LabelSubstitutionCount() {}
 
@@ -179,7 +188,8 @@ namespace bpp
 
     void setSubstitutionModel(const SubstitutionModel* model)
     {
-      supportedChars_ = model->getAlphabetStates();
+      if (model)
+        supportedChars_ = model->getAlphabetStates();
     }
 
     void setSubstitutionRegister(SubstitutionRegister* reg) {

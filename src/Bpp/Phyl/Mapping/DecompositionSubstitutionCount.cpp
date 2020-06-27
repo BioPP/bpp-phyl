@@ -60,12 +60,24 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(const Substitutio
   if (typeid(model->getAlphabet())!=typeid(reg->getAlphabet()))
     throw Exception("DecompositionSubstitutionCount (constructor): alphabets do not match between register and model.");
 
-  initBMatrices_();
   initCounts_();
 
+  initBMatrices_();
   fillBMatrices_();
   computeProducts_();
 }
+
+DecompositionSubstitutionCount::DecompositionSubstitutionCount(SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
+  AbstractSubstitutionCount(reg),
+  AbstractWeightedSubstitutionCount(weights),
+  AbstractSubstitutionDistance(distances),
+  DecompositionMethods(reg),
+  counts_(reg->getNumberOfSubstitutionTypes()),
+  currentLength_(0)
+{
+  initCounts_();
+}
+
 
 void DecompositionSubstitutionCount::initCounts_()
 {
@@ -80,6 +92,9 @@ void DecompositionSubstitutionCount::initCounts_()
 
 void DecompositionSubstitutionCount::fillBMatrices_()
 {
+  if (!model_)
+    throw Exception("DecompositionSubstitutionCount::fillBMatrices_: model not defined.");
+
   vector<int> supportedStates = model_->getAlphabetStates();
   for (size_t j = 0; j < nbStates_; ++j) {
     for (size_t k = 0; k < nbStates_; ++k) {
@@ -96,6 +111,9 @@ void DecompositionSubstitutionCount::fillBMatrices_()
  
 void DecompositionSubstitutionCount::setDistanceBMatrices_()
 {
+  if (!model_)
+    throw Exception("DecompositionSubstitutionCount::setDistanceBMatrices_: model not defined.");
+  
   vector<int> supportedStates = model_->getAlphabetStates();
   for (size_t j = 0; j < nbStates_; ++j) {
     for (size_t k = 0; k < nbStates_; ++k) {
@@ -133,6 +151,9 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
 
 Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
+  if (!model_)
+    throw Exception("DecompositionSubstitutionCount::getAllNumbersOfSubstitutions: model not defined.");
+  
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
@@ -147,6 +168,9 @@ Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(dou
 
 void DecompositionSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
 {
+  if (!model_)
+    throw Exception("DecompositionSubstitutionCount::storeAllNumbersOfSubstitutions: model not defined.");
+
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
@@ -167,6 +191,9 @@ void DecompositionSubstitutionCount::storeAllNumbersOfSubstitutions(double lengt
 
 double DecompositionSubstitutionCount::getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type) const
 {
+  if (!model_)
+    throw Exception("DecompositionSubstitutionCount::getNumberOfSubstitutions: model not defined.");
+
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
@@ -181,8 +208,12 @@ double DecompositionSubstitutionCount::getNumberOfSubstitutions(size_t initialSt
 
 std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
 {
+  if (!model_)
+    throw Exception("DecompositionSubstitutionCount::getNumberOfSubstitutionsPerType: model not defined.");
+
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
+
   if (length != currentLength_)
   {
     computeCounts_(length);
@@ -219,7 +250,10 @@ void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionMode
 
 void DecompositionSubstitutionCount::substitutionRegisterHasChanged()
 {
-//Check compatiblity between model and substitution register:
+  if (!model_)
+    return;
+  
+  //Check compatiblity between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("DecompositionMethods::substitutionRegisterHasChanged: alphabets do not match between register and model.");
 
@@ -243,6 +277,9 @@ void DecompositionSubstitutionCount::weightsHaveChanged()
   if (typeid(weights_->getAlphabet()) != typeid(register_->getAlphabet()))
     throw Exception("DecompositionSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");
 
+  if (!model_)
+    return;
+  
   //Recompute counts:
   if (currentLength_ > 0)
     computeCounts_(currentLength_);
@@ -253,6 +290,9 @@ void DecompositionSubstitutionCount::distancesHaveChanged()
 {
   if (distances_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("DecompositionSubstitutionCount::distancesHaveChanged. Incorrect alphabet type.");
+
+  if (!model_)
+    return;
 
   //Recompute counts:
   setDistanceBMatrices_();

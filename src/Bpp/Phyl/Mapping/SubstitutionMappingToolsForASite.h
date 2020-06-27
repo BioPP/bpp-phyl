@@ -66,7 +66,7 @@ namespace bpp
   {
   public:
     
-    typedef std::map<const SubstitutionModel*, std::unique_ptr<SubstitutionCount > > t_Sm_Sc;
+    typedef std::map<const SubstitutionModel*, std::shared_ptr<SubstitutionCount > > t_Sm_Sc;
     typedef std::map<const SubstitutionRegister*, t_Sm_Sc > t_Sr_Sm_Sc;
     
   private:
@@ -105,8 +105,8 @@ namespace bpp
     //   double threshold = -1,
     //   bool verbose = true)
     // {
-    //   std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
-    //   return computeCounts(site, rltc, nodeIds, substitutionCount, threshold, verbose);
+    //   std::vector<uint> edgeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+    //   return computeCounts(site, rltc, edgeIds, substitutionCount, threshold, verbose);
     // }
 
     /**
@@ -136,8 +136,8 @@ namespace bpp
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeCounts(site, rltc, nodeIds, reg, weights, distances, threshold, verbose);
+      std::vector<uint> edgeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeCounts(site, rltc, edgeIds, reg, weights, distances, threshold, verbose);
     }
 
     /**
@@ -145,7 +145,7 @@ namespace bpp
      *
      * @param site              The site
      * @param rltc              A LikelihoodCalculationSingleProcess object.
-     * @param nodeIds           The Ids of the nodes the substitutions
+     * @param edgeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param substitutionCount The SubstitutionCount to use.
@@ -159,7 +159,7 @@ namespace bpp
       size_t site,
       LikelihoodCalculationSingleProcess& rltc,
       t_Sm_Sc& m_Sm_Sc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       double threshold = -1,
       bool verbose = true);
 
@@ -168,7 +168,7 @@ namespace bpp
      *
      * @param site              The site
      * @param rltc              A LikelihoodCalculationSingleProcess object.
-     * @param nodeIds           The Ids of the nodes the substitutions
+     * @param edgeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param reg               The SubstitutionRegister to use.
@@ -187,7 +187,7 @@ namespace bpp
     static ProbabilisticSubstitutionMapping* computeCounts(
       size_t site,
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
       std::shared_ptr<const AlphabetIndex2> distances = 0,
@@ -200,7 +200,7 @@ namespace bpp
      *
      * @param site              The site
      * @param rltc              A LikelihoodCalculationSingleProcess object.
-     * @param nodeIds           The Ids of the nodes the substitutions
+     * @param edgeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param nullModels        The "null" models used for normalization
@@ -215,7 +215,7 @@ namespace bpp
     static ProbabilisticSubstitutionMapping* computeNormalizations(
       size_t site,
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> distances = 0,
@@ -244,8 +244,8 @@ namespace bpp
       std::shared_ptr<const AlphabetIndex2> distances = 0,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeNormalizations(site, rltc, nodeIds, nullModels, reg, distances, verbose);
+      std::vector<uint> edgeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeNormalizations(site, rltc, edgeIds, nullModels, reg, distances, verbose);
     }
 
     /**
@@ -254,7 +254,7 @@ namespace bpp
      *
      * @param site              The site
      * @param rltc              A LikelihoodCalculationSingleProcess object.
-     * @param nodeIds           The Ids of the nodes the substitutions
+     * @param edgeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param nullModels        The "null" models used for normalization
@@ -281,7 +281,7 @@ namespace bpp
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       size_t site,
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
@@ -294,7 +294,7 @@ namespace bpp
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       const ProbabilisticSubstitutionMapping* counts,
       const ProbabilisticSubstitutionMapping* factors,
-      const std::vector<uint>& nodeIds,
+      const std::vector<uint>& edgeIds,
       bool perTimeUnit = false,
       uint siteSize = 1);
 
@@ -310,8 +310,8 @@ namespace bpp
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeNormalizedCounts(site, rltc, nodeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
+      std::vector<uint> edgeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeNormalizedCounts(site, rltc, edgeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
     }
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
@@ -320,8 +320,8 @@ namespace bpp
       bool perTimeUnit,
       uint siteSize = 1)
     {
-      std::vector<uint> nodeIds=factors->getAllEdgesIndexes();
-      return computeNormalizedCounts(counts, factors, nodeIds, perTimeUnit, siteSize);
+      std::vector<uint> edgeIds=factors->getAllEdgesIndexes();
+      return computeNormalizedCounts(counts, factors, edgeIds, perTimeUnit, siteSize);
     }
 
     /**

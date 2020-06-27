@@ -81,6 +81,21 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
       
 }        
 
+UniformizationSubstitutionCount::UniformizationSubstitutionCount(const StateMap& statemap, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
+  AbstractSubstitutionCount(reg),
+  AbstractWeightedSubstitutionCount(weights),
+  AbstractSubstitutionDistance(distances),
+  model_(0),
+  nbStates_(statemap.getNumberOfModelStates()),
+  bMatrices_(reg->getNumberOfSubstitutionTypes()),
+  power_(),
+  s_(reg->getNumberOfSubstitutionTypes()),
+  miu_(0),
+  counts_(reg->getNumberOfSubstitutionTypes()),
+  currentLength_(0)
+{
+}        
+
 /******************************************************************************/
 
 void UniformizationSubstitutionCount::resetBMatrices_()
@@ -192,6 +207,9 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
 
 Matrix<double>* UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
+  if (!model_)
+    throw Exception("UniformizationSubstitutionCount::getAllNumbersOfSubstitutions: model not defined.");
+  
   if (length < 0)
     throw Exception("UniformizationSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
@@ -206,8 +224,11 @@ Matrix<double>* UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(do
 
 void UniformizationSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
 {
+  if (!model_)
+    throw Exception("UniformizationSubstitutionCount::storeAllNumbersOfSubstitutions: model not defined.");
+
   if (length < 0)
-    throw Exception("UniformizationSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
+    throw Exception("UniformizationSubstitutionCount::storeAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
   {
     computeCounts_(length);
@@ -226,6 +247,9 @@ void UniformizationSubstitutionCount::storeAllNumbersOfSubstitutions(double leng
 
 double UniformizationSubstitutionCount::getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type) const
 {
+  if (!model_)
+    throw Exception("UniformizationSubstitutionCount::getNumberOfSubstitutions: model not defined.");
+
   if (length < 0)
     throw Exception("UniformizationSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
@@ -240,6 +264,9 @@ double UniformizationSubstitutionCount::getNumberOfSubstitutions(size_t initialS
 
 std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
 {
+  if (!model_)
+    throw Exception("UniformizationSubstitutionCount::getNumberOfSubstitutionsPerTye: model not defined.");
+
   if (length < 0)
     throw Exception("UniformizationSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
@@ -258,11 +285,15 @@ std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsPer
 
 void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
 {
+  model_ = model;
+
+  if (!model_)
+    return;
+  
   //Check compatiblity between model and substitution register:
   if (model->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::setSubstitutionModel: alphabets do not match between register and model.");
 
-  model_ = model;
   size_t n = model->getNumberOfStates();
   if (n != nbStates_) {
     nbStates_ = n;
@@ -290,6 +321,9 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
 
 void UniformizationSubstitutionCount::substitutionRegisterHasChanged()
 {
+  if (!model_)
+    return;
+  
   //Check compatiblity between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::substitutionRegisterHasChanged: alphabets do not match between register and model.");
@@ -307,6 +341,9 @@ void UniformizationSubstitutionCount::substitutionRegisterHasChanged()
 
 void UniformizationSubstitutionCount::weightsHaveChanged()
 {
+  if (!model_)
+    return;
+  
   if (weights_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");
 
@@ -317,6 +354,9 @@ void UniformizationSubstitutionCount::weightsHaveChanged()
 
 void UniformizationSubstitutionCount::distancesHaveChanged()
 {
+  if (!model_)
+    return;
+    
   if (distances_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::distancesHaveChanged. Incorrect alphabet type.");
 

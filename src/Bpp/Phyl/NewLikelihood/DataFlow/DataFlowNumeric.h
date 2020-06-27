@@ -472,459 +472,524 @@ namespace bpp {
    * all deps constant => return constant ?
    */
 
-    // Error utils
-    [[noreturn]] void failureDeltaNotDerivable (const std::type_info & contextNodeType);
-    [[noreturn]] void failureNumericalDerivationNotConfigured ();
-    void checkRecreateWithoutDependencies (const std::type_info & contextNodeType, const NodeRefVec & deps);
+  // Error utils
+  [[noreturn]] void failureDeltaNotDerivable (const std::type_info & contextNodeType);
+  [[noreturn]] void failureNumericalDerivationNotConfigured ();
+  void checkRecreateWithoutDependencies (const std::type_info & contextNodeType, const NodeRefVec & deps);
 
-    // Type tag to indicate a reduction operation (for +,*,...).
-    template <typename T> struct ReductionOf;
+  // Type tag to indicate a reduction operation (for +,*,...).
+  template <typename T> struct ReductionOf;
 
-    // Declaration of all defined nodes, in order of implementation.
-    template <typename T> class ConstantZero;
-    template <typename T> class ConstantOne;
-    template <typename T> class NumericConstant;
-    template <typename T> class NumericMutable;
-    template <typename Result, typename From> class Convert;
+  // Declaration of all defined nodes, in order of implementation.
+  template <typename T> class ConstantZero;
+  template <typename T> class ConstantOne;
+  template <typename T> class NumericConstant;
+  template <typename T> class NumericMutable;
+  template <typename Result, typename From> class Convert;
 
-    // Utilities
-    template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
-      auto new_end = std::remove_if (deps.begin (), deps.end (), std::move (p));
-      deps.erase (new_end, deps.end ()); // Truncate vector storage
+  // Utilities
+  template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
+    auto new_end = std::remove_if (deps.begin (), deps.end (), std::move (p));
+    deps.erase (new_end, deps.end ()); // Truncate vector storage
+  }
+
+  /** @brief Template struct used to describe a dependency transformation before compute().
+   *
+   * Transforms allow to generate variants of computation nodes with a readable syntax:
+   * MatrixProduct<R, T0, T1> will perform R = T0 * T1.
+   * MatrixProduct<R, Transposed<T0>, T1> will perform R = transpose(T0) * T1.
+   *
+   * This struct is used to implement the transformation.
+   * A default case is provided that performs no transformation.
+   * Adding a new transformation type consists of declaring a type tag (like Transposed<T>),
+   * and specialising this struct for the type tag to implement the transformation.
+   * Specialisations should be recursive to allow nesting of transformations (see Transposed<T>).
+   *
+   * The DepType field gives the real type of the dependency, removing any type tag.
+   * For Transposed<T0>, DepType = T0.
+   * DepType is used to check the dependency types (Value<DepType>), and casting during computation.
+   *
+   * transform(const DepType & d) -> ? "performs" the transformation.
+   * By default, this just forwards the d reference, doing nothing.
+   * For Transposed<T>, this returns an Eigen expression template declaring a transposition.
+   *
+   * A transformation must not change the result of hasNumericalProperty(), because it is not applied to it,
+   * and would make the simplifications wrong.
+   * This makes it unlikely that something other than transposition can be implemented with this model.
+   *
+   * For now, this is only used to implement transposed variants of MatrixProduct, and Convert.
+   * This can be extended to other nodes if useful.
+   */
+
+  template <typename T> struct NumericalDependencyTransform {
+    /// Real type of the dependency: T in the default case.
+    using DepType = T;
+    /// Transform the DepType value: do nothing in the default case.
+    static const DepType & transform (const DepType & d) { return d; }
+  };
+
+  /// The T dependency should be transposed before computation.
+  template <typename T> struct Transposed;
+  /// Implementation for a dependency transposition.
+  template <typename T> struct NumericalDependencyTransform<Transposed<T>> {
+    // Get DepType by recursion
+    using DepType = typename NumericalDependencyTransform<T>::DepType;
+
+    // Perform inner transformation for T, then transpose. Only for Eigen types.
+    static auto transform (const DepType & d)
+      -> decltype (NumericalDependencyTransform<T>::transform (d).transpose ()) {
+      return NumericalDependencyTransform<T>::transform (d).transpose ();
+    }
+  };
+
+  /** @brief r = 0 for each component.
+   * - r: T.
+   *
+   * Node construction should be done with the create static method.
+   * Value is only created at first use (lazy).
+   */
+  template <typename T> class ConstantZero : public Value<T> {
+  public:
+    using Self = ConstantZero;
+
+    /// Build a new ConstantZero node of the given dimension.
+    static std::shared_ptr<Self> create (Context & c, const Dimension<T> & dim) {
+      return cachedAs<Self> (c, std::make_shared<Self> (dim));
     }
 
-    /** @brief Template struct used to describe a dependency transformation before compute().
+    explicit ConstantZero (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {
+    }
+
+    std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension_); }
+
+    bool hasNumericalProperty (NumericalProperty prop) const final {
+      switch (prop) {
+      case NumericalProperty::Constant:
+        return true;
+      case NumericalProperty::ConstantZero:
+        return true;
+      default:
+        return false;
+      }
+    }
+
+    // ConstantZero<T> additional arguments = (targetDimension_).
+    bool compareAdditionalArguments (const Node_DF & other) const final {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      return derived != nullptr && targetDimension_ == derived->targetDimension_;
+    }
+    std::size_t hashAdditionalArguments () const final { return hash (targetDimension_); }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<T>::create (c, targetDimension_);
+      }
+      return this->shared_from_this (); // Return handle to self, as d(0)/dx = 0
+    }
+
+    NodeRef recreate (Context &, NodeRefVec && deps) final {
+      checkRecreateWithoutDependencies (typeid (Self), deps);
+      return this->shared_from_this ();
+    }
+
+  private:
+    void compute () final {
+      using namespace numeric;
+      this->accessValueMutable () = zero (targetDimension_);
+    }
+
+    Dimension<T> targetDimension_;
+  };
+
+  /** @brief r = 1 for each component.
+   * - r: T.
+   *
+   * Node construction should be done with the create static method.
+   * Value is only created at first use (lazy).
+   */
+  template <typename T> class ConstantOne : public Value<T> {
+  public:
+    using Self = ConstantOne;
+
+    /// Build a new ConstantOne node of the given dimension.
+    static std::shared_ptr<Self> create (Context & c, const Dimension<T> & dim) {
+      return cachedAs<Self> (c, std::make_shared<Self> (dim));
+    }
+
+    explicit ConstantOne (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {}
+
+    std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension_); }
+
+    bool hasNumericalProperty (NumericalProperty prop) const final {
+      switch (prop) {
+      case NumericalProperty::Constant:
+        return true;
+      case NumericalProperty::ConstantOne:
+        return true;
+      default:
+        return false;
+      }
+    }
+
+    // ConstantOne<T> additional arguments = (targetDimension_).
+    bool compareAdditionalArguments (const Node_DF & other) const final {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      return derived != nullptr && targetDimension_ == derived->targetDimension_;
+    }
+    std::size_t hashAdditionalArguments () const final { return hash (targetDimension_); }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<T>::create (c, targetDimension_);
+      }
+      return ConstantZero<T>::create (c, targetDimension_);
+    }
+
+    NodeRef recreate (Context &, NodeRefVec && deps) final {
+      checkRecreateWithoutDependencies (typeid (Self), deps);
+      return this->shared_from_this ();
+    }
+
+  private:
+    void compute () final {
+      using namespace numeric;
+      this->accessValueMutable () = one (targetDimension_);
+    }
+
+    Dimension<T> targetDimension_;
+  };
+
+  /** @brief r = constant_value.
+   * - r: T.
+   *
+   * Node construction should be done with the create static method.
+   * Value is set at construction, and cannot change.
+   * Supports derivation.
+   */
+  template <typename T> class NumericConstant : public Value<T> {
+  public:
+    using Self = NumericConstant;
+
+    /// Build a new NumericConstant node with T(args...) value.
+    template <typename... Args> static std::shared_ptr<Self> create (Context & c, Args &&... args) {
+      return cachedAs<Self> (c, std::make_shared<Self> (std::forward<Args> (args)...));
+    }
+
+    template <typename... Args>
+    explicit NumericConstant (Args &&... args) : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
+      this->makeValid (); // Always valid
+    }
+
+    std::string debugInfo () const override {
+      using namespace numeric;
+      return debug (this->accessValueConst ());
+    }
+
+    std::string description() const override
+    {
+      using namespace numeric;
+      return Node_DF::description() + "\n"+ debug (this->accessValueConst ());
+    }
+
+    std::string color () const override {
+      return "grey";
+    }
+
+    bool hasNumericalProperty (NumericalProperty prop) const final {
+      using namespace numeric;
+      const auto & value = this->accessValueConst ();
+      switch (prop) {
+      case NumericalProperty::Constant:
+        return true;
+      case NumericalProperty::ConstantZero:
+        return value == zero (Dimension<T> (value));
+      case NumericalProperty::ConstantOne:
+        return value == one (Dimension<T> (value));
+      case NumericalProperty::ConstantIdentity:
+        return isIdentity (value);
+      default:
+        return false;
+      }
+    }
+
+    // NumericConstant<T> additional arguments = (value).
+    bool compareAdditionalArguments (const Node_DF & other) const {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      return derived != nullptr && this->accessValueConst () == derived->accessValueConst ();
+    }
+
+    std::size_t hashAdditionalArguments () const {
+      using namespace numeric;
+      return hash (this->accessValueConst ());
+    }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      const auto dim = Dimension<T> (this->accessValueConst ());
+      if (&node == this) {
+        return ConstantOne<T>::create (c, dim);
+      }
+      return ConstantZero<T>::create (c, dim);
+    }
+
+    NodeRef recreate (Context &, NodeRefVec && deps) {
+      checkRecreateWithoutDependencies (typeid (Self), deps);
+      return this->shared_from_this ();
+    }
+
+  private:
+    void compute () final {
+      // Constant is valid from construction
+      failureComputeWasCalled (typeid (*this));
+    }
+  };
+
+  /** @brief r = variable_value.
+   * - r: T.
+   *
+   * Value is set at construction, and can be changed (will invalidate all dependent values).
+   * Node construction should be done with the create static method.
+   * Supports derivation.
+   * This node has no Context merging support: mutable nodes are always different.
+   */
+  template <typename T> class NumericMutable : public Value<T> {
+  public:
+    using Self = NumericMutable;
+
+    /// Build a new NumericMutable node with T(args...) value.
+    template <typename... Args> static std::shared_ptr<Self> create (Context &, Args &&... args) {
+      return std::make_shared<Self> (std::forward<Args> (args)...);
+    }
+
+    template <typename... Args>
+    explicit NumericMutable (Args &&... args) : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
+      this->makeValid (); // Initial value is valid
+    }
+
+    /** @brief General case for modification of the T object.
      *
-     * Transforms allow to generate variants of computation nodes with a readable syntax:
-     * MatrixProduct<R, T0, T1> will perform R = T0 * T1.
-     * MatrixProduct<R, Transposed<T0>, T1> will perform R = transpose(T0) * T1.
-     *
-     * This struct is used to implement the transformation.
-     * A default case is provided that performs no transformation.
-     * Adding a new transformation type consists of declaring a type tag (like Transposed<T>),
-     * and specialising this struct for the type tag to implement the transformation.
-     * Specialisations should be recursive to allow nesting of transformations (see Transposed<T>).
-     *
-     * The DepType field gives the real type of the dependency, removing any type tag.
-     * For Transposed<T0>, DepType = T0.
-     * DepType is used to check the dependency types (Value<DepType>), and casting during computation.
-     *
-     * transform(const DepType & d) -> ? "performs" the transformation.
-     * By default, this just forwards the d reference, doing nothing.
-     * For Transposed<T>, this returns an Eigen expression template declaring a transposition.
-     *
-     * A transformation must not change the result of hasNumericalProperty(), because it is not applied to it,
-     * and would make the simplifications wrong.
-     * This makes it unlikely that something other than transposition can be implemented with this model.
-     *
-     * For now, this is only used to implement transposed variants of MatrixProduct, and Convert.
-     * This can be extended to other nodes if useful.
+     * Takes a callable object (lamda, function pointer) that performs the modification.
+     * It must take a single T& as argument, which will refer to the T object to modify.
+     * The callable is called exactly once.
+     * TODO replace with view-struct that performs invalidate on destruction ?
      */
+    template <typename Callable> void modify (Callable && modifier) {
+      this->invalidateRecursively ();
+      std::forward<Callable> (modifier) (this->accessValueMutable ());
+      this->makeValid ();
+    }
 
-    template <typename T> struct NumericalDependencyTransform {
-      /// Real type of the dependency: T in the default case.
-      using DepType = T;
-      /// Transform the DepType value: do nothing in the default case.
-      static const DepType & transform (const DepType & d) { return d; }
-    };
+    /// Setter with invalidation.
+    void setValue (const T & t) {
+      modify ([&t](T & v) { v = t; });
+    }
 
-    /// The T dependency should be transposed before computation.
-    template <typename T> struct Transposed;
-    /// Implementation for a dependency transposition.
-    template <typename T> struct NumericalDependencyTransform<Transposed<T>> {
-      // Get DepType by recursion
-      using DepType = typename NumericalDependencyTransform<T>::DepType;
+    /// Setter with invalidation (movable value version).
+    void setValue (T && t) {
+      modify ([&t](T & v) { v = std::move (t); });
+    }
 
-      // Perform inner transformation for T, then transpose. Only for Eigen types.
-      static auto transform (const DepType & d)
-        -> decltype (NumericalDependencyTransform<T>::transform (d).transpose ()) {
-        return NumericalDependencyTransform<T>::transform (d).transpose ();
+    std::string debugInfo () const override {
+      using namespace numeric;
+      return debug (this->accessValueConst ());
+    }
+
+    std::string description() const override
+    {
+      using namespace numeric;
+      return Node_DF::description() + "\n"+ debug (this->accessValueConst ());
+    }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      const auto dim = Dimension<T> (this->accessValueConst ());
+      if (&node == this) {
+        return ConstantOne<T>::create (c, dim);
       }
-    };
+      return ConstantZero<T>::create (c, dim);
+    }
 
-    /** @brief r = 0 for each component.
-     * - r: T.
-     *
-     * Node construction should be done with the create static method.
-     * Value is only created at first use (lazy).
-     */
-    template <typename T> class ConstantZero : public Value<T> {
-    public:
-      using Self = ConstantZero;
+    NodeRef recreate (Context &, NodeRefVec && deps) final {
+      checkRecreateWithoutDependencies (typeid (Self), deps);
+      return this->shared_from_this ();
+    }
 
-      /// Build a new ConstantZero node of the given dimension.
-      static std::shared_ptr<Self> create (Context & c, const Dimension<T> & dim) {
-        return cachedAs<Self> (c, std::make_shared<Self> (dim));
+  private:
+    void compute () final {
+      // Mutable is always valid
+      failureComputeWasCalled (typeid (*this));
+    }
+  };
+
+  /** @brief r = convert(f).
+   * - r: R.
+   * - f: F, allows NumericalDependencyTransform.
+   *
+   * Convert from F to R type, semantics of numeric::convert.
+   * Node construction should be done with the create static method.
+   */
+  template <typename R, typename F> class Convert : public Value<R> {
+  public:
+    using Self = Convert;
+    using DepF = typename NumericalDependencyTransform<F>::DepType;
+
+    /// Build a new Convert node with the given output dimensions.
+    static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+      // Check dependencies
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 1);
+      checkNthDependencyIsValue<DepF> (typeid (Self), deps, 0);
+      // Select node
+      if (std::is_same<R, F>::value) {
+        return convertRef<Value<R>> (deps[0]);
+      } else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero)) {
+        return ConstantZero<R>::create (c, dim);
+      } else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne)) {
+        return ConstantOne<R>::create (c, dim);
+      } else {
+        return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
+    }
 
-      explicit ConstantZero (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {
+    Convert (NodeRefVec && deps, const Dimension<R> & dim)
+      : Value<R> (std::move (deps)), targetDimension_ (dim) {}
+
+    std::string debugInfo () const override {
+      using namespace numeric;
+      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // Convert<T> additional arguments = ().
+    bool compareAdditionalArguments (const Node_DF & other) const final {
+      return dynamic_cast<const Self *> (&other) != nullptr;
+    }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<R>::create (c, targetDimension_);
       }
+      return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension_);
+    }
 
-      std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension_); }
+    NodeRef recreate (Context & c, NodeRefVec && deps) final {
+      return Self::create (c, std::move (deps), targetDimension_);
+    }
 
-      bool hasNumericalProperty (NumericalProperty prop) const final {
-        switch (prop) {
-        case NumericalProperty::Constant:
-          return true;
-        case NumericalProperty::ConstantZero:
-          return true;
-        default:
-          return false;
-        }
+  private:
+    void compute () final {
+      using namespace numeric;
+      auto & result = this->accessValueMutable ();
+      const auto & arg = accessValueConstCast<DepF> (*this->dependency (0));
+      convert (result, NumericalDependencyTransform<F>::transform (arg), targetDimension_);
+    }
+
+    Dimension<R> targetDimension_;
+  };
+
+  /** @brief r = id(f)
+   * - r, f: R.
+   *
+   * This class adds an object in the graph DF to maintain a external
+   * structure, but entails useless computation.
+   *
+   * id is there to ensure unicity if necessary
+   */
+  
+  template <typename R> class Identity : public Value<R> {
+  public:
+    using Self = Identity;
+
+    /// Build a new Convert node with the given output dimensions.
+    static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim, size_t id = 0) {
+      // Check dependencies
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 1);
+      checkNthDependencyIsValue<R> (typeid (Self), deps, 0);
+
+      return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim, id));
+    }
+
+    Identity (NodeRefVec && deps, const Dimension<R> & dim, size_t id)
+      : Value<R> (std::move (deps)), targetDimension_ (dim), id_(id) {}
+
+    std::string debugInfo () const override {
+      using namespace numeric;
+      return debug (this->accessValueConst ()) + " id_=" + std::to_string (id_)  + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // Convert<T> additional arguments = ().
+    bool compareAdditionalArguments (const Node_DF & other) const final {
+      auto oself = dynamic_cast<const Self *> (&other);
+      if (oself == nullptr)
+        return false;
+
+      return (id_ == oself->id_);
+    }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<R>::create (c, targetDimension_);
       }
+      return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension_, id_);
+    }
+    
+    NodeRef recreate (Context & c, NodeRefVec && deps) final {
+      return Self::create (c, std::move (deps), targetDimension_, id_);
+    }
 
-      // ConstantZero<T> additional arguments = (targetDimension_).
-      bool compareAdditionalArguments (const Node_DF & other) const final {
-        const auto * derived = dynamic_cast<const Self *> (&other);
-        return derived != nullptr && targetDimension_ == derived->targetDimension_;
-      }
-      std::size_t hashAdditionalArguments () const final { return hash (targetDimension_); }
+  private:
+    void compute () final {
+      using namespace numeric;
+      auto & result = this->accessValueMutable ();
+      result =  accessValueConstCast<R> (*this->dependency (0));
+    }
+    
+    Dimension<R> targetDimension_;
 
-      NodeRef derive (Context & c, const Node_DF & node) final {
-        if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension_);
-        }
-        return this->shared_from_this (); // Return handle to self, as d(0)/dx = 0
-      }
+    size_t id_;
+  };
 
-      NodeRef recreate (Context &, NodeRefVec && deps) final {
-        checkRecreateWithoutDependencies (typeid (Self), deps);
-        return this->shared_from_this ();
-      }
+  // Precompiled instantiations
+  extern template class ConstantZero<double>;
+  extern template class ConstantZero<Eigen::VectorXd>;
+  extern template class ConstantZero<Eigen::RowVectorXd>;
+  extern template class ConstantZero<Eigen::MatrixXd>;
+  extern template class ConstantZero<TransitionFunction>;
+  extern template class ConstantZero<char>;
+  extern template class ConstantZero<std::string>;
 
-    private:
-      void compute () final {
-        using namespace numeric;
-        this->accessValueMutable () = zero (targetDimension_);
-      }
+  extern template class ConstantOne<double>;
+  extern template class ConstantOne<Eigen::VectorXd>;
+  extern template class ConstantOne<Eigen::RowVectorXd>;
+  extern template class ConstantOne<Eigen::MatrixXd>;
+  extern template class ConstantOne<TransitionFunction>;
+  extern template class ConstantZero<char>;
+  extern template class ConstantZero<std::string>;
 
-      Dimension<T> targetDimension_;
-    };
+  extern template class NumericConstant<std::string>;
+  extern template class NumericConstant<double>;
+  extern template class NumericConstant<Eigen::VectorXd>;
+  extern template class NumericConstant<Eigen::RowVectorXd>;
+  extern template class NumericConstant<Eigen::MatrixXd>;
 
-    /** @brief r = 1 for each component.
-     * - r: T.
-     *
-     * Node construction should be done with the create static method.
-     * Value is only created at first use (lazy).
-     */
-    template <typename T> class ConstantOne : public Value<T> {
-    public:
-      using Self = ConstantOne;
+  extern template class NumericMutable<double>;
+  extern template class NumericMutable<char>; // for symbolic derivation
+  extern template class NumericMutable<Eigen::VectorXd>;
+  extern template class NumericMutable<Eigen::RowVectorXd>;
+  extern template class NumericMutable<Eigen::MatrixXd>;
 
-      /// Build a new ConstantOne node of the given dimension.
-      static std::shared_ptr<Self> create (Context & c, const Dimension<T> & dim) {
-        return cachedAs<Self> (c, std::make_shared<Self> (dim));
-      }
+  extern template class Convert<double, double>;
+  extern template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
+  extern template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXd>;
+  extern template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
+  extern template class Convert<Eigen::VectorXd, double>;
+  extern template class Convert<Eigen::RowVectorXd, double>;
+  extern template class Convert<Eigen::MatrixXd, double>;
+  extern template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
+  extern template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
+  extern template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
 
-      explicit ConstantOne (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {}
+  extern template class Identity<double>;
 
-      std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension_); }
-
-      bool hasNumericalProperty (NumericalProperty prop) const final {
-        switch (prop) {
-        case NumericalProperty::Constant:
-          return true;
-        case NumericalProperty::ConstantOne:
-          return true;
-        default:
-          return false;
-        }
-      }
-
-      // ConstantOne<T> additional arguments = (targetDimension_).
-      bool compareAdditionalArguments (const Node_DF & other) const final {
-        const auto * derived = dynamic_cast<const Self *> (&other);
-        return derived != nullptr && targetDimension_ == derived->targetDimension_;
-      }
-      std::size_t hashAdditionalArguments () const final { return hash (targetDimension_); }
-
-      NodeRef derive (Context & c, const Node_DF & node) final {
-        if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension_);
-        }
-        return ConstantZero<T>::create (c, targetDimension_);
-      }
-
-      NodeRef recreate (Context &, NodeRefVec && deps) final {
-        checkRecreateWithoutDependencies (typeid (Self), deps);
-        return this->shared_from_this ();
-      }
-
-    private:
-      void compute () final {
-        using namespace numeric;
-        this->accessValueMutable () = one (targetDimension_);
-      }
-
-      Dimension<T> targetDimension_;
-    };
-
-    /** @brief r = constant_value.
-     * - r: T.
-     *
-     * Node construction should be done with the create static method.
-     * Value is set at construction, and cannot change.
-     * Supports derivation.
-     */
-    template <typename T> class NumericConstant : public Value<T> {
-    public:
-      using Self = NumericConstant;
-
-      /// Build a new NumericConstant node with T(args...) value.
-      template <typename... Args> static std::shared_ptr<Self> create (Context & c, Args &&... args) {
-        return cachedAs<Self> (c, std::make_shared<Self> (std::forward<Args> (args)...));
-      }
-
-      template <typename... Args>
-      explicit NumericConstant (Args &&... args) : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
-        this->makeValid (); // Always valid
-      }
-
-      std::string debugInfo () const override {
-        using namespace numeric;
-        return debug (this->accessValueConst ());
-      }
-
-      std::string description() const override
-      {
-        using namespace numeric;
-        return Node_DF::description() + "\n"+ debug (this->accessValueConst ());
-      }
-
-      std::string color () const override {
-        return "grey";
-      }
-
-      bool hasNumericalProperty (NumericalProperty prop) const final {
-        using namespace numeric;
-        const auto & value = this->accessValueConst ();
-        switch (prop) {
-        case NumericalProperty::Constant:
-          return true;
-        case NumericalProperty::ConstantZero:
-          return value == zero (Dimension<T> (value));
-        case NumericalProperty::ConstantOne:
-          return value == one (Dimension<T> (value));
-        case NumericalProperty::ConstantIdentity:
-          return isIdentity (value);
-        default:
-          return false;
-        }
-      }
-
-      // NumericConstant<T> additional arguments = (value).
-      bool compareAdditionalArguments (const Node_DF & other) const {
-        const auto * derived = dynamic_cast<const Self *> (&other);
-        return derived != nullptr && this->accessValueConst () == derived->accessValueConst ();
-      }
-
-      std::size_t hashAdditionalArguments () const {
-        using namespace numeric;
-        return hash (this->accessValueConst ());
-      }
-
-      NodeRef derive (Context & c, const Node_DF & node) final {
-        const auto dim = Dimension<T> (this->accessValueConst ());
-        if (&node == this) {
-          return ConstantOne<T>::create (c, dim);
-        }
-        return ConstantZero<T>::create (c, dim);
-      }
-
-      NodeRef recreate (Context &, NodeRefVec && deps) {
-        checkRecreateWithoutDependencies (typeid (Self), deps);
-        return this->shared_from_this ();
-      }
-
-    private:
-      void compute () final {
-        // Constant is valid from construction
-        failureComputeWasCalled (typeid (*this));
-      }
-    };
-
-    /** @brief r = variable_value.
-     * - r: T.
-     *
-     * Value is set at construction, and can be changed (will invalidate all dependent values).
-     * Node construction should be done with the create static method.
-     * Supports derivation.
-     * This node has no Context merging support: mutable nodes are always different.
-     */
-    template <typename T> class NumericMutable : public Value<T> {
-    public:
-      using Self = NumericMutable;
-
-      /// Build a new NumericMutable node with T(args...) value.
-      template <typename... Args> static std::shared_ptr<Self> create (Context &, Args &&... args) {
-        return std::make_shared<Self> (std::forward<Args> (args)...);
-      }
-
-      template <typename... Args>
-      explicit NumericMutable (Args &&... args) : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
-        this->makeValid (); // Initial value is valid
-      }
-
-      /** @brief General case for modification of the T object.
-       *
-       * Takes a callable object (lamda, function pointer) that performs the modification.
-       * It must take a single T& as argument, which will refer to the T object to modify.
-       * The callable is called exactly once.
-       * TODO replace with view-struct that performs invalidate on destruction ?
-       */
-      template <typename Callable> void modify (Callable && modifier) {
-        this->invalidateRecursively ();
-        std::forward<Callable> (modifier) (this->accessValueMutable ());
-        this->makeValid ();
-      }
-
-      /// Setter with invalidation.
-      void setValue (const T & t) {
-        modify ([&t](T & v) { v = t; });
-      }
-
-      /// Setter with invalidation (movable value version).
-      void setValue (T && t) {
-        modify ([&t](T & v) { v = std::move (t); });
-      }
-
-      std::string debugInfo () const override {
-        using namespace numeric;
-        return debug (this->accessValueConst ());
-      }
-
-      std::string description() const override
-      {
-        using namespace numeric;
-        return Node_DF::description() + "\n"+ debug (this->accessValueConst ());
-      }
-
-      NodeRef derive (Context & c, const Node_DF & node) final {
-        const auto dim = Dimension<T> (this->accessValueConst ());
-        if (&node == this) {
-          return ConstantOne<T>::create (c, dim);
-        }
-        return ConstantZero<T>::create (c, dim);
-      }
-
-      NodeRef recreate (Context &, NodeRefVec && deps) final {
-        checkRecreateWithoutDependencies (typeid (Self), deps);
-        return this->shared_from_this ();
-      }
-
-    private:
-      void compute () final {
-        // Mutable is always valid
-        failureComputeWasCalled (typeid (*this));
-      }
-    };
-
-    /** @brief r = convert(f).
-     * - r: R.
-     * - f: F, allows NumericalDependencyTransform.
-     *
-     * Convert from F to R type, semantics of numeric::convert.
-     * Node construction should be done with the create static method.
-     */
-    template <typename R, typename F> class Convert : public Value<R> {
-    public:
-      using Self = Convert;
-      using DepF = typename NumericalDependencyTransform<F>::DepType;
-
-      /// Build a new Convert node with the given output dimensions.
-      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
-        // Check dependencies
-        checkDependenciesNotNull (typeid (Self), deps);
-        checkDependencyVectorSize (typeid (Self), deps, 1);
-        checkNthDependencyIsValue<DepF> (typeid (Self), deps, 0);
-        // Select node
-        if (std::is_same<R, F>::value) {
-          return convertRef<Value<R>> (deps[0]);
-        } else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-          return ConstantZero<R>::create (c, dim);
-        } else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne)) {
-          return ConstantOne<R>::create (c, dim);
-        } else {
-          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
-        }
-      }
-
-      Convert (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
-
-      std::string debugInfo () const override {
-        using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
-      }
-
-      // Convert<T> additional arguments = ().
-      bool compareAdditionalArguments (const Node_DF & other) const final {
-        return dynamic_cast<const Self *> (&other) != nullptr;
-      }
-
-      NodeRef derive (Context & c, const Node_DF & node) final {
-        if (&node == this) {
-          return ConstantOne<R>::create (c, targetDimension_);
-        }
-        return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension_);
-      }
-
-      NodeRef recreate (Context & c, NodeRefVec && deps) final {
-        return Self::create (c, std::move (deps), targetDimension_);
-      }
-
-    private:
-      void compute () final {
-        using namespace numeric;
-        auto & result = this->accessValueMutable ();
-        const auto & arg = accessValueConstCast<DepF> (*this->dependency (0));
-        convert (result, NumericalDependencyTransform<F>::transform (arg), targetDimension_);
-      }
-
-      Dimension<R> targetDimension_;
-    };
-
-    // Precompiled instantiations
-    extern template class ConstantZero<double>;
-    extern template class ConstantZero<Eigen::VectorXd>;
-    extern template class ConstantZero<Eigen::RowVectorXd>;
-    extern template class ConstantZero<Eigen::MatrixXd>;
-    extern template class ConstantZero<TransitionFunction>;
-    extern template class ConstantZero<char>;
-    extern template class ConstantZero<std::string>;
-
-    extern template class ConstantOne<double>;
-    extern template class ConstantOne<Eigen::VectorXd>;
-    extern template class ConstantOne<Eigen::RowVectorXd>;
-    extern template class ConstantOne<Eigen::MatrixXd>;
-    extern template class ConstantOne<TransitionFunction>;
-    extern template class ConstantZero<char>;
-    extern template class ConstantZero<std::string>;
-
-    extern template class NumericConstant<std::string>;
-    extern template class NumericConstant<double>;
-    extern template class NumericConstant<Eigen::VectorXd>;
-    extern template class NumericConstant<Eigen::RowVectorXd>;
-    extern template class NumericConstant<Eigen::MatrixXd>;
-
-    extern template class NumericMutable<double>;
-    extern template class NumericMutable<char>; // for symbolic derivation
-    extern template class NumericMutable<Eigen::VectorXd>;
-    extern template class NumericMutable<Eigen::RowVectorXd>;
-    extern template class NumericMutable<Eigen::MatrixXd>;
-
-    extern template class Convert<double, double>;
-    extern template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
-    extern template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXd>;
-    extern template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
-    extern template class Convert<Eigen::VectorXd, double>;
-    extern template class Convert<Eigen::RowVectorXd, double>;
-    extern template class Convert<Eigen::MatrixXd, double>;
-    extern template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
-    extern template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
-    extern template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
-
-    extern NumericConstant<char> NodeX;
+  extern NumericConstant<char> NodeX;
     
     
 } // namespace bpp

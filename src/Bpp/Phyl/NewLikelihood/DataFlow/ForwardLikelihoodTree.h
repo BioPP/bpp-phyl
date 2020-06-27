@@ -129,6 +129,7 @@ namespace bpp
   using DAGindexes = std::vector<uint>;
   using Speciesindex = uint;
       
+
   class ForwardLikelihoodTree : public AssociationDAGlobalGraphObserver<ConditionalLikelihoodForward,ForwardLikelihoodBelow>
   {
     using DAClass = AssociationDAGlobalGraphObserver<ConditionalLikelihoodForward,ForwardLikelihoodBelow>;
@@ -141,16 +142,11 @@ namespace bpp
     std::size_t nbState_;
     std::size_t nbSites_;
 
-    /* Maps of edges and nodes between ForwardLikelihoodTree and
-     * ProcessTree */
-      
-    // std::map<ForwardLikelihoodBelowRef, ProcessEdgeRef> mapEdge_;
-    // std::map<ConditionalLikelihoodForwardRef, ProcessNodeRef> mapNode_;
-
     /* Map of the indexes of nodes between species tree and
      * likelihood tree */
 
-    std::map<Speciesindex, DAGindexes> mapNodesIndexes_;
+    std::map<Speciesindex, DAGindexes> mapNodesIndexes_; // For nodes that bring
+    //information (ie not the empty ones)
 
     std::map<Speciesindex, DAGindexes> mapEdgesIndexes_; // For edges that bring
     //information (ie not the empty ones)
@@ -161,7 +157,7 @@ namespace bpp
                           std::shared_ptr<ProcessTree> tree,
                           const StateMap& statemap) :
       DAClass(),
-      context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSites_(0)//, mapEdge_(), mapNode_()
+      context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSites_(0)
     {
     }
 
@@ -171,15 +167,15 @@ namespace bpp
       likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
       ConditionalLikelihoodForwardRef bidonRoot=ConstantZero<Eigen::MatrixXd>::create(context_, MatrixDimension(1,1));
       createNode(bidonRoot);
-//        setNodeIndex(bidonRoot,processTree_->getNodeIndex(processTree_->getRoot()));
+      /* Not sure it is necessary:
+         
+         setNodeIndex(bidonRoot,processTree_->getNodeIndex(processTree_->getRoot()));
+      */
+      
       rootAt(bidonRoot); // for construction, temporary top node for new edges
       auto n = makeForwardLikelihoodAtNode (processTree_->getRoot(), sites);
       rootAt(n);
       deleteNode(bidonRoot);
-
-      // Now map the species indexes and the likelihood DAG indexes
-
-//        setSpeciesMapIndexes_();
     }
 
   private:
@@ -214,7 +210,13 @@ namespace bpp
      */
       
     void setSpeciesMapIndexes_();
-      
+
+  protected:
+    Context& getContext()
+    {
+      return context_;
+    }
+
   public:
       
     /*
@@ -227,15 +229,6 @@ namespace bpp
       return processTree_;
     }
       
-    // {
-    //   return mapNode_.at(node);
-    // }
-
-    // ProcessEdgeRef getProcessEdge(const ForwardLikelihoodBelowRef& edge) const
-    // {
-    //   return mapEdge_.at(edge);
-    // }
-
     /*
      * @brief Get the nodes indexes of the DAG that correspond to
      * the species Index (of the Process tree).
@@ -269,8 +262,61 @@ namespace bpp
     }
 
     friend class LikelihoodCalculationSingleProcess;
+    friend class ProbabilityDAG;
 
   };
+
+  /**
+   *@brief DAG with the same shape as ForwardLikelihoodTree with
+   *computations of probabilities of nodes & branches.
+   *
+   */
+
+  
+  using Proba = Value<double>;
+  using ProbaRef = std::shared_ptr<Value<double> >;
+  
+  using DAProb = AssociationDAGlobalGraphObserver<Proba, Proba>;
+
+  using ProbaMul = CWiseMul<double, std::tuple<double, double> >;
+  
+  using ProbaSum = CWiseAdd<double, ReductionOf<double>>;
+  
+  class ProbabilityDAG :
+    public DAProb
+  {
+  private:
+    Context& context_;
+    
+  public:
+    ProbabilityDAG(std::shared_ptr<ForwardLikelihoodTree> tree);
+
+  public:
+    double getProbaAtNode(PhyloTree::NodeIndex nodeId)
+    {
+      return getNode(nodeId)->getTargetValue();
+    }
+    
+    double getProbaAtEdge(PhyloTree::EdgeIndex edgeId)
+    {
+      return getEdge(edgeId)->getTargetValue();
+    }
+
+  private:
+    /*
+     *@brief computation of the probabilities with the same approach
+     *as for BackwardLikelihoodTree.
+     *
+     */
+      
+    ProbaRef makeProbaAtEdge_(PhyloTree::EdgeIndex edgeIndex, std::shared_ptr<ForwardLikelihoodTree> tree);
+    
+    ProbaRef makeProbaAtNode_(PhyloTree::EdgeIndex edgeIndex, std::shared_ptr<ForwardLikelihoodTree> tree);
+
+
+  };
+  
+
   
 } //end of namespace bpp.
 

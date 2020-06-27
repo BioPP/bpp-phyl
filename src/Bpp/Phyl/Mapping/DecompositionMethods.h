@@ -85,7 +85,11 @@ namespace bpp
   public:
     DecompositionMethods(const SubstitutionModel* model, SubstitutionRegister* reg);
 
+    DecompositionMethods(SubstitutionRegister* reg);
+    
     DecompositionMethods(const SubstitutionModel* model);
+
+    DecompositionMethods(const StateMap& statemap);
 
     DecompositionMethods(const DecompositionMethods& dm) :
       model_(dm.model_),
