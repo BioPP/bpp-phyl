@@ -1073,7 +1073,7 @@ public:
   static void incrementAllIds(Node* node, int increment);
 
   /**
-   * @name Retrieve properties from a (sub)tree.
+   * @name Retrieve/Edit properties from a (sub)tree.
    *
    * @{
    */
@@ -1109,6 +1109,14 @@ public:
    * Property objects are not cloned when added to the map, but passed as pointers.
    */
   static void getNodeProperties(Node& node, const std::string& propertyName, std::map<int, Clonable*>& properties);
+  
+  /**
+   * @brief Delete the given properties in the tree.
+   *
+   * @param node [in] The root node of the (sub)tree to use.
+   * @param propertyNames [int] a vector of property names to be deleted.
+   */
+  static void deleteNodeProperties(Node& node, const std::vector<std::string>& propertyNames);
 
   /**
    * @brief Retrieve the names of all available branch properties in the tree.
@@ -1143,6 +1151,17 @@ public:
   static void getBranchProperties(Node& node, const std::string& propertyName, std::map<int, Clonable*>& properties);
 
   /**
+   * @brief Delete the given properties in the tree.
+   *
+   * @param node [in] The root node of the (sub)tree to use.
+   * @param propertyNames [int] a vector of property names to be deleted.
+   */
+  static void deleteBranchProperties(Node& node, const std::vector<std::string>& propertyNames);
+  
+/** @} */
+
+
+  /**
    * @brief Swap nodes in the subtree so that they are ordered according to the underlying number of leaves.
    *
    * @param node The root node of the (sub)tree to use.
@@ -1153,7 +1172,6 @@ public:
   {
     orderTree_(node, downward, orderLeaves);
   }
-  /** @} */
 
   /**
    * @brief Midroot the tree by minimizing a given criterion ("variance" or "sum of squares")

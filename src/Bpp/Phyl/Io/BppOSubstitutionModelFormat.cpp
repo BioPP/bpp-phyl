@@ -95,6 +95,7 @@
 #include "../Model/Protein/UserProteinSubstitutionModel.h"
 #include "../Model/Protein/WAG01.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/TwoParameterBinarySubstitutionModel.h"
 #include "../Model/EquiprobableSubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
 #include "../Model/AbstractBiblioMixedTransitionModel.h"
@@ -111,7 +112,7 @@
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
-#include "BppOFrequenciesSetFormat.h"
+#include "BppOFrequencySetFormat.h"
 #include "BppOTransitionModelFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
@@ -149,7 +150,7 @@ unsigned char BppOSubstitutionModelFormat::BINARY = 32;
 unsigned char BppOSubstitutionModelFormat::ALL = 1 | 2 | 4 | 8 | 16 | 32;
 
 
-SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
+SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
   const Alphabet* alphabet,
   const std::string& modelDescription,
   const AlignedValuesContainer* data,
@@ -233,7 +234,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
     
-    SubstitutionModel* nestedModel=nestedReader.readSubstitionModel(alphabet, nestedModelDescription, data, false);
+    SubstitutionModel* nestedModel=nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
@@ -278,7 +279,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
   // //////////////////
   // PREDEFINED CODON MODELS
   
-  else if (((modelName == "MG94") || (modelName == "YN98") ||
+  else if (((modelName == "MG94") || (modelName == "YN98") || (modelName == "YNGP_M0") ||
             (modelName == "GY94") ||  (modelName.substr(0,3) == "KCM"))
            && (alphabetCode_ & CODON))
   {
@@ -301,9 +302,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
       throw Exception("Mismatch between genetic code and codon alphabet");
 
     string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
-    BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, verbose_, warningLevel_);
+    BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
     freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-    unique_ptr<FrequenciesSet> codonFreqs(freqReader.read(pCA, freqOpt, data, false));
+    unique_ptr<FrequencySet> codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
     map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -344,7 +345,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
     if (verbose_)
       ApplicationTools::displayResult("Symetric YpR model", modelName);
     BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, false, false, false, verbose_, warningLevel_);
-    unique_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.readSubstitionModel(&prny->getLetterAlphabet(), nestedModelDescription, data, false)));
+    unique_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.readSubstitutionModel(&prny->getLetterAlphabet(), nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
     {
@@ -367,7 +368,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
     if (verbose_)
       ApplicationTools::displayResult("General YpR model", modelName);
     BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, false, false, false, verbose_, warningLevel_);
-    unique_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.readSubstitionModel(&prny->getLetterAlphabet(), nestedModelDescription, data, false)));
+    unique_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.readSubstitutionModel(&prny->getLetterAlphabet(), nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -397,7 +398,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
     BppOSubstitutionModelFormat nestedReader(ALL, allowCovarions_, false, false, verbose_, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
-    unique_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.readSubstitionModel(alphabet, nestedModelDescription, data, false)));
+    unique_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // Now we create the RE08 substitution model:
@@ -455,7 +456,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, false, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
-    unique_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.readSubstitionModel(alphabet, nestedModelDescription, data, false)));
+    unique_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // Now we create the TS98 substitution model:
@@ -489,10 +490,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
-    unique_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.readSubstitionModel(alphabet, nestedModelDescription, data, false)));
+    unique_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNestedModel(nestedReader.getUnparsedArguments());
     BppORateDistributionFormat rateReader(false);
-    unique_ptr<DiscreteDistribution> nestedRDist(rateReader.read(nestedRateDistDescription, false));
+    unique_ptr<DiscreteDistribution> nestedRDist(rateReader.readDiscreteDistribution(nestedRateDistDescription, false));
     map<string, string> unparsedParameterValuesNestedDist(rateReader.getUnparsedArguments());
 
     // Now we create the G01 substitution model:
@@ -554,7 +555,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
         }
         
         BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
-        unique_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.readSubstitionModel(alphabet, nestedModelDescription, data, false)));
+        unique_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false)));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
         // Now we create the gBGC substitution model:
@@ -690,8 +691,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
       
       if (modelName.find("+F") != string::npos) {
         string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, warningLevel_);
-        BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, false, warningLevel_);
-        unique_ptr<FrequenciesSet> protFreq(freqReader.read(alpha, freqOpt, data, true));
+        BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, false, warningLevel_);
+        unique_ptr<FrequencySet> protFreq(freqReader.readFrequencySet(alpha, freqOpt, data, true));
   
         map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
@@ -701,15 +702,15 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
         }
 
         if (modelName == "JC69+F")
-          model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
+          model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
         else if (modelName == "DSO78+F")
-          model.reset(new DSO78(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
+          model.reset(new DSO78(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
         else if (modelName == "JTT92+F")
-          model.reset(new JTT92(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
+          model.reset(new JTT92(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
         else if (modelName == "LG08+F")
-          model.reset(new LG08(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
+          model.reset(new LG08(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
         else if (modelName == "WAG01+F")
-          model.reset(new WAG01(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
+          model.reset(new WAG01(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
         else if (modelName == "Empirical+F")
         {
           string prefix = args["name"];
@@ -718,7 +719,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
           string fname = args["file"];
           if (TextTools::isEmpty(fname))
             throw Exception("'file' argument missing for user-defined substitution model.");
-          model.reset(new UserProteinSubstitutionModel(alpha, args["file"], dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), prefix + "+F."));
+          model.reset(new UserProteinSubstitutionModel(alpha, args["file"], dynamic_cast<ProteinFrequencySet*>(protFreq.release()), prefix + "+F."));
         }
       }
       else if (modelName == "JC69")
@@ -772,7 +773,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
         if (exchangeability == "Empirical" && TextTools::isEmpty(prefix))
           throw Exception("'name' argument missing to specify the exchangeabilities of the user-defined empirical model.");  
         BppOSubstitutionModelFormat nestedReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
-        unique_ptr<ProteinSubstitutionModel> nestedModel(dynamic_cast<ProteinSubstitutionModel*>(nestedReader.readSubstitionModel(alphabet, exchangeability, data, false)));
+        unique_ptr<ProteinSubstitutionModel> nestedModel(dynamic_cast<ProteinSubstitutionModel*>(nestedReader.readSubstitutionModel(alphabet, exchangeability, data, false)));
         string nbrOfParametersPerBranch = args["nbrAxes"];
         if (TextTools::isEmpty(nbrOfParametersPerBranch))
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
@@ -793,6 +794,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
       
       if (modelName == "Binary")
         model.reset(new BinarySubstitutionModel(balpha));
+      else if (modelName == "TwoParameterBinary")
+        model.reset(new TwoParameterBinarySubstitutionModel(balpha));
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit binary alphabet.");
     }
@@ -934,7 +937,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
   if (v_nestedModelDescription.size() != nbmodels)
   {
     BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
-    model.reset(nestedReader.readSubstitionModel(pWA->getNAlphabet(0), v_nestedModelDescription[0], data, false));
+    model.reset(nestedReader.readSubstitutionModel(pWA->getNAlphabet(0), v_nestedModelDescription[0], data, false));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     string pref = "";
     for (unsigned int i = 0; i < nbmodels; i++)
@@ -954,7 +957,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
     {
       BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
-      model.reset(nestedReader.readSubstitionModel(pWA->getNAlphabet(i), v_nestedModelDescription[i], data, false));
+      model.reset(nestedReader.readSubstitutionModel(pWA->getNAlphabet(i), v_nestedModelDescription[i], data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
@@ -1061,7 +1064,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       throw Exception("Non codon Alphabet for model" + modelName + ".");
 
     unique_ptr< AlphabetIndex2 > pai2;
-    unique_ptr<FrequenciesSet> pFS;
+    unique_ptr<FrequencySet> pFS;
 
     if ((dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0) ||
         ((v_nestedModelDescription.size() == 3) &&
@@ -1091,9 +1094,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (args.find("frequencies") == args.end())
         throw Exception("Missing equilibrium frequencies.");
 
-      BppOFrequenciesSetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
+      BppOFrequencySetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model
-      pFS.reset(bIOFreq.read(pCA, args["frequencies"], data, false));
+      pFS.reset(bIOFreq.readFrequencySet(pCA, args["frequencies"], data, false));
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -1144,7 +1147,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         nestedModelDescription = args["protmodel"];
         BppOSubstitutionModelFormat nestedReader(PROTEIN, false, false, allowGaps_, verbose_, warningLevel_);
         
-        shared_ptr<ProteinSubstitutionModel> nestedModel(dynamic_cast<ProteinSubstitutionModel*>(nestedReader.readSubstitionModel(geneticCode_->getTargetAlphabet(), nestedModelDescription, data, false)));
+        shared_ptr<ProteinSubstitutionModel> nestedModel(dynamic_cast<ProteinSubstitutionModel*>(nestedReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), nestedModelDescription, data, false)));
         
         unparsedParameterValuesNested.insert(nestedReader.getUnparsedArguments().begin(),nestedReader.getUnparsedArguments().end());
 
@@ -1190,9 +1193,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
           throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'fitness' for codon model argument 'AAFit'.");
 
         string nestedFreqDescription = args["fitness"];
-        BppOFrequenciesSetFormat nestedReader(PROTEIN, verbose_, warningLevel_);
+        BppOFrequencySetFormat nestedReader(PROTEIN, verbose_, warningLevel_);
 
-        FrequenciesSet* nestedFreq=nestedReader.read(geneticCode_->getTargetAlphabet(), nestedFreqDescription, data, false);
+        FrequencySet* nestedFreq=nestedReader.readFrequencySet(geneticCode_->getTargetAlphabet(), nestedFreqDescription, data, false);
         
         for (auto  it : nestedReader.getUnparsedArguments())
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
@@ -1210,10 +1213,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
           throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'fitness' for codon model argument 'Fit'.");
         string nestedFreqDescription = args["fitness"];
         
-        BppOFrequenciesSetFormat nestedReader(alphabetCode_, verbose_, warningLevel_);
+        BppOFrequencySetFormat nestedReader(alphabetCode_, verbose_, warningLevel_);
         nestedReader.setGeneticCode(geneticCode_);
       
-        FrequenciesSet* nestedFreq=nestedReader.read(alphabet, nestedFreqDescription, data, false);
+        FrequencySet* nestedFreq=nestedReader.readFrequencySet(alphabet, nestedFreqDescription, data, false);
         
         for (auto  it : nestedReader.getUnparsedArguments())
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
@@ -1333,10 +1336,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (args.find("fitness") == args.end())
         throw Exception("Missing fitness in model " + modelName + ".");
 
-      BppOFrequenciesSetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
+      BppOFrequencySetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_);
       
-      unique_ptr<FrequenciesSet> pFit(bIOFreq.read(pCA, args["fitness"], data, false));
+      unique_ptr<FrequencySet> pFit(bIOFreq.readFrequencySet(pCA, args["fitness"], data, false));
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -1417,7 +1420,7 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
       const DiscreteDistribution* nestedDist = gModel->getRateDistribution();
       const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
 
-      bIO->write(*nestedDist, out, globalAliases, writtenNames);
+      bIO->writeDiscreteDistribution(*nestedDist, out, globalAliases, writtenNames);
       delete bIO;
     }
     comma = true;
@@ -1547,13 +1550,13 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
     comma = true;
   }
   
-  // Is it a model with FrequenciesSet?
+  // Is it a model with FrequencySet?
 
   auto tmodel = dynamic_cast<const TransitionModel*>(&model);
 
   if (tmodel)
   {
-    const FrequenciesSet* pfs = tmodel->getFrequenciesSet();
+    const FrequencySet* pfs = tmodel->getFrequencySet();
     
     if (pfs!=0)
     {
@@ -1561,8 +1564,8 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
         out << ",";
       out << "frequencies=";
     
-      BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-      bIOFreq.write(pfs, out, globalAliases, writtenNames);
+      BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
+      bIOFreq.writeFrequencySet(pfs, out, globalAliases, writtenNames);
       comma = true;
     }
   }
@@ -1571,7 +1574,7 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
   const CodonAdHocSubstitutionModel* casm=dynamic_cast<const CodonAdHocSubstitutionModel*>(&model);
   if (casm)
   {
-    for (size_t i=0; i<casm->getNumberOfModels(); i++)
+    for (size_t i = 0; i < casm->getNumberOfModels(); i++)
     {
       const AbstractCodonAARateSubstitutionModel* acr=dynamic_cast<const AbstractCodonAARateSubstitutionModel*>(casm->getNModel(i).get());
       if (acr)
@@ -1590,8 +1593,8 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
           out << ",";
         out << "fitness=";
     
-        BppOFrequenciesSetFormat bIOFreq(PROTEIN, false, warningLevel_);
-        bIOFreq.write(&acf->getAAFitness(), out, globalAliases, writtenNames);
+        BppOFrequencySetFormat bIOFreq(PROTEIN, false, warningLevel_);
+        bIOFreq.writeFrequencySet(&acf->getAAFitness(), out, globalAliases, writtenNames);
         comma = true;
       }
       const AbstractCodonClusterAASubstitutionModel* acc=dynamic_cast<const AbstractCodonClusterAASubstitutionModel*>(casm->getNModel(i).get());
@@ -1623,8 +1626,8 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
       out << ",";
     out << "fitness=";
 
-    BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-    bIOFreq.write(pCF->getFitness(), out, globalAliases, writtenNames);
+    BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
+    bIOFreq.writeFrequencySet(pCF->getFitness(), out, globalAliases, writtenNames);
     comma = true;
   }
 
@@ -1751,7 +1754,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModel& model,
         {
           const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
           StdStr sout;
-          bIO->write(*pDD, sout, globalAliases, writtenNames);
+          bIO->writeDiscreteDistribution(*pDD, sout, globalAliases, writtenNames);
           globalAliases[pn] = sout.str();
           delete bIO;
         }

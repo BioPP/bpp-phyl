@@ -41,7 +41,7 @@
 #define _NONHOMOGENEOUSSUBSTITUTIONPROCESS_H_
 
 #include "AbstractSubstitutionProcess.h"
-#include "../Model/FrequenciesSet/FrequenciesSet.h"
+#include "../Model/FrequencySet/FrequencySet.h"
 
 //From bpp-core:
 #include <Bpp/Exceptions.h>
@@ -83,7 +83,7 @@ namespace bpp
    * In the non-homogeneous and homogeneous non-reversible cases, the
    * likelihood depends on the position of the root. The states
    * frequencies at the root of the tree are hence distinct parameters.
-   * Theses are accounted by a FrequenciesSet objet, managed by the
+   * Theses are accounted by a FrequencySet objet, managed by the
    * NonHomogeneousSubstitutionProcess class. The corresponding
    * parameters, if any, are added at the begining of the global
    * parameter list.
@@ -94,7 +94,7 @@ namespace bpp
    * trees, including at the root. Whether a model should be considered
    * as stationary or not is left to the user. If the "assume
    * stationarity" option is set when building the set, then no
-   * FrequenciesSet object is used, but the frequencies are taken to be
+   * FrequencySet object is used, but the frequencies are taken to be
    * the same as the one at the first model in the set. Nothing hence
    * prevents you to build a "supposingly stationary model which
    * actually is not", so be careful!!
@@ -121,7 +121,7 @@ namespace bpp
     /**
      * @brief Root frequencies.
      */
-    std::unique_ptr<FrequenciesSet> rootFrequencies_;
+    std::unique_ptr<FrequencySet> rootFrequencies_;
     
     /**
      *  @brief Rate Distribution
@@ -151,7 +151,7 @@ namespace bpp
      * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
      */
     
-    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree, FrequenciesSet* rootFreqs = nullptr):
+    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree, FrequencySet* rootFreqs = nullptr):
       AbstractParameterAliasable(""),
       AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 1),
       modelSet_(),
@@ -362,19 +362,19 @@ namespace bpp
     void listModelNames(std::ostream& out = std::cout) const;
 
     /**
-     * @brief Sets a given FrequenciesSet for root frequencies.
+     * @brief Sets a given FrequencySet for root frequencies.
      *
-     * @param rootFreqs The FrequenciesSet for root frequencies.
+     * @param rootFreqs The FrequencySet for root frequencies.
      */
 
-    void setRootFrequencies(FrequenciesSet* rootFreqs);
+    void setRootFrequencies(FrequencySet* rootFreqs);
 
     /**
      * @return The set of root frequencies.
      *
      */
   
-    const FrequenciesSet* getRootFrequenciesSet() const
+    const FrequencySet* getRootFrequencySet() const
     {
       return rootFrequencies_.get();
     }
@@ -573,7 +573,7 @@ namespace bpp
      * @param model     The model to use.
      * @param rdist     The rate distribution
      * @param tree      The tree to use for the construction of the set.
-     * @param rootFreqs A FrequenciesSet object to parametrize root frequencies
+     * @param rootFreqs A FrequencySet object to parametrize root frequencies
      *        (0 if stationary).
      * @param scenario (optional) the scenario used (in case of Mixed Models)
      */
@@ -582,7 +582,7 @@ namespace bpp
       std::shared_ptr<BranchModel> model,
       DiscreteDistribution* rdist,
       ParametrizablePhyloTree* tree,
-      FrequenciesSet* rootFreqs = 0,
+      FrequencySet* rootFreqs = 0,
       std::shared_ptr<ModelScenario> scenario = 0
       );
 
@@ -594,7 +594,7 @@ namespace bpp
      *
      * @param model                The model to use.
      * @param rdist                The rate distribution
-     * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
+     * @param rootFreqs            A FrequencySet object to parametrize root frequencies.
      * @param tree                 The tree to use for the construction of the set.
      * @param globalParameterNames Common parameters for all branches.
      * All other parameters will be considered distinct for all branches.
@@ -606,7 +606,7 @@ namespace bpp
       std::shared_ptr<BranchModel> model,
       DiscreteDistribution* rdist,
       ParametrizablePhyloTree* tree,
-      FrequenciesSet* rootFreqs,
+      FrequencySet* rootFreqs,
       const std::vector<std::string>& globalParameterNames,
       std::shared_ptr<ModelScenario> scenario = 0
       );

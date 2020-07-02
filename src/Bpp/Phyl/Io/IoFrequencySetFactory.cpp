@@ -1,5 +1,5 @@
 //
-// File IOFrequenciesSetFactory.cpp
+// File IOFrequencySetFactory.cpp
 // Created by: Laurent Guéguen
 // Created on: lundi 9 juillet 2012, à 12h 59
 //
@@ -37,21 +37,21 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "BppOFrequenciesSetFormat.h"
+#include "BppOFrequencySetFormat.h"
 
 using namespace bpp;
 
-const std::string IOFrequenciesSetFactory::BPPO_FORMAT = "Bpp0"; 
+const std::string IOFrequencySetFactory::BPPO_FORMAT = "Bpp0"; 
 
-IFrequenciesSet* IOFrequenciesSetFactory::createReader(const std::string& format)
+IFrequencySet* IOFrequencySetFactory::createReader(const std::string& format)
 {
-  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat(BppOFrequenciesSetFormat::ALL, true, 1);
+  if(format == BPPO_FORMAT) return new BppOFrequencySetFormat(BppOFrequencySetFormat::ALL, true, 1);
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
-OFrequenciesSet* IOFrequenciesSetFactory::createWriter(const std::string& format)
+OFrequencySet* IOFrequencySetFactory::createWriter(const std::string& format)
 {
-  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat(BppOFrequenciesSetFormat::ALL, true, 1);
+  if(format == BPPO_FORMAT) return new BppOFrequencySetFormat(BppOFrequencySetFormat::ALL, true, 1);
   else throw Exception("Format " + format + " is not supported for output.");
 }
 

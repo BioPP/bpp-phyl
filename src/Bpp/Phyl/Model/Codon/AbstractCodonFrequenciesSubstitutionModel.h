@@ -1,5 +1,5 @@
 //
-// File: AbstractCodonFrequenciesSubstitutionModel.h
+// File: AbstractCodonFrequencySubstitutionModel.h
 // Created by: jeudi 15 septembre 2011, à 15h 02
 //
 
@@ -36,11 +36,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODONFREQUENCYSUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODONFREQUENCYSUBSTITUTIONMODEL_H_
 
 #include "CodonSubstitutionModel.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 
 namespace bpp
 {
@@ -66,19 +66,19 @@ namespace bpp
     virtual public AbstractParameterAliasable
   {
   private:
-    FrequenciesSet* pfreqset_;
+    FrequencySet* pfreqset_;
     std::string freqName_;
 
   public:
     /**
      *@brief Build a AbstractCodonFrequenciesSubstitutionModel instance
      *
-     *@param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
+     *@param pfreq pointer to the AbstractFrequencySet equilibrium frequencies.
      *        It is owned by the instance.
      *@param prefix the Namespace
      */
 
-    AbstractCodonFrequenciesSubstitutionModel(FrequenciesSet* pfreq,
+    AbstractCodonFrequenciesSubstitutionModel(FrequencySet* pfreq,
                                               const std::string& prefix);
 
     AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& model) :
@@ -115,7 +115,7 @@ namespace bpp
 
     double getCodonsMulRate(size_t, size_t) const;
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return pfreqset_;
     }
@@ -124,5 +124,5 @@ namespace bpp
   
 } // end of namespace bpp.
 
-#endif
+#endif //_ABSTRACTCODONFREQUENCYSUBSTITUTIONMODEL_H_
 

@@ -42,7 +42,7 @@
 
 #include "ProteinSubstitutionModel.h"
 #include "../AbstractSubstitutionModel.h"
-#include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../FrequencySet/ProteinFrequencySet.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
@@ -66,7 +66,7 @@ namespace bpp
   {
   private:
     std::string path_;
-    ProteinFrequenciesSet* freqSet_;
+    ProteinFrequencySet* freqSet_;
   
   public:
     /**
@@ -94,7 +94,7 @@ namespace bpp
     UserProteinSubstitutionModel(
                                  const ProteicAlphabet* alpha,
                                  const std::string& path,
-                                 ProteinFrequenciesSet* freqSet,
+                                 ProteinFrequencySet* freqSet,
                                  const std::string& prefix,
                                  bool initFreqs = false
                                  );
@@ -103,7 +103,7 @@ namespace bpp
       AbstractParameterAliasable(model),
       AbstractReversibleProteinSubstitutionModel(model),
       path_(model.path_),
-      freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))
+      freqSet_(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()))
     {}
  
     UserProteinSubstitutionModel& operator=(const UserProteinSubstitutionModel& model)
@@ -111,7 +111,7 @@ namespace bpp
       AbstractParameterAliasable::operator=(model);
       AbstractReversibleProteinSubstitutionModel::operator=(model);
       path_ = model.path_;
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone());
+      freqSet_ = dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone());
       return *this;
     }
  
@@ -137,15 +137,15 @@ namespace bpp
     }
 
 
-    void setFrequenciesSet(const ProteinFrequenciesSet& freqSet)
+    void setFrequencySet(const ProteinFrequencySet& freqSet)
     {
       delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(freqSet.clone());
+      freqSet_ = dynamic_cast<ProteinFrequencySet*>(freqSet.clone());
       resetParameters_();
       addParameters_(freqSet_->getParameters());
     }
 
-    const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
+    const FrequencySet* getFrequencySet() const { return freqSet_; }
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
 

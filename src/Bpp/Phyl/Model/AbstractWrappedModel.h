@@ -113,7 +113,7 @@ namespace bpp
     }
 
   public:
-    const FrequenciesSet* getFrequenciesSet() const { return getTransitionModel().getFrequenciesSet();}
+    const FrequencySet* getFrequencySet() const { return getTransitionModel().getFrequencySet();}
 
     const BranchModel& getModel() const
     {

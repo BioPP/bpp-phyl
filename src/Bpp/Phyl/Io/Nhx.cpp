@@ -103,7 +103,7 @@ const string Nhx::getFormatDescription() const
 /*  INPUT */
 /**********************************************************/
 
-TreeTemplate<Node>* Nhx::read(istream& in) const
+TreeTemplate<Node>* Nhx::readTree(istream& in) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx ::read: failed to read from stream"); }
@@ -130,7 +130,7 @@ TreeTemplate<Node>* Nhx::read(istream& in) const
 
 /******************************************************************************/
 
-PhyloTree* Nhx::readP(istream& in) const
+PhyloTree* Nhx::readPTree(istream& in) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx ::read: failed to read from stream"); }
@@ -157,7 +157,7 @@ PhyloTree* Nhx::readP(istream& in) const
 
 /******************************************************************************/
 
-void Nhx::read(istream& in, vector<Tree*>& trees) const
+void Nhx::readTrees(istream& in, vector<Tree*>& trees) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx::read: failed to read from stream"); }
@@ -188,7 +188,7 @@ void Nhx::read(istream& in, vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-void Nhx::read(istream& in, vector<PhyloTree*>& trees) const
+void Nhx::readTrees(istream& in, vector<PhyloTree*>& trees) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx::read: failed to read from stream"); }

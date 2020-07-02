@@ -45,7 +45,7 @@
 #include "Bpp/Phyl/NewLikelihood/DataFlow/CollectionNodes.h"
 #include "Bpp/Phyl/NewLikelihood/DataFlow/Model.h"
 #include "Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h"
-#include "Bpp/Phyl/NewLikelihood/DataFlow/FrequenciesSet.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.h"
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
 
@@ -197,7 +197,7 @@ namespace bpp {
       std::shared_ptr<ConfiguredModel> modelNode_; // Used for
       // StateMap and root frequencies if stationarity
       
-      std::shared_ptr<ConfiguredFrequenciesSet> rootFreqsNode_;
+      std::shared_ptr<ConfiguredFrequencySet> rootFreqsNode_;
       std::shared_ptr<ConfiguredDistribution> ratesNode_;
     };
         

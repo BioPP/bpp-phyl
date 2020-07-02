@@ -21,7 +21,7 @@ set (CPP_FILES
   Bpp/Phyl/Graphics/TreeDrawingDisplayControler.cpp
   Bpp/Phyl/Graphics/TreeDrawingListener.cpp
   Bpp/Phyl/Io/BppOBranchModelFormat.cpp
-  Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
+  Bpp/Phyl/Io/BppOFrequencySetFormat.cpp
   Bpp/Phyl/Io/BppOMultiTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
   Bpp/Phyl/Io/BppORateDistributionFormat.cpp
@@ -30,7 +30,7 @@ set (CPP_FILES
   Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
   Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
-  Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
+  Bpp/Phyl/Io/IoFrequencySetFactory.cpp
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
   Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
   Bpp/Phyl/Io/IoTreeFactory.cpp
@@ -49,6 +49,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.cpp
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
+  Bpp/Phyl/Likelihood/JointLikelihoodFunction.cpp
   Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.cpp
   Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
@@ -67,7 +68,7 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/ForwardLikelihoodTree.cpp
-  Bpp/Phyl/NewLikelihood/DataFlow/FrequenciesSet.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/Model.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/Parameter.cpp
@@ -127,6 +128,7 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/StochasticMapping.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractFromSubstitutionModelTransitionModel.cpp
@@ -135,6 +137,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
+  Bpp/Phyl/Model/TwoParameterBinarySubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonAARateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonAAFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonClusterAASubstitutionModel.cpp
@@ -155,6 +158,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp 
   Bpp/Phyl/Model/Codon/KroneckerCodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/MG94.cpp
+  Bpp/Phyl/Model/Codon/RELAX.cpp
   Bpp/Phyl/Model/Codon/SENCA.cpp
   Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/YN98.cpp
@@ -166,11 +170,11 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/YNGP_M8.cpp
   Bpp/Phyl/Model/Codon/YNGP_M9.cpp
   Bpp/Phyl/Model/EquiprobableSubstitutionModel.cpp
-  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/FrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/MvaFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/WordFrequencySet.cpp
   Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
   Bpp/Phyl/Model/InMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp

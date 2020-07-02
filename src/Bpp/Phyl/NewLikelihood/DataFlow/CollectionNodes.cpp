@@ -70,7 +70,7 @@ CollectionNodes::CollectionNodes(Context& context,
   
     const auto& obj = collection_.getFrequencies(num);
     
-    freqColl_.addObject(ConfiguredParametrizable::createConfigured<FrequenciesSet, ConfiguredFrequenciesSet>(context_, obj, getParameters_(), suff), num);
+    freqColl_.addObject(ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(context_, obj, getParameters_(), suff), num);
   }
 
   ///////

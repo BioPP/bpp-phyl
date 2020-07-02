@@ -39,7 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/Model/Nucleotide/GTR.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/StandardGeneticCode.h>
@@ -117,7 +117,7 @@ int main() {
 
   //Codon models:
   StandardGeneticCode gc(AlphabetTools::DNA_ALPHABET);
-  FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, &gc);
+  FrequencySet* fset = CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F3X4, &gc);
   YN98 yn98(&gc, fset);
   
   if (!testModel(yn98)) return 1;

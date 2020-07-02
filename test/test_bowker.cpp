@@ -43,8 +43,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
-#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
+#include <Bpp/Phyl/Model/FrequencySet/FrequencySet.h>
 
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
@@ -103,7 +103,7 @@ int main() {
   cout << "..:: Testing with homogeneous, non-stationary model ::.." << endl;
   
   std::shared_ptr<T92> model2(new T92(alphabet.get(), 3., 0.65));
-  auto rootFreqs2 = new GCFrequenciesSet(alphabet.get(), 0.4);
+  auto rootFreqs2 = new GCFrequencySet(alphabet.get(), 0.4);
 
   auto process2 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model2, rdist.get(), paramPhyloTree, rootFreqs2);
 
@@ -130,7 +130,7 @@ int main() {
   cout << "..:: Testing with non-homogeneous, non-stationary model ::.." << endl;
 
   std::shared_ptr<T92> model3(new T92(alphabet.get(), 3., 0.65));
-  auto rootFreqs3 = new GCFrequenciesSet(alphabet.get(), 0.65);
+  auto rootFreqs3 = new GCFrequencySet(alphabet.get(), 0.65);
 
   std::vector<string> globalParameterNames={"T92.kappa"};
   
@@ -162,7 +162,7 @@ int main() {
   cout << "..:: Testing with non-homogeneous, stationary model ::.." << endl;
 
   std::shared_ptr<T92> model4(new T92(alphabet.get(), 3., 0.5));
-  auto rootFreqs4 = new GCFrequenciesSet(alphabet.get(), 0.5);
+  auto rootFreqs4 = new GCFrequencySet(alphabet.get(), 0.5);
   
   std::vector<string> globalParameterNames2={"T92.theta"};
   

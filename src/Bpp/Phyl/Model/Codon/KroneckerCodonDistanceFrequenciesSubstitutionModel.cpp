@@ -47,7 +47,7 @@ using namespace std;
 KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFrequenciesSubstitutionModel(
     const GeneticCode* gCode,
     NucleotideSubstitutionModel* pmod,
-    FrequenciesSet* pfreq,
+    FrequencySet* pfreq,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, "KronCodonDistFreq."),
@@ -62,7 +62,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   const GeneticCode* gCode,
   NucleotideSubstitutionModel* pmod,
   const std::vector<std::set< size_t> >& vPos,
-  FrequenciesSet* pfreq,
+  FrequencySet* pfreq,
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, vPos, "KronCodonDistFreq."),
@@ -78,7 +78,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
     NucleotideSubstitutionModel* pmod1,
     NucleotideSubstitutionModel* pmod2,
     NucleotideSubstitutionModel* pmod3,
-    FrequenciesSet* pfreq,
+    FrequencySet* pfreq,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "KronCodonDistFreq."),
@@ -95,7 +95,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   NucleotideSubstitutionModel* pmod2,
   NucleotideSubstitutionModel* pmod3,
   const std::vector<std::set< size_t> >& vPos,
-  FrequenciesSet* pfreq,
+  FrequencySet* pfreq,
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, vPos, "KronCodonDistFreq."),

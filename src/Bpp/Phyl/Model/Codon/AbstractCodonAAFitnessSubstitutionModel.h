@@ -41,7 +41,7 @@
 
 # include "CodonSubstitutionModel.h"
 
-#include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../FrequencySet/ProteinFrequencySet.h"
 
 namespace bpp
 {
@@ -62,8 +62,8 @@ namespace bpp
    * 1).
    *
    * The set of fitnesses is implemented through a Protein
-   * FrequenciesSet object. The parameters are named \c
-   * "fit_NameOfTheParameterInTheFrequenciesSet".
+   * FrequencySet object. The parameters are named \c
+   * "fit_NameOfTheParameterInTheFrequencySet".
    */
 
 
@@ -72,7 +72,7 @@ namespace bpp
     public virtual AbstractParameterAliasable
   {
   private:
-    std::unique_ptr<FrequenciesSet> pfitset_;
+    std::unique_ptr<FrequencySet> pfitset_;
 
     const GeneticCode* pgencode_;
   
@@ -91,7 +91,7 @@ namespace bpp
 
   public:
     AbstractCodonAAFitnessSubstitutionModel(
-      FrequenciesSet* pfitset,
+      FrequencySet* pfitset,
       const GeneticCode* pgencode,
       const std::string& prefix);
     
@@ -129,7 +129,7 @@ namespace bpp
 
     void setFreq(std::map<int, double>& frequencies);
 
-    const FrequenciesSet& getFreq() const { return *pfitset_.get(); }
+    const FrequencySet& getFreq() const { return *pfitset_.get(); }
 
     void setNamespace (const std::string& prefix){
       AbstractParameterAliasable::setNamespace(prefix);
@@ -138,9 +138,9 @@ namespace bpp
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    const FrequenciesSet& getAAFitness() const { return *pfitset_.get();}
+    const FrequencySet& getAAFitness() const { return *pfitset_.get();}
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return 0;
     }
@@ -153,4 +153,6 @@ namespace bpp
 
   };
 } // end of namespace bpp
-# endif
+
+# endif //_ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
+

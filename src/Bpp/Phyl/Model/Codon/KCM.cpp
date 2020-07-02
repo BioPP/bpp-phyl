@@ -39,7 +39,7 @@
 #include "KCM.h"
 #include "../Nucleotide/GTR.h"
 
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 #include <Bpp/Numeric/NumConstants.h>
 
 using namespace bpp;

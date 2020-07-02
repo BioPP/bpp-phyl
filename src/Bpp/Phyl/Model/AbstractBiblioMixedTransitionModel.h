@@ -191,7 +191,7 @@ namespace bpp
     
     MixedTransitionModel& getMixedModel() { return *pmixmodel_.get(); }
 
-    const FrequenciesSet* getFrequenciesSet() const {return pmixmodel_->getNModel(0)->getFrequenciesSet();}
+    const FrequencySet* getFrequencySet() const {return pmixmodel_->getNModel(0)->getFrequencySet();}
 
   };
 

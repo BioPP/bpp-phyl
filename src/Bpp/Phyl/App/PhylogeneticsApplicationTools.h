@@ -188,8 +188,6 @@ namespace bpp
       bool verbose = true,
       int warn = 1);
 
-  
-
     /**
      * @brief Build a SubstitutionModel object according to options.
      *
@@ -252,7 +250,6 @@ namespace bpp
       bool suffixIsOptional = true,
       bool verbose = true,
       int warn = 1);
-
 
     /**
      * @brief Build a map of SubstitutionProcess objects according to options.
@@ -317,7 +314,7 @@ namespace bpp
       bool verbose);
 
     /**
-     * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
+     * @brief Get A FrequencySet object for root frequencies (NH models) according to options.
      *
      * @param alphabet         The alpabet to use.
      * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
@@ -334,10 +331,10 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @return A new FrequenciesSet object according to options specified.
+     * @return A new FrequencySet object according to options specified.
      */
     
-    static FrequenciesSet* getRootFrequenciesSet(
+    static FrequencySet* getRootFrequencySet(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const AlignedValuesContainer* data, 
@@ -350,11 +347,11 @@ namespace bpp
       int warn = 1);
 
     /*
-     * @brief The same, but with several FrequenciesSet.
+     * @brief The same, but with several FrequencySet.
      *
      */
 
-    static std::map<size_t, std::shared_ptr<FrequenciesSet>> getRootFrequenciesSets(
+    static std::map<size_t, std::shared_ptr<FrequencySet>> getRootFrequencySets(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const std::map<size_t, AlignedValuesContainer*>& mData, 
@@ -366,7 +363,7 @@ namespace bpp
       int warn = 1);
 
     /**
-     * @brief Get A FrequenciesSet object according to options.
+     * @brief Get A FrequencySet object according to options.
      *
      * @param alphabet         The alpabet to use.
      * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
@@ -381,10 +378,10 @@ namespace bpp
      *                         Ignored if a vector with size 0 is passed.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @return A new FrequenciesSet object according to options specified.
+     * @return A new FrequencySet object according to options specified.
      */
 
-    static FrequenciesSet* getFrequenciesSet(
+    static FrequencySet* getFrequencySet(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const std::string& freqDescription,
@@ -395,7 +392,7 @@ namespace bpp
         int warn = 1);
 
     /**
-     * @brief Get A FrequenciesSet object according to options.
+     * @brief Get A FrequencySet object according to options.
      *
      * @param alphabet         The alpabet to use.
      * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
@@ -409,10 +406,10 @@ namespace bpp
      *                         Ignored if a vector with size 0 is passed.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @return A new FrequenciesSet object according to options specified.
+     * @return A new FrequencySet object according to options specified.
      */
 
-    static FrequenciesSet* getFrequenciesSet(
+    static FrequencySet* getFrequencySet(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const std::string& freqDescription,
@@ -422,7 +419,7 @@ namespace bpp
         int warn = 1)
     {
       std::map<std::string, std::string> sharedParams;
-      return getFrequenciesSet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
+      return getFrequencySet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
     }
 
     /**
@@ -654,7 +651,7 @@ namespace bpp
       const GeneticCode* gCode,
       const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
       const map<size_t, std::shared_ptr<BranchModel>>& mMod,
-      const map<size_t, std::shared_ptr<FrequenciesSet>>& mRootFreq,
+      const map<size_t, std::shared_ptr<FrequencySet>>& mRootFreq,
       const map<size_t, std::shared_ptr<DiscreteDistribution>>& mDist,
       const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
       const std::map<std::string, std::string>& params,

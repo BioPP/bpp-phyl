@@ -52,7 +52,7 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
   AbstractParameterAliasable(set),
   AbstractSubstitutionProcess(set),
   modelSet_(set.modelSet_.size()),
-  rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone())),
+  rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone())),
   rDist_                (set.rDist_?dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()):0),
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
@@ -82,7 +82,7 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
   if (set.stationarity_)
     rootFrequencies_.reset(0);
   else
-    rootFrequencies_.reset(dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone()));
+    rootFrequencies_.reset(dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone()));
 
   rDist_.reset(rDist_?dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()):0);
   
@@ -113,7 +113,7 @@ void NonHomogeneousSubstitutionProcess::clear()
   stationarity_=true;
 }
 
-void NonHomogeneousSubstitutionProcess::setRootFrequencies(FrequenciesSet* rootFreqs)
+void NonHomogeneousSubstitutionProcess::setRootFrequencies(FrequencySet* rootFreqs)
 {
   if (rootFreqs){
     addParameters_(rootFreqs->getIndependentParameters());
@@ -331,7 +331,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
   std::shared_ptr<BranchModel> model,
   DiscreteDistribution* rdist,
   ParametrizablePhyloTree* tree,
-  FrequenciesSet* rootFreqs,
+  FrequencySet* rootFreqs,
   shared_ptr<ModelScenario> scenario)
 {
   // Check alphabet:
@@ -367,7 +367,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   std::shared_ptr<BranchModel> model,
   DiscreteDistribution* rdist,
   ParametrizablePhyloTree* tree,
-  FrequenciesSet* rootFreqs,
+  FrequencySet* rootFreqs,
   const vector<string>& globalParameterNames,
   shared_ptr<ModelScenario> scenario)
 {

@@ -1,5 +1,5 @@
 //
-// File: FrequenciesSet.h
+// File: FrequencySet.h
 // Created by: Bastien Boussau
 //             Julien Dutheil
 // Created on: Tue Aug 21 2007
@@ -62,12 +62,12 @@ namespace bpp
 
   class TransitionModel;
   
-  class FrequenciesSet :
+  class FrequencySet :
     public virtual ParameterAliasable
   {
   public:
     
-    FrequenciesSet* clone() const = 0;
+    FrequencySet* clone() const = 0;
 
   public:
     /**
@@ -128,11 +128,11 @@ namespace bpp
   };
 
 /**
- * @brief Basic implementation of the FrequenciesSet interface.
+ * @brief Basic implementation of the FrequencySet interface.
  */
 
-  class AbstractFrequenciesSet :
-    public virtual FrequenciesSet,
+  class AbstractFrequencySet :
+    public virtual FrequencySet,
     public AbstractParameterAliasable
   {
   private:
@@ -142,7 +142,7 @@ namespace bpp
     std::string name_;
 
   public:
-    AbstractFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix, const std::string& name) :
+    AbstractFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix, const std::string& name) :
       AbstractParameterAliasable(prefix),
       alphabet_(stateMap->getAlphabet()),
       stateMap_(stateMap),
@@ -151,9 +151,9 @@ namespace bpp
     {
     }
 
-    AbstractFrequenciesSet* clone() const = 0;
+    AbstractFrequencySet* clone() const = 0;
 
-    AbstractFrequenciesSet(const AbstractFrequenciesSet& af) :
+    AbstractFrequencySet(const AbstractFrequencySet& af) :
       AbstractParameterAliasable(af),
       alphabet_(af.alphabet_),
       stateMap_(af.stateMap_),
@@ -161,7 +161,7 @@ namespace bpp
       name_(af.name_)
     {}
 
-    AbstractFrequenciesSet& operator=(const AbstractFrequenciesSet& af)
+    AbstractFrequencySet& operator=(const AbstractFrequencySet& af)
     {
       AbstractParameterAliasable::operator=(af);
       alphabet_ = af.alphabet_;
@@ -213,9 +213,9 @@ namespace bpp
   };
 
 /**
- * @brief A generic FrequenciesSet allowing for the estimation of all frequencies.
+ * @brief A generic FrequencySet allowing for the estimation of all frequencies.
  *
- * The FrequenciesSet has hence n-1 parameters, where n is the size of
+ * The FrequencySet has hence n-1 parameters, where n is the size of
  * the input alphabet.
  *
  * The parametrization depends on the method used.
@@ -224,8 +224,8 @@ namespace bpp
  * @see Simplex
  */
 
-  class FullFrequenciesSet :
-    public AbstractFrequenciesSet
+  class FullFrequencySet :
+    public AbstractFrequencySet
   {
   private:
     /**
@@ -238,10 +238,10 @@ namespace bpp
      * @brief Construction with uniform frequencies on the states of
      * the alphabet.
      */
-    FullFrequenciesSet(std::shared_ptr<const StateMap> stateMap, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
-    FullFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
+    FullFrequencySet(std::shared_ptr<const StateMap> stateMap, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
+    FullFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
 
-    FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
+    FullFrequencySet* clone() const { return new FullFrequencySet(*this); }
 
   public:
     void setFrequencies(const std::vector<double>& frequencies);
@@ -258,28 +258,28 @@ namespace bpp
   };
 
   /**
-   * @brief FrequenciesSet defined from the equilibrium distribution
+   * @brief FrequencySet defined from the equilibrium distribution
    * of a given model.
    *
    * Its parameters are the parameters of the model.
    */
   
-  class FromModelFrequenciesSet :
-    public AbstractFrequenciesSet
+  class FromModelFrequencySet :
+    public AbstractFrequencySet
   {
   private:
     TransitionModel* model_;
 
   public:
-    FromModelFrequenciesSet(TransitionModel* model);
+    FromModelFrequencySet(TransitionModel* model);
 
-    FromModelFrequenciesSet(const FromModelFrequenciesSet& fmfs);
+    FromModelFrequencySet(const FromModelFrequencySet& fmfs);
     
-    FromModelFrequenciesSet& operator=(const FromModelFrequenciesSet& fmfs);
+    FromModelFrequencySet& operator=(const FromModelFrequencySet& fmfs);
 
-    FromModelFrequenciesSet* clone() const { return new FromModelFrequenciesSet(*this); }
+    FromModelFrequencySet* clone() const { return new FromModelFrequencySet(*this); }
 
-    ~FromModelFrequenciesSet();
+    ~FromModelFrequencySet();
 
   public:
 
@@ -298,39 +298,39 @@ namespace bpp
 
 
 /**
- * @brief FrequenciesSet to be used with a Markov-modulated substitution model.
+ * @brief FrequencySet to be used with a Markov-modulated substitution model.
  *
  * This implementation uses one parameter per character state frequency.
  * The rate states are assumed to be fixed and are passed as an argument to the constructor, together with a 'regular'
- * FrequenciesSet. The number of parameters hence do not depends on the number of rates used.
+ * FrequencySet. The number of parameters hence do not depends on the number of rates used.
  */
-  class MarkovModulatedFrequenciesSet :
-    public AbstractFrequenciesSet
+  class MarkovModulatedFrequencySet :
+    public AbstractFrequencySet
   {
   private:
-    FrequenciesSet* freqSet_;
+    FrequencySet* freqSet_;
     std::vector<double> rateFreqs_;
 
   public:
-    MarkovModulatedFrequenciesSet(FrequenciesSet* freqSet, const std::vector<double>& rateFreqs);
+    MarkovModulatedFrequencySet(FrequencySet* freqSet, const std::vector<double>& rateFreqs);
 
-    MarkovModulatedFrequenciesSet(const MarkovModulatedFrequenciesSet& mmfs) :
-      AbstractFrequenciesSet(mmfs),
+    MarkovModulatedFrequencySet(const MarkovModulatedFrequencySet& mmfs) :
+      AbstractFrequencySet(mmfs),
       freqSet_(mmfs.freqSet_->clone()),
       rateFreqs_(mmfs.rateFreqs_)
     {}
 
-    MarkovModulatedFrequenciesSet& operator=(const MarkovModulatedFrequenciesSet& mmfs)
+    MarkovModulatedFrequencySet& operator=(const MarkovModulatedFrequencySet& mmfs)
     {
-      AbstractFrequenciesSet::operator=(mmfs);
+      AbstractFrequencySet::operator=(mmfs);
       freqSet_ = mmfs.freqSet_->clone();
       rateFreqs_ = mmfs.rateFreqs_;
       return *this;
     }
 
-    MarkovModulatedFrequenciesSet* clone() const { return new MarkovModulatedFrequenciesSet(*this); }
+    MarkovModulatedFrequencySet* clone() const { return new MarkovModulatedFrequencySet(*this); }
 
-    virtual ~MarkovModulatedFrequenciesSet() { delete freqSet_; }
+    virtual ~MarkovModulatedFrequencySet() { delete freqSet_; }
 
   public:
     void setFrequencies(const std::vector<double>& frequencies)
@@ -345,18 +345,18 @@ namespace bpp
       setFrequencies_(VectorTools::kroneckerMult(rateFreqs_, freqSet_->getFrequencies()));
     }
 
-    const FrequenciesSet& getStatesFrequenciesSet() const { return *freqSet_; }
+    const FrequencySet& getStatesFrequencySet() const { return *freqSet_; }
 
   };
 
 
 /**
- * @brief FrequenciesSet useful for homogeneous and stationary models.
+ * @brief FrequencySet useful for homogeneous and stationary models.
  *
  * This set contains no parameter.
  */
-  class FixedFrequenciesSet :
-    public AbstractFrequenciesSet
+  class FixedFrequencySet :
+    public AbstractFrequencySet
   {
   public:
 
@@ -368,7 +368,7 @@ namespace bpp
      * @param name The name of the set.
      * @throw Exception In case the number of frequencies does not match the number of model states.
      */
-    FixedFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
+    FixedFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
 
     /**
      * @brief Construction with uniform frequencies on the states of the model.
@@ -376,9 +376,9 @@ namespace bpp
      * @param stateMap The model states for which frequencies should be built.
      * @param name The name of the set.
      */
-    FixedFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& name = "Fixed");
+    FixedFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& name = "Fixed");
 
-    FixedFrequenciesSet* clone() const { return new FixedFrequenciesSet(*this); }
+    FixedFrequencySet* clone() const { return new FixedFrequencySet(*this); }
 
   public:
     void setFrequencies(const std::vector<double>& frequencies);
@@ -387,29 +387,29 @@ namespace bpp
 
 
   /**
-   * @brief FrequenciesSet to be read in a file. More specifically, a
+   * @brief FrequencySet to be read in a file. More specifically, a
    * frequency set is read in a column of a given file, which column
    * number is given in argument (default: 1).
    *
    */
   
-  class UserFrequenciesSet :
-    public AbstractFrequenciesSet
+  class UserFrequencySet :
+    public AbstractFrequencySet
   {
   private:
     std::string path_;
     size_t nCol_;
 
   public:
-    UserFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol=1);
+    UserFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol=1);
 
-    UserFrequenciesSet(const UserFrequenciesSet& fmfs);
+    UserFrequencySet(const UserFrequencySet& fmfs);
     
-    UserFrequenciesSet& operator=(const UserFrequenciesSet& fmfs);
+    UserFrequencySet& operator=(const UserFrequencySet& fmfs);
 
-    UserFrequenciesSet* clone() const { return new UserFrequenciesSet(*this); }
+    UserFrequencySet* clone() const { return new UserFrequencySet(*this); }
 
-    ~UserFrequenciesSet(){};
+    ~UserFrequencySet(){};
 
   public:
 

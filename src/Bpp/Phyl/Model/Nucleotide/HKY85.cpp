@@ -38,7 +38,7 @@
 */
 
 #include "HKY85.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -66,9 +66,9 @@ HKY85::HKY85(
   exp1_(), exp21_(), exp22_(), l_(), p_(size_, size_)
 {
   addParameter_(new Parameter("HKY85.kappa", kappa, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("HKY85.theta" , theta_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("HKY85.theta1", theta1_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("HKY85.theta2", theta2_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("HKY85.theta" , theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("HKY85.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("HKY85.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 

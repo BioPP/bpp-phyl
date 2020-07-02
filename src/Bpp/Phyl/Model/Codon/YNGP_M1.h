@@ -75,7 +75,7 @@ namespace bpp
     public YNGP_M
   {
   public:
-    YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs);
+    YNGP_M1(const GeneticCode* gc, FrequencySet* codonFreqs);
 
     YNGP_M1* clone() const { return new YNGP_M1(*this); }
 

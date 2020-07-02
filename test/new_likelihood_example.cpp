@@ -50,7 +50,7 @@
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/Nucleotide/K80.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/MixtureOfASubstitutionModel.h>
@@ -234,7 +234,7 @@ int main(int argc, char** argv)
 
   */
 
-  auto rootFreqs = new GCFrequenciesSet(&c.alphabet, 0.1);
+  auto rootFreqs = new GCFrequencySet(&c.alphabet, 0.1);
 
   auto distribution = new ConstantRateDistribution();
   //auto distribution = new GammaDiscreteRateDistribution(3, 1);

@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/OptimizationTools.h>
@@ -82,7 +82,7 @@ int main() {
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  auto rootFreqs = std::make_shared<GCFrequenciesSet>(alphabet);
+  auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
   
   auto model1 = std::make_shared<T92>(alphabet, 3.,0.9);
   auto model2 = std::make_shared<T92>(alphabet, 2., 0.1);

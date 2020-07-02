@@ -58,7 +58,7 @@ using namespace bpp;
 using namespace std;
 
 
-DiscreteDistribution* BppORateDistributionFormat::read(
+DiscreteDistribution* BppORateDistributionFormat::readDiscreteDistribution(
     const std::string& distDescription,
     bool parseArguments)
 {
@@ -80,7 +80,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
     if (verbose_)
       ApplicationTools::displayResult("Invariant Mixed distribution", distName );
     BppORateDistributionFormat nestedReader(false);
-    DiscreteDistribution* nestedDistribution = nestedReader.read(nestedDistDescription, false);
+    DiscreteDistribution* nestedDistribution = nestedReader.readDiscreteDistribution(nestedDistDescription, false);
     map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
     // Now we create the Invariant rate distribution:
@@ -183,7 +183,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
     for (unsigned i = 0; i < v_nestedDistrDescr.size(); i++)
     {
       BppORateDistributionFormat nestedReader(false);
-      unique_ptr<DiscreteDistribution> pdd(nestedReader.read(v_nestedDistrDescr[i], false));
+      unique_ptr<DiscreteDistribution> pdd(nestedReader.readDiscreteDistribution(v_nestedDistrDescr[i], false));
       map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedArgumentsNested.begin(); it != unparsedArgumentsNested.end(); it++)
@@ -242,7 +242,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
 }
 
 
-void BppORateDistributionFormat::write(
+void BppORateDistributionFormat::writeDiscreteDistribution(
     const DiscreteDistribution& dist,
     OutputStream& out,
     std::map<std::string, std::string>& globalAliases,
@@ -259,7 +259,7 @@ void BppORateDistributionFormat::write(
   {
     pd = invar->getVariableSubDistribution();
     out << "dist=";
-    write(*pd, out, globalAliases, writtenNames);
+    writeDiscreteDistribution(*pd, out, globalAliases, writtenNames);
     comma = true;
   }
   else
@@ -273,7 +273,7 @@ void BppORateDistributionFormat::write(
         if (comma)
           out << ",";
         out << "dist" + TextTools::toString(i + 1) + "=";
-        write(*mix->getNDistribution(i), out, globalAliases, writtenNames);
+        writeDiscreteDistribution(*mix->getNDistribution(i), out, globalAliases, writtenNames);
         comma = true;
       }
       out << ",probas=(";

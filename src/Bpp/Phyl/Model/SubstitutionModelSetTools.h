@@ -64,12 +64,12 @@ class SubstitutionModelSetTools
      * This class is mainly for testing purpose.
      *
      * @param model     The model to use.
-     * @param rootFreqs A FrequenciesSet object to parametrize root frequencies.
+     * @param rootFreqs A FrequencySet object to parametrize root frequencies.
      * @param tree      The tree to use for the construction of the set.
      */
     static SubstitutionModelSet* createHomogeneousModelSet(
         TransitionModel* model,
-        FrequenciesSet* rootFreqs,
+        FrequencySet* rootFreqs,
         const Tree* tree
       );
 
@@ -80,7 +80,7 @@ class SubstitutionModelSetTools
      * This is also possible to specify some parameters to be common to all branches.
      *
      * @param model                The model to use.
-     * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
+     * @param rootFreqs            A FrequencySet object to parametrize root frequencies.
      * @param tree                 The tree to use for the construction of the set.
      * @param aliasFreqNames       Aliases for the frequencies names
      * @param globalParameterNames map for shared parameters.
@@ -95,7 +95,7 @@ class SubstitutionModelSetTools
 
   static SubstitutionModelSet* createNonHomogeneousModelSet(
         TransitionModel* model,
-        FrequenciesSet* rootFreqs,
+        FrequencySet* rootFreqs,
         const Tree* tree,
         const std::map<std::string, std::string>& aliasFreqNames,
         const std::map<std::string, std::vector<Vint> >& globalParameterNames

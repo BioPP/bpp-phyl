@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "GY94.h"
 #include "../Nucleotide/K80.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 
 using namespace bpp;
 
@@ -46,7 +46,7 @@ using namespace std;
 
 /******************************************************************************/
 
-GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+GY94::GY94(const GeneticCode* gc, FrequencySet* codonFreqs) :
   AbstractBiblioTransitionModel("GY94."),
   AbstractBiblioSubstitutionModel("GY94."),
   gacd_(),
@@ -60,7 +60,7 @@ GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   lParPmodel_.addParameters(pmodel_->getParameters());
   
-  vector<std::string> v=pmodel_->getFrequenciesSet()->getParameters().getParameterNames();
+  vector<std::string> v=pmodel_->getFrequencySet()->getParameters().getParameterNames();
   for (unsigned int i=0;i<v.size();i++)
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
 

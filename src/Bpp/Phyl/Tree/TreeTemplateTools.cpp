@@ -890,6 +890,22 @@ void TreeTemplateTools::getNodeProperties(Node& node, const string& propertyName
   }
 }
 
+void TreeTemplateTools::deleteNodeProperties(Node& node, const std::vector<std::string>& propertyNames)
+{
+  for (auto property: propertyNames)
+  {
+    try
+    {
+      node.deleteNodeProperty(property);
+    }
+    catch(exception& e) {}
+  }
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
+  {  
+    deleteNodeProperties(*node.getSon(i), propertyNames);
+  }
+}
+
 /******************************************************************************/
 
 void TreeTemplateTools::getBranchPropertyNames(const Node& node, vector<string>& propertyNames)
@@ -918,6 +934,22 @@ void TreeTemplateTools::getBranchProperties(Node& node, const string& propertyNa
   for (size_t i = 0; i < node.getNumberOfSons(); i++)
   {
     getBranchProperties(*node.getSon(i), propertyName, properties);
+  }
+}
+
+void TreeTemplateTools::deleteBranchProperties(Node& node, const std::vector<std::string>& propertyNames)
+{
+  for (auto property: propertyNames)
+  {
+    try
+    {
+      node.deleteBranchProperty(property);
+    }
+    catch(exception& e) {}
+  }
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
+  {  
+    deleteBranchProperties(*node.getSon(i), propertyNames);
   }
 }
 

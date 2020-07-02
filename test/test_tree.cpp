@@ -89,17 +89,17 @@ int main() {
 
   Newick tReader;
   istringstream iss6("((A,B),C);");
-  TreeTemplate<Node>* tree6 = tReader.read(iss6);
+  TreeTemplate<Node>* tree6 = tReader.readTree(iss6);
   cout << TreeTemplateTools::treeToParenthesis(*tree6) << endl;
   delete tree6;
   
   istringstream iss7("((A:1,B:2):3,C:4):5;");
-  TreeTemplate<Node>* tree7 = tReader.read(iss7);
+  TreeTemplate<Node>* tree7 = tReader.readTree(iss7);
   cout << TreeTemplateTools::treeToParenthesis(*tree7) << endl;
   delete tree7;
 
   istringstream iss8("((A:1,B:2)80:3,C:4)2:5;");
-  TreeTemplate<Node>* tree8 = tReader.read(iss8);
+  TreeTemplate<Node>* tree8 = tReader.readTree(iss8);
   cout << TreeTemplateTools::treeToParenthesis(*tree8) << endl;
   vector<int> ids = tree8->getNodesId();
   for (size_t i = 0; i < ids.size(); ++i) {
@@ -112,7 +112,7 @@ int main() {
 
   istringstream iss9("((A,B)aa,C)2;");
   tReader.enableExtendedBootstrapProperty("ESS");
-  TreeTemplate<Node>* tree9 = tReader.read(iss9);
+  TreeTemplate<Node>* tree9 = tReader.readTree(iss9);
   cout << TreeTemplateTools::treeToParenthesis(*tree9) << endl;
   ids = tree9->getNodesId();
   for (size_t i = 0; i < ids.size(); ++i) {
@@ -131,8 +131,8 @@ int main() {
   //Test file parsing:
   TreeTemplate<Node>* tree10 = TreeTemplateTools::getRandomTree(leaves, true);
   Newick tWriter;
-  tWriter.write(*tree10, "tmp_tree.dnd");
-  Tree* test = tReader.read("tmp_tree.dnd");
+  tWriter.writeTree(*tree10, "tmp_tree.dnd");
+  Tree* test = tReader.readTree("tmp_tree.dnd");
   if (!TreeTools::haveSameTopology(*tree10, *test))
     return 1;
   cout << "Newick I/O ok." << endl;
@@ -142,10 +142,10 @@ int main() {
   for (unsigned int i = 0; i < 100; ++i) {
     trees.push_back(TreeTemplateTools::getRandomTree(leaves, true));
   }
-  tWriter.write(trees, "tmp_trees.dnd");
+  tWriter.writeTrees(trees, "tmp_trees.dnd");
 
   vector<Tree *> trees2;
-  tReader.read("tmp_trees.dnd", trees2);
+  tReader.readTrees("tmp_trees.dnd", trees2);
 
   for (unsigned int i = 0; i < 100; ++i) {
     if (!TreeTools::haveSameTopology(*trees[i], *trees2[i]))
@@ -164,7 +164,7 @@ int main() {
   //Try newick read on non-file:
   cout << "Testing parsing a directory..." << endl;
   try {
-    Tree* tmp = tReader.read("test/");
+    Tree* tmp = tReader.readTree("test/");
     cerr << "Arg, reading on directory should fail!" << endl;
     if (tmp) {
       cerr << "Output of read on directory is not NULL!" << endl;
@@ -177,7 +177,7 @@ int main() {
   cout << "Testing parsing a directory for multiple trees..." << endl;
   try {
     vector<Tree*> treesTmp;
-    tReader.read("test/", treesTmp);
+    tReader.readTrees("test/", treesTmp);
     if (treesTmp.size() != 0) {
       cerr << "Output of multiple read on directory is not 0!" << endl;
       return 1;

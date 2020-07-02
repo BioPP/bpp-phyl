@@ -140,7 +140,7 @@ public:
     return getParametrizablePhyloTree().getParameters();
   }
   
-  const FrequenciesSet* getRootFrequenciesSet() const
+  const FrequencySet* getRootFrequencySet() const
   {
     return 0;
   }

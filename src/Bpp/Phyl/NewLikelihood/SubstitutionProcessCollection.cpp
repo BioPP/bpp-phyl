@@ -122,8 +122,8 @@ void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametriz
     pl=modelColl_.getParametersForObject(parametrizableIndex);
   }
   else
-    if (std::dynamic_pointer_cast<FrequenciesSet>(parametrizable)){
-      freqColl_.addObject(std::dynamic_pointer_cast<FrequenciesSet>(parametrizable), parametrizableIndex);
+    if (std::dynamic_pointer_cast<FrequencySet>(parametrizable)){
+      freqColl_.addObject(std::dynamic_pointer_cast<FrequencySet>(parametrizable), parametrizableIndex);
       pl=freqColl_.getParametersForObject(parametrizableIndex);
     }
     else

@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
@@ -75,17 +75,16 @@ int main() {
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
+  FrequencySet* rootFreqs = new GCFrequencySet(alphabet);
   
   auto model = std::make_shared<T92>(alphabet, 3.);
   std::map<std::string, std::vector<Vint>> globalParameterVectors;
   globalParameterVectors["T92.kappa"]=std::vector<Vint>();
-
   
   //Very difficult to optimize on small datasets:
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
   
-  FrequenciesSet* rootFreqs2 = rootFreqs->clone();
+  FrequencySet* rootFreqs2 = rootFreqs->clone();
   DiscreteDistribution* rdist2 = rdist->clone();
   std::shared_ptr<SubstitutionModel> model2(model->clone());
 

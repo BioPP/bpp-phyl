@@ -121,7 +121,7 @@ public:
   //   return model_->getGenerator();
   // }
 
-  const FrequenciesSet* getRootFrequenciesSet() const {
+  const FrequencySet* getRootFrequencySet() const {
     return 0;
   }
   

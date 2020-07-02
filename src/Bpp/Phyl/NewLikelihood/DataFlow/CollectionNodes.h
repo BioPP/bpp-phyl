@@ -42,7 +42,7 @@
 
 #include "Bpp/Phyl/NewLikelihood/DataFlow/Model.h"
 #include "Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h"
-#include "Bpp/Phyl/NewLikelihood/DataFlow/FrequenciesSet.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.h"
 #include "Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.h"
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
@@ -76,7 +76,7 @@ namespace bpp {
       * A collection of Frequencies Sets
       */
   
-     ParametrizableCollection<ConfiguredFrequenciesSet> freqColl_;
+     ParametrizableCollection<ConfiguredFrequencySet> freqColl_;
 
      /*
       * A collection of DiscreteDistributions
@@ -118,9 +118,9 @@ namespace bpp {
        return modelColl_;
      }
 
-     std::shared_ptr<ConfiguredFrequenciesSet> getFrequencies(size_t freqIndex)
+     std::shared_ptr<ConfiguredFrequencySet> getFrequencies(size_t freqIndex)
      {
-       return std::dynamic_pointer_cast<ConfiguredFrequenciesSet>(freqColl_[freqIndex]);
+       return std::dynamic_pointer_cast<ConfiguredFrequencySet>(freqColl_[freqIndex]);
      }
      
      std::shared_ptr<ConfiguredDistribution> getRateDistribution(size_t distIndex)

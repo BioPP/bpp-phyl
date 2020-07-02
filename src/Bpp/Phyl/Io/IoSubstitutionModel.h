@@ -93,10 +93,10 @@ namespace bpp
      * @throw Exception if an error occured.
      */
 
-    virtual SubstitutionModel* readSubstitionModel(const Alphabet* alphabet,
-                                                   const std::string& modelDescription,
-                                                   const AlignedValuesContainer* data = 0,
-                                                   bool parseArguments = true) = 0;
+    virtual SubstitutionModel* readSubstitutionModel(const Alphabet* alphabet,
+                                                     const std::string& modelDescription,
+                                                     const AlignedValuesContainer* data = 0,
+                                                     bool parseArguments = true) = 0;
 
     /**
      * @return The arguments and their unparsed values from the last call of the read function, if there are any.

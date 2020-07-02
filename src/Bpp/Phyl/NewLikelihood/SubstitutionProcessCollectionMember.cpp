@@ -197,7 +197,7 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
 }
 
 
-inline const FrequenciesSet* SubstitutionProcessCollectionMember::getRootFrequenciesSet() const
+inline const FrequencySet* SubstitutionProcessCollectionMember::getRootFrequencySet() const
 {
   if (stationarity_)
     return 0;
@@ -281,7 +281,7 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
   }
   else if (!stationarity_)
   {
-    const FrequenciesSet& freq = getCollection()->getFrequencies(nRoot_);
+    const FrequencySet& freq = getCollection()->getFrequencies(nRoot_);
     if (freq.getAlphabet()->getAlphabetType() != nmod.getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet as the root frequencies.");
     if (freq.getFrequencies().size() != nmod.getNumberOfStates())
@@ -301,7 +301,7 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
 
 void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
 {
-  const FrequenciesSet& freq = getCollection()->getFrequencies(numFreq);
+  const FrequencySet& freq = getCollection()->getFrequencies(numFreq);
   if (modelToNodes_.size() > 0)
   {
     const BranchModel& modi = *getCollection()->getModel(modelToNodes_.begin()->first);

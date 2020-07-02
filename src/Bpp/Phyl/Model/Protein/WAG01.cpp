@@ -54,11 +54,11 @@ WAG01::WAG01(const ProteicAlphabet* alpha) :
 {
   #include "__WAG01ExchangeabilityCode"
   #include "__WAG01FrequenciesCode"
-  freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
+  freqSet_ = new FixedProteinFrequencySet(alpha, freq_);
   updateMatrices();  
 }
 
-WAG01::WAG01(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
+WAG01::WAG01(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("WAG01+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "WAG01+F."),
   freqSet_(freqSet)

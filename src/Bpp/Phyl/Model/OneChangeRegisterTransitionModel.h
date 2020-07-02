@@ -168,7 +168,7 @@ namespace bpp
 
     const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
 
-    const FrequenciesSet* getFrequenciesSet() const {return getTransitionModel().getFrequenciesSet(); }
+    const FrequencySet* getFrequencySet() const {return getTransitionModel().getFrequencySet(); }
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
     {

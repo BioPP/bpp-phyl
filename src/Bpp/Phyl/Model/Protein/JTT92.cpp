@@ -57,11 +57,11 @@ JTT92::JTT92(const ProteicAlphabet* alpha) :
 {
   #include "__JTT92ExchangeabilityCode"
   #include "__JTT92FrequenciesCode"
-  freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
+  freqSet_ = new FixedProteinFrequencySet(alpha, freq_);
   updateMatrices();  
 }
 
-JTT92::JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
+JTT92::JTT92(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("JTT92+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "JTT92+F."),
   freqSet_(freqSet)

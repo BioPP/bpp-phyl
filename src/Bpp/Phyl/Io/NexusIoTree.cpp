@@ -77,12 +77,12 @@ const string NexusIOTree::getFormatDescription() const
 /* INPUT */
 /******************************************************************************/
 
-TreeTemplate<Node> * NexusIOTree::read(istream &in) const
+TreeTemplate<Node> * NexusIOTree::readTree(istream &in) const
 {
   vector<Tree*> trees;
-  read(in, trees);
+  readTrees(in, trees);
   if (trees.size() == 0)
-    throw IOException("NexusIOTree::read(). No tree found in file.");
+    throw IOException("NexusIOTree::readTree(). No tree found in file.");
   for (size_t i = trees.size() - 1; i > 0; i--)
     delete trees[i];
   return dynamic_cast<TreeTemplate<Node>*>(trees[0]);
@@ -90,24 +90,24 @@ TreeTemplate<Node> * NexusIOTree::read(istream &in) const
 
 /******************************************************************************/
 
-void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const
+void NexusIOTree::readTrees(std::istream& in, std::vector<Tree*>& trees) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("NexusIOTree::read(). Failed to read from stream"); }
+  if (! in) { throw IOException ("NexusIOTree::readTrees(). Failed to read from stream"); }
 	
   //Look for the TREES block:
   string line = "";
   while (TextTools::toUpper(line) != "BEGIN TREES;")
     {
       if (in.eof())
-        throw Exception("NexusIOTree::read(). No trees block was found.");
+        throw Exception("NexusIOTree::readTrees(). No trees block was found.");
       line = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(in));
     }
   
   string cmdName = "", cmdArgs = "";
   bool cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
   if (! cmdFound)
-    throw Exception("NexusIOTree::read(). Missing tree command.");
+    throw Exception("NexusIOTree::readTrees(). Missing tree command.");
   cmdName = TextTools::toUpper(cmdName);
 
   //Look for the TRANSLATE command:
@@ -122,7 +122,7 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const
           string tok = TextTools::removeSurroundingWhiteSpaces(st.nextToken());
           NestedStringTokenizer nst(tok, "'", "'", " \t");
           if (nst.numberOfRemainingTokens() != 2)
-            throw Exception("NexusIOTree::read(). Unvalid translation description.");
+            throw Exception("NexusIOTree::readTrees(). Unvalid translation description.");
           string name = nst.nextToken();
           string tln  = nst.nextToken();
           translation[name] = tln;
@@ -130,7 +130,7 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const
       hasTranslation = true;
       cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
       if (! cmdFound)
-        throw Exception("NexusIOTree::read(). Missing tree command.");
+        throw Exception("NexusIOTree::readTrees(). Missing tree command.");
       else
         cmdName = TextTools::toUpper(cmdName);
     }
@@ -139,10 +139,10 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const
   while (cmdFound && cmdName != "END")
     {
       if (cmdName != "TREE")
-        throw Exception("NexusIOTree::read(). Unvalid command found: " + cmdName);
+        throw Exception("NexusIOTree::readTrees(). Unvalid command found: " + cmdName);
       string::size_type pos = cmdArgs.find("=");
       if (pos == string::npos)
-        throw Exception("NexusIOTree::read(). unvalid format, should be tree-name=tree-description");
+        throw Exception("NexusIOTree::readTrees(). unvalid format, should be tree-name=tree-description");
       string description = cmdArgs.substr(pos + 1);
       TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree(description + ";", true);
 
@@ -156,7 +156,7 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const
               string name = leaves[i]->getName();
               if (translation.find(name) == translation.end())
                 {
-                  throw Exception("NexusIOTree::read(). No translation was given for this leaf: " + name);
+                  throw Exception("NexusIOTree::readTrees(). No translation was given for this leaf: " + name);
                 }
               leaves[i]->setName(translation[name]);
             }
@@ -169,12 +169,12 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-PhyloTree * NexusIOTree::readP(istream &in) const
+PhyloTree * NexusIOTree::readPTree(istream &in) const
 {
   vector<PhyloTree*> trees;
-  read(in, trees);
+  readTrees(in, trees);
   if (trees.size() == 0)
-    throw IOException("NexusIOTree::read(). No tree found in file.");
+    throw IOException("NexusIOTree::readPTree(). No tree found in file.");
   for (size_t i = trees.size() - 1; i > 0; i--)
     delete trees[i];
   return trees[0];
@@ -182,24 +182,24 @@ PhyloTree * NexusIOTree::readP(istream &in) const
 
 /******************************************************************************/
 
-void NexusIOTree::read(std::istream& in, std::vector<PhyloTree*>& trees) const
+void NexusIOTree::readTrees(std::istream& in, std::vector<PhyloTree*>& trees) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("NexusIOTree::read(). Failed to read from stream"); }
+  if (! in) { throw IOException ("NexusIOTree::readTrees(). Failed to read from stream"); }
 	
   //Look for the TREES block:
   string line = "";
   while (TextTools::toUpper(line) != "BEGIN TREES;")
   {
     if (in.eof())
-      throw Exception("NexusIOTree::read(). No trees block was found.");
+      throw Exception("NexusIOTree::readTrees(). No trees block was found.");
     line = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(in));
   }
   
   string cmdName = "", cmdArgs = "";
   bool cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
   if (! cmdFound)
-    throw Exception("NexusIOTree::read(). Missing tree command.");
+    throw Exception("NexusIOTree::readTrees(). Missing tree command.");
   cmdName = TextTools::toUpper(cmdName);
 
   //Look for the TRANSLATE command:
@@ -214,7 +214,7 @@ void NexusIOTree::read(std::istream& in, std::vector<PhyloTree*>& trees) const
       string tok = TextTools::removeSurroundingWhiteSpaces(st.nextToken());
       NestedStringTokenizer nst(tok, "'", "'", " \t");
       if (nst.numberOfRemainingTokens() != 2)
-        throw Exception("NexusIOTree::read(). Unvalid translation description.");
+        throw Exception("NexusIOTree::readTrees(). Unvalid translation description.");
       string name = nst.nextToken();
       string tln  = nst.nextToken();
       translation[name] = tln;
@@ -222,7 +222,7 @@ void NexusIOTree::read(std::istream& in, std::vector<PhyloTree*>& trees) const
     hasTranslation = true;
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (! cmdFound)
-      throw Exception("NexusIOTree::read(). Missing tree command.");
+      throw Exception("NexusIOTree::readTrees(). Missing tree command.");
     else
       cmdName = TextTools::toUpper(cmdName);
   }
@@ -231,16 +231,16 @@ void NexusIOTree::read(std::istream& in, std::vector<PhyloTree*>& trees) const
   while (cmdFound && cmdName != "END")
   {
     if (cmdName != "TREE")
-      throw Exception("NexusIOTree::read(). Unvalid command found: " + cmdName);
+      throw Exception("NexusIOTree::readTrees(). Unvalid command found: " + cmdName);
     string::size_type pos = cmdArgs.find("=");
     if (pos == string::npos)
-      throw Exception("NexusIOTree::read(). unvalid format, should be tree-name=tree-description");
+      throw Exception("NexusIOTree::readTrees(). unvalid format, should be tree-name=tree-description");
     string description = cmdArgs.substr(pos + 1);
 
     Newick treeReader;
 
     istringstream ss(description + ";");    
-    PhyloTree* tree = treeReader.readP(ss);
+    PhyloTree* tree = treeReader.readPTree(ss);
     
     //Now translate leaf names if there is a translation:
     //(we assume that all trees share the same translation! ===> check!)
@@ -252,7 +252,7 @@ void NexusIOTree::read(std::istream& in, std::vector<PhyloTree*>& trees) const
         string name = leaves[i]->getName();
         if (translation.find(name) == translation.end())
         {
-          throw Exception("NexusIOTree::read(). No translation was given for this leaf: " + name);
+          throw Exception("NexusIOTree::readTrees(). No translation was given for this leaf: " + name);
         }
         leaves[i]->setName(translation[name]);
       }
@@ -271,7 +271,7 @@ void NexusIOTree::write_(const Tree& tree, ostream& out) const
 {
   vector<const Tree*> trees;
   trees.push_back(&const_cast<Tree&>(tree));
-  write(trees, out);
+  writeTrees(trees, out);
 }
 
 /******************************************************************************/
@@ -280,7 +280,7 @@ void NexusIOTree::write_(const PhyloTree& tree, ostream& out) const
 {
   vector<const PhyloTree*> trees;
   trees.push_back(&const_cast<PhyloTree&>(tree));
-  write(trees, out);
+  writeTrees(trees, out);
 }
 
 /******************************************************************************/
@@ -290,7 +290,7 @@ void NexusIOTree::write_(const TreeTemplate<N>& tree, ostream& out) const
 {
   vector<const Tree*> trees;
   trees.push_back(&const_cast<Tree&>(tree));
-  write(trees, out);
+  writeTrees(trees, out);
 }
 
 /******************************************************************************/
@@ -416,7 +416,7 @@ void NexusIOTree::write_(const vector<const PhyloTree*>& trees, ostream& out) co
   for (size_t i = 0; i < trees.size(); i++)
   {
     out << endl << "  TREE tree" << (i+1) << " = ";
-    treeWriter.write(*translatedTrees[i], out);
+    treeWriter.writeTree(*translatedTrees[i], out);
   }
   out << "END;" << endl;
   

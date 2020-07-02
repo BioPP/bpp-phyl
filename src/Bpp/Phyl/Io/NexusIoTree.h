@@ -90,40 +90,40 @@ namespace bpp
      *
      * @{
      */
-    TreeTemplate<Node>* read(const std::string& path) const
+    TreeTemplate<Node>* readTree(const std::string& path) const
     {
-      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
+      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::readTree(path));
     }
     
-    TreeTemplate<Node>* read(std::istream& in) const;
+    TreeTemplate<Node>* readTree(std::istream& in) const;
 
-    PhyloTree* readP(const std::string& path) const
+    PhyloTree* readPTree(const std::string& path) const
     {
-      return AbstractITree::readP(path);
+      return AbstractITree::readPTree(path);
     }
     
-    PhyloTree* readP(std::istream& in) const;
+    PhyloTree* readPTree(std::istream& in) const;
     
-/** @} */
+    /** @} */
 
     /**
      * @name The OTree interface
      *
      * @{
      */
-    void write(const Tree& tree, const std::string& path, bool overwrite = true) const
+    void writeTree(const Tree& tree, const std::string& path, bool overwrite = true) const
     {
-      AbstractOTree::write(tree, path, overwrite);
+      AbstractOTree::writeTree(tree, path, overwrite);
     }
-    void write(const Tree& tree, std::ostream& out) const
+    void writeTree(const Tree& tree, std::ostream& out) const
     {
       write_(tree, out);
     }
-    void write(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
+    void writeTree(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
     {
-      AbstractOTree::write(tree, path, overwrite);
+      AbstractOTree::writeTree(tree, path, overwrite);
     }
-    void write(const PhyloTree& tree, std::ostream& out) const
+    void writeTree(const PhyloTree& tree, std::ostream& out) const
     {
       write_(tree, out);
     }
@@ -134,19 +134,19 @@ namespace bpp
      *
      * @{
      */
-    void read(const std::string& path, std::vector<Tree*>& trees) const
+    void readTrees(const std::string& path, std::vector<Tree*>& trees) const
     {
-      AbstractIMultiTree::read(path, trees);
+      AbstractIMultiTree::readTrees(path, trees);
     }
-    void read(std::istream& in, std::vector<Tree*>& trees) const;
+    void readTrees(std::istream& in, std::vector<Tree*>& trees) const;
 
-    void read(const std::string& path, std::vector<PhyloTree*>& trees) const
+    void readTrees(const std::string& path, std::vector<PhyloTree*>& trees) const
     {
-      AbstractIMultiTree::read(path, trees);
+      AbstractIMultiTree::readTrees(path, trees);
     }
     
-    void read(std::istream& in, std::vector<PhyloTree*>& trees) const;
-/**@}*/
+    void readTrees(std::istream& in, std::vector<PhyloTree*>& trees) const;
+    /**@}*/
 
     /**
      * @name The OMultiTree interface
@@ -154,19 +154,19 @@ namespace bpp
      * @{
      */
 
-    void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const
+    void writeTrees(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const
     {
-      AbstractOMultiTree::write(trees, path, overwrite);
+      AbstractOMultiTree::writeTrees(trees, path, overwrite);
     }
-    void write(const std::vector<const Tree*>& trees, std::ostream& out) const
+    void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const
     {
       write_(trees, out);
     }
-    void write(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
+    void writeTrees(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
     {
-      AbstractOMultiTree::write(trees, path, overwrite);
+      AbstractOMultiTree::writeTrees(trees, path, overwrite);
     }
-    void write(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
+    void writeTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
     {
       write_(trees, out);
     }

@@ -51,7 +51,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
+YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
   YNGP_M("YNGP_M9."),
   nBeta_(nbBeta),
   nGamma_(nbGamma)
@@ -90,7 +90,7 @@ YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequencySet()->getParameters().getParameterNames();
 
   for (size_t i = 0; i < v.size(); i++)
   {

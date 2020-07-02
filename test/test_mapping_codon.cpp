@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/GeneticCode/StandardGeneticCode.h>
 #include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.h>
 #include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
 #include <Bpp/Phyl/Mapping/SubstitutionRegister.h>
 #include <Bpp/Phyl/Mapping/NaiveSubstitutionCount.h>
@@ -78,7 +78,7 @@ int main() {
 
   auto gc = std::make_shared<StandardGeneticCode>(AlphabetTools::DNA_ALPHABET);
   
-  auto model = std::make_shared<YN98>(gc.get(), CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, gc.get()));
+  auto model = std::make_shared<YN98>(gc.get(), CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F0, gc.get()));
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
   unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), pTree->clone()));

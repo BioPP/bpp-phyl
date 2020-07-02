@@ -41,7 +41,7 @@
 #define _YNGP_M_H_
 
 #include "../AbstractBiblioMixedTransitionModel.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 #include "../MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>

@@ -43,7 +43,7 @@
 #include "../Model/MixedTransitionModel.h"
 #include "../Model/WrappedModel.h"
 #include "../Model/Protein/Coala.h"
-#include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
+#include "../Model/FrequencySet/MvaFrequencySet.h"
 #include "../Likelihood/TreeLikelihood.h"
 #include "../Mapping/LaplaceSubstitutionCount.h"
 #include "../Mapping/UniformizationSubstitutionCount.h"
@@ -65,7 +65,7 @@
 #include "../Io/BppOTreeWriterFormat.h"
 #include "../Io/BppOMultiTreeWriterFormat.h"
 #include "../Io/BppOBranchModelFormat.h"
-#include "../Io/BppOFrequenciesSetFormat.h"
+#include "../Io/BppOFrequencySetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
 #include "../NewLikelihood/OneProcessSequenceEvolution.h"
@@ -146,13 +146,13 @@ Tree* PhylogeneticsApplicationTools::getTree(
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   BppOTreeReaderFormat bppoReader(warn);
-  unique_ptr<ITree> iTree(bppoReader.read(format));
+  unique_ptr<ITree> iTree(bppoReader.readITree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
     ApplicationTools::displayResult("Input tree format " + suffix, iTree->getFormatName());
   }
-  Tree* tree = iTree->read(treeFilePath);
+  Tree* tree = iTree->readTree(treeFilePath);
   return tree;
 }
 
@@ -170,14 +170,14 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   BppOMultiTreeReaderFormat bppoReader(warn);
-  unique_ptr<IMultiTree> iTrees(bppoReader.read(format));
+  unique_ptr<IMultiTree> iTrees(bppoReader.readIMultiTree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Input trees file " + suffix, treeFilePath);
     ApplicationTools::displayResult("Input trees format " + suffix, iTrees->getFormatName());
   }
   vector<Tree*> trees;
-  iTrees->read(treeFilePath, trees);
+  iTrees->readTrees(treeFilePath, trees);
 
   if (verbose)
   {
@@ -259,7 +259,7 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
         throw Exception("Unknow format for tree reading: " + format);
 
       vector<Tree*> trees;
-      treeReader->read(treeFilePath, trees);
+      treeReader->readTrees(treeFilePath, trees);
       delete treeReader;
 
       if (verbose)
@@ -537,7 +537,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
         throw Exception("Unknow format for tree reading: " + format);
 
       vector<PhyloTree*> trees;
-      treeReader->read(treeFilePath, trees);
+      treeReader->readTrees(treeFilePath, trees);
       delete treeReader;
 
       if (verbose)
@@ -784,7 +784,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  SubstitutionModel* model = bIO.readSubstitionModel(alphabet, modelDescription, data, true);
+  SubstitutionModel* model = bIO.readSubstitutionModel(alphabet, modelDescription, data, true);
 
   unparsedParams.insert(bIO.getUnparsedArguments().begin(), bIO.getUnparsedArguments().end());
 
@@ -873,13 +873,13 @@ map<size_t, std::shared_ptr<DiscreteDistribution>> PhylogeneticsApplicationTools
 
     string distDescription = ApplicationTools::getStringParameter(vratesName[i], paramDist, "", suffix, suffixIsOptional);
 
-    mDist[num] = std::shared_ptr<DiscreteDistribution>(bIO.read(distDescription, true));
+    mDist[num] = std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
   if (mDist.size() == 0)
   {
     string distDescription = ApplicationTools::getStringParameter("rate_distribution", paramDist, "Constant()", suffix, suffixIsOptional);
-    mDist[0]= std::shared_ptr<DiscreteDistribution>(bIO.read(distDescription, true));
+    mDist[0]= std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
   return mDist;
@@ -1070,7 +1070,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 /**** FREQUENCIES SET *********************************/
 /******************************************************/
 
-FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
+FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const string& freqDescription,
@@ -1081,14 +1081,14 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   int warn)
 {
   map<string, string> unparsedParameterValues;
-  BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose, warn);
+  BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, verbose, warn);
   if (AlphabetTools::isCodonAlphabet(alphabet))
   {
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::getFrequenciesSet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
+      throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  unique_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
+  unique_ptr<FrequencySet> pFS(bIO.readFrequencySet(alphabet, freqDescription, data, true));
 
   map<string, string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -1097,14 +1097,14 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-    pFS.reset(new MarkovModulatedFrequenciesSet(pFS.release(), rateFreqs));
+    pFS.reset(new MarkovModulatedFrequencySet(pFS.release(), rateFreqs));
   }
 
   return pFS.release();
 }
 
 
-FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
+FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const AlignedValuesContainer* data,
@@ -1125,7 +1125,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   {
     map<string, string> unparams;
 
-    FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
+    FrequencySet* freq = getFrequencySet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
     for (auto& it : unparams)
@@ -1138,7 +1138,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
 }
 
 
-map<size_t, std::shared_ptr<FrequenciesSet>> PhylogeneticsApplicationTools::getRootFrequenciesSets(
+map<size_t, std::shared_ptr<FrequencySet>> PhylogeneticsApplicationTools::getRootFrequencySets(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const map<size_t, AlignedValuesContainer*>& mData,
@@ -1150,7 +1150,7 @@ map<size_t, std::shared_ptr<FrequenciesSet>> PhylogeneticsApplicationTools::getR
   int warn)
 {
   if (dynamic_cast<const CodonAlphabet*>(alphabet) && !gCode)
-    throw Exception("PhylogeneticsApplicationTools::getRootFrequenciesSets(): a GeneticCode instance is required for instanciating codon frequencies sets.");
+    throw Exception("PhylogeneticsApplicationTools::getRootFrequencySets(): a GeneticCode instance is required for instanciating codon frequencies sets.");
 
   string RootFilePath = ApplicationTools::getAFilePath("root_freq.file", params, false, false, suffix, suffixIsOptional,  "none", 1);
   map<string, string> paramRF;
@@ -1174,10 +1174,10 @@ map<size_t, std::shared_ptr<FrequenciesSet>> PhylogeneticsApplicationTools::getR
     {}
   }
 
-  BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose, warn);
+  BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, verbose, warn);
   bIO.setGeneticCode(gCode);
 
-  map<size_t, std::shared_ptr<FrequenciesSet>> mFS;
+  map<size_t, std::shared_ptr<FrequencySet>> mFS;
 
   for (size_t i = 0; i < rfNum.size(); i++)
   {
@@ -1196,7 +1196,7 @@ map<size_t, std::shared_ptr<FrequenciesSet>> PhylogeneticsApplicationTools::getR
     if (args.find("data") != args.end())
       nData = (size_t) TextTools::toInt(args["data"]);
 
-    shared_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
+    shared_ptr<FrequencySet> rFS(bIO.readFrequencySet(alphabet, freqDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
     rFS->setNamespace("root." + rFS->getNamespace());
     map<string, string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -1524,7 +1524,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 
     bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, warn);
 
-    unique_ptr<FrequenciesSet> rootFrequencies;
+    unique_ptr<FrequencySet> rootFrequencies;
 
     if (!stationarity)
     {
@@ -1543,12 +1543,12 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
       if (freqDescription.substr(0, 10) == "MVAprotein")
       {
         if (dynamic_cast<Coala*>(tmp.get()))
-          dynamic_cast<MvaFrequenciesSet*>(rootFrequencies.get())->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+          dynamic_cast<MvaFrequencySet*>(rootFrequencies.get())->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
         else
           throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
       }
       else
-        rootFrequencies.reset(getRootFrequenciesSet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn));
+        rootFrequencies.reset(getRootFrequencySet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn));
 
       stationarity = !rootFrequencies.get();
     }
@@ -1907,7 +1907,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   const GeneticCode* gCode,
   const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
   const map<size_t, std::shared_ptr<BranchModel>>& mMod,
-  const map<size_t, std::shared_ptr<FrequenciesSet>>& mRootFreq,
+  const map<size_t, std::shared_ptr<FrequencySet>>& mRootFreq,
   const map<size_t, std::shared_ptr<DiscreteDistribution>>& mDist,
   const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
   const map<string, string>& params,
@@ -2770,16 +2770,16 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   map<string, string> unparsedParameters;
 
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", true, warn);
-  FrequenciesSet* rootFrequencies = 0;
+  FrequencySet* rootFrequencies = 0;
   if (!stationarity)
   {
-    rootFrequencies = getRootFrequenciesSet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
+    rootFrequencies = getRootFrequencySet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
     stationarity = !rootFrequencies;
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
     if (freqDescription.substr(0, 10) == "MVAprotein")
     {
       if (dynamic_cast<Coala*>(tmp.get()))
-        dynamic_cast<MvaFrequenciesSet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+        dynamic_cast<MvaFrequencySet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
       else
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
@@ -3002,7 +3002,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
   BppORateDistributionFormat bIO(true);
-  unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+  unique_ptr<DiscreteDistribution> rDist(bIO.readDiscreteDistribution(distDescription, true));
 
   if (verbose)
   {
@@ -4078,8 +4078,8 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    string bf=backupFile+".def";
-    rename(backupFile.c_str(),bf.c_str());
+    string bf = backupFile + ".def";
+    rename(backupFile.c_str(), bf.c_str());
   }
 }
 
@@ -4130,7 +4130,7 @@ void PhylogeneticsApplicationTools::writeTree(
   else
     throw Exception("Unknown format for tree writing: " + format);
   if (!checkOnly)
-    treeWriter->write(tree, file, true);
+    treeWriter->writeTree(tree, file, true);
   delete treeWriter;
   if (verbose)
     ApplicationTools::displayResult("Wrote tree to file ", file);
@@ -4161,7 +4161,7 @@ void PhylogeneticsApplicationTools::writeTrees(
     throw Exception("Unknow format for tree writing: " + format);
 
   if (!checkOnly)
-    treeWriter->write(trees, file, true);
+    treeWriter->writeTrees(trees, file, true);
 
   delete treeWriter;
   if (verbose)
@@ -4192,7 +4192,7 @@ void PhylogeneticsApplicationTools::writeTrees(
 
   if (!checkOnly)
   {
-    treeWriter->write(trees, file, true);
+    treeWriter->writeTrees(trees, file, true);
     
     if (verbose)
       ApplicationTools::displayResult("Wrote trees to file ", file);
@@ -4247,7 +4247,7 @@ void PhylogeneticsApplicationTools::writeTrees(
       if (nt)
         nt->enableExtendedBootstrapProperty("NodeId");
 
-      treeWriter->write(tree, file + "_" + TextTools::toString(vTN[i]), true);
+      treeWriter->writeTree(tree, file + "_" + TextTools::toString(vTN[i]), true);
     }
     if (verbose)
       ApplicationTools::displayResult("Wrote trees to files : ", file + "_...");
@@ -4298,7 +4298,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
 
     out << "rate_distribution=";
     const BppORateDistributionFormat* bIOR = new BppORateDistributionFormat(true);
-    bIOR->write(*pRA->getRateDistribution(), out, globalAliases, writtenNames);
+    bIOR->writeDiscreteDistribution(*pRA->getRateDistribution(), out, globalAliases, writtenNames);
     delete bIOR;
     out.endLine();
   }
@@ -4346,13 +4346,13 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
 
     // Root frequencies:
     out.endLine();
-    if (pNH->getRootFrequenciesSet())
+    if (pNH->getRootFrequencySet())
     {
       out << "nonhomogeneous.root_freq=";
 
       map<string, string> aliases;
 
-      ParameterList pl = pNH->getRootFrequenciesSet()->getParameters();
+      ParameterList pl = pNH->getRootFrequencySet()->getParameters();
 
       for (size_t np = 0; np < pl.size(); np++)
       {
@@ -4361,8 +4361,8 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
           aliases[pl[np].getName()] = nfrom;
       }
 
-      BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false, warn);
-      bIO.write(pNH->getRootFrequenciesSet(), out, aliases, writtenNames);
+      BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
+      bIO.writeFrequencySet(pNH->getRootFrequencySet(), out, aliases, writtenNames);
     }
     else
       out << "nonhomogeneous.stationarity=true";
@@ -4383,7 +4383,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     out.endLine();
     out << "rate_distribution=";
     const BppORateDistributionFormat* bIO = new BppORateDistributionFormat(true);
-    bIO->write(*pdd, out, aliases, writtenNames);
+    bIO->writeDiscreteDistribution(*pdd, out, aliases, writtenNames);
     delete bIO;
     out.endLine();
   }
@@ -4428,12 +4428,12 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
   for (size_t i = 0; i < rootFreqN.size(); i++)
   {
-    const FrequenciesSet& rootFreq = collection->getFrequencies(rootFreqN[i]);
+    const FrequencySet& rootFreq = collection->getFrequencies(rootFreqN[i]);
 
     // Now print it:
     writtenNames.clear();
     out.endLine() << "root_freq" << rootFreqN[i] << "=";
-    BppOFrequenciesSetFormat bIOf(BppOFrequenciesSetFormat::ALL, true, warn);
+    BppOFrequencySetFormat bIOf(BppOFrequencySetFormat::ALL, true, warn);
 
     map<string, string> aliases;
 
@@ -4449,7 +4449,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       }
     }
 
-    bIOf.write(&rootFreq, out, aliases, writtenNames);
+    bIOf.writeFrequencySet(&rootFreq, out, aliases, writtenNames);
     out.endLine();
   }
 
@@ -4482,7 +4482,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       writtenNames.clear();
       out.endLine() << "rate_distribution" << distn << "=";
       BppORateDistributionFormat bIOd(true);
-      bIOd.write(dist, out, aliases, writtenNames);
+      bIOd.writeDiscreteDistribution(dist, out, aliases, writtenNames);
       out.endLine();
     }
   }
@@ -4596,7 +4596,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     else
       out << size_t(dN / 10000 - 1) << "." << dN % 10000;
 
-    if (spcm.getRootFrequenciesSet())
+    if (spcm.getRootFrequencySet())
       out << ", root_freq=" << spcm.getRootFrequenciesNumber();
 
     if (spcm.hasModelScenario())
@@ -5276,7 +5276,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
   if (modelSet->isStationary())
     (out << "nonhomogeneous.stationarity = yes");
-    
+
   // Get the parameter links:
   map< size_t, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
   map< string, set<size_t> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
@@ -5322,13 +5322,12 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
   if (!modelSet->isStationary())
   {
-    
-    const FrequenciesSet* pFS = modelSet->getRootFrequenciesSet();
+    const FrequencySet* pFS = modelSet->getRootFrequencySet();
 
     ParameterList plf = pFS->getParameters();
 
     map<string, string> aliases;
-    
+
     if (withAlias)
     {
       for (size_t np = 0; np < plf.size(); np++)
@@ -5338,14 +5337,14 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
           aliases[plf[np].getName()] = nfrom;
       }
     }
-    
+
     // Root frequencies:
     out.endLine();
     (out << "# Root frequencies:").endLine();
     out << "nonhomogeneous.root_freq=";
-    
-    BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false, warn);
-    bIO.write(pFS, out, aliases, writtenNames);
+
+    BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
+    bIO.writeFrequencySet(pFS, out, aliases, writtenNames);
   }
 }
 
@@ -5357,7 +5356,7 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
   map<string, string> globalAliases;
   vector<string> writtenNames;
   const BppORateDistributionFormat* bIO = new BppORateDistributionFormat(true);
-  bIO->write(*rDist, out, globalAliases, writtenNames);
+  bIO->writeDiscreteDistribution(*rDist, out, globalAliases, writtenNames);
   delete bIO;
   out.endLine();
 }
@@ -5365,7 +5364,6 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
 /************************
 * Substitution Mapping *
 ************************/
-
 SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   const Alphabet* alphabet,
   const SubstitutionModel* model,
@@ -5476,15 +5474,15 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     while (++i)
     {
       string regDesc = ApplicationTools::getStringParameter("reg" + TextTools::toString(i), regArgs, "", "", false, 1);
-      if (regDesc=="")
+      if (regDesc == "")
         break;
       
       SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode, w2, d2);
 
       vreg->addRegister(sreg);
     }
-    
-    reg=vreg;
+
+    reg = vreg;
   }
   else if (regType == "All")
   {
@@ -5499,10 +5497,9 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     reg = new SelectedSubstitutionRegister(stateMap, subsList);  
   }
 
-  
+
   // Alphabet dependent registers
 
-  
   else if (AlphabetTools::isNucleicAlphabet(alphabet))
   {    
     if (regType == "GC")
@@ -5541,8 +5538,8 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else
       throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + alphabet->getAlphabetType());
   }
-  
-  CategorySubstitutionRegister* csr=dynamic_cast<CategorySubstitutionRegister*>(reg);
+
+  CategorySubstitutionRegister* csr = dynamic_cast<CategorySubstitutionRegister*>(reg);
   if (csr)
     csr->setStationarity(ApplicationTools::getBooleanParameter("stationarity", regArgs, true));
 
@@ -5551,4 +5548,3 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
 
   return reg;
 }
-

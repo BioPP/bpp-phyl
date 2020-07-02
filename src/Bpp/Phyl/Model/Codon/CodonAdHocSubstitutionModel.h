@@ -68,12 +68,12 @@ namespace bpp
     std::string name_;
 
     /*
-     * @brief optional FrequenciesSet if model is defined through a
-     * FrequenciesSet.
+     * @brief optional FrequencySet if model is defined through a
+     * FrequencySet.
      *
      */
      
-    const FrequenciesSet* freqSet_;
+    const FrequencySet* freqSet_;
     
   public:
     /**
@@ -156,7 +156,7 @@ namespace bpp
 
     void setFreq(std::map<int,double>& frequencies);
 
-    const FrequenciesSet* getFrequenciesSet() const
+    const FrequencySet* getFrequencySet() const
     {
       return freqSet_;
     }

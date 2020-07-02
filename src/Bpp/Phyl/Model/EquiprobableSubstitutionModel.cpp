@@ -56,11 +56,11 @@ EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alp
   AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "Equi."),
   exp_(), p_(size_, size_), freqSet_(0)
 {
-  freqSet_ = new FixedFrequenciesSet(shareStateMap(), freq_);
+  freqSet_ = new FixedFrequencySet(shareStateMap(), freq_);
   updateMatrices();
 }
 
-EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alpha, FrequenciesSet* freqSet, bool initFreqs) :
+EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alpha, FrequencySet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("Equi+F."),
   AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "Equi+F."),
   exp_(), p_(size_, size_), freqSet_(freqSet)

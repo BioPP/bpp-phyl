@@ -42,7 +42,7 @@
 
 
 #include "../Model/SubstitutionModel.h"
-#include "../Model/FrequenciesSet/FrequenciesSet.h"
+#include "../Model/FrequencySet/FrequencySet.h"
 
 #include "SubstitutionProcessCollectionMember.h"
 #include "SubstitutionProcess.h"
@@ -106,10 +106,10 @@ private:
    * A collection of Frequencies Sets
    */
   
-  ParametrizableCollection<FrequenciesSet> freqColl_;
+  ParametrizableCollection<FrequencySet> freqColl_;
 
   /**
-   * A map from each FrequenciesSet number to the SubProcess members
+   * A map from each FrequencySet number to the SubProcess members
    * that are linked to it.
    *
    */
@@ -247,7 +247,7 @@ public:
     addParametrizable(model, modelIndex);
   }
 
-  void addFrequencies(std::shared_ptr<FrequenciesSet> frequencies, size_t frequenciesIndex)
+  void addFrequencies(std::shared_ptr<FrequencySet> frequencies, size_t frequenciesIndex)
   {
     addParametrizable(frequencies, frequenciesIndex);
   }
@@ -314,20 +314,20 @@ public:
   }
 
   /**
-   * @brief Get a FrequenciesSet from the collection.
+   * @brief Get a FrequencySet from the collection.
    *
    * @param frequenciesIndex The index of the frequencies set in the collection.
-   * @return the got FrequenciesSet*. 
+   * @return the got FrequencySet*. 
    */
   
-  FrequenciesSet& getFrequencies(size_t frequenciesIndex)
+  FrequencySet& getFrequencies(size_t frequenciesIndex)
   {
-    return *(dynamic_cast<FrequenciesSet*>(freqColl_[frequenciesIndex].get()));
+    return *(dynamic_cast<FrequencySet*>(freqColl_[frequenciesIndex].get()));
   }
 
-  const FrequenciesSet& getFrequencies(size_t frequenciesIndex) const
+  const FrequencySet& getFrequencies(size_t frequenciesIndex) const
   {
-    return *(dynamic_cast<const FrequenciesSet*>(freqColl_[frequenciesIndex].get()));
+    return *(dynamic_cast<const FrequencySet*>(freqColl_[frequenciesIndex].get()));
   }
 
   /**
@@ -495,7 +495,7 @@ public:
    * @param mModBr a map associating numbers of models (from the collection) and numbers of branches
    * @param nTree the number of a Tree (from the collection)
    * @param nRate the number of a Distribution Rate (from the collection)
-   * @param nFreq the number of a FrequenciesSet for the root (from the collection)
+   * @param nFreq the number of a FrequencySet for the root (from the collection)
    *
    * @throw an Exception if the built SubstitutionModelSet is not complete or well built.
    *
@@ -527,7 +527,7 @@ public:
    * @param nTree the number of a Tree (from the collection)
    * @param nRate the number of a Distribution Rate (from the
    *        collection)
-   * @param nFreq the number of a FrequenciesSet for the root (from
+   * @param nFreq the number of a FrequencySet for the root (from
    *        the collection)
    * @param sharedParameterNames the vector of the names of parameters
    *        of the model that are shared among all the models.
@@ -546,7 +546,7 @@ public:
    * @param nTree the number of a Tree (from the collection)
    * @param nRate the number of a Distribution Rate (from the
    *        collection)
-   * @param nFreq the number of a FrequenciesSet for the root (from
+   * @param nFreq the number of a FrequencySet for the root (from
    *        the collection)
    * @param sharedParameterNames the vector of the names of parameters
    *        of the model that are shared among all the models.

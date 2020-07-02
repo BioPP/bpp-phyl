@@ -38,7 +38,7 @@
 */
 
 #include "F81.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -64,9 +64,9 @@ F81::F81(
   theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),
   exp1_(), l_(), p_(size_, size_)
 {
-  addParameter_(new Parameter("F81.theta" , theta_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("F81.theta1", theta1_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("F81.theta2", theta2_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F81.theta" , theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F81.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F81.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 

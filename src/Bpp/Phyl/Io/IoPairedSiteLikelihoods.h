@@ -73,14 +73,14 @@ public:
    *
    * @throw Exception If the format is not recognized.
    */
-  static PairedSiteLikelihoods read(std::istream& is);
+  static PairedSiteLikelihoods readPairedSiteLikelihoods(std::istream& is);
 
   /**
    * @brief Read paired-site likelihoods from a Treepuzzle/RAxML-formatted file.
    *
    * @throw Exception If the format is not recognized.
    */
-  static PairedSiteLikelihoods read(const std::string& path);
+  static PairedSiteLikelihoods readPairedSiteLikelihoods(const std::string& path);
 
   /**
    * @brief Write paired-site likelihoods to a stream.
@@ -89,7 +89,7 @@ public:
    * @param os The output stream.
    * @param delim The delimiter between model names and likelihoods. The defaut is a tab but two spaces might be used.
    */
-  static void write(const PairedSiteLikelihoods& psl, std::ostream& os, const std::string& delim = "\t");
+  static void writePairedSiteLikelihoods(const PairedSiteLikelihoods& psl, std::ostream& os, const std::string& delim = "\t");
 
   /**
    * @brief Write paired-site likelihoods to a file.
@@ -98,7 +98,7 @@ public:
    * @param path The path of the output file.
    * @param delim The delimiter between model names and likelihoods. (The defaut is a tab but two spaces might be used.)
    */
-  static void write(const PairedSiteLikelihoods& psl, const std::string& path, const std::string& delim = "\t");
+  static void writePairedSiteLikelihoods(const PairedSiteLikelihoods& psl, const std::string& path, const std::string& delim = "\t");
 };
 
 
@@ -114,13 +114,15 @@ public:
    * @brief Read paired-site likelihoods from a Phyml-formatted stream.
    * @throw Exception If the format is not recognized.
    */
-  static std::vector<double> read(std::istream& is);
+  static std::vector<double> readPairedSiteLikelihoods(std::istream& is);
 
   /**
    * @brief Read Phyml paired-site likelihoods from a Phyml-formatted file.
    * @throw Exception If the format is not recognized.
    */
-  static std::vector<double> read(const std::string& path);
+  static std::vector<double> readPairedSiteLikelihoods(const std::string& path);
 };
+
 } // namespace bpp
+
 #endif

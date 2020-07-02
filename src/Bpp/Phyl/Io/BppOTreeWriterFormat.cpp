@@ -50,7 +50,7 @@
 using namespace bpp;
 using namespace std;
 
-OTree* BppOTreeWriterFormat::read(const std::string& description)
+OTree* BppOTreeWriterFormat::readOTree(const std::string& description)
 {
   unparsedArguments_.clear();
   string format = "";

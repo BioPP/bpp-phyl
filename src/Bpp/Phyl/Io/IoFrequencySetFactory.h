@@ -1,11 +1,11 @@
 //
-// File IOFrequenciesSetFactory.h
+// File IOFrequencySetFactory.h
 // Created by: Laurent Guéguen
 // Created on: lundi 9 juillet 2012, à 12h 58
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 17, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for sequences analysis.
@@ -37,11 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _IOFREQUENCIESSETFACTORY_H_
-#define _IOFREQUENCIESSETFACTORY_H_
+#ifndef _IOFREQUENCYSETFACTORY_H_
+#define _IOFREQUENCYSETFACTORY_H_
 
 #include "../Model/SubstitutionModel.h"
-#include "IoFrequenciesSet.h"
+#include "IoFrequencySet.h"
 #include <Bpp/Exceptions.h>
 
 //From the STL:
@@ -56,7 +56,7 @@ namespace bpp
  * @see IOSequenceFactory
  * @see IOTreeFactory
  */
-class IOFrequenciesSetFactory
+class IOFrequencySetFactory
 {
 public:
   static const std::string BPPO_FORMAT;  
@@ -68,34 +68,34 @@ public:
    *
    * Example:
    * @code
-   * IFrequenciesSet * freqReader = IOFrequenciesSetFactory().createReader(IOFrequenciesSetFactory::BPP_FORMAT);
-   * FrequenciesSet * freqset = freqReader->read(...);
+   * IFrequencySet * freqReader = IOFrequencySetFactory().createReader(IOFrequencySetFactory::BPP_FORMAT);
+   * FrequencySet * freqset = freqReader->read(...);
    * delete freqReader;
    * @endcode
    */
-  IOFrequenciesSetFactory() {}
-  virtual ~IOFrequenciesSetFactory() {}
+  IOFrequencySetFactory() {}
+  virtual ~IOFrequencySetFactory() {}
   
   /**
-   * @brief Get a new dynamically created IFrequenciesSet object.
+   * @brief Get a new dynamically created IFrequencySet object.
    *
    * @param format The input file format.
-   * @return A pointer toward a new IFrequenciesSet object.
+   * @return A pointer toward a new IFrequencySet object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual IFrequenciesSet* createReader(const std::string& format);
+  virtual IFrequencySet* createReader(const std::string& format);
   
   /**
-   * @brief Get a new dynamically created OFrequenciesSet object.
+   * @brief Get a new dynamically created OFrequencySet object.
    *
    * @param format The output file format.
-   * @return A pointer toward a new OFrequenciesSet object.
+   * @return A pointer toward a new OFrequencySet object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual OFrequenciesSet * createWriter(const std::string& format);
+  virtual OFrequencySet * createWriter(const std::string& format);
 };
 
 } //end of namespace bpp.
 
-#endif //_IOFREQUENCIESSETFACTORY_H_
+#endif //_IOFREQUENCYSETFACTORY_H_
 

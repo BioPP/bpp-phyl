@@ -46,7 +46,7 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
   alphabet_             (set.alphabet_),
   nbStates_             (set.nbStates_),
   modelSet_(set.modelSet_.size()),
-  rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone())),
+  rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone())),
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
   modelParameters_      (set.modelParameters_),
@@ -71,7 +71,7 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
   if (set.stationarity_)
     rootFrequencies_.reset(0);
   else
-    rootFrequencies_.reset(dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone()));
+    rootFrequencies_.reset(dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone()));
 
   // Duplicate all model objects:
   modelSet_.resize(set.modelSet_.size());
@@ -98,7 +98,7 @@ void SubstitutionModelSet::clear()
 
 }
 
-void SubstitutionModelSet::setRootFrequencies(FrequenciesSet* rootFreqs)
+void SubstitutionModelSet::setRootFrequencies(FrequencySet* rootFreqs)
 {
   if (rootFreqs){
     stationarity_=false;

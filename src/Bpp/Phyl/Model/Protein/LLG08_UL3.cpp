@@ -37,7 +37,7 @@
  */
 
 #include "LLG08_UL3.h"
-#include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../FrequencySet/ProteinFrequencySet.h"
 #include "../MixtureOfSubstitutionModels.h"
 
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>

@@ -211,11 +211,11 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(ParameterList& paramL
   ///////////////////////////
   // rootFrequencies node
 
-  auto root = process_.getRootFrequenciesSet();
+  auto root = process_.getRootFrequencySet();
   if (root)
   {
     suff=spcm?("_"+TextTools::toString(spcm->getRootFrequenciesNumber())):"";
-    processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequenciesSet, ConfiguredFrequenciesSet>(getContext_(), *root, paramList, suff);
+    processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(getContext_(), *root, paramList, suff);
   }
 
   auto itE = processNodes_.treeNode_->allEdgesIterator();
@@ -401,7 +401,7 @@ void LikelihoodCalculationSingleProcess::makeRootFreqs_()
 // Set root frequencies 
 
   size_t nbState = getStateMap().getNumberOfModelStates();
-  rFreqs_ = processNodes_.rootFreqsNode_?ConfiguredParametrizable::createVector<ConfiguredFrequenciesSet, FrequenciesFromFrequenciesSet> (
+  rFreqs_ = processNodes_.rootFreqsNode_?ConfiguredParametrizable::createVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet> (
     getContext_(), {processNodes_.rootFreqsNode_}, rowVectorDimension (Eigen::Index (nbState))):
     ConfiguredParametrizable::createVector<ConfiguredModel, EquilibriumFrequenciesFromModel> (
       getContext_(), {processNodes_.modelNode_}, rowVectorDimension (Eigen::Index (nbState)));

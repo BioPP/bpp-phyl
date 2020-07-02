@@ -59,25 +59,25 @@ class PhylipDistanceMatrixFormat:
   private:
     bool extended_;
 
-	public:
-		PhylipDistanceMatrixFormat(bool extended = false): extended_(extended) {}
-		virtual ~PhylipDistanceMatrixFormat() {}
+  public:
+    PhylipDistanceMatrixFormat(bool extended = false): extended_(extended) {}
+    virtual ~PhylipDistanceMatrixFormat() {}
 
-	public:
-		const std::string getFormatName() const { return "Phylip"; }
+  public:
+    const std::string getFormatName() const { return "Phylip"; }
 
-		const std::string getFormatDescription() const {	return "Multiline space-delimited columns."; }
-		DistanceMatrix* read(const std::string& path) const
-		{
-			return AbstractIDistanceMatrix::read(path); 
-		}
-		DistanceMatrix* read(std::istream& in) const;
-		
-		void write(const DistanceMatrix& dist, const std::string& path, bool overwrite = true) const
-		{
-			AbstractODistanceMatrix::write(dist, path, overwrite);
-		}
-		void write(const DistanceMatrix& dist, std::ostream& out) const;
+    const std::string getFormatDescription() const {  return "Multiline space-delimited columns."; }
+    DistanceMatrix* readDistanceMatrix(const std::string& path) const
+    {
+      return AbstractIDistanceMatrix::readDistanceMatrix(path); 
+    }
+    DistanceMatrix* readDistanceMatrix(std::istream& in) const;
+    
+    void writeDistanceMatrix(const DistanceMatrix& dist, const std::string& path, bool overwrite = true) const
+    {
+      AbstractODistanceMatrix::writeDistanceMatrix(dist, path, overwrite);
+    }
+    void writeDistanceMatrix(const DistanceMatrix& dist, std::ostream& out) const;
 
 };
 

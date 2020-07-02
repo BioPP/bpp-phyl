@@ -42,7 +42,7 @@
 
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include "AbstractSubstitutionModel.h"
-#include "FrequenciesSet/FrequenciesSet.h"
+#include "FrequencySet/FrequencySet.h"
 
 namespace bpp
 {
@@ -138,7 +138,7 @@ namespace bpp
   private:
     mutable double exp_;
     mutable RowMatrix<double> p_;
-    FrequenciesSet* freqSet_;
+    FrequencySet* freqSet_;
 
   public:
     /**
@@ -156,14 +156,14 @@ namespace bpp
      * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
      * Otherwise, the values of the set will be used.
      */
-    EquiprobableSubstitutionModel(const Alphabet* alpha, FrequenciesSet* freqSet, bool initFreqs = false);
+    EquiprobableSubstitutionModel(const Alphabet* alpha, FrequencySet* freqSet, bool initFreqs = false);
 
     EquiprobableSubstitutionModel(const EquiprobableSubstitutionModel& model) :
       AbstractParameterAliasable(model),
       AbstractReversibleSubstitutionModel(model),
       exp_(model.exp_),
       p_(model.p_),
-      freqSet_(dynamic_cast<FrequenciesSet*>(model.freqSet_->clone()))
+      freqSet_(dynamic_cast<FrequencySet*>(model.freqSet_->clone()))
     {}
 
     EquiprobableSubstitutionModel& operator=(const EquiprobableSubstitutionModel& model)
@@ -173,7 +173,7 @@ namespace bpp
       exp_ = model.exp_;
       p_   = model.p_;
       if (freqSet_) delete freqSet_;
-      freqSet_ = dynamic_cast<FrequenciesSet*>(model.freqSet_->clone());
+      freqSet_ = dynamic_cast<FrequencySet*>(model.freqSet_->clone());
       return *this;
     }
 
@@ -206,15 +206,15 @@ namespace bpp
       AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
     }
 
-    void setFrequenciesSet(const FrequenciesSet& freqSet)
+    void setFrequencySet(const FrequencySet& freqSet)
     {
       delete freqSet_;
-      freqSet_ = dynamic_cast<FrequenciesSet*>(freqSet.clone());
+      freqSet_ = dynamic_cast<FrequencySet*>(freqSet.clone());
       resetParameters_();
       addParameters_(freqSet_->getParameters());
     }
 
-    const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
+    const FrequencySet* getFrequencySet() const { return freqSet_; }
 
     void setFreq(std::map<int, double>& freq);
 

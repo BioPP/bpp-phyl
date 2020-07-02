@@ -141,7 +141,7 @@ namespace bpp
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return 0;
     }

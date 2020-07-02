@@ -80,7 +80,7 @@ namespace bpp
      * @return A new OMultiTree object according to options specified.
      * @throw Exception if an error occured.
      */
-    OMultiTree* read(const std::string& description);
+    OMultiTree* readOMultiTree(const std::string& description);
 
     /**
      * @return The arguments and their unparsed values from the last call of the read function, if there are any.

@@ -77,7 +77,7 @@ const string Newick::getFormatDescription() const
 /*  INPUT */
 /**********************************************************/
 
-TreeTemplate<Node> * Newick::read(istream& in) const
+TreeTemplate<Node> * Newick::readTree(istream& in) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
@@ -104,10 +104,10 @@ TreeTemplate<Node> * Newick::read(istream& in) const
 
 /*********************************************************************************/
 
-PhyloTree* Newick::readP(istream& in) const
+PhyloTree* Newick::readPTree(istream& in) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("Newick::readP: failed to read from stream"); }
+  if (! in) { throw IOException ("Newick::readPTree: failed to read from stream"); }
   
   //We concatenate all line in file till we reach the ending semi colon:
   string temp, description;// Initialization
@@ -131,10 +131,10 @@ PhyloTree* Newick::readP(istream& in) const
 
 /******************************************************************************/
 
-void Newick::read(istream& in, vector<Tree*>& trees) const
+void Newick::readTrees(istream& in, vector<Tree*>& trees) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("Newick::read(vector): failed to read from stream"); }
+  if (! in) { throw IOException ("Newick::readTrees(vector): failed to read from stream"); }
   
   // Main loop : for all file lines
   string temp, description;// Initialization
@@ -157,10 +157,10 @@ void Newick::read(istream& in, vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-void Newick::read(istream& in, vector<PhyloTree*>& trees) const
+void Newick::readTrees(istream& in, vector<PhyloTree*>& trees) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("Newick::read(vector): failed to read from stream"); }
+  if (! in) { throw IOException ("Newick::readTrees(vector): failed to read from stream"); }
   
   // Main loop : for all file lines
   string temp, description;// Initialization

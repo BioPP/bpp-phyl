@@ -45,7 +45,7 @@
 #include "../Tree/Tree.h"
 #include "SubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
-#include "FrequenciesSet/FrequenciesSet.h"
+#include "FrequencySet/FrequencySet.h"
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/Random/RandomTools.h>
@@ -87,13 +87,13 @@ namespace bpp
  *
  * In the non-homogeneous and homogeneous non-reversible cases, the likelihood depends on the position of the root.
  * The states frequencies at the root of the tree are hence distinct parameters.
- * Theses are accounted by a FrequenciesSet objet, managed by the SubstitutionModelSet class.
+ * Theses are accounted by a FrequencySet objet, managed by the SubstitutionModelSet class.
  * The corresponding parameters, if any, are added at the begining of the global parameter list.
  *
  * If the heterogenity of the model does not affect the equilibrium frequencies, the model can be considered as stationary.
  * In such a model, the process is supposed to be at equilibrium all along the trees, including at the root.
  * Whether a model should be considered as stationary or not is left to the user. If the "asumme stationarity" option is set when
- * building the set, then no FrequenciesSet object is used, but the frequencies are taken to be the same as the one at the first
+ * building the set, then no FrequencySet object is used, but the frequencies are taken to be the same as the one at the first
  * model in the set. Nothing hence prevents you to build a "supposingly stationary model which actually is not", so be careful!!
  *
  * This class provides several methods to specify which model and/or which parameter is associated to which branch/clade.
@@ -122,7 +122,7 @@ private:
   /**
    * @brief Root frequencies.
    */
-  std::unique_ptr<FrequenciesSet> rootFrequencies_;
+  std::unique_ptr<FrequencySet> rootFrequencies_;
 
   /**
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
@@ -168,7 +168,7 @@ public:
    * @param alpha The alphabet to use for this set.
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance.
    */
-  SubstitutionModelSet(const Alphabet* alpha, FrequenciesSet* rootFreqs):
+  SubstitutionModelSet(const Alphabet* alpha, FrequencySet* rootFreqs):
     AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(0),
@@ -194,11 +194,11 @@ public:
   }
   
   /**
-   * @brief Sets a given FrequenciesSet for root frequencies.
+   * @brief Sets a given FrequencySet for root frequencies.
    *
-   * @param rootFreqs The FrequenciesSet for root frequencies.
+   * @param rootFreqs The FrequencySet for root frequencies.
    */
-  void setRootFrequencies(FrequenciesSet* rootFreqs);
+  void setRootFrequencies(FrequencySet* rootFreqs);
 
   SubstitutionModelSet(const SubstitutionModelSet& set);
 
@@ -421,7 +421,7 @@ public:
   /**
    * @return The set of root frequencies.
    */
-  const FrequenciesSet* getRootFrequenciesSet() const { return rootFrequencies_.get(); }
+  const FrequencySet* getRootFrequencySet() const { return rootFrequencies_.get(); }
 
   /**
    * @return The values of the root frequencies.

@@ -50,7 +50,7 @@
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
-#include "BppOFrequenciesSetFormat.h"
+#include "BppOFrequencySetFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -70,6 +70,7 @@
 #include "../Model/Codon/YNGP_M8.h"
 #include "../Model/Codon/YNGP_M9.h"
 #include "../Model/Codon/YNGP_M10.h"
+#include "../Model/Codon/RELAX.h"
 #include "../Model/Protein/LLG08_EX2.h"
 #include "../Model/Protein/LLG08_EX3.h"
 #include "../Model/Protein/LLG08_UL2.h"
@@ -122,7 +123,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
     
-    SubstitutionModel* nestedModel=nestedReader.readSubstitionModel(alphabet, nestedModelDescription, data, false);
+    SubstitutionModel* nestedModel=nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
@@ -164,17 +165,11 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     {
       unparsedArguments_["OneChange." + it.first] = it.second;
     }
-
     delete nestedModel;
-
-    // update only for transition models
-    updateParameters_(model.get(), args);
-    if (parseArguments)
-      initialize_(*model, data);
   }
   // //////////////////
   // PREDEFINED CODON MODELS
-  else if ((modelName.substr(0, 4) == "YNGP")  && (alphabetCode_ & CODON))
+else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "RELAX")) && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("BppOTransitionModelFormat::read. Codon alphabet not supported.");
@@ -194,9 +189,9 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       throw Exception("Mismatch between genetic code and codon alphabet");
 
     string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
-    BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, verbose_, warningLevel_);
+    BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
     freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-    unique_ptr<FrequenciesSet> codonFreqs(freqReader.read(pCA, freqOpt, data, false));
+    unique_ptr<FrequencySet> codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
     map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
     for (auto& it:unparsedParameterValuesNested)
@@ -206,6 +201,8 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       model.reset(new YNGP_M1(geneticCode_, codonFreqs.release()));
     else if (modelName == "YNGP_M2")
       model.reset(new YNGP_M2(geneticCode_, codonFreqs.release()));
+    else if (modelName == "RELAX")
+      model.reset(new RELAX(geneticCode_, codonFreqs.release()));
     else if (modelName == "YNGP_M3")
       if (args.find("n") == args.end())
         model.reset(new YNGP_M3(geneticCode_, codonFreqs.release()));
@@ -270,7 +267,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   }
 
   if (!model)
-    model.reset(readSubstitionModel(alphabet, modelDescription, data, parseArguments));
+    model.reset(readSubstitutionModel(alphabet, modelDescription, data, parseArguments));
   else
   {
     if (verbose_)
@@ -317,7 +314,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
       if (it.second.find("(") != string::npos)
       {
         BppODiscreteDistributionFormat bIO(false);
-        mdist[pSM->getParameterNameWithoutNamespace(it.first)] = bIO.read(it.second, false);
+        mdist[pSM->getParameterNameWithoutNamespace(it.first)] = bIO.readDiscreteDistribution(it.second, false);
         map<string, string> unparsedParameterValuesNested3(bIO.getUnparsedArguments());
         for (auto& it2:unparsedParameterValuesNested3)
           unparsedParameterValuesNested2[it.first + "_" + it2.first] = it2.second;

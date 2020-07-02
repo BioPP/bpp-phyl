@@ -1,5 +1,5 @@
 //
-// File: Bpp0SubstitutionModelFormat.h
+// File: BppOSubstitutionModelFormat.h
 // Created by: Laurent Guéguen
 // Created on: mercredi 4 juillet 2012, à 13h 26
 //
@@ -142,7 +142,7 @@ namespace bpp
       geneticCode_ = gCode;
     }
 
-    SubstitutionModel* readSubstitionModel(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data = 0, bool parseArguments = true);
+    SubstitutionModel* readSubstitutionModel(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data = 0, bool parseArguments = true);
   
     const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 

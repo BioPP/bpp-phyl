@@ -49,7 +49,7 @@
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
-#include "BppOFrequenciesSetFormat.h"
+#include "BppOFrequencySetFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>

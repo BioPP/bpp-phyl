@@ -122,6 +122,8 @@ class SiteSimulationResult
       ancestralStates_.push_back(path.getFinalState());
     }
 
+    virtual size_t getRootAncestralState() const { return ancestralStates_[0]; }
+
     virtual size_t getAncestralState(size_t i) const { return ancestralStates_[i]; }
 
     virtual size_t getAncestralState(int nodeId) const { return ancestralStates_[1 + indexes_[nodeId]]; }
