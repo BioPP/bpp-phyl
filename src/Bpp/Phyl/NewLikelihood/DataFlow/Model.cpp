@@ -41,6 +41,7 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Model.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.h>
+
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 
 using namespace std;

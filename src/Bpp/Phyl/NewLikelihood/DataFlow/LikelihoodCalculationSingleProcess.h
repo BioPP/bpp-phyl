@@ -47,7 +47,7 @@
 #include "Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h"
 #include "Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.h"
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
-#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
 
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 

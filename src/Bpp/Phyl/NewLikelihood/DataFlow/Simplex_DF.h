@@ -45,7 +45,7 @@
 #include <Bpp/Numeric/Prob/Simplex.h>
 
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
-#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>

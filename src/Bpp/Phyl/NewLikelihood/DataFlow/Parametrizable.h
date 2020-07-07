@@ -43,8 +43,9 @@
 #ifndef BPP_NEWPHYL_PARAMETRIZABLE_H
 #define BPP_NEWPHYL_PARAMETRIZABLE_H
 
-#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parameter.h>
+#include <Bpp/Numeric/AbstractParameterAliasable.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
@@ -54,9 +55,6 @@
 
 namespace bpp {
 
-  class Parametrizable;
-  class ParameterAliasable;
-  
     /** Helper: create a map with mutable dataflow nodes for each
         parameter of the parametrizable.
         * The map is indexed by parameter names.
@@ -157,7 +155,9 @@ namespace bpp {
       {
         auto nObject = std::unique_ptr<Object>(object.clone());
 
-        const ParameterList& lParams = dynamic_cast<const ParameterAliasable*>(&object)?object.getIndependentParameters():object.getParameters();          
+        auto pa = dynamic_cast<const ParameterAliasable*>(&object);
+        
+        const ParameterList& lParams = pa?pa->getIndependentParameters():object.getParameters();          
         
         std::vector<NodeRef> dep;
         for (size_t i=0;i<lParams.size();i++)

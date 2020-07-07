@@ -46,14 +46,6 @@
 
 namespace bpp
 {
-  inline MatrixDimension transitionMatrixDimension (std::size_t nbState) {
-    return {Eigen::Index (nbState), Eigen::Index (nbState)};
-  }
-
-  inline MatrixDimension equilibriumFrequenciesDimension (std::size_t nbState) {
-    return rowVectorDimension (Eigen::Index (nbState));
-  }
-
   inline Dimension<TransitionFunction> transitionFunctionDimension (std::size_t nbState) {
     return Dimension<TransitionFunction>(nbState, nbState);
   }

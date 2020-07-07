@@ -44,123 +44,16 @@
 #include "DataFlowCWise.h"
 
 namespace bpp {
-  void failureDeltaNotDerivable (const std::type_info & contextNodeType) {
-    throw Exception (prettyTypeName (contextNodeType) +
-                     ": does not support derivation for the delta dependency");
-  }
-  void failureNumericalDerivationNotConfigured () {
-    throw Exception ("Numerical derivation of expression is not configured: define the node "
-                     "providing the delta value, and choose a computation type.");
-  }
-
   // Precompiled instantiations of numeric nodes
   template class CWiseFill<Eigen::RowVectorXd, double>;
   template class CWiseFill<Eigen::VectorXd, double>;
   template class CWiseFill<Eigen::MatrixXd, Eigen::VectorXd>;
   template class CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>;
 
-  template class CWiseApply<Eigen::MatrixXd, Eigen::MatrixXd, TransitionFunction>;
-    
   template class CWisePattern<Eigen::RowVectorXd>;
   template class CWisePattern<Eigen::MatrixXd>;
 
   template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
   template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-  template class CWiseAdd<double, std::tuple<double, double>>;
-  template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-  template class CWiseAdd<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
-  template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
-  template class CWiseAdd<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
-
-  template class CWiseAdd<double, ReductionOf<double>>;
-  template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
-  template class CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
-  template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-  template class CWiseAdd<TransitionFunction, ReductionOf<TransitionFunction>>;
-
-  template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, ReductionOf<double>>;
-  template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, ReductionOf<double>>;
-  template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, ReductionOf<double>>;
-  template class CWiseMean<double, ReductionOf<double>, Eigen::RowVectorXd>;
-
-  template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, Eigen::VectorXd>;
-  template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::VectorXd>;
-  template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::VectorXd>;
-  template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, Eigen::RowVectorXd>;
-  template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>;
-  template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::RowVectorXd>;
-
-  template class CWiseSub<double, std::tuple<double, double>>;
-  template class CWiseSub<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-  template class CWiseSub<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
-  template class CWiseSub<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
-  template class CWiseSub<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>;
-  template class CWiseSub<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
-
-  template class CWiseMul<double, std::tuple<double, double>>;
-  template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-  template class CWiseMul<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
-  template class CWiseMul<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXi>>;
-  template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::RowVectorXi>>;
-  template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
-  template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
-  template class CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>;
-  template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
-  template class CWiseMul<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
-  template class CWiseMul<TransitionFunction, std::tuple<double, TransitionFunction>>;
-    
-  template class CWiseMul<double, ReductionOf<double>>;
-  template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
-  template class CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
-  template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-
-  template class CWiseNegate<double>;
-  template class CWiseNegate<Eigen::VectorXd>;
-  template class CWiseNegate<Eigen::RowVectorXd>;
-  template class CWiseNegate<Eigen::MatrixXd>;
-
-  template class CWiseInverse<double>;
-  template class CWiseInverse<Eigen::VectorXd>;
-  template class CWiseInverse<Eigen::RowVectorXd>;
-  template class CWiseInverse<Eigen::MatrixXd>;
-
-  template class CWiseLog<double>;
-  template class CWiseLog<Eigen::VectorXd>;
-  template class CWiseLog<Eigen::RowVectorXd>;
-  template class CWiseLog<Eigen::MatrixXd>;
-    
-  template class CWiseExp<double>;
-  template class CWiseExp<Eigen::VectorXd>;
-  template class CWiseExp<Eigen::RowVectorXd>;
-  template class CWiseExp<Eigen::MatrixXd>;
-    
-  template class CWiseConstantPow<double>;
-  template class CWiseConstantPow<Eigen::VectorXd>;
-  template class CWiseConstantPow<Eigen::RowVectorXd>;
-  template class CWiseConstantPow<Eigen::MatrixXd>;
-
-  template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
-  template class ScalarProduct<Eigen::RowVectorXd, Eigen::RowVectorXd>;
-
-  template class LogSumExp<Eigen::VectorXd, Eigen::VectorXd>;
-  template class LogSumExp<Eigen::RowVectorXd, Eigen::RowVectorXd>;
-
-  template class SumOfLogarithms<Eigen::VectorXd>;
-  template class SumOfLogarithms<Eigen::RowVectorXd>;
-
-  template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
-  template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
-  template class MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
-
-  template class ShiftDelta<double>;
-  template class ShiftDelta<Eigen::VectorXd>;
-  template class ShiftDelta<Eigen::RowVectorXd>;
-  template class ShiftDelta<Eigen::MatrixXd>;
-
-  template class CombineDeltaShifted<double>;
-  template class CombineDeltaShifted<Eigen::VectorXd>;
-  template class CombineDeltaShifted<Eigen::RowVectorXd>;
-  template class CombineDeltaShifted<Eigen::MatrixXd>;
-  template class CombineDeltaShifted<TransitionFunction>;
 } // namespace bpp

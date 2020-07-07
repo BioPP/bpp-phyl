@@ -39,6 +39,7 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
 
 using namespace std;
 

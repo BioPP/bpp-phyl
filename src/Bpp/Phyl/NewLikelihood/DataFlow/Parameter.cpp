@@ -39,8 +39,8 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parameter.h>
-#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.h>
+
 #include <Bpp/Numeric/Parameter.h>
 
 using namespace std;

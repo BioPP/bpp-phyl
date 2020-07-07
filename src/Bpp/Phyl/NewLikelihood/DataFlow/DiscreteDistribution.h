@@ -44,7 +44,6 @@
 #include <Bpp/Numeric/AbstractParametrizable.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.h>
 #include <Bpp/Exceptions.h>
