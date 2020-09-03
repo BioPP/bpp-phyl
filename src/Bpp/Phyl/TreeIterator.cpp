@@ -15,6 +15,27 @@ using namespace std;
 
 /******************************************************************************/
 
+TreeIterator::~TreeIterator()
+{
+    vector <Node*> nodes = tree_.getNodes();
+    for (size_t i=0; i<nodes.size(); ++i) 
+    {
+        try
+        {
+            nodes[i]->deleteNodeProperty(LAST_VISITED_SON);
+        }
+        catch(const std::exception& e) {}
+        try
+        {
+            nodes[i]->deleteNodeProperty(IS_VISITED);
+        }
+        catch(const std::exception& e) {}
+        
+    }
+}
+
+/******************************************************************************/
+
 void TreeIterator::setNodeStatus(Node* node, bool visited)
 {
     BppBoolean* visitedProperty = new BppBoolean(visited);
@@ -54,8 +75,17 @@ void TreeIterator::clearProperties()
     vector <Node*> nodes = tree_.getNodes();
     for (size_t i=0; i<nodes.size(); ++i) 
     {
-        nodes[i]->removeNodeProperty(LAST_VISITED_SON);
-        nodes[i]->removeNodeProperty(IS_VISITED);
+        try
+        {
+            nodes[i]->deleteNodeProperty(LAST_VISITED_SON);
+        }
+        catch(const std::exception& e) {}
+        try
+        {
+            nodes[i]->deleteNodeProperty(IS_VISITED);
+        }
+        catch(const std::exception& e) {}
+        
     }
 }
 
