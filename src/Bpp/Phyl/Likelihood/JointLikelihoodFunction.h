@@ -179,12 +179,12 @@ class JointLikelihoodFunction:
     /**
      * @brief Return the pointer to the character likelihood function
      */
-    HomogeneousTreeLikelihood* getCharacterLikelihoodFunction() const { return characterTreeLikelihood_; }
+    const HomogeneousTreeLikelihood* getCharacterLikelihoodFunction() const { return characterTreeLikelihood_; }
 
     /**
      * @brief Return the pointer to the sequence likelihood function
      */
-    RNonHomogeneousMixedTreeLikelihood* getSequenceLikelihoodFunction() const { return sequenceTreeLikelihood_; }
+    RNonHomogeneousMixedTreeLikelihood* getSequenceLikelihoodFunction() { return sequenceTreeLikelihood_; }
  
     /**
      * @brief Computes the value of the joint likelihood function depending on hypothesis - calls either computeNullJointLikelihood or computeAlternativeJointLikelihood
