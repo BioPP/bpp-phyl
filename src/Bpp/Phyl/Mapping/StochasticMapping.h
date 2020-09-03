@@ -46,6 +46,7 @@
 // From the STL:
 #include <iostream>
 #include <iomanip>
+#include <map>
 
 using namespace std;
 
@@ -69,6 +70,7 @@ protected:
   VVVDouble ConditionalProbabilities_;             // vector that holds the conditionl states assignment probabilities of the nodes in the tree (node*father_states*son_states)
   size_t nodesCounter_;                            // counter of nodes hat allows adding unique names to the generated nodes while breaking branching in a mapping
   size_t numOfMappings_;                           // the number of stochastic mappings to generate
+  map<int,size_t> nodeIdToIndex_;
 
 public:
   /* constructors and destructors */
@@ -78,7 +80,7 @@ public:
   ~StochasticMapping();
 
   StochasticMapping(const StochasticMapping& sm) : // must pass sm by repference to avoid infinitie recusion in the copy construcor
-    mappingParameters_(sm.mappingParameters_), baseTree_(0), tl_(sm.tl_), fractionalProbabilities_(sm.fractionalProbabilities_), ConditionalProbabilities_(sm.ConditionalProbabilities_), nodesCounter_(0), numOfMappings_(sm.numOfMappings_)
+    mappingParameters_(sm.mappingParameters_), baseTree_(0), tl_(sm.tl_), fractionalProbabilities_(sm.fractionalProbabilities_), ConditionalProbabilities_(sm.ConditionalProbabilities_), nodesCounter_(0), numOfMappings_(sm.numOfMappings_), nodeIdToIndex_(sm.nodeIdToIndex_)
   { baseTree_ = sm.baseTree_->clone(); } // the tree must be cloned so that instead of copying the pointer to the tree, a new tree with a new pointer will be created
 
   /**
@@ -92,6 +94,7 @@ public:
     fractionalProbabilities_ = sm.fractionalProbabilities_;
     ConditionalProbabilities_ = sm.ConditionalProbabilities_;
     numOfMappings_ = sm.numOfMappings_;
+    nodeIdToIndex_ = sm.nodeIdToIndex_;
     return *this;
   }
 
@@ -114,7 +117,7 @@ public:
   /* @param mappings          A vector of stochastic mappings to average
      @param divMethod         The method used in the case that the son and father share the same state (either divide the wdelling time of the staed state by 2 for  two transitions (method 0) or allocate the entire dwelling time to be adjacent to the son(method 1))
    */
-  Tree* generateExpectedMapping(vector<Tree*>& mappings, size_t divMethod = 0);
+  Tree* generateExpectedMapping(const vector<Tree*>& mappings, size_t divMethod = 0);
 
   /* creates a single expected (i.e, average) history based the rewards prvided by te algorithm of Minin and Suchard (2008)
    * the function assumes that there is only one site to simulate history for */
@@ -126,7 +129,20 @@ public:
    * @param node              The node to get the state of
    * @return                  Node state is int
    */
-  int getNodeState(const Node* node) const;
+  static size_t getNodeState(const Node* node);
+
+  /* sets the state of a node in a mapping
+   * @param node               The node to get the state of
+   * @param state              The state that needs to be assigned to the node
+   */
+  static void setNodeState(Node* node, size_t state);
+
+  /* compute the ancestral frequenceis of character states of all the nodes based on the mappings
+  * @param                     A vector of the posterior probabilities probabilities to fill in (node**state combinaion in each entry)
+  * @param                     A vector of mappings to base the frequencies on
+  */
+  void computeStatesFrequencies(VVDouble& ancestralStatesFreuquencies, const vector<Tree*>& mappings);
+
 
 private:
   /* adds names to the internal nodes, in case of absence.
@@ -134,16 +150,15 @@ private:
    */
   void giveNamesToInternalNodes(Tree* tree);
 
-  /* sets the state of a node in a mapping
-   * @param node               The node to get the state of
-   * @param state              The state that needs to be assigned to the node
+  /* returns the possible model states assigned to a leaf based on its character state
+   * @param node - the leaf of interest
    */
-  void setNodeState(Node* node, size_t state);
+  vector<size_t> getLeafModelStates(Node* node);
 
-  /* set the character states of the leafs as properties of thier nodes instances
+  /* returns the possible model states assignments of the leafs as properties of thier nodes instances
    * @param mapping - the tree to sets the properties in
    */
-  void setLeafsStates(Tree* mapping);
+  map<int,vector<size_t>> setLeafsStates(Tree* mapping);
 
   /* compute the fractional probabilities of all the nodes assignements
    * @param                     A vector of the fractional probabilities probabilities to fill in (node**state combinaion in each entry)
@@ -155,12 +170,6 @@ private:
    */
   void ComputeConditionals();
 
-  /* compute the ancestral frequenceis of character states of all the nodes based on the mappings
-   * @param                     A vector of the posterior probabilities probabilities to fill in (node**state combinaion in each entry)
-   * @param                     A vector of mappings to base the frequencies on
-   */
-  void computeStatesFrequencies(VVDouble& ancestralStatesFreuquencies, vector<Tree*>& mappings);
-
   /* auxiliary function that samples a state based on a given discrete distribution
    * @param distibution       The distribution to sample states based on
    */
@@ -169,7 +178,7 @@ private:
   /* samples ancestral states based on the conditional probabilities at each node in the base (user input) tree and the root assignment probabilities. States will be updated as nodes properties
    * @param mapping               The tree whose nodes names should be updated according to their assigned states.
    */
-  void sampleAncestrals(Tree* mapping);
+  void sampleAncestrals(Tree* mapping, map<int,vector<size_t>> leafIdToStates);
 
   /* set ancestral states in the expected history based on the conditional probabilities at each node in the base (user input) tree and the root assignment probabilities. States will be updated as nodes properties
    * @param expectedMapping           The expected mapping instance whose nodes names should be updated according to their assigned states.
