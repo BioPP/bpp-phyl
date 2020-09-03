@@ -87,8 +87,7 @@ namespace bpp
 
         TreeIterator& operator=(const TreeIterator& tree_iterator);
         
-        virtual ~TreeIterator() {}      // No need to delete anything - the pointer to the node should not be deleted because the node doesn't belong to the tree iterator
-                                        // must be virtual to assume that upon deletion, the destructor of any inheriting class is called as well (see https://www.geeksforgeeks.org/virtual-destructor/)
+        virtual ~TreeIterator();         // must be virtual to assume that upon deletion, the destructor of any inheriting class is called as well (see https://www.geeksforgeeks.org/virtual-destructor/)
 
         void setNodeStatus(Node* node, bool visited); // sets the visitation status of a node
         void init(); 
