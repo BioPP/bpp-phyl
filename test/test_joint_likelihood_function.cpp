@@ -139,18 +139,15 @@ void giveNamesToInternalNodes(Tree* tree)
 
 void setMpPartition(BppApplication* bppml, DRTreeParsimonyScore* mpData, const VectorSiteContainer* characterData, TransitionModel* characterModel, Tree* tree)
 {
-  cout << "sp0" << endl;
   mpData->computeSolution();
-  cout << "sp1" << endl;
   const Tree& solution = mpData->getTree();
-  cout << "sp2" << endl;
   vector <const Node*> nodes = (dynamic_cast<const TreeTemplate<Node>&>(solution)).getNodes();
   
   // set assignment to branches
   string character0NodesIds, character1NodesIds = "";
   for (size_t i=0; i<nodes.size(); ++i)
   {
-    if (!tree->isRoot(static_cast<int>(i)))
+    if (!tree->isRoot(nodes[i]->getId()))
     {
       int nodeState = dynamic_cast<const BppInteger*>(nodes[i]->getNodeProperty("state"))->getValue();
       if (nodeState == 0)
@@ -169,7 +166,7 @@ void setMpPartition(BppApplication* bppml, DRTreeParsimonyScore* mpData, const V
 
 /******************************************************************************/
 
-MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorSiteContainer* codon_data, const CodonAlphabet* codonAlphabet, DRTreeParsimonyScore* mpData, const VectorSiteContainer* characterData, TransitionModel* characterModel, Tree* tree)
+MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorSiteContainer* codon_data, const CodonAlphabet* codonAlphabet, DRTreeParsimonyScore* mpData, const VectorSiteContainer* characterData, TransitionModel* characterModel, Tree* tree, GeneticCode* gCode)
 {
     bppml->getParam("model1") = "RELAX(kappa=1,p=0.1,omega1=1.0,omega2=2.0,theta1=0.5,theta2=0.8,k=1,Frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
     bppml->getParam("model2") = "RELAX(kappa=RELAX.kappa_1,p=RELAX.p_1,omega1=RELAX.omega1_1,omega2=RELAX.omega2_1,theta1=RELAX.theta1_1,theta2=RELAX.theta2_1,k=1,1_Full.theta=RELAX.1_Full.theta_1,1_Full.theta1=RELAX.1_Full.theta1_1,1_Full.theta2=RELAX.1_Full.theta2_1,2_Full.theta=RELAX.2_Full.theta_1,2_Full.theta1=RELAX.2_Full.theta1_1,2_Full.theta2=RELAX.2_Full.theta2_1,3_Full.theta=RELAX.3_Full.theta_1,3_Full.theta1=RELAX.3_Full.theta1_1,3_Full.theta2=RELAX.3_Full.theta2_1,Frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
@@ -181,9 +178,6 @@ MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorS
     bppml->getParam("site.number_of_paths") = "2";                               // the 3rd path mapping omega3 in the branches under chatacter states 0 and 1 is imlies the the other two paths
     bppml->getParam("site.path1") = "model1[YN98.omega_1]&model2[YN98.omega_1]"; // map omega1 in the branches under character state 0 (=model1) to omega1 in the branches under character state 1 (=model2) 
     bppml->getParam("site.path2") = "model1[YN98.omega_2]&model2[YN98.omega_2]"; // do the same for omega2
-    
-    string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppml->getParams(), "Standard", "", true, true);
-    GeneticCode* gCode = SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc);
     
     // set initial partition, based on maximum parsimony
     setMpPartition(bppml, mpData, characterData, characterModel, tree); // the partition is set on tree
@@ -234,8 +228,14 @@ int main(int args, char** argv)
     seqData->addSequence(BasicSequence("C", "ATCTGGACGTGCACGTGT", calpha));
     seqData->addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTAT", calpha));
 
+    string codeDesc = ApplicationTools::getStringParameter("genetic_code", bpp.getParams(), "Standard", "", true, true);
+    GeneticCode* gCode = SequenceApplicationTools::getGeneticCode(calpha->getNucleicAlphabet(), codeDesc);
+    // unique_ptr<GeneticCode> gCode;
+    // gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+
+
     // set the sequence model
-    MixedSubstitutionModelSet* seqModel = setSequenceModel(&bpp, seqData, calpha, mpData, charData, charModel, tree);
+    MixedSubstitutionModelSet* seqModel = setSequenceModel(&bpp, seqData, calpha, mpData, charData, charModel, tree, gCode);
 
     // create joint likelihood function instance
     DiscreteDistribution* rDist = new ConstantRateDistribution();
@@ -330,10 +330,17 @@ int main(int args, char** argv)
         return 1;
     }
 
+    delete gCode;
+    delete balpha;
+    delete calpha->getNucleicAlphabet();
+    delete calpha;
+    delete mpData;
+    delete ttree;
     delete charData;
     delete seqData;
     delete charModel;
     delete seqModel;
+    delete rDist;
     delete jlf;
   }
 
