@@ -66,6 +66,7 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/DataFlowNumeric.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/ForwardLikelihoodTree.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.cpp
@@ -75,6 +76,7 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/Simplex_DF.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/TransitionMatrix.cpp
   Bpp/Phyl/NewLikelihood/ModelPath.cpp
   Bpp/Phyl/NewLikelihood/ModelScenario.cpp
   Bpp/Phyl/NewLikelihood/ProcessComputationTree.cpp
@@ -90,7 +92,6 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.cpp
   Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
@@ -101,6 +102,8 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmLikelihood_DF.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmLikelihoodComputation.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmPhyloEmissionProbabilities.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.cpp

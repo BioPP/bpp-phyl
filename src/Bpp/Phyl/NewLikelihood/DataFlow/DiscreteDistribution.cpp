@@ -109,7 +109,7 @@ namespace bpp {
       auto distribDep = this->dependency (0);
       auto & distrib = static_cast<Dep &> (*distribDep);
       auto buildPWithNewDistrib = [this, &c](NodeRef && newDistrib) {
-        return ConfiguredParametrizable::createVector<Dep, Self> (c, {std::move (newDistrib)}, nbClass_);
+        return ConfiguredParametrizable::createRowVector<Dep, Self> (c, {std::move (newDistrib)}, nbClass_);
       };
       
       NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredDistribution, T > (
@@ -118,7 +118,7 @@ namespace bpp {
     }
 
     NodeRef ProbabilitiesFromDiscreteDistribution::recreate (Context & c, NodeRefVec && deps) {
-      return ConfiguredParametrizable::createVector<Dep, Self> (c, std::move (deps), nbClass_);
+      return ConfiguredParametrizable::createRowVector<Dep, Self> (c, std::move (deps), nbClass_);
     }
 
     void ProbabilitiesFromDiscreteDistribution::compute () {
@@ -135,7 +135,7 @@ namespace bpp {
       checkDependencyVectorSize (typeid (Self), deps, 1);
       checkNthDependencyIs<ConfiguredDistribution> (typeid (Self), deps, 0);
       size_t nbCat=accessValueConstCast<DiscreteDistribution*> (*deps[0])->getNumberOfCategories();
-      return cachedAs<ProbabilitiesFromDiscreteDistribution> (c, std::make_shared<ProbabilitiesFromDiscreteDistribution> (std::move(deps), rowVectorDimension(Eigen::Index(nbCat))));
+      return cachedAs<ProbabilitiesFromDiscreteDistribution> (c, std::make_shared<ProbabilitiesFromDiscreteDistribution> (std::move(deps), RowVectorDimension(Eigen::Index(nbCat))));
     }
       
 

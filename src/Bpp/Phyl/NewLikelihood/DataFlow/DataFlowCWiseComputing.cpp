@@ -63,6 +63,11 @@ namespace bpp {
   template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
   template class CWiseAdd<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
 
+  template class CWiseAdd<Eigen::RowVectorXd, Eigen::MatrixXd>;
+  template class CWiseAdd<Eigen::VectorXd, Eigen::MatrixXd>;
+  template class CWiseAdd<double, Eigen::VectorXd>;
+  template class CWiseAdd<double, Eigen::RowVectorXd>;
+
   template class CWiseAdd<double, ReductionOf<double>>;
   template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
   template class CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;

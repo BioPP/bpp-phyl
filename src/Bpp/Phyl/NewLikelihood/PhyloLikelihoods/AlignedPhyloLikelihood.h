@@ -103,10 +103,7 @@ namespace bpp
      *
      */
 
-    virtual std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const
-    {
-      throw Exception("AlignedLikelihoodCalculation::getLikelihoodCalculation should be inherited to be called.");
-    }
+    virtual std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const = 0;
     
     /**
      * @brief Get the likelihood for a site.
@@ -173,16 +170,6 @@ namespace bpp
       nbSites_ = nbSites;
     }
 
-    /*
-     *@ Return the LikelihoodCalculation.
-     *
-     */
-    
-    virtual std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const
-    {
-      throw Exception("AlignedLikelihoodCalculation::getLikelihoodCalculation should be inherited to be called.");
-    }
-     
     /**
      * @brief Get the likelihood for a site (on uncompressed data)
      *

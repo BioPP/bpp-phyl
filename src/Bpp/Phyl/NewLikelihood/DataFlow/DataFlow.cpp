@@ -161,7 +161,11 @@ namespace bpp {
       nodeType = std::regex_replace(nodeType, std::regex("bpp::"), "");
       nodeType = std::regex_replace(nodeType, std::regex("Eigen::"), "");
       nodeType = std::regex_replace(nodeType, std::regex("std::"), "");
+      nodeType = std::regex_replace(nodeType, std::regex("__cxx..::"), "");
+      nodeType = std::regex_replace(nodeType, std::regex("(char_traits<[^>]*>)"),"char");
+      nodeType = std::regex_replace(nodeType, std::regex("(allocator<[^>]*>)"),"");
       nodeType = std::regex_replace(nodeType, std::regex("(Matrix<)([^>]*>)"),"Matrix");
+     nodeType = std::regex_replace(nodeType, std::regex("(basic_string<)([^>]*>)"),"string");
       return nodeType;
     }
 

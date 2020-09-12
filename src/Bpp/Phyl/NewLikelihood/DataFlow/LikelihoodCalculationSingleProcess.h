@@ -440,7 +440,7 @@ namespace bpp {
       if (!rootPatternLinks_)
         return vector;
       else
-        return CWisePattern<Eigen::RowVectorXd>::create(getContext_(),{vector,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
+        return CWisePattern<Eigen::RowVectorXd>::create(getContext_(),{vector,rootPatternLinks_}, RowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*

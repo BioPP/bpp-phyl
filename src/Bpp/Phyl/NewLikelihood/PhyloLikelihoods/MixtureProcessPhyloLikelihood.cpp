@@ -84,7 +84,7 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   simplex_->config.delta = deltaNode;
   simplex_->config.type = config;
 
-  auto fsf = ConfiguredParametrizable::createVector<ConfiguredSimplex, FrequenciesFromSimplex>(getContext(), {simplex_}, rowVectorDimension (Eigen::Index(simplex.dimension())));
+  auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex>(getContext(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
 
   // get RowVectorXd for each single Calculation
   std::vector<std::shared_ptr<Node_DF>> vSL;
@@ -98,14 +98,14 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   auto single0 = vLikCal_[0];
   auto nbSite = single0->getNumberOfDistinctSites();
 
-  auto sL = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSite)));
+  auto sL = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), RowVectorDimension (Eigen::Index(nbSite)));
 
   likCal_->setSiteLikelihoods(sL, true);
 
   // likelihoods per site
   likCal_->setSiteLikelihoods(single0->expandVector(sL), false);
 
-  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL, single0->getRootWeights()}, rowVectorDimension (Eigen::Index (nbSite)));
+  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL, single0->getRootWeights()}, RowVectorDimension (Eigen::Index (nbSite)));
 
   likCal_->setLikelihoodNode(su);
 }

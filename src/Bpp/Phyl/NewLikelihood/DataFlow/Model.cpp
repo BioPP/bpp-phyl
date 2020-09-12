@@ -110,7 +110,7 @@ NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node_DF & no
   auto & model = static_cast<Dep &> (*modelDep);
   NodeRef subNode = this->dependencies().size()==1?0:this->dependency (1);
   auto buildFWithNewModel = [this, &c, &subNode](NodeRef && newModel) {
-    return ConfiguredParametrizable::createVector<Dep, Self> (c, {std::move (newModel), subNode}, targetDimension_);
+    return ConfiguredParametrizable::createRowVector<Dep, Self> (c, {std::move (newModel), subNode}, targetDimension_);
   };
       
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
@@ -119,7 +119,7 @@ NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node_DF & no
 }
 
 NodeRef EquilibriumFrequenciesFromModel::recreate (Context & c, NodeRefVec && deps) {
-  return ConfiguredParametrizable::createVector<Dep, Self> (c, std::move (deps), targetDimension_);
+  return ConfiguredParametrizable::createRowVector<Dep, Self> (c, std::move (deps), targetDimension_);
 }
 
 void EquilibriumFrequenciesFromModel::compute () {
@@ -166,7 +166,8 @@ NodeRef TransitionMatrixFromModel::derive (Context & c, const Node_DF & node) {
   auto brlenDep = this->dependency (1);
   NodeRef derivNode = this->dependency (2);
   NodeRef subNode = this->dependencies().size()==3?0:this->dependency (3);
-  const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
+
+  const auto nDeriv = accessValueConstCast<size_t> (*derivNode);
 
   // Model part
   auto & model = static_cast<Dep &> (*modelDep);
@@ -355,7 +356,7 @@ NodeRef ProbabilitiesFromMixedModel::derive (Context & c, const Node_DF & node) 
   auto modelDep = this->dependency (0);
   auto & model = static_cast<ConfiguredModel &> (*modelDep);
   auto buildPWithNewModel = [this, &c](NodeRef && newModel) {
-    return ConfiguredParametrizable::createVector<Dep, Self> (c, {std::move (newModel)}, nbClass_);
+    return ConfiguredParametrizable::createRowVector<Dep, Self> (c, {std::move (newModel)}, nbClass_);
   };
       
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T > (
@@ -364,7 +365,7 @@ NodeRef ProbabilitiesFromMixedModel::derive (Context & c, const Node_DF & node) 
 }
 
 NodeRef ProbabilitiesFromMixedModel::recreate (Context & c, NodeRefVec && deps) {
-  return ConfiguredParametrizable::createVector<Dep, Self> (c, std::move (deps), nbClass_);
+  return ConfiguredParametrizable::createRowVector<Dep, Self> (c, std::move (deps), nbClass_);
 }
 
 void ProbabilitiesFromMixedModel::compute () {
@@ -385,7 +386,7 @@ std::shared_ptr<ProbabilitiesFromMixedModel> ProbabilitiesFromMixedModel::create
     failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModel), typeid (*deps[0]));
 
   size_t nbCat=mixmodel->getNumberOfModels();
-  return cachedAs<ProbabilitiesFromMixedModel> (c, std::make_shared<ProbabilitiesFromMixedModel> (std::move(deps), rowVectorDimension(Eigen::Index(nbCat))));
+  return cachedAs<ProbabilitiesFromMixedModel> (c, std::make_shared<ProbabilitiesFromMixedModel> (std::move(deps), RowVectorDimension(Eigen::Index(nbCat))));
 }
 
     

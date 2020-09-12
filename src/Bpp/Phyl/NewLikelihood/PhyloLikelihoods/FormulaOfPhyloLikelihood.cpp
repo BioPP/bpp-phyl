@@ -52,14 +52,14 @@ FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, PhyloLikeli
   AbstractPhyloLikelihood(context),
   SetOfAbstractPhyloLikelihood(context, pC, {}, inCollection),
   compTree_(),
-  likCal_(new AlignedLikelihoodCalculation(context))
+  likCal_(new LikelihoodCalculation(context))
 {
   readFormula(formula, inCollection);
   likCal_->setLikelihoodNode(makeLikelihoods());
 
-  using bpp::DotOptions;
-  writeGraphToDot(
-    "formula.dot", {likCal_->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
+  // using bpp::DotOptions;
+  // writeGraphToDot(
+  //   "formula.dot", {likCal_->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
 
 
 }

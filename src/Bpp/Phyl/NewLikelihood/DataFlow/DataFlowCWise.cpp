@@ -55,5 +55,10 @@ namespace bpp {
 
   template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
   template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+  template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<double>>;
+  template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
+
+  template class CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
+  template class CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::VectorXd>>;
 
 } // namespace bpp

@@ -72,16 +72,21 @@ namespace bpp {
   template <typename Result, typename From> class CWiseSub;
   template <typename Result, typename From> class CWiseMul;
   template <typename Result, typename From> class CWiseDiv;
+
+  // Return same type as given
   template <typename T> class CWiseNegate;
   template <typename T> class CWiseInverse;
   template <typename T> class CWiseLog;
   template <typename T> class CWiseExp;
   template <typename T> class CWiseConstantPow;
 
+  // Return double
   template <typename T0, typename T1> class ScalarProduct;
   template <typename T0, typename T1> class LogSumExp;
   template <typename F> class SumOfLogarithms;
+
   template <typename R, typename T0, typename T1> class MatrixProduct;
+
   template <typename T> class ShiftDelta;
   template <typename T> class CombineDeltaShifted;
 
@@ -207,6 +212,7 @@ namespace bpp {
    * The generic version is horrible in C++11 (lack of auto return).
    * Generic simplification routine is horrible too.
    */
+  
   template <typename R, typename T0, typename T1> class CWiseAdd<R, std::tuple<T0, T1>> : public Value<R> {
   public:
     using Self = CWiseAdd;
@@ -481,6 +487,87 @@ namespace bpp {
         return(r);
       };
     }
+
+    Dimension<R> targetDimension_;
+  };
+
+
+  /*************************************************************************
+   * @brief r = sum (x_i), for each component either column-wise or row-wise, depending of entry & return types.
+   *
+   * - r: R.
+   * - (x_i): T.
+   *
+   * Sum of any number of values of T into bits of R
+   *.
+   * Node construction should be done with the create static method.
+   */
+
+  template <typename R, typename T> class CWiseAdd : public Value<R> {
+  public:
+    using Self = CWiseAdd;
+
+    /// Build a new CWiseAdd node with the given output dimensions.
+    static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+      // Check dependencies
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 1);
+
+      if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero))
+        return ConstantZero<R>::create (c, dim);
+      else {
+        return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
+      }
+    }
+
+    CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
+      : Value<R> (std::move (deps)), targetDimension_ (dim) {}
+
+    std::string debugInfo () const override {
+      using namespace numeric;
+      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // CWiseAdd additional arguments = ().
+    bool compareAdditionalArguments (const Node_DF & other) const final {
+      return dynamic_cast<const Self *> (&other) != nullptr;
+    }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<R>::create (c, targetDimension_);
+      }
+      return Self::create (c, {this->dependency(0)->derive (c, node)}, targetDimension_);
+    }
+
+    NodeRef recreate (Context & c, NodeRefVec && deps) final {
+      return Self::create (c, std::move (deps), targetDimension_);
+    }
+
+  private:
+    void compute() { compute<R,T>();}
+      
+    template<class U, class V>
+    typename std::enable_if<std::is_same<V, Eigen::MatrixXd>::value && std::is_same<U, Eigen::RowVectorXd>::value, void>::type
+      compute () {
+      const auto& mat = accessValueConstCast<T>(*this->dependency(0));
+      this->accessValueMutable () = mat.colwise().sum();
+    }
+
+    template<class U, class V>
+    typename std::enable_if<std::is_same<V, Eigen::MatrixXd>::value && std::is_same<U, Eigen::VectorXd>::value, void>::type
+      compute () {
+      const auto& mat = accessValueConstCast<T>(*this->dependency(0));
+      this->accessValueMutable () = mat.rowwise().sum();
+    }
+
+    template<class U, class V>
+    typename std::enable_if<std::is_same<V, Eigen::VectorXd>::value || std::is_same<V, Eigen::RowVectorXd>::value, void>::type
+      compute () {
+      const auto& vec = accessValueConstCast<T>(*this->dependency(0));
+      this->accessValueMutable () = vec.sum();
+    }
+
 
     Dimension<R> targetDimension_;
   };
@@ -2083,6 +2170,11 @@ namespace bpp {
   extern template class CWiseAdd<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
   extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
   extern template class CWiseAdd<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
+
+  extern template class CWiseAdd<Eigen::RowVectorXd, Eigen::MatrixXd>;
+  extern template class CWiseAdd<Eigen::VectorXd, Eigen::MatrixXd>;
+  extern template class CWiseAdd<double, Eigen::VectorXd>;
+  extern template class CWiseAdd<double, Eigen::RowVectorXd>;
 
   extern template class CWiseSub<double, std::tuple<double, double>>;
   extern template class CWiseSub<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;

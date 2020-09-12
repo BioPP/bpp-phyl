@@ -133,6 +133,11 @@ namespace bpp
        * @return The likelihood for site <i>site</i>.
        */
 
+      std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculationForAProcess(size_t p)
+      {
+        return vLikCal_[p];
+      }
+      
       double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
         return vLikCal_[p]->getLikelihoodForASite(site);

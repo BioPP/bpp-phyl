@@ -112,7 +112,7 @@ namespace bpp {
     auto simplexDep = this->dependency (0);
     auto & simplex = static_cast<ConfiguredSimplex &> (*simplexDep);
     auto buildFWithNewSimplex = [this, &c](NodeRef && newSimplex) {
-      return ConfiguredParametrizable::createVector<ConfiguredSimplex, Self> (c, {std::move (newSimplex)}, targetDimension_);
+      return ConfiguredParametrizable::createRowVector<ConfiguredSimplex, Self> (c, {std::move (newSimplex)}, targetDimension_);
     };
       
     NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredSimplex, T > (
@@ -122,7 +122,7 @@ namespace bpp {
   }
 
   NodeRef FrequenciesFromSimplex::recreate (Context & c, NodeRefVec && deps) {
-    return ConfiguredParametrizable::createVector<ConfiguredSimplex, Self> (c, std::move (deps), targetDimension_);
+    return ConfiguredParametrizable::createRowVector<ConfiguredSimplex, Self> (c, std::move (deps), targetDimension_);
   }
 
   void FrequenciesFromSimplex::compute () {

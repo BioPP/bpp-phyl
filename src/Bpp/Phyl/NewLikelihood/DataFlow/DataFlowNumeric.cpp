@@ -106,7 +106,13 @@ namespace bpp {
     bppVector.resize(eigenVector.size());  
     Eigen::VectorXd::Map(&bppVector[0], bppVector.size()) = eigenVector;
   }
-      
+
+  void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector)
+  {
+    bppVector.resize(eigenVector.size());  
+    Eigen::VectorXd::Map(&bppVector[0], bppVector.size()) = eigenVector;
+  }
+
   void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector)
   {
     bppVector.resize(eigenVector.size());  

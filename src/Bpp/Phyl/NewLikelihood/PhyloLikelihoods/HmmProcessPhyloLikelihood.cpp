@@ -39,9 +39,7 @@
 
 #include "HmmProcessPhyloLikelihood.h"
 
-#include "../HmmProcessEmissionProbabilities.h"
-
-#include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
+#include "HmmLikelihood_DF.h"
 #include <Bpp/Numeric/Hmm/FullHmmTransitionMatrix.h>
 
 using namespace std;
@@ -61,21 +59,25 @@ HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
   AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, verbose, patterns, nData),
   Hpep_(),
-  Hmm_()
+  hmm_()
 {
-  Hpep_ = unique_ptr<HmmProcessEmissionProbabilities>(new HmmProcessEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
+  auto alphyl = make_shared<HmmPhyloAlphabet>(*this);
+  
+  Hpep_ = make_shared<HmmPhyloEmissionProbabilities>(alphyl);
 
-  Hmm_ = unique_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(&processSeqEvol.getHmmProcessAlphabet(), &processSeqEvol.getHmmTransitionMatrix(), Hpep_.get(), false));
+  hmm_ = make_shared<HmmLikelihood_DF>(getContext(), processSeqEvol.shareHmmProcessAlphabet(), processSeqEvol.shareHmmTransitionMatrix(), Hpep_);
+
+  addParameters_(hmm_->getParameters());
 }
 
 void HmmProcessPhyloLikelihood::setNamespace(const std::string& nameSpace)
 {
   MultiProcessSequencePhyloLikelihood::setNamespace(nameSpace);
-  Hmm_->setNamespace(nameSpace);
+  hmm_->setNamespace(nameSpace);
 }
 
 void HmmProcessPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   MultiProcessSequencePhyloLikelihood::fireParameterChanged(parameters);
-  Hmm_->matchParametersValues(parameters);
+  hmm_->matchParametersValues(parameters);
 }

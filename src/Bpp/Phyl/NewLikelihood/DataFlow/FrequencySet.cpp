@@ -111,7 +111,7 @@ namespace bpp {
       auto freqSetDep = this->dependency (0);
       auto & freqset = static_cast<ConfiguredFrequencySet &> (*freqSetDep);
       auto buildFWithNewFreqSet = [this, &c](NodeRef && newFreqSet) {
-        return ConfiguredParametrizable::createVector<ConfiguredFrequencySet, Self> (c, {std::move (newFreqSet)}, targetDimension_);
+        return ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, Self> (c, {std::move (newFreqSet)}, targetDimension_);
       };
       
       NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredFrequencySet, T > (
@@ -120,7 +120,7 @@ namespace bpp {
     }
 
     NodeRef FrequenciesFromFrequencySet::recreate (Context & c, NodeRefVec && deps) {
-      return ConfiguredParametrizable::createVector<ConfiguredFrequencySet, Self> (c, std::move (deps), targetDimension_);
+      return ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, Self> (c, std::move (deps), targetDimension_);
     }
 
     void FrequenciesFromFrequencySet::compute () {

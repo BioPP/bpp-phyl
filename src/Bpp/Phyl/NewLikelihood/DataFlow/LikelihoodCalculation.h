@@ -126,7 +126,7 @@ namespace bpp {
     /* @brief Build the likelihood DF  */
     
     virtual void makeLikelihoods() {
-      throw Exception("LikelihoodCalculation:: makeLikelihoods should not be called.");
+      throw Exception("LikelihoodCalculation:: makeLikelihoods should not be called. Probably likelihood_ is null.");
     }
     
     Context& getContext_() {
@@ -141,7 +141,9 @@ namespace bpp {
 
   };
 
-
+  using SiteLikelihoods = Value<Eigen::RowVectorXd>;
+  using SiteLikelihoodsRef = ValueRef<Eigen::RowVectorXd>;
+    
   class AlignedLikelihoodCalculation :
     public LikelihoodCalculation
   {
@@ -163,13 +165,13 @@ namespace bpp {
      *
      */
 
-    mutable ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
+    mutable SiteLikelihoodsRef siteLikelihoods_;
 
     /* For Data used for computation (ie shrunked data if ever)
      *
      */
         
-    mutable ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
+    mutable SiteLikelihoodsRef patternedSiteLikelihoods_;
 
   public:
     
@@ -181,7 +183,7 @@ namespace bpp {
      *
      */
       
-    ValueRef<Eigen::RowVectorXd> getSiteLikelihoods(bool shrunk = false)
+    SiteLikelihoodsRef getSiteLikelihoods(bool shrunk = false)
     {
       if (!(siteLikelihoods_ || patternedSiteLikelihoods_))
         makeLikelihoods();
@@ -201,7 +203,7 @@ namespace bpp {
      *
      */
 
-    void setSiteLikelihoods(ValueRef<Eigen::RowVectorXd> ll,
+    void setSiteLikelihoods(SiteLikelihoodsRef ll,
                             bool shrunk = false)
     {
       if (shrunk)
@@ -250,7 +252,7 @@ namespace bpp {
   protected:
 
     virtual void makeLikelihoods() {
-      throw Exception("AlignedLikelihoodCalculation:: makeLikelihoods should not be called.");
+      throw Exception("AlignedLikelihoodCalculation:: makeLikelihoods should not be called. Probably both siteLikelihoods_ and patternedSiteLikelihoods_ are null.");
     }
 
   };

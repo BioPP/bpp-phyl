@@ -55,11 +55,11 @@ ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& contex
   for (auto np:nPhylo)
     vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods(false));
 
-  auto sL = CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSites_)));
+  auto sL = CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>::create(getContext(), std::move(vSL), RowVectorDimension (Eigen::Index(nbSites_)));
 
   likCal_->setSiteLikelihoods(sL);
 
-  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, rowVectorDimension (Eigen::Index (nbSites_)));
+  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, RowVectorDimension (Eigen::Index (nbSites_)));
 
   likCal_->setLikelihoodNode(su);  
 }
@@ -76,11 +76,11 @@ ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& contex
   for (auto np:nPhylo)
     vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods(false));
 
-  auto sL = CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSites_)));
+  auto sL = CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>::create(getContext(), std::move(vSL), RowVectorDimension (Eigen::Index(nbSites_)));
 
   likCal_->setSiteLikelihoods(sL);
 
-  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, rowVectorDimension (Eigen::Index (nbSites_)));
+  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, RowVectorDimension (Eigen::Index (nbSites_)));
 
   likCal_->setLikelihoodNode(su);
 }

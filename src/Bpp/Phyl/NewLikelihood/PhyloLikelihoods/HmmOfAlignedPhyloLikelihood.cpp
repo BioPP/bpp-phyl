@@ -39,7 +39,7 @@
 
 #include "HmmOfAlignedPhyloLikelihood.h"
 
-#include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
+#include "HmmLikelihood_DF.h"
 #include <Bpp/Numeric/Hmm/FullHmmTransitionMatrix.h>
 
 using namespace std;
@@ -48,7 +48,9 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmOfAlignedPhyloLikelihood::HmmOfAlignedPhyloLikelihood(
-  Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection) :
+  Context& context,
+  PhyloLikelihoodContainer* pC,
+  const std::vector<size_t>& nPhylo, bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
@@ -57,13 +59,13 @@ HmmOfAlignedPhyloLikelihood::HmmOfAlignedPhyloLikelihood(
   hpep_(),
   hmm_()
 {
-  hma_ = unique_ptr<HmmPhyloAlphabet>(new HmmPhyloAlphabet(*this));
+  hma_ = make_shared<HmmPhyloAlphabet>(*this);
 
-  htm_ = unique_ptr<FullHmmTransitionMatrix>(new FullHmmTransitionMatrix(hma_.get(), "HMM."));
+  htm_ = make_shared<FullHmmTransitionMatrix>(hma_.get(), "HMM.");
 
-  hpep_ = unique_ptr<HmmPhyloEmissionProbabilities>(new HmmPhyloEmissionProbabilities(hma_.get()));
+  hpep_ = make_shared<HmmPhyloEmissionProbabilities>(hma_);
 
-  hmm_ = unique_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(hma_.get(), htm_.get(), hpep_.get(), false));
+  hmm_ = shared_ptr<HmmLikelihood_DF>(new HmmLikelihood_DF(context, hma_, htm_, hpep_));
 
   addParameters_(htm_->getParameters());
 }

@@ -39,7 +39,7 @@
 
 #include "AutoCorrelationOfAlignedPhyloLikelihood.h"
 
-#include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
+#include "HmmLikelihood_DF.h"
 #include <Bpp/Numeric/Hmm/AutoCorrelationTransitionMatrix.h>
 
 using namespace std;
@@ -58,13 +58,13 @@ AutoCorrelationOfAlignedPhyloLikelihood::AutoCorrelationOfAlignedPhyloLikelihood
   hpep_(),
   hmm_()
 {
-  hma_ = unique_ptr<HmmPhyloAlphabet>(new HmmPhyloAlphabet(*this));
+  hma_ = make_shared<HmmPhyloAlphabet>(*this);
 
-  htm_ = unique_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(hma_.get(), "AutoCorr."));
+  htm_ = make_shared<AutoCorrelationTransitionMatrix>(hma_.get(), "AutoCorr.");
 
-  hpep_ = unique_ptr<HmmPhyloEmissionProbabilities>(new HmmPhyloEmissionProbabilities(hma_.get()));
+  hpep_ = make_shared<HmmPhyloEmissionProbabilities>(hma_);
 
-  hmm_ = unique_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(hma_.get(), htm_.get(), hpep_.get(), false));
+  hmm_ = shared_ptr<HmmLikelihood_DF>(new HmmLikelihood_DF(getContext(), hma_, htm_, hpep_));
 
   addParameters_(htm_->getParameters());
 }

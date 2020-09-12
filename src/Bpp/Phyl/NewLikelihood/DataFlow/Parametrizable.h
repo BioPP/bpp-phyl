@@ -204,7 +204,7 @@ namespace bpp {
 
       template<typename ConfiguredObject, typename Self>
       static ValueRef<Eigen::RowVectorXd>
-      createVector (Context & c, NodeRefVec && deps,
+      createRowVector (Context & c, NodeRefVec && deps,
                     const Dimension<Eigen::RowVectorXd> & dim) {        
         checkDependencyVectorMinSize (typeid (Self), deps, 1);
         checkNthDependencyNotNull (typeid (Self), deps, 0);
@@ -212,9 +212,19 @@ namespace bpp {
         return cachedAs<Value<Eigen::RowVectorXd>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
 
+      template<typename ConfiguredObject, typename Self>
+      static ValueRef<Eigen::VectorXd>
+      createVector (Context & c, NodeRefVec && deps,
+                    const Dimension<Eigen::VectorXd> & dim) {        
+        checkDependencyVectorMinSize (typeid (Self), deps, 1);
+        checkNthDependencyNotNull (typeid (Self), deps, 0);
+        checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
+        return cachedAs<Value<Eigen::VectorXd>> (c, std::make_shared<Self> (std::move (deps), dim));
+      }
+
       /** Create a new vector of dependencies node to a MatrixXd,
        * through a inheriting class (aka Self), from a
-       * ConfiguredObject and a ConfiguredParameter (ie branch length)
+       * ConfiguredObject and an optional ConfiguredParameter (ie branch length)
        *
        */
 
@@ -222,11 +232,13 @@ namespace bpp {
       static ValueRef<Eigen::MatrixXd>
       createMatrix (Context & c, NodeRefVec && deps,
                     const Dimension<Eigen::MatrixXd> & dim) {
-        checkDependencyVectorMinSize (typeid (Self), deps, 2);
+        checkDependencyVectorMinSize (typeid (Self), deps, 1);
         checkNthDependencyNotNull (typeid (Self), deps, 0);
-        checkNthDependencyNotNull (typeid (Self), deps, 1);
+        if (deps.size()>1)
+          checkNthDependencyNotNull (typeid (Self), deps, 1);
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
-        checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
+        if (deps.size()>1)
+          checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
         
         return cachedAs<Value<Eigen::MatrixXd>> (c, std::make_shared<Self> (std::move (deps), dim));
       }

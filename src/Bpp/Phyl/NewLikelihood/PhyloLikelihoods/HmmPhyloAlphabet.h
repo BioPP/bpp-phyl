@@ -44,6 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Hmm/HmmStateAlphabet.h>
 
 #include "SetOfAlignedPhyloLikelihood.h"
+#include "MultiProcessSequencePhyloLikelihood.h"
+#include "SingleProcessPhyloLikelihood.h"
 
 namespace bpp {
 
@@ -60,19 +62,21 @@ namespace bpp {
     public AbstractParametrizable
   {
   private:
+    Context& context_;
     /*
      * @brief vector of aligned phylolikelihoods. These
      * phylolikelihoods are not owned by the alphabet.
      *
      */
     
-    std::vector<const AlignedPhyloLikelihood*> vAP_;
+    std::vector<std::shared_ptr<AlignedPhyloLikelihood>> vAP_;
 
     size_t nbSites_;
     
   public:
-    HmmPhyloAlphabet(const SetOfAlignedPhyloLikelihood& soap):
+    HmmPhyloAlphabet(SetOfAlignedPhyloLikelihood& soap):
       AbstractParametrizable(""),
+      context_(soap.getContext()),
       vAP_(),
       nbSites_(0)
     {
@@ -80,17 +84,41 @@ namespace bpp {
       
       for (size_t i=0; i<nphyl.size(); i++)
       {
-        const AlignedPhyloLikelihood* ap=soap.getPhyloLikelihood(nphyl[i]);
+        auto ap=soap.sharePhyloLikelihood(nphyl[i]);
         vAP_.push_back(ap);
         includeParameters_(ap->getParameters());
       }
       
       nbSites_=soap.getNumberOfSites();
     }
-    
+
+    HmmPhyloAlphabet(MultiProcessSequencePhyloLikelihood& mpsp):
+      AbstractParametrizable(""),
+      context_(mpsp.getContext()),
+      vAP_(),
+      nbSites_(0)
+    {
+      auto nb = mpsp.getNumberOfSubstitutionProcess();
+      ParameterList pl;
+      for (size_t i=0; i<nb; i++)
+      {
+        auto spl = make_shared<SingleProcessPhyloLikelihood>(getContext(), mpsp.getLikelihoodCalculationForAProcess(i), pl);
+
+        if (!nbSites_)
+          nbSites_=spl->getNumberOfSites();
+        else if (nbSites_!=spl->getNumberOfSites())
+          throw BadSizeException("HmmPhyloAlphabet::HmmPhyloAlphabet : different numbers of sites", spl->getNumberOfSites(), nbSites_);
+        
+        vAP_.push_back(spl);
+      }
+      
+      includeParameters_(mpsp .getParameters());
+    }
+
     
     HmmPhyloAlphabet(const HmmPhyloAlphabet& hpa) :
       AbstractParametrizable(hpa),
+      context_(hpa.context_),
       vAP_(hpa.vAP_),
       nbSites_(hpa.nbSites_)
     {}
@@ -99,6 +127,8 @@ namespace bpp {
 
     ~HmmPhyloAlphabet() {};
 
+    Context& getContext() { return context_;}
+    
     /**
      * @param stateIndex The index of a hidden state.
      * @return The corresponding hidden state.

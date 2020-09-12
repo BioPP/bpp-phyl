@@ -41,61 +41,56 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _HMM_PHYLO_EMISSIONPROBABILITIES_H_
 
 #include "HmmPhyloAlphabet.h"
+#include "../HmmEmissionProbabilities_Eigen.h"
 
-#include <Bpp/Numeric/Hmm/HmmEmissionProbabilities.h>
 #include <Bpp/Numeric/AbstractParametrizable.h>
+
+#include "../DataFlow/DataFlowCWise.h"
 
 namespace bpp
 {
-  
+
+  using EmissionLogk = CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
+
 /**
- * @brief Emission probabilities in the context of substitution
- * process.
- *
+ * @brief Emission probabilities in the context of DF phylolikeihoods.
  * 
  */
 
   class HmmPhyloEmissionProbabilities:
-    public virtual HmmEmissionProbabilities,
+    public virtual HmmEmissionProbabilities_Eigen,
     public AbstractParametrizable
   {
   private:
-    const HmmPhyloAlphabet* phylAlph_;
+    Context& context_;
     
-    mutable std::vector<std::vector<double> > emProb_;
+    std::shared_ptr<HmmPhyloAlphabet> phylAlph_;
+
+    /*
+     *@brief Emission probabilities are stored in a Matrix from a set of
+     * RowVectors. 
+     *
+     */
+     
+    ValueRef<Eigen::MatrixXd> emProb_;
     
-    mutable std::vector<std::vector<double> > dEmProb_;
-
-    mutable std::vector<std::vector<double> > d2EmProb_;
-
-    mutable bool upToDate_;
-
     size_t nbSites_;
-    
-    void computeEmissionProbabilities_() const;
-
   public:
-    HmmPhyloEmissionProbabilities(const HmmPhyloAlphabet* alphabet);
+    HmmPhyloEmissionProbabilities(std::shared_ptr<HmmPhyloAlphabet> alphabet);
     
     HmmPhyloEmissionProbabilities(const HmmPhyloEmissionProbabilities& hEP) :
       AbstractParametrizable(hEP),
+      context_(hEP.context_),
       phylAlph_(hEP.phylAlph_),
       emProb_(hEP.emProb_),
-      dEmProb_(hEP.dEmProb_),
-      d2EmProb_(hEP.d2EmProb_),
-      upToDate_(hEP.upToDate_),
       nbSites_(hEP.nbSites_)
     {}
-
-    // void fireParameterChanged(const ParameterList& parameters)
-    // {
-    // }
 
     HmmPhyloEmissionProbabilities* clone() const { return new HmmPhyloEmissionProbabilities(*this);}
 
     const HmmStateAlphabet* getHmmStateAlphabet() const
     {
-      return phylAlph_;
+      return phylAlph_.get();
     }
 
     size_t getNumberOfStates() const
@@ -114,7 +109,7 @@ namespace bpp
      * @throw UnvalidStateAlphabetException if the new alphabet is uncorrect (for instance is NULL pointer).
      */
     
-    void setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet);
+    void setHmmStateAlphabet(std::shared_ptr<HmmStateAlphabet> stateAlphabet);
     
     /**@} */
 
@@ -125,31 +120,19 @@ namespace bpp
      * For debugging purpose, the getPhyloEmissionProbability would be a safer use.
      *
      * @param pos The position of the sequential data to consider.
-     * @param state The index of the hidden state to consider, as defined by the HmmStateAlphabet object associated to this class.
+     * @param state The index of the hidden state to consider, as defined by the HmmStateAlphabet object associated to this class
+     *
      */
 
     double operator()(size_t pos, size_t state) const
     {
-      if (!upToDate_)
-        computeEmissionProbabilities_();
-      
-      return emProb_[pos][state];
+      return (emProb_->getTargetValue())(state,pos);
     }
 
-    void computeDEmissionProbabilities(std::string& variable) const;
-  
-    void computeD2EmissionProbabilities(std::string& variable) const;
-  
-    const std::vector<double>& getDEmissionProbabilities(size_t pos) const
+    ValueRef<Eigen::MatrixXd> getEmissionProbabilities()
     {
-      return dEmProb_[pos];
+      return emProb_;
     }
-  
-    const std::vector<double>& getD2EmissionProbabilities(size_t pos) const
-    {
-      return d2EmProb_[pos];
-    }
-
 
     /**
      * @brief Operator access to the emission probabilities.
@@ -161,12 +144,9 @@ namespace bpp
      * @return A vector of probabilities, whose size is the number of hidden states.
      */
     
-    const std::vector<double>& operator()(size_t pos) const
+    Eigen::Ref<const Eigen::VectorXd> operator()(size_t pos) const
     {
-      if (!upToDate_)
-        computeEmissionProbabilities_();
-
-      return emProb_[pos];
+      return emProb_->getTargetValue().col(pos);
     }
     
     /**

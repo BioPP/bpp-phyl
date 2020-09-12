@@ -77,8 +77,6 @@ namespace bpp
       {
       }
 
-    public:
-
       /**
        *
        * @brief adds a PhyloLikelihood already stored in the m ap, iff
@@ -114,7 +112,11 @@ namespace bpp
         return dynamic_cast<AlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
       }
 
-    public:
+      std::shared_ptr<AlignedPhyloLikelihood> sharePhyloLikelihood(size_t nPhyl)
+      {
+        return std::dynamic_pointer_cast<AlignedPhyloLikelihood>(pPhyloCont_->getPhyloLikelihood(nPhyl));
+      }
+
       /**
        * @brief Get the likelihood for a site for an aligned
        * phyloLikelihood 

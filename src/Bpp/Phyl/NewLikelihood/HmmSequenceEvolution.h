@@ -60,8 +60,8 @@ namespace bpp
       public MultiProcessSequenceEvolution
     {
     private:
-      std::unique_ptr<HmmProcessAlphabet> hmmAlph_;
-      std::unique_ptr<FullHmmTransitionMatrix> hmmTransMat_;
+      std::shared_ptr<HmmProcessAlphabet> hmmAlph_;
+      std::shared_ptr<FullHmmTransitionMatrix> hmmTransMat_;
   
     public:
       HmmSequenceEvolution(
@@ -76,8 +76,8 @@ namespace bpp
       HmmSequenceEvolution& operator=(const HmmSequenceEvolution& mlc)
       {
         MultiProcessSequenceEvolution::operator=(mlc);
-        hmmAlph_=std::unique_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(*mlc.hmmAlph_.get()));
-        hmmTransMat_=std::unique_ptr<FullHmmTransitionMatrix>(new FullHmmTransitionMatrix(*mlc.hmmTransMat_.get()));
+        hmmAlph_=std::make_shared<HmmProcessAlphabet>(*mlc.hmmAlph_);
+        hmmTransMat_=std::make_shared<FullHmmTransitionMatrix>(*mlc.hmmTransMat_);
     
         return *this;
       }
@@ -94,22 +94,32 @@ namespace bpp
 
       const FullHmmTransitionMatrix& getHmmTransitionMatrix() const
       {
-        return *hmmTransMat_.get();
+        return *hmmTransMat_;
       }
 
       FullHmmTransitionMatrix& getHmmTransitionMatrix()
       {
-        return *hmmTransMat_.get();
+        return *hmmTransMat_;
+      }
+
+      std::shared_ptr<FullHmmTransitionMatrix> shareHmmTransitionMatrix()
+      {
+        return hmmTransMat_;
       }
 
       const HmmProcessAlphabet& getHmmProcessAlphabet() const
       {
-        return *hmmAlph_.get();
+        return *hmmAlph_;
       }
 
       HmmProcessAlphabet& getHmmProcessAlphabet()
       {
-        return *hmmAlph_.get();
+        return *hmmAlph_;
+      }
+
+      std::shared_ptr<HmmProcessAlphabet> shareHmmProcessAlphabet()
+      {
+        return hmmAlph_;
       }
 
     };

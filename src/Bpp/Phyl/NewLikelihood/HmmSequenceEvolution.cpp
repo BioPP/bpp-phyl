@@ -51,9 +51,9 @@ HmmSequenceEvolution::HmmSequenceEvolution(
   hmmAlph_(),
   hmmTransMat_()
 {
-  hmmAlph_ = std::unique_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
+  hmmAlph_ = std::shared_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
 
-  hmmTransMat_ = std::unique_ptr<FullHmmTransitionMatrix>(new FullHmmTransitionMatrix(hmmAlph_.get(), "HMM."));
+  hmmTransMat_ = std::shared_ptr<FullHmmTransitionMatrix>(new FullHmmTransitionMatrix(hmmAlph_.get(), "HMM."));
 
   // initialize parameters:
   addParameters_(hmmAlph_->getParameters());

@@ -75,6 +75,8 @@ namespace bpp {
 
   extern void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector);
 
+  extern void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector);
+
   extern void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector);
   
   /*******************************************/
@@ -135,17 +137,24 @@ namespace bpp {
     MatrixDimension (const Eigen::MatrixBase<Derived> & m) : MatrixDimension (m.rows (), m.cols ()) {}
   };
 
+  struct VectorDimension :
+    public MatrixDimension
+  {
+    VectorDimension(Eigen::Index rows_) : MatrixDimension(rows_, 1){}
+  };
+
+  struct RowVectorDimension :
+    public MatrixDimension
+  {
+    RowVectorDimension(Eigen::Index cols_) : MatrixDimension(1, cols_){}
+  };
+
   std::string to_string (const MatrixDimension & dim);
   std::size_t hash (const MatrixDimension & dim);
   inline bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) {
     return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
   }
   inline bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) { return !(lhs == rhs); }
-
-  /// Eigen vector are matrices with 1 column.
-  inline MatrixDimension vectorDimension (Eigen::Index size) { return {size, 1}; }
-  /// Eigen RowVector are matrices with 1 row.
-  inline MatrixDimension rowVectorDimension (Eigen::Index size) { return {1, size}; }
 
   /** @brief Store a dimension for type T.
    *

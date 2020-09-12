@@ -140,10 +140,7 @@ namespace bpp
      *
      */
     
-    virtual std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
-    {
-      throw Exception("AbstractPhyloLikelihood::getLikelihoodCalculation should be inherited to be called.");
-    }
+    virtual std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const = 0;
 
     /*
      *@ Return the LikDF node where the Likelihood is computed.

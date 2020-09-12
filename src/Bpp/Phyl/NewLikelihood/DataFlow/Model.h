@@ -57,8 +57,8 @@ namespace bpp {
     return {Eigen::Index (nbState), Eigen::Index (nbState)};
   }
 
-  inline MatrixDimension equilibriumFrequenciesDimension (std::size_t nbState) {
-    return rowVectorDimension (Eigen::Index (nbState));
+  inline RowVectorDimension equilibriumFrequenciesDimension (std::size_t nbState) {
+    return RowVectorDimension (Eigen::Index (nbState));
   }
 
 

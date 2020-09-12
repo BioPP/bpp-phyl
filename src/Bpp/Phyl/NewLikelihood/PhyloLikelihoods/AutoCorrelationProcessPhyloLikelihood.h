@@ -5,37 +5,37 @@
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
 
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability.
 
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and,  more generally, to use and operate it in the
+  same conditions as regards security.
 
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
 #ifndef _AUTOCORRELATIONPHYLOLIKELIHOOD_H_
 #define _AUTOCORRELATIONPHYLOLIKELIHOOD_H_
@@ -43,154 +43,95 @@
 
 #include "MultiProcessSequencePhyloLikelihood.h"
 #include "../AutoCorrelationSequenceEvolution.h"
-#include "../HmmProcessEmissionProbabilities.h"
+#include "HmmPhyloEmissionProbabilities.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
-// From bpp-core:
-#include <Bpp/Numeric/Hmm/HmmLikelihood.h>
-#include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
+#include "HmmLikelihood_DF.h"
 #include <Bpp/Numeric/Hmm/AutoCorrelationTransitionMatrix.h>
 
 namespace bpp
 {
 
   /**
- * @brief Likelihood framework based on an auto-correlation of simple likelihoods.
- *
- * The resulting likelihood is the likelihood of the given
- * AutoCorrelation with the site emission probabilities proportional
- * to the computed likelihoods of the process.
- */
-class AutoCorrelationProcessPhyloLikelihood :
-  public MultiProcessSequencePhyloLikelihood
-{
-private:
-  std::unique_ptr<HmmProcessEmissionProbabilities> Hpep_;
-
-  mutable std::unique_ptr<LogsumHmmLikelihood> Hmm_;
-
-public:
-  AutoCorrelationProcessPhyloLikelihood(
-    const AlignedValuesContainer& data,
-    AutoCorrelationSequenceEvolution& processSeqEvol,
-    CollectionNodes& collNodes,
-    size_t nSeqEvol = 0,
-    size_t nData = 0,
-    bool verbose = true,
-    bool patterns = true);
-
-  AutoCorrelationProcessPhyloLikelihood(const AutoCorrelationProcessPhyloLikelihood& mlc) :
-    AbstractPhyloLikelihood(mlc),
-    AbstractAlignedPhyloLikelihood(mlc),
-    MultiProcessSequencePhyloLikelihood(mlc),
-    Hpep_(std::unique_ptr<HmmProcessEmissionProbabilities>(mlc.Hpep_->clone())),
-    Hmm_(std::unique_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
-
-  virtual ~AutoCorrelationProcessPhyloLikelihood() {}
-
-  AutoCorrelationProcessPhyloLikelihood* clone() const { return new AutoCorrelationProcessPhyloLikelihood(*this); }
-
-public:
-  void setNamespace(const std::string& nameSpace);
-
-  void fireParameterChanged(const ParameterList& parameters);
-
-  // void computeLikelihood() const
-  // {
-  //     MultiProcessSequencePhyloLikelihood::computeLikelihood();
-  //     Hmm_->computeLikelihood();
-
-  // }
-
-
-  /**
-   * @name The likelihood functions.
+   * @brief Likelihood framework based on an auto-correlation of simple likelihoods.
    *
-   * @{
+   * The resulting likelihood is the likelihood of the given
+   * AutoCorrelation with the site emission probabilities proportional
+   * to the computed likelihoods of the process.
    */
-  double getLogLikelihood() const
+  
+  class AutoCorrelationProcessPhyloLikelihood :
+    public MultiProcessSequencePhyloLikelihood
   {
-    return Hmm_->getLogLikelihood();
-  }
+  private:
+    std::shared_ptr<HmmPhyloEmissionProbabilities> Hpep_;
 
+    mutable std::shared_ptr<HmmLikelihood_DF> hmm_;
 
-  // double getDLogLikelihood(const std::string& variable) const
-  // {
-  //   return Hmm_->getDLogLikelihood();
-  // }
+  public:
+    AutoCorrelationProcessPhyloLikelihood(
+      const AlignedValuesContainer& data,
+      AutoCorrelationSequenceEvolution& processSeqEvol,
+      CollectionNodes& collNodes,
+      size_t nSeqEvol = 0,
+      size_t nData = 0,
+      bool verbose = true,
+      bool patterns = true);
 
-  // double getD2LogLikelihood(const std::string& variable) const
-  // {
-  //   return Hmm_->getD2LogLikelihood();
-  // }
+    AutoCorrelationProcessPhyloLikelihood(const AutoCorrelationProcessPhyloLikelihood& mlc) :
+      AbstractPhyloLikelihood(mlc),
+      AbstractAlignedPhyloLikelihood(mlc),
+      MultiProcessSequencePhyloLikelihood(mlc),
+      Hpep_(std::shared_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone())),
+      hmm_(std::shared_ptr<HmmLikelihood_DF>(mlc.hmm_->clone())) {}
 
-  /**
-   * @brief Get the likelihood for a site.
-   *
-   * @param site The site index to analyse.
-   * @return The likelihood for site <i>site</i>.
-   */
-  double getLikelihoodForASite(size_t site) const
-  {
-    return Hmm_->getLikelihoodForASite(site);
-  }
+    virtual ~AutoCorrelationProcessPhyloLikelihood() {}
 
-  double getLogLikelihoodForASite(size_t site) const
-  {
-    return log(Hmm_->getLikelihoodForASite(site));
-  }
+    AutoCorrelationProcessPhyloLikelihood* clone() const { return new AutoCorrelationProcessPhyloLikelihood(*this); }
 
-  // double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
-  // {
-  //   return Hmm_->getDLogLikelihoodForASite(site);
-  // }
+  public:
+    void setNamespace(const std::string& nameSpace);
 
-  // double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
-  // {
-  //   return Hmm_->getD2LogLikelihoodForASite(site);
-  // }
+    void fireParameterChanged(const ParameterList& parameters);
 
-  Vdouble getLikelihoodPerSite() const
-  {
-    return Hmm_->getLikelihoodForEachSite();
-  }
+    /**
+     * @name The likelihood functions.
+     *
+     * @{
+     */
 
-  /*
-   *@brief return the posterior probabilities of subprocess on each site.
-   *
-   *@return 2D-vector sites x states
-   */
+    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
+    {
+      return hmm_;
+    }
 
-  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const
-  {
-    VVdouble pp;
-    Hmm_->getHiddenStatesPosteriorProbabilities(pp, false);
-    return pp;
-  }
+    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
+    {
+      return hmm_;
+    }
 
-  const HmmTransitionMatrix& getHmmTransitionMatrix() const
-  {
-    return Hmm_->getHmmTransitionMatrix();
-  }
+    /*
+     *@brief return the posterior probabilities of subprocess on each site.
+     *
+     *@return MatrixXd sites x states
+     */
 
-// protected:
-//   void computeDLogLikelihood_(const std::string& variable) const
-//   {
-//     Hmm_->getFirstOrderDerivative(variable);
-//   }
+    VVdouble getPosteriorProbabilitiesPerSitePerProcess() const
+    {
+      VVdouble pp;
+      auto mat = hmm_->getHiddenStatesPosteriorProbabilities().transpose();
+      copyEigenToBpp(mat, pp);
+      return pp;
+    }
 
+    const Eigen::MatrixXd& getHmmTransitionMatrix() const
+    {
+      return hmm_->getHmmTransitionMatrix();
+    }
 
-//   void computeD2LogLikelihood_(const std::string& variable) const
-//   {
-//     Hmm_->getSecondOrderDerivative(variable);
-//   }
-
-  /*
-   * @}
-   */
-};
+  };
 } // end of namespace bpp.
 
 #endif  // _AUTOCORRELATIONPHYLOLIKELIHOOD_H_

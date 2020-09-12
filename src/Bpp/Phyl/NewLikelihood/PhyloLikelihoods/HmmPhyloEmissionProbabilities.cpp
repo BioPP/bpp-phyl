@@ -42,88 +42,38 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
-HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmPhyloAlphabet* alphabet) :
+HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(std::shared_ptr<HmmPhyloAlphabet> alphabet) :
   AbstractParametrizable(""),
+  context_(alphabet->getContext()),
   phylAlph_(alphabet),
-  emProb_(alphabet->getNumberOfSites()),
-  dEmProb_(),
-  d2EmProb_(),
-  upToDate_(false),
+  emProb_(),
   nbSites_(alphabet->getNumberOfSites())
 {
-  for (size_t i=0;i<emProb_.size();i++)
-    emProb_[i].resize(getNumberOfStates());
+  setHmmStateAlphabet(alphabet);
 }
 
 
-void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet) 
+void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(std::shared_ptr<HmmStateAlphabet> stateAlphabet) 
 {
   if (stateAlphabet==NULL)
     throw HmmUnvalidAlphabetException("Null alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");
-  if (dynamic_cast<const HmmPhyloAlphabet*>(stateAlphabet)==NULL)
+  if (dynamic_cast<const HmmPhyloAlphabet*>(stateAlphabet.get())==NULL)
     throw HmmUnvalidAlphabetException("Non PhyloLikelihood alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");
   
-  phylAlph_=dynamic_cast<const HmmPhyloAlphabet*>(stateAlphabet);
-  nbSites_=phylAlph_->getNumberOfSites();
-  emProb_.resize(nbSites_);
-  for (size_t i=0;i<emProb_.size();i++)
-    emProb_[i].resize(getNumberOfStates());
-  upToDate_=false;
+  phylAlph_=dynamic_pointer_cast<HmmPhyloAlphabet>(stateAlphabet);
+
+  std::vector<std::shared_ptr<Node_DF>> vEM;
+
+  auto nbStates = phylAlph_->getNumberOfStates();
+  
+  for (size_t i=0; i<nbStates;i++)
+  {
+    auto tmp = phylAlph_->getPhyloLikelihood(i).getAlignedLikelihoodCalculation()->getSiteLikelihoods(false);
+    vEM.push_back(tmp);
+  }
+  
+  // Compound to put site log lik of different processes in a matrix
+  
+  emProb_ = EmissionLogk::create(context_, std::move(vEM), MatrixDimension(Eigen::Index(nbStates), Eigen::Index(nbSites_)));
 }
-
-
-void HmmPhyloEmissionProbabilities::computeEmissionProbabilities_() const
-{
-  // phylAlph_->updateLikelihood();
-  // phylAlph_->computeLikelihood();
-  
-  for (size_t i=0;i<nbSites_;i++)
-    for (size_t j=0;j<getNumberOfStates();j++)
-      emProb_[i][j]= phylAlph_->getPhyloLikelihood(j).getLikelihoodForASite(i);
-
-  upToDate_=true;
-}
-
-void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const
-{
-  // phylAlph_->computeDLogLikelihood(variable);
-  
-  // if (dEmProb_.size()!=nbSites_)
-  // {
-  //   dEmProb_.resize(nbSites_);
-  //   for (size_t i=0; i<nbSites_;i++)
-  //     dEmProb_[i].resize(getNumberOfStates());
-  // }
-
-  // for (size_t i=0;i<nbSites_;i++)
-  //   for (size_t j=0;j<getNumberOfStates();j++)
-  //   {
-  //     const AlignedPhyloLikelihood& apl=phylAlph_->getPhyloLikelihood(j);
-  //     dEmProb_[i][j]= apl.getDLogLikelihoodForASite(variable, i) * apl.getLikelihoodForASite(i);
-  //   }
-}
-  
-void HmmPhyloEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
-{
-  // // phylAlph_->computeD2LogLikelihood(variable);
-  
-  // if (d2EmProb_.size()!=nbSites_)
-  // {
-  //   d2EmProb_.resize(nbSites_);
-  //   for (size_t i=0; i<nbSites_;i++)
-  //     d2EmProb_[i].resize(getNumberOfStates());
-  // }
-
-  // for (size_t i=0;i<nbSites_;i++)
-  //   for (size_t j=0;j<getNumberOfStates();j++)
-  //   {
-  //     const AlignedPhyloLikelihood& apl=phylAlph_->getPhyloLikelihood(j);
-  //     double x= apl.getDLogLikelihoodForASite(variable, i);
-      
-  //     d2EmProb_[i][j]= (apl.getD2LogLikelihoodForASite(variable, i) + x*x) * apl.getLikelihoodForASite(i);
-  //   }
-}
-
-
-  
 

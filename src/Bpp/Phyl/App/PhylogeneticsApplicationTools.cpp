@@ -2534,7 +2534,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
           RowMatrix<double> mat = ApplicationTools::getMatrixParameter<double>("probas", args, ',', vvs);
 
-          FullHmmTransitionMatrix fhtm(pMA->getHmmTransitionMatrix().getHmmStateAlphabet(), pMA->getNamespace());
+          FullHmmTransitionMatrix fhtm(pMA->getHmmStateAlphabet(), pMA->getNamespace());
           fhtm.setTransitionProbabilities(mat);
 
           pMA->matchParametersValues(fhtm.getParameters());
@@ -4700,7 +4700,8 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
           const HmmOfAlignedPhyloLikelihood* pM = dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(phyloLike);
           out << "HMM(probas=";
 
-          const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
+          RowMatrix<double> tMt;
+          copyEigenToBpp(pM->getHmmTransitionMatrix(), tMt);
           MatrixTools::print(tMt, out);
 
           out << ",";
@@ -4713,9 +4714,9 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
           out << "AutoCorr(lambdas=(";
 
           Vdouble vP;
-          for (unsigned int i = 0; i < pM->getHmmTransitionMatrix().getNumberOfStates(); i++)
+          for (unsigned int i = 0; i < pM->getHmmTransitionMatrix().cols(); i++)
           {
-            vP.push_back(pM->getHmmTransitionMatrix().Pij(i, i));
+            vP.push_back(pM->getHmmTransitionMatrix()(i, i));
           }
 
           out << VectorTools::paste(vP, ",");

@@ -60,8 +60,8 @@ namespace bpp
       public MultiProcessSequenceEvolution
     {
     private:
-      std::unique_ptr<HmmProcessAlphabet> hmmAlph_;
-      std::unique_ptr<AutoCorrelationTransitionMatrix> autoCorrTransMat_;
+      std::shared_ptr<HmmProcessAlphabet> hmmAlph_;
+      std::shared_ptr<AutoCorrelationTransitionMatrix> autoCorrTransMat_;
   
     public:
       AutoCorrelationSequenceEvolution(
@@ -77,8 +77,8 @@ namespace bpp
       {
         MultiProcessSequenceEvolution::operator=(mlc);
 
-        hmmAlph_ = std::unique_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(*mlc.hmmAlph_.get()));
-        autoCorrTransMat_ = std::unique_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(*mlc.autoCorrTransMat_.get()));
+        hmmAlph_ = std::shared_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(*mlc.hmmAlph_.get()));
+        autoCorrTransMat_ = std::shared_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(*mlc.autoCorrTransMat_.get()));
         
         return *this;
       }
@@ -102,6 +102,11 @@ namespace bpp
         return *autoCorrTransMat_.get();
       }
 
+      std::shared_ptr<AutoCorrelationTransitionMatrix> shareHmmTransitionMatrix()
+      {
+        return autoCorrTransMat_;
+      }
+
       const HmmProcessAlphabet& getHmmProcessAlphabet() const
       {
         return *hmmAlph_.get();
@@ -110,6 +115,11 @@ namespace bpp
       HmmProcessAlphabet& getHmmProcessAlphabet()
       {
         return *hmmAlph_.get();
+      }
+
+      std::shared_ptr<HmmProcessAlphabet> shareHmmProcessAlphabet()
+      {
+        return hmmAlph_;
       }
 
       ParameterList getNonDerivableParameters() const;

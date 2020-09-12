@@ -86,6 +86,7 @@ namespace bpp {
 
   template <typename Result, typename From> class CWiseFill;
   template <typename Result, typename From> class CWiseMatching;
+  template <typename Result, typename From> class CWiseCompound;
 
   /*************************************************************************
    * @brief build a Value to a Matrix or rowVector filled with
@@ -177,7 +178,7 @@ namespace bpp {
   
   /*************************************************************************
    * @brief build a Value to a Eigen T which columns are accessible
-   * through a pattern.
+   * through a pattern of positions.
    *
    * Node construction should be done with the create static method.
    */
@@ -258,8 +259,9 @@ namespace bpp {
 
   
   /*************************************************************************
-   * @brief build a Value to a Eigen T which columns and rows are
-   * accessible through a vector of Ts and a function of matching positions.
+   * @brief build a Value to a Eigen R which columns and rows are
+   * accessible through a vector of T objects and a function of
+   * matching positions from T objects to R object.
    *
    * This class is originally made for partitions of likelihoods.
    *
@@ -284,10 +286,24 @@ namespace bpp {
     public:
       matching_functor(const std::vector<const T*>& arg, const MatchingType& matching) :
         m_arg_(arg), matching_(matching) {}
-      
+
       const typename R::Scalar& operator()(Eigen::Index row, Eigen::Index col) const
       {
+        return compute<T>(row, col);
+      }
+      
+      template<typename T2 = T>
+      const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
+        typename std::enable_if< !std::is_same<T2,double>::value, T*>::type* = 0) const
+      {
         return (*m_arg_[matching_(col,0)])(row, matching_(col,1));
+      }
+
+      template<typename T2 = T>
+      const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
+        typename std::enable_if< std::is_same<T2,double>::value, T*>::type* = 0) const
+      {
+        return *m_arg_[matching_(col,0)];
       }
 
     };
@@ -337,7 +353,7 @@ namespace bpp {
     }
 
     NodeRef recreate (Context & c, NodeRefVec && deps) final {
-      return Self::create (c, std::move (deps), targetDimension_);
+                  return Self::create (c, std::move (deps), targetDimension_);
     }
 
   private:
@@ -357,6 +373,102 @@ namespace bpp {
 
   };
     
+  /*************************************************************************
+   * @brief build a Value to a Eigen R from a compound of lignes or columns.
+   *
+   * Node construction should be done with the create static method.
+   *
+   */
+
+  template <typename R, typename T>  class CWiseCompound<R, ReductionOf<T>> : public Value<R> {
+
+    class compound_functor
+    {
+      const std::vector<const T*>& m_arg_;
+    public:
+      compound_functor(const std::vector<const T*>& arg) :
+        m_arg_(arg) {}
+
+      const typename R::Scalar& operator()(Eigen::Index row, Eigen::Index col) const
+      {
+        return compute<T>(row, col);
+      }
+      
+      template<typename T2 = T>
+      const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
+                                        typename std::enable_if< std::is_same<T2,Eigen::RowVectorXd>::value, T*>::type* = 0) const
+      {
+        return (*m_arg_[row])(col);
+      }
+
+      template<typename T2 = T>
+      const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
+                                        typename std::enable_if< std::is_same<T2,Eigen::VectorXd>::value, T*>::type* = 0) const
+      {
+        return (*m_arg_[col])(row);
+      }
+
+    };
+            
+  public:
+    using Self = CWiseCompound;
+
+    /// Build a new CWiseCompound node.
+    static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+      // Check dependencies
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
+      
+      return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
+    }
+
+    CWiseCompound (NodeRefVec && deps, const Dimension<R> & dim)
+      : Value<R> (std::move(deps)), targetDimension_ (dim)
+    {
+    }
+
+    std::string debugInfo () const override {
+      using namespace numeric;
+      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // CWisePattern additional arguments = ().
+    bool compareAdditionalArguments (const Node_DF & other) const final {
+      return dynamic_cast<const Self *> (&other) != nullptr;
+    }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<R>::create (c, targetDimension_);
+      }
+      const auto n = this->nbDependencies ();
+      NodeRefVec derivedDeps (n);
+      for (std::size_t i = 0; i < n; ++i) {
+        derivedDeps[i] = this->dependency (i)->derive (c, node);
+      }
+
+      return Self::create (c, std::move (derivedDeps), targetDimension_);
+    }
+
+    NodeRef recreate (Context & c, NodeRefVec && deps) final {
+      return Self::create (c, std::move (deps), targetDimension_);
+    }
+
+  private:
+    void compute() {
+      const auto n = this->nbDependencies ();
+      std::vector<const T*> vR(n);
+      for (std::size_t i = 0; i < n; ++i) {
+        vR[i] = &accessValueConstCast<T> (*this->dependency(i));
+      }
+      
+      this->accessValueMutable()=R::NullaryExpr(targetDimension_.rows, targetDimension_.cols, compound_functor(vR));
+    };
+      
+    Dimension<R> targetDimension_;
+
+  };
+    
   // Precompiled instantiations
   extern template class CWiseFill<Eigen::RowVectorXd, double>;
   extern template class CWiseFill<Eigen::VectorXd, double>;
@@ -368,7 +480,13 @@ namespace bpp {
   
   extern template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
   extern template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-  
+  extern template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
+  extern template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<double>>;
+
+  extern template class CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
+  extern template class CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::VectorXd>>;
+  extern template class CWiseCompound<Eigen::RowVectorXd, ReductionOf<double>>;
+
 
 } // namespace bpp
 
