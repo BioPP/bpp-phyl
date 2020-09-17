@@ -159,11 +159,15 @@ namespace bpp {
     Dimension<T> targetDimension_;
   };
 
-  /** transitionMatrix = f(model, branchLen, nDeriv).
+  /** transitionMatrix = f(model, branchLen, nDeriv, nMod, mult).
    * transitionMatrix: Matrix(fromState, toState).
    * model: ConfiguredModel.
    * branchLen: double.
    * nDeriv: degree of derivate (default: 0)
+   * nMod: in case of mixture model, takes the number of submodel
+   *       where the generator comes from (optional, or null).
+   * factor: factor by which transition matrix is multiplied (optional,
+   *         usually to avoid underflow).
    *
    * Node construction should be done with the create static method.
    */
@@ -209,9 +213,12 @@ namespace bpp {
 
   /** transitionProbability = f(model, branchLen, nDeriv).
    * transitionProbability: f(fromState, vector) -> probability
+   *
    * model: ConfiguredModel.
    * branchLen: double.
    * nDeriv: derivation level
+   * factor: factor by which transition matrix is multiplied (optional,
+   *         usually to avoid underflow).
    *
    * Node construction should be done with the create static method.
    */

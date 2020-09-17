@@ -121,25 +121,13 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeBackwardLikelihoodAtNode (P
     
     const auto processEdge = forwardTree_->getProcessTree()->getEdge(edgeIndex);
     
-    const auto brlen= processEdge->getBrLen();
-    const auto model= processEdge->getModel();
-    const auto nMod = processEdge->getNMod();
     const auto brprob = processEdge->getProba();
 
     ConditionalLikelihoodRef backLikeEdge;
     
-    if (brlen) // Branch with transition through a model
+    if (processEdge->getBrLen()) // Branch with transition through a model
     {      
-      // useless, the transitionMatrix already exists, but is not
-      // available directly through a tree. This new object will be
-      // deleted since it already exists in the context
-      //
-      // ToDo : find another way to get it
-
-      auto zero=NumericConstant<size_t>::create(context_, 0);
-
-      auto transitionMatrix =
-        ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, zero, nMod}, transitionMatrixDimension (nbState_));
+      auto transitionMatrix = processEdge->getTransitionMatrix();
 
       // Uses the transposed transition matrix to compute the bottom
       // of the edge

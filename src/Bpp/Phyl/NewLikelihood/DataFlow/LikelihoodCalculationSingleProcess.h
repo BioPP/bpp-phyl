@@ -487,6 +487,9 @@ namespace bpp {
     /*
      * @brief Get Matrix of Conditional Likelihoods at Node *
      *
+     * !!!! These likelihoods are multiplied by the normalization
+     *      factor (nbstates^nbedges) to prevent underflow.
+     *
      * @param nodeId  Id of the node in PhyloTree, ie species id
      * @param shrunk if matrix is on shrunked data (default: false)
      *
@@ -506,6 +509,9 @@ namespace bpp {
      * @brief Get forward shrunked likelihood matrix at Node (ie just
      * above the node), for a given rate class.
      *
+     * !!!! These likelihoods are multiplied by the normalization
+     *      factor (nbstates^nbedges) to prevent underflow.
+     *
      * @param nodeId Node Index in the forward tree (! ie in the
      * computation tree, not the species tree).
      *
@@ -518,6 +524,9 @@ namespace bpp {
     /*
      * @brief Get backward shrunked likelihood matrix at Edge (ie at
      * the top of the edge), for a given rate class.
+     *
+     * !!!! These likelihoods are multiplied by the normalization
+     *      factor (nbstates^nbedges) to prevent underflow.
      *
      * These likelihoods are multiplied by the probability of the edge
      *
@@ -536,6 +545,9 @@ namespace bpp {
      *
      * These likelihoods are multiplied by the probability of the node
      *
+     * !!!! These likelihoods are multiplied by the normalization
+     *      factor (nbstates^nbedges) to prevent underflow.
+     *
      * @param edgeId Node Index in the backward tree (! ie in the
      * computation tree, not the species tree).
      *
@@ -551,6 +563,9 @@ namespace bpp {
      *
      * These likelihoods are multiplied by the probability of the node.
      *
+     * !!!! These likelihoods are multiplied by the normalization
+     *      factor (nbstates^nbedges) to prevent underflow.
+     *
      * @param nodeId Node Index in the forward tree (! ie in the
      * computation tree, not the species tree).
      *
@@ -565,6 +580,9 @@ namespace bpp {
      * just above the node), for a given rate class.
      *
      * These likelihoods are multiplied by the probability of the node.
+     *
+     * !!!! These likelihoods are multiplied by the normalization
+     *      factor (nbstates^nbedges) to prevent underflow.
      *
      * @param nodeId Node Index in the forward tree (! ie in the
      * computation tree, not the species tree).
