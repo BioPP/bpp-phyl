@@ -183,7 +183,7 @@ MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorS
     bppml->getParam("site.path2") = "model1[YN98.omega_2]&model2[YN98.omega_2]"; // do the same for omega2
     
     string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppml->getParams(), "Standard", "", true, true);
-    GeneticCode* gCode ;//= SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc);
+    GeneticCode* gCode = SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc);
     
     // set initial partition, based on maximum parsimony
     setMpPartition(bppml, mpData, characterData, characterModel, tree); // the partition is set on tree
