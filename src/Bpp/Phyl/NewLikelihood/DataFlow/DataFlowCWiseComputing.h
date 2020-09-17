@@ -1617,9 +1617,9 @@ namespace bpp {
       const auto & m = this->dependency (0);
       auto dm_dn = m->derive (c, node);
       auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension_);
-      if (dependencies().size()==2)
+      if (nbDependencies()==2 && dependency(1))
       {
-        auto m2 = CWiseMul<F,std::tuple<F,Eigen::RowVectorXi>>::create (c, {m_inverse, this->dependency (1)}, mTargetDimension_);
+        auto m2 = CWiseMul<F,std::tuple<F,Eigen::RowVectorXi>>::create (c, {m_inverse, dependency (1)}, mTargetDimension_);
         return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m2)});
       } 
       else
@@ -1634,7 +1634,7 @@ namespace bpp {
     void compute () final {
       auto & result = this->accessValueMutable ();
       const auto & m = accessValueConstCast<F> (*this->dependency (0));
-      if (dependencies().size()==1)
+      if (nbDependencies()==1)
       {
         const ExtendedFloat product = m.unaryExpr ([](double d) {
             ExtendedFloat ef{d};

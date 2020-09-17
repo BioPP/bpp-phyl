@@ -239,7 +239,7 @@ namespace bpp {
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
         if (deps.size()>1)
           checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
-        
+
         return cachedAs<Value<Eigen::MatrixXd>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
 
@@ -262,6 +262,9 @@ namespace bpp {
 
         for (std::size_t i = 0; i < object.nbDependencies (); ++i) {
           // First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
+          if (!object.dependency(i))
+            continue;
+          
           auto dxi_dn = object.dependency (i)->derive (c, derivationNode);
           if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
             auto buildFWithNewXi = [&c, i, &object, &buildFWithNewObject](std::shared_ptr<ConfiguredParameter> newDep) {

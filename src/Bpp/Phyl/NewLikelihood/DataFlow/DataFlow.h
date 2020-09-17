@@ -291,12 +291,14 @@ namespace bpp {
       void resetDependencies_(NodeRefVec && dependenciesArg)
       {
         for (auto & n : dependencyNodes_)
-          n->unregisterNode (this);
+          if (n)
+            n->unregisterNode (this);
         
         dependencyNodes_=dependenciesArg;
 
         for (auto & n : dependencyNodes_)
-          n->registerNode (this);
+          if (n)
+            n->registerNode (this);
         
         invalidateRecursively ();
         makeInvalid ();
