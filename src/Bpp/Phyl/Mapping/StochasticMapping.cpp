@@ -148,7 +148,7 @@ Tree* StochasticMapping::generateExpectedMapping(const vector<Tree*>& mappings, 
         const Node* father = mapping->getNode(node->getFather()->getName()); // the original father of the node (according to the base tree) in the mapping
         while (curNode != father)
         {
-          AverageDwellingTimes[getNodeState(curNode)] += curNode->getDistanceToFather(); // related to the response bout gaps in line 346 - Note@Laurent (Julien 17/06/20): assuming state is positive, is that so? 
+          AverageDwellingTimes[getNodeState(curNode)] += curNode->getDistanceToFather(); // only model states, which are non-negative, are considered
           curNode = curNode->getFather();
         }
       }
@@ -559,7 +559,7 @@ void StochasticMapping::computeStatesFrequencies(VVDouble& ancestralStatesFreque
     for (size_t h = 0; h < mappings.size(); ++h)
     {
       Node* nodeInMapping = dynamic_cast<TreeTemplate<Node>*>(mappings[h])->getNode(nodeName); // the ID of this node is either the original node ID or it is a new ID which is necessarily positive
-      ancestralStatesFrequencies[nodeIndex][getNodeState(nodeInMapping)]++; // related to the response bout gaps in line 346 - Note@Laurent (Julien 17/06/20): assuming node state is positive, is that so? 
+      ancestralStatesFrequencies[nodeIndex][getNodeState(nodeInMapping)]++; // the node index is non-negative value mapped to the node id, which could be negative
     }
     // now divide the vector entries by the number of mappings
     for (size_t nodeState = 0; nodeState < statesNum; ++nodeState)
