@@ -158,4 +158,50 @@ namespace bpp {
   template class CombineDeltaShifted<Eigen::RowVectorXd>;
   template class CombineDeltaShifted<Eigen::MatrixXd>;
   template class CombineDeltaShifted<TransitionFunction>;
+
+  template<class F>
+  void SumOfLogarithms<F>::compute ()
+  {
+    auto & result = this->accessValueMutable ();
+
+    const auto & m = accessValueConstCast<F> (*this->dependency (0));
+        
+    if (nbDependencies()==1)
+    {
+      const ExtendedFloat product = m.unaryExpr ([](double d) {
+          ExtendedFloat ef{d};
+          ef.normalize_small ();
+          return ef;
+        }).redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+            auto r = ExtendedFloat::denorm_mul (lhs, rhs);
+            r.normalize_small ();
+            return r;
+          });
+      result = product.log();
+    }
+    else
+    {
+      const auto & p = accessValueConstCast<Eigen::RowVectorXi> (*this->dependency (1));
+      //Old version:
+      //double resold  = (numeric::cwise(m).log() * numeric::cwise(p)).sum();
+
+      temp_ = m.unaryExpr ([](double d) {
+          ExtendedFloat ef{d};
+          ef.normalize ();
+          return ef;
+        });
+
+      for (size_t i=0;i<(size_t)p.size();i++)
+        temp_[i]=temp_[i].pow(p[i]);
+          
+      const ExtendedFloat product = temp_.redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+          auto r = ExtendedFloat::denorm_mul (lhs, rhs);
+          r.normalize ();
+          return r;
+        });
+        
+      result = product.log ();
+    }
+  }
+  
 } // namespace bpp

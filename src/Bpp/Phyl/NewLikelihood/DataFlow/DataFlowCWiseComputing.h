@@ -1631,49 +1631,11 @@ namespace bpp {
     }
 
   private:
-    void compute () final {
-      auto & result = this->accessValueMutable ();
-      const auto & m = accessValueConstCast<F> (*this->dependency (0));
-      if (nbDependencies()==1)
-      {
-        const ExtendedFloat product = m.unaryExpr ([](double d) {
-            ExtendedFloat ef{d};
-            ef.normalize_small ();
-            return ef;
-          }).redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-              auto r = denorm_mul (lhs, rhs);
-              r.normalize_small ();
-              return r;
-            });
-        result = log (product);
-      }
-      else
-      {
-        const auto & p = accessValueConstCast<Eigen::RowVectorXi> (*this->dependency (1));
-        result = (numeric::cwise(m).log() * numeric::cwise(p)).sum();
-
-        // computes 0 on large data sets: to fix
-        // temp_ = m.unaryExpr ([](double d) {
-        //     ExtendedFloat ef{d};
-        //     ef.normalize_small ();
-        //     return ef;
-        //   });
-          
-        // for (size_t i=0;i<(size_t)p.size();i++)
-        //   temp_[i]=pow(temp_[i],p[i]);
-          
-        // const ExtendedFloat product = temp_.redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-        //     auto r = denorm_mul (lhs, rhs);
-        //     r.normalize_small ();
-        //     return r;
-        //   });
-        // result = log (product);
-      }
-    }
+    void compute () final;
 
     Dimension<F> mTargetDimension_;
 
-//      Eigen::Matrix<ExtendedFloat, 1, Eigen::Dynamic> temp_;
+    Eigen::Matrix<ExtendedFloat, 1, Eigen::Dynamic> temp_;
   };
 
 

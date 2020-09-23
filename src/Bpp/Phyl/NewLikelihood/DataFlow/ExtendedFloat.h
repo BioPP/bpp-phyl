@@ -46,6 +46,7 @@
 #include <limits>
 #include <string>
 #include <iostream>
+#include <Eigen/Core>
 
 namespace bpp {
 
@@ -94,128 +95,258 @@ namespace bpp {
 
     // TODO add denorm info for sum
 
-    constexpr ExtendedFloat (FloatType f = 0.0, ExtType e = 0) noexcept : f_ (f), exp_ (e) {}
+    constexpr ExtendedFloat (FloatType f = 0.0, ExtType e = 0) noexcept : f_ (f), exp_ (e) {
+    }
 
     const FloatType & float_part () const noexcept { return f_; }
     const ExtType & exponent_part () const noexcept { return exp_; }
 
     void normalize_big () noexcept {
       if (std::isfinite (f_)) {
-        while (f_ > biggest_normalized_value) {
+        while (std::abs(f_) > biggest_normalized_value) {
           f_ *= normalize_big_factor;
           exp_ += biggest_normalized_radix_power;
         }
       }
     }
+    
     void normalize_small () {
-      if (f_ > 0.) {
-        while (f_ < smallest_normalized_value) {
-          f_ *= normalize_small_factor;
-          exp_ += smallest_normalized_radix_power;
-        }
+      while (std::abs(f_) < smallest_normalized_value) {
+        f_ *= normalize_small_factor;
+        exp_ += smallest_normalized_radix_power;
       }
     }
+    
     void normalize () noexcept {
       normalize_big ();
       normalize_small ();
     }
 
+    // Static methods without normalization
+    inline static ExtendedFloat denorm_mul (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+      return {lhs.float_part () * rhs.float_part (), lhs.exponent_part () + rhs.exponent_part ()};
+    }
+
+    inline static ExtendedFloat denorm_div (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+      return {lhs.float_part () / rhs.float_part (), lhs.exponent_part () - rhs.exponent_part ()};
+    }
+
+    inline static ExtendedFloat denorm_add (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+      return (lhs.exponent_part ()>=rhs.exponent_part ())?
+        ExtendedFloat(lhs.float_part () + rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - lhs.exponent_part ()), lhs.exponent_part ()):
+        ExtendedFloat(rhs.float_part () + lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part () - rhs.exponent_part ()), rhs.exponent_part ());
+    }
+
+    inline static ExtendedFloat denorm_sub (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+      return (lhs.exponent_part ()>=rhs.exponent_part ())?
+        ExtendedFloat(lhs.float_part () - rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - lhs.exponent_part ()), lhs.exponent_part ()):
+        ExtendedFloat(rhs.float_part () - lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part () - rhs.exponent_part ()), rhs.exponent_part ());
+    }
+
+    inline static ExtendedFloat denorm_pow (const ExtendedFloat & lhs, double exp) {
+      double b=lhs.exponent_part()*exp;
+      ExtendedFloat::ExtType e=ExtendedFloat::ExtType(lround(b));
+      ExtendedFloat r(std::pow(lhs.float_part(),exp)*std::pow(ExtendedFloat::radix,(b-e)), e);
+      return r;
+    }
+
+    inline static ExtendedFloat denorm_pow (const ExtendedFloat & lhs, int exp) {
+      if (exp==0)
+        return ExtendedFloat(1.0);
+      if (exp & 1)
+        return (exp>0? denorm_mul(lhs,denorm_pow(lhs, exp-1)): denorm_div(denorm_pow(lhs, exp+1),lhs));
+      else
+      {
+        ExtendedFloat r2(std::pow(lhs.float_part(),2));
+        r2.normalize();
+        auto r2k=denorm_pow(r2,exp>>1);
+        r2k.normalize();
+        ExtendedFloat r(r2k.float_part(), r2k.exponent_part() + lhs.exponent_part()*exp);
+        return r;
+      }
+    }
+
+
+    /*********************************
+     ** Utilities
+     *********************************/
+
+    inline ExtendedFloat operator+ (const ExtendedFloat & rhs) const {
+      auto r = denorm_add (*this, rhs);
+      r.normalize ();
+      return r;
+    }
+
+    inline ExtendedFloat operator- (const ExtendedFloat & rhs) const {
+      auto r = denorm_sub (*this, rhs);
+      r.normalize ();
+      return r;
+    }
+
+    inline ExtendedFloat operator* (const ExtendedFloat & rhs) const {
+      auto r = denorm_mul (*this, rhs);
+      r.normalize ();
+      return r;
+    }
+
+    inline ExtendedFloat operator/ (const ExtendedFloat & rhs) const {
+      auto r = denorm_div (*this, rhs);
+      r.normalize ();
+      return r;
+    }
+
+    inline ExtendedFloat& operator*= (const ExtendedFloat & rhs) {
+      float_part () *= rhs.float_part ();
+      exponent_part () += rhs.exponent_part ();
+      normalize();
+      return *this;
+    }
+    
+    inline ExtendedFloat& operator/= (const ExtendedFloat & rhs) {
+      float_part () /= rhs.float_part ();
+      exponent_part () -= rhs.exponent_part ();
+      normalize();
+      return *this;
+    }
+
+    inline ExtendedFloat& operator+= (const ExtendedFloat & rhs) {
+      if (exponent_part ()>=rhs.exponent_part ())
+      {
+        float_part() += rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - exponent_part ());
+      }
+      else
+      {
+        float_part() = rhs.float_part () + float_part () * constexpr_power<double>(ExtendedFloat::radix, exponent_part () - rhs.exponent_part ());
+        exponent_part() = rhs.exponent_part ();
+      }
+      normalize ();
+      return *this;
+    }
+    
+    inline ExtendedFloat& operator-= (const ExtendedFloat & rhs) {
+      if (exponent_part ()>=rhs.exponent_part ())
+      {
+        float_part() -= rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - exponent_part ());
+      }
+      else
+      {
+        float_part() = rhs.float_part () - float_part () * constexpr_power<double>(ExtendedFloat::radix, exponent_part () - rhs.exponent_part ());
+        exponent_part() = rhs.exponent_part ();
+      }
+      normalize ();
+      return *this;
+    }
+    
+    inline ExtendedFloat operator- () const {
+      return ExtendedFloat(-float_part(), exponent_part());
+    }
+    
+    inline ExtendedFloat pow (double exp) const {
+      auto  r = denorm_pow(*this, exp);
+      r.normalize ();
+      return r;
+    }
+
+    inline ExtendedFloat pow (int exp) const {
+      auto  r = denorm_pow(*this, exp);
+      r.normalize ();
+      return r;
+    }
+
+    /*
+     * Tests
+     *
+     */
+    
+    inline bool operator== (const ExtendedFloat & rhs) const {
+      return (float_part()==rhs.float_part() && exponent_part()==rhs.exponent_part());
+    }
+
+    inline bool operator!= (const ExtendedFloat & rhs) const {
+      return (float_part()!=rhs.float_part() || exponent_part()!=rhs.exponent_part());
+    }
+
+    inline bool operator< (const ExtendedFloat & rhs) const {
+      return (exponent_part()<rhs.exponent_part() || (exponent_part()==rhs.exponent_part() && float_part()<rhs.float_part()));
+    }
+
+    inline bool operator<= (const ExtendedFloat & rhs) const {
+      return (exponent_part()<rhs.exponent_part() || (exponent_part()==rhs.exponent_part() && float_part()<=rhs.float_part()));
+    }
+
+    inline bool operator>= (const ExtendedFloat & rhs) const {
+      return (exponent_part()>rhs.exponent_part() || (exponent_part()==rhs.exponent_part() && float_part()>=rhs.float_part()));
+    }
+
+    inline double log () const {
+      static const auto ln_radix = std::log (static_cast<double> (ExtendedFloat::radix));
+      return std::log (float_part ()) + static_cast<double> (exponent_part ()) * ln_radix;
+    }
+
+    //!!! no check on the validation of the conversion
+    inline double convert(const ExtendedFloat & ef) {
+      return ef.float_part () * constexpr_power<double>(ExtendedFloat::radix, ef.exponent_part ());
+    }
+
   private:
     FloatType f_;
     ExtType exp_;
+
+  FloatType & float_part () noexcept { return f_; }
+  ExtType & exponent_part () noexcept { return exp_; }
+
+
   };
 
+  inline std::ostream& operator<<(std::ostream& os, const ExtendedFloat & ef)
+  {
+    os << ef.float_part () << " * 2^" << ef.exponent_part ();
+    return os;
+  }
+  
   inline std::string to_string (const ExtendedFloat & ef) {
     using std::to_string;
     return "double(" + to_string (ef.float_part ()) + " * 2^" + to_string (ef.exponent_part ()) + ")";
   }
+} // namespace bpp
 
-  inline ExtendedFloat denorm_mul (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-    return {lhs.float_part () * rhs.float_part (), lhs.exponent_part () + rhs.exponent_part ()};
-  }
 
-  inline ExtendedFloat denorm_div (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-    return {lhs.float_part () / rhs.float_part (), lhs.exponent_part () - rhs.exponent_part ()};
-  }
+/*
+ * Storing ExtendedFloat in Eigen objects
+ *
+ */
 
-  inline ExtendedFloat denorm_add (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-    return (lhs.exponent_part ()>=rhs.exponent_part ())?
-      ExtendedFloat(lhs.float_part () + rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - lhs.exponent_part ()), lhs.exponent_part ()):
-      ExtendedFloat(rhs.float_part () + lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part () - rhs.exponent_part ()), rhs.exponent_part ());
-  }
-
-  inline ExtendedFloat denorm_pow (const ExtendedFloat & lhs, double exp) {
-    double b=lhs.exponent_part()*exp;
-    ExtendedFloat::ExtType e=ExtendedFloat::ExtType(lround(b));
-    ExtendedFloat r(std::pow(lhs.float_part(),exp)*std::pow(ExtendedFloat::radix,(b-e)), e);
-    return r;
-  }
-
-  inline ExtendedFloat denorm_pow (const ExtendedFloat & lhs, int exp) {
-    if (exp==0)
-      return ExtendedFloat(1.0);
-    if (exp & 1)
-      return (exp>0? denorm_mul(lhs,denorm_pow(lhs, exp-1)): denorm_div(denorm_pow(lhs, exp+1),lhs));
-    else
+namespace Eigen {
+  
+  template<>
+  struct NumTraits<bpp::ExtendedFloat>
+    : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
     {
-      ExtendedFloat r2(pow(lhs.float_part(),2));
-      auto r2k=denorm_pow(r2,exp>>1);
-      r2k.normalize_small();
-      ExtendedFloat r(r2k.float_part(), r2k.exponent_part() + lhs.exponent_part()*exp);
-      return r;
-    }
-  }
+      typedef bpp::ExtendedFloat Real;
+      typedef bpp::ExtendedFloat NonInteger;
+      typedef bpp::ExtendedFloat Nested;
+      enum {
+        IsComplex = 0,
+        IsInteger = 0,
+        IsSigned = 1,
+        RequireInitialization = 1,
+        ReadCost = 1,
+        AddCost = 3,
+        MulCost = 2
+      };
+    };
+    template<typename BinaryOp>
+    struct ScalarBinaryOpTraits<bpp::ExtendedFloat,double,BinaryOp> { typedef bpp::ExtendedFloat ReturnType;  };
 
-  inline ExtendedFloat operator* (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-    auto r = denorm_mul (lhs, rhs);
-    r.normalize ();
-    return r;
-  }
+    template<typename BinaryOp>
+    struct ScalarBinaryOpTraits<double,bpp::ExtendedFloat,BinaryOp> { typedef bpp::ExtendedFloat ReturnType;  };
+}
 
-  inline ExtendedFloat operator/ (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-    auto r = denorm_div (lhs, rhs);
-    r.normalize ();
-    return r;
-  }
-
-  inline ExtendedFloat pow (const ExtendedFloat & lhs, double exp) {
-    auto  r = denorm_pow(lhs, exp);
-    r.normalize ();
-    return r;
-  }
-
-  inline ExtendedFloat pow (const ExtendedFloat & lhs, int exp) {
-    auto  r = denorm_pow(lhs, exp);
-    r.normalize ();
-    return r;
-  }
-
-  inline ExtendedFloat operator+ (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-    auto r = denorm_add (lhs, rhs);
-    r.normalize ();
-    return r;
-  }
-
-  inline ExtendedFloat operator- (const ExtendedFloat & lhs) {
-    return ExtendedFloat(-lhs.float_part(),lhs.exponent_part());
-  }
-
-  inline bool operator== (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-    return (lhs.float_part()==rhs.float_part() && lhs.exponent_part()==rhs.exponent_part());
-  }
-
-  inline double log (const ExtendedFloat & ef) {
-    static const auto ln_radix = std::log (static_cast<double> (ExtendedFloat::radix));
-    return std::log (ef.float_part ()) + static_cast<double> (ef.exponent_part ()) * ln_radix;
-  }
 
   //!!! no check on the validation of the conversion
-  inline double convert(const ExtendedFloat & ef) {
-    return ef.float_part () * constexpr_power<double>(ExtendedFloat::radix, ef.exponent_part ());
+  inline double convert(const bpp::ExtendedFloat & ef) {
+    return ef.float_part () * bpp::constexpr_power<double>(bpp::ExtendedFloat::radix, ef.exponent_part ());
   }
 
-// TODO add Vector<EF> = Vector<double> + one exp (for lik vectors for one site, big tree case)
-// TODO add Vector<EF> = Vector<double> + Vector<exps> (for lik vec by site, eigen, delayed_norm)
-} // namespace bpp
 
 #endif // BPP_NEWPHYL_EXTENDEDFLOAT_H
