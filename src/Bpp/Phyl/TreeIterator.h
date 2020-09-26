@@ -51,14 +51,14 @@
 /**
  * @brief The phylogenetic tree iterator class.
  *
- * This class is part of the object implementation of phylogenetic trees. 
+ * This class is part of the object implementation of phylogenetic trees.
  *
  * The class offers iterators for traversing the nodes in a tree in 3 possible orders:
  * Post-Order
  * Pre-Order
  * In-Order
  *
- * For more information on using trees in BIo++, 
+ * For more information on using trees in BIo++,
  * @see Node
  * @see NodeTemplate
  * @see TreeTools
@@ -66,96 +66,92 @@
 
 namespace bpp
 {
+class TreeIterator                  // abstract class from which each iterator type inherits
+{
+protected:
+  TreeTemplate<Node>& tree_;      // The tree to iterate over its nodes. Can't be const because user should be allowed to edit the nodes of the tree during the traversal.
+  Node* curNode_;                 // A pointer to the current node visited by the iterator. Can't be const because user should be allowed to edit the nodes of the tree during the traversal.
 
-    class TreeIterator                  // abstract class from which each iterator type inherits
-    {
-        protected:
-        TreeTemplate<Node>& tree_;      // The tree to iterate over its nodes. Can't be const because user should be allowed to edit the nodes of the tree during the traversal.
-        Node* curNode_;                 // A pointer to the current node visited by the iterator. Can't be const because user should be allowed to edit the nodes of the tree during the traversal.
+public:
+  /* contructors and destructors */
+  explicit TreeIterator(TreeTemplate<Node>& tree) :
+    tree_(tree),
+    curNode_(tree.getRootNode()) // The pointer to the initial node is initialized as 0 since it's actual assignment depents on which traversal is chosen
+  { init(); }
 
-        public:
-        /* contructors and destructors */
-        explicit TreeIterator(TreeTemplate<Node>& tree):
-            tree_(tree),
-            curNode_(tree.getRootNode()) // The pointer to the initial node is initialized as 0 since it's actual assignment depents on which traversal is chosen
-            { init(); }
+  explicit TreeIterator(TreeIterator& tree_iterator) :
+    tree_(tree_iterator.tree_),
+    curNode_(tree_.getRootNode())
+  {}
 
-        explicit TreeIterator(TreeIterator& tree_iterator):
-        tree_(tree_iterator.tree_),
-        curNode_(tree_.getRootNode())
-        {}
+  TreeIterator& operator=(const TreeIterator& tree_iterator);
 
-        TreeIterator& operator=(const TreeIterator& tree_iterator);
-        
-        virtual ~TreeIterator();         // must be virtual to assume that upon deletion, the destructor of any inheriting class is called as well (see https://www.geeksforgeeks.org/virtual-destructor/)
+  virtual ~TreeIterator();         // must be virtual to assume that upon deletion, the destructor of any inheriting class is called as well (see https://www.geeksforgeeks.org/virtual-destructor/)
 
-        void setNodeStatus(Node* node, bool visited); // sets the visitation status of a node
-        void init(); 
-                                         // function to initialize nodes properties
-        /* iterating functions */
-        Node* begin();     
-        virtual Node* next() = 0;                     // Set as virtual because the function should be implemented separately in each iterator type
-        TreeIterator& operator++();
-        Node* end(){ return NULL; }
+  void setNodeStatus(Node* node, bool visited); // sets the visitation status of a node
+  void init();
+  // function to initialize nodes properties
+  /* iterating functions */
+  Node* begin();
+  virtual Node* next() = 0;                     // Set as virtual because the function should be implemented separately in each iterator type
+  TreeIterator& operator++();
+  Node* end(){ return NULL; }
 
-        protected:
-        void clearProperties();
-        int getLastVisitedSon(Node* node);
-        void setLastVisitedSon(Node* node, int visitedSon);
-    };
-
-
-    class PostOrderTreeIterator: public TreeIterator
-    {
-        public:
-
-        /* constrcutors and destrcutors */
-        explicit PostOrderTreeIterator(TreeTemplate<Node>& tree):
-        TreeIterator(tree) {
-            curNode_ = tree_.getNodes()[0]; // Get the leftmost leaf of the tree
-        }
-
-        ~PostOrderTreeIterator() {};           // Inherited from TreeIterator
-
-        Node* getLeftMostPredessesor(Node* startNode);
-        Node* next();
-    };
+protected:
+  void clearProperties();
+  int getLastVisitedSon(Node* node);
+  void setLastVisitedSon(Node* node, int visitedSon);
+};
 
 
-    class PreOrderTreeIterator: public TreeIterator
-    {
-        public:
+class PostOrderTreeIterator : public TreeIterator
+{
+public:
+  /* constrcutors and destrcutors */
+  explicit PostOrderTreeIterator(TreeTemplate<Node>& tree) :
+    TreeIterator(tree)
+  {
+    curNode_ = tree_.getNodes()[0]; // Get the leftmost leaf of the tree
+  }
 
-        /* constrcutors and destrcutors */
-        explicit PreOrderTreeIterator(TreeTemplate<Node>& tree):
-        TreeIterator(tree) {
-            curNode_ = tree_.getRootNode();
-        }
+  ~PostOrderTreeIterator() {}            // Inherited from TreeIterator
 
-        ~PreOrderTreeIterator() {};           // Inherited from TreeIterator
-
-        Node* next();
-    };
-
-
-    class InOrderTreeIterator: public TreeIterator
-    {
-        public:
-
-        /* constrcutors and destrcutors */
-        explicit InOrderTreeIterator(TreeTemplate<Node>& tree):
-        TreeIterator(tree) {
-            curNode_ = tree_.getNodes()[0];  // Get the leftmost leaf of the tree
-        }
-
-        ~InOrderTreeIterator() {};           // Inherited from TreeIterator
-
-        Node* doStep(Node* node);
-        Node* next();
-
-    }; 
+  Node* getLeftMostPredessesor(Node* startNode);
+  Node* next();
+};
 
 
+class PreOrderTreeIterator : public TreeIterator
+{
+public:
+  /* constrcutors and destrcutors */
+  explicit PreOrderTreeIterator(TreeTemplate<Node>& tree) :
+    TreeIterator(tree)
+  {
+    curNode_ = tree_.getRootNode();
+  }
+
+  ~PreOrderTreeIterator() {}            // Inherited from TreeIterator
+
+  Node* next();
+};
+
+
+class InOrderTreeIterator : public TreeIterator
+{
+public:
+  /* constrcutors and destrcutors */
+  explicit InOrderTreeIterator(TreeTemplate<Node>& tree) :
+    TreeIterator(tree)
+  {
+    curNode_ = tree_.getNodes()[0];  // Get the leftmost leaf of the tree
+  }
+
+  ~InOrderTreeIterator() {}            // Inherited from TreeIterator
+
+  Node* doStep(Node* node);
+  Node* next();
+};
 } // end of namespace bpp.
 
-#endif // _TREEITERATORS_H 
+#endif// _TREEITERATORS_H

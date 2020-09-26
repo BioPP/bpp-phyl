@@ -181,17 +181,19 @@ public:
 
   void topologyChangeSuccessful(const TopologyChangeEvent& event) {}
   
-    /** sets the state of a node in a mapping 
-    * @param node               The node to get the state of
-    * @param state              The state that needs to be assigned to the node
-    */
+  /**
+   * @brief sets the state of a node in a mapping 
+   * @param node               The node to get the state of
+   * @param state              The state that needs to be assigned to the node
+   */
   void setNodeState(Node* node, size_t state);
 
-  /** extracts the state of a node in a mapping 
-    * @param node              The node to get the state of
-    * @return                  Node state is int
-  */
-  int getNodeState(const Node* node);
+  /**
+   * @brief extracts the state of a node in a mapping 
+   * @param node              The node to get the state of
+   * @return                  Node state is int
+   */
+  size_t getNodeState(const Node* node);
   
   /**
    * @brief Compute a maximum parsimony solution in DELTRAN manner.

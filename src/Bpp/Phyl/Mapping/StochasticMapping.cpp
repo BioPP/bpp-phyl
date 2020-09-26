@@ -655,19 +655,19 @@ void StochasticMapping::updateBranchMapping(Node* son, const MutationPath& branc
   const VDouble times = branchMapping.getTimes();
   Node* curNode = son;
   Node* nextNode;
-  int eventsNum = static_cast<int>(branchMapping.getNumberOfEvents());
+  size_t eventsNum = branchMapping.getNumberOfEvents();
 
   if (eventsNum == 0) // if there are no events >-return nothing
     return;
   else
   {
-    for (int i = eventsNum - 1; i > -1; --i) // add a new node to represent the transition
+    for (size_t i = eventsNum; i > 0; --i) // add a new node to represent the transition
     {
       nodesCounter_ = nodesCounter_ + 1;
       const string name = "_mappingInternal" + TextTools::toString(nodesCounter_) + "_";
       nextNode = new Node(static_cast<int>(nodesCounter_), name);
-      setNodeState(nextNode, states[i]);
-      nextNode->setDistanceToFather(times[i]);
+      setNodeState(nextNode, states[i - 1]);
+      nextNode->setDistanceToFather(times[i - 1]);
 
       // set the father to no longer be the father of curNode
       Node* originalFather = curNode->getFather();
