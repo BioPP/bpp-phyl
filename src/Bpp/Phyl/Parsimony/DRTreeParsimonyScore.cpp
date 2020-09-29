@@ -468,7 +468,7 @@ void DRTreeParsimonyScore::computeSolution()
 
   // set states for the nodes according to their possible assignments and parent state
   TreeIterator* treeIt = new PreOrderTreeIterator(*tree);
-  for (Node* node = treeIt->begin(); node != treeIt->end(); node = treeIt->next())
+  for (const Node* node = treeIt->begin(); node != treeIt->end(); node = treeIt->next())
   {
     int nodeState; 
     vector<unsigned int> possibleStates = nodeToPossibleStates[node->getId()];
@@ -484,7 +484,7 @@ void DRTreeParsimonyScore::computeSolution()
     {
       nodeState = RandomTools::pickOne(possibleStates);
     }
-    setNodeState(node, nodeState);
+    setNodeState(tree->getNode(node->getId()), nodeState);
   }
   delete treeIt;
 }

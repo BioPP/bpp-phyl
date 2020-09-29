@@ -595,7 +595,7 @@ void StochasticMapping::sampleAncestrals(Tree* mapping, map<int,vector<size_t>> 
 {
   TreeTemplate<Node>* ttree = dynamic_cast<TreeTemplate<Node>*>(mapping);
   PreOrderTreeIterator* treeIt = new PreOrderTreeIterator(*ttree);
-  for (Node* node = treeIt->begin(); node != treeIt->end(); node = treeIt->next())
+  for (const Node* node = treeIt->begin(); node != treeIt->end(); node = treeIt->next())
   {
     size_t nodeIndex = nodeIdToIndex_[node->getId()];
     if (!node->isLeaf())
@@ -603,13 +603,13 @@ void StochasticMapping::sampleAncestrals(Tree* mapping, map<int,vector<size_t>> 
       if (!node->hasFather())
       {
         size_t rootState = sampleState(ConditionalProbabilities_[nodeIndex][0]); // set father state to 0 (all the entries in the fatherState level are the same anyway)
-        setNodeState(node, rootState);
+        setNodeState(ttree->getNode(node->getId()), rootState);
       }
       else
       {
         size_t fatherState = getNodeState(node->getFather());
         size_t sonState = sampleState(ConditionalProbabilities_[nodeIndex][fatherState]);
-        setNodeState(node, sonState); 
+        setNodeState(ttree->getNode(node->getId()), sonState); 
       }
     }
     else
@@ -617,13 +617,13 @@ void StochasticMapping::sampleAncestrals(Tree* mapping, map<int,vector<size_t>> 
       vector<size_t> leafStates = leafIdToStates[node->getId()];
       if (leafStates.size() == 1)
       {
-        setNodeState(node, leafStates[0]);
+        setNodeState(ttree->getNode(node->getId()), leafStates[0]);
       }
       else // in the case of a leaf wih multiple possible assignments, the assigned state must be sampled
       {
         size_t fatherState = getNodeState(node->getFather());
         size_t sonState = sampleState(ConditionalProbabilities_[nodeIndex][fatherState]);
-        setNodeState(node, sonState);
+        setNodeState(ttree->getNode(node->getId()), sonState);
       }
     }
   }
