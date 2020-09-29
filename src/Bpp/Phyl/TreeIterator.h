@@ -73,9 +73,9 @@ namespace bpp
         protected:
         const TreeTemplate<Node>& tree_;             // The tree to iterate over its nodes. Can't be const because user should be allowed to edit the nodes of the tree during the traversal.
         const Node* currNode_;                       // A pointer to the current node visited by the iterator. Can't be const because user should be allowed to edit the nodes of the tree during the traversal.
-        map<int, bool> nodeToVisited_;               // a vector of booleans that for each node id states if it is visited or not
-        map<int, bool> nodeToSonVisited_;            // a vector that maps to each node if a son of his was visited or not
-        map<int, size_t> nodeToLastVisitedSonIndex_; // a vector that maps each node id the index of its last visited son visited son
+        map<int, bool> nodeToVisited_;               // a map that matches to each node id of booleans that for each node id states if it is visited or not
+        map<int, bool> nodeToSonVisited_;            // a map that matches to each node id if a son of his was visited or not
+        map<int, size_t> nodeToLastVisitedSonIndex_; // a map that matches to each node id the index of its last visited son visited son
 
         public:
         /* constructors and destructors */
