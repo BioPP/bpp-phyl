@@ -58,8 +58,7 @@ const Node* PostOrderTreeIterator::getLeftMostPredecessor(const Node* startNode)
     {
         return startNode;
     }
-	const Node* next = startNode->getSon(nextPos);
-	const Node* node = next;
+    const Node* node = startNode->getSon(nextPos);
 	while (node->getNumberOfSons() > 0)
     {
 		node = node->getSon(0);
@@ -120,11 +119,11 @@ const Node* PreOrderTreeIterator::next()
     vector<int> leafIds = tree_.getLeavesId();
     bool hasVisitedSons = nodeToSonVisited_[currNode_->getId()];
     size_t lastVisitedSonPos;
-
-    // stop condition: the node is the rightmost leaf of the tree
     if (hasVisitedSons)
         lastVisitedSonPos = nodeToLastVisitedSonIndex_[currNode_->getId()];
     size_t numOfSons = currNode_->getNumberOfSons();
+
+    // stop condition: the node is the rightmost leaf of the tree
     if (currNode_->getId() == leafIds[leafIds.size()-1])
     {
         return NULL;
@@ -218,8 +217,9 @@ const Node* InOrderTreeIterator::doStep(const Node* node)
 const Node* InOrderTreeIterator::next()
 {   // order: (left (0,..,n/2-1), parent, right (n/2,....,n))
 
-    // stop condition: the node is the rightmost leaf of the tree
     vector<int> leafIds = tree_.getLeavesId();
+
+    // stop condition: the node is the rightmost leaf of the tree
     if (currNode_->getId() == leafIds[leafIds.size()-1])
     {
         return NULL;
