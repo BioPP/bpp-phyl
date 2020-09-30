@@ -2,10 +2,6 @@
 
 // imports from bpp-core
 #include <Bpp/BppBoolean.h>
-
-#include <iostream>
-#include <fstream>
-
 using namespace bpp;
 using namespace std;
 
@@ -118,9 +114,6 @@ const Node* PreOrderTreeIterator::next()
     
     vector<int> leafIds = tree_.getLeavesId();
     bool hasVisitedSons = nodeToSonVisited_[currNode_->getId()];
-    size_t lastVisitedSonPos;
-    if (hasVisitedSons)
-        lastVisitedSonPos = nodeToLastVisitedSonIndex_[currNode_->getId()];
     size_t numOfSons = currNode_->getNumberOfSons();
 
     // stop condition: the node is the rightmost leaf of the tree
@@ -144,7 +137,7 @@ const Node* PreOrderTreeIterator::next()
     else
     {
        currNode_ = currNode_->getFather();
-       lastVisitedSonPos = nodeToLastVisitedSonIndex_[currNode_->getId()]; // the father of the original currNode_ must have at least one visited child which is the original currNode_
+       size_t lastVisitedSonPos = nodeToLastVisitedSonIndex_[currNode_->getId()]; // the father of the original currNode_ must have at least one visited child which is the original currNode_
        numOfSons = currNode_->getNumberOfSons();
        while (lastVisitedSonPos == numOfSons-1)
        {
@@ -198,7 +191,7 @@ const Node* InOrderTreeIterator::doStep(const Node* node)
         return node;
     }
 
-    // if the node has unvisited right sons -> go to the leftmost unviited right son
+    // if the node has unvisited right sons -> go to the leftmost unvisited right son
     else if (nodeToSonVisited_[node->getId()] && lastVisitedSon < numOfSons-1)
     {
         return node->getSon(lastVisitedSon+1);
