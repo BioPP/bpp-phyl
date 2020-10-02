@@ -148,12 +148,3 @@ ParameterList SetOfAbstractPhyloLikelihood::getRootFrequenciesParameters() const
   return pl;
 }
 
-ParameterList SetOfAbstractPhyloLikelihood::getNonDerivableParameters() const
-{
-  ParameterList pl;
-  for (size_t i=0; i<nPhylo_.size(); i++)
-    pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getNonDerivableParameters());
-
-  return pl;
-}
-

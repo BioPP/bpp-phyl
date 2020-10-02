@@ -4885,19 +4885,8 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
   if (!result)
     return;
 
-  vector<size_t> phyldep;
-  vector<size_t> nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
-  nPhyl.erase(find(nPhyl.begin(),nPhyl.end(),0));
+  vector<size_t> phyldep = phylocont.getNumbersOfPhyloLikelihoods();
   
-  for (const auto i : nPhyl)
-  {
-    if (phylocont[i] == result)
-    {
-      phyldep.push_back(i);
-      break;
-    }
-  }
-
   while (phyldep.size() != 0)
   {
     size_t num = phyldep[0];
@@ -4923,6 +4912,18 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
         // update phyldep
         phyldep.assign(vPN.begin(),vPN.end());
         phyldep=VectorTools::unique(phyldep);
+      }
+      else
+      {
+        const SetOfAbstractPhyloLikelihood* sOAB = dynamic_cast<const SetOfAbstractPhyloLikelihood*>(phyloLike);
+        if (sOAB != NULL)
+        {
+          vector<size_t> vPN = sOAB->getNumbersOfPhyloLikelihoods();
+
+          // update phyldep
+          phyldep.assign(vPN.begin(),vPN.end());
+          phyldep=VectorTools::unique(phyldep);
+        }
       }
     }
   }

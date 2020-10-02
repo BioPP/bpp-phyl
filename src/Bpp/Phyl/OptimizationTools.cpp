@@ -474,15 +474,15 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   //     pl.addParameters(fclock->getHeightParameters());
   //   }
   // Shall we reparametrize the function to remove constraints?
-  unique_ptr<DerivableSecondOrder> frep;
-  if (reparametrization)
-  {
-    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
-    f = frep.get();
+  // unique_ptr<DerivableSecondOrder> frep;
+  // if (reparametrization)
+  // {
+  //   frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
+  //   f = frep.get();
 
-    // Reset parameters to remove constraints:
-    pl = f->getParameters().createSubList(pl.getParameterNames());
-  }
+  //   // Reset parameters to remove constraints:
+  //   pl = f->getParameters().createSubList(pl.getParameterNames());
+  // }
 
   unique_ptr<AbstractNumericalDerivative> fnum;
   // Build optimizer:
@@ -511,11 +511,10 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   // Numerical derivatives:
 
-  ParameterList tmp = lik->getNonDerivableParameters();
+  ParameterList tmp = lik->getParameters();
 
- 
-  // if (useClock)
-  //   tmp.addParameters(fclock->getHeightParameters());
+  // // if (useClock)
+  // //   tmp.addParameters(fclock->getHeightParameters());
 
   fnum->setParametersToDerivate(tmp.getParameterNames());
 
@@ -566,25 +565,46 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   }
   
   // Build optimizer:
+  unique_ptr<AbstractNumericalDerivative> fnum;
   unique_ptr<Optimizer> optimizer;
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
     lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.00001, NumericalDerivativeType::ThreePoints);
-    optimizer.reset(new ConjugateGradientMultiDimensions(&lik));
+
+    fnum.reset(new TwoPointsNumericalDerivative(&lik));
+    fnum->setInterval(0.0000001);
+    optimizer.reset(new ConjugateGradientMultiDimensions(reinterpret_cast<DerivableFirstOrder*>(fnum.get()))); // Removes strict-aliasing warning with gcc 4.4
   }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {
     lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::FivePoints);
-    optimizer.reset(new PseudoNewtonOptimizer(&lik));
+    fnum.reset(new ThreePointsNumericalDerivative(&lik));
+    fnum->setInterval(0.0001);
+    optimizer.reset(new PseudoNewtonOptimizer(fnum.get()));
   }
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
   {
     lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
-    optimizer.reset(new BfgsMultiDimensions(&lik));
+    fnum.reset(new TwoPointsNumericalDerivative(&lik));
+    fnum->setInterval(0.0001);
+    optimizer.reset(new BfgsMultiDimensions(fnum.get()));
   }
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
+
+
+  // Derivatives in Likelihood DF
+
+  ParameterList tmp;//  = lik.getBranchLengthParameters();
+  // ParameterList tmp2 = lik.getParameters();
+
+
+  // // if (useClock)
+  // //   tmp.addParameters(fclock->getHeightParameters());
+
+  fnum->setParametersToDerivate(tmp.getParameterNames());
+
 
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);

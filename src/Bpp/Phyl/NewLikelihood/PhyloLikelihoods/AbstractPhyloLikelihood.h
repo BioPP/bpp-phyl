@@ -164,9 +164,9 @@ namespace bpp
     // bpp::Function
 
     /**
-     * @brief Tell if derivatives must be computed.
+     * @brief Tell if derivatives must be computed: for Function
+     * inheritance.
      *
-     * Boiler plate functions for legacy
      */
     
     virtual void enableFirstOrderDerivatives(bool yn) {}
@@ -202,7 +202,6 @@ namespace bpp
         return it->second;
       } else {
         auto node = getLikelihoodNode()->deriveAsValue (context_, accessVariableNode (variable));
-        firstOrderDerivativeNodes_.emplace (variable, node);
         return node;
       }
     }

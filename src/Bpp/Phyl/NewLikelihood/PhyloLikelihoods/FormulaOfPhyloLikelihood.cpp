@@ -94,7 +94,7 @@ void FormulaOfPhyloLikelihood::readFormula(const std::string& formula, bool inCo
   st.nextToken();
 
   vector<size_t> phyldep;
-  
+
   while (st.hasMoreToken())
   {
     string ex=st.nextToken();

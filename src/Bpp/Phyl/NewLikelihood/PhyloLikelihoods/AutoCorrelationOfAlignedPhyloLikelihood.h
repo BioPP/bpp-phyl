@@ -140,8 +140,6 @@ namespace bpp
       return hmm_->getHmmTransitionMatrix();
     }
 
-    ParameterList getNonDerivableParameters() const;
-
   };
 } // end of namespace bpp.
 

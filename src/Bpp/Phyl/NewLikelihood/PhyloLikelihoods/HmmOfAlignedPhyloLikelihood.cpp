@@ -83,11 +83,3 @@ void HmmOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& para
   hmm_->matchParametersValues(parameters);
 }
 
-ParameterList HmmOfAlignedPhyloLikelihood::getNonDerivableParameters() const
-{
-  ParameterList pl=HmmOfAlignedPhyloLikelihood::getNonDerivableParameters();
-  
-  pl.includeParameters(htm_->getParameters());
-
-  return pl;
-}

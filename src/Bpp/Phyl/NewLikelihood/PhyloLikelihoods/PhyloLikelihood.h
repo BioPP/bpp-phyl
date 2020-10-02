@@ -141,16 +141,6 @@ namespace bpp
 
     virtual ParameterList getRootFrequenciesParameters() const = 0;
 
-    /**
-     * @brief All independent non derivable parameters.
-     *
-     * Usually, this contains all substitution model parameters and rate distribution.
-     *
-     * @return A ParameterList.
-     */
-
-    virtual ParameterList getNonDerivableParameters() const = 0;
-
     /** @} */
 
   };

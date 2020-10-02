@@ -276,23 +276,6 @@ namespace bpp {
       return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRootFrequenciesParameters(true);
     }
       
-    /**
-     * @brief All independent non derivable parameters.
-     *
-     * Usually, this contains all substitution model parameters and rate distribution.
-     *
-     * @return A ParameterList.
-     */
-
-    ParameterList getNonDerivableParameters() const
-    {
-      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getNonDerivableParameters();
-    }
-     
-
-    /** @} */
-
-
     std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
     {
       return likCal_;

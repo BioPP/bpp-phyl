@@ -165,11 +165,6 @@ namespace bpp
       
     size_t getNumberOfSites() const { return nbSites_; }
 
-    void setNumberOfSites(size_t nbSites)
-    {
-      nbSites_ = nbSites;
-    }
-
     /**
      * @brief Get the likelihood for a site (on uncompressed data)
      *
@@ -204,6 +199,12 @@ namespace bpp
     Vdouble getLikelihoodPerSite() const
     {
       return getAlignedLikelihoodCalculation()->getLikelihoodPerSite();
+    }
+
+  protected:
+    void setNumberOfSites(size_t nbSites)
+    {
+      nbSites_ = nbSites;
     }
 
   };

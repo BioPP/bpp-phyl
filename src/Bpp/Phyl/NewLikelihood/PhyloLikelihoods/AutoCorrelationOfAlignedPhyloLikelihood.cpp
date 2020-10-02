@@ -78,15 +78,9 @@ void AutoCorrelationOfAlignedPhyloLikelihood::setNamespace(const std::string& na
 void AutoCorrelationOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   SetOfAlignedPhyloLikelihood::fireParameterChanged(parameters);
-  // hpep_->update();
   hmm_->matchParametersValues(parameters);
+  hma_->matchParametersValues(parameters);
+  htm_->matchParametersValues(parameters);
+  hpep_->matchParametersValues(parameters);
 }
 
-ParameterList AutoCorrelationOfAlignedPhyloLikelihood::getNonDerivableParameters() const
-{
-  ParameterList pl=SetOfAlignedPhyloLikelihood::getNonDerivableParameters();
-  
-  pl.includeParameters(htm_->getParameters());
-
-  return pl;
-}

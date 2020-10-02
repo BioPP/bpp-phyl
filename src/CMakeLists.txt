@@ -93,7 +93,6 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp

@@ -136,7 +136,7 @@ namespace bpp
       
       bool hasPhyloLikelihood(size_t nPhyl)
       {
-        return pPhyloCont_->hasPhyloLikelihood(nPhyl);
+        return std::find(nPhylo_.begin(), nPhylo_.end(), nPhyl)!=nPhylo_.end();
       }
 
       const AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
@@ -238,17 +238,6 @@ namespace bpp
        */
 
       ParameterList getRootFrequenciesParameters() const;
-
-      /**
-       * @brief All non derivable parameters.
-       *
-       * It is the union of the non derivable parameters from all members.
-       *
-       * @return A ParameterList.
-       */
-
-      virtual ParameterList getNonDerivableParameters() const;
-
 
       /** @} */
 
