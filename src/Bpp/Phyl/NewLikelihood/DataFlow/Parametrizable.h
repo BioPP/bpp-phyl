@@ -153,7 +153,7 @@ namespace bpp {
       template<typename Object, typename Self> 
       static std::shared_ptr<Self> createConfigured(Context& context, const Object& object, ParameterList& parList, const std::string& suff = "")
       {
-        auto nObject = std::unique_ptr<Object>(object.clone());
+        auto nObject = std::unique_ptr<Object>(dynamic_cast<Object*>(object.clone()));
 
         auto pa = dynamic_cast<const ParameterAliasable*>(&object);
         

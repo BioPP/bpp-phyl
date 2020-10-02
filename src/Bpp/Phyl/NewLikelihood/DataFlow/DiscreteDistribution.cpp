@@ -81,7 +81,7 @@ namespace bpp {
     }
 
     NodeRef ConfiguredDistribution::recreate (Context & c, NodeRefVec && deps) {
-      auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<DiscreteDistribution>{distrib_->clone ()});
+      auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<DiscreteDistribution>{dynamic_cast<DiscreteDistribution*>(distrib_->clone ())});
       m->config = this->config; // Duplicate derivation config
       return m;
     }

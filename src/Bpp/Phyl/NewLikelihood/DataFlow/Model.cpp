@@ -83,7 +83,7 @@ std::size_t ConfiguredModel::hashAdditionalArguments () const {
 }
 
 NodeRef ConfiguredModel::recreate (Context & c, NodeRefVec && deps) {
-  auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<Target>{model_->clone ()});
+  auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<Target>{dynamic_cast<Target*>(model_->clone ())});
   m->config = this->config; // Duplicate derivation config
   return m;
 }

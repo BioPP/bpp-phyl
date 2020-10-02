@@ -85,7 +85,7 @@ namespace bpp {
 
 
     NodeRef ConfiguredFrequencySet::recreate (Context & c, NodeRefVec && deps) {
-      auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<Target>{freqset_->clone ()});
+      auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<Target>{dynamic_cast<Target*>(freqset_->clone ())});
       m->config = this->config; // Duplicate derivation config
       return m;
     }

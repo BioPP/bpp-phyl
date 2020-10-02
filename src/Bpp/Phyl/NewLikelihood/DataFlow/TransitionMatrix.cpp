@@ -85,7 +85,7 @@ std::size_t ConfiguredTransitionMatrix::hashAdditionalArguments () const {
 }
 
 NodeRef ConfiguredTransitionMatrix::recreate (Context & c, NodeRefVec && deps) {
-  auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<Target>(hmm_->clone ()));
+  auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<Target>(dynamic_cast<Target*>(hmm_->clone ())));
   m->config = this->config; // Duplicate derivation config
   return m;
 }
