@@ -33,7 +33,7 @@
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Simulation/DetailedSiteSimulator.h>
-#include <Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h>
+//#include <Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Simulation/SequenceSimulationTools.h>
 #include <Bpp/Phyl/Mapping/RewardMappingTools.h>
 #include <Bpp/Phyl/Mapping/Reward.h>
