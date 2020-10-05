@@ -4892,20 +4892,22 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     size_t num = phyldep[0];
 
     phyldep.erase(phyldep.begin());
-    
+
     const PhyloLikelihood* phyloLike = phylocont[num];
     // output
 
     string info_out = infosFile + "_" + TextTools::toString(num);
 
-    if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike) != NULL)
+    if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike) != NULL
+        && num!=0 )
       printAnalysisInformation(dynamic_cast<const SingleDataPhyloLikelihood&>(*phyloLike), info_out, warn);
     else
     {
       const SetOfAlignedPhyloLikelihood* sOAP = dynamic_cast<const SetOfAlignedPhyloLikelihood*>(phyloLike);
       if (sOAP != NULL)
       {
-        printAnalysisInformation(*sOAP, info_out, warn);
+        if (num!=0)
+          printAnalysisInformation(*sOAP, info_out, warn);
 
         vector<size_t> vPN = sOAP->getNumbersOfPhyloLikelihoods();
 
