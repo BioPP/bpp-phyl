@@ -120,6 +120,54 @@ MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, double
 
 /******************************************************************************/
 
+MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, size_t finalState, double time) const
+{
+  size_t maxIterNum = 1000; // max nb of tries
+  MutationPath mp(model_->getAlphabet(), initialState, time); 
+
+  for (size_t i = 0; i < maxIterNum; ++i)
+  {
+    mp.clear();
+    
+    double t = 0;
+
+    // if the father's state is not the same as the son's state -> use the correction corresponding to equation (11) in the paper  
+    if (initialState != finalState)
+    {   // sample timeTillChange conditional on it being smaller than time
+      double u = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.0);
+      double waitingTimeParam = model_->Qij(initialState, initialState); // get the parameter for the exponential distribution to draw the waiting time
+      double tmp = u * (1.0 - exp(time * waitingTimeParam));
+      t =  log(1.0 - tmp) / waitingTimeParam;
+    }
+    else
+    {
+      t = getTimeBeforeNextMutationEvent(initialState); // draw the time until a transition from exponential distribution with the rate of leaving fatherState
+    }
+
+    size_t currentState = initialState;
+    while (t < time)  // a jump occured but not passed the whole time
+    {
+      currentState = mutate(currentState); 
+      mp.addEvent(currentState, t);      // add the current state and time to branch history
+      t += getTimeBeforeNextMutationEvent(currentState);        // draw the time until a transition from exponential distribution with the rate of leaving currentState from initial state curState based on the relative tranistion rates distribution 
+    }
+    //   // the last jump passed the length of the branch -> finish the simulation and check if it's sucessfull (i.e, mapping is finished at the son's state)
+    if (currentState != finalState) // if the simulation failed, try again
+    {
+      continue;
+    }
+    else
+      return mp;
+  }
+  
+  // Emergency case when none simul reached finalState
+  mp.addEvent(finalState, time);
+  return mp;
+}
+
+
+/******************************************************************************/
+
 SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel* model) :
   AbstractMutationProcess(model)
 {

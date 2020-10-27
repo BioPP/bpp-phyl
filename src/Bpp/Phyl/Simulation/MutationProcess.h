@@ -124,6 +124,17 @@ namespace bpp
       times_.push_back(time);
     }
 
+    /*
+     * @brief Remove all mutations
+     *
+     */
+
+    void clear()
+    {
+      states_.clear();
+      times_.clear();
+    }
+    
     /**
      * @brief Retrieve the initial state.
      *
@@ -253,6 +264,20 @@ namespace bpp
     virtual MutationPath detailedEvolve(size_t initialState, double time) const = 0;
 
     /**
+     * @brief Simulation a character evolution during a specified time
+     * according to the given substitution model and send the total
+     * path with all intermediate states and times between mutation
+     * events, conditional to the final state.q
+     *
+     * @param initialState The state before beginning evolution.
+     * @param finalState The state after  evolution.
+     * @param time         The time during which evolution must occure.
+     * @return The resulting mutation path.
+     */
+    
+    virtual MutationPath detailedEvolve(size_t initialState, size_t finalState, double time) const = 0;
+
+    /**
      * @brief Get the substitution model associated to the mutation process.
      *
      * @return The SubstitutionModel associated to this instance.
@@ -321,6 +346,7 @@ namespace bpp
     double getTimeBeforeNextMutationEvent(size_t state) const;
     size_t evolve(size_t initialState, double time) const;
     MutationPath detailedEvolve(size_t initialState, double time) const;
+    MutationPath detailedEvolve(size_t initialState, size_t finalState, double time) const;
     const SubstitutionModel* getSubstitutionModel() const { return model_; }
   };
 

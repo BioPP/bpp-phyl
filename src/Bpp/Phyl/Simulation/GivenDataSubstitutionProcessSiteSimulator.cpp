@@ -54,30 +54,12 @@ using namespace std;
 
 void GivenDataSubstitutionProcessSiteSimulator::init()
 {
+  calcul_->makeLikelihoods();
+  
   // Initialize sons & fathers of tree_ Nodes    
   // set sequence names
 
-  if (outputInternalSites_) {
-    auto vCN= phyloTree_->getAllNodes();
-    seqNames_.resize(vCN.size());    
-    seqIndexes_.resize(vCN.size());    
-    for (size_t i = 0; i < seqNames_.size(); i++)
-    {
-      auto index = phyloTree_->getNodeIndex(vCN[i]);
-      seqNames_[i] = (phyloTree_->isLeaf(vCN[i]))?vCN[i]->getName():TextTools::toString(index);
-      seqIndexes_[i] = index; 
-    }
-  }
-  else {
-    auto vCN= phyloTree_->getAllLeaves();
-    seqNames_.resize(vCN.size());    
-    seqIndexes_.resize(vCN.size());    
-    for (size_t i = 0; i < seqNames_.size(); i++)
-    {
-      seqNames_[i] = vCN[i]->getName();
-      seqIndexes_[i] = phyloTree_->getNodeIndex(vCN[i]);
-    }
-  }
+  outputInternalSites(outputInternalSites_);
 
   // Set up cumsum rates
 

@@ -49,6 +49,8 @@
 // From SeqLib:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
+#include "GivenDataSubstitutionProcessSiteSimulator.h"
+
 using namespace bpp;
 using namespace std;
 
@@ -79,27 +81,7 @@ void SimpleSubstitutionProcessSiteSimulator::init()
   // Initialize sons & fathers of tree_ Nodes    
   // set sequence names
 
-  if (outputInternalSites_) {
-    auto vCN= phyloTree_->getAllNodes();
-    seqNames_.resize(vCN.size());    
-    seqIndexes_.resize(vCN.size());    
-    for (size_t i = 0; i < seqNames_.size(); i++)
-    {
-      auto index = phyloTree_->getNodeIndex(vCN[i]);
-      seqNames_[i] = (phyloTree_->isLeaf(vCN[i]))?vCN[i]->getName():TextTools::toString(index);
-      seqIndexes_[i] = index; 
-    }
-  }
-  else {
-    auto vCN= phyloTree_->getAllLeaves();
-    seqNames_.resize(vCN.size());    
-    seqIndexes_.resize(vCN.size());    
-    for (size_t i = 0; i < seqNames_.size(); i++)
-    {
-      seqNames_[i] = vCN[i]->getName();
-      seqIndexes_[i] = phyloTree_->getNodeIndex(vCN[i]);
-    }
-  }
+  outputInternalSites(outputInternalSites_);
 
   // Set up cumsum rates
 
@@ -265,9 +247,8 @@ Site* SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t rateClass) con
   // Now create a Site object:
   Vint site(seqNames_.size());
   for (size_t i = 0; i < seqNames_.size(); ++i)
-  {
     site[i] = process_->getStateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
-  }
+
   return new Site(site, getAlphabet());
 }
 
@@ -282,9 +263,8 @@ Site* SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t ancestralState
   // Now create a Site object:
   Vint site(seqNames_.size());
   for (size_t i = 0; i < seqNames_.size(); ++i)
-  {
     site[i] = process_->getStateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
-  }
+
   return new Site(site, getAlphabet());
 }
 
@@ -356,6 +336,8 @@ SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size
 
 void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimProcessNode> node, size_t rateClass, SiteSimulationResult * ssr) const
 {
+  speciesNodes_[node->getSpeciesIndex()] = node;
+
   if (node->isSpeciation())
   {
     auto vEdge = tree_.getOutgoingEdges(node);
@@ -377,29 +359,27 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
 
           double brlen = process_->getRateDistribution()->getCategory(rateClass) * phyloTree_->getEdge(edge->getSpeciesIndex())->getLength();
 
-          MutationPath mp = process.detailedEvolve(node->state_, brlen);
-  
-          son->state_ = mp.getFinalState();
-
+          MutationPath mp(tm->getAlphabet(), node->state_, brlen);
+          if (dynamic_cast<const GivenDataSubstitutionProcessSiteSimulator*>(this)==0)
+          {
+            mp = process.detailedEvolve(node->state_, brlen);
+            son->state_ = mp.getFinalState();
+          }
+          else // First get final state
+          {
+            son->state_ = RandomTools::pickFromCumSum(edge->cumpxy_[rateClass][node->state_]);
+            mp = process.detailedEvolve(node->state_, son->state_, brlen);
+          }
+          
           // Now append infos in ssr:
           ssr->addNode(edge->getSpeciesIndex(), mp);
           
-          speciesNodes_[son->getSpeciesIndex()] = son;
         }
         else
-        {
-          Vdouble* cumy = &edge->cumpxy_[rateClass][node->state_];
-
-          size_t y = RandomTools::pickFromCumSum(*cumy);
-          son->state_ = y;
-          speciesNodes_[son->getSpeciesIndex()] = son;
-        }
+          son->state_ = RandomTools::pickFromCumSum(edge->cumpxy_[rateClass][node->state_]);
       }
       else
-      {
         son->state_ = node->state_;
-        speciesNodes_[son->getSpeciesIndex()] = son;
-      }
       
       evolveInternal(son, rateClass, ssr);
     }
@@ -412,7 +392,6 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
       size_t y = RandomTools::pickFromCumSum(cumProb);
       auto son = node->sons_[y];
       son->state_ = node->state_;
-      speciesNodes_[son->getSpeciesIndex()] = son;
       evolveInternal(son, rateClass, ssr);
     }
     else
@@ -423,6 +402,8 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
 
 void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimProcessNode> node, double rate, SiteSimulationResult * ssr) const
 {
+  speciesNodes_[node->getSpeciesIndex()] = node;
+
   if (node->isSpeciation())
   {
     auto vEdge = tree_.getOutgoingEdges(node);
@@ -436,6 +417,8 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
         auto tm = dynamic_cast<const TransitionModel*>(edge->getModel());
         
         double brlen = rate * phyloTree_->getEdge(edge->getSpeciesIndex())->getLength(); 
+
+        
         if (ssr) // Detailed simulation
         {
           auto sm = dynamic_cast<const SubstitutionModel*>(edge->getModel());
@@ -445,14 +428,24 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
 
           SimpleMutationProcess process(sm);
 
-          MutationPath mp = process.detailedEvolve(node->state_, brlen);
-  
-          son->state_ = mp.getFinalState();
+          MutationPath mp(tm->getAlphabet(), node->state_, brlen);
 
-          // Now append infos in ssr:
-          ssr->addNode(edge->getSpeciesIndex(), mp);
+          if (dynamic_cast<const GivenDataSubstitutionProcessSiteSimulator*>(this)==0)
+          {
+            mp = process.detailedEvolve(node->state_, brlen);
+            son->state_ = mp.getFinalState();
+          }
+          else // First get final state
+          {
+            // Look for the rateClass where rate is (approximation)
+            size_t rateClass = process_->getRateDistribution()->getCategoryIndex(rate);
+
+            son->state_ = RandomTools::pickFromCumSum(edge->cumpxy_[rateClass][node->state_]);
+            mp = process.detailedEvolve(node->state_, son->state_, brlen);
+          }
           
-          speciesNodes_[son->getSpeciesIndex()] = son;
+          // Now append infos in ssr:
+          ssr->addNode(edge->getSpeciesIndex(), mp);          
         }
         else
         {
@@ -483,7 +476,6 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
             if (rand <= 0)
             {
               son->state_ = y;
-              speciesNodes_[son->getSpeciesIndex()] = son;
               break;
             }
           }
@@ -492,7 +484,6 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
       else
       {
         son->state_ = node->state_;
-        speciesNodes_[son->getSpeciesIndex()] = son;
       }
       
       evolveInternal(son, rate, ssr);
@@ -506,7 +497,6 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
       size_t y = RandomTools::pickFromCumSum(cumProb);
       auto son = node->sons_[y];
       son->state_ = node->state_;
-      speciesNodes_[son->getSpeciesIndex()] = son;
       evolveInternal(son, rate, ssr);
     }
     else

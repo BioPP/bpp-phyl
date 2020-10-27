@@ -71,7 +71,9 @@ namespace bpp
 
     virtual std::vector<std::string> getSequencesNames() const = 0;
 
-    virtual const Alphabet* getAlphabet() const = 0;  
+    virtual const Alphabet* getAlphabet() const = 0;
+
+    virtual void outputInternalSequences(bool inter) = 0;
   };
 
 } //end of namespace bpp.
