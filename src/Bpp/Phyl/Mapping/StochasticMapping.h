@@ -40,7 +40,8 @@
 #ifndef ___STOCHASTIC_MAPPING_H
 #define ___STOCHASTIC_MAPPING_H
 
-#include "../Simulation/SimpleSubstitutionProcessSequenceSimulator.h"
+#include "../Simulation/SubstitutionProcessSequenceSimulator.h"
+#include "../Simulation/MutationProcess.h"
 
 #include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
 #include "../NewLikelihood/DataFlow/DataFlowCWise.h"
@@ -51,13 +52,22 @@
 
 using namespace std;
 
+/* Store the countings on a DAG similar to the computing DAG */
+
+
+
 typedef vector<vector<vector<double> > > VVVDouble;
 typedef vector<vector<double> > VVDouble;
 typedef vector<double> VDouble;
 
 /* class for reprenting the framework of Stochastic mapping
-   A StochasticMapping instance can be used to sample histories of state transitions along a tree, given a substitution model and the states at the tip taxa
-   For more information, see: Nielsen, Rasmus. "Mapping mutations on phylogenies." Systematic biology 51.5 (2002): 729-739.‏ */
+ *
+ *   A StochasticMapping instance can be used to sample histories of
+ *   state transitions along a tree, given a substitution model and the
+ *   states at the tip taxa. For more information, see: Nielsen, Rasmus.
+ *   "Mapping mutations on phylogenies." Systematic biology 51.5 (2002):
+ *   729-739.‏
+ */
 
 namespace bpp
 {
@@ -65,7 +75,7 @@ namespace bpp
   {
   protected:
     /*
-     * @brief // the tree likelihood instance is used for computing the
+     * @brief The tree likelihood instance is used for computing the
      * the conditional sampling probabilities of the ancestral states as
      * well as the root assignment probabilities.
      *
@@ -81,7 +91,7 @@ namespace bpp
      * mappings.
      */
   
-    SimpleSubstitutionProcessSequenceSimulator mappingParameters_;
+//    SimpleSubstitutionProcessSequenceSimulator mappingParameters_;
 
     /*
      * @briefvector that holds the fractional probabilities per state
@@ -106,7 +116,7 @@ namespace bpp
     StochasticMapping(const StochasticMapping& sm) : 
       likelihood_(sm.likelihood_),
       tree_(sm.tree_),
-      mappingParameters_(likelihood_->getSubstitutionProcess()),
+//      mappingParameters_(likelihood_->getSubstitutionProcess()),
       fractionalProbabilities_(sm.fractionalProbabilities_),
       ConditionalProbabilities_(sm.ConditionalProbabilities_),
       nodesCounter_(0), numOfMappings_(sm.numOfMappings_)
@@ -167,6 +177,7 @@ namespace bpp
      * @param node              The node to get the state of
      * @return                  Node state is int
      */
+
     int getNodeState(const PhyloNode* node) const;
 
   private:

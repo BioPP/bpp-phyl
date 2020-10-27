@@ -1,7 +1,7 @@
 //
-// File: SimpleSubstitutionProcessSequenceSimulator.h
+// File: GivenDataSubstitutionProcessSequenceSimulator.h
 // Created by: Laurent Guéguen
-// Created on: dimanche 24 mai 2020, à 07h 30
+// Created on: mercredi 21 octobre 2020, à 09h 45
 //
 
 
@@ -38,86 +38,88 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SIMPLE_SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
-#define _SIMPLE_SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
+#ifndef _GIVEN_DATA_SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
+#define _GIVEN_DATA_SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
 
-#include "SiteSimulator.h"
-#include "SimpleSubstitutionProcessSiteSimulator.h"
 #include "GivenDataSubstitutionProcessSiteSimulator.h"
 
 #include "SequenceSimulator.h"
-
-#include "../NewLikelihood/SequenceEvolution.h"
 
 namespace bpp
 {
 
 /**
- * @brief Sequences simulation under a unique substitution process.
+ * @brief Sequences simulation under a unique substitution process, but with site specific
+ * posterior probabilities.
  *
  */
 
-  class SimpleSubstitutionProcessSequenceSimulator:
+  class GivenDataSubstitutionProcessSequenceSimulator:
     public virtual SequenceSimulator
   {
   private:
-    std::shared_ptr<SiteSimulator> siteSim_;
-    
-  public:    
-    SimpleSubstitutionProcessSequenceSimulator(const SubstitutionProcess& process) :
-      siteSim_(std::make_shared<SimpleSubstitutionProcessSiteSimulator>(process))
-    {
-    }
 
+    std::shared_ptr<LikelihoodCalculationSingleProcess> calcul_;
+    
     /*
-     * @brief A posterior simulation, from a position in an alignment.
+     * @brief Vector of site specific site simulators on SHRUNKED data
+     *
+     * More efficient implementation is possible (all in ona).
      *
      */
     
-    SimpleSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos) :
-      siteSim_(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul, pos))
+    std::vector<std::shared_ptr<GivenDataSubstitutionProcessSiteSimulator>> vSiteSim_;
+    
+  public:    
+    GivenDataSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul) :
+      calcul_(calcul), vSiteSim_()
+    {
+      for (size_t i = 0; i<calcul_->getNumberOfDistinctSites(); i++)
+        vSiteSim_.push_back(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul_, i, true));
+    }
+
+    virtual ~GivenDataSubstitutionProcessSequenceSimulator()
     {
     }
 
-    SimpleSubstitutionProcessSequenceSimulator(std::shared_ptr<SiteSimulator> simul) :
-      siteSim_(simul) {}
-      
-
-    virtual ~SimpleSubstitutionProcessSequenceSimulator()
-    {
-    }
-
-    SimpleSubstitutionProcessSequenceSimulator(const SimpleSubstitutionProcessSequenceSimulator& nhss) :
-      siteSim_(nhss.siteSim_)
+    GivenDataSubstitutionProcessSequenceSimulator(const GivenDataSubstitutionProcessSequenceSimulator& nhss) :
+      calcul_(nhss.calcul_), vSiteSim_(nhss.vSiteSim_)
     {};
     
-    SimpleSubstitutionProcessSequenceSimulator* clone() const { return new SimpleSubstitutionProcessSequenceSimulator(*this); }
+    GivenDataSubstitutionProcessSequenceSimulator* clone() const { return new GivenDataSubstitutionProcessSequenceSimulator(*this); }
 
   public:
   
     /**
      * @name The SequenceSimulator interface
+     * Here the numberOfSites is unused (awkward inheritance...)
      *
      */
 
+    std::shared_ptr<SiteContainer> simulate() const
+    {
+      return simulate(0);
+    }
+
     std::shared_ptr<SiteContainer> simulate(size_t numberOfSites) const;
-    
 
     const SiteSimulator& getSiteSimulator(size_t pos) const
     {
-      return *siteSim_;
-    }
-
-    std::vector<std::string> getSequencesNames() const {
-      return siteSim_->getSequencesNames();
-    }
-
+      return *vSiteSim_[calcul_->getRootArrayPosition(pos)];
+    }    
+    
     /**
      * @name SiteSimulator and SequenceSimulator interface
      *
      * @{
      */
-    const Alphabet* getAlphabet() const { return siteSim_->getAlphabet(); }
+    const Alphabet* getAlphabet() const { return vSiteSim_[0]->getAlphabet(); }
+
+    std::vector<std::string> getSequencesNames() const {
+      return vSiteSim_[0]->getSequencesNames();
+    }
+
+
     /** @} */
 
     /**
@@ -128,7 +130,8 @@ namespace bpp
      */
     void outputInternalSequences(bool yn)
     {
-      siteSim_->outputInternalSites(yn);
+      for (auto& siteSim : vSiteSim_)
+        siteSim->outputInternalSites(yn);
     }
 
   };
@@ -136,5 +139,5 @@ namespace bpp
 
 } //end of namespace bpp.
 
-#endif //_SIMPLESUBSTITUTIONPROCESSSEQUENCESIMULATOR_H_
+#endif //_GIVEN_DATA_SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
 

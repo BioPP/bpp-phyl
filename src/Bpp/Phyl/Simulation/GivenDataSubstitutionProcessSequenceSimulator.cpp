@@ -1,9 +1,7 @@
 //
-// File: SimpleSubstitutionProcessSequenceSimulator.cpp
-// Created by: Julien Dutheil
-//             Bastien Boussau
-//             Laurent Guéguen
-// Created on: Wed Feb  4 16:30:51 2004
+// File: GivenDataSubstitutionProcessSequenceSimulator.cpp
+// Created by: Laurent Guéguen
+// Created on: mercredi 21 octobre 2020, à 09h 39
 //
 
 /*
@@ -39,7 +37,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "SimpleSubstitutionProcessSequenceSimulator.h"
+#include "GivenDataSubstitutionProcessSequenceSimulator.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -49,14 +47,15 @@ using namespace std;
 
 /******************************************************************************/
 
-std::shared_ptr<SiteContainer> SimpleSubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
+std::shared_ptr<SiteContainer> GivenDataSubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
 {
-  auto seqNames = siteSim_->getSequencesNames();
+  auto seqNames = vSiteSim_[0]->getSequencesNames();
   auto sites = make_shared<VectorSiteContainer>(seqNames, getAlphabet());
-   sites->setSequencesNames(seqNames);
-  for (size_t j = 0; j < numberOfSites; j++)
+  sites->setSequencesNames(seqNames);
+
+  for (size_t j = 0; j < calcul_->getNumberOfSites(); j++)
   {
-    Site* site = siteSim_->simulateSite();
+    Site* site = vSiteSim_[calcul_->getRootArrayPosition(j)]->simulateSite();
     site->setPosition(static_cast<int>(j));
     sites->addSite(*site);
     delete site;

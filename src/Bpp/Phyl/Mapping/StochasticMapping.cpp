@@ -28,7 +28,7 @@ using namespace std;
 StochasticMapping::StochasticMapping(std::shared_ptr<LikelihoodCalculationSingleProcess> drl, size_t numOfMappings) :
   likelihood_(drl),
   tree_ (make_shared<PhyloTree>(drl->getSubstitutionProcess().getParametrizablePhyloTree())),
-  mappingParameters_(drl->getSubstitutionProcess()),
+//  mappingParameters_(drl->getSubstitutionProcess()),
   fractionalProbabilities_(),
   ConditionalProbabilities_(),
   nodesCounter_(0),
@@ -48,10 +48,9 @@ StochasticMapping::~StochasticMapping()
 
 void StochasticMapping::generateStochasticMapping(vector<shared_ptr<PhyloTree>>& mappings)
 {
-  // for (size_t i = 0; i < numOfMappings_; ++i)
-  // {
-  //   // clone the base tree to acheive the skeleton in which the mapping will be represented
-  //   Tree* mapping = baseTree_->clone();
+  for (size_t i = 0; i < numOfMappings_; ++i)
+  {
+//    auto mapping = std::shared_ptr<PhyloTree>(*baseTree);
   //   setLeafsStates(mapping);
 
   //   /* step 2: simulate a set of ancestral states, based on the fractional likelihoods from step 1 */
@@ -65,7 +64,7 @@ void StochasticMapping::generateStochasticMapping(vector<shared_ptr<PhyloTree>>&
 
   //   // reset the nodes counter
   //   nodesCounter_ = dynamic_cast<TreeTemplate<Node>*>(baseTree_)->getNodes().size() - 1;
-  // }
+  }
 }
 
 /******************************************************************************/
@@ -310,18 +309,18 @@ void StochasticMapping::giveNamesToInternalNodes(PhyloTree& tree)
 
 void StochasticMapping::setLeafsStates(std::shared_ptr<PhyloTree> mapping)
 {
-  // auto leafsStates = likelihoods_->getData();
-  // auto leaves = mapping->getAllLeaves();
+  //auto leafsStates = likelihood_->getData();
+  auto leaves = mapping->getAllLeaves();
 
-  // for (auto& leaf: leaves)
-  // {
-  //   string nodeName = leaf->getName();
-  //   auto lstates = likelihoods_->getNode(mapping->getNodeIndex(leaf))
+  for (auto& leaf: leaves)
+  {
+    string nodeName = leaf->getName();
+//    auto lstates = likelihoods_->getNode(mapping->getNodeIndex(leaf))
   //   size_t leafState = static_cast<size_t>(tl_->getAlphabetStateAsInt(leafsStates->getSequence(nodeName).getValue(0)));
   //     //note@Laurent (Julien on 17/06/20): I thing the above line is incorrect, in particulat the use of the getAlphabetStateAsInt function. It is supposed to take as input a state index (size_t) and return the corresponding character state as an integer. Here you give as input to the method already a sequence character (integer). In most cases that will still work as the characters states for resolved characters are usually 0..n, and there corresponding states 0..n. But it will fail for models with gaps (character state -1) and Markov modulated models (character states 0..n, but state index 0..k*n)
   //     setNodeState(node, leafState);
   //   }
-  // }
+      }
 }
 
 /******************************************************************************/

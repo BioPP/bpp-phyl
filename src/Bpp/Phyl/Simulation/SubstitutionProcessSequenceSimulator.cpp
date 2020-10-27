@@ -40,6 +40,10 @@
  */
 
 #include "SubstitutionProcessSequenceSimulator.h"
+
+#include "SimpleSubstitutionProcessSiteSimulator.h"
+#include "GivenDataSubstitutionProcessSiteSimulator.h"
+
 #include <algorithm>
 
 #include <Bpp/Numeric/VectorTools.h>
@@ -69,8 +73,8 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
   for (size_t i=0; i< nProc.size(); i++)
   {
     const SubstitutionProcess& sp=evol.getSubstitutionProcess(nProc[i]);
-    
-    mProcess_[nProc[i]]=new SimpleSubstitutionProcessSequenceSimulator(sp);
+
+    mProcess_[nProc[i]] = std::make_shared<SimpleSubstitutionProcessSiteSimulator>(sp);
 
     vector<string> seqNames2;
     
@@ -103,8 +107,18 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
   seqNames_(spss.seqNames_),
   mvPosNames_(spss.mvPosNames_)
 {
-  for (std::map<size_t, SimpleSubstitutionProcessSequenceSimulator*>::const_iterator  it=spss.mProcess_.begin(); it != spss.mProcess_.end(); it++)
-    mProcess_[it->first]=new SimpleSubstitutionProcessSequenceSimulator(*it->second);
+  for (auto it : spss.mProcess_)
+  {
+    auto dit = std::dynamic_pointer_cast<SimpleSubstitutionProcessSiteSimulator>(it.second);
+    auto git = std::dynamic_pointer_cast<GivenDataSubstitutionProcessSiteSimulator>(it.second);
+    
+    if (dit)
+      mProcess_[it.first]=std::make_shared<SimpleSubstitutionProcessSiteSimulator>(*dit);
+    else if (git)
+      mProcess_[it.first]=std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(*git);
+    else
+      throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator: unknown type of site simulator.");
+  }
 }
 
     
@@ -114,28 +128,33 @@ SubstitutionProcessSequenceSimulator& SubstitutionProcessSequenceSimulator::oper
   seqNames_=spss.seqNames_;
   mvPosNames_=spss.mvPosNames_;
   
-  for (std::map<size_t, SimpleSubstitutionProcessSequenceSimulator*>::const_iterator  it=mProcess_.begin(); it != mProcess_.end(); it++)
-    delete it->second;
-
   mProcess_.clear();
   
-  for (std::map<size_t, SimpleSubstitutionProcessSequenceSimulator*>::const_iterator  it=spss.mProcess_.begin(); it != spss.mProcess_.end(); it++)
-    mProcess_[it->first]=new SimpleSubstitutionProcessSequenceSimulator(*it->second);
-
+  for (auto it : spss.mProcess_)
+  {
+    auto dit = std::dynamic_pointer_cast<SimpleSubstitutionProcessSiteSimulator>(it.second);
+    auto git = std::dynamic_pointer_cast<GivenDataSubstitutionProcessSiteSimulator>(it.second);
+    
+    if (dit)
+      mProcess_[it.first]=std::make_shared<SimpleSubstitutionProcessSiteSimulator>(*dit);
+    else if (git)
+      mProcess_[it.first]=std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(*git);
+    else
+      throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator: unknown type of site simulator.");
+  }
+  
   return *this;
 }
 
 
 SubstitutionProcessSequenceSimulator::~SubstitutionProcessSequenceSimulator()
 {
-  for (std::map<size_t, SimpleSubstitutionProcessSequenceSimulator*>::const_iterator  it=mProcess_.begin(); it != mProcess_.end(); it++)
-    delete it->second;
 }
 
 void SubstitutionProcessSequenceSimulator::outputInternalSequences(bool yn)
 {
-  for (std::map<size_t, SimpleSubstitutionProcessSequenceSimulator*>::iterator  it=mProcess_.begin(); it != mProcess_.end(); it++)
-    it->second->outputInternalSequences(yn);
+  for (auto it : mProcess_)
+    it.second->outputInternalSites(yn);
 }
 
 void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
@@ -150,9 +169,9 @@ void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
 }
 
 
-SiteContainer* SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
+std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
 {
-  VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
+  auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
   sites->setSequencesNames(seqNames_);
 
   Vint vval(seqNames_.size());
@@ -171,14 +190,14 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSit
   return sites;
 }
 
-SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<double>& rates) const
+std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(const vector<double>& rates) const
 {
   size_t numberOfSites=rates.size();
   
   if (numberOfSites>vMap_.size())
     throw Exception("SubstitutionProcessSequenceSimulator::simulate : some sites do not have attributed process");
 
-  VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
+  auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
   sites->setSequencesNames(seqNames_);
 
   Vint vval(seqNames_.size());
@@ -197,11 +216,11 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<doubl
   return sites;
 }
 
-SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<size_t>& states) const
+std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(const vector<size_t>& states) const
 {
   size_t numberOfSites=states.size();
 
-  VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
+  auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
   sites->setSequencesNames(seqNames_);
 
   Vint vval(seqNames_.size());
@@ -220,13 +239,13 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<size_
   return sites;
 }
 
-SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<double>& rates, const vector<size_t>& states) const
+std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(const vector<double>& rates, const vector<size_t>& states) const
 {
   size_t numberOfSites = rates.size();
   if (states.size() != numberOfSites)
     throw Exception("SubstitutionProcessSequenceSimulator::simulate, 'rates' and 'states' must have the same length.");
 
-  VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
+  auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
   sites->setSequencesNames(seqNames_);
 
   Vint vval(seqNames_.size());

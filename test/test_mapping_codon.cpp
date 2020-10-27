@@ -48,7 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
 #include <Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.h>
-#include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
+#include <Bpp/Phyl/Simulation/SimpleSubstitutionProcessSiteSimulator.h>
 #include <Bpp/Phyl/Mapping/SubstitutionRegister.h>
 #include <Bpp/Phyl/Mapping/NaiveSubstitutionCount.h>
 #include <Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h>
@@ -83,7 +83,7 @@ int main() {
   std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
   unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), pTree->clone()));
 
-  SimpleSubstitutionProcessSequenceSimulator simulator(*process);
+  SimpleSubstitutionProcessSiteSimulator simulator(*process);
 
   TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model->getStateMap());
   DnDsSubstitutionRegister* dndsReg = new DnDsSubstitutionRegister(model->getStateMap(), *gc);
@@ -95,7 +95,7 @@ int main() {
   VectorSiteContainer sites(new_tree->getAllLeavesNames(), gc->getSourceAlphabet());
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1, '=');
-    unique_ptr<New_SiteSimulationResult> result(simulator.dSimulateSite());
+    unique_ptr<SiteSimulationResult> result(simulator.dSimulateSite());
     realMap[i].resize(ids.size());
     realMapTotal[i].resize(ids.size());
     realMapDnDs[i].resize(ids.size());

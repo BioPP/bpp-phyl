@@ -38,6 +38,11 @@
  */
 
 #include "SequenceSimulationTools.h"
+#include "SiteSimulator.h"
+#include "SequenceSimulator.h"
+
+#include "SimpleSubstitutionProcessSiteSimulator.h"
+#include "GivenDataSubstitutionProcessSiteSimulator.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -45,13 +50,13 @@
 using namespace bpp;
 using namespace std;
 
-SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<double>& rates)
+SiteContainer* SequenceSimulationTools::simulateSites(const SequenceSimulator& simulator, const vector<double>& rates)
 {
   size_t numberOfSites = rates.size();
   vector<const Site*> vs(numberOfSites);
   for (size_t i = 0; i < numberOfSites; i++)
   {
-    Site* s = simulator.simulateSite(rates[i]);
+    Site* s = simulator.getSiteSimulator(i).simulateSite(rates[i]);
     s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }
@@ -66,7 +71,7 @@ SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simul
   return sites;
 }
 
-SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<double>& rates, const vector<size_t>& states)
+SiteContainer* SequenceSimulationTools::simulateSites(const SequenceSimulator& simulator, const vector<double>& rates, const vector<size_t>& states)
 {
   size_t numberOfSites = rates.size();
   if (states.size() != numberOfSites)
@@ -74,7 +79,7 @@ SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simul
   vector<const Site*> vs(numberOfSites);
   for (size_t i = 0; i < numberOfSites; i++)
   {
-    Site* s = simulator.simulateSite(states[i], rates[i]);
+    Site* s = simulator.getSiteSimulator(i).simulateSite(states[i], rates[i]);
     s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }
@@ -89,13 +94,13 @@ SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simul
   return sites;
 }
 
-SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<size_t>& states)
+SiteContainer* SequenceSimulationTools::simulateSites(const SequenceSimulator& simulator, const vector<size_t>& states)
 {
   size_t numberOfSites = states.size();
   vector<const Site*> vs(numberOfSites);
   for (size_t i = 0; i < numberOfSites; i++)
   {
-    Site* s = simulator.simulateSite(states[i]);
+    Site* s = simulator.getSiteSimulator(i).simulateSite(states[i]);
     s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }

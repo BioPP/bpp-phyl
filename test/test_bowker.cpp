@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/FrequencySet/FrequencySet.h>
 
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
+#include <Bpp/Phyl/Simulation/SimpleSubstitutionProcessSequenceSimulator.h>
 
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 
@@ -57,7 +57,7 @@ using namespace bpp;
 using namespace std;
 
 double testBowker(const SimpleSubstitutionProcessSequenceSimulator& sim, size_t seqlen) {
-  unique_ptr<SiteContainer> sites(sim.simulate(seqlen));
+  auto sites(sim.simulate(seqlen));
   unique_ptr<BowkerTest> bTest(SequenceTools::bowkerTest(sites->getSequence(0), sites->getSequence(1)));
   return bTest->getPValue();
 }

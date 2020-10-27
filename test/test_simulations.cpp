@@ -39,13 +39,17 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/Container/SiteContainerTools.h>
+
+#include <Bpp/Seq/Io/BppOAlignmentWriterFormat.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
+#include <Bpp/Phyl/Simulation/SimpleSubstitutionProcessSiteSimulator.h>
+#include <Bpp/Phyl/Simulation/GivenDataSubstitutionProcessSequenceSimulator.h>
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
@@ -79,7 +83,7 @@ int main() {
     thetas.push_back(theta);
   }
 
-  SimpleSubstitutionProcessSequenceSimulator simulator(*process);
+  SimpleSubstitutionProcessSiteSimulator simulator(*process);
 
   unsigned int n = 100000;
   OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
@@ -134,7 +138,7 @@ int main() {
 
   //Now fit model:
   auto process2 = std::shared_ptr<SubstitutionProcess>(process->clone());
-  auto l2 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process2);
+  auto l2 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites2, *process2);
   SingleProcessPhyloLikelihood llh2(context, l2, l2->getParameters());
 
   OptimizationTools::optimizeNumericalParameters2(
@@ -142,7 +146,7 @@ int main() {
     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   process2->matchParametersValues(llh2.getParameters());
-  
+
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
     cout << thetas[i] << "\t" << process2->getModel(i+1)->getParameter("theta").getValue() << endl;
@@ -154,7 +158,30 @@ int main() {
     }
   }
 
+  cout << "Estimates fine." << endl;
+
   //-------------
+
+  
+  GivenDataSubstitutionProcessSequenceSimulator gdps(llh2.getLikelihoodCalculationSingleProcess());
+  
+  auto vec2=gdps.simulate();
+
+  BppOAlignmentWriterFormat bppoWriter(1);
+  unique_ptr<OAlignment> oAln(bppoWriter.read("Fasta"));
+
+  oAln->writeAlignment("seq1.fasta", sites2, true);
+  oAln->writeAlignment("seq2.fasta", *vec2, true);
+  // compare
+
+  for (const auto& name: seqNames)
+  {
+    const auto& seq1 = sites2.getSequence(name);
+    const auto& seq2 = vec2->getSequence(name);
+
+    cerr << name << ":" << SiteContainerTools::computeSimilarity(seq1, seq2) << endl;
+  }
+  
   delete partree;
   delete alphabet;
   delete rdist;

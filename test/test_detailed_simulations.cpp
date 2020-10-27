@@ -44,7 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/GTR.h>
-#include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
+
+#include <Bpp/Phyl/Simulation/SimpleSubstitutionProcessSequenceSimulator.h>
 
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 
@@ -68,8 +69,8 @@ int main() {
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
 
   RateAcrossSitesSubstitutionProcess process(model, rdist, paramPhyloTree);
-  
-  SimpleSubstitutionProcessSequenceSimulator simulatorS(process);
+
+  SimpleSubstitutionProcessSiteSimulator simulatorS(process);
 
   unsigned int n = 200000;
   map<int, RowMatrix<unsigned int> > counts;
@@ -80,7 +81,6 @@ int main() {
     for (size_t j = 0; j < ids.size(); ++j) {
       result->getMutationPath(ids[j]).getEventCounts(counts[ids[j]]);
     }
-    delete result;
   }
 
   const auto& Q=model->getGenerator();

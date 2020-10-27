@@ -41,7 +41,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
 #define _SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
 
-#include "SimpleSubstitutionProcessSequenceSimulator.h"
+#include "SiteSimulator.h"
+#include "SequenceSimulator.h"
+
+#include <Bpp/Phyl/NewLikelihood/SequenceEvolution.h>
 
 namespace bpp
 {
@@ -59,7 +62,7 @@ namespace bpp
      *
      */
     
-    std::map<size_t, SimpleSubstitutionProcessSequenceSimulator*> mProcess_;
+    std::map<size_t, std::shared_ptr<SiteSimulator> > mProcess_;
 
     /**
      * @brief The vector of the site specific process in mProcess_;
@@ -98,11 +101,15 @@ namespace bpp
 
     ~SubstitutionProcessSequenceSimulator();
 
-    SimpleSubstitutionProcessSequenceSimulator& getSimpleProcessSimulator(size_t pos)
+    const SiteSimulator& getSiteSimulator(size_t pos) const
     {
       if (pos>vMap_.size())
         throw BadIntegerException("Out of range position for SubstitutionProcessSequenceSimulator", (int)pos);
-      return *mProcess_[vMap_[pos]];
+      return *mProcess_.at(vMap_[pos]);
+    }
+
+    std::vector<std::string> getSequencesNames() const {
+      return seqNames_;
     }
 
     /**
@@ -121,13 +128,13 @@ namespace bpp
     
     void setMap(std::vector<size_t> vMap);
 
-    SiteContainer* simulate(size_t numberOfSites) const;
+    std::shared_ptr<SiteContainer> simulate(size_t numberOfSites) const;
 
-    SiteContainer* simulate(const std::vector<double>& rates) const;
+    std::shared_ptr<SiteContainer> simulate(const std::vector<double>& rates) const;
 
-    SiteContainer* simulate(const std::vector<size_t>& states) const;
+    std::shared_ptr<SiteContainer> simulate(const std::vector<size_t>& states) const;
 
-    SiteContainer* simulate(const std::vector<double>& rates, const std::vector<size_t>& states) const;
+    std::shared_ptr<SiteContainer> simulate(const std::vector<double>& rates, const std::vector<size_t>& states) const;
 
     const Alphabet* getAlphabet() const;
 

@@ -230,10 +230,13 @@ set (CPP_FILES
   Bpp/Phyl/PatternTools.cpp
   Bpp/Phyl/PhyloStatistics.cpp
   Bpp/Phyl/Simulation/MutationProcess.cpp
-  Bpp/Phyl/Simulation/SimpleSubstitutionProcessSequenceSimulator.cpp
-  Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.cpp
   Bpp/Phyl/Simulation/EvolutionSequenceSimulator.cpp
+  Bpp/Phyl/Simulation/GivenDataSubstitutionProcessSequenceSimulator.cpp
+  Bpp/Phyl/Simulation/GivenDataSubstitutionProcessSiteSimulator.cpp
   Bpp/Phyl/Simulation/SequenceSimulationTools.cpp
+  Bpp/Phyl/Simulation/SimpleSubstitutionProcessSequenceSimulator.cpp
+  Bpp/Phyl/Simulation/SimpleSubstitutionProcessSiteSimulator.cpp
+  Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.cpp
   Bpp/Phyl/SitePatterns.cpp
   Bpp/Phyl/Tree/BipartitionList.cpp
   Bpp/Phyl/Tree/BipartitionTools.cpp

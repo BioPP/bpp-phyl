@@ -45,7 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
-#include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
+#include <Bpp/Phyl/Simulation/SimpleSubstitutionProcessSequenceSimulator.h>
 
 #include <Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
@@ -124,7 +124,7 @@ int main() {
     OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
     //Simulate data:
-    unique_ptr<SiteContainer> sites(simulator.simulate(nsites));
+    auto sites(simulator.simulate(nsites));
 
     //Now fit model:
 
