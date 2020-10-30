@@ -96,7 +96,6 @@ void CodonDistanceFrequenciesSubstitutionModel::fireParameterChanged(const Param
 double CodonDistanceFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
-    * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(i,j);
 }
 

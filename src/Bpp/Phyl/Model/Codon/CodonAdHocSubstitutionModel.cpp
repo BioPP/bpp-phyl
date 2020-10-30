@@ -172,6 +172,6 @@ double CodonAdHocSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
   for (auto& model : vModel_)
     x*= model->getCodonsMulRate(i,j);
 
-  return x * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j);
+  return x;
 }
 
