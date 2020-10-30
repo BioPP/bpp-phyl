@@ -88,7 +88,6 @@ void SENCA::fireParameterChanged(const ParameterList& parameters)
 double SENCA::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
-    * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonFitnessSubstitutionModel::getCodonsMulRate(i,j);
 }
 
