@@ -1,5 +1,5 @@
 //
-// File: JointLikelihoodFunction.cpp
+// File: JointLikelihoodFunction.h
 // Created by: Keren Halabi
 // Created on: Thu Aug 28 13:14 2018
 //
@@ -179,12 +179,12 @@ class JointLikelihoodFunction:
     /**
      * @brief Return the pointer to the character likelihood function
      */
-    const HomogeneousTreeLikelihood* getCharacterLikelihoodFunction() const { return characterTreeLikelihood_; }
+    HomogeneousTreeLikelihood* getCharacterLikelihoodFunction() const { return characterTreeLikelihood_; }
 
     /**
      * @brief Return the pointer to the sequence likelihood function
      */
-    RNonHomogeneousMixedTreeLikelihood* getSequenceLikelihoodFunction() { return sequenceTreeLikelihood_; }
+    RNonHomogeneousMixedTreeLikelihood* getSequenceLikelihoodFunction() const { return sequenceTreeLikelihood_; }
  
     /**
      * @brief Computes the value of the joint likelihood function depending on hypothesis - calls either computeNullJointLikelihood or computeAlternativeJointLikelihood

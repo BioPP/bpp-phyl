@@ -12,6 +12,7 @@
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Seq/AlphabetIndex/UserAlphabetIndex1.h>
+#include <Bpp/Seq/Alphabet/NumericAlphabet.h>
 
 #include <iostream>
 #include <fstream>
@@ -32,7 +33,8 @@ StochasticMapping::StochasticMapping(std::shared_ptr<LikelihoodCalculationSingle
   fractionalProbabilities_(),
   ConditionalProbabilities_(),
   nodesCounter_(0),
-  numOfMappings_(numOfMappings)
+  numOfMappings_(numOfMappings)// ,
+  // nodeIdToIndex_()
 {
   giveNamesToInternalNodes(*tree_);                     // set names for the internal nodes of the tree, in case of absence
   ComputeConditionals();
@@ -277,7 +279,6 @@ shared_ptr<PhyloTree> StochasticMapping::generateAnalyticExpectedMapping(size_t 
 
   return expectedMapping;
 }
-
 /******************************************************************************/
 
 int StochasticMapping::getNodeState(const PhyloNode* node) const
@@ -324,6 +325,7 @@ void StochasticMapping::setLeafsStates(std::shared_ptr<PhyloTree> mapping)
 }
 
 /******************************************************************************/
+
 
 void StochasticMapping::computeFractionals()
 {

@@ -127,7 +127,7 @@ namespace bpp
      
     void shareParameters(const ParameterList& variableNodes)
     {
-      getParameters_().shareParameters(variableNodes);
+      this->getParameters_().shareParameters(variableNodes);
     }
 
     void setParameters(const ParameterList& parameters)
