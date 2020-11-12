@@ -116,7 +116,7 @@ public:
     geneticCode_ = gCode;
   }
 
-  FrequencySet* readFrequencySet(
+  std::shared_ptr<FrequencySet> readFrequencySet(
       const Alphabet* alphabet,
       const std::string& freqDescription,
       const SiteContainer* data,
@@ -125,7 +125,7 @@ public:
   const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 
   void writeFrequencySet(
-      const FrequencySet* pfreqset,
+      const std::shared_ptr<FrequencySet> pfreqset,
       OutputStream& out,
       std::map<std::string, std::string>& globalAliases,
       std::vector<std::string>& writtenNames) const;

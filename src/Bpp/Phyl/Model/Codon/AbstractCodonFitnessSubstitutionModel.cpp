@@ -40,10 +40,10 @@
 using namespace bpp;
 using namespace std;
 /****************************************************************************************/
-AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(FrequencySet* pfitset, const GeneticCode* pgencode, const string& prefix):
+AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(std::shared_ptr<FrequencySet> pfitset, const GeneticCode* pgencode, const string& prefix):
   AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_("")
 {
-  if (dynamic_cast<CodonFrequencySet*>(pfitset) == NULL)
+  if (dynamic_cast<CodonFrequencySet*>(pfitset.get()) == NULL)
     throw Exception ("Bad type for fitness parameters"+ pfitset ->getName());
   fitName_="fit_"+ pfitset_->getNamespace();
   pfitset_->setNamespace(prefix + fitName_);
@@ -52,7 +52,6 @@ AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(Fre
 
 AbstractCodonFitnessSubstitutionModel::~AbstractCodonFitnessSubstitutionModel()
 {
-  if (pfitset_) delete pfitset_;
 }
 
 void AbstractCodonFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters)

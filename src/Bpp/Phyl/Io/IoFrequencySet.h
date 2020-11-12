@@ -89,7 +89,7 @@ public:
    * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  virtual FrequencySet* readFrequencySet(
+  virtual std::shared_ptr<FrequencySet> readFrequencySet(
     const Alphabet* alphabet,
     const std::string& freqDescription,
     const SiteContainer* data,
@@ -123,7 +123,7 @@ public:
    * parameters so far [in, out];
    */
   virtual void writeFrequencySet(
-    const FrequencySet* pfreqset,
+    const std::shared_ptr<FrequencySet> pfreqset,
     OutputStream& out,
     std::map<std::string, std::string>& globalAliases,
     std::vector<std::string>& writtenNames) const = 0;

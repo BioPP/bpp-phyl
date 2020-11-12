@@ -99,7 +99,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   continuousRates_(false),
   outputInternalSequences_(false)
 {
-  FixedFrequencySet* fSet = new FixedFrequencySet(model->shareStateMap(), model->getFrequencies());
+  auto fSet = std::make_shared<FixedFrequencySet>(model->shareStateMap(), model->getFrequencies());
   fSet->setNamespace("anc.");
   modelSet_ = SubstitutionModelSetTools::createHomogeneousModelSet(model->clone(), fSet, templateTree_);
   init();

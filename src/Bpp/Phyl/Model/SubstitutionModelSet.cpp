@@ -69,7 +69,7 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
   modelParameters_     = set.modelParameters_;
   stationarity_        = set.stationarity_;
   if (set.stationarity_)
-    rootFrequencies_.reset(0);
+    rootFrequencies_=0;
   else
     rootFrequencies_.reset(dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone()));
 
@@ -98,11 +98,11 @@ void SubstitutionModelSet::clear()
 
 }
 
-void SubstitutionModelSet::setRootFrequencies(FrequencySet* rootFreqs)
+void SubstitutionModelSet::setRootFrequencies(std::shared_ptr<FrequencySet> rootFreqs)
 {
   if (rootFreqs){
     stationarity_=false;
-    rootFrequencies_.reset(rootFreqs);
+    rootFrequencies_=rootFreqs;
     addParameters_(rootFrequencies_->getParameters());
   }
 }

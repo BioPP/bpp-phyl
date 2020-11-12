@@ -72,7 +72,7 @@ namespace bpp
     public virtual AbstractParameterAliasable
   {
   private:
-    std::unique_ptr<FrequencySet> pfitset_;
+    std::shared_ptr<FrequencySet> pfitset_;
 
     const GeneticCode* pgencode_;
   
@@ -91,7 +91,7 @@ namespace bpp
 
   public:
     AbstractCodonAAFitnessSubstitutionModel(
-      FrequencySet* pfitset,
+      std::shared_ptr<FrequencySet> pfitset,
       const GeneticCode* pgencode,
       const std::string& prefix);
     
@@ -129,7 +129,7 @@ namespace bpp
 
     void setFreq(std::map<int, double>& frequencies);
 
-    const FrequencySet& getFreq() const { return *pfitset_.get(); }
+    const FrequencySet& getFreq() const { return *pfitset_; }
 
     void setNamespace (const std::string& prefix){
       AbstractParameterAliasable::setNamespace(prefix);
@@ -138,9 +138,9 @@ namespace bpp
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    const FrequencySet& getAAFitness() const { return *pfitset_.get();}
+    const std::shared_ptr<FrequencySet> getAAFitness() const { return pfitset_;}
 
-    const FrequencySet* getFrequencySet() const 
+    const std::shared_ptr<FrequencySet> getFrequencySet() const 
     {
       return 0;
     }

@@ -89,7 +89,7 @@ namespace bpp
      *
      * @see Simplex
      */
-    static FrequencySet* getFrequencySetForCodons(short option, const GeneticCode* gCode, const std::string& mgmtStopCodon = "quadratic", unsigned short method = 1);
+    static std::shared_ptr<FrequencySet> getFrequencySetForCodons(short option, const GeneticCode* gCode, const std::string& mgmtStopCodon = "quadratic", unsigned short method = 1);
 
     static const short F0;
     static const short F1X4;
@@ -277,7 +277,7 @@ namespace bpp
   {
   private:
     const GeneticCode* pgc_;
-    std::unique_ptr<ProteinFrequencySet> ppfs_;
+    std::shared_ptr<ProteinFrequencySet> ppfs_;
 
     /**
      * @ brief vector of the simplexes, one for each AA
@@ -296,7 +296,7 @@ namespace bpp
      * frequencies set.
      * @param method the method used for parametrization.
      */
-    FullPerAACodonFrequencySet(const GeneticCode* gencode, ProteinFrequencySet* ppfs, unsigned short method = 1);
+    FullPerAACodonFrequencySet(const GeneticCode* gencode, std::shared_ptr<ProteinFrequencySet> ppfs, unsigned short method = 1);
 
     /**
      * @brief Construction with fixed uniform frequencies on the amino acids.
@@ -333,9 +333,9 @@ namespace bpp
 
     void setNamespace(const std::string& prefix);
 
-    const ProteinFrequencySet* getProteinFrequencySet() const
+    const std::shared_ptr<ProteinFrequencySet> getProteinFrequencySet() const
     {
-      return ppfs_.get();
+      return ppfs_;
     }
 
     unsigned short getMethod() const
@@ -369,7 +369,7 @@ namespace bpp
 
   public:
     /**
-     * @brief Constructor from a CodonAlphabet* and a vector of different FrequencySet*.
+     * @brief Constructor from a CodonAlphabet* and a vector of different std::shared_ptr<FrequencySet>.
      * Throws an Exception if their lengths do not match.
      *
      * @param gCode a pointer to the genetic code to use.
@@ -387,7 +387,7 @@ namespace bpp
      *     the square of each target codon frequency.
      *
      */
-    CodonFromIndependentFrequencySet(const GeneticCode* gCode, const std::vector<FrequencySet*>& freqvector, const std::string& name = "Codon", const std::string& mgmtStopCodon = "quadratic");
+    CodonFromIndependentFrequencySet(const GeneticCode* gCode, const std::vector<std::shared_ptr<FrequencySet>>& freqvector, const std::string& name = "Codon", const std::string& mgmtStopCodon = "quadratic");
 
     CodonFromIndependentFrequencySet(const CodonFromIndependentFrequencySet& iwfs);
 
@@ -447,7 +447,7 @@ namespace bpp
 
   public:
     /**
-     * @brief Constructor from a CodonAlphabet* and a FrequencySet*
+     * @brief Constructor from a CodonAlphabet* and a std::shared_ptr<FrequencySet>
      *  repeated three times.
      *
      * @param gCode a pointer to a genetic code.
@@ -466,7 +466,7 @@ namespace bpp
      */
     CodonFromUniqueFrequencySet(
       const GeneticCode* gCode,
-      FrequencySet* pfreq,
+      std::shared_ptr<FrequencySet> pfreq,
       const std::string& name = "Codon",
       const std::string& mgmtStopCodon = "quadratic");
 

@@ -221,7 +221,7 @@ public:
    * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  static FrequencySet* getRootFrequencySet(
+  static std::shared_ptr<FrequencySet> getRootFrequencySet(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const SiteContainer* data,
@@ -252,7 +252,7 @@ public:
    * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  static FrequencySet* getFrequencySet(
+  static std::shared_ptr<FrequencySet> getFrequencySet(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const std::string& freqDescription,
@@ -280,7 +280,7 @@ public:
    * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  static FrequencySet* getFrequencySet(
+  static std::shared_ptr<FrequencySet> getFrequencySet(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const std::string& freqDescription,

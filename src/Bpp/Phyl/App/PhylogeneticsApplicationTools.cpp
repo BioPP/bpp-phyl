@@ -302,7 +302,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 
 /******************************************************************************/
 
-FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
+std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getRootFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* data,
@@ -323,7 +323,7 @@ FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
   {
     map<string, string> unparams;
 
-    FrequencySet* freq = getFrequencySet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
+    std::shared_ptr<FrequencySet> freq = getFrequencySet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
     for (const auto& it:unparams)
@@ -339,7 +339,7 @@ FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
 
 /******************************************************************************/
 
-FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
+std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const std::string& freqDescription,
@@ -357,7 +357,7 @@ FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
       throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  unique_ptr<FrequencySet> pFS(bIO.readFrequencySet(alphabet, freqDescription, data, true));
+  auto pFS(bIO.readFrequencySet(alphabet, freqDescription, data, true));
 
   std::map<std::string, std::string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -366,10 +366,10 @@ FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-    pFS.reset(new MarkovModulatedFrequencySet(pFS.release(), rateFreqs));
+    pFS.reset(new MarkovModulatedFrequencySet(pFS, rateFreqs));
   }
 
-  return pFS.release();
+  return pFS;
 }
 
 /******************************************************/
@@ -478,7 +478,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   map<string, string> unparsedParameters;
 
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", true, warn);
-  FrequencySet* rootFrequencies = 0;
+  std::shared_ptr<FrequencySet> rootFrequencies = 0;
   if (!stationarity)
   {
     rootFrequencies = getRootFrequencySet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
@@ -487,7 +487,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     if (freqDescription.substr(0, 10) == "MVAprotein")
     {
       if (dynamic_cast<Coala*>(tmp.get()))
-        dynamic_cast<MvaFrequencySet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+        dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
       else
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
@@ -1539,7 +1539,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
   if (!modelSet->isStationary())
   {
-    const FrequencySet* pFS = modelSet->getRootFrequencySet();
+    const auto pFS = modelSet->getRootFrequencySet();
 
     ParameterList plf = pFS->getParameters();
 

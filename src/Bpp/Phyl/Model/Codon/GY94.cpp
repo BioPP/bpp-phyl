@@ -46,7 +46,7 @@ using namespace std;
 
 /******************************************************************************/
 
-GY94::GY94(const GeneticCode* gc, FrequencySet* codonFreqs) :
+GY94::GY94(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   AbstractBiblioTransitionModel("GY94."),
   AbstractBiblioSubstitutionModel("GY94."),
   gacd_(),

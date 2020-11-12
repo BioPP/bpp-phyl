@@ -49,7 +49,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nbOmega) :
+YNGP_M3::YNGP_M3(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nbOmega) :
   YNGP_M("YNGP_M3.")
 {
   if (nbOmega < 1)

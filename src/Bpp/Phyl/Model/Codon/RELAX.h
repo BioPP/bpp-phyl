@@ -79,7 +79,7 @@ namespace bpp
     // gc is a pointer to a constant GeneticCode instance
     // unlike GeneticCode const* gc - gc is a constant pointer to a GeneticCode instance
     // see: https://stackoverflow.com/questions/3984989/what-is-the-differnce-between-const-x-a-and-x-const-a-if-x-is-the-class?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-    RELAX(const GeneticCode* gc, FrequencySet* codonFreqs);
+    RELAX(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
 
     RELAX* clone() const { return new RELAX(*this); }
 

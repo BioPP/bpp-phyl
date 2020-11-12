@@ -51,7 +51,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
+YNGP_M9::YNGP_M9(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
   YNGP_M("YNGP_M9."),
   nBeta_(nbBeta),
   nGamma_(nbGamma)

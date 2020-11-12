@@ -47,7 +47,7 @@ using namespace std;
 CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(
     const GeneticCode* gCode,
     NucleotideSubstitutionModel* pmod,
-    FrequencySet* pfreq,
+    std::shared_ptr<FrequencySet> pfreq,
     const AlphabetIndex2* pdist,
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
@@ -65,7 +65,7 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
     NucleotideSubstitutionModel* pmod1,
     NucleotideSubstitutionModel* pmod2,
     NucleotideSubstitutionModel* pmod3,
-    FrequencySet* pfreq,
+    std::shared_ptr<FrequencySet> pfreq,
     const AlphabetIndex2* pdist,
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),

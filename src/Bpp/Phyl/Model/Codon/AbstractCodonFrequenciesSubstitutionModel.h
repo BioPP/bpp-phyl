@@ -66,7 +66,7 @@ namespace bpp
     virtual public AbstractParameterAliasable
   {
   private:
-    FrequencySet* pfreqset_;
+    std::shared_ptr<FrequencySet> pfreqset_;
     std::string freqName_;
 
   public:
@@ -78,7 +78,7 @@ namespace bpp
      *@param prefix the Namespace
      */
 
-    AbstractCodonFrequenciesSubstitutionModel(FrequencySet* pfreq,
+    AbstractCodonFrequenciesSubstitutionModel(std::shared_ptr<FrequencySet> pfreq,
                                               const std::string& prefix);
 
     AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& model) :
@@ -90,8 +90,7 @@ namespace bpp
     AbstractCodonFrequenciesSubstitutionModel& operator=(const AbstractCodonFrequenciesSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
-      if (pfreqset_) delete pfreqset_;
-      pfreqset_   = model.pfreqset_->clone();
+      pfreqset_   = std::shared_ptr<FrequencySet>(dynamic_cast<FrequencySet*>(model.pfreqset_->clone()));
       freqName_   = model.freqName_;
       return *this;
     }
@@ -115,7 +114,7 @@ namespace bpp
 
     double getCodonsMulRate(size_t, size_t) const;
 
-    const FrequencySet* getFrequencySet() const 
+    const std::shared_ptr<FrequencySet> getFrequencySet() const 
     {
       return pfreqset_;
     }

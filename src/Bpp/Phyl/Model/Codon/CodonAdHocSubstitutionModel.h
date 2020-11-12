@@ -73,7 +73,7 @@ namespace bpp
      *
      */
      
-    const FrequencySet* freqSet_;
+    std::shared_ptr<FrequencySet> freqSet_;
     
   public:
     /**
@@ -156,7 +156,7 @@ namespace bpp
 
     void setFreq(std::map<int,double>& frequencies);
 
-    const FrequencySet* getFrequencySet() const
+    const std::shared_ptr<FrequencySet> getFrequencySet() const
     {
       return freqSet_;
     }

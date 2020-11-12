@@ -69,7 +69,7 @@ class SubstitutionModelSetTools
      */
     static SubstitutionModelSet* createHomogeneousModelSet(
         TransitionModel* model,
-        FrequencySet* rootFreqs,
+        std::shared_ptr<FrequencySet> rootFreqs,
         const Tree* tree
       );
 
@@ -95,7 +95,7 @@ class SubstitutionModelSetTools
 
   static SubstitutionModelSet* createNonHomogeneousModelSet(
         TransitionModel* model,
-        FrequencySet* rootFreqs,
+        std::shared_ptr<FrequencySet> rootFreqs,
         const Tree* tree,
         const std::map<std::string, std::string>& aliasFreqNames,
         const std::map<std::string, std::vector<Vint> >& globalParameterNames

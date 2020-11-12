@@ -178,7 +178,7 @@ void FullCodonFrequencySet::updateFreq_()
 
 FullPerAACodonFrequencySet::FullPerAACodonFrequencySet(
   const GeneticCode* gencode,
-  ProteinFrequencySet* ppfs,
+  std::shared_ptr<ProteinFrequencySet> ppfs,
   unsigned short method) :
   AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gencode->getSourceAlphabet(), false)), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
@@ -412,7 +412,7 @@ void UserCodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 
 CodonFromIndependentFrequencySet::CodonFromIndependentFrequencySet(
   const GeneticCode* gCode,
-  const std::vector<FrequencySet*>& freqvector,
+  const std::vector<std::shared_ptr<FrequencySet>>& freqvector,
   const string& name,
   const string& mgmtStopCodon) :
   WordFromIndependentFrequencySet(gCode->getSourceAlphabet(), freqvector, "", name),
@@ -535,7 +535,7 @@ void CodonFromIndependentFrequencySet::updateFrequencies()
 
 CodonFromUniqueFrequencySet::CodonFromUniqueFrequencySet(
   const GeneticCode* gCode,
-  FrequencySet* pfreq,
+  std::shared_ptr<FrequencySet> pfreq,
   const string& name,
   const string& mgmtStopCodon) :
   WordFromUniqueFrequencySet(gCode->getSourceAlphabet(), pfreq, "", name),
@@ -648,24 +648,24 @@ void CodonFromUniqueFrequencySet::updateFrequencies()
 
 /*********************************************************************/
 
-FrequencySet* CodonFrequencySet::getFrequencySetForCodons(short option, const GeneticCode* gCode, const string& mgmtStopCodon, unsigned short method)
+std::shared_ptr<FrequencySet> CodonFrequencySet::getFrequencySetForCodons(short option, const GeneticCode* gCode, const string& mgmtStopCodon, unsigned short method)
 {
-  FrequencySet* codonFreqs;
+  std::shared_ptr<FrequencySet> codonFreqs;
 
   if (option == F0)
-    codonFreqs = new FixedCodonFrequencySet(gCode, "F0");
+    codonFreqs.reset(new FixedCodonFrequencySet(gCode, "F0"));
   else if (option == F1X4)
-    codonFreqs = new CodonFromUniqueFrequencySet(gCode, new FullNucleotideFrequencySet(gCode->getSourceAlphabet()->getNucleicAlphabet()), "F1X4", mgmtStopCodon);
+    codonFreqs.reset(new CodonFromUniqueFrequencySet(gCode, std::make_shared<FullNucleotideFrequencySet>(gCode->getSourceAlphabet()->getNucleicAlphabet()), "F1X4", mgmtStopCodon));
   else if (option == F3X4)
   {
-    vector<FrequencySet*> v_AFS(3);
-    v_AFS[0] = new FullNucleotideFrequencySet(gCode->getSourceAlphabet()->getNucleicAlphabet());
-    v_AFS[1] = new FullNucleotideFrequencySet(gCode->getSourceAlphabet()->getNucleicAlphabet());
-    v_AFS[2] = new FullNucleotideFrequencySet(gCode->getSourceAlphabet()->getNucleicAlphabet());
-    codonFreqs = new CodonFromIndependentFrequencySet(gCode, v_AFS, "F3X4", mgmtStopCodon);
+    vector<std::shared_ptr<FrequencySet>> v_AFS(3);
+    v_AFS[0] = std::make_shared<FullNucleotideFrequencySet>(gCode->getSourceAlphabet()->getNucleicAlphabet());
+    v_AFS[1] = std::make_shared<FullNucleotideFrequencySet>(gCode->getSourceAlphabet()->getNucleicAlphabet());
+    v_AFS[2] = std::make_shared<FullNucleotideFrequencySet>(gCode->getSourceAlphabet()->getNucleicAlphabet());
+    codonFreqs = std::make_shared<CodonFromIndependentFrequencySet>(gCode, v_AFS, "F3X4", mgmtStopCodon);
   }
   else if (option == F61)
-    codonFreqs = new FullCodonFrequencySet(gCode, false, method, "F61");
+    codonFreqs.reset(new FullCodonFrequencySet(gCode, false, method, "F61"));
   else
     throw Exception("FrequencySet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
 

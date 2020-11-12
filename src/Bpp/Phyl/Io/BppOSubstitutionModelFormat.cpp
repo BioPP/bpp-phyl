@@ -297,7 +297,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
     string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
     BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
     freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-    unique_ptr<FrequencySet> codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
+    auto codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
     map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -306,11 +306,11 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
     }
 
     if (modelName == "MG94")
-      model.reset(new MG94(geneticCode_, codonFreqs.release()));
+      model.reset(new MG94(geneticCode_, codonFreqs));
     else if (modelName == "GY94")
-      model.reset(new GY94(geneticCode_, codonFreqs.release()));
+      model.reset(new GY94(geneticCode_, codonFreqs));
     else if ((modelName == "YN98") || (modelName == "YNGP_M0"))
-      model.reset(new YN98(geneticCode_, codonFreqs.release()));
+      model.reset(new YN98(geneticCode_, codonFreqs));
     else if (modelName == "KCM7")
       model.reset(new KCM(geneticCode_, true));
     else if (modelName == "KCM19")
@@ -667,7 +667,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
       if (modelName.find("+F") != string::npos) {
         string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, warningLevel_);
         BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, false, warningLevel_);
-        unique_ptr<FrequencySet> protFreq(freqReader.readFrequencySet(alpha, freqOpt, data, true));
+        auto protFreq(freqReader.readFrequencySet(alpha, freqOpt, data, true));
   
         map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
@@ -677,15 +677,15 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
         }
 
         if (modelName == "JC69+F")
-          model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
+          model.reset(new JCprot(alpha, dynamic_pointer_cast<ProteinFrequencySet>(protFreq)));
         else if (modelName == "DSO78+F")
-          model.reset(new DSO78(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
+          model.reset(new DSO78(alpha, dynamic_pointer_cast<ProteinFrequencySet>(protFreq)));
         else if (modelName == "JTT92+F")
-          model.reset(new JTT92(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
+          model.reset(new JTT92(alpha, dynamic_pointer_cast<ProteinFrequencySet>(protFreq)));
         else if (modelName == "LG08+F")
-          model.reset(new LG08(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
+          model.reset(new LG08(alpha, dynamic_pointer_cast<ProteinFrequencySet>(protFreq)));
         else if (modelName == "WAG01+F")
-          model.reset(new WAG01(alpha, dynamic_cast<ProteinFrequencySet*>(protFreq.release())));
+          model.reset(new WAG01(alpha, dynamic_pointer_cast<ProteinFrequencySet>(protFreq)));
         else if (modelName == "Empirical+F")
         {
           string prefix = args["name"];
@@ -694,7 +694,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
           string fname = args["file"];
           if (TextTools::isEmpty(fname))
             throw Exception("'file' argument missing for user-defined substitution model.");
-          model.reset(new UserProteinSubstitutionModel(alpha, args["file"], dynamic_cast<ProteinFrequencySet*>(protFreq.release()), prefix + "+F."));
+          model.reset(new UserProteinSubstitutionModel(alpha, args["file"], dynamic_pointer_cast<ProteinFrequencySet>(protFreq), prefix + "+F."));
         }
       }
       else if (modelName == "JC69")
@@ -1039,7 +1039,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       throw Exception("Non codon Alphabet for model" + modelName + ".");
 
     unique_ptr< AlphabetIndex2 > pai2;
-    unique_ptr<FrequencySet> pFS;
+    shared_ptr<FrequencySet> pFS;
 
     if ((dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]) == 0) ||
         ((v_nestedModelDescription.size() == 3) &&
@@ -1071,7 +1071,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
       BppOFrequencySetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model
-      pFS.reset(bIOFreq.readFrequencySet(pCA, args["frequencies"], data, false));
+      pFS = bIOFreq.readFrequencySet(pCA, args["frequencies"], data, false);
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -1170,7 +1170,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         string nestedFreqDescription = args["fitness"];
         BppOFrequencySetFormat nestedReader(PROTEIN, verbose_, warningLevel_);
 
-        FrequencySet* nestedFreq=nestedReader.readFrequencySet(geneticCode_->getTargetAlphabet(), nestedFreqDescription, data, false);
+        auto nestedFreq=nestedReader.readFrequencySet(geneticCode_->getTargetAlphabet(), nestedFreqDescription, data, false);
         
         for (auto  it : nestedReader.getUnparsedArguments())
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
@@ -1191,7 +1191,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         BppOFrequencySetFormat nestedReader(alphabetCode_, verbose_, warningLevel_);
         nestedReader.setGeneticCode(geneticCode_);
       
-        FrequencySet* nestedFreq=nestedReader.readFrequencySet(alphabet, nestedFreqDescription, data, false);
+        auto nestedFreq=nestedReader.readFrequencySet(alphabet, nestedFreqDescription, data, false);
         
         for (auto  it : nestedReader.getUnparsedArguments())
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
@@ -1202,12 +1202,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (modelName.find("PhasFreq")!=string::npos)
       {
         name+="PhasFreq";
-        vCSM.push_back(new AbstractCodonPhaseFrequenciesSubstitutionModel(pFS.release(),""));
+        vCSM.push_back(new AbstractCodonPhaseFrequenciesSubstitutionModel(pFS,""));
       }
       else if (modelName.find("Freq")!=string::npos)
       {
         name+="Freq";
-        vCSM.push_back(new AbstractCodonFrequenciesSubstitutionModel(pFS.release(),""));
+        vCSM.push_back(new AbstractCodonFrequenciesSubstitutionModel(pFS,""));
       }
 
       // Then we update the parameter set:
@@ -1238,13 +1238,13 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         if (vposKron.size()==0)
           model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(geneticCode_,
                                                                              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                             pFS.release(),
+                                                                             pFS,
                                                                              pai2.release()));
         else
           model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(geneticCode_,
                                                                              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                                                                              vposKron,
-                                                                             pFS.release(),
+                                                                             pFS,
                                                                              pai2.release()));
 
       }
@@ -1256,7 +1256,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                        pFS.release(),
+                        pFS,
                         pai2.release()));
         else
           model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(
@@ -1265,7 +1265,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
                         vposKron, 
-                        pFS.release(),
+                        pFS,
                         pai2.release()));
 
       }
@@ -1314,7 +1314,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       BppOFrequencySetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_);
       
-      unique_ptr<FrequencySet> pFit(bIOFreq.readFrequencySet(pCA, args["fitness"], data, false));
+      auto pFit(bIOFreq.readFrequencySet(pCA, args["fitness"], data, false));
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -1326,7 +1326,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       {
         model.reset(new SENCA(geneticCode_,
                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                              pFit.release(),
+                              pFit,
                               pai2.release()));
       }
       else
@@ -1335,7 +1335,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                      pFit.release(),
+                      pFit,
                       pai2.release()));
     }
   }
@@ -1529,7 +1529,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
   
   // Is it a model with FrequencySet?
   
-  const FrequencySet* pfs = model.getFrequencySet();
+  const auto pfs = model.getFrequencySet();
   auto paf=dynamic_cast<const AbstractWrappedModel*>(&model);
   
   if ((pfs!=0) && (!paf))
@@ -1560,7 +1560,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
         write(*acr->getAAModel().get(), out, globalAliases, writtenNames);
         comma = true;
       }
-      const AbstractCodonAAFitnessSubstitutionModel* acf=dynamic_cast<const AbstractCodonAAFitnessSubstitutionModel*>(casm->getNModel(i).get());
+      auto* acf=dynamic_cast<const AbstractCodonAAFitnessSubstitutionModel*>(casm->getNModel(i).get());
       if (acf)
       {
         if (comma)
@@ -1568,7 +1568,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
         out << "fitness=";
     
         BppOFrequencySetFormat bIOFreq(PROTEIN, false, warningLevel_);
-        bIOFreq.writeFrequencySet(&acf->getAAFitness(), out, globalAliases, writtenNames);
+        bIOFreq.writeFrequencySet(acf->getAAFitness(), out, globalAliases, writtenNames);
         comma = true;
       }
       const AbstractCodonClusterAASubstitutionModel* acc=dynamic_cast<const AbstractCodonClusterAASubstitutionModel*>(casm->getNModel(i).get());

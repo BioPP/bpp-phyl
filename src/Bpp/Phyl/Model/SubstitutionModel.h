@@ -316,7 +316,7 @@ namespace bpp
      * it, otherwise return 0.
      */
     
-    virtual const FrequencySet* getFrequencySet() const {return NULL;}
+    virtual const std::shared_ptr<FrequencySet> getFrequencySet() const {return NULL;}
 
   protected:
 

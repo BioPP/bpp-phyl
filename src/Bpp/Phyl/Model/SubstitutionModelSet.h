@@ -122,7 +122,7 @@ private:
   /**
    * @brief Root frequencies.
    */
-  std::unique_ptr<FrequencySet> rootFrequencies_;
+  std::shared_ptr<FrequencySet> rootFrequencies_;
 
   /**
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
@@ -168,7 +168,7 @@ public:
    * @param alpha The alphabet to use for this set.
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance.
    */
-  SubstitutionModelSet(const Alphabet* alpha, FrequencySet* rootFreqs):
+  SubstitutionModelSet(const Alphabet* alpha, std::shared_ptr<FrequencySet> rootFreqs):
     AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(0),
@@ -198,7 +198,7 @@ public:
    *
    * @param rootFreqs The FrequencySet for root frequencies.
    */
-  void setRootFrequencies(FrequencySet* rootFreqs);
+  void setRootFrequencies(std::shared_ptr<FrequencySet> rootFreqs);
 
   SubstitutionModelSet(const SubstitutionModelSet& set);
 
@@ -421,7 +421,7 @@ public:
   /**
    * @return The set of root frequencies.
    */
-  const FrequencySet* getRootFrequencySet() const { return rootFrequencies_.get(); }
+  const std::shared_ptr<FrequencySet> getRootFrequencySet() const { return rootFrequencies_; }
 
   /**
    * @return The values of the root frequencies.

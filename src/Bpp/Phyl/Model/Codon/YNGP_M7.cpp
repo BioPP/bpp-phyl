@@ -51,7 +51,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M7::YNGP_M7(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nclass) :
+YNGP_M7::YNGP_M7(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nclass) :
   YNGP_M("YNGP_M7.")
 {
   if (nclass <= 0)

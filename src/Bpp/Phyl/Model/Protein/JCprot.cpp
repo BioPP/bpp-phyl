@@ -56,11 +56,11 @@ JCprot::JCprot(const ProteicAlphabet* alpha) :
   AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "JC69."),
   exp_(), p_(size_, size_), freqSet_(0), withFreq_(0)
 {
-  freqSet_ = new FixedProteinFrequencySet(alpha, freq_);
+  freqSet_.reset(new FixedProteinFrequencySet(alpha, freq_));
   updateMatrices();
 }
 
-JCprot::JCprot(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs) :
+JCprot::JCprot(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs) :
   AbstractParameterAliasable("JC69+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "JC69+F."),
   exp_(), p_(size_, size_), freqSet_(freqSet), withFreq_(true)

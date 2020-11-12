@@ -77,7 +77,7 @@ int main() {
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  FrequencySet* rootFreqs = new GCFrequencySet(alphabet);
+  auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
   SubstitutionModel* model = new T92(alphabet, 3.);
   std::map<std::string, std::vector<Vint> > globalParameterNames;
   globalParameterNames["T92.kappa"]={};

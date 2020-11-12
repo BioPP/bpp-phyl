@@ -179,7 +179,7 @@ void FixedFrequencySet::setFrequencies(const vector<double>& frequencies)
   setFrequencies_(frequencies);
 }
 
-MarkovModulatedFrequencySet::MarkovModulatedFrequencySet(FrequencySet* freqSet, const std::vector<double>& rateFreqs) :
+MarkovModulatedFrequencySet::MarkovModulatedFrequencySet(std::shared_ptr<FrequencySet> freqSet, const std::vector<double>& rateFreqs) :
   AbstractFrequencySet(std::shared_ptr<const StateMap>(new MarkovModulatedStateMap(freqSet->getStateMap(), static_cast<unsigned int>(rateFreqs.size()))), "MarkovModulated.", "MarkovModulated." + freqSet->getName()),
   freqSet_(freqSet),
   rateFreqs_(rateFreqs)

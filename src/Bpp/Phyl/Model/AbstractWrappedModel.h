@@ -85,7 +85,7 @@ namespace bpp
 
     size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
 
-    const FrequencySet* getFrequencySet() const { return getModel().getFrequencySet();}
+    const std::shared_ptr<FrequencySet> getFrequencySet() const { return getModel().getFrequencySet();}
     
     /*
      * @}

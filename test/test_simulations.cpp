@@ -61,7 +61,7 @@ int main() {
 
   NucleicAlphabet* alphabet = new DNA();
   SubstitutionModel* model = new T92(alphabet, 3.);
-  FrequencySet* rootFreqs = new GCFrequencySet(alphabet);
+  auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
   std::map<std::string, std::vector<Vint> > globalParameterNames;
   globalParameterNames["T92.kappa"]={};
   map<string, string> alias;

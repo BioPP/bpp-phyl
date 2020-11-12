@@ -56,7 +56,7 @@ namespace bpp
  * @brief Frequencies in words computed from the  frequencies on
  * letters. The parameters are the parameters of the Frequencies on
  * letters.
- * The WordFrequencySet owns the FrequencySet* it is built on.
+ * The WordFrequencySet owns the std::shared_ptr<FrequencySet> it is built on.
  * Interface class.
  * @author Laurent Guéguen
  */
@@ -66,7 +66,7 @@ class WordFrequencySet :
 {
 protected:
   
-  virtual size_t getSizeFromVector(const std::vector<FrequencySet*>& freqVector) = 0;
+  virtual size_t getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet>>& freqVector) = 0;
   
 public:
   WordFrequencySet* clone() const = 0;
@@ -76,7 +76,7 @@ public:
   /**
    *@ brief Returns the n-th FrequencySet&
    */
-  virtual const FrequencySet& getFrequencySetForLetter(size_t i) const = 0;
+  virtual const std::shared_ptr<FrequencySet> getFrequencySetForLetter(size_t i) const = 0;
 
   /**
    *@ brief Returns the length of the words
@@ -90,7 +90,7 @@ class AbstractWordFrequencySet :
   public AbstractFrequencySet
 {
 protected:
-  size_t getSizeFromVector(const std::vector<FrequencySet*>& freqVector);
+  size_t getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet>>& freqVector);
   
 public:
   AbstractWordFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "", const std::string& name="");
@@ -129,17 +129,17 @@ class WordFromIndependentFrequencySet :
     public AbstractWordFrequencySet
 {
 protected:
-  std::vector<FrequencySet*> vFreq_;
+  std::vector<std::shared_ptr<FrequencySet>> vFreq_;
   std::vector<std::string> vNestedPrefix_;
 
 public:
   /**
-   * @brief Constructor from a WordAlphabet* and a vector of different FrequencySet*.
+   * @brief Constructor from a WordAlphabet* and a vector of different std::shared_ptr<FrequencySet>.
    * Throws an Exception if their lengths do not match.
    */
-  WordFromIndependentFrequencySet(const WordAlphabet* pWA, const std::vector<FrequencySet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
+  WordFromIndependentFrequencySet(const WordAlphabet* pWA, const std::vector<std::shared_ptr<FrequencySet>>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
 
-  WordFromIndependentFrequencySet(const CodonAlphabet* pWA, const std::vector<FrequencySet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
+  WordFromIndependentFrequencySet(const CodonAlphabet* pWA, const std::vector<std::shared_ptr<FrequencySet>>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
 
   WordFromIndependentFrequencySet(const WordFromIndependentFrequencySet& iwfs);
 
@@ -165,7 +165,7 @@ public:
   /**
    *@ brief Return the n-th FrequencySet&
    **/
-  const FrequencySet& getFrequencySetForLetter(size_t i) const { return *vFreq_[i]; }
+  const std::shared_ptr<FrequencySet> getFrequencySetForLetter(size_t i) const { return vFreq_[i]; }
 
   /**
    *@ brief Return the length of the words
@@ -182,18 +182,18 @@ class WordFromUniqueFrequencySet :
   public AbstractWordFrequencySet
 {
 protected:
-  FrequencySet* pFreq_;
+  std::shared_ptr<FrequencySet> pFreq_;
   std::string NestedPrefix_;
   size_t length_;
 
 public:
   /**
-   * @brief Constructor from a WordAlphabet* and a FrequencySet*
+   * @brief Constructor from a WordAlphabet* and a std::shared_ptr<FrequencySet>
    *  repeated as many times as the length of the words.
    */
-  WordFromUniqueFrequencySet(const WordAlphabet* pWA, FrequencySet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
+  WordFromUniqueFrequencySet(const WordAlphabet* pWA, std::shared_ptr<FrequencySet> pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
 
-  WordFromUniqueFrequencySet(const CodonAlphabet* pWA, FrequencySet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
+  WordFromUniqueFrequencySet(const CodonAlphabet* pWA, std::shared_ptr<FrequencySet> pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
 
   WordFromUniqueFrequencySet(const WordFromUniqueFrequencySet& iwfs);
 
@@ -220,7 +220,7 @@ public:
   /**
    *@ brief Return the n-th FrequencySet&
    **/
-  const FrequencySet& getFrequencySetForLetter(size_t i) const { return *pFreq_; }
+  const std::shared_ptr<FrequencySet> getFrequencySetForLetter(size_t i) const { return pFreq_; }
 
   size_t getLength() const { return length_; }
 

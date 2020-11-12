@@ -112,7 +112,7 @@ namespace bpp
   protected:
     SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
 
-    const FrequencySet* getFrequencySet() const {
+    const std::shared_ptr<FrequencySet> getFrequencySet() const {
       return 0;
     }
 

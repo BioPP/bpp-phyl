@@ -49,7 +49,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequencySet* codonFreqs) :
+YNGP_M2::YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   YNGP_M("YNGP_M2.")
 {
   // build the submodel
