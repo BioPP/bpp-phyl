@@ -112,7 +112,7 @@ int main() {
         for (size_t i=0; i<nodes.size(); ++i)
         {
             nodeName = nodes[i]->getName();
-            nodeState = mpData->getNodeState(nodes[i]);
+            nodeState = (int) mpData->getNodeState(nodes[i]);
             if (nodeState != nodeToState[nodeName])
             {
                 cerr << "Error! assignment of state in node " << nodeName << " is " << nodeState << " instead of " << nodeToState[nodeName] << endl;

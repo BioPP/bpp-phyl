@@ -95,16 +95,20 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractDFPSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractKroneckerCodonSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonAdHocSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/DFPDistanceFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/DFP07.cpp
   Bpp/Phyl/Model/Codon/GY94.cpp
   Bpp/Phyl/Model/Codon/KCM.cpp
   Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp 
   Bpp/Phyl/Model/Codon/KroneckerCodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/MG94.cpp
+  Bpp/Phyl/Model/Codon/CodonSameAARateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/SENCA.cpp
   Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/YN98.cpp

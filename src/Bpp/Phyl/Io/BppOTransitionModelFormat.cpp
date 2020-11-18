@@ -63,6 +63,7 @@
 #include "../Model/MixtureOfATransitionModel.h"
 #include "../Model/MixtureOfTransitionModels.h"
 
+#include "../Model/Codon/DFP07.h"
 #include "../Model/Codon/YNGP_M1.h"
 #include "../Model/Codon/YNGP_M2.h"
 #include "../Model/Codon/YNGP_M3.h"
@@ -166,7 +167,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   }
   // //////////////////
   // PREDEFINED CODON MODELS
-else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "RELAX")) && (alphabetCode_ & CODON))
+  else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "DFP07") || (modelName == "RELAX")) && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("BppOTransitionModelFormat::read. Codon alphabet not supported.");
@@ -234,6 +235,10 @@ else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "RELAX")) && (alph
       else
         model.reset(new YNGP_M10(geneticCode_, codonFreqs, nbBeta, nbGamma));
     }
+    // else if (modelName == "DFP07")
+    // {
+      
+    // }
   }
   else if (AlphabetTools::isProteicAlphabet(alphabet))
   {

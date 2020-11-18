@@ -62,6 +62,7 @@
 #include "../Model/Codon/AbstractCodonFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonAdHocSubstitutionModel.h"
+#include "../Model/Codon/CodonSameAARateSubstitutionModel.h"
 #include "../Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/KroneckerCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/KCM.h"
@@ -273,7 +274,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
   // PREDEFINED CODON MODELS
   
   else if (((modelName == "MG94") || (modelName == "YN98") || (modelName == "YNGP_M0") ||
-            (modelName == "GY94") ||  (modelName.substr(0,3) == "KCM"))
+            (modelName == "GY94") ||  (modelName.substr(0,3) == "KCM") || (modelName == "SameAARate"))
            && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
@@ -297,7 +298,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
     string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
     BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
     freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-    auto codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
+
+    auto codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
+                    
     map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -315,6 +318,30 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
       model.reset(new KCM(geneticCode_, true));
     else if (modelName == "KCM19")
       model.reset(new KCM(geneticCode_, false));
+    else if (modelName == "SameAARate")
+    {
+      if (args.find("protmodel") == args.end())
+        throw Exception("Missing 'protmodel in model " + modelName + ".");
+
+      BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+      auto  nestedProtModel = std::shared_ptr<ProteinSubstitutionModel>(dynamic_cast<ProteinSubstitutionModel*>(nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], data, false)));
+
+      unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
+      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
+
+      if (args.find("codonmodel") == args.end())
+        throw Exception("Missing 'codonmodel in model " + modelName + ".");
+
+      BppOSubstitutionModelFormat nestedCodonReader(CODON, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+      nestedCodonReader.setGeneticCode(geneticCode_); //This uses the same instance as the o
+
+      auto  nestedCodonModel = std::shared_ptr<CodonSubstitutionModel>(dynamic_cast<CodonSubstitutionModel*>(nestedCodonReader.readSubstitutionModel(alphabet, args["codonmodel"], data, false)));
+      
+      unparsedParameterValuesNested = nestedCodonReader.getUnparsedArguments();
+      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
+
+      model.reset(new CodonSameAARateSubstitutionModel(nestedProtModel, nestedCodonModel, codonFreqs, geneticCode_));
+    }
     else
       throw Exception("Unknown Codon model: " + modelName);
   }
