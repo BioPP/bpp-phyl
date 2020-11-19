@@ -118,7 +118,7 @@ namespace bpp
 
     void setFreq(std::map<int, double>& frequencies)
     {
-      ((AbstractBiblioSubstitutionModel*)pmodel_.get())->setFreq(frequencies);
+      AbstractBiblioSubstitutionModel::setFreq(frequencies);
     };
 
   };

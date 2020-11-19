@@ -72,7 +72,6 @@ YN98::YN98(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   mapParNamesFromPmodel_["YN98.123_K80.kappa"] = "kappa";
   mapParNamesFromPmodel_["YN98.beta"] = "omega";
 
-  computeFrequencies(false);
   updateMatrices();
 }
 
