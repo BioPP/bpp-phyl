@@ -295,19 +295,25 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
     if (geneticCode_->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
-    BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
-    freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-
-    auto codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
-                    
-    map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
-
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+    shared_ptr<CodonFrequencySet> codonFreqs(0);
+    
+    if (args.find("frequencies")!=args.end())
     {
-      unparsedArguments_[modelName + "." + it->first] = it->second;
-    }
+      string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
+      BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
+      freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
 
+      codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
+      auto unparsedParameterValuesNested = freqReader.getUnparsedArguments();
+      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
+     
+    }
+    else 
+    // codonFreqs compulsory for all models but SameAARate
+      if (modelName!="SameAARate")
+        throw Exception("Missing 'frequencies' for model " + modelName);
+    
+    
     if (modelName == "MG94")
       model.reset(new MG94(geneticCode_, codonFreqs));
     else if (modelName == "GY94")
@@ -326,7 +332,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
       BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
       auto  nestedProtModel = std::shared_ptr<ProteinSubstitutionModel>(dynamic_cast<ProteinSubstitutionModel*>(nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], data, false)));
 
-      unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
+      auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
       unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
 
       if (args.find("codonmodel") == args.end())

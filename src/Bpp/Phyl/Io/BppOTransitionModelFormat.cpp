@@ -186,14 +186,23 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     if (geneticCode_->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
-    BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
-    freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-    auto codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
-    map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
-    for (auto& it:unparsedParameterValuesNested)
-      unparsedArguments_[modelName + "." + it.first] = it.second;
+    shared_ptr<CodonFrequencySet> codonFreqs(0);
+
+    if (args.find("frequencies")!=args.end())
+    {
+      string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
+      BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
+      freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
+
+      codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
+      auto unparsedParameterValuesNested = freqReader.getUnparsedArguments();
+      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());    
+    }
+    else 
+      // codonFreqs compulsory for all models but SameAARate
+      if (modelName!="DFP07")
+        throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "YNGP_M1")
       model.reset(new YNGP_M1(geneticCode_, codonFreqs));
@@ -235,10 +244,19 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       else
         model.reset(new YNGP_M10(geneticCode_, codonFreqs, nbBeta, nbGamma));
     }
-    // else if (modelName == "DFP07")
-    // {
-      
-    // }
+    else if (modelName == "DFP07")
+    {
+      if (args.find("protmodel") == args.end())
+        throw Exception("Missing 'protmodel in model " + modelName + ".");
+
+      BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+      auto  nestedProtModel = std::shared_ptr<ProteinSubstitutionModel>(dynamic_cast<ProteinSubstitutionModel*>(nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], data, false)));
+
+      auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
+      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
+
+      model.reset(new DFP07(geneticCode_, nestedProtModel, codonFreqs));
+    }
   }
   else if (AlphabetTools::isProteicAlphabet(alphabet))
   {
