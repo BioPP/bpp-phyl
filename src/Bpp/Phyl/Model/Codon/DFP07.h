@@ -68,11 +68,11 @@ namespace bpp
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
- * See description in AbstractDFPDistanceSubstitutionModel and
+ * See description in AbstractDFPSubstitutionModel and
  * AbstractCodonFrequenciesSubstitutionModel and
  * CodonSameAARateSubstitutionModel class.
  *
- * The additional parameters to AbstractDFP and
+ * The additional parameters to AbstractDFPSubstitutionModel and
  * AbstractCodonFrequenciesSubstitutionModel are the rates of
  * nonsynonymous over synonymous substitutions.
  *
