@@ -250,7 +250,7 @@ namespace bpp
      */
     virtual const std::vector<double>& getRootFrequencies() const = 0;
 
-    virtual const FrequencySet* getRootFrequencySet() const = 0;
+    virtual std::shared_ptr<const FrequencySet> getRootFrequencySet() const = 0;
 
     /**
      * This method is used to initialize likelihoods in reccursions.

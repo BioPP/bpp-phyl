@@ -80,9 +80,9 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
   stationarity_        = set.stationarity_;
 
   if (set.stationarity_)
-    rootFrequencies_.reset(0);
+    rootFrequencies_=std::shared_ptr<FrequencySet>(0);
   else
-    rootFrequencies_.reset(dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone()));
+    rootFrequencies_=std::shared_ptr<FrequencySet>(dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone()));
 
   rDist_.reset(rDist_?dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()):0);
   
@@ -331,14 +331,14 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
   std::shared_ptr<BranchModel> model,
   DiscreteDistribution* rdist,
   ParametrizablePhyloTree* tree,
-  FrequencySet* rootFreqs,
+  std::shared_ptr<FrequencySet> rootFreqs,
   shared_ptr<ModelScenario> scenario)
 {
   // Check alphabet:
   if  (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
 
-  NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
+  NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs->clone());
 
   // We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<unsigned int> ids = tree->getAllNodesIndexes();
@@ -367,7 +367,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   std::shared_ptr<BranchModel> model,
   DiscreteDistribution* rdist,
   ParametrizablePhyloTree* tree,
-  FrequencySet* rootFreqs,
+  std::shared_ptr<FrequencySet> rootFreqs,
   const vector<string>& globalParameterNames,
   shared_ptr<ModelScenario> scenario)
 {
@@ -450,7 +450,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   // }
   // else
 
-  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
+  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs->clone());
 
   // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<unsigned int> ids = tree->getAllNodesIndexes();

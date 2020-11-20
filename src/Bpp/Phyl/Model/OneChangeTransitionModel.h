@@ -93,7 +93,7 @@ namespace bpp
 
     const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
 
-    const FrequencySet* getFrequencySet() const {return getTransitionModel().getFrequencySet(); }
+    const std::shared_ptr<FrequencySet> getFrequencySet() const {return getTransitionModel().getFrequencySet(); }
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
     {

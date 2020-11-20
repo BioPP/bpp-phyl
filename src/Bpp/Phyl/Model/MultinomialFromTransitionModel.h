@@ -99,9 +99,10 @@ namespace bpp
      *
      */
 
-    /**
+    /*
      * @brief These ones are for bookkeeping:
      */
+    
     mutable const Matrix<double>* Pij_t, *dPij_dt, *d2Pij_dt2;
 
     /*

@@ -66,7 +66,7 @@ namespace bpp
   {
   private:
     std::string path_;
-    ProteinFrequencySet* freqSet_;
+    std::shared_ptr<ProteinFrequencySet> freqSet_;
   
   public:
     /**
@@ -94,7 +94,7 @@ namespace bpp
     UserProteinSubstitutionModel(
                                  const ProteicAlphabet* alpha,
                                  const std::string& path,
-                                 ProteinFrequencySet* freqSet,
+                                 std::shared_ptr<ProteinFrequencySet> freqSet,
                                  const std::string& prefix,
                                  bool initFreqs = false
                                  );
@@ -111,11 +111,11 @@ namespace bpp
       AbstractParameterAliasable::operator=(model);
       AbstractReversibleProteinSubstitutionModel::operator=(model);
       path_ = model.path_;
-      freqSet_ = dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone());
+      freqSet_ = std::shared_ptr<ProteinFrequencySet>(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()));
       return *this;
     }
  
-    virtual ~UserProteinSubstitutionModel() { delete freqSet_; }
+    virtual ~UserProteinSubstitutionModel() {}
 
     UserProteinSubstitutionModel* clone() const { return new UserProteinSubstitutionModel(*this); }
       
@@ -139,13 +139,12 @@ namespace bpp
 
     void setFrequencySet(const ProteinFrequencySet& freqSet)
     {
-      delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequencySet*>(freqSet.clone());
+      freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(freqSet.clone()));
       resetParameters_();
       addParameters_(freqSet_->getParameters());
     }
 
-    const FrequencySet* getFrequencySet() const { return freqSet_; }
+    const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
 

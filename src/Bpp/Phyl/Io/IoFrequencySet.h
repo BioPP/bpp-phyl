@@ -89,7 +89,7 @@ public:
    * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  virtual FrequencySet* readFrequencySet(
+  virtual std::shared_ptr<FrequencySet> readFrequencySet(
     const Alphabet* alphabet,
     const std::string& freqDescription,
     const AlignedValuesContainer* data,

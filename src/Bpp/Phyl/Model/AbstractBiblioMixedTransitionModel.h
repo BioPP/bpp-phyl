@@ -191,8 +191,7 @@ namespace bpp
     
     MixedTransitionModel& getMixedModel() { return *pmixmodel_.get(); }
 
-    const FrequencySet* getFrequencySet() const {return pmixmodel_->getNModel(0)->getFrequencySet();}
-
+    const std::shared_ptr<FrequencySet> getFrequencySet() const {return pmixmodel_->getNModel(0)->getFrequencySet();}
   };
 
 } // end of namespace bpp.

@@ -342,7 +342,6 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
     map<string, string> cmdArgs;
 
     KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
-
     if (cmdName == "Input")
     {
       // Is the root has to be moved to the midpoint position along the branch that contains it ? If no, do nothing!
@@ -1070,7 +1069,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 /**** FREQUENCIES SET *********************************/
 /******************************************************/
 
-FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
+std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const string& freqDescription,
@@ -1088,7 +1087,7 @@ FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
       throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  unique_ptr<FrequencySet> pFS(bIO.readFrequencySet(alphabet, freqDescription, data, true));
+  auto pFS=bIO.readFrequencySet(alphabet, freqDescription, data, true);
 
   map<string, string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -1097,14 +1096,14 @@ FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-    pFS.reset(new MarkovModulatedFrequencySet(pFS.release(), rateFreqs));
+    pFS=std::make_shared<MarkovModulatedFrequencySet>(pFS, rateFreqs);
   }
 
-  return pFS.release();
+  return pFS;
 }
 
 
-FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
+std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getRootFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const AlignedValuesContainer* data,
@@ -1125,7 +1124,7 @@ FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
   {
     map<string, string> unparams;
 
-    FrequencySet* freq = getFrequencySet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
+    auto freq = getFrequencySet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
     for (auto& it : unparams)
@@ -1524,7 +1523,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 
     bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, warn);
 
-    unique_ptr<FrequencySet> rootFrequencies;
+    shared_ptr<FrequencySet> rootFrequencies;
 
     if (!stationarity)
     {
@@ -1543,12 +1542,12 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
       if (freqDescription.substr(0, 10) == "MVAprotein")
       {
         if (dynamic_cast<Coala*>(tmp.get()))
-          dynamic_cast<MvaFrequencySet*>(rootFrequencies.get())->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+          dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
         else
           throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
       }
       else
-        rootFrequencies.reset(getRootFrequencySet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn));
+        rootFrequencies=getRootFrequencySet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn);
 
       stationarity = !rootFrequencies.get();
     }
@@ -1571,7 +1570,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         tmp,
         rDist.release(),
         pTree.release(),
-        rootFrequencies.release(),
+        rootFrequencies,
         globalParameters);
     }
     else
@@ -1592,7 +1591,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 
       bIO.setVerbose(true);
 
-      SP = new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release(), rootFrequencies.release());
+      SP = new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release(), rootFrequencies->clone());
 
       NonHomogeneousSubstitutionProcess* nhSP = dynamic_cast<NonHomogeneousSubstitutionProcess*>(SP);
 
@@ -2770,7 +2769,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   map<string, string> unparsedParameters;
 
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", true, warn);
-  FrequencySet* rootFrequencies = 0;
+  std::shared_ptr<FrequencySet> rootFrequencies(0);
   if (!stationarity)
   {
     rootFrequencies = getRootFrequencySet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
@@ -2779,7 +2778,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     if (freqDescription.substr(0, 10) == "MVAprotein")
     {
       if (dynamic_cast<Coala*>(tmp.get()))
-        dynamic_cast<MvaFrequencySet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+        dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
       else
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
@@ -4362,7 +4361,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
       }
 
       BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
-      bIO.writeFrequencySet(pNH->getRootFrequencySet(), out, aliases, writtenNames);
+      bIO.writeFrequencySet(pNH->getRootFrequencySet().get(), out, aliases, writtenNames);
     }
     else
       out << "nonhomogeneous.stationarity=true";
@@ -4428,7 +4427,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
   for (size_t i = 0; i < rootFreqN.size(); i++)
   {
-    const FrequencySet& rootFreq = collection->getFrequencies(rootFreqN[i]);
+    auto rootFreq = collection->shareFrequencies(rootFreqN[i]);
 
     // Now print it:
     writtenNames.clear();
@@ -4439,7 +4438,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
     if (withAlias)
     {
-      ParameterList pl = rootFreq.getParameters();
+      ParameterList pl = rootFreq->getParameters();
 
       for (size_t np = 0; np < pl.size(); np++)
       {
@@ -4449,7 +4448,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       }
     }
 
-    bIOf.writeFrequencySet(&rootFreq, out, aliases, writtenNames);
+    bIOf.writeFrequencySet(rootFreq.get(), out, aliases, writtenNames);
     out.endLine();
   }
 
@@ -5326,7 +5325,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
   if (!modelSet->isStationary())
   {
-    const FrequencySet* pFS = modelSet->getRootFrequencySet();
+    const auto pFS = modelSet->getRootFrequencySet();
 
     ParameterList plf = pFS->getParameters();
 
@@ -5348,7 +5347,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     out << "nonhomogeneous.root_freq=";
 
     BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
-    bIO.writeFrequencySet(pFS, out, aliases, writtenNames);
+    bIO.writeFrequencySet(pFS.get(), out, aliases, writtenNames);
   }
 }
 

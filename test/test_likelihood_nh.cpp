@@ -75,8 +75,8 @@ int main() {
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  FrequencySet* rootFreqs = new GCFrequencySet(alphabet);
   
+  auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
   auto model = std::make_shared<T92>(alphabet, 3.);
   std::map<std::string, std::vector<Vint>> globalParameterVectors;
   globalParameterVectors["T92.kappa"]=std::vector<Vint>();
@@ -84,7 +84,7 @@ int main() {
   //Very difficult to optimize on small datasets:
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
   
-  FrequencySet* rootFreqs2 = rootFreqs->clone();
+  auto rootFreqs2 = std::shared_ptr<FrequencySet>(dynamic_cast<FrequencySet*>(rootFreqs->clone()));
   DiscreteDistribution* rdist2 = rdist->clone();
   std::shared_ptr<SubstitutionModel> model2(model->clone());
 

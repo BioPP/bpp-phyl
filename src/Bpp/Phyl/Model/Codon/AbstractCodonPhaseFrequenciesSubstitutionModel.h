@@ -74,7 +74,7 @@ namespace bpp
     /**
      * @brief Position dependent version of Codon Frequencies Set
      */
-    WordFrequencySet* posfreqset_;
+    std::shared_ptr<WordFrequencySet> posfreqset_;
     std::string freqName_;
 
   public:
@@ -86,7 +86,7 @@ namespace bpp
      * @param prefix the Namespace
      */
     AbstractCodonPhaseFrequenciesSubstitutionModel(
-      FrequencySet* pfreq,
+      std::shared_ptr<FrequencySet> pfreq,
       const std::string& prefix);
 
     AbstractCodonPhaseFrequenciesSubstitutionModel(const AbstractCodonPhaseFrequenciesSubstitutionModel& model) :
@@ -98,9 +98,7 @@ namespace bpp
     AbstractCodonPhaseFrequenciesSubstitutionModel& operator=(const AbstractCodonPhaseFrequenciesSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
-      if (posfreqset_)
-        delete posfreqset_;
-      posfreqset_   = model.posfreqset_->clone();
+      posfreqset_   = std::shared_ptr<WordFrequencySet>(model.posfreqset_->clone());
       freqName_   = model.freqName_;
 
       return *this;
@@ -125,7 +123,7 @@ namespace bpp
 
     double getCodonsMulRate(size_t, size_t) const;
 
-    const FrequencySet* getFrequencySet() const 
+    const std::shared_ptr<FrequencySet> getFrequencySet() const 
     {
       return posfreqset_;
     }

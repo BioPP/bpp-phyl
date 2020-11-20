@@ -46,7 +46,7 @@ using namespace std;
 
 /******************************************************************************/
 
-MG94::MG94(const GeneticCode* gc, FrequencySet* codonFreqs) :
+MG94::MG94(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   AbstractBiblioTransitionModel("MG94."),
   AbstractBiblioSubstitutionModel("MG94."),
   pmodel_(new CodonDistancePhaseFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))

@@ -299,7 +299,6 @@ int main()
         string treeStr = TreeTools::treeToParenthesis(*expectedHistory); // for debugging
 
         checkIfMappingLegal(stocMapping, expectedHistory, ttree, characterTreeLikelihood);
-<<<<<<< HEAD
         Node* expectedMappingNode;
         int state;
         double stateFrequency, stateProbability;
@@ -320,8 +319,6 @@ int main()
             stateProbability = posteriorProbabilities[j][state];
             }
         }
-=======
->>>>>>> master
         
 		// compute the average dwelling times at node S5
         VDouble AverageDwellingTimes;

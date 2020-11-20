@@ -70,7 +70,7 @@ int main() {
   NucleicAlphabet* alphabet = new DNA();
   auto model = std::make_shared<T92>(alphabet, 3.);
   DiscreteDistribution* rdist = new ConstantRateDistribution();
-  FrequencySet* rootFreqs = new GCFrequencySet(alphabet);
+  auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
   std::vector<std::string> globalParameterNames({"T92.kappa"});
 
   auto process=NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, rdist, partree, rootFreqs, globalParameterNames);

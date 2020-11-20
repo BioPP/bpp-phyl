@@ -322,12 +322,22 @@ public:
   
   FrequencySet& getFrequencies(size_t frequenciesIndex)
   {
-    return *(dynamic_cast<FrequencySet*>(freqColl_[frequenciesIndex].get()));
+    return *freqColl_[frequenciesIndex];
   }
 
   const FrequencySet& getFrequencies(size_t frequenciesIndex) const
   {
     return *(dynamic_cast<const FrequencySet*>(freqColl_[frequenciesIndex].get()));
+  }
+
+  std::shared_ptr<FrequencySet> shareFrequencies(size_t frequenciesIndex)
+  {
+    return freqColl_[frequenciesIndex];
+  }
+
+  std::shared_ptr<const FrequencySet> shareFrequencies(size_t frequenciesIndex) const
+  {
+    return freqColl_[frequenciesIndex];
   }
 
   /**

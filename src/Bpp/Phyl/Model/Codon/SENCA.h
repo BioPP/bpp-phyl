@@ -89,14 +89,14 @@ namespace bpp
     SENCA(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod,
-      FrequencySet* pfit,
+      std::shared_ptr<FrequencySet> pfit,
       const AlphabetIndex2* pdist = 0);
     SENCA(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod1,
       NucleotideSubstitutionModel* pmod2,
       NucleotideSubstitutionModel* pmod3,
-      FrequencySet* pfit,
+      std::shared_ptr<FrequencySet> pfit,
       const AlphabetIndex2* pdist = 0);
 
     virtual ~SENCA() {}
@@ -129,7 +129,7 @@ namespace bpp
      */
     void setFreq(std::map<int,double>& frequencies);
 
-    const FrequencySet* getFrequencySet() const {
+    const std::shared_ptr<FrequencySet> getFrequencySet() const {
       return AbstractCodonFitnessSubstitutionModel::getFrequencySet();
     }
 

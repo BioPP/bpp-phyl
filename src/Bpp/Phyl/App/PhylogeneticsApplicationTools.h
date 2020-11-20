@@ -334,7 +334,7 @@ namespace bpp
      * @return A new FrequencySet object according to options specified.
      */
     
-    static FrequencySet* getRootFrequencySet(
+    static std::shared_ptr<FrequencySet> getRootFrequencySet(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const AlignedValuesContainer* data, 
@@ -381,7 +381,7 @@ namespace bpp
      * @return A new FrequencySet object according to options specified.
      */
 
-    static FrequencySet* getFrequencySet(
+    static std::shared_ptr<FrequencySet> getFrequencySet(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const std::string& freqDescription,
@@ -409,7 +409,7 @@ namespace bpp
      * @return A new FrequencySet object according to options specified.
      */
 
-    static FrequencySet* getFrequencySet(
+    static std::shared_ptr<FrequencySet> getFrequencySet(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const std::string& freqDescription,

@@ -330,7 +330,7 @@ namespace bpp
 
     size_t getNumberOfStates() const { return RE08::getNumberOfStates(); }
 
-    const FrequencySet* getFrequencySet() const {
+    const std::shared_ptr<FrequencySet> getFrequencySet() const {
       return ((AbstractSubstitutionModel*)getNestedModel())->getFrequencySet();
     }
 

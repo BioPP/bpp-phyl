@@ -73,7 +73,7 @@ namespace bpp
     public YNGP_M
   {
   public:
-    YNGP_M3(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nclass = 3);
+    YNGP_M3(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nclass = 3);
 
     YNGP_M3* clone() const { return new YNGP_M3(*this); }
 

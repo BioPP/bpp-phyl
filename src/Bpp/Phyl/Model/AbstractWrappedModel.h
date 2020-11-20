@@ -87,6 +87,8 @@ namespace bpp
 
     size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
 
+    const std::shared_ptr<FrequencySet> getFrequencySet() const { return getModel().getFrequencySet();}
+
     /*
      * @}
      */
@@ -113,7 +115,7 @@ namespace bpp
     }
 
   public:
-    const FrequencySet* getFrequencySet() const { return getTransitionModel().getFrequencySet();}
+    const std::shared_ptr<FrequencySet> getFrequencySet() const { return getTransitionModel().getFrequencySet();}
 
     const BranchModel& getModel() const
     {

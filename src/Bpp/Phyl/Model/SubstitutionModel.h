@@ -145,6 +145,13 @@ namespace bpp
     virtual const Alphabet* getAlphabet() const = 0;
 
     /**
+     * @return Get the FrequencySet of equilibrium of this model. May
+     * be null if not defined.
+     */
+    
+    virtual const std::shared_ptr<FrequencySet> getFrequencySet() const = 0;
+
+    /**
      * @brief Get the number of states.
      *
      * For most models, this equals the size of the alphabet.
@@ -375,7 +382,7 @@ namespace bpp
      * it, otherwise return 0.
      */
     
-    virtual const FrequencySet* getFrequencySet() const {return NULL;}
+    virtual const std::shared_ptr<FrequencySet> getFrequencySet() const {return NULL;}
 
   protected:
 

@@ -45,7 +45,7 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<FrequencySet*>& freqVector)
+size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet>>& freqVector)
 {
   size_t s = 1;
   size_t l = freqVector.size();
@@ -76,7 +76,7 @@ AbstractWordFrequencySet::~AbstractWordFrequencySet()
 
 WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
     const WordAlphabet* pWA,
-    const std::vector<FrequencySet*>& freqVector,
+    const std::vector<std::shared_ptr<FrequencySet>>& freqVector,
     const string& prefix, const string& name) :
   AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   vFreq_(),
@@ -101,7 +101,7 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
 
 WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
   const CodonAlphabet* pWA,
-  const std::vector<FrequencySet*>& freqVector,
+  const std::vector<std::shared_ptr<FrequencySet>>& freqVector,
   const string& prefix, const string& name) :
   AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   vFreq_(),
@@ -131,17 +131,13 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(const WordFromI
 {
   for (unsigned i = 0; i < iwfs.vFreq_.size(); i++)
   {
-    vFreq_[i] =  iwfs.vFreq_[i]->clone();
+    vFreq_[i].reset(iwfs.vFreq_[i]->clone());
   }
   updateFrequencies();
 }
 
 WordFromIndependentFrequencySet::~WordFromIndependentFrequencySet()
 {
-  for (unsigned i = 0; i < vFreq_.size(); i++)
-  {
-    delete vFreq_[i];
-  }
 }
 
 WordFromIndependentFrequencySet& WordFromIndependentFrequencySet::operator=(const WordFromIndependentFrequencySet& iwfs)
@@ -150,15 +146,10 @@ WordFromIndependentFrequencySet& WordFromIndependentFrequencySet::operator=(cons
   vNestedPrefix_ = iwfs.vNestedPrefix_;
 
   //Clean current frequencies first:
-  for (unsigned i = 0; i < vFreq_.size(); i++)
-  {
-    delete vFreq_[i];
-  }
-
   vFreq_.resize(iwfs.vFreq_.size());
   for (unsigned i = 0; i < vFreq_.size(); i++)
   {
-    vFreq_[i] = iwfs.vFreq_[i]->clone();
+    vFreq_[i].reset(iwfs.vFreq_[i]->clone());
   }
   updateFrequencies();
 
@@ -277,7 +268,7 @@ std::string WordFromIndependentFrequencySet::getDescription() const
 
 WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     const WordAlphabet* pWA,
-    FrequencySet* pabsfreq,
+    std::shared_ptr<FrequencySet> pabsfreq,
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
@@ -301,7 +292,7 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
 
 WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
   const CodonAlphabet* pWA,
-  FrequencySet* pabsfreq,
+  std::shared_ptr<FrequencySet> pabsfreq,
   const string& prefix,
   const string& name) :
   AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
@@ -336,8 +327,7 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(const WordFromUniqueFrequ
 WordFromUniqueFrequencySet& WordFromUniqueFrequencySet::operator=(const WordFromUniqueFrequencySet& iwfs)
 {
   AbstractWordFrequencySet::operator=(iwfs);
-  delete pFreq_;
-  pFreq_ = iwfs.pFreq_->clone();
+  pFreq_.reset(iwfs.pFreq_->clone());
   NestedPrefix_ = iwfs.NestedPrefix_;
   length_ = iwfs.length_;
 
@@ -347,8 +337,6 @@ WordFromUniqueFrequencySet& WordFromUniqueFrequencySet::operator=(const WordFrom
 
 WordFromUniqueFrequencySet::~WordFromUniqueFrequencySet()
 {
-  if (pFreq_)
-    delete pFreq_;
   pFreq_ = 0;
 }
 

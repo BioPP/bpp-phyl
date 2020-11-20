@@ -117,7 +117,7 @@ int main() {
 
   //Codon models:
   StandardGeneticCode gc(AlphabetTools::DNA_ALPHABET);
-  FrequencySet* fset = CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F3X4, &gc);
+  auto fset = CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F3X4, &gc);
   YN98 yn98(&gc, fset);
   
   if (!testModel(yn98)) return 1;

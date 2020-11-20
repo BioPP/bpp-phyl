@@ -308,11 +308,11 @@ namespace bpp
     public AbstractFrequencySet
   {
   private:
-    FrequencySet* freqSet_;
+    std::shared_ptr<FrequencySet> freqSet_;
     std::vector<double> rateFreqs_;
 
   public:
-    MarkovModulatedFrequencySet(FrequencySet* freqSet, const std::vector<double>& rateFreqs);
+    MarkovModulatedFrequencySet(std::shared_ptr<FrequencySet> freqSet, const std::vector<double>& rateFreqs);
 
     MarkovModulatedFrequencySet(const MarkovModulatedFrequencySet& mmfs) :
       AbstractFrequencySet(mmfs),
@@ -323,14 +323,14 @@ namespace bpp
     MarkovModulatedFrequencySet& operator=(const MarkovModulatedFrequencySet& mmfs)
     {
       AbstractFrequencySet::operator=(mmfs);
-      freqSet_ = mmfs.freqSet_->clone();
+      freqSet_ = std::shared_ptr<FrequencySet>(mmfs.freqSet_->clone());
       rateFreqs_ = mmfs.rateFreqs_;
       return *this;
     }
 
     MarkovModulatedFrequencySet* clone() const { return new MarkovModulatedFrequencySet(*this); }
 
-    virtual ~MarkovModulatedFrequencySet() { delete freqSet_; }
+    virtual ~MarkovModulatedFrequencySet() {}
 
   public:
     void setFrequencies(const std::vector<double>& frequencies)

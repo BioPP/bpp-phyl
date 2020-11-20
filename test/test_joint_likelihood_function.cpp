@@ -179,12 +179,9 @@ MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorS
     bppml->getParam("site.path1") = "model1[YN98.omega_1]&model2[YN98.omega_1]"; // map omega1 in the branches under character state 0 (=model1) to omega1 in the branches under character state 1 (=model2) 
     bppml->getParam("site.path2") = "model1[YN98.omega_2]&model2[YN98.omega_2]"; // do the same for omega2
     
-// <<<<<<< HEAD
 //     string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppml->getParams(), "Standard", "", true, true);
 //     GeneticCode* gCode = SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc);
     
-// =======
-// >>>>>>> master
 //     // set initial partition, based on maximum parsimony
 //     setMpPartition(bppml, mpData, characterData, characterModel, tree); // the partition is set on tree
 //     // create the set of models
@@ -235,7 +232,7 @@ int main(int args, char** argv)
     seqData->addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTAT", calpha));
 
     string codeDesc = ApplicationTools::getStringParameter("genetic_code", bpp.getParams(), "Standard", "", true, true);
-    GeneticCode* gCode;// = SequenceApplicationTools::getGeneticCode(calpha->getNucleicAlphabet(), codeDesc);
+    GeneticCode* gCode = SequenceApplicationTools::getGeneticCode(calpha->shareNucleicAlphabet(), codeDesc);
     // unique_ptr<GeneticCode> gCode;
     // gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
 

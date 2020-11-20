@@ -48,7 +48,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YN98::YN98(const GeneticCode* gc, FrequencySet* codonFreqs) :
+YN98::YN98(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   AbstractBiblioTransitionModel("YN98."),
   AbstractBiblioSubstitutionModel("YN98."),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
@@ -72,7 +72,6 @@ YN98::YN98(const GeneticCode* gc, FrequencySet* codonFreqs) :
   mapParNamesFromPmodel_["YN98.123_K80.kappa"] = "kappa";
   mapParNamesFromPmodel_["YN98.beta"] = "omega";
 
-  computeFrequencies(false);
   updateMatrices();
 }
 

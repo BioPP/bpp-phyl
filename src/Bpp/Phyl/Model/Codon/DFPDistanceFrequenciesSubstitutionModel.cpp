@@ -1,7 +1,7 @@
 //
-// File: CodonDistanceFrequenciesSubstitutionModel.cpp
+// File: DFPDistanceFrequenciesSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
-// Created on: Feb 2009
+// Created on: mercredi 4 novembre 2020, à 13h 19
 //
 
 /*
@@ -36,7 +36,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "CodonDistanceFrequenciesSubstitutionModel.h"
+#include "DFPDistanceFrequenciesSubstitutionModel.h"
 
 using namespace bpp;
 
@@ -44,71 +44,48 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(
+DFPDistanceFrequenciesSubstitutionModel::DFPDistanceFrequenciesSubstitutionModel(
     const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
     std::shared_ptr<FrequencySet> pfreq,
-    const AlphabetIndex2* pdist,
-    bool paramSynRate) :
-  AbstractParameterAliasable("CodonDistFreq."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistFreq.", paramSynRate),
-  AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
+    const AlphabetIndex2* pdist) :
+  AbstractParameterAliasable("DFPDistFreq."),
+  AbstractDFPSubstitutionModel(gCode, "DFPDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "DFPDistFreq."),
+  AbstractCodonFrequenciesSubstitutionModel(pfreq, "DFPDistFreq.")
 {
-  computeFrequencies(true); // for initialization
   updateMatrices();
-  computeFrequencies(false);
 }
 
-CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    std::shared_ptr<FrequencySet> pfreq,
-    const AlphabetIndex2* pdist,
-    bool paramSynRate) :
-  AbstractParameterAliasable("CodonDistFreq."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistFreq.", paramSynRate),
-  AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
+std::string DFPDistanceFrequenciesSubstitutionModel::getName() const
 {
-  computeFrequencies(true); // for initialization
-  updateMatrices();
-  computeFrequencies(false);
+  return "DFPDistFreq";
 }
 
-std::string CodonDistanceFrequenciesSubstitutionModel::getName() const
-{
-  return "CodonDistFreq";
-}
-
-void CodonDistanceFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
+void DFPDistanceFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   AbstractCodonDistanceSubstitutionModel::fireParameterChanged(parameters);
   AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(parameters);
-  getFrequencies_()=AbstractCodonFrequenciesSubstitutionModel::getFrequencySet()->getFrequencies();
 
-  // Beware: must be call at the end
-  AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
+  // Beware: must be called last, since it calls updateMatrices
+  AbstractDFPSubstitutionModel::fireParameterChanged(parameters);
 }
 
-double CodonDistanceFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
+double DFPDistanceFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
-    * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
+    * AbstractDFPSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(i,j);
 }
 
-void CodonDistanceFrequenciesSubstitutionModel::setNamespace(const std::string& st)
+void DFPDistanceFrequenciesSubstitutionModel::setNamespace(const std::string& st)
 {
   AbstractParameterAliasable::setNamespace(st);
-  AbstractCodonSubstitutionModel::setNamespace(st);
+  AbstractDFPSubstitutionModel::setNamespace(st);
   AbstractCodonDistanceSubstitutionModel::setNamespace(st);
   AbstractCodonFrequenciesSubstitutionModel::setNamespace(st);
 }
 
-void CodonDistanceFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
+void DFPDistanceFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   AbstractCodonFrequenciesSubstitutionModel::setFreq(frequencies);
   getFrequencies_()=AbstractCodonFrequenciesSubstitutionModel::getFrequencySet()->getFrequencies();

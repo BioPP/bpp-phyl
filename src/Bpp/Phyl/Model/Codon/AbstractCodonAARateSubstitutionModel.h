@@ -156,7 +156,7 @@ namespace bpp
       return pAAmodel_;
     }
 
-    const FrequencySet* getFrequencySet() const 
+    const std::shared_ptr<FrequencySet> getFrequencySet() const 
     {
       return 0;
     }

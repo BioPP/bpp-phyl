@@ -114,7 +114,7 @@ int main() {
         {
             nodeName = nodes[i]->getName();
             throw Exception("test_parsimony_solution: missing method getNodeState");
-            //           nodeState = mpData->getNodeState(nodes[i]);
+            // nodeState = (int) mpData->getNodeState(nodes[i]);
             if (nodeState != nodeToState[nodeName])
             {
                 cerr << "Error! assignment of state in node " << nodeName << " is " << nodeState << " instead of " << nodeToState[nodeName] << endl;

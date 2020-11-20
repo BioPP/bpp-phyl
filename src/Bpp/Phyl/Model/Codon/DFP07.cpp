@@ -1,5 +1,5 @@
 //
-// File: YNGP_M7.cpp
+// File: DFP07.cpp
 // Created by:  Laurent Gueguen
 // Created on: May 2010
 //
@@ -36,14 +36,14 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "YNGP_M7.h"
-#include "YN98.h"
-#include "../MixtureOfASubstitutionModel.h"
+#include "DFP07.h"
+#include "DFPDistanceFrequenciesSubstitutionModel.h"
+#include "CodonSameAARateSubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
-#include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 
-#include <Bpp/Text/TextTools.h>
+#include "../MixtureOfASubstitutionModel.h"
 
 using namespace bpp;
 
@@ -51,44 +51,44 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M7::YNGP_M7(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nclass) :
-  YNGP_M("YNGP_M7.")
+DFP07::DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel> pAAmodel, std::shared_ptr<CodonFrequencySet> codonFreqs):
+  AbstractBiblioMixedTransitionModel("DFP07."),
+  pmixsubmodel_(),
+  synfrom_(),
+  synto_()
 {
-  if (nclass <= 0)
-    throw Exception("Bad number of classes for model YNGP_M7: " + TextTools::toString(nclass));
-
   // build the submodel
 
-  std::unique_ptr<DiscreteDistribution> pbdd(new BetaDiscreteDistribution(nclass, 2, 2));
+  vector<double> v1, v2;
+  v1.push_back(0.5); v1.push_back(1);
+  v2.push_back(0.5); v2.push_back(0.5);
+
+  std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(v1, v2));
+
+  auto codmodel = std::make_shared<DFPDistanceFrequenciesSubstitutionModel>(gCode, codonFreqs);
+  auto submodel = std::make_shared<CodonSameAARateSubstitutionModel> (pAAmodel, codmodel,  shared_ptr<CodonFrequencySet>(0), gCode);
 
   map<string, DiscreteDistribution*> mpdd;
-  mpdd["omega"] = pbdd.get();
+  mpdd["DFPDistFreq.beta"] = psdd.get();
 
-  unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
-
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gCode->getSourceAlphabet(), submodel.get(), mpdd));
   pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
 
-  vector<int> supportedChars = yn98->getAlphabetStates();
+  vector<int> supportedChars = submodel->getAlphabetStates();
+  // map the parameters
 
-  // mapping the parameters
+  lParPmodel_.addParameters(pmixmodel_->getParameters());
 
-  ParameterList pl = pmixmodel_->getParameters();
-  for (size_t i = 0; i < pl.size(); i++)
-  {
-    lParPmodel_.addParameter(Parameter(pl[i]));
-  }
-
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequencySet()->getParameters().getParameterNames();
+  vector<std::string> v = pmixmodel_->getNModel(0)->getParameters().getParameterNames();
 
   for (size_t i = 0; i < v.size(); i++)
   {
-    mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
+    if (v[i]!="SameAARate.DFPDistFreq.beta")
+      mapParNamesFromPmodel_[v[i]] = v[i].substr(23) ;
   }
 
-  mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
-  mapParNamesFromPmodel_["YN98.omega_Beta.alpha"] = "p";
-  mapParNamesFromPmodel_["YN98.omega_Beta.beta"] = "q";
+  mapParNamesFromPmodel_["SameAARate.DFPDistFreq.beta_Simple.V1"] = "omega";
+  mapParNamesFromPmodel_["SameAARate.DFPDistFreq.beta_Simple.theta1"] = "p0";
 
   // specific parameters
 
@@ -96,18 +96,23 @@ YNGP_M7::YNGP_M7(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   for (auto it : mapParNamesFromPmodel_)
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it.first);
-    addParameter_(new Parameter("YNGP_M7." + it.second, pmixmodel_->getParameterValue(st),
-                                pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
+    if (st != "DFPDistFreq.beta_Simple.V1")
+    {
+      addParameter_(new Parameter("DFP07." + it.second, pmixmodel_->getParameterValue(st),
+                                  pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
+    }
   }
+
+  addParameter_(new Parameter("DFP07.omega", 0.5, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 1, true, false, NumConstants::MILLI())));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)
   {
     for (synto_ = 0; synto_ < synfrom_; ++synto_)
     {
-      if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
-          && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
-          && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
+      if (gCode->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
+        && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
+        && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
@@ -117,13 +122,13 @@ YNGP_M7::YNGP_M7(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   if (synto_ == supportedChars.size())
     throw Exception("Impossible to find synonymous codons");
 
-  // update Matrices
+  // update matrice
 
   computeFrequencies(false);
   updateMatrices();
 }
 
-void YNGP_M7::updateMatrices()
+void DFP07::updateMatrices()
 {
   AbstractBiblioTransitionModel::updateMatrices();
 
@@ -131,10 +136,8 @@ void YNGP_M7::updateMatrices()
 
   Vdouble vd;
 
-  for (unsigned int i = 0; i < pmixmodel_->getNumberOfModels(); i++)
-  {
-    vd.push_back(1 / pmixsubmodel_->getSubNModel(i)->Qij(synfrom_, synto_));
-  }
+  vd.push_back(1. / pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_));
+  vd.push_back(1. / pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_));
 
   pmixmodel_->setVRates(vd);
 }

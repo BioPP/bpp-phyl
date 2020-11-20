@@ -67,7 +67,7 @@ namespace bpp
     public AbstractReversibleProteinSubstitutionModel
   {
   private:
-    ProteinFrequencySet* freqSet_;
+    std::shared_ptr<ProteinFrequencySet> freqSet_;
 
   public:
     /**
@@ -85,7 +85,7 @@ namespace bpp
      * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
      * Otherwise, the values of the set will be used.
      */
-    DSO78(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs=false);
+    DSO78(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs=false);
 
     DSO78(const DSO78& model) :
       AbstractParameterAliasable(model),
@@ -97,12 +97,11 @@ namespace bpp
     {
       AbstractParameterAliasable::operator=(model);
       AbstractReversibleProteinSubstitutionModel::operator=(model);
-      if (freqSet_) delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequencySet *>(model.freqSet_->clone());
+      freqSet_.reset(dynamic_cast<ProteinFrequencySet *>(model.freqSet_->clone()));
       return *this;
     }
 
-    virtual ~DSO78() { delete freqSet_; }
+    virtual ~DSO78() {}
 
     DSO78* clone() const { return new DSO78(*this); }
     
@@ -130,13 +129,12 @@ namespace bpp
 
     void setFrequencySet(const ProteinFrequencySet& freqSet)
     {
-      delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequencySet*>(freqSet.clone());
+      freqSet_ = std::shared_ptr<ProteinFrequencySet>(dynamic_cast<ProteinFrequencySet*>(freqSet.clone()));
       resetParameters_();
       addParameters_(freqSet_->getParameters());
     }
 
-    const FrequencySet* getFrequencySet() const { return freqSet_; }
+    const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
 

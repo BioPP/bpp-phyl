@@ -89,7 +89,7 @@ namespace bpp
     std::unique_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
   public:
-    GY94(const GeneticCode* gc, FrequencySet* codonFreqs);
+    GY94(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
        
     ~GY94();
 

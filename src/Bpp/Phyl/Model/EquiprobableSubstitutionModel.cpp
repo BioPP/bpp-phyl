@@ -56,7 +56,7 @@ EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alp
   AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "Equi."),
   exp_(), p_(size_, size_), freqSet_(0)
 {
-  freqSet_ = new FixedFrequencySet(shareStateMap(), freq_);
+  freqSet_ = std::make_shared<FixedFrequencySet>(shareStateMap(), freq_);
   updateMatrices();
 }
 

@@ -121,8 +121,9 @@ public:
   //   return model_->getGenerator();
   // }
 
-  const FrequencySet* getRootFrequencySet() const {
-    return 0;
+  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
+  {
+    return std::shared_ptr<const FrequencySet>(0);
   }
   
   ParameterList getSubstitutionModelParameters(bool independent) const

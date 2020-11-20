@@ -68,13 +68,13 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
   freqSet_(0)
 {
   readFromFile();
-  freqSet_ = new FixedProteinFrequencySet(alpha, freq_);
+  freqSet_.reset(new FixedProteinFrequencySet(alpha, freq_));
   updateMatrices();  
 }
 
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
     const ProteicAlphabet* alpha, const std::string& path,
-    ProteinFrequencySet* freqSet, const std::string& prefix,
+    std::shared_ptr<ProteinFrequencySet> freqSet, const std::string& prefix,
     bool initFreqs) : 
   AbstractParameterAliasable(prefix),
   AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), prefix),

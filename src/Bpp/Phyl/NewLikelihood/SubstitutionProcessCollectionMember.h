@@ -290,7 +290,7 @@ public:
    *
    */
 
-  const FrequencySet* getRootFrequencySet() const;
+  std::shared_ptr<const FrequencySet> getRootFrequencySet() const;
 
   /*
    * @brief Set the Set of Model Path

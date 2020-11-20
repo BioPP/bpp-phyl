@@ -140,9 +140,9 @@ public:
     return getParametrizablePhyloTree().getParameters();
   }
   
-  const FrequencySet* getRootFrequencySet() const
+  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
   {
-    return 0;
+    return std::shared_ptr<const FrequencySet>(0);
   }
   
   const std::vector<double>& getRootFrequencies() const

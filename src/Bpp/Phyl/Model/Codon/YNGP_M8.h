@@ -78,7 +78,7 @@ namespace bpp
      *
      */
   
-    YNGP_M8(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nbclass);
+    YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nbclass);
 
     YNGP_M8* clone() const { return new YNGP_M8(*this); }
 

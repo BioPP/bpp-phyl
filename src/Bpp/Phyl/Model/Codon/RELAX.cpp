@@ -50,7 +50,7 @@ using namespace std;
 
 /******************************************************************************/
 
-RELAX::RELAX(const GeneticCode* gc, FrequencySet* codonFreqs) :
+RELAX::RELAX(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   YNGP_M("RELAX.") // RELAX currenly inherits from YNGP_M as well, since it uses kappa and instead of the 5 GTR parameters
 {
   // set the initial omegas distribution

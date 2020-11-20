@@ -138,7 +138,7 @@ namespace bpp
   private:
     mutable double exp_;
     mutable RowMatrix<double> p_;
-    FrequencySet* freqSet_;
+    std::shared_ptr<FrequencySet> freqSet_;
 
   public:
     /**
@@ -163,7 +163,7 @@ namespace bpp
       AbstractReversibleSubstitutionModel(model),
       exp_(model.exp_),
       p_(model.p_),
-      freqSet_(dynamic_cast<FrequencySet*>(model.freqSet_->clone()))
+      freqSet_(std::shared_ptr<FrequencySet>(model.freqSet_->clone()))
     {}
 
     EquiprobableSubstitutionModel& operator=(const EquiprobableSubstitutionModel& model)
@@ -172,12 +172,11 @@ namespace bpp
       AbstractReversibleSubstitutionModel::operator=(model);
       exp_ = model.exp_;
       p_   = model.p_;
-      if (freqSet_) delete freqSet_;
-      freqSet_ = dynamic_cast<FrequencySet*>(model.freqSet_->clone());
+      freqSet_ = std::shared_ptr<FrequencySet>(model.freqSet_->clone());
       return *this;
     }
 
-    virtual ~EquiprobableSubstitutionModel() { delete freqSet_; }
+    virtual ~EquiprobableSubstitutionModel() {}
 	
     EquiprobableSubstitutionModel* clone() const { return new EquiprobableSubstitutionModel(*this); }
 
@@ -208,13 +207,12 @@ namespace bpp
 
     void setFrequencySet(const FrequencySet& freqSet)
     {
-      delete freqSet_;
-      freqSet_ = dynamic_cast<FrequencySet*>(freqSet.clone());
+      freqSet_ = std::shared_ptr<FrequencySet>(freqSet.clone());
       resetParameters_();
       addParameters_(freqSet_->getParameters());
     }
 
-    const FrequencySet* getFrequencySet() const { return freqSet_; }
+    const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
 
     void setFreq(std::map<int, double>& freq);
 

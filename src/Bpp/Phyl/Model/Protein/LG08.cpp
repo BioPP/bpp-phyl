@@ -57,11 +57,11 @@ LG08::LG08(const ProteicAlphabet* alpha) :
 {
   #include "__LG08ExchangeabilityCode"
   #include "__LG08FrequenciesCode"
-  freqSet_ = new FixedProteinFrequencySet(alpha, freq_);
+  freqSet_.reset(new FixedProteinFrequencySet(alpha, freq_));
   updateMatrices();  
 }
 
-LG08::LG08(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs) :
+LG08::LG08(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs) :
   AbstractParameterAliasable("LG08+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "LG08+F."),
   freqSet_(freqSet)

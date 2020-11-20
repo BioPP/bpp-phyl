@@ -63,6 +63,7 @@
 #include "../Model/MixtureOfATransitionModel.h"
 #include "../Model/MixtureOfTransitionModels.h"
 
+#include "../Model/Codon/DFP07.h"
 #include "../Model/Codon/YNGP_M1.h"
 #include "../Model/Codon/YNGP_M2.h"
 #include "../Model/Codon/YNGP_M3.h"
@@ -169,7 +170,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   }
   // //////////////////
   // PREDEFINED CODON MODELS
-else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "RELAX")) && (alphabetCode_ & CODON))
+  else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "DFP07") || (modelName == "RELAX")) && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("BppOTransitionModelFormat::read. Codon alphabet not supported.");
@@ -188,26 +189,35 @@ else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "RELAX")) && (alph
     if (geneticCode_->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
-    BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
-    freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-    unique_ptr<FrequencySet> codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
-    map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
-    for (auto& it:unparsedParameterValuesNested)
-      unparsedArguments_[modelName + "." + it.first] = it.second;
+    shared_ptr<CodonFrequencySet> codonFreqs(0);
+
+    if (args.find("frequencies")!=args.end())
+    {
+      string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
+      BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
+      freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
+
+      codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
+      auto unparsedParameterValuesNested = freqReader.getUnparsedArguments();
+      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());    
+    }
+    else 
+      // codonFreqs compulsory for all models but SameAARate
+      if (modelName!="DFP07")
+        throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "YNGP_M1")
-      model.reset(new YNGP_M1(geneticCode_, codonFreqs.release()));
+      model.reset(new YNGP_M1(geneticCode_, codonFreqs));
     else if (modelName == "YNGP_M2")
-      model.reset(new YNGP_M2(geneticCode_, codonFreqs.release()));
+      model.reset(new YNGP_M2(geneticCode_, codonFreqs));
     else if (modelName == "RELAX")
-      model.reset(new RELAX(geneticCode_, codonFreqs.release()));
+      model.reset(new RELAX(geneticCode_, codonFreqs));
     else if (modelName == "YNGP_M3")
       if (args.find("n") == args.end())
-        model.reset(new YNGP_M3(geneticCode_, codonFreqs.release()));
+        model.reset(new YNGP_M3(geneticCode_, codonFreqs));
       else
-        model.reset(new YNGP_M3(geneticCode_, codonFreqs.release(), TextTools::to<unsigned int>(args["n"])));
+        model.reset(new YNGP_M3(geneticCode_, codonFreqs, TextTools::to<unsigned int>(args["n"])));
     else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8")
     {
       if (args.find("n") == args.end())
@@ -217,9 +227,9 @@ else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "RELAX")) && (alph
         ApplicationTools::displayResult("Number of classes in model", nbClasses);
 
       if (modelName == "YNGP_M7")
-        model.reset(new YNGP_M7(geneticCode_, codonFreqs.release(), nbClasses));
+        model.reset(new YNGP_M7(geneticCode_, codonFreqs, nbClasses));
       else if (modelName == "YNGP_M8")
-        model.reset(new YNGP_M8(geneticCode_, codonFreqs.release(), nbClasses));
+        model.reset(new YNGP_M8(geneticCode_, codonFreqs, nbClasses));
     }
     else if (modelName == "YNGP_M9" || modelName == "YNGP_M10")
     {
@@ -233,9 +243,22 @@ else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "RELAX")) && (alph
         ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
 
       if (modelName == "YNGP_M9")
-        model.reset(new YNGP_M9(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
+        model.reset(new YNGP_M9(geneticCode_, codonFreqs, nbBeta, nbGamma));
       else
-        model.reset(new YNGP_M10(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
+        model.reset(new YNGP_M10(geneticCode_, codonFreqs, nbBeta, nbGamma));
+    }
+    else if (modelName == "DFP07")
+    {
+      if (args.find("protmodel") == args.end())
+        throw Exception("Missing 'protmodel in model " + modelName + ".");
+
+      BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+      auto  nestedProtModel = std::shared_ptr<ProteinSubstitutionModel>(dynamic_cast<ProteinSubstitutionModel*>(nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], data, false)));
+
+      auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
+      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
+
+      model.reset(new DFP07(geneticCode_, nestedProtModel, codonFreqs));
     }
   }
   else if (AlphabetTools::isProteicAlphabet(alphabet))

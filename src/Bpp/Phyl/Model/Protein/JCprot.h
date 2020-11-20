@@ -137,7 +137,7 @@ namespace bpp
   private:
     mutable double exp_;
     mutable RowMatrix<double> p_;
-    ProteinFrequencySet* freqSet_;
+    std::shared_ptr<ProteinFrequencySet> freqSet_;
     bool withFreq_;
     
   public:
@@ -156,7 +156,7 @@ namespace bpp
      * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
      * Otherwise, the values of the set will be used.
      */
-    JCprot(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs = false);
+    JCprot(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs = false);
 
     JCprot(const JCprot& model) :
       AbstractParameterAliasable(model),
@@ -173,13 +173,12 @@ namespace bpp
       AbstractReversibleProteinSubstitutionModel::operator=(model);
       exp_ = model.exp_;
       p_   = model.p_;
-      if (freqSet_) delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone());
+      freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()));
       withFreq_ = model.withFreq_;
       return *this;
     }
 
-    virtual ~JCprot() { delete freqSet_; }
+    virtual ~JCprot() {}
 	
     JCprot* clone() const { return new JCprot(*this); }
 
@@ -205,13 +204,12 @@ namespace bpp
 
     void setFrequencySet(const ProteinFrequencySet& freqSet)
     {
-      delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequencySet*>(freqSet.clone());
+      freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(freqSet.clone()));
       resetParameters_();
       addParameters_(freqSet_->getParameters());
     }
 
-    const FrequencySet* getFrequencySet() const { return freqSet_; }
+    const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
 
     void setNamespace(const std::string& prefix)
     {

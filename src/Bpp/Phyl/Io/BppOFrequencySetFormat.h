@@ -116,7 +116,7 @@ namespace bpp
       geneticCode_ = gCode;
     }
 
-    FrequencySet* readFrequencySet(
+    std::shared_ptr<FrequencySet> readFrequencySet(
       const Alphabet* alphabet,
       const std::string& freqDescription,
       const AlignedValuesContainer* data,

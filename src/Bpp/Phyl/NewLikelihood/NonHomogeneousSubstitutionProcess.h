@@ -121,7 +121,7 @@ namespace bpp
     /**
      * @brief Root frequencies.
      */
-    std::unique_ptr<FrequencySet> rootFrequencies_;
+    std::shared_ptr<FrequencySet> rootFrequencies_;
     
     /**
      *  @brief Rate Distribution
@@ -374,9 +374,9 @@ namespace bpp
      *
      */
   
-    const FrequencySet* getRootFrequencySet() const
+    std::shared_ptr<const FrequencySet> getRootFrequencySet() const
     {
-      return rootFrequencies_.get();
+      return rootFrequencies_;
     }
 
     /**
@@ -582,7 +582,7 @@ namespace bpp
       std::shared_ptr<BranchModel> model,
       DiscreteDistribution* rdist,
       ParametrizablePhyloTree* tree,
-      FrequencySet* rootFreqs = 0,
+      std::shared_ptr<FrequencySet> rootFreqs = 0,
       std::shared_ptr<ModelScenario> scenario = 0
       );
 
@@ -606,7 +606,7 @@ namespace bpp
       std::shared_ptr<BranchModel> model,
       DiscreteDistribution* rdist,
       ParametrizablePhyloTree* tree,
-      FrequencySet* rootFreqs,
+      std::shared_ptr<FrequencySet> rootFreqs,
       const std::vector<std::string>& globalParameterNames,
       std::shared_ptr<ModelScenario> scenario = 0
       );
