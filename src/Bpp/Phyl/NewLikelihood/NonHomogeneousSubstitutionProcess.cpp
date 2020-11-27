@@ -338,7 +338,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
   if  (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
 
-  NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs->clone());
+  NonHomogeneousSubstitutionProcess*  modelSet = rootFreqs?new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs->clone()):new NonHomogeneousSubstitutionProcess(rdist, tree);
 
   // We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<unsigned int> ids = tree->getAllNodesIndexes();

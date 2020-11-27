@@ -46,6 +46,8 @@
 #include "PhyloLikelihood.h"
 #include "SingleDataPhyloLikelihood.h"
 
+#include "../DataFlow/CollectionNodes.h"
+
 namespace bpp
 {
   /**
@@ -59,24 +61,31 @@ namespace bpp
   class PhyloLikelihoodContainer:
     virtual public Clonable
   {
+    
+  private:
+    Context& context_;
+    
+    std::shared_ptr<CollectionNodes> collectionNodes_;
+    
   protected:
     std::map<size_t, std::shared_ptr<PhyloLikelihood> >  mPhylo_;
 
   public:
-    PhyloLikelihoodContainer():
+    PhyloLikelihoodContainer(Context& context, SubstitutionProcessCollection& sColl):
+      context_(context),
+      collectionNodes_(std::make_shared<CollectionNodes>(context_, sColl)),
       mPhylo_()
     {}
-    
-    PhyloLikelihoodContainer(const PhyloLikelihoodContainer& lik):
-    mPhylo_()
-    {
-      for (const auto& it : lik.mPhylo_)
-        mPhylo_[it.first]=std::shared_ptr<PhyloLikelihood>(it.second->clone());
-    }
+
+    PhyloLikelihoodContainer(Context& context, std::shared_ptr<CollectionNodes> sColl):
+      context_(context),
+      collectionNodes_(sColl),
+      mPhylo_()
+    {}
 
     PhyloLikelihoodContainer* clone() const
     {
-      return new PhyloLikelihoodContainer(*this);
+      throw Exception("PhyloLikelihoodContainer::clone should not be called.");
     }
     
     /**
@@ -150,6 +159,21 @@ namespace bpp
       return vnum;
     }
     
+    /**
+     *@brief Manage Collection Nodes
+     *
+     */
+    
+    std::shared_ptr<const CollectionNodes> getCollectionNodes() const
+    {
+      return(collectionNodes_);
+    }
+
+    std::shared_ptr<CollectionNodes> getCollectionNodes() 
+    {
+      return(collectionNodes_);
+    }
+
     /**
      * @brief Set the dataset for which the likelihood must be
      * evaluated, iff the pointed PhyloLikelihood is a SingleDataPhyloLikelihood

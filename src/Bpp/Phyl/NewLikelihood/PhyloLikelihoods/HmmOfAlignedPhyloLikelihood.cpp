@@ -49,7 +49,7 @@ using namespace bpp;
 
 HmmOfAlignedPhyloLikelihood::HmmOfAlignedPhyloLikelihood(
   Context& context,
-  PhyloLikelihoodContainer* pC,
+  std::shared_ptr<PhyloLikelihoodContainer> pC,
   const std::vector<size_t>& nPhylo, bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),

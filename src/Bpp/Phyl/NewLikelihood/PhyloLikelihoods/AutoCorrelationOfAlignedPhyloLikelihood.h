@@ -76,7 +76,7 @@ namespace bpp
     mutable std::shared_ptr<HmmLikelihood_DF> hmm_;
 
   public:
-    AutoCorrelationOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
+    AutoCorrelationOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
 
     AutoCorrelationOfAlignedPhyloLikelihood(const AutoCorrelationOfAlignedPhyloLikelihood& mlc) :
       AbstractPhyloLikelihood(mlc),

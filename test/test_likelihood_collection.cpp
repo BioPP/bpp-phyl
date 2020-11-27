@@ -119,11 +119,11 @@ int main() {
   ///////////////////////////////////////////
   // Similar Collection Processes
 
-  SubstitutionProcessCollection* modelColl=new SubstitutionProcessCollection();
+  auto modelColl=std::make_shared<SubstitutionProcessCollection>();
   
-  modelColl->addModel(std::shared_ptr<T92>(model1), 1);
-  modelColl->addModel(std::shared_ptr<T92>(model2), 2);
-  modelColl->addModel(std::shared_ptr<T92>(model3), 3);
+  modelColl->addModel(model1, 1);
+  modelColl->addModel(model2, 2);
+  modelColl->addModel(model3, 3);
 
   modelColl->addFrequencies(rootFreqs, 1);
   modelColl->addDistribution(rdist1, 1);
@@ -157,35 +157,34 @@ int main() {
     BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
 
   // Likelihoods
-  PhyloLikelihoodContainer pc;
+  auto pc(std::make_shared<PhyloLikelihoodContainer>(context, *modelColl));
 
   SubstitutionProcess* sP1c=subPro1->clone();
   SubstitutionProcess* sP2c=subPro2->clone();
 
   auto lik1 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP1c);
 
-  pc.addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(context, lik1));
+  pc->addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(context, lik1));
     
   auto lik2 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP2c);
 
-  pc.addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(context, lik2));
+  pc->addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(context, lik2));
   
-  AlignedPhyloLikelihood* spl1=dynamic_cast<AlignedPhyloLikelihood*>(pc[1]);
-  AlignedPhyloLikelihood* spl2=dynamic_cast<AlignedPhyloLikelihood*>(pc[2]);
+  AlignedPhyloLikelihood* spl1=dynamic_cast<AlignedPhyloLikelihood*>((*pc)[1]);
+  AlignedPhyloLikelihood* spl2=dynamic_cast<AlignedPhyloLikelihood*>((*pc)[2]);
 
   cerr << setprecision(10) << "TL1:"  << spl1->getValue() << "\tTL2:" << spl2->getValue() << endl;
 
- 
+  auto collNodes = pc->getCollectionNodes();
+  
   //  Mixture of process
   
   std::vector<size_t> vp(2);
   vp[0]=1; vp[1]=2;
 
-  MixtureSequenceEvolution mse(modelColl, vp);
+  MixtureSequenceEvolution mse(modelColl.get(), vp);
 
-  CollectionNodes collNodes(context, *modelColl);
-  
-  MixtureProcessPhyloLikelihood mlc(*sites.clone(), mse, collNodes);
+  MixtureProcessPhyloLikelihood mlc(*sites.clone(), mse, *collNodes);
 
   using bpp::DotOptions;
   bpp::writeGraphToDot("mlc.dot", {mlc.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
@@ -199,19 +198,23 @@ int main() {
 
   //  Mixture of phylo
 
-  PhyloLikelihoodContainer pc2;
+  // New calculation to ensure independence
+  
+  Context context2;
+  
+  auto pc2(std::make_shared<PhyloLikelihoodContainer>(context2, *modelColl));
 
   SubstitutionProcess* sP1c2=subPro1->clone();
   SubstitutionProcess* sP2c2=subPro2->clone();
 
-  auto lik12 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP1c2);
+  auto lik12 = std::make_shared<LikelihoodCalculationSingleProcess>(context2, sites, *sP1c2);
 
-  auto lik22 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP2c2);
+  auto lik22 = std::make_shared<LikelihoodCalculationSingleProcess>(context2, sites, *sP2c2);
 
-  pc2.addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(context, lik22));
-  pc2.addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(context, lik12));
+  pc2->addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(context2, lik22));
+  pc2->addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(context2, lik12));
 
-  MixtureOfAlignedPhyloLikelihood moap(context, &pc2, {1,2}, false);
+  MixtureOfAlignedPhyloLikelihood moap(context2, pc2, {1,2}, false);
 
   bpp::writeGraphToDot("moap.dot", {moap.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
   cerr << "Moap: " << moap.getValue() << endl;
@@ -284,7 +287,7 @@ int main() {
   
   string formula="(phylo2 - phylo1) * (phylo1 - phylo2)";      
 
-  FormulaOfPhyloLikelihood tl(context, &pc, formula, false);
+  FormulaOfPhyloLikelihood tl(context, pc, formula, false);
 
   cerr << formula << " : " << tl.getValue() << endl;
 

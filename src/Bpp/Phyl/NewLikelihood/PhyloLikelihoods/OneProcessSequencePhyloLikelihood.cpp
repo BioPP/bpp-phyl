@@ -91,7 +91,7 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   const AlignedValuesContainer& data,
   OneProcessSequenceEvolution& evol,
-  CollectionNodes collNodes,
+  CollectionNodes& collNodes,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,

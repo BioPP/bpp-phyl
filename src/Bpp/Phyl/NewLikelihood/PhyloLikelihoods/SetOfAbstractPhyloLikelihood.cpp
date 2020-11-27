@@ -42,7 +42,7 @@
 using namespace bpp;
 using namespace std;
 
-SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection, const std::string& prefix) :
+SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection, const std::string& prefix) :
   AbstractPhyloLikelihood(context),
   AbstractParametrizable(prefix),
   pPhyloCont_(pC),
@@ -53,7 +53,7 @@ SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, Phy
     addPhyloLikelihood(np,inCollection?"":"_" + TextTools::toString(np));
 }
 
-SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix) :
+SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix) :
   AbstractPhyloLikelihood(context),
   AbstractParametrizable(prefix),
   pPhyloCont_(pC),

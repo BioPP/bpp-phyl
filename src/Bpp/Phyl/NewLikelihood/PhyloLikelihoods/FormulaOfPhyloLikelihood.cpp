@@ -48,7 +48,7 @@
 using namespace bpp;
 using namespace std;
 
-FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& formula, bool inCollection) :
+FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::string& formula, bool inCollection) :
   AbstractPhyloLikelihood(context),
   SetOfAbstractPhyloLikelihood(context, pC, {}, inCollection),
   compTree_(),

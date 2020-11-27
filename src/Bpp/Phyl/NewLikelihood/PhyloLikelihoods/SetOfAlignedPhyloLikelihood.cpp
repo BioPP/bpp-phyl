@@ -43,7 +43,7 @@ using namespace std;
 using namespace bpp;
 
 
-SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection, const std::string& prefix):
+SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection, const std::string& prefix):
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SetOfAbstractPhyloLikelihood(context, pC, inCollection, prefix)
@@ -64,7 +64,7 @@ SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, Phylo
 
 /*************************************************************/
 
-SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix):
+SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix):
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SetOfAbstractPhyloLikelihood(context, pC, nPhylo, inCollection, prefix)

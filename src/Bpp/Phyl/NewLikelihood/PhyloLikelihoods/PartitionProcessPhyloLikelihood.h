@@ -118,7 +118,7 @@ namespace bpp
       PartitionProcessPhyloLikelihood(
         const AlignedValuesContainer& data,
         PartitionSequenceEvolution& processSeqEvol,
-        CollectionNodes& collNodes,
+        std::shared_ptr<CollectionNodes> collNodes,
         size_t nSeqEvol = 0,
         size_t nData = 0,
         bool verbose = true,
@@ -138,7 +138,6 @@ namespace bpp
       
       virtual ~PartitionProcessPhyloLikelihood()
       {
-        delete getPhyloContainer();
       }
 
       PartitionProcessPhyloLikelihood* clone() const { return new PartitionProcessPhyloLikelihood(*this); }

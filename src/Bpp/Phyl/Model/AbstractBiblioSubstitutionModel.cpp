@@ -75,7 +75,18 @@ std::string AbstractBiblioTransitionModel::getParNameFromPmodel(const std::strin
     throw Exception("AbstractBiblioTransitionModel::getParNameFromPmodel : unknown parameter " + name);
   return it->second;
 }
-    
+
+/******************************************************************************/
+
+std::string AbstractBiblioTransitionModel::getPmodelParName(const std::string& name) const
+{
+  for (auto it : mapParNamesFromPmodel_)
+    if (it.second == name)
+      return it.first;
+
+  throw Exception("AbstractBiblioTransitionModel::getParNameFromPmodel: unknown parameter name " + name);
+}
+
 
 /******************************************************************************/
 

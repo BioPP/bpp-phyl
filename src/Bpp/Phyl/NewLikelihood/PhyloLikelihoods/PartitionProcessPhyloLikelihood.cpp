@@ -59,15 +59,14 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SequencePhyloLikelihood(context, processSeqEvol, nSeqEvol),
-  SetOfAbstractPhyloLikelihood(context, new PhyloLikelihoodContainer()),
+  SetOfAbstractPhyloLikelihood(context, std::make_shared<PhyloLikelihoodContainer>(context, processSeqEvol.getCollection())), 
   mSeqEvol_(processSeqEvol),
   vProcPos_(),
   mData_(),
   likCal_(new AlignedLikelihoodCalculation(context))
 {
   // make new shared Parameters 
-  SubstitutionProcessCollection& processColl = processSeqEvol.getCollection();
-  CollectionNodes collNodes(context, processColl);
+  auto collNodes = pPhyloCont_->getCollectionNodes();
 
   //
   
@@ -76,13 +75,13 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   vProcPos_.resize(processSeqEvol.getNumberOfSites());
 
   // Build the PhyloLikelihoodContainer
-  PhyloLikelihoodContainer* pC=getPhyloContainer();
+  auto pC=getPhyloContainer();
   
   for (const auto& it:mProcPos)
   {
     auto nProcess = it.first;
     
-    auto l = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes, nProcess);
+    auto l = std::make_shared<LikelihoodCalculationSingleProcess>(*collNodes, nProcess);
 
     auto nPL = make_shared<SingleProcessPhyloLikelihood>(context, l, nProcess);
 
@@ -113,7 +112,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
   SequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
-  SetOfAbstractPhyloLikelihood(context, new PhyloLikelihoodContainer()),
+  SetOfAbstractPhyloLikelihood(context, std::make_shared<PhyloLikelihoodContainer>(context, processSeqEvol.getCollection())),
   mSeqEvol_(processSeqEvol),
   vProcPos_(),
   mData_(),
@@ -122,24 +121,22 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   if (data.getNumberOfSites()!=processSeqEvol.getNumberOfSites())
     throw BadIntegerException("PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood, data and sequence process lengths do not match.", (int)data.getNumberOfSites());
 
-  // make new shared Parameters 
-  SubstitutionProcessCollection& processColl = processSeqEvol.getCollection();
-  CollectionNodes collNodes(context, processColl);
+  // get new shared Parameters 
+  auto collNodes = pPhyloCont_->getCollectionNodes();
 
-  //
   
   map<size_t, vector<size_t> >& mProcPos=processSeqEvol.getMapOfProcessSites();
 
   vProcPos_.resize(processSeqEvol.getNumberOfSites());
 
   // Build the PhyloLikelihoodContainer
-  PhyloLikelihoodContainer* pC=getPhyloContainer();
+  auto pC=getPhyloContainer();
   
   for (const auto& it:mProcPos)
   {
     auto nProcess = it.first;
     
-    auto l = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes, nProcess);
+    auto l = std::make_shared<LikelihoodCalculationSingleProcess>(*collNodes, nProcess);
 
     auto nPL = make_shared<SingleProcessPhyloLikelihood>(context, l, nProcess, nData);
 
@@ -163,19 +160,19 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
 PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   const AlignedValuesContainer& data,
   PartitionSequenceEvolution& processSeqEvol,
-  CollectionNodes& collNodes,
+  std::shared_ptr<CollectionNodes> collNodes,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(collNodes.getContext()),
-  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
-  SequencePhyloLikelihood(collNodes.getContext(), processSeqEvol, nSeqEvol, nData),
-  SetOfAbstractPhyloLikelihood(collNodes.getContext(), new PhyloLikelihoodContainer()),
+  AbstractPhyloLikelihood(collNodes->getContext()),
+  AbstractAlignedPhyloLikelihood(collNodes->getContext(), data.getNumberOfSites()),
+  SequencePhyloLikelihood(collNodes->getContext(), processSeqEvol, nSeqEvol, nData),
+  SetOfAbstractPhyloLikelihood(collNodes->getContext(), std::make_shared<PhyloLikelihoodContainer>(collNodes->getContext(), collNodes)),
   mSeqEvol_(processSeqEvol),
   vProcPos_(),
   mData_(),
-  likCal_(new AlignedLikelihoodCalculation(collNodes.getContext()))
+  likCal_(new AlignedLikelihoodCalculation(collNodes->getContext()))
 {
   if (data.getNumberOfSites()!=processSeqEvol.getNumberOfSites())
     throw BadIntegerException("PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood, data and sequence process lengths do not match.", (int)data.getNumberOfSites());
@@ -185,13 +182,13 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   vProcPos_.resize(processSeqEvol.getNumberOfSites());
 
   // Build the PhyloLikelihoodContainer
-  PhyloLikelihoodContainer* pC=getPhyloContainer();
+  auto pC=getPhyloContainer();
   
   for (const auto& it:mProcPos)
   {
     auto nProcess = it.first;
     
-    auto l = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes, nProcess);
+    auto l = std::make_shared<LikelihoodCalculationSingleProcess>(*collNodes, nProcess);
 
     auto nPL = make_shared<SingleProcessPhyloLikelihood>(getContext(), l, nProcess, nData);
 

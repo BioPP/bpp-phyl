@@ -96,6 +96,15 @@ namespace bpp
     std::string getParNameFromPmodel(const std::string& name) const;
     
     /*
+     * @brief get the name of a parameter in the submodel from its apparent name
+     *
+     * @var name the name of the parameter
+     *
+     */
+    
+    std::string getPmodelParName(const std::string& name) const;
+    
+    /*
      *@ brief Methods to supersede TransitionModel methods.
      *
      * @{

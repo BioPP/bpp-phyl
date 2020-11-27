@@ -66,7 +66,7 @@ namespace bpp
        *
        */
       
-      PhyloLikelihoodContainer* pPhyloCont_;
+      std::shared_ptr<PhyloLikelihoodContainer> pPhyloCont_;
       
       /**
        * @brief vector of AbstractPhyloLikelihood numbers
@@ -88,9 +88,9 @@ namespace bpp
        *
        */
       
-      SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection = true, const std::string& prefix = "");
+      SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true, const std::string& prefix = "");
 
-      SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
+      SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
 
       ~SetOfAbstractPhyloLikelihood() {}
 
@@ -98,12 +98,12 @@ namespace bpp
         
     public:
 
-      PhyloLikelihoodContainer* getPhyloContainer()
+      std::shared_ptr<PhyloLikelihoodContainer> getPhyloContainer()
       {
         return pPhyloCont_;
       }
 
-      const PhyloLikelihoodContainer* getPhyloContainer() const
+      std::shared_ptr<const PhyloLikelihoodContainer> getPhyloContainer() const
       {
         return pPhyloCont_;
       }

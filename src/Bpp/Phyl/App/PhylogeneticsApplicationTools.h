@@ -695,7 +695,7 @@ namespace bpp
      *
      */
     
-    static PhyloLikelihoodContainer* getPhyloLikelihoodContainer(
+    static std::shared_ptr<PhyloLikelihoodContainer> getPhyloLikelihoodContainer(
       Context& context,
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,

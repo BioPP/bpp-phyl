@@ -66,7 +66,7 @@ namespace bpp
     
   public:
     
-    FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& formula, bool inCollection = true);
+    FormulaOfPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::string& formula, bool inCollection = true);
 
     ~FormulaOfPhyloLikelihood() {}
     

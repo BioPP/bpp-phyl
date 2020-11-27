@@ -42,7 +42,7 @@
 using namespace bpp;
 using namespace std;
 
-MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection) :
+MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection, ""),

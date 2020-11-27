@@ -60,9 +60,9 @@ namespace bpp
     virtual public AbstractAlignedPhyloLikelihood
     {
     public:
-      SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection = true, const std::string& prefix = "");
+      SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true, const std::string& prefix = "");
       
-      SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
+      SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
       
       SetOfAlignedPhyloLikelihood(const SetOfAlignedPhyloLikelihood& soap) :
       AbstractPhyloLikelihood(soap),

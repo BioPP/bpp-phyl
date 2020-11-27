@@ -65,9 +65,9 @@ namespace bpp
       mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
 
     public:
-      ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection = true);
+      ProductOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true);
 
-      ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
+      ProductOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
       
       ~ProductOfAlignedPhyloLikelihood() {};
       

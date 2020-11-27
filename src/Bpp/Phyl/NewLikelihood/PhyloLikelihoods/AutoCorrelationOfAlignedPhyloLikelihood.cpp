@@ -49,7 +49,7 @@ using namespace bpp;
 
 AutoCorrelationOfAlignedPhyloLikelihood::AutoCorrelationOfAlignedPhyloLikelihood(
   Context& context,
-  PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection) :
+  std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
