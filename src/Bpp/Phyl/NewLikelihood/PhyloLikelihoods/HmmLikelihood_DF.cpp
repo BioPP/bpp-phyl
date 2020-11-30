@@ -71,14 +71,14 @@ HmmLikelihood_DF::HmmLikelihood_DF(
   if (!transitionMatrix)      throw Exception("HmmLikelihood_DF: null pointer passed for HmmTransitionMatrix.");
   if (!emissionProbabilities) throw Exception("HmmLikelihood_DF: null pointer passed for HmmEmissionProbabilities.");
 
-  nbStates_ = hiddenAlphabet_->getNumberOfStates();
-  nbSites_ = emissionProbabilities_->getNumberOfPositions();
+  nbStates_ = Eigen::Index(hiddenAlphabet_->getNumberOfStates());
+  nbSites_ = Eigen::Index(emissionProbabilities_->getNumberOfPositions());
 
   if (emissionProbabilities_->getNumberOfStates()!=nbStates_)
-    throw BadSizeException("HmmLikelihood_DF: HmmStateAlphabet and HmmEmissionProbabilities do not have the same number of states.", emissionProbabilities_->getNumberOfStates(), nbStates_);
+    throw BadSizeException("HmmLikelihood_DF: HmmStateAlphabet and HmmEmissionProbabilities do not have the same number of states.", emissionProbabilities_->getNumberOfStates(), size_t(nbStates_));
 
   if (transitionMatrix->getNumberOfStates()!=nbStates_)
-    throw BadSizeException("HmmLikelihood_DF: HmmStateAlphabet and HmmTransitionMatrix do not have the same number of states.", transitionMatrix->getNumberOfStates(), nbStates_);
+    throw BadSizeException("HmmLikelihood_DF: HmmStateAlphabet and HmmTransitionMatrix do not have the same number of states.", transitionMatrix->getNumberOfStates(), size_t(nbStates_));
 
   
   ////////////////////////////

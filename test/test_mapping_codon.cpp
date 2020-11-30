@@ -72,7 +72,7 @@ int main() {
   
   unique_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.1);", false, "", false, false));
 
-  vector<int> ids = {0, 1, 2, 3, 4};
+  vector<uint> ids = {0, 1, 2, 3, 4};
 
   //-------------
 

@@ -126,7 +126,7 @@ namespace bpp
 
     double operator()(size_t pos, size_t state) const
     {
-      return (emProb_->getTargetValue())(state,pos);
+      return (emProb_->getTargetValue())(Eigen::Index(state),Eigen::Index(pos));
     }
 
     ValueRef<Eigen::MatrixXd> getEmissionProbabilities()
@@ -146,7 +146,7 @@ namespace bpp
     
     Eigen::Ref<const Eigen::VectorXd> operator()(size_t pos) const
     {
-      return emProb_->getTargetValue().col(pos);
+      return emProb_->getTargetValue().col(Eigen::Index(pos));
     }
     
     /**

@@ -344,7 +344,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     ApplicationTools::displayMessage("\n");
 
   // We're done.
-  int nb = poptimizer->getNumberOfEvaluations();
+  uint nb = poptimizer->getNumberOfEvaluations();
   delete poptimizer;
   return nb;
 }
@@ -492,7 +492,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   {
     fnum.reset(new TwoPointsNumericalDerivative(f));
     fnum->setInterval(0.0000001);
-    optimizer.reset(new ConjugateGradientMultiDimensions(reinterpret_cast<DerivableFirstOrder*>(fnum.get()))); // Removes strict-aliasing warning with gcc 4.4
+    optimizer.reset(new ConjugateGradientMultiDimensions(fnum.get())); // Removes strict-aliasing warning with gcc 4.4
   }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {
@@ -574,7 +574,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
     fnum.reset(new TwoPointsNumericalDerivative(&lik));
     fnum->setInterval(0.0000001);
-    optimizer.reset(new ConjugateGradientMultiDimensions(reinterpret_cast<DerivableFirstOrder*>(fnum.get()))); // Removes strict-aliasing warning with gcc 4.4
+    optimizer.reset(new ConjugateGradientMultiDimensions(fnum.get())); // Removes strict-aliasing warning with gcc 4.4
   }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {

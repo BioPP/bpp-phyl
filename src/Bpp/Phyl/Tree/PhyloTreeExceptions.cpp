@@ -67,7 +67,7 @@ PhyloNodeNotFoundException::PhyloNodeNotFoundException(const std::string& text, 
   Exception("NodeNotFoundException: " + text + "(" + id + ")"),
   id_(id) {}
 
-PhyloNodeNotFoundException::PhyloNodeNotFoundException(const std::string& text, int id) :
+PhyloNodeNotFoundException::PhyloNodeNotFoundException(const std::string& text, uint id) :
   Exception("NodeNotFoundException: " + text + "(" + TextTools::toString(id) + ")"),
   id_(TextTools::toString(id)) {}
 
@@ -91,7 +91,7 @@ PhyloBranchNotFoundException::PhyloBranchNotFoundException(const std::string& te
 
 /******************************************************************************/
 
-PhyloBranchNotFoundException::PhyloBranchNotFoundException(const std::string& text, int id) :
+PhyloBranchNotFoundException::PhyloBranchNotFoundException(const std::string& text, uint id) :
   Exception("BranchNotFoundException: " + text + "(" + TextTools::toString(id) + ")"),
   id_(TextTools::toString(id)) {}
 

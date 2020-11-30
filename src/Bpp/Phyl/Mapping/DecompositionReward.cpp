@@ -142,11 +142,11 @@ void DecompositionReward::storeAllRewards(double length, Eigen::MatrixXd& mat) c
     currentLength_ = length;
   }
 
-  mat.resize(nbStates_, nbStates_);
+  mat.resize(Eigen::Index(nbStates_), Eigen::Index(nbStates_));
 
   for (size_t j = 0; j < nbStates_; j++) 
     for (size_t k = 0; k < nbStates_; k++) 
-      mat(j, k) = rewards_(j, k);
+      mat(Eigen::Index(j), Eigen::Index(k)) = rewards_(j, k);
 }
 
 /******************************************************************************/

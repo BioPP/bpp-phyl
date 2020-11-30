@@ -93,7 +93,7 @@ namespace bpp {
         return Node_DF::description() + "\n"+ name_ + "\n" + debug (this->accessValueConst ());
       }
 
-      bool compareAdditionalArguments (const Node_DF & other) const {
+      bool compareAdditionalArguments (const Node_DF & other) const override {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && name_ == derived->name_ && this->accessValueConst () == derived->accessValueConst ();
       }
@@ -107,7 +107,7 @@ namespace bpp {
         return this->shared_from_this ();
       }
       
-      std::size_t hashAdditionalArguments () const
+      std::size_t hashAdditionalArguments () const override
       {
         using namespace numeric;
         size_t seed=hash (this->accessValueConst ());

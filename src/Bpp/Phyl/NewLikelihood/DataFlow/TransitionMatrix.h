@@ -60,8 +60,8 @@ namespace bpp {
   class ConfiguredTransitionMatrix : public Value<const HmmTransitionMatrix*>,
                                      public AbstractParametrizable
   {
-  private:
-    Context& context_;
+  // private:
+  //   Context& context_;
 
   public:
     using Self = ConfiguredTransitionMatrix;

@@ -125,7 +125,7 @@ namespace bpp
      */
     
     ProbabilisticSubstitutionMapping(const PhyloTree& tree, size_t nbTypes, const PatternType& rootpatterns, size_t nbDistinctSites) :
-      AbstractMapping(rootpatterns.size()), AbstractSubstitutionMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
+      AbstractMapping(size_t(rootpatterns.size())), AbstractSubstitutionMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
     {
       setNumberOfSubstitutionTypes(nbTypes);
       std::unique_ptr<EdgeIterator> nIT=allEdgesIterator();
@@ -263,7 +263,7 @@ namespace bpp
 
     const size_t getSiteIndex(size_t site) const
     {
-      return (usePatterns_?rootPatternLinks_(site):site);
+      return (usePatterns_?rootPatternLinks_(Eigen::Index(site)):site);
     }
   };
 

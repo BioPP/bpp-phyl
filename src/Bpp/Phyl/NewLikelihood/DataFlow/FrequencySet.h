@@ -72,15 +72,16 @@ namespace bpp {
     class ConfiguredFrequencySet : public Value<const FrequencySet*>,
                                      public AbstractParametrizable
     {
-    private:
+    // private:
 
-      const Context& context_;
+    //   const Context& context_;
 
     public:
       using Self = ConfiguredFrequencySet;
       using Target = FrequencySet;
       
       ConfiguredFrequencySet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequencySet> && freqset);
+      
       ~ConfiguredFrequencySet ();
       
       ConfiguredFrequencySet* clone() const

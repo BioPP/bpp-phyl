@@ -137,7 +137,7 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeBackwardLikelihoodAtNode (P
     else if (brprob)
       backLikeEdge = BackwardProportion::create(context_, {brprob, backEdge}, likelihoodMatrixDim_);
     else
-      throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtNode : missing information on edge " + processEdge->getSpeciesIndex());
+      throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtNode : missing information on edge " + TextTools::toString(processEdge->getSpeciesIndex()));
     
     if (edgesIndexes.size()==1)
     {

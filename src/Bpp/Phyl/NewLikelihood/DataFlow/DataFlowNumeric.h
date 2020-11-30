@@ -722,12 +722,12 @@ namespace bpp {
     }
 
     // NumericConstant<T> additional arguments = (value).
-    bool compareAdditionalArguments (const Node_DF & other) const {
+    bool compareAdditionalArguments (const Node_DF & other) const override {
       const auto * derived = dynamic_cast<const Self *> (&other);
       return derived != nullptr && this->accessValueConst () == derived->accessValueConst ();
     }
 
-    std::size_t hashAdditionalArguments () const {
+    std::size_t hashAdditionalArguments () const override {
       using namespace numeric;
       return hash (this->accessValueConst ());
     }
@@ -740,7 +740,7 @@ namespace bpp {
       return ConstantZero<T>::create (c, dim);
     }
 
-    NodeRef recreate (Context &, NodeRefVec && deps) {
+    NodeRef recreate (Context &, NodeRefVec && deps) override {
       checkRecreateWithoutDependencies (typeid (Self), deps);
       return this->shared_from_this ();
     }

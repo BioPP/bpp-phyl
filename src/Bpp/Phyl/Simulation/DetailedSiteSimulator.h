@@ -61,7 +61,7 @@ namespace bpp
   class SiteSimulationResult
   {
   private:
-    mutable std::map<int, size_t> indexes_;
+    mutable std::map<uint, size_t> indexes_;
     size_t currentIndex_;
     std::vector<MutationPath> paths_;
     std::vector<size_t> ancestralStates_;

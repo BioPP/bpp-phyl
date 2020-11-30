@@ -60,15 +60,15 @@ namespace bpp {
     const auto eigenRows = static_cast<Eigen::Index> (bppVector.size());
     eigenVector.resize (eigenRows);
     for (Eigen::Index i = 0; i < eigenRows; ++i) {
-      eigenVector (i) = bppVector[i];
+      eigenVector (i) = bppVector[size_t(i)];
     }
   }
 
   void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector) {
-    const auto eigenRows = static_cast<Eigen::Index> (bppVector.size());
+    const auto eigenRows = Eigen::Index(bppVector.size());
     eigenVector.resize (eigenRows);
     for (Eigen::Index i = 0; i < eigenRows; ++i) {
-      eigenVector (i) = bppVector[i];
+      eigenVector (i) = bppVector[size_t(i)];
     }
   }
 
@@ -103,20 +103,20 @@ namespace bpp {
 
   void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector)
   {
-    bppVector.resize(eigenVector.size());  
-    Eigen::VectorXd::Map(&bppVector[0], bppVector.size()) = eigenVector;
+    bppVector.resize(size_t(eigenVector.size()));  
+    Eigen::VectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
 
   void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector)
   {
-    bppVector.resize(eigenVector.size());  
-    Eigen::VectorXd::Map(&bppVector[0], bppVector.size()) = eigenVector;
+    bppVector.resize(size_t(eigenVector.size()));  
+    Eigen::VectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
 
   void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector)
   {
-    bppVector.resize(eigenVector.size());  
-    Eigen::RowVectorXd::Map(&bppVector[0], bppVector.size()) = eigenVector;
+    bppVector.resize(size_t(eigenVector.size()));  
+    Eigen::RowVectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
   
 

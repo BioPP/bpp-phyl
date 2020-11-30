@@ -168,9 +168,9 @@ namespace bpp
 
       subModel_ = std::unique_ptr<TransitionModel>(fmsm.subModel_->clone());
       size_ = fmsm.size_;
-      Pi_.resize(size_);
-      dPi_.resize(size_);
-      d2Pi_.resize(size_);
+      Pi_.resize(Eigen::Index(size_));
+      dPi_.resize(Eigen::Index(size_));
+      d2Pi_.resize(Eigen::Index(size_));
       
       tref_=NumConstants::MINF();
       mapFact_.clear();

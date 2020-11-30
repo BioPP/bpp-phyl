@@ -118,7 +118,7 @@ namespace bpp
      */
     
     ProbabilisticRewardMapping(const PhyloTree& tree, const PatternType& rootpatterns, size_t nbDistinctSites) :
-      AbstractMapping(rootpatterns.size()), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
+      AbstractMapping(size_t(rootpatterns.size())), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
     {
       std::unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
       for (;!nIT->end(); nIT->next())
@@ -195,7 +195,7 @@ namespace bpp
     
     virtual double getReward(int branchId, size_t site) const
     {
-      return getEdge(branchId)->getSiteReward(getSiteIndex(site));
+      return getEdge((uint)branchId)->getSiteReward(getSiteIndex(site));
     }
     
     virtual void setNumberOfSites(size_t numberOfSites);
@@ -246,7 +246,7 @@ namespace bpp
 
     const size_t getSiteIndex(size_t site) const
     {
-      return rootPatternLinks_[site];
+      return rootPatternLinks_[Eigen::Index(site)];
     }
 
   };

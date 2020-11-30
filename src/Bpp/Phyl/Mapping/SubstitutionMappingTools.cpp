@@ -198,7 +198,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
     vector<Eigen::RowVectorXd> substitutionsForCurrentNode(nbTypes);
      for (auto& sub:substitutionsForCurrentNode)
-      sub.setZero(nbDistinctSites);
+       sub.setZero(Eigen::Index(nbDistinctSites));
 
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
@@ -207,7 +207,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
       vector<Eigen::RowVectorXd> substitutionsForCurrentClass(nbTypes);
       for (auto& sub:substitutionsForCurrentClass)
-        sub.setZero(nbDistinctSites);
+        sub.setZero(Eigen::Index(nbDistinctSites));
       
       const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
 
@@ -281,7 +281,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     {
       for (size_t t = 0; t < nbTypes; ++t)
       {
-        double x = substitutionsForCurrentNode[t](i);
+        double x = substitutionsForCurrentNode[t](Eigen::Index(i));
         
         if (std::isnan(x) || std::isinf(x))
         {
@@ -487,7 +487,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
 
     vector<Eigen::RowVectorXd> rewardsForCurrentNode(nbTypes);
     for (auto& sub:rewardsForCurrentNode)
-      sub.setZero(nbDistinctSites);
+      sub.setZero(Eigen::Index(nbDistinctSites));
 
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
@@ -496,7 +496,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
       
       vector<Eigen::RowVectorXd> rewardsForCurrentClass(nbTypes);
       for (auto& sub:rewardsForCurrentClass)
-        sub.setZero(nbDistinctSites);
+        sub.setZero(Eigen::Index(nbDistinctSites));
       
       const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
       
@@ -565,7 +565,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
     for (size_t i = 0; i < nbDistinctSites; ++i)
     {
       for (size_t t = 0; t < nbTypes; ++t)
-        (*br)(i,t) = rewardsForCurrentNode[t](i);
+        (*br)(i,t) = rewardsForCurrentNode[t](Eigen::Index(i));
     }
   } // end of loop on branches
 

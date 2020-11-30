@@ -465,7 +465,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
     }
   }
 
-  ids.erase(ids.begin() + pos);
+  ids.erase(ids.begin() + (long)pos);
   std::sort(ids.begin(), ids.end());
   
   for (i = 0; i < ids.size(); i++)

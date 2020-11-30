@@ -61,7 +61,7 @@ PhyloNode::PhyloNode(const PhyloNode& node):
 
 PhyloNode& PhyloNode::operator=(const PhyloNode & node)
 {
-  name_  = name_;
+  name_  = node.name_;
   for(map<string, Clonable *>::iterator i = node.properties_.begin(); i != node.properties_.end(); i++)
   {
     Clonable * p = properties_[i->first];

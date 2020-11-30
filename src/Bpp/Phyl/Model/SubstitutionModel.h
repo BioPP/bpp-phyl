@@ -322,9 +322,9 @@ namespace bpp
       
       const auto& pij=getPij_t(t);
 
-      for (auto i=0;i<values.size();i++)
-        for (auto j=0;j<values.size();j++)
-          lik_(i)+=pij(i,j)*values(j);
+      for (size_t i=0;i<values.size();i++)
+        for (size_t j=0;j<values.size();j++)
+          lik_(Eigen::Index(i))+=pij(i,j)*values(Eigen::Index(j));
 
       return(lik_);
     }
@@ -335,9 +335,9 @@ namespace bpp
       
       const auto& pij=getdPij_dt(t);
 
-      for (auto i=0;i<values.size();i++)
-        for (auto j=0;j<values.size();j++)
-          lik_(i)+=pij(i,j)*values(j);
+      for (size_t i=0;i<values.size();i++)
+        for (size_t j=0;j<values.size();j++)
+          lik_(Eigen::Index(i))+=pij(i,j)*values(Eigen::Index(j));
 
       return(lik_);
     }
@@ -348,9 +348,9 @@ namespace bpp
       
       const auto& pij=getd2Pij_dt2(t);
 
-      for (auto i=0;i<values.size();i++)
-        for (auto j=0;j<values.size();j++)
-          lik_(i)+=pij(i,j)*values(j);
+      for (size_t i=0;i<values.size();i++)
+        for (size_t j=0;j<values.size();j++)
+          lik_(Eigen::Index(i))+=pij(i,j)*values(Eigen::Index(j));
 
       return(lik_);
     }

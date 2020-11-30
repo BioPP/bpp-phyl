@@ -171,11 +171,11 @@ namespace bpp
     {
       auto nbStates = supportedChars_.size();
       
-      mat.resize(nbStates, nbStates);
+      mat.resize(Eigen::Index(nbStates), Eigen::Index(nbStates));
 
       for (size_t i=0; i<nbStates; i++)
         for (size_t j=0; j<nbStates; j++)
-          mat(i,j) = label_(i,j);
+          mat(Eigen::Index(i),Eigen::Index(j)) = label_(i,j);
     }
 
     

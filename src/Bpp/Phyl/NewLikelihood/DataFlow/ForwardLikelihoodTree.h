@@ -46,12 +46,12 @@
 
 namespace bpp
 {
-  inline Dimension<TransitionFunction> transitionFunctionDimension (std::size_t nbState) {
+  inline Dimension<TransitionFunction> transitionFunctionDimension (Eigen::Index nbState) {
     return Dimension<TransitionFunction>(nbState, nbState);
   }
 
-  inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {
-    return {Eigen::Index (nbState), Eigen::Index (nbSite)};
+  inline MatrixDimension conditionalLikelihoodDimension (Eigen::Index nbState, Eigen::Index nbSite) {
+    return {nbState, nbSite};
   }
     
   /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
@@ -131,8 +131,8 @@ namespace bpp
     std::shared_ptr<ProcessTree> processTree_;
     MatrixDimension likelihoodMatrixDim_;
     const StateMap& statemap_;
-    std::size_t nbState_;
-    std::size_t nbSites_;
+    Eigen::Index nbState_;
+    Eigen::Index nbSites_;
 
     /*
      * @brief Says if transition probabilities are multiplied by the
@@ -156,13 +156,13 @@ namespace bpp
                           std::shared_ptr<ProcessTree> tree,
                           const StateMap& statemap) :
       DAClass(),
-      context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSites_(0), withFactor_(true)
+      context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0), withFactor_(true)
     {
     }
 
     void initialize(const AlignedValuesContainer& sites)
     {
-      nbSites_ = sites.getNumberOfSites (); 
+      nbSites_ = Eigen::Index(sites.getNumberOfSites ()); 
       likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
       ConditionalLikelihoodForwardRef bidonRoot=ConstantZero<Eigen::MatrixXd>::create(context_, MatrixDimension(1,1));
       createNode(bidonRoot);
@@ -255,7 +255,7 @@ namespace bpp
      * @param nodeId : index of the node in the likelihood DAG.
      */
     
-    const ValueRef<Eigen::MatrixXd> getForwardLikelihoodArray(int nodeId) const
+    const ValueRef<Eigen::MatrixXd> getForwardLikelihoodArray(uint nodeId) const
     {
       return getNode(nodeId);
     }

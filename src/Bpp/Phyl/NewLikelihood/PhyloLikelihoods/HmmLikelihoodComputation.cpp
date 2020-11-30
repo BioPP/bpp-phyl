@@ -60,7 +60,7 @@ void ForwardHmmLikelihood_DF::compute()
 
   auto& condLik = dynamic_pointer_cast<CondLikelihood>(condLik_)->accessValueMutable();
 
-  size_t nbSites = (size_t)hmmEmis.cols();
+  auto nbSites = hmmEmis.cols();
 
   Eigen::VectorXd tmp;
   
@@ -77,7 +77,7 @@ void ForwardHmmLikelihood_DF::compute()
   condLik.col(0) = col0 / scales(0);
 
   //Iteration
-  for (size_t i = 1; i < nbSites; i++)
+  for (auto i = 1; i < nbSites; i++)
   {
     Eigen::Ref<Eigen::VectorXd> coli = parCondLik_.col(i);
     
@@ -157,7 +157,7 @@ void ForwardHmmDLikelihood_DF::compute()
   
   auto& dCondLik = dynamic_pointer_cast<CondLikelihood>(dCondLik_)->accessValueMutable();
 
-  size_t nbSites = (size_t)hmmEmis.cols();
+  auto nbSites = hmmEmis.cols();
 
   Eigen::VectorXd tmp(hmmEmis.rows());
   
@@ -174,7 +174,7 @@ void ForwardHmmDLikelihood_DF::compute()
   dCondLik.col(0) = (tmp - condLik.col(0) * dScales(0))/scales(0);
 
   //Iteration
-  for (size_t i = 1; i < nbSites; i++)
+  for (auto i = 1; i < nbSites; i++)
   {
     Eigen::Ref<Eigen::VectorXd>  coli = dParCondLik_.col(i);
     
@@ -293,7 +293,7 @@ void ForwardHmmD2Likelihood_DF::compute()
   
   Eigen::VectorXd d2CondLik(hmmEmis.rows());
 
-  size_t nbSites = (size_t)hmmEmis.cols();
+  auto nbSites = hmmEmis.cols();
 
   Eigen::VectorXd d2ParCondLik, tmp(hmmEmis.rows());
   
@@ -309,7 +309,7 @@ void ForwardHmmD2Likelihood_DF::compute()
   d2CondLik = (tmp - 2 * dCondLik.col(0) * dScales(0) - condLik.col(0) * d2Scales(0))/scales(0);
 
   //Iteration
-  for (size_t i = 1; i < nbSites; i++)
+  for (auto i = 1; i < nbSites; i++)
   {
     d2ParCondLik = d2HmmTrans * condLik.col(i)
       + 2 * dHmmTrans * dCondLik.col(i) + hmmTrans * d2CondLik;
@@ -338,8 +338,8 @@ void BackwardHmmLikelihood_DF::compute()
 
   auto & backward = this->accessValueMutable ();
 
-  size_t nbSites = (size_t)hmmEmis.cols();
-  size_t nbStates = (size_t)hmmEmis.rows();
+  auto nbSites = hmmEmis.cols();
+  auto nbStates = hmmEmis.rows();
 
   Eigen::VectorXd tmp(nbStates);
   
@@ -347,7 +347,7 @@ void BackwardHmmLikelihood_DF::compute()
   backward.col(nbSites-1) = Eigen::VectorXd::Constant(nbStates, 1);
 
   //Iteration
-  for (size_t i = nbSites-1; i > 0; i--)
+  for (auto i = nbSites-1; i > 0; i--)
   {
     tmp.array() =  hmmEmis.col(i).array() * backward.col(i).array();
 

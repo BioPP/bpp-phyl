@@ -70,9 +70,8 @@ namespace bpp {
     class ConfiguredDistribution : public Value<const DiscreteDistribution*>,
                                    public AbstractParametrizable
     {
-    private:
-
-      Context& context_;
+    // private:
+    //   Context& context_;
       
     public:
       using Self = ConfiguredDistribution;

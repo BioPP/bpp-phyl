@@ -120,7 +120,7 @@ PhyloTree& PhyloTree::operator+=(const PhyloTree& phylotree)
 
     if (!phylotree.hasEdge(ei))
       throw Exception("Phylotree::operator+= : argument tree does not have edge " + TextTools::toString(ei));
-    if (!it->hasLength() || !phylotree.getEdge(ei)->getLength())
+    if (!it->hasLength() || !phylotree.getEdge(ei)->hasLength())
       throw Exception("Phylotree::operator+= : no summing of branches without length.");
       
     it->setLength(it->getLength()+phylotree.getEdge(ei)->getLength());
@@ -139,7 +139,7 @@ PhyloTree& PhyloTree::operator-=(const PhyloTree& phylotree)
 
     if (!phylotree.hasEdge(ei))
       throw Exception("Phylotree::operator+= : argument tree does not have edge " + TextTools::toString(ei));
-    if (!it->hasLength() || !phylotree.getEdge(ei)->getLength())
+    if (!it->hasLength() || !phylotree.getEdge(ei)->hasLength())
       throw Exception("Phylotree::operator+= : no summing of branches without length.");
       
     it->setLength(it->getLength()-phylotree.getEdge(ei)->getLength());
@@ -158,7 +158,7 @@ PhyloTree& PhyloTree::operator/=(const PhyloTree& phylotree)
 
     if (!phylotree.hasEdge(ei))
       throw Exception("Phylotree::operator/= : argument tree does not have edge " + TextTools::toString(ei));
-    if (!it->hasLength() || !phylotree.getEdge(ei)->getLength())
+    if (!it->hasLength() || !phylotree.getEdge(ei)->hasLength())
       throw Exception("Phylotree::operator/= : no summing of branches without length.");
       
     it->setLength(it->getLength()/phylotree.getEdge(ei)->getLength());
@@ -177,7 +177,7 @@ PhyloTree& PhyloTree::operator*=(const PhyloTree& phylotree)
 
     if (!phylotree.hasEdge(ei))
       throw Exception("Phylotree::operator/= : argument tree does not have edge " + TextTools::toString(ei));
-    if (!it->hasLength() || !phylotree.getEdge(ei)->getLength())
+    if (!it->hasLength() || !phylotree.getEdge(ei)->hasLength())
       throw Exception("Phylotree::operator/= : no summing of branches without length.");
       
     it->setLength(it->getLength()*phylotree.getEdge(ei)->getLength());

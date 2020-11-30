@@ -154,10 +154,10 @@ int main() {
     cout << "Thetas : " << endl;
     
     for (size_t i = 0; i < nmodels; ++i) {
-      cout << tl.getSubstitutionModelSet()->getModel((int)i)->getParameter("theta").getValue() << "\t" << ntl.getLikelihoodCalculation()->getParameter("T92.theta_"+to_string(i+1)).getValue() << endl;
+      cout << tl.getSubstitutionModelSet()->getModel(i)->getParameter("theta").getValue() << "\t" << ntl.getLikelihoodCalculation()->getParameter("T92.theta_"+to_string(i+1)).getValue() << endl;
       //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
       //  return 1;
-      thetasEst1[i] += tl.getSubstitutionModelSet()->getModel((int)i)->getParameter("theta").getValue();
+      thetasEst1[i] += tl.getSubstitutionModelSet()->getModel(i)->getParameter("theta").getValue();
       thetasEst1n[i] += ntl.getLikelihoodCalculation()->getParameter("T92.theta_"+to_string(i+1)).getValue();
     }
   }

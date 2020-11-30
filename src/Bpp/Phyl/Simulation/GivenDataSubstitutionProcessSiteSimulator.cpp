@@ -82,8 +82,8 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
   {
     const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getNodeIndex(tree_.getRoot()), c)->getTargetValue().col(pos_);
 
-    for (size_t x = 0; x < nbStates_; x++)
-      temp[x] = siteForwLik(x);
+    for (size_t x = 0; x < size_t(nbStates_); x++)
+      temp[x] = siteForwLik(Eigen::Index(x));
     
     temp /= VectorTools::sum(temp);
     
@@ -144,10 +144,10 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
 
       const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getSon(outid), c)->getTargetValue().col(pos_);
 
-      for (size_t x = 0; x < nbStates_; x++)
+      for (size_t x = 0; x < size_t(nbStates_); x++)
       {
-        for (size_t y = 0; y < nbStates_; y++)
-          postTrans[y] = std::max((*P)(x, y), NumConstants::PICO()) * siteForwLik(y); // to avoid null trans prob on short branches, and then null sum of the postTrans
+        for (size_t y = 0; y < size_t(nbStates_); y++)
+          postTrans[y] = std::max((*P)(x, y), NumConstants::PICO()) * siteForwLik(Eigen::Index(y)); // to avoid null trans prob on short branches, and then null sum of the postTrans
 
         postTrans /= VectorTools::sum(postTrans);
         

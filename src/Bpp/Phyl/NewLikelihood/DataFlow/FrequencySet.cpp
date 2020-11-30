@@ -47,7 +47,8 @@ namespace bpp {
     // FrequencySet node
 
     ConfiguredFrequencySet::ConfiguredFrequencySet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequencySet> && freqset)
-      : Value<const FrequencySet*> (std::move (deps), freqset.get ()), AbstractParametrizable(freqset->getNamespace()), context_(context), freqset_(std::move(freqset))
+      : Value<const FrequencySet*> (std::move (deps), freqset.get ()), AbstractParametrizable(freqset->getNamespace())// , context_(context)
+      , freqset_(std::move(freqset))
     {
       for (const auto& dep:dependencies())
       {

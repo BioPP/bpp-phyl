@@ -166,7 +166,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       continue;
 
     Eigen::RowVectorXd rewardsForCurrentNode;
-    rewardsForCurrentNode.setZero(nbDistinctSites);
+    rewardsForCurrentNode.setZero(Eigen::Index(nbDistinctSites));
     
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
@@ -175,7 +175,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       double pr = sp.getProbabilityForModel(ncl);
 
       Eigen::RowVectorXd rewardsForCurrentClass;
-      rewardsForCurrentClass.setZero(nbDistinctSites);
+      rewardsForCurrentClass.setZero(Eigen::Index(nbDistinctSites));
 
       const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
 
@@ -237,7 +237,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     
     // Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbDistinctSites; ++i)
-      (*br)(i) = rewardsForCurrentNode(i);
+      (*br)(i) = rewardsForCurrentNode(Eigen::Index(i));
 
   }
   if (verbose)

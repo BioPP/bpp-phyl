@@ -73,7 +73,7 @@ int main() {
   SimpleSubstitutionProcessSiteSimulator simulatorS(process);
 
   unsigned int n = 200000;
-  map<int, RowMatrix<unsigned int> > counts;
+  map<uint, RowMatrix<unsigned int> > counts;
   for (size_t j = 0; j < ids.size(); ++j)
     counts[ids[j]].resize(4, 4);
   for (unsigned int i = 0; i < n; ++i) {
@@ -85,8 +85,8 @@ int main() {
 
   const auto& Q=model->getGenerator();
   
-  map<int, RowMatrix<double> >freqs;
-  map<int, double> sums;
+  map<uint, RowMatrix<double> >freqs;
+  map<uint, double> sums;
   for (size_t k = 0; k < ids.size(); ++k) {
     RowMatrix<double>* freqsP = &freqs[ids[k]];
     RowMatrix<unsigned int>* countsP = &counts[ids[k]];

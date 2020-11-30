@@ -57,14 +57,14 @@ Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double leng
 
 void NaiveSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
 { 
-  size_t n = supportedChars_.size();
+  auto n = Eigen::Index(supportedChars_.size());
   mat.resize(n, n);
   
-  for (size_t i = 0; i < n; ++i)
+  for (auto i = 0; i < n; ++i)
   {
-    for (size_t j = 0; j < n; ++j)
+    for (auto j = 0; j < n; ++j)
     {
-      mat(i, j) = (register_->getType(i, j) == type ? (weights_ ? weights_->getIndex(supportedChars_[i], supportedChars_[j]) : 1.) : 0.);
+      mat(i, j) = (register_->getType(size_t(i), size_t(j)) == type ? (weights_ ? weights_->getIndex(supportedChars_[size_t(i)], supportedChars_[size_t(j)]) : 1.) : 0.);
     }
   }
 }

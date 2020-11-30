@@ -49,14 +49,14 @@ void MultinomialFromTransitionModel::compute_Multinomial_(const Eigen::VectorXd&
 {
   Pi_.array()=0;
   
-  for (size_t i=0; i< size_; i++)
+  for (auto i=0; i< Eigen::Index(size_); i++)
   {
     double* Pi_i = &Pi_(i);
-    for (size_t j=0;j<size_;j++)
+    for (auto j=0;j<Eigen::Index(size_);j++)
     {
       if (counts(j)!=0)
       {
-        *Pi_i += counts(j)*std::log((*Pij_t)(i,j));
+        *Pi_i += counts(j)*std::log((*Pij_t)(size_t(i),size_t(j)));
       }
     }
   }
@@ -70,14 +70,14 @@ void MultinomialFromTransitionModel::compute_dMultinomial_dt_(const Eigen::Vecto
   
   for (size_t i=0; i< size_; i++)
   {
-    double *Pi_i(&Pi_(i)), *dPi_i(&dPi_(i));
+    double *Pi_i(&Pi_(Eigen::Index(i))), *dPi_i(&dPi_(Eigen::Index(i)));
     
     for (size_t j=0;j<size_;j++)
     {
-      if (counts(j)!=0)
+      if (counts(Eigen::Index(j))!=0)
       {
-        *Pi_i += counts(j)*std::log((*Pij_t)(i,j));
-        *dPi_i += counts(j)*(*dPij_dt)(i,j)/(*Pij_t)(i,j);
+        *Pi_i += counts(Eigen::Index(j))*std::log((*Pij_t)(i,j));
+        *dPi_i += counts(Eigen::Index(j))*(*dPij_dt)(i,j)/(*Pij_t)(i,j);
       }
     }
   }
@@ -91,14 +91,14 @@ void MultinomialFromTransitionModel::compute_d2Multinomial_dt2_(const Eigen::Vec
   
   for (size_t i=0; i< size_; i++)
   {
-    double *Pi_i(&Pi_(i)), *d2Pi_i(&d2Pi_(i));
+    double *Pi_i(&Pi_(Eigen::Index(i))), *d2Pi_i(&d2Pi_(Eigen::Index(i)));
     
     for (size_t j=0;j<size_;j++)
     {
-      if (counts(j)!=0)
+      if (counts(Eigen::Index(j))!=0)
       {
-        *Pi_i += counts(j)*std::log((*Pij_t)(i,j));
-        *d2Pi_i += counts(j)*(*d2Pij_dt2)(i,j)/(*Pij_t)(i,j);
+        *Pi_i += counts(Eigen::Index(j))*std::log((*Pij_t)(i,j));
+        *d2Pi_i += counts(Eigen::Index(j))*(*d2Pij_dt2)(i,j)/(*Pij_t)(i,j);
       }
     }
   }

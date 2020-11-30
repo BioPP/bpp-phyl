@@ -50,7 +50,8 @@ using namespace bpp;
 // Model node
 
 ConfiguredModel::ConfiguredModel (Context& context, NodeRefVec && deps, std::unique_ptr<BranchModel> && model)
-  : Value<const BranchModel*> (std::move (deps), model.get ()), AbstractParametrizable(model->getNamespace()), context_(context), model_(std::move(model))
+  : Value<const BranchModel*> (std::move (deps), model.get ()), AbstractParametrizable(model->getNamespace())// , context_(context)
+  , model_(std::move(model))
 {
   for (const auto& dep:dependencies())
     shareParameter_(std::dynamic_pointer_cast<ConfiguredParameter>(dep));
@@ -407,9 +408,10 @@ std::shared_ptr<ProbabilitiesFromMixedModel> ProbabilitiesFromMixedModel::create
   checkDependencyVectorSize (typeid (Self), deps, 1);
   checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
   auto & model = static_cast<ConfiguredModel &> (*deps[0]);
+  auto& deps0 = *deps[0];
   const auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (model.getTargetValue());
   if (!mixmodel)
-    failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModel), typeid (*deps[0]));
+    failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModel), typeid (deps0));
 
   size_t nbCat=mixmodel->getNumberOfModels();
   return cachedAs<ProbabilitiesFromMixedModel> (c, std::make_shared<ProbabilitiesFromMixedModel> (std::move(deps), RowVectorDimension(Eigen::Index(nbCat))));
@@ -440,9 +442,10 @@ std::shared_ptr<ProbabilityFromMixedModel> ProbabilityFromMixedModel::create (Co
   checkDependencyVectorSize (typeid (Self), deps, 1);
   checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
   auto & model = static_cast<ConfiguredModel &> (*deps[0]);
+  const auto& deps0 = *deps[0];
   const auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (model.getTargetValue());
   if (!mixmodel)
-    failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModel), typeid (*deps[0]));
+    failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModel), typeid (deps0));
 
   return cachedAs<ProbabilityFromMixedModel> (c, std::make_shared<ProbabilityFromMixedModel> (std::move (deps), nCat));
 }

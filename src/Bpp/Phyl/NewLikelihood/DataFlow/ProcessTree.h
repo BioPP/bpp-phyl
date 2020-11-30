@@ -192,7 +192,7 @@ namespace bpp
   {
     Context context_;
 
-    CollectionNodes* nodes_;
+    // CollectionNodes* nodes_;
   public:
 
     /*

@@ -118,7 +118,7 @@ namespace bpp {
 
   private:
     // Nothing happens here, computation is done in ForwardHmmLikelihood_DF class
-    void compute() {};
+    void compute() override {};
 
     friend class ForwardHmmLikelihood_DF;
     friend class ForwardHmmDLikelihood_DF;
@@ -208,22 +208,22 @@ namespace bpp {
       const auto& hmmEq = dynamic_pointer_cast<Value<Eigen::VectorXd>>(this->dependency(0))->getTargetValue();
 
       if (hmmEq.rows()!=targetDimension_.rows)
-        throw BadSizeException("ForwardHmmLikelihood_DF: bad dimension for starting vector", hmmEq.rows(), targetDimension_.rows);
+        throw BadSizeException("ForwardHmmLikelihood_DF: bad dimension for starting vector", size_t(hmmEq.rows()), size_t(targetDimension_.rows));
       
 
       const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd>>(this->dependency(1))->getTargetValue();
       
       if (hmmTrans.rows()!=targetDimension_.rows)
-        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of rows for transition matrix", hmmTrans.rows(), targetDimension_.rows);
+        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of rows for transition matrix", size_t(hmmTrans.rows()), size_t(targetDimension_.rows));
       if (hmmTrans.cols()!=targetDimension_.rows)
-        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of columns for transition matrix", hmmTrans.cols(), targetDimension_.rows);
+        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of columns for transition matrix", size_t(hmmTrans.cols()), size_t(targetDimension_.rows));
 
       const auto& hmmEmis = dynamic_pointer_cast<Value<Eigen::MatrixXd>>(this->dependency(2))->getTargetValue();
       
       if (hmmEmis.rows()!=targetDimension_.rows)
-        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of states for emission matrix", hmmEmis.rows(), targetDimension_.rows);
+        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of states for emission matrix", size_t(hmmEmis.rows()), size_t(targetDimension_.rows));
       if (hmmEmis.cols()!=targetDimension_.cols)
-        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of sites for emission matrix", hmmEmis.cols(), targetDimension_.cols);
+        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of sites for emission matrix", size_t(hmmEmis.cols()), size_t(targetDimension_.cols));
     }
 
     std::string debugInfo () const override {
@@ -253,7 +253,7 @@ namespace bpp {
     }
 
   private:
-    void compute();
+    void compute() override;
   };
 
 
@@ -377,7 +377,7 @@ namespace bpp {
     }
     
   private:
-    void compute();
+    void compute() override;
 
   };
 
@@ -498,7 +498,7 @@ namespace bpp {
     }
 
   private:
-    void compute();
+    void compute() override;
   };
 
 
@@ -561,20 +561,20 @@ namespace bpp {
 
       const auto& hmmScale = accessValueConstCast<Eigen::RowVectorXd>(*this->dependency(0));
       if (hmmScale.cols()!=dim.cols)
-        throw BadSizeException("BackwardHmmLikelihood_DF: bad dimension for forward likelihoods vector", hmmScale.rows(), dim.rows);
+        throw BadSizeException("BackwardHmmLikelihood_DF: bad dimension for forward likelihoods vector", size_t(hmmScale.rows()), size_t(dim.rows));
       
 
       const auto& hmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(1));
       if (hmmTrans.rows()!=dim.rows)
-        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of rows for transition matrix", hmmTrans.rows(), dim.rows);
+        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of rows for transition matrix", size_t(hmmTrans.rows()), size_t(dim.rows));
       if (hmmTrans.cols()!=dim.rows)
-        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of columns for transition matrix", hmmTrans.cols(), dim.rows);
+        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of columns for transition matrix", size_t(hmmTrans.cols()), size_t(dim.rows));
 
       const auto& hmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(2));
       if (hmmEmis.rows()!=dim.rows)
-        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of states for emission matrix", hmmEmis.rows(), dim.rows);
+        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of states for emission matrix", size_t(hmmEmis.rows()), size_t(dim.rows));
       if (hmmEmis.cols()!=dim.cols)
-        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of sites for emission matrix", hmmEmis.cols(), dim.cols);
+        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of sites for emission matrix", size_t(hmmEmis.cols()), size_t(dim.cols));
     }
 
     std::string debugInfo () const override {
@@ -602,7 +602,7 @@ namespace bpp {
     }
 
   private:
-    void compute();
+    void compute() override;
   };
 
 

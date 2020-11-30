@@ -395,7 +395,7 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
       evolveInternal(son, rateClass, ssr);
     }
     else
-      throw Exception("SimpleSubstitutionProcessSiteSimulator::evolveInternal : unknown property for node " + tree_.getNodeIndex(node));
+      throw Exception("SimpleSubstitutionProcessSiteSimulator::evolveInternal : unknown property for node " + TextTools::toString(tree_.getNodeIndex(node)));
 }
 
 /******************************************************************************/
@@ -500,7 +500,7 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
       evolveInternal(son, rate, ssr);
     }
     else
-      throw Exception("SimpleSubstitutionProcessSiteSimulator::evolveInternal : unknown property for node " + tree_.getNodeIndex(node));
+      throw Exception("SimpleSubstitutionProcessSiteSimulator::evolveInternal : unknown property for node " + TextTools::toString(tree_.getNodeIndex(node)));
 }
 
 

@@ -306,7 +306,7 @@ MixedSubstitutionModelSet::HyperNode::HyperNode(const MixedSubstitutionModelSet*
   {
     const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(pMSMS->getModel(i));
     if (!pSM)
-      vUnused_.push_back(static_cast<int>(i));
+      vUnused_.push_back(uint(i));
   }
 }
 

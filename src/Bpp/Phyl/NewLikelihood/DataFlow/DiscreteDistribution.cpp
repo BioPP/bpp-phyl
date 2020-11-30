@@ -45,7 +45,8 @@ using namespace std;
 
 namespace bpp {
     ConfiguredDistribution::ConfiguredDistribution (Context& context, NodeRefVec && deps, std::unique_ptr<DiscreteDistribution> && distrib)
-      : Value<const DiscreteDistribution*> (std::move (deps), distrib.get ()), AbstractParametrizable(distrib->getNamespace()), context_(context), distrib_(std::move(distrib))
+      : Value<const DiscreteDistribution*> (std::move (deps), distrib.get ()), AbstractParametrizable(distrib->getNamespace())// , context_(context)
+      , distrib_(std::move(distrib))
     {
       for (const auto& dep:dependencies())
       {

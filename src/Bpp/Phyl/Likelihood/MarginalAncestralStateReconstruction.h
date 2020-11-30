@@ -139,15 +139,15 @@ namespace bpp
      * @return A vector of states indices.
      * @see getAncestralSequenceForNode
      */ 
-    std::vector<size_t> getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const;
+    std::vector<size_t> getAncestralStatesForNode(uint nodeId, VVdouble& probs, bool sample) const;
 		
-    std::vector<size_t> getAncestralStatesForNode(int nodeId) const
+    std::vector<size_t> getAncestralStatesForNode(uint nodeId) const
     {
       VVdouble probs(nbSites_);
       return getAncestralStatesForNode(nodeId, probs, false);
     }
 		
-    std::map<int, std::vector<size_t> > getAllAncestralStates() const;
+    std::map<uint, std::vector<size_t> > getAllAncestralStates() const;
 
     /**
      * @brief Get the ancestral sequence for a given node.
@@ -160,9 +160,9 @@ namespace bpp
      * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
      * @return A sequence object.
      */ 
-    Sequence* getAncestralSequenceForNode(int nodeId, VVdouble* probs, bool sample) const;
+    Sequence* getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const;
 		
-    Sequence* getAncestralSequenceForNode(int nodeId) const
+    Sequence* getAncestralSequenceForNode(uint nodeId) const
     {
       return getAncestralSequenceForNode(nodeId, 0, false);
     }
@@ -177,7 +177,7 @@ namespace bpp
   private:
     void recursiveMarginalAncestralStates(
       const Node* node,
-      std::map<int, std::vector<size_t> >& ancestors,
+      std::map<uint, std::vector<size_t> >& ancestors,
       AlignedValuesContainer& data) const;
 
 		

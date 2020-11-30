@@ -133,7 +133,7 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesForSitePerCl
     auto probas = rates->getProbabilities();
     Vdouble vv(rates->getNumberOfCategories());
     for (size_t i=0;i<vv.size();i++)
-      vv[i]=probas[i] * (getLikelihoodCalculationSingleProcess()->getSiteLikelihoodsForAClass(i))(pos);
+      vv[i]=probas[i] * (getLikelihoodCalculationSingleProcess()->getSiteLikelihoodsForAClass(i))(Eigen::Index(pos));
       
     vv/=VectorTools::sum(vv);
     return vv;
@@ -162,9 +162,9 @@ VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesPerSitePerC
     auto vvLik=getLikelihoodCalculationSingleProcess()->getSiteLikelihoodsForAllClasses();
     for (size_t i=0;i<nbS;i++)
     {
-      vv[i].resize(vvLik.rows());
-      auto sv = vvLik.col(i).array() * probas.array();
-      Eigen::VectorXd::Map(&vv[i][0], vv[i].size()) = sv / sv.sum();
+      vv[i].resize(size_t(vvLik.rows()));
+      auto sv = vvLik.col(Eigen::Index(i)).array() * probas.array();
+      Eigen::VectorXd::Map(&vv[i][0], Eigen::Index(vv[i].size())) = sv / sv.sum();
     }
   }
   return vv;

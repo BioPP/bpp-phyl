@@ -134,7 +134,7 @@ void LikelihoodCalculationSingleProcess::setPatterns_()
   size_t nbSites    = shrunkData_->getNumberOfSites();
   Eigen::RowVectorXi weights(nbSites);
   for (std::size_t i=0;i<nbSites;i++)
-    weights(Eigen::Index(i))=patterns.getWeights()[i];
+    weights(Eigen::Index(i))=int(patterns.getWeights()[i]);
   rootWeights_ = SiteWeights::create(getContext_(), std::move(weights));
 }
 
@@ -373,7 +373,7 @@ AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsFo
   auto allLk=std::make_shared<AllRatesSiteLikelihoods>(nbCat,shrunk?getNumberOfDistinctSites():getNumberOfSites());
 
   for (size_t nCat=0;nCat<nbCat;nCat++)
-    allLk->row(nCat)=getSiteLikelihoodsForAClass(nCat, shrunk);
+    allLk->row(Eigen::Index(nCat))=getSiteLikelihoodsForAClass(nCat, shrunk);
   return *allLk;
 }
 
@@ -476,7 +476,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   {
     std::vector<std::shared_ptr<Node_DF>> vLikRoot;
 
-    auto zero=NumericConstant<size_t>::create(getContext_(), 0);  
+    auto zero=NumericConstant<size_t>::create(getContext_(), size_t(0));  
 
     for (auto& rateCat: vRateCatTrees_)
     {
@@ -500,7 +500,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   // Risks of underflow with exponential, to be fixed
   auto fact = CWiseExp<double>::create(getContext_(), {logFactor}, Dimension<double>());
   
-  setSiteLikelihoods(CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>::create(getContext_(),{fact,sL}, RowVectorDimension(nbDistSite)), true);
+  setSiteLikelihoods(CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>::create(getContext_(),{fact,sL}, RowVectorDimension(Eigen::Index(nbDistSite))), true);
   
   // likelihoods per site
   setSiteLikelihoods(expandVector(patternedSiteLikelihoods_), false);
@@ -538,8 +538,8 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
     makeRootFreqs_();
   
   const auto& stateMap = getStateMap();
-  size_t nbDistSite = getNumberOfDistinctSites();
-  size_t nbState = stateMap.getNumberOfModelStates();
+  auto nbDistSite = Eigen::Index(getNumberOfDistinctSites());
+  auto nbState = Eigen::Index(stateMap.getNumberOfModelStates());
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbDistSite);
 
   const auto& phylotree = process_.getParametrizablePhyloTree();
@@ -558,7 +558,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   if (!condLikelihoodTree_)
     condLikelihoodTree_ = std::make_shared<ConditionalLikelihoodTree>(phylotree.getGraph());
   
-  auto one=ConstantOne<Eigen::RowVectorXd>::create(getContext_(), RowVectorDimension (Eigen::Index (nbState)));
+  auto one=ConstantOne<Eigen::RowVectorXd>::create(getContext_(), RowVectorDimension (nbState));
     
   for (auto& rateCat: vRateCatTrees_)
   {
@@ -603,7 +603,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
 
       // Site Likelihoods on this point
       auto lt = LikelihoodFromRootConditional::create (
-        getContext_(), {one, cond}, RowVectorDimension (Eigen::Index (nbDistSite)));
+        getContext_(), {one, cond}, RowVectorDimension (nbDistSite));
 
       rateCat.lt->associateNode(lt, rateCat.flt->getNodeGraphid(rateCat.flt->getNode(index)));
       rateCat.lt->setNodeIndex(lt, index);
@@ -620,7 +620,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
 
     // for Lik at Node
     auto siteLikelihoodsCat = LikelihoodFromRootConditional::create (
-      getContext_(), {one, cond}, RowVectorDimension (Eigen::Index (nbDistSite)));
+      getContext_(), {one, cond}, RowVectorDimension (nbDistSite));
 
     if (!rateCat.speciesLt->hasNode(speciesId))
     {
@@ -648,9 +648,9 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
     vRoot.push_back(catProb);
     vCondRate.push_back(catProb);
 
-    distinctSiteLikelihoodsNode = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext_(), std::move(vRoot), RowVectorDimension (Eigen::Index(nbDistSite)));
+    distinctSiteLikelihoodsNode = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext_(), std::move(vRoot), RowVectorDimension (nbDistSite));
 
-    conditionalLikelihoodsNode = CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::RowVectorXd>::create(getContext_(), std::move(vCondRate), MatrixDimension (Eigen::Index(nbState), Eigen::Index(nbDistSite)));
+    conditionalLikelihoodsNode = CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::RowVectorXd>::create(getContext_(), std::move(vCondRate), MatrixDimension (nbState, nbDistSite));
   }
 
   condLikelihoodTree_->associateNode(conditionalLikelihoodsNode, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
@@ -678,8 +678,8 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtDAGNode_(uint nodeId)
     makeRootFreqs_();
   
   const auto& stateMap = getStateMap();
-  size_t nbDistSite = getNumberOfDistinctSites();
-  size_t nbState = stateMap.getNumberOfModelStates();
+  auto nbDistSite = Eigen::Index(getNumberOfDistinctSites());
+  auto nbState = Eigen::Index(stateMap.getNumberOfModelStates());
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbDistSite);
 
   ValueRef<Eigen::RowVectorXd> siteLikelihoodsNode;

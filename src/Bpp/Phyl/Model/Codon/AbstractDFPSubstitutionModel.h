@@ -120,6 +120,7 @@ namespace bpp
 
     void fireParameterChanged(const ParameterList& parameters);
 
+    using BranchModel::getNumberOfStates;
     size_t getNumberOfStates() { return 64;}
     
     /**

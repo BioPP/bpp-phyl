@@ -73,14 +73,14 @@ namespace bpp
     public SimpleSubstitutionProcessSiteSimulator
   {
   private:
-    std::shared_ptr<LikelihoodCalculationSingleProcess>& calcul_;
+    std::shared_ptr<LikelihoodCalculationSingleProcess> calcul_;
 
     /*
      * @brief Position of the copied site, in SHRUNKED data
      *
      */
     
-    size_t pos_;
+    Eigen::Index pos_;
     
   public:
     /*
@@ -92,7 +92,7 @@ namespace bpp
      */
      
     GivenDataSubstitutionProcessSiteSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos, bool shrunked = false) : SimpleSubstitutionProcessSiteSimulator(calcul->getSubstitutionProcess()),
-                                                                                                                                               calcul_(calcul), pos_(shrunked?pos:calcul->getRootArrayPosition(pos))
+                                                                                                                                               calcul_(calcul), pos_(shrunked?Eigen::Index(pos):Eigen::Index(calcul->getRootArrayPosition(pos)))
     {
       init();
       /*

@@ -235,12 +235,12 @@ void UniformizationSubstitutionCount::storeAllNumbersOfSubstitutions(double leng
     currentLength_ = length;
   }
 
-  mat.resize(nbStates_, nbStates_);
+  mat.resize(Eigen::Index(nbStates_), Eigen::Index(nbStates_));
 
   const auto& ct = counts_[type - 1];
   for (size_t i=0; i<nbStates_; i++)
     for (size_t j=0; j<nbStates_; j++)
-      mat(i,j) = isnan(ct(i,j))?0:ct(i,j);
+      mat(Eigen::Index(i),Eigen::Index(j)) = isnan(ct(i,j))?0:ct(i,j);
 }
 
 /******************************************************************************/

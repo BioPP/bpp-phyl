@@ -162,24 +162,24 @@ namespace bpp {
       return Self::create (c, std::move (deps), targetDimension_);
     }
 
-    std::string shape() const
+    std::string shape() const override
     {
       return "doubleoctagon";
     }
 
-    std::string color() const
+    std::string color() const override
     {
       return "#5e5e5e";
     }
 
-    std::string description() const
+    std::string description() const override
     {
       return "Function Apply";
     }
 
 
   private:
-    void compute() { compute<T>();}
+    void compute() override { compute<T>();}
       
     template<class U>
     typename std::enable_if<std::is_same<U, Eigen::MatrixXd>::value && std::is_same<F, TransitionFunction>::value, void>::type
@@ -246,17 +246,17 @@ namespace bpp {
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
-    std::string shape() const
+    std::string shape() const override
     {
       return "triangle";
     }
 
-    std::string color() const
+    std::string color() const override
     {
       return "#ff6060";
     }
 
-    std::string description() const
+    std::string description() const override
     {
       return "Add";
     }
@@ -283,7 +283,7 @@ namespace bpp {
     }
 
   private:
-    void compute() { compute<R>();}
+    void compute() override { compute<R>();}
 
     template<class U>
       typename std::enable_if<!std::is_same<U, TransitionFunction>::value, void>::type
@@ -455,7 +455,7 @@ namespace bpp {
     }
 
   private:
-    void compute() { compute<T>();}
+    void compute() override { compute<T>();}
       
     template<class U>
       typename std::enable_if<!std::is_same<U, TransitionFunction>::value, void>::type
@@ -545,7 +545,7 @@ namespace bpp {
     }
 
   private:
-    void compute() { compute<R,T>();}
+    void compute() override { compute<R,T>();}
       
     template<class U, class V>
     typename std::enable_if<std::is_same<V, Eigen::MatrixXd>::value && std::is_same<U, Eigen::RowVectorXd>::value, void>::type
@@ -609,8 +609,8 @@ namespace bpp {
         if (deps[i]->hasNumericalProperty (NumericalProperty::ConstantZero) ||
             deps[i+half]->hasNumericalProperty (NumericalProperty::ConstantZero))
         {
-          deps[i]==0;
-          deps[i+half]==0;
+          deps[i]=0;
+          deps[i+half]=0;
         }
       }
         
@@ -634,17 +634,17 @@ namespace bpp {
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
-    std::string shape() const
+    std::string shape() const override
     {
       return "trapezium";
     }
 
-    std::string color() const
+    std::string color() const override
     {
       return "#ffd0d0";
     }
 
-    std::string description() const
+    std::string description() const override
     {
       return "Mean";
     }
@@ -737,17 +737,17 @@ namespace bpp {
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
-    std::string shape() const
+    std::string shape() const override
     {
       return "trapezium";
     }
 
-    std::string color() const
+    std::string color() const override
     {
       return "#ffd0d0";
     }
 
-    std::string description() const
+    std::string description() const override
     {
       return "Mean";
     }
@@ -789,8 +789,8 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       auto& p = accessValueConstCast<P>(*this->dependency(this->nbDependencies()-1));
       cwise (result) = cwise(p)[0] * cwise (accessValueConstCast<T> (*this->dependency(0)));
-      for (size_t i=1; i<this->nbDependencies()-1; i++)
-        cwise (result) += cwise(p)[i] * cwise (accessValueConstCast<T> (*this->dependency(i)));
+      for (Eigen::Index i=1; i<this->nbDependencies()-1; i++)
+        cwise (result) += cwise(p)[i] * cwise (accessValueConstCast<T> (*this->dependency(size_t(i))));
     }
 
     Dimension<R> targetDimension_;
@@ -848,17 +848,17 @@ namespace bpp {
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
-    std::string shape() const
+    std::string shape() const override
     {
       return "house";
     }
 
-    std::string color() const
+    std::string color() const override
     {
       return "#ff9090";
     }
 
-    std::string description() const
+    std::string description() const override
     {
       return "Mul";
     }
@@ -887,7 +887,7 @@ namespace bpp {
     }
 
   private:
-    void compute() { compute<T0,T1>();}
+    void compute() override { compute<T0,T1>();}
 
     template<class U, class V>
       typename std::enable_if<!std::is_same<U, TransitionFunction>::value && !std::is_same<V, TransitionFunction>::value, void>::type
@@ -1062,17 +1062,17 @@ namespace bpp {
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
-    std::string shape() const
+    std::string shape() const override
     {
       return "house";
     }
 
-    std::string color() const
+    std::string color() const override
     {
       return "#ff9090";
     }
 
-    std::string description() const
+    std::string description() const override
     {
       return "Div";
     }
@@ -1106,7 +1106,7 @@ namespace bpp {
     }
 
   private:
-    void compute() { compute<T0,T1>();}
+    void compute() override { compute<T0,T1>();}
 
     template<class U, class V>
       typename std::enable_if<!std::is_same<U, TransitionFunction>::value && !std::is_same<V, TransitionFunction>::value, void>::type
@@ -1631,8 +1631,50 @@ namespace bpp {
     }
 
   private:
-    void compute () final;
+    void compute () final
+    {
+      auto & result = this->accessValueMutable ();
 
+      const auto & m = accessValueConstCast<F> (*this->dependency (0));
+        
+      if (nbDependencies()==1)
+      {
+        const ExtendedFloat product = m.unaryExpr ([](double d) {
+          ExtendedFloat ef{d};
+          ef.normalize_small ();
+          return ef;
+        }).redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+          auto r = ExtendedFloat::denorm_mul (lhs, rhs);
+          r.normalize_small ();
+          return r;
+        });
+        result = product.log();
+      }
+      else
+      {
+        const auto & p = accessValueConstCast<Eigen::RowVectorXi> (*this->dependency (1));
+        //Old version:
+        //double resold  = (numeric::cwise(m).log() * numeric::cwise(p)).sum();
+
+        temp_ = m.unaryExpr ([](double d) {
+          ExtendedFloat ef{d};
+          ef.normalize ();
+          return ef;
+        });
+
+        for (Eigen::Index i=0;i< Eigen::Index(p.size());i++)
+          temp_[i]=temp_[i].pow(p[i]);
+          
+        const ExtendedFloat product = temp_.redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+          auto r = ExtendedFloat::denorm_mul (lhs, rhs);
+          r.normalize ();
+          return r;
+        });
+        
+        result = product.log ();
+      }
+    }
+  
     Dimension<F> mTargetDimension_;
 
     Eigen::Matrix<ExtendedFloat, 1, Eigen::Dynamic> temp_;
@@ -1772,18 +1814,18 @@ namespace bpp {
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
-    std::string shape() const
+    std::string shape() const override
     {
       return "doubleoctagon";
     }
 
-    std::string color() const
+    std::string color() const override
     {
       return "#9e9e9e";
     }
 
 
-    std::string description() const
+    std::string description() const override
     {
       return "Matrix Product";
     }
@@ -2072,7 +2114,7 @@ namespace bpp {
       
   private:
 
-    void compute() { compute<T>();}
+    void compute() override { compute<T>();}
 
     template<class U>
     typename std::enable_if<!std::is_same<U, TransitionFunction>::value, void>::type

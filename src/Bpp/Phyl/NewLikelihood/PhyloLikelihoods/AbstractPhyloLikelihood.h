@@ -100,7 +100,7 @@ namespace bpp
       
     virtual ~AbstractPhyloLikelihood() {}
 
-    AbstractPhyloLikelihood* clone() const = 0;
+    AbstractPhyloLikelihood* clone() const override = 0;
 
     Context& getContext()
     {
@@ -112,7 +112,7 @@ namespace bpp
      *
      */
       
-    virtual bool isInitialized() const
+    virtual bool isInitialized() const  override
     {
       return false;
     }
@@ -130,7 +130,7 @@ namespace bpp
       this->getParameters_().shareParameters(variableNodes);
     }
 
-    void setParameters(const ParameterList& parameters)
+    void setParameters(const ParameterList& parameters) override
     {
       setParametersValues(parameters);
     }
@@ -156,7 +156,7 @@ namespace bpp
      *
      */
     
-    virtual double getLogLikelihood() const
+    virtual double getLogLikelihood() const override
     {
       return getLikelihoodCalculation()->getLogLikelihood();
     }
@@ -169,10 +169,10 @@ namespace bpp
      *
      */
     
-    virtual void enableFirstOrderDerivatives(bool yn) {}
-    virtual void enableSecondOrderDerivatives(bool yn) {}
-    bool enableFirstOrderDerivatives() const { return true; }
-    bool enableSecondOrderDerivatives() const { return true; }
+    virtual void enableFirstOrderDerivatives(bool yn)  override {};
+    virtual void enableSecondOrderDerivatives(bool yn)  override {};
+    bool enableFirstOrderDerivatives() const  override{ return true; }
+    bool enableSecondOrderDerivatives() const  override{ return true; }
 
     /*
      * @brief return the value, ie -loglikelihood
@@ -181,7 +181,7 @@ namespace bpp
      *
      */
       
-    double getValue() const 
+    double getValue() const  override
     {
       if (!isInitialized())
         throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");

@@ -142,7 +142,7 @@ namespace bpp {
     
     ValueRef<Eigen::MatrixXd> hiddenPostProb_;
 
-    size_t nbStates_, nbSites_;
+    Eigen::Index nbStates_, nbSites_;
 
   public:
     /**
@@ -214,14 +214,14 @@ namespace bpp {
     Eigen::Ref<const Eigen::VectorXd> getHiddenStatesPosteriorProbabilitiesForASite(size_t site) const
     {
       auto& mat = hiddenPostProb_->getTargetValue();
-      return mat.col(site);
+      return mat.col(Eigen::Index(site));
     }
 
     double getLikelihoodForASite(size_t site) const 
     {
       auto vec = getHiddenStatesPosteriorProbabilitiesForASite(site);
 
-      return vec.dot(hmmEmis_->accessValueConst().col(site));
+      return vec.dot(hmmEmis_->accessValueConst().col(Eigen::Index(site)));
     }
 
   };

@@ -137,7 +137,7 @@ namespace bpp {
     }
 
   private:
-    void compute() { compute<T>();}
+    void compute() override { compute<T>();}
       
     template<class U=T>
     typename std::enable_if<std::is_arithmetic<U>::value, void>::type
@@ -197,7 +197,7 @@ namespace bpp {
       
       const typename R::Scalar& operator()(Eigen::Index row, Eigen::Index col) const
       {
-        return m_arg_(row, pattern_[col]);
+        return m_arg_(row, Eigen::Index(pattern_[col]));
       }
 
     };
@@ -246,7 +246,7 @@ namespace bpp {
     }
 
   private:
-    void compute() {
+    void compute() override {
       const auto& arg=accessValueConstCast<R>(*this->dependency(0));
       const auto& pattern=accessValueConstCast<PatternType>(*this->dependency(1));
       this->accessValueMutable()=R::NullaryExpr(targetDimension_.rows, targetDimension_.cols, pattern_functor(arg, pattern));
@@ -296,7 +296,7 @@ namespace bpp {
       const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
         typename std::enable_if< !std::is_same<T2,double>::value, T*>::type* = 0) const
       {
-        return (*m_arg_[matching_(col,0)])(row, matching_(col,1));
+        return (*m_arg_[matching_(col,0)])(row, Eigen::Index(matching_(col,1)));
       }
 
       template<typename T2 = T>
@@ -357,7 +357,7 @@ namespace bpp {
     }
 
   private:
-    void compute() {
+    void compute() override {
       const auto n = this->nbDependencies ();
       std::vector<const T*> vR(n-1);
       for (std::size_t i = 0; i < n-1; ++i) {
@@ -398,14 +398,14 @@ namespace bpp {
       const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
                                         typename std::enable_if< std::is_same<T2,Eigen::RowVectorXd>::value, T*>::type* = 0) const
       {
-        return (*m_arg_[row])(col);
+        return (*m_arg_[size_t(row)])(col);
       }
 
       template<typename T2 = T>
       const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
                                         typename std::enable_if< std::is_same<T2,Eigen::VectorXd>::value, T*>::type* = 0) const
       {
-        return (*m_arg_[col])(row);
+        return (*m_arg_[size_t(col)])(row);
       }
 
     };
@@ -455,7 +455,7 @@ namespace bpp {
     }
 
   private:
-    void compute() {
+    void compute() override {
       const auto n = this->nbDependencies ();
       std::vector<const T*> vR(n);
       for (std::size_t i = 0; i < n; ++i) {

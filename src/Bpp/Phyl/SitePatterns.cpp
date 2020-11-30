@@ -80,8 +80,8 @@ SitePatterns::SitePatterns(const AlignedValuesContainer* sequences, bool own) :
 
     SortableSite* ss0 = &ss[0];
     const CruxSymbolListSite* previousSite = ss0->siteP;
-    indices_.resize(nbSites);
-    indices_[ss0->originalPosition] = 0;
+    indices_.resize(Eigen::Index(nbSites));
+    indices_[Eigen::Index(ss0->originalPosition)] = 0;
     sites_.push_back(previousSite);
     weights_.push_back(1);
 
@@ -102,7 +102,7 @@ SitePatterns::SitePatterns(const AlignedValuesContainer* sequences, bool own) :
         weights_.push_back(1);
         currentPos++;
       }
-      indices_[ssi->originalPosition] = currentPos;
+      indices_[Eigen::Index(ssi->originalPosition)] = currentPos;
       previousSite = currentSite;
     }
   }

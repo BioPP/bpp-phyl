@@ -104,15 +104,15 @@ namespace bpp {
 
       ConfiguredParameter (const Context& context, NodeRefVec&& deps, Parameter&& parameter);
 
-      ConfiguredParameter* clone() const {
+      ConfiguredParameter* clone() const override {
         return new ConfiguredParameter(*this);
       }
       
       ~ConfiguredParameter ();
       
-      std::string description () const;
-      std::string color () const;
-      std::string debugInfo () const;
+      std::string description () const override;
+      std::string color () const override;
+      std::string debugInfo () const override;
 
       /*
        * @brief setValue is transfered to the double dependency,
@@ -120,7 +120,7 @@ namespace bpp {
        *
        */
       
-      void setValue(double v)
+      void setValue(double v) override
       {
         Parameter::setValue (v);                  // Will apply possible constraints
         static_cast<NumericMutable<double>&>(*dependency(0)).setValue(Parameter::getValue());
@@ -133,25 +133,25 @@ namespace bpp {
        *
        */
       
-      double getValue() const
+      double getValue() const override
       {
         double x=static_cast<NumericMutable<double>&>(*dependency(0)).getTargetValue(); 
         accessValueConst()->Parameter::setValue(x);        
         return Parameter::getValue();
       }
 
-      bool compareAdditionalArguments (const Node_DF & other) const;
+      bool compareAdditionalArguments (const Node_DF & other) const override;
       
-      std::size_t hashAdditionalArguments () const;
+      std::size_t hashAdditionalArguments () const override;
       
-      NodeRef derive (Context & c, const Node_DF & node);
+      NodeRef derive (Context & c, const Node_DF & node) override;
 
-      NodeRef recreate (Context & c, NodeRefVec && deps);
+      NodeRef recreate (Context & c, NodeRefVec && deps) override;
       
       NodeRef recreate (Context & c);
 
     private:
-      void compute ();
+      void compute () override;
     };
 
 
@@ -209,9 +209,9 @@ namespace bpp {
       {
       }
 
-      std::string description () const { return "Shift" + ConfiguredParameter::description();}
+      std::string description () const override { return "Shift" + ConfiguredParameter::description();}
 
-      std::string color () const
+      std::string color () const override 
       {
         auto& name=getName();
         if (name.substr(0,5)=="BrLen")
@@ -238,7 +238,7 @@ namespace bpp {
        *
        */
       
-      void setValue(double v)
+      void setValue(double v) override
       {
         throw Exception("ShiftParameter setValue should not be called");
       }
@@ -249,7 +249,7 @@ namespace bpp {
        * Value is not guaranteed to be valid (no recomputation).
        */
       
-      double getValue() const
+      double getValue() const override
       {
         return Parameter::getValue();
       }

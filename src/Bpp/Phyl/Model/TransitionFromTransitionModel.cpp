@@ -56,11 +56,11 @@ const Eigen::VectorXd& TransitionFromTransitionModel::Lik_t(const Eigen::VectorX
   else if (Pij_t==0)
     Pij_t=&getTransitionModel().getPij_t(t);
     
-  for (size_t i=0; i< size_; i++)
+  for (Eigen::Index i=0; i< Eigen::Index(size_); i++)
   {
     Pi_(i)=0;
-    for (size_t j=0;j<size_;j++)
-      Pi_(i)+=(*Pij_t)(i,j)*to[j];
+    for (Eigen::Index j=0;j<Eigen::Index(size_);j++)
+      Pi_(i)+=(*Pij_t)(size_t(i),size_t(j))*to[j];
   }
   
   return Pi_;
@@ -77,11 +77,11 @@ const Eigen::VectorXd& TransitionFromTransitionModel::dLik_dt(const Eigen::Vecto
   else if (dPij_dt==0)
     dPij_dt=&getTransitionModel().getdPij_dt(t);
 
-  for (size_t i=0; i< size_; i++)
+  for (Eigen::Index i=0; i< Eigen::Index(size_); i++)
   {
     dPi_(i)=0;
-    for (size_t j=0;j<size_;j++)
-      dPi_(i)+=(*dPij_dt)(i,j)*to[j];
+    for (auto j=0;j<Eigen::Index(size_);j++)
+      dPi_(i)+=(*dPij_dt)(size_t(i),size_t(j))*to[j];
   }
   return dPi_;
 }
@@ -97,11 +97,11 @@ const Eigen::VectorXd& TransitionFromTransitionModel::d2Lik_dt2(const Eigen::Vec
   else if (d2Pij_dt2==0)
     d2Pij_dt2=&getTransitionModel().getd2Pij_dt2(t);
 
-  for (size_t i=0; i< size_; i++)
+  for (Eigen::Index i=0; i< Eigen::Index(size_); i++)
   {
     d2Pi_(i)=0;
-    for (size_t j=0;j<size_;j++)
-      d2Pi_(i)+=(*d2Pij_dt2)(i,j)*to[j];
+    for (auto j=0;j<Eigen::Index(size_);j++)
+      d2Pi_(i)+=(*d2Pij_dt2)(size_t(i),size_t(j))*to[j];
   }
   return d2Pi_;
 }

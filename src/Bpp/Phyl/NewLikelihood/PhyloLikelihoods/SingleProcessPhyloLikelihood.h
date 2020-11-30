@@ -125,7 +125,7 @@ namespace bpp {
       throw Exception("SingleProcessPhyloLikelihood::clone should not be called.");
       return new SingleProcessPhyloLikelihood (*this); }
 
-    void setData(const AlignedValuesContainer& sites, size_t nData = 0)
+    void setData(const AlignedValuesContainer& sites, size_t nData = 0) override
     {
       AbstractSingleDataPhyloLikelihood::setData(sites, nData);  
       getLikelihoodCalculationSingleProcess()->setData(sites);
@@ -145,11 +145,11 @@ namespace bpp {
      *
      */
       
-    const AlignedValuesContainer* getData() const {
+    const AlignedValuesContainer* getData() const override {
       return getLikelihoodCalculationSingleProcess()->getData();
     }
 
-    size_t getNumberOfSites() const {
+    size_t getNumberOfSites() const override {
       return getLikelihoodCalculationSingleProcess()->getNumberOfSites();
     }
 
@@ -165,7 +165,7 @@ namespace bpp {
     size_t getNumberOfClasses() const { return getSubstitutionProcess().getNumberOfClasses(); }
 
     
-    const Alphabet* getAlphabet() const {
+    const Alphabet* getAlphabet() const override {
       return getLikelihoodCalculationSingleProcess()->getStateMap().getAlphabet();
     }
 
@@ -199,7 +199,7 @@ namespace bpp {
      * @return 'true' is the likelihood function has been initialized.
      */
 
-    bool isInitialized() const {
+    bool isInitialized() const override {
       return getLikelihoodCalculationSingleProcess()->getData();
     };
 
@@ -219,7 +219,7 @@ namespace bpp {
      * @return The logarithm of the likelihood of the dataset.
      */
     
-    double getLogLikelihood() const {
+    double getLogLikelihood() const override {
       return getLikelihoodCalculationSingleProcess()->getLogLikelihood();
     }
     
@@ -237,7 +237,7 @@ namespace bpp {
      * @return A ParameterList with all branch lengths.
      */
 
-    ParameterList getBranchLengthParameters() const
+    ParameterList getBranchLengthParameters() const override
     {
       return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getBranchLengthParameters(true);
     }
@@ -248,7 +248,7 @@ namespace bpp {
      * @return A ParameterList.
      */
 
-    ParameterList getSubstitutionModelParameters() const
+    ParameterList getSubstitutionModelParameters() const override
     {
       return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getSubstitutionModelParameters(true);
     }
@@ -259,7 +259,7 @@ namespace bpp {
      * @return A ParameterList.
      */
 
-    ParameterList getRateDistributionParameters() const
+    ParameterList getRateDistributionParameters() const override
     {
       return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistributionParameters(true);
     }
@@ -271,17 +271,17 @@ namespace bpp {
      * @return A ParameterList.
      */
       
-    ParameterList getRootFrequenciesParameters() const
+    ParameterList getRootFrequenciesParameters() const override
     {
       return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRootFrequenciesParameters(true);
     }
       
-    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
+    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const override
     {
       return likCal_;
     }
 
-    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const
+    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const override
     {
       return likCal_;
     }

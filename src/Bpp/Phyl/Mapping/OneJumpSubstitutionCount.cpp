@@ -61,12 +61,12 @@ void OneJumpSubstitutionCount::storeAllNumbersOfSubstitutions(double length, siz
     throw Exception("OneJumpSubstitutionCount::storeNumberOfSubstitutions: model not defined.");
 
   tmp_ = model_->getPij_t(length);
-  size_t n = model_->getNumberOfStates();
+  auto n = Eigen::Index(model_->getNumberOfStates());
   
   mat.resize(n, n);
-  for (size_t i = 0; i < n; i++) 
-    for (size_t j = 0; j < n; j++)
-      mat(i, j) = (i == j ? 1. - tmp_(i, j) : 1.);
+  for (auto i = 0; i < n; i++) 
+    for (auto j = 0; j < n; j++)
+      mat(i, j) = (i == j ? 1. - tmp_(size_t(i), size_t(j)) : 1.);
 
 }
 

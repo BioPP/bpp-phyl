@@ -166,7 +166,8 @@ namespace bpp
      * Return Null if not found.
      *
      */
-  
+
+    using AbstractWrappedModel::getModel;
     const TransitionModel* getModel(const std::string& name) const
     {
       return getMixedModel().getModel(name);

@@ -71,7 +71,7 @@ int main() {
   
   unique_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.02);", false, "", false, false));
 
-  vector<int> ids = {0, 1, 2, 3, 4};
+  vector<uint> ids = {0, 1, 2, 3, 4};
 
   //-------------
 
@@ -99,11 +99,11 @@ int main() {
     realMapTotal[i].resize(ids.size());
     realMapDetailed[i].resize(ids.size());
     for (size_t j = 0; j < ids.size(); ++j) {
-      realMap[i][j] = static_cast<double>(result->getSubstitutionCount((uint)ids[j]));
+      realMap[i][j] = static_cast<double>(result->getSubstitutionCount(ids[j]));
       realMapTotal[i][j].resize(totReg->getNumberOfSubstitutionTypes());
       realMapDetailed[i][j].resize(detReg->getNumberOfSubstitutionTypes());
-      result->getSubstitutionCount((uint)ids[j], *totReg, realMapTotal[i][j]);
-      result->getSubstitutionCount((uint)ids[j], *detReg, realMapDetailed[i][j]);
+      result->getSubstitutionCount(ids[j], *totReg, realMapTotal[i][j]);
+      result->getSubstitutionCount(ids[j], *detReg, realMapDetailed[i][j]);
       if (realMapTotal[i][j][0] != realMap[i][j]) {
         throw Exception("Error, total substitution register provides wrong result.");
         return 1;

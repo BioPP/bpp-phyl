@@ -159,7 +159,7 @@ namespace bpp
       return rewards_[site];
     }
 
-    double setSiteReward(size_t site, double rew)
+    void setSiteReward(size_t site, double rew)
     {
       if (site>=getNumberOfSites())
         throw BadSizeException("PhyloBranchReward::setSiteReward : bad site number",site,getNumberOfSites());

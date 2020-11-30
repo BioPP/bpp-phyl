@@ -146,16 +146,16 @@ void LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions(double length, siz
   if (!model_)
     throw Exception("LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions: model not defined.");
 
-  size_t s = model_->getAlphabet()->getSize();
+  auto s = Eigen::Index(model_->getAlphabet()->getSize());
   if (length == currentLength_)
     mat = Eigen::MatrixXd::Zero(s, s);
   
   if (length < 0.000001) // Limit case!
   {
 
-    for (size_t i = 0; i < s; i++)
+    for (auto i = 0; i < s; i++)
     {
-      for (size_t j = 0; j < s; j++)
+      for (auto j = 0; j < s; j++)
       {
         mat(i, j) = i == j ? 0. : 1.;
       }
@@ -171,9 +171,9 @@ void LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions(double length, siz
 
   mat.resize(s, s);
 
-  for (size_t i=0; i<s; i++)
-    for (size_t j=0; j<s; j++)
-      mat(i,j) = std::isnan(m_(i,j))?0:m_(i,j);
+  for (auto i=0; i<s; i++)
+    for (auto j=0; j<s; j++)
+      mat(i,j) = std::isnan(m_(size_t(i),size_t(j)))?0:m_(size_t(i),size_t(j));
 
 }
 

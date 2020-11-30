@@ -224,9 +224,9 @@ namespace bpp {
         makeLikelihoods();
 
       if (shrunk && patternedSiteLikelihoods_)
-        return patternedSiteLikelihoods_->getTargetValue()(pos);
+        return patternedSiteLikelihoods_->getTargetValue()(Eigen::Index(pos));
       else
-        return siteLikelihoods_->getTargetValue()(pos);
+        return siteLikelihoods_->getTargetValue()(Eigen::Index(pos));
     }
 
     double getLogLikelihoodForASite(size_t pos, bool shrunk = false)

@@ -120,8 +120,8 @@ namespace bpp
       
     private:
       Context& context_;
-      std::size_t nbState_;
-      std::size_t nbSite_;
+      Eigen::Index nbState_;
+      Eigen::Index nbSite_;
       std::shared_ptr<ForwardLikelihoodTree> forwardTree_;
       std::shared_ptr<ProcessTree> processTree_;
       ValueRef<Eigen::RowVectorXd> rFreqs_;
@@ -135,9 +135,9 @@ namespace bpp
                              std::shared_ptr<ProcessTree> tree,
                              ValueRef<Eigen::RowVectorXd> rFreqs,
                              const StateMap& statemap,
-                             std::size_t nbSite) :
+                             Eigen::Index nbSite) :
         DAClass(forwardTree->getGraph()),
-        context_(c), nbState_(statemap.getNumberOfModelStates()), nbSite_(nbSite), forwardTree_(forwardTree), processTree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)
+        context_(c), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSite_(nbSite), forwardTree_(forwardTree), processTree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)
       {
       }
 

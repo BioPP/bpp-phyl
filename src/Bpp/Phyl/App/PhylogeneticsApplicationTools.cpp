@@ -1244,7 +1244,7 @@ map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelP
 
     size_t num;
     try{
-      num=TextTools::toInt(name.substr(4));
+      num=size_t(TextTools::toInt(name.substr(4)));
     }
     catch (const Exception& e)
     {
@@ -1357,7 +1357,7 @@ map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
 
     size_t num;
     try{
-      num=TextTools::toInt(name.substr(8));
+      num=size_t(TextTools::toInt(name.substr(8)));
     }
     catch (const Exception& e)
     {
@@ -1765,8 +1765,6 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (!SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int> (numModel));
 
-    const PhyloTree& t=SubProColl->getTree(numTree);
-    
     vector<uint> vNodes = SubProColl->getTree(numTree).getAllEdgesIndexes();
 
     map<size_t, vector<unsigned int> > mModBr;

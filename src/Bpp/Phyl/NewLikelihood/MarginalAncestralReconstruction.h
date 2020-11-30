@@ -85,112 +85,113 @@ namespace bpp
       // nbClasses_       (drl->getNumberOfClasses()),
       nbStates_        (drl->getStateMap().getNumberOfModelStates()),
       rootPatternLinks_(drl->getRootArrayPositions())
-      {}
+    {}
 
-      MarginalAncestralReconstruction(const MarginalAncestralReconstruction& masr) :
-        likelihood_      (masr.likelihood_),
-        tree_            (masr.tree_),
-        alphabet_        (masr.alphabet_),
-        nbSites_         (masr.nbSites_),
-        nbDistinctSites_ (masr.nbDistinctSites_),
-        // nbClasses_       (masr.nbClasses_),
-        nbStates_        (masr.nbStates_),
-        rootPatternLinks_(masr.rootPatternLinks_)
-      {}
+    MarginalAncestralReconstruction(const MarginalAncestralReconstruction& masr) :
+      likelihood_      (masr.likelihood_),
+      tree_            (masr.tree_),
+      alphabet_        (masr.alphabet_),
+      nbSites_         (masr.nbSites_),
+      nbDistinctSites_ (masr.nbDistinctSites_),
+      // nbClasses_       (masr.nbClasses_),
+      nbStates_        (masr.nbStates_),
+      rootPatternLinks_(masr.rootPatternLinks_)
+    {}
 
-      MarginalAncestralReconstruction& operator=(const MarginalAncestralReconstruction& masr)
-      {
-        likelihood_       = masr.likelihood_;
-        tree_             = masr.tree_;
-        alphabet_         = masr.alphabet_;
-        nbSites_          = masr.nbSites_;
-        nbDistinctSites_  = masr.nbDistinctSites_;
-        // nbClasses_        = masr.nbClasses_;
-        nbStates_         = masr.nbStates_;
-        rootPatternLinks_ = masr.rootPatternLinks_;
-        return *this;
-      }
+    MarginalAncestralReconstruction& operator=(const MarginalAncestralReconstruction& masr)
+    {
+      likelihood_       = masr.likelihood_;
+      tree_             = masr.tree_;
+      alphabet_         = masr.alphabet_;
+      nbSites_          = masr.nbSites_;
+      nbDistinctSites_  = masr.nbDistinctSites_;
+      // nbClasses_        = masr.nbClasses_;
+      nbStates_         = masr.nbStates_;
+      rootPatternLinks_ = masr.rootPatternLinks_;
+      return *this;
+    }
 
 
-      MarginalAncestralReconstruction* clone() const { return new MarginalAncestralReconstruction(*this); }
+    MarginalAncestralReconstruction* clone() const { return new MarginalAncestralReconstruction(*this); }
 
-      virtual ~MarginalAncestralReconstruction() {}
+    virtual ~MarginalAncestralReconstruction() {}
 
-    public:
+  public:
 
-      /**
-       * @brief Get ancestral states  for a given node as a vector of int.
-       *
-       * The size of the vector is the number of distinct sites in the container
-       * associated to the likelihood object.
-       * This method is mainly for efficient internal use in other classes.
-       * Consider using the getAncestralSequenceForNode() method for a more
-       * general output.
-       *
-       * @param nodeId The id of the node at which the states must be
-       * reconstructed [in].
-       * @param probs  A vector to be filled with the probability for
-       * each state at each position (will be the same size as the
-       * returned vector for states) [out]. 
-       * @param sample Tell if the sequence should be sampled from the
-       * posterior distribution instead of taking the one with maximum
-       * probability.
-       * @return A vector of states indices.
-       * @see getAncestralSequenceForNode
-       */
-      
-      std::vector<size_t> getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const;
+    /**
+     * @brief Get ancestral states  for a given node as a vector of int.
+     *
+     * The size of the vector is the number of distinct sites in the container
+     * associated to the likelihood object.
+     * This method is mainly for efficient internal use in other classes.
+     * Consider using the getAncestralSequenceForNode() method for a more
+     * general output.
+     *
+     * @param nodeId The id of the node at which the states must be
+     * reconstructed [in].
+     * @param probs  A vector to be filled with the probability for
+     * each state at each position (will be the same size as the
+     * returned vector for states) [out]. 
+     * @param sample Tell if the sequence should be sampled from the
+     * posterior distribution instead of taking the one with maximum
+     * probability.
+     * @return A vector of states indices.
+     * @see getAncestralSequenceForNode
+     */
+
+
+    std::vector<size_t> getAncestralStatesForNode(uint nodeId, VVdouble& probs, bool sample) const;
 		
-      std::vector<size_t> getAncestralStatesForNode(int nodeId) const
-      {
-        VVdouble probs(nbSites_);
-        return getAncestralStatesForNode(nodeId, probs, false);
-      }
+    std::vector<size_t> getAncestralStatesForNode(uint nodeId) const
+    {
+      VVdouble probs(nbSites_);
+      return getAncestralStatesForNode(nodeId, probs, false);
+    }
 		
-      std::map<int, std::vector<size_t> > getAllAncestralStates() const;
+    std::map<uint, std::vector<size_t> > getAllAncestralStates() const;
 
-      /**
-       * @brief Get an ancestral sequence for a given node.
-       *
-       * The name of the sequence will be the name of the node if
-       * there is one, its id otherwise. A new sequence object is
-       * created, whose destruction is up to the user.
-       *
-       * @param nodeId The id of the node at which the sequence must
-       * be reconstructed.
-       * @param probs A pointer toward a vector to be filled with the
-       * probability for each state at each site (set to NULL if you
-       * don't want these probabilities).
-       * @param sample Tell if the sequence should be sample from the
-       * posterior distribution instead of taking the one with maximum
-       * probability.
-       * @return A sequence object.
-       */
-      
-      Sequence* getAncestralSequenceForNode(int nodeId, VVdouble* probs, bool sample) const;
+    /**
+     * @brief Get an ancestral sequence for a given node.
+     *
+     * The name of the sequence will be the name of the node if
+     * there is one, its id otherwise. A new sequence object is
+     * created, whose destruction is up to the user.
+     *
+     * @param nodeId The id of the node at which the sequence must
+     * be reconstructed.
+     * @param probs A pointer toward a vector to be filled with the
+     * probability for each state at each site (set to NULL if you
+     * don't want these probabilities).
+     * @param sample Tell if the sequence should be sample from the
+     * posterior distribution instead of taking the one with maximum
+     * probability.
+     * @return A sequence object.
+     */
+
+    Sequence* getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const;
 		
-      Sequence* getAncestralSequenceForNode(int nodeId) const
-      {
-        return getAncestralSequenceForNode(nodeId, 0, false);
-      }
+    Sequence* getAncestralSequenceForNode(uint nodeId) const
+    {
+      return getAncestralSequenceForNode(nodeId, 0, false);
+    }
 
-      AlignedSequenceContainer* getAncestralSequences() const
-      {
-        return getAncestralSequences(false);
-      }
+    AlignedSequenceContainer* getAncestralSequences() const
+    {
+      return getAncestralSequences(false);
+    }
 
 #ifndef NO_VIRTUAL_COV
-      AlignedSequenceContainer *
+    AlignedSequenceContainer *
 #else
-      SequenceContainer *
+    SequenceContainer *
 #endif
-      getAncestralSequences(bool sample) const;
+    getAncestralSequences(bool sample) const;
 	
-    private:
-      void recursiveMarginalAncestralStates(
-        const std::shared_ptr<PhyloNode> node,
-        std::map<int, std::vector<size_t> >& ancestors,
-        AlignedValuesContainer& data) const;
+  private:
+    void recursiveMarginalAncestralStates(
+      const std::shared_ptr<PhyloNode> node,
+      std::map<uint, std::vector<size_t> >& ancestors,
+      AlignedValuesContainer& data) const;
 		
   };
 } //end of namespace bpp.

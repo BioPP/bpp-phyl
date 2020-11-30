@@ -71,9 +71,9 @@ namespace bpp {
     class ConfiguredSimplex : public Value<const Simplex*>,
                               public AbstractParametrizable
     {
-    private:
+    // private:
 
-      const Context& context_;
+    //   const Context& context_;
 
     public:
       using Self = ConfiguredSimplex;

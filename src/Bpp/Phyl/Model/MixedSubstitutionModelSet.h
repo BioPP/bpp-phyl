@@ -185,7 +185,7 @@ public:
 
       bool intersects(const Node&) const;
 
-      int operator[](size_t i) const { return vNumb_[i]; }
+      uint operator[](size_t i) const { return vNumb_[i]; }
     };
 
 private:

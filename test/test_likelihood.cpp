@@ -172,7 +172,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   cout << "Optimization : " << endl;
   cout << endl;
 
-  int nboptim=1000;
+  uint nboptim=1000;
 
   ///////////////
   

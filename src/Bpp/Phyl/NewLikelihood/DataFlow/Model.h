@@ -79,8 +79,8 @@ namespace bpp {
   class ConfiguredModel : public Value<const BranchModel*>,
                           public AbstractParametrizable
   {
-  private:
-    Context& context_;
+  // private:
+  //   Context& context_;
 
   public:
     using Self = ConfiguredModel;

@@ -419,7 +419,7 @@ namespace bpp {
      
     size_t getRootArrayPosition(size_t currentPosition) const
     {
-      return rootPatternLinks_?rootPatternLinks_->getTargetValue()(currentPosition):currentPosition;
+      return rootPatternLinks_?rootPatternLinks_->getTargetValue()(Eigen::Index(currentPosition)):currentPosition;
     }
     
     const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
@@ -466,7 +466,7 @@ namespace bpp {
       
     unsigned int getWeight(size_t pos) const
     {
-      return rootWeights_->getTargetValue()(pos);
+      return (uint)(rootWeights_->getTargetValue()(Eigen::Index(pos)));
     }
 
     std::shared_ptr<SiteWeights> getRootWeights()

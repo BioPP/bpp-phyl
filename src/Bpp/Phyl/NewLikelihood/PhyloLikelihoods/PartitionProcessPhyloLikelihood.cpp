@@ -261,8 +261,8 @@ void PartitionProcessPhyloLikelihood::makeLikCal_()
 
   for (size_t i = 0; i < getNumberOfSites(); i++)
   {
-    matching(i,0)=nProc2iProc[vProcPos_[i].nProc];
-    matching(i,1)=vProcPos_[i].pos;
+    matching(Eigen::Index(i),0)=nProc2iProc[vProcPos_[i].nProc];
+    matching(Eigen::Index(i),1)=vProcPos_[i].pos;
   }
 
   auto matchingDF = NumericConstant<MatchingType>::create(getContext(), matching);
