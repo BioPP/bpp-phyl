@@ -202,6 +202,7 @@ namespace bpp
         return it->second;
       } else {
         auto node = getLikelihoodNode()->deriveAsValue (context_, accessVariableNode (variable));
+        firstOrderDerivativeNodes_.emplace (variable, node);
         return node;
       }
     }
@@ -227,7 +228,6 @@ namespace bpp
         auto node =
           firstOrderDerivativeNode (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
         secondOrderDerivativeNodes_.emplace (key, node);
-
         return node;
       }
     }
