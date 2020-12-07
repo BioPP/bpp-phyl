@@ -774,27 +774,14 @@ namespace bpp {
       this->makeValid (); // Initial value is valid
     }
 
-    /** @brief General case for modification of the T object.
-     *
-     * Takes a callable object (lamda, function pointer) that performs the modification.
-     * It must take a single T& as argument, which will refer to the T object to modify.
-     * The callable is called exactly once.
-     * TODO replace with view-struct that performs invalidate on destruction ?
-     */
-    template <typename Callable> void modify (Callable && modifier) {
-      this->invalidateRecursively ();
-      std::forward<Callable> (modifier) (this->accessValueMutable ());
-      this->makeValid ();
-    }
-
     /// Setter with invalidation.
     void setValue (const T & t) {
-      modify ([&t](T & v) { v = t; });
+      this->modify ([&t](T & v) { v = t; }, true);
     }
 
     /// Setter with invalidation (movable value version).
     void setValue (T && t) {
-      modify ([&t](T & v) { v = std::move (t); });
+      this->modify ([&t](T & v) { v = std::move (t); }, true);
     }
 
     std::string debugInfo () const override {

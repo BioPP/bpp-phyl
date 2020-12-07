@@ -263,6 +263,7 @@ namespace bpp {
        */
       virtual void compute () = 0;
 
+      
       /** @brief Invalidate (transitively) dependent nodes from this one.
        *
        * Not thread safe !
@@ -377,6 +378,24 @@ namespace bpp {
       /// same value type).
       ValueRef<T> deriveAsValue (Context & c, const Node_DF & node) {
         return convertRef<Value<T>> (this->derive (c, node));
+      }
+
+      /** @brief General case for modification of the T object.
+       *
+       * Takes a callable object (lamda, function pointer) that performs the modification.
+       * It must take a single T& as argument, which will refer to the T object to modify.
+       * The callable is called exactly once.
+       *
+       *@param modifier callable to modify this object
+       *@param makeValid boolean if this object is valid after
+       *modification (which means no call to this->compute()
+       */
+      
+      template <typename Callable> void modify (Callable && modifier, bool makeValid) {
+        this->invalidateRecursively ();
+        std::forward<Callable> (modifier) (this->accessValueMutable ());
+        if (makeValid)
+          this->makeValid ();
       }
 
     protected:

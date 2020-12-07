@@ -50,7 +50,7 @@ using namespace bpp;
 // Model node
 
 ConfiguredModel::ConfiguredModel (Context& context, NodeRefVec && deps, std::unique_ptr<BranchModel> && model)
-  : Value<const BranchModel*> (std::move (deps), model.get ()), AbstractParametrizable(model->getNamespace())// , context_(context)
+  : Value<BranchModel*> (std::move (deps), model.get ()), AbstractParametrizable(model->getNamespace())// , context_(context)
   , model_(std::move(model))
 {
   for (const auto& dep:dependencies())

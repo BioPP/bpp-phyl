@@ -76,7 +76,7 @@ namespace bpp {
    *
    * The dummy value is implemented as a pointer to the internal model for simplicity.
    */
-  class ConfiguredModel : public Value<const BranchModel*>,
+  class ConfiguredModel : public Value<BranchModel*>,
                           public AbstractParametrizable
   {
   // private:
