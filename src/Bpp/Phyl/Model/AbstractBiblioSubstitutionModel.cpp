@@ -84,7 +84,7 @@ std::string AbstractBiblioTransitionModel::getPmodelParName(const std::string& n
     if (it.second == name)
       return it.first;
 
-  throw Exception("AbstractBiblioTransitionModel::getParNameFromPmodel: unknown parameter name " + name);
+  throw Exception("AbstractBiblioTransitionModel::getPmodelParName: unknown parameter name " + name);
 }
 
 

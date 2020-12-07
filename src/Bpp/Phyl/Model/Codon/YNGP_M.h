@@ -90,7 +90,6 @@ namespace bpp
       synfrom_(),
       synto_()
     {
-      pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
     }
     
     YNGP_M(const YNGP_M& mod2) :
@@ -99,21 +98,20 @@ namespace bpp
       synfrom_(mod2.synfrom_),
       synto_(mod2.synto_)
     {
-      pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
+      pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
     }
 
     virtual YNGP_M* clone() const = 0;
     
     YNGP_M& operator=(const YNGP_M& mod2)
     {
-      const auto& eq = AbstractBiblioMixedTransitionModel::operator=(mod2);
+      AbstractBiblioMixedTransitionModel::operator=(mod2);
       
+      pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel()); 
+
       synfrom_ = mod2.synfrom_;
       synto_ = mod2.synto_;
-      const auto& mm=eq.getMixedModel();
       
-      pmixsubmodel_ = &dynamic_cast<const MixtureOfASubstitutionModel&>(mm);
-        
       return *this;
     }
     
