@@ -199,8 +199,8 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
 
       codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
-      auto unparsedParameterValuesNested = freqReader.getUnparsedArguments();
-      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());    
+      for (const auto& it:freqReader.getUnparsedArguments())
+        unparsedArguments_[modelName + "." + it.first] = it.second;
     }
     else 
       // codonFreqs compulsory for all models but SameAARate

@@ -311,15 +311,13 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
       freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
 
       codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
-      auto unparsedParameterValuesNested = freqReader.getUnparsedArguments();
-      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
-     
+      for (const auto& it:freqReader.getUnparsedArguments())
+        unparsedArguments_[modelName + "." + it.first] = it.second;
     }
     else 
     // codonFreqs compulsory for all models but SameAARate
       if (modelName!="SameAARate")
         throw Exception("Missing 'frequencies' for model " + modelName);
-    
     
     if (modelName == "MG94")
       model.reset(new MG94(geneticCode_, codonFreqs));
@@ -839,7 +837,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
   
   if (verbose_)
     ApplicationTools::displayResult("Substitution model", modelName);
-  
+
   updateParameters_(model.get(), args);
   
   if (parseArguments)
@@ -862,7 +860,7 @@ void BppOSubstitutionModelFormat::updateParameters_(BranchModel* model, std::map
     if (args.find(name) != args.end())
       unparsedArguments_[pref + name] = args[name];
   }
-  
+
   // Now look if some parameters are aliased:
   ParameterList pl = model->getIndependentParameters();
   string pname, pval, pname2;
@@ -1587,10 +1585,7 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
   
   const auto pfs = model.getFrequencySet();
 
-  // Not output for AbstractWrappedModel, to avoid redundancy of frequencyset output
-  auto paf=dynamic_cast<const AbstractWrappedModel*>(&model);
-  
-  if ((pfs!=0) && (!paf))
+  if (pfs!=0)
   {
     if (comma)
       out << ",";
@@ -1600,7 +1595,7 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
     bIOFreq.writeFrequencySet(pfs.get(), out, globalAliases, writtenNames);
     comma = true;
   }
-  
+
   // Is it a codon model with Protein Model or partition in it? 
   const CodonAdHocSubstitutionModel* casm=dynamic_cast<const CodonAdHocSubstitutionModel*>(&model);
   if (casm)
@@ -1712,11 +1707,9 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
     comma=true;
   }
   
-  BppOParametrizableFormat bIO;
-
   // case of Biblio models, update writtenNames
 
-  const AbstractBiblioSubstitutionModel* absm=dynamic_cast<const AbstractBiblioSubstitutionModel*>(&model);
+  const auto* absm=dynamic_cast<const AbstractBiblioTransitionModel*>(&model);
   
   if (absm)
   {
@@ -1731,7 +1724,8 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
       catch (Exception& e) {}
     }
   }
-    
+
+  BppOParametrizableFormat bIO;
   bIO.write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
   out << ")";
 }
