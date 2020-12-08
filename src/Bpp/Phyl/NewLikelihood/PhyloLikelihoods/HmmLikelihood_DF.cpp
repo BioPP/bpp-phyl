@@ -74,10 +74,10 @@ HmmLikelihood_DF::HmmLikelihood_DF(
   nbStates_ = Eigen::Index(hiddenAlphabet_->getNumberOfStates());
   nbSites_ = Eigen::Index(emissionProbabilities_->getNumberOfPositions());
 
-  if (emissionProbabilities_->getNumberOfStates()!=nbStates_)
+  if (emissionProbabilities_->getNumberOfStates()!=size_t(nbStates_))
     throw BadSizeException("HmmLikelihood_DF: HmmStateAlphabet and HmmEmissionProbabilities do not have the same number of states.", emissionProbabilities_->getNumberOfStates(), size_t(nbStates_));
 
-  if (transitionMatrix->getNumberOfStates()!=nbStates_)
+  if (transitionMatrix->getNumberOfStates()!=size_t(nbStates_))
     throw BadSizeException("HmmLikelihood_DF: HmmStateAlphabet and HmmTransitionMatrix do not have the same number of states.", transitionMatrix->getNumberOfStates(), size_t(nbStates_));
 
   
