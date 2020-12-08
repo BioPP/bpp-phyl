@@ -74,6 +74,7 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake DESTINATION ${c
   RENAME ${PROJECT_NAME}-config-version.cmake)
 
 # Use eigen (TODO inclusion method ?)
+
 find_package (Eigen3 3.3 REQUIRED PATHS /usr/lib)
 
 # Define the libraries
