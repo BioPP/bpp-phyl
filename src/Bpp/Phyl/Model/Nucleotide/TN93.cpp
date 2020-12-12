@@ -171,46 +171,41 @@ double TN93::Pij_t(size_t i, size_t j, double d) const
   exp22_ = exp(-k2_ * l_);
   exp21_ = exp(-k1_ * l_);
   
-  switch(i)
-  {
-    //A
-    case 0 : {
+  switch(i) {
+    case 0: //A
       switch(j) {
-        case 0 : return piA_ * (1. + (piY_/piR_) * exp1_) + (piG_/piR_) * exp22_; //A
-        case 1 : return piC_ * (1. -               exp1_);                        //C
-        case 2 : return piG_ * (1. + (piY_/piR_) * exp1_) - (piG_/piR_) * exp22_; //G
-        case 3 : return piT_ * (1. -               exp1_);                        //T, U
+        case 0: return piA_ * (1. + (piY_/piR_) * exp1_) + (piG_/piR_) * exp22_; //A
+        case 1: return piC_ * (1. -               exp1_);                        //C
+        case 2: return piG_ * (1. + (piY_/piR_) * exp1_) - (piG_/piR_) * exp22_; //G
+        case 3: return piT_ * (1. -               exp1_);                        //T, U
+        default: return 0;
       }
-    } 
-    //C
-    case 1 : {
+    case 1: //C
       switch(j) {
-        case 0 : return piA_ * (1. -               exp1_);                         //A
-        case 1 : return piC_ * (1. + (piR_/piY_) * exp1_) + (piT_/piY_) * exp21_; //C
-        case 2 : return piG_ * (1. -               exp1_);                        //G
-        case 3 : return piT_ * (1. + (piR_/piY_) * exp1_) - (piT_/piY_) * exp21_; //T, U
+        case 0: return piA_ * (1. -               exp1_);                         //A
+        case 1: return piC_ * (1. + (piR_/piY_) * exp1_) + (piT_/piY_) * exp21_; //C
+        case 2: return piG_ * (1. -               exp1_);                        //G
+        case 3: return piT_ * (1. + (piR_/piY_) * exp1_) - (piT_/piY_) * exp21_; //T, U
+        default: return 0;
       }
-    }
-    //G
-    case 2 : {
+    case 2: //G
       switch(j) {
-        case 0 : return piA_ * (1. + (piY_/piR_) * exp1_) - (piA_/piR_) * exp22_; //A
-        case 1 : return piC_ * (1. -               exp1_);                        //C
-        case 2 : return piG_ * (1. + (piY_/piR_) * exp1_) + (piA_/piR_) * exp22_; //G
-        case 3 : return piT_ * (1. -               exp1_);                        //T, U
+        case 0: return piA_ * (1. + (piY_/piR_) * exp1_) - (piA_/piR_) * exp22_; //A
+        case 1: return piC_ * (1. -               exp1_);                        //C
+        case 2: return piG_ * (1. + (piY_/piR_) * exp1_) + (piA_/piR_) * exp22_; //G
+        case 3: return piT_ * (1. -               exp1_);                        //T, U
+        default: return 0;
       }
-    }
-    //T, U
-    case 3 : {
+    case 3: //T, U
       switch(j) {
-        case 0 : return piA_ * (1. -               exp1_);                        //A
-        case 1 : return piC_ * (1. + (piR_/piY_) * exp1_) - (piC_/piY_) * exp21_; //C
-        case 2 : return piG_ * (1. -               exp1_);                        //G
-        case 3 : return piT_ * (1. + (piR_/piY_) * exp1_) + (piC_/piY_) * exp21_; //T, U
+        case 0: return piA_ * (1. -               exp1_);                        //A
+        case 1: return piC_ * (1. + (piR_/piY_) * exp1_) - (piC_/piY_) * exp21_; //C
+        case 2: return piG_ * (1. -               exp1_);                        //G
+        case 3: return piT_ * (1. + (piR_/piY_) * exp1_) + (piC_/piY_) * exp21_; //T, U
+        default: return 0;
       }
-    }
+    default: return 0;
   }
-  return 0;
 }
 
 /******************************************************************************/
@@ -222,46 +217,41 @@ double TN93::dPij_dt(size_t i, size_t j, double d) const
   exp22_ = exp(-k2_ * l_);
   exp21_ = exp(-k1_ * l_);
   
-  switch(i)
-  {
-    //A
-    case 0 : {
+  switch(i) {
+    case 0: //A
       switch(j) {
-        case 0 : return rate_ * r_ * (piA_ * -(piY_/piR_) * exp1_ - (piG_/piR_) * k2_ * exp22_); //A
-        case 1 : return rate_ * r_ * (piC_ *                exp1_);                              //C
-        case 2 : return rate_ * r_ * (piG_ * -(piY_/piR_) * exp1_ + (piG_/piR_) * k2_ * exp22_); //G
-        case 3 : return rate_ * r_ * (piT_ *                exp1_);                              //T, U
+        case 0: return rate_ * r_ * (piA_ * -(piY_/piR_) * exp1_ - (piG_/piR_) * k2_ * exp22_); //A
+        case 1: return rate_ * r_ * (piC_ *                exp1_);                              //C
+        case 2: return rate_ * r_ * (piG_ * -(piY_/piR_) * exp1_ + (piG_/piR_) * k2_ * exp22_); //G
+        case 3: return rate_ * r_ * (piT_ *                exp1_);                              //T, U
+        default: return 0;
       }
-    } 
-    //C
-    case 1 : {
+    case 1: //C
       switch(j) {
-        case 0 : return rate_ * r_ * (piA_ *                exp1_);                              //A
-        case 1 : return rate_ * r_ * (piC_ * -(piR_/piY_) * exp1_ - (piT_/piY_) * k1_ * exp21_); //C
-        case 2 : return rate_ * r_ * (piG_ *                exp1_);                              //G
-        case 3 : return rate_ * r_ * (piT_ * -(piR_/piY_) * exp1_ + (piT_/piY_) * k1_ * exp21_); //T, U
+        case 0: return rate_ * r_ * (piA_ *                exp1_);                              //A
+        case 1: return rate_ * r_ * (piC_ * -(piR_/piY_) * exp1_ - (piT_/piY_) * k1_ * exp21_); //C
+        case 2: return rate_ * r_ * (piG_ *                exp1_);                              //G
+        case 3: return rate_ * r_ * (piT_ * -(piR_/piY_) * exp1_ + (piT_/piY_) * k1_ * exp21_); //T, U
+        default: return 0;
       }
-    }
-    //G
-    case 2 : {
+    case 2: //G
       switch(j) {
-        case 0 : return rate_ * r_ * (piA_ * -(piY_/piR_) * exp1_ + (piA_/piR_) * k2_ * exp22_); //A
-        case 1 : return rate_ * r_ * (piC_ *                exp1_);                              //C
-        case 2 : return rate_ * r_ * (piG_ * -(piY_/piR_) * exp1_ - (piA_/piR_) * k2_ * exp22_); //G
-        case 3 : return rate_ * r_ * (piT_ *                exp1_);                              //T, U
+        case 0: return rate_ * r_ * (piA_ * -(piY_/piR_) * exp1_ + (piA_/piR_) * k2_ * exp22_); //A
+        case 1: return rate_ * r_ * (piC_ *                exp1_);                              //C
+        case 2: return rate_ * r_ * (piG_ * -(piY_/piR_) * exp1_ - (piA_/piR_) * k2_ * exp22_); //G
+        case 3: return rate_ * r_ * (piT_ *                exp1_);                              //T, U
+        default: return 0;
       }
-    }
-    //T, U
-    case 3 : {
+    case 3: //T, U
       switch(j) {
-        case 0 : return rate_ * r_ * (piA_ *                exp1_);                              //A
-        case 1 : return rate_ * r_ * (piC_ * -(piR_/piY_) * exp1_ + (piC_/piY_) * k1_ * exp21_); //C
-        case 2 : return rate_ * r_ * (piG_ *                exp1_);                              //G
-        case 3 : return rate_ * r_ * (piT_ * -(piR_/piY_) * exp1_ - (piC_/piY_) * k1_ * exp21_); //T, U
+        case 0: return rate_ * r_ * (piA_ *                exp1_);                              //A
+        case 1: return rate_ * r_ * (piC_ * -(piR_/piY_) * exp1_ + (piC_/piY_) * k1_ * exp21_); //C
+        case 2: return rate_ * r_ * (piG_ *                exp1_);                              //G
+        case 3: return rate_ * r_ * (piT_ * -(piR_/piY_) * exp1_ - (piC_/piY_) * k1_ * exp21_); //T, U
+        default: return 0;
       }
-    }
+    default: return 0;
   }
-  return 0;
 }
 
 /******************************************************************************/
@@ -276,46 +266,41 @@ double TN93::d2Pij_dt2(size_t i, size_t j, double d) const
   exp22_ = exp(-k2_ * l_);
   exp21_ = exp(-k1_ * l_);
 
-  switch(i)
-  {
-    //A
-    case 0 : {
+  switch(i) {
+    case 0: //A
       switch(j) {
-        case 0 : return r_2 * (piA_ * (piY_/piR_) * exp1_ + (piG_/piR_) * k2_2 * exp22_); //A
-        case 1 : return r_2 * (piC_ *             - exp1_);                               //C
-        case 2 : return r_2 * (piG_ * (piY_/piR_) * exp1_ - (piG_/piR_) * k2_2 * exp22_); //G
-        case 3 : return r_2 * (piT_ *             - exp1_);                               //T, U
+        case 0: return r_2 * (piA_ * (piY_/piR_) * exp1_ + (piG_/piR_) * k2_2 * exp22_); //A
+        case 1: return r_2 * (piC_ *             - exp1_);                               //C
+        case 2: return r_2 * (piG_ * (piY_/piR_) * exp1_ - (piG_/piR_) * k2_2 * exp22_); //G
+        case 3: return r_2 * (piT_ *             - exp1_);                               //T, U
+        default: return 0;
       }
-    }
-    //C
-    case 1 : {
+    case 1: //C
       switch(j) {
-        case 0 : return r_2 * (piA_ *             - exp1_);                               //A
-        case 1 : return r_2 * (piC_ * (piR_/piY_) * exp1_ + (piT_/piY_) * k1_2 * exp21_); //C
-        case 2 : return r_2 * (piG_ *             - exp1_);                               //G
-        case 3 : return r_2 * (piT_ * (piR_/piY_) * exp1_ - (piT_/piY_) * k1_2 * exp21_); //T, U
+        case 0: return r_2 * (piA_ *             - exp1_);                               //A
+        case 1: return r_2 * (piC_ * (piR_/piY_) * exp1_ + (piT_/piY_) * k1_2 * exp21_); //C
+        case 2: return r_2 * (piG_ *             - exp1_);                               //G
+        case 3: return r_2 * (piT_ * (piR_/piY_) * exp1_ - (piT_/piY_) * k1_2 * exp21_); //T, U
+        default: return 0;
       }
-    }
-    //G
-    case 2 : {
+    case 2: //G
       switch(j) {
-        case 0 : return r_2 * (piA_ * (piY_/piR_) * exp1_ - (piA_/piR_) * k2_2 * exp22_); //A
-        case 1 : return r_2 * (piC_ *             - exp1_);                               //C
-        case 2 : return r_2 * (piG_ * (piY_/piR_) * exp1_ + (piA_/piR_) * k2_2 * exp22_); //G
-        case 3 : return r_2 * (piT_ *             - exp1_);                               //T, U
+        case 0: return r_2 * (piA_ * (piY_/piR_) * exp1_ - (piA_/piR_) * k2_2 * exp22_); //A
+        case 1: return r_2 * (piC_ *             - exp1_);                               //C
+        case 2: return r_2 * (piG_ * (piY_/piR_) * exp1_ + (piA_/piR_) * k2_2 * exp22_); //G
+        case 3: return r_2 * (piT_ *             - exp1_);                               //T, U
+        default: return 0;
       }
-    }
-    //T, U
-    case 3 : {
+    case 3: //T, U
       switch(j) {
-        case 0 : return r_2 * (piA_ *             - exp1_);                               //A
-        case 1 : return r_2 * (piC_ * (piR_/piY_) * exp1_ - (piC_/piY_) * k1_2 * exp21_); //C
-        case 2 : return r_2 * (piG_ *             - exp1_);                               //G
-        case 3 : return r_2 * (piT_ * (piR_/piY_) * exp1_ + (piC_/piY_) * k1_2 * exp21_); //T, U
+        case 0: return r_2 * (piA_ *             - exp1_);                               //A
+        case 1: return r_2 * (piC_ * (piR_/piY_) * exp1_ - (piC_/piY_) * k1_2 * exp21_); //C
+        case 2: return r_2 * (piG_ *             - exp1_);                               //G
+        case 3: return r_2 * (piT_ * (piR_/piY_) * exp1_ + (piC_/piY_) * k1_2 * exp21_); //T, U
+        default: return 0;
       }
-    }
+    default: return 0;
   }
-  return 0;
 }
 
 /******************************************************************************/

@@ -260,52 +260,41 @@ double RN95::Pij_t(size_t i, size_t j, double d) const
   exp3_ = exp(-c3_ * l_);
   exp6_ = exp(-c6_ * l_);
 
-  switch (i)
-  {
-    {
-    // A
-    case 0: {
-      switch (j)
-      {
-      case 0: return freq_[0] - c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return freq_[1] + c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return freq_[2] - c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_;  // G
-      case 3: return freq_[3] + c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  switch (i) {
+    case 0: // A
+      switch (j) {
+        case 0: return freq_[0] - c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return freq_[1] + c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return freq_[2] - c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return freq_[3] + c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
+        default: return 0;
       }
-    }
-    // C
-    case 1: {
-      switch (j)
-      {
-      case 0: return freq_[0] + c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return freq_[1] - c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return freq_[2] + c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-      case 3: return freq_[3] - c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
+    case 1: // C
+      switch (j) {
+        case 0: return freq_[0] + c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return freq_[1] - c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return freq_[2] + c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return freq_[3] - c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //T
+        default: return 0;
       }
-    }
-    // G
-    case 2: {
-      switch (j)
-      {
-      case 0: return freq_[0] - c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return freq_[1] + c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return freq_[2] - c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_;   // G
-      case 3: return freq_[3] + c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+    case 2: // G
+      switch (j) {
+        case 0: return freq_[0] - c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return freq_[1] + c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return freq_[2] - c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return freq_[3] + c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
+        default: return 0;
       }
-    }
-    }
-  // T, U
-  case 3: {
-    switch (j)
-    {
-    case 0: return freq_[0] + c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-    case 1: return freq_[1] - c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-    case 2: return freq_[2] + c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-    case 3: return freq_[3] - c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
-    }
+    case 3: // T, U
+      switch (j) {
+        case 0: return freq_[0] + c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return freq_[1] - c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return freq_[2] + c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return freq_[3] - c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //T
+        default: return 0;
+      }
+    default: return 0;
   }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -316,52 +305,41 @@ double RN95::dPij_dt(size_t i, size_t j, double d) const
   exp3_ = -c3_* rate_* r_* exp(-c3_ * l_);
   exp6_ = -c6_* rate_* r_* exp(-c6_ * l_);
 
-  switch (i)
-  {
-    {
-    // A
-    case 0: {
-      switch (j)
-      {
-      case 0: return -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_;  // G
-      case 3: return c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  switch (i) {
+    case 0: // A
+      switch (j) {
+        case 0: return -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
+        default: return 0;
       }
-    }
-    // C
-    case 1: {
-      switch (j)
-      {
-      case 0: return c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-      case 3: return -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
+    case 1: // C
+      switch (j) {
+        case 0: return c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //T
+        default: return 0;
       }
-    }
-    // G
-    case 2: {
-      switch (j)
-      {
-      case 0: return -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_;   // G
-      case 3: return c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+    case 2: // G
+      switch (j) {
+        case 0: return -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
+        default: return 0;
       }
-    }
-    }
-  // T, U
-  case 3: {
-    switch (j)
-    {
-    case 0: return c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-    case 1: return -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-    case 2: return c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-    case 3: return -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
-    }
+    case 3: // T, U
+      switch (j) {
+        case 0: return c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //T
+        default: return 0;
+      }
+    default: return 0;
   }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -372,52 +350,41 @@ double RN95::d2Pij_dt2(size_t i, size_t j, double d) const
   exp3_ = c3_ * rate_ * r_ * c3_ * rate_ * r_ * exp(-c3_ * l_);
   exp6_ = c6_ * rate_ * r_ * c6_ * rate_ * r_ * exp(-c6_ * l_);
 
-  switch (i)
-  {
-    {
-    // A
-    case 0: {
-      switch (j)
-      {
-      case 0: return -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_;  // G
-      case 3: return c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  switch (i) {
+    case 0: // A
+      switch (j) {
+        case 0: return -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
+        default: return 0;
       }
-    }
-    // C
-    case 1: {
-      switch (j)
-      {
-      case 0: return c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-      case 3: return -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
+    case 1: // C
+      switch (j) {
+        case 0: return c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //T
+        default: return 0;
       }
-    }
-    // G
-    case 2: {
-      switch (j)
-      {
-      case 0: return -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; // A
-      case 1: return c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-      case 2: return -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_;   // G
-      case 3: return c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+    case 2: // G
+      switch (j) {
+        case 0: return -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
+        default: return 0;
       }
-    }
-    }
-  // T, U
-  case 3: {
-    switch (j)
-    {
-    case 0: return c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-    case 1: return -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-    case 2: return c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-    case 3: return -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
-    }
+    case 3: // T, U
+      switch (j) {
+        case 0: return c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+        case 1: return -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //C
+        case 2: return c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+        case 3: return -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //T
+        default: return 0;
+      }
+    default: return 0;
   }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -430,25 +397,25 @@ const Matrix<double>& RN95::getPij_t(double d) const
   exp6_ = exp(-c6_ * l_);
 
   // A
-  p_(0, 0) = freq_[0] - c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(0, 1) = freq_[1] + c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(0, 2) = freq_[2] - c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_;  // G
-  p_(0, 3) = freq_[3] + c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  p_(0, 0) = freq_[0] - c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(0, 1) = freq_[1] + c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(0, 2) = freq_[2] - c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(0, 3) = freq_[3] + c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
   // C
-  p_(1, 0) = freq_[0] + c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(1, 1) = freq_[1] - c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(1, 2) = freq_[2] + c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-  p_(1, 3) = freq_[3] - c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
+  p_(1, 0) = freq_[0] + c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(1, 1) = freq_[1] - c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(1, 2) = freq_[2] + c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(1, 3) = freq_[3] - c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //T
   // G
-  p_(2, 0) = freq_[0] - c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(2, 1) = freq_[1] + c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(2, 2) = freq_[2] - c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_;   // G
-  p_(2, 3) = freq_[3] + c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  p_(2, 0) = freq_[0] - c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(2, 1) = freq_[1] + c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(2, 2) = freq_[2] - c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(2, 3) = freq_[3] + c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
   // T, U
-  p_(3, 0) = freq_[0] + c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(3, 1) = freq_[1] - c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(3, 2) = freq_[2] + c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-  p_(3, 3) = freq_[3] - c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
+  p_(3, 0) = freq_[0] + c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(3, 1) = freq_[1] - c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(3, 2) = freq_[2] + c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(3, 3) = freq_[3] - c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //T
 
   return p_;
 }
@@ -463,25 +430,25 @@ const Matrix<double>&  RN95::getdPij_dt(double d) const
   exp6_ = -c6_* rate_* r_* exp(-c6_ * l_);
 
   // A
-  p_(0, 0) = -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(0, 1) =  c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(0, 2) =  -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_;  // G
-  p_(0, 3) = c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  p_(0, 0) = -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(0, 1) =  c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(0, 2) =  -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(0, 3) = c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
   // C
-  p_(1, 0) = c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(1, 1) = -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(1, 2) = c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-  p_(1, 3) = -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
+  p_(1, 0) = c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(1, 1) = -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(1, 2) = c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(1, 3) = -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //T
   // G
-  p_(2, 0) = -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(2, 1) = c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(2, 2) = -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_;   // G
-  p_(2, 3) = c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  p_(2, 0) = -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(2, 1) = c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(2, 2) = -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(2, 3) = c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
   // T, U
-  p_(3, 0) = c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(3, 1) = -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(3, 2) = c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-  p_(3, 3) = -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
+  p_(3, 0) = c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(3, 1) = -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(3, 2) = c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(3, 3) = -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //T
   return p_;
 }
 
@@ -495,24 +462,24 @@ const Matrix<double>&  RN95::getd2Pij_dt2(double d) const
   exp6_ = c6_ * rate_ * r_ * c6_ * rate_ * r_ * exp(-c6_ * l_);
 
   // A
-  p_(0, 0) = -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(0, 1) =  c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(0, 2) =  -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_;  // G
-  p_(0, 3) = c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  p_(0, 0) = -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(0, 1) =  c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(0, 2) =  -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (alpha_ * (c3_ - c1_) - c2_ * c4_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(0, 3) = c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
   // C
-  p_(1, 0) = c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(1, 1) = -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(1, 2) = c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
-  p_(1, 3) = -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_;                  // T
+  p_(1, 0) = c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(1, 1) = -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(1, 2) = c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(1, 3) = -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (beta_ * (c6_ - c1_) - c5_ * c9_) / (c6_ * (c6_ - c1_)) * exp6_; //T
   // G
-  p_(2, 0) = -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(2, 1) = c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(2, 2) = -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_;   // G
-  p_(2, 3) = c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_;           // T, U
+  p_(2, 0) = -c2_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(2, 1) = c2_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(2, 2) = -c2_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (c2_ * c8_ - epsilon_ * (c3_ - c1_)) / (c3_ * (c3_ - c1_)) * exp3_; //G
+  p_(2, 3) = c2_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (lambda_ * sigma_ - gamma_ * beta_) / (c6_ * (c6_ - c1_)) * exp6_; //T, U
   // T, U
-  p_(3, 0) = c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // A
-  p_(3, 1) = -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;                  // C
-  p_(3, 2) = c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; // G
+  p_(3, 0) = c5_ * c8_ / (c1_ * (c3_ - c1_)) * exp1_ + (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //A
+  p_(3, 1) = -c5_ * c7_ / (c1_ * (c6_ - c1_)) * exp1_ + (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_; //C
+  p_(3, 2) = c5_ * c4_ / (c1_ * (c3_ - c1_)) * exp1_ - (epsilon_ * kappa_ - delta_ * alpha_) / (c3_ * (c3_ - c1_)) * exp3_; //G
   p_(3, 3) = -c5_ * c9_ / (c1_ * (c6_ - c1_)) * exp1_ - (c5_ * c7_ - sigma_ * (c6_ - c1_)) / (c6_ * (c6_ - c1_)) * exp6_;
 
   return p_;
