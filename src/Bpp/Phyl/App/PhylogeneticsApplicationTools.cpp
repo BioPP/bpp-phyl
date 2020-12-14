@@ -3281,9 +3281,14 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
           }
           string pname  = stp.nextToken();
           string pvalue = stp.nextToken();
-          size_t p = pl.whichParameterHasName(pname);
-          pl.setParameter(p, AutoParameter(pl[p]));
-          pl[p].setValue(TextTools::toDouble(pvalue));
+          if (pl.hasParameter(pname))
+          {
+            size_t p = pl.whichParameterHasName(pname);
+            pl.setParameter(p, AutoParameter(pl[p]));
+            pl[p].setValue(TextTools::toDouble(pvalue));
+          }
+          else
+            ApplicationTools::displayMessage("Warning: unknown parameter in backup file : " + pname);
         }
       }
       bck.close();
@@ -3687,9 +3692,14 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
           }
           string pname  = stp.nextToken();
           string pvalue = stp.nextToken();
-          size_t p = pl.whichParameterHasName(pname);
-          pl.setParameter(p, AutoParameter(pl[p]));
-          pl[p].setValue(TextTools::toDouble(pvalue));
+          if (pl.hasParameter(pname))
+          {
+            size_t p = pl.whichParameterHasName(pname);
+            pl.setParameter(p, AutoParameter(pl[p]));
+            pl[p].setValue(TextTools::toDouble(pvalue));
+          }
+          else
+            ApplicationTools::displayMessage("Warning: unknown parameter in backup file : " + pname);
         }
       }
       bck.close();
