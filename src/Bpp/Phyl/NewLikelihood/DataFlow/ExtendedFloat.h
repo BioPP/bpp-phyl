@@ -111,9 +111,11 @@ namespace bpp {
     }
     
     void normalize_small () {
-      while (std::abs(f_) < smallest_normalized_value) {
+      if (f_!=0) {
+        while (std::abs(f_) < smallest_normalized_value) {
         f_ *= normalize_small_factor;
         exp_ += smallest_normalized_radix_power;
+        }
       }
     }
     
