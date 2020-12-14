@@ -596,8 +596,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   // Derivatives in Likelihood DF
 
-  ParameterList tmp;//  = lik.getBranchLengthParameters();
-  // ParameterList tmp2 = lik.getParameters();
+  ParameterList tmp = lik.getParameters();
 
 
   // // if (useClock)
