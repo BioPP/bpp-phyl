@@ -65,7 +65,8 @@ namespace bpp
     MvaFrequencySet(const ProteicAlphabet* alpha);
 	
     MvaFrequencySet* clone() const { return new MvaFrequencySet(*this); }
-	
+
+  /*
     MvaFrequencySet& operator=(const MvaFrequencySet& mfs)
     {
       AbstractFrequencySet::operator=(mfs);
@@ -77,7 +78,8 @@ namespace bpp
       paramValues_ = mfs.paramValues_;
       return *this;
     }
-	
+	*/
+
   protected:
     RowMatrix<double> tPpalAxes_;
     RowMatrix<double> rowCoords_;

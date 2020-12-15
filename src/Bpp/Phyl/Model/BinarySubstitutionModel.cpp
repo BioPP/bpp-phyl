@@ -119,24 +119,21 @@ double BinarySubstitutionModel::Pij_t(size_t i, size_t j, double d) const
 {
   exp_ = exp(-lambda_ * rate_ * d);
 
-  switch (i)
-  {
-  case 0: {
-    switch (j)
-    {
-    case 0: return (1 + kappa_ * exp_) / (kappa_ + 1);
-    case 1: return kappa_ / (kappa_ + 1) * (1 - exp_);
-    }
+  switch (i) {
+    case 0:
+      switch (j) {
+        case 0: return (1 + kappa_ * exp_) / (kappa_ + 1);
+        case 1: return kappa_ / (kappa_ + 1) * (1 - exp_);
+        default: return 0;
+      }
+    case 1:
+      switch (j){
+        case 0: return (1 - exp_) / (kappa_ + 1);
+        case 1: return (kappa_ + exp_) / (kappa_ + 1);
+        default: return 0;
+      }
+    default: return 0;
   }
-  case 1: {
-    switch (j)
-    {
-    case 0: return (1 - exp_) / (kappa_ + 1);
-    case 1: return (kappa_ + exp_) / (kappa_ + 1);
-    }
-  }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -145,24 +142,21 @@ double BinarySubstitutionModel::dPij_dt(size_t i, size_t j, double d) const
 {
   exp_ = rate_ * exp(-lambda_ * rate_ * d);
 
-  switch (i)
-  {
-  case 0: {
-    switch (j)
-    {
-    case 0: return -(kappa_ + 1) / 2 * exp_;
-    case 1: return (kappa_ + 1) / 2 * exp_;
+  switch (i) {
+  case 0:
+    switch (j) {
+      case 0: return -(kappa_ + 1) / 2 * exp_;
+      case 1: return (kappa_ + 1) / 2 * exp_;
+      default: return 0;
     }
-  }
-  case 1: {
-    switch (j)
-    {
-    case 0: return (kappa_ + 1) / (2 * kappa_) * exp_;
-    case 1: return -(kappa_ + 1) / (2 * kappa_) * exp_;
+  case 1:
+    switch (j) {
+      case 0: return (kappa_ + 1) / (2 * kappa_) * exp_;
+      case 1: return -(kappa_ + 1) / (2 * kappa_) * exp_;
+      default: return 0;
     }
+  default: return 0;
   }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -171,24 +165,21 @@ double BinarySubstitutionModel::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   exp_ = rate_ * rate_ * exp(-lambda_ * rate_ * d);
 
-  switch (i)
-  {
-  case 0: {
-    switch (j)
-    {
-    case 0: return lambda_ * (kappa_ + 1) / 2 * exp_;
-    case 1: return -lambda_ * (kappa_ + 1) / 2 * exp_;
-    }
+  switch (i) {
+    case 0:
+      switch (j) {
+        case 0: return lambda_ * (kappa_ + 1) / 2 * exp_;
+        case 1: return -lambda_ * (kappa_ + 1) / 2 * exp_;
+        default: return 0;
+      }
+    case 1:
+      switch (j) {
+        case 0: return -lambda_ * (kappa_ + 1) / (2 * kappa_) * exp_;
+        case 1: return lambda_ * (kappa_ + 1) / (2 * kappa_) * exp_;
+        default: return 0;
+      }
+    default: return 0;
   }
-  case 1: {
-    switch (j)
-    {
-    case 0: return -lambda_ * (kappa_ + 1) / (2 * kappa_) * exp_;
-    case 1: return lambda_ * (kappa_ + 1) / (2 * kappa_) * exp_;
-    }
-  }
-  }
-  return 0;
 }
 
 /******************************************************************************/
