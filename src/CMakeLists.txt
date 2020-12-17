@@ -182,14 +182,16 @@ set (CPP_FILES
   Bpp/Phyl/TreeIterator.cpp
   )
 
-# Build the static lib
-add_library (${PROJECT_NAME}-static STATIC ${CPP_FILES})
-target_include_directories (${PROJECT_NAME}-static PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
-  )
-set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
-target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC})
+IF(BUILD_STATIC)
+  # Build the static lib
+  add_library (${PROJECT_NAME}-static STATIC ${CPP_FILES})
+  target_include_directories (${PROJECT_NAME}-static PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
+    )
+  set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+  target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC})
+ENDIF()
 
 # Build the shared lib
 add_library (${PROJECT_NAME}-shared SHARED ${CPP_FILES})
@@ -206,8 +208,18 @@ set_target_properties (${PROJECT_NAME}-shared
 target_link_libraries (${PROJECT_NAME}-shared ${BPP_LIBS_SHARED})
 
 # Install libs and headers
+IF(BUILD_STATIC)
 install (
-  TARGETS ${PROJECT_NAME}-static ${PROJECT_NAME}-shared
+  TARGETS ${PROJECT_NAME}-static
+  EXPORT ${PROJECT_NAME}-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+ENDIF()
+
+install (
+  TARGETS ${PROJECT_NAME}-shared
   EXPORT ${PROJECT_NAME}-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
