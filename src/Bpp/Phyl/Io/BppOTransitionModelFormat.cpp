@@ -203,9 +203,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
         unparsedArguments_[modelName + "." + it.first] = it.second;
     }
     else 
-      // codonFreqs compulsory for all models but SameAARate
-      if (modelName!="DFP07")
-        throw Exception("Missing 'frequencies' for model " + modelName);
+      throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "YNGP_M1")
       model.reset(new YNGP_M1(geneticCode_, codonFreqs));
