@@ -207,6 +207,12 @@ namespace bpp
        * @{
        */
     
+    
+
+      ParameterList getNonDerivableParameters() const;
+
+      ParameterList getDerivableParameters() const;
+
       /**
        * @brief Get the branch lengths parameters.
        *

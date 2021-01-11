@@ -200,9 +200,9 @@ namespace bpp {
   public:
     Dimension () = default;
     Dimension (Eigen::Index rows_, Eigen::Index cols_) : MatrixDimension(rows_, cols_){}
-
   };
 
+  
   /** @brief Specialisation of Dimension<T> for eigen matrix types.
    *
    * Note that in Eigen, a vector is a matrix with one column.
@@ -396,14 +396,14 @@ namespace bpp {
     std::string debug (const T & t, typename std::enable_if<std::is_arithmetic<T>::value>::type* = 0) {
       // For basic arithmetic scalar types, just print the value itself
       using std::to_string;
-      return "value=" + to_string (t);
+      return "value=" + to_string_with_precision<T> (t, 20);
     }
     
     template <typename T>
     std::string debug (const Parameter& t){
       // For basic arithmetic scalar types, just print the value itself
       using std::to_string;
-      return "value=" + to_string(t.getValue());
+      return "value=" + to_string_with_precision<double>(t.getValue(), 20);
     }
 
     template <typename T = std::string>

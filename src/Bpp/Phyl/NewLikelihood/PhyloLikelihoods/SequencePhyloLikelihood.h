@@ -179,6 +179,18 @@ namespace bpp
       seqEvol_->setNamespace(nameSpace);
     }
 
+    
+
+    ParameterList getNonDerivableParameters() const
+    {
+      return seqEvol_->getNonDerivableParameters();
+    }
+
+    ParameterList getDerivableParameters() const
+    {
+      return seqEvol_->getBranchLengthParameters(true);
+    }
+
     ParameterList getBranchLengthParameters() const
     {
       return seqEvol_->getBranchLengthParameters(true);

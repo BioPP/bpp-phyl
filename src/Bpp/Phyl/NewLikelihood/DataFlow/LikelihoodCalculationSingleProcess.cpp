@@ -31,7 +31,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   makeProcessNodes_();
 
   // Default Derivate 
-  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
@@ -45,7 +45,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
   makeProcessNodes_();
 
   // Default Derivate 
-  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
@@ -62,7 +62,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
   makeProcessNodes_(paramList);
 
   // Default Derivate 
-  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
 
@@ -78,7 +78,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
   makeProcessNodes_(paramList);
 
   // Default Derivate 
-  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
 
@@ -94,7 +94,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
   makeProcessNodes_(collection, nProcess);
 
   // Default Derivate 
-  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
 
@@ -108,7 +108,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
   makeProcessNodes_(collection, nProcess);
 
   // Default Derivate 
-  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
 
@@ -123,7 +123,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
   makeProcessNodes_();
 
   // Default Derivate 
-  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
 void LikelihoodCalculationSingleProcess::setPatterns_()

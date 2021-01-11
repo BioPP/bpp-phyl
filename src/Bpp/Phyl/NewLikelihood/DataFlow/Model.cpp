@@ -258,7 +258,7 @@ void TransitionMatrixFromModel::compute () {
     double factor = accessValueConstCast<double> (*this->dependency (4));
     r *= factor;
   }
-  
+
 }
 
 ////////////////////////////////////////////////////////////

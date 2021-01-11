@@ -231,6 +231,17 @@ namespace bpp {
      * @{
      */
     
+
+    ParameterList getNonDerivableParameters() const override
+    {
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getNonDerivableParameters();
+    }
+
+    ParameterList getDerivableParameters() const override
+    {
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getBranchLengthParameters(true);
+    }
+
     /**
      * @brief Get the independent branch lengths parameters.
      *

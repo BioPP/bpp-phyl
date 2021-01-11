@@ -77,6 +77,13 @@ namespace bpp
  *    Sporophytic Self-Incompatibility System, Journal of Molecular
  *    Evolution 60(3):315-26
  *
+ * 
+ * Claudia C Weber, Simon Whelan, 2019, Physicochemical Amino Acid
+ *    Properties Better Describe Substitution Rates in Large
+ *    Populations, Molecular Biology and Evolution, Volume 36, Issue
+ *    4, April 2019, Pages 679–690,
+ *    https://doi.org/10.1093/molbev/msz003
+ *
  */
 
   class AbstractCodonClusterAASubstitutionModel :

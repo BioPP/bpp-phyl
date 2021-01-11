@@ -513,8 +513,8 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   ParameterList tmp = lik->getParameters();
 
-  // // if (useClock)
-  // //   tmp.addParameters(fclock->getHeightParameters());
+  // if (useClock)
+  //   tmp.addParameters(fclock->getHeightParameters());
 
   fnum->setParametersToDerivate(tmp.getParameterNames());
 
@@ -595,15 +595,10 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
 
   // Derivatives in Likelihood DF
-
   ParameterList tmp = lik.getParameters();
 
 
-  // // if (useClock)
-  // //   tmp.addParameters(fclock->getHeightParameters());
-
   fnum->setParametersToDerivate(tmp.getParameterNames());
-
 
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);

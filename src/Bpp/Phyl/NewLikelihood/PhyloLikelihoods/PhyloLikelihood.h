@@ -108,6 +108,10 @@ namespace bpp
      *
      * @{
      */
+
+    virtual ParameterList getNonDerivableParameters() const = 0;
+    
+    virtual ParameterList getDerivableParameters() const = 0;
     
     /**
      * @brief Get the independent branch lengths parameters.

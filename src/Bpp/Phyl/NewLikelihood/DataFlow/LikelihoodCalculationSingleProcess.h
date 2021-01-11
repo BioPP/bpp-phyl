@@ -77,7 +77,7 @@ namespace bpp {
    * NumericConstant<MatrixXd>.
    *
    * Default Derivate Method is set to
-   * NumericalDerivativeType::ThreePoints with delta=0.001;
+   * NumericalDerivativeType::ThreePoints with delta=0.0001;
    *  
    */
 
