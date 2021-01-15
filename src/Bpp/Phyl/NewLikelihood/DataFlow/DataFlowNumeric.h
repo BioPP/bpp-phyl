@@ -369,7 +369,7 @@ namespace bpp {
     
     template <typename R, typename F> void convert (R & r, const F & from, const Dimension<R> & dim) {
       r = convert (from, dim);
-      assert (Dimension<R> (r) == dim); // debug post check of size
+      //assert (Dimension<R> (r) == dim); // debug post check of size
     }
 
     /*******************************************/

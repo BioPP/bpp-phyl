@@ -140,6 +140,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
   Bpp/Phyl/Model/TwoParameterBinarySubstitutionModel.cpp
+  Bpp/Phyl/Model/ChromosomeSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonAARateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonAAFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonBGCSubstitutionModel.cpp
