@@ -143,6 +143,11 @@ namespace bpp
 
     AbstractCodonSubstitutionModel* clone() const = 0;
 
+    void setNamespace(const std::string& prefix)
+    {
+      AbstractWordSubstitutionModel::setNamespace(prefix);
+    }
+    
   protected:
     /**
      * @brief Method inherited from AbstractWordSubstitutionModel
