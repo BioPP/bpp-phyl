@@ -349,7 +349,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
       auto  nestedCodonModel = std::shared_ptr<CodonSubstitutionModel>(dynamic_cast<CodonSubstitutionModel*>(nestedCodonReader.readSubstitutionModel(alphabet, args["codonmodel"], data, false)));
       
       unparsedParameterValuesNested = nestedCodonReader.getUnparsedArguments();
-      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
+      for (const auto& it:unparsedParameterValuesNested)
+        unparsedArguments_["SameAARate."+it.first]=it.second;
 
       model.reset(new CodonSameAARateSubstitutionModel(nestedProtModel, nestedCodonModel, codonFreqs, geneticCode_));
     }
@@ -967,7 +968,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
   if (v_nestedModelDescription.size() != nbmodels)
   {
-    BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+    BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, false, true, false, false, warningLevel_);
     model.reset(nestedReader.readSubstitutionModel(pWA->getNAlphabet(0), v_nestedModelDescription[0], data, false));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     string pref = "";
@@ -1845,7 +1846,7 @@ void BppOSubstitutionModelFormat::initialize_(
     ap.setMessageHandler(ApplicationTools::warning.get());
     pl.setParameter(i, ap);
   }
-  
+
   size_t posp;
   for (size_t i = 0; i < pl.size(); i++)
   {
@@ -1873,7 +1874,7 @@ void BppOSubstitutionModelFormat::initialize_(
   
     catch (Exception& e) {}
   }
-  
+
   model.matchParametersValues(pl);
 }
 
