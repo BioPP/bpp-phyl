@@ -39,6 +39,7 @@
 #include "MixtureOfATransitionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
+#include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Exceptions.h>
 
@@ -107,8 +108,6 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
   for (i = 0; i < c; i++)
   {
     modelsContainer_.push_back(model->clone());
-    modelsContainer_[i]->setNamespace(model->getNamespace());
-
     vProbas_.push_back(1.0 / static_cast<double>(c));
     vRates_.push_back(1.0);
   }
@@ -197,7 +196,7 @@ const DiscreteDistribution* MixtureOfATransitionModel::getDistribution(std::stri
 void MixtureOfATransitionModel::updateMatrices()
 {
   string s, t;
-  size_t i, j, l;
+  size_t j, l;
   double d;
   ParameterList pl;
 
@@ -227,7 +226,7 @@ void MixtureOfATransitionModel::updateMatrices()
     }
   }
 
-  for (i = 0; i < modelsContainer_.size(); i++)
+  for (size_t i = 0; i < modelsContainer_.size(); i++)
   {
     vProbas_[i] = 1;
     j = i;
@@ -250,7 +249,7 @@ void MixtureOfATransitionModel::updateMatrices()
   }
 
   //  setting the equilibrium freqs
-  for (i = 0; i < getNumberOfStates(); i++)
+  for (size_t i = 0; i < getNumberOfStates(); i++)
   {
     freq_[i] = 0;
     for (j = 0; j < modelsContainer_.size(); j++)
