@@ -113,6 +113,11 @@ namespace bpp
       return new CodonDistanceSubstitutionModel(*this);
     }
 
+    void setNamespace(const std::string& prefix)
+    {
+      AbstractWordSubstitutionModel::setNamespace(prefix);
+    }
+    
   public:
     void fireParameterChanged(const ParameterList& parameterlist);
   
