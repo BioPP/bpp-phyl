@@ -44,6 +44,7 @@
 #include "../FrequencySet/CodonFrequencySet.h"
 #include "../MixtureOfASubstitutionModel.h"
 #include "../Protein/ProteinSubstitutionModel.h"
+#include "CodonSameAARateSubstitutionModel.h"
 
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
@@ -138,6 +139,11 @@ namespace bpp
       pmixsubmodel_ = &dynamic_cast<const MixtureOfASubstitutionModel&>(mm);
         
       return *this;
+    }
+
+    std::shared_ptr<ProteinSubstitutionModel> getProtModel() const
+    {
+      return (dynamic_cast<const CodonSameAARateSubstitutionModel*>(getNModel(0)))->getProtModel();
     }
     
   protected:

@@ -63,6 +63,7 @@
 #include "../Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonAdHocSubstitutionModel.h"
 #include "../Model/Codon/CodonSameAARateSubstitutionModel.h"
+#include "../Model/Codon/DFP07.h"
 #include "../Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/KroneckerCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/KCM.h"
@@ -1707,6 +1708,35 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
     
     comma=true;
   }
+  
+  const DFP07* pDFP = dynamic_cast<const DFP07*>(&model);
+  if (pDFP)
+  {
+    if (comma)
+      out << ",";
+
+    out << "protmodel=";
+    auto protModel = pDFP->getProtModel();
+    write(*protModel, out, globalAliases, writtenNames);
+    
+    comma=true;
+  }
+
+  const auto* pSameAA = dynamic_cast<const CodonSameAARateSubstitutionModel*>(&model);
+  if (pSameAA)
+  {
+    if (comma)
+      out << ",";
+
+    out << "codonmodel=";
+    write(*pSameAA->getCodonModel(), out, globalAliases, writtenNames);
+    
+    out << ", protmodel=";
+    write(*pSameAA->getProtModel(), out, globalAliases, writtenNames);
+    
+    comma=true;
+  }
+
   
   // case of Biblio models, update writtenNames
 

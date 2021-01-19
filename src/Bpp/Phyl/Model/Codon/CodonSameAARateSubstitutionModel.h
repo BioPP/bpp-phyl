@@ -196,7 +196,7 @@ namespace bpp
       return getAlphabet()->getSize();
     }
 
-    std::shared_ptr<ProteinSubstitutionModel> getAAModel() const
+    std::shared_ptr<ProteinSubstitutionModel> getProtModel() const
     {
       return pAAmodel_;
     }
