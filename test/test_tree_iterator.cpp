@@ -70,11 +70,10 @@ int main() {
   string expectedOrder1[9] = {"N8", "N4", "N2", "S1", "S2", "S3", "N7", "S4", "S5"}; 
   PreOrderTreeIterator* treeIt1 = new PreOrderTreeIterator(*ttree);
   int counter = 0;
-  for (Node* node = treeIt1->begin(); node != treeIt1->end(); node = treeIt1->next()) {
-      string nodeName = node->getName();
-      if (nodeName.compare(expectedOrder1[counter]) != 0)
+  for (const Node* node = treeIt1->begin(); node != treeIt1->end(); node = treeIt1->next()) {
+      if (node->getName().compare(expectedOrder1[counter]) != 0)
       {
-        cerr << "Preorder traversion failed at step " << counter << ": returned " << nodeName << " instead of " << expectedOrder1[counter] << endl;
+        cerr << "Preorder traversion failed at step " << counter << ": returned " << node->getName() << " instead of " << expectedOrder1[counter] << endl;
         return 1;
       }
       counter += 1;
@@ -85,11 +84,10 @@ int main() {
   string expectedOrder2[9] = {"S1", "N2", "S2", "N4", "S3", "N8", "S4", "N7", "S5"}; 
   InOrderTreeIterator* treeIt2 = new InOrderTreeIterator(*ttree);
   counter = 0;
-  for (Node* node = treeIt2->begin(); node != treeIt2->end(); node = treeIt2->next()) {
-      string nodeName = node->getName();
-      if (nodeName.compare(expectedOrder2[counter]) != 0)
+  for (const Node* node = treeIt2->begin(); node != treeIt2->end(); node = treeIt2->next()) {
+      if (node->getName().compare(expectedOrder2[counter]) != 0)
       {
-        cerr << "Inorder traversion failed at step " << counter << ": returned " << nodeName << " instead of " << expectedOrder2[counter] << endl;
+        cerr << "Inorder traversion failed at step " << counter << ": returned " << node->getName() << " instead of " << expectedOrder2[counter] << endl;
         return 1;
       }
       counter += 1;
@@ -100,11 +98,10 @@ int main() {
   string expectedOrder3[9] = {"S1", "S2", "N2", "S3", "N4", "S4", "S5", "N7", "N8"}; 
   PostOrderTreeIterator* treeIt3 = new PostOrderTreeIterator(*ttree);
   counter = 0;
-  for (Node* node = treeIt3->begin(); node != treeIt3->end(); node = treeIt3->next()) {
-      string nodeName = node->getName();
-      if (nodeName.compare(expectedOrder3[counter]) != 0)
+  for (const Node* node = treeIt3->begin(); node != treeIt3->end(); node = treeIt3->next()) {
+      if (node->getName().compare(expectedOrder3[counter]) != 0)
       {
-        cerr << "Postorder traversion failed at step " << counter << ": returned " << nodeName << " instead of " << expectedOrder3[counter] << endl;
+        cerr << "Postorder traversion failed at step " << counter << ": returned " << node->getName() << " instead of " << expectedOrder3[counter] << endl;
         return 1;
       }
       counter += 1;

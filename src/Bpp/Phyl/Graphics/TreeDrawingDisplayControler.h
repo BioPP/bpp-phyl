@@ -171,7 +171,7 @@ class BasicTreeDrawingDisplayControler :
     }
 
   private:
-    BasicTreeDrawingDisplayControler(const BasicTreeDrawingDisplayControler&) : settings_(0) {}
+    BasicTreeDrawingDisplayControler(const BasicTreeDrawingDisplayControler&) : TreeDrawingDisplayControler(),settings_(0) {}
     BasicTreeDrawingDisplayControler& operator=(const BasicTreeDrawingDisplayControler&) { return *this; }
 
 };

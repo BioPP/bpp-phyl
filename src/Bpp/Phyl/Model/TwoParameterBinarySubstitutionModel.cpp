@@ -106,24 +106,21 @@ double TwoParameterBinarySubstitutionModel::Pij_t(size_t i, size_t j, double d) 
 {
   exp_ = exp(-lambda_ * rate_ * d);
 
-  switch (i)
-  {
-  case 0: {
-    switch (j)
-    {
-    case 0: return ( (1-pi0_) + pi0_ * exp_);
-    case 1: return pi0_ * (1 - exp_);
-    }
+  switch (i) {
+    case 0:
+      switch (j) {
+        case 0: return ( (1-pi0_) + pi0_ * exp_);
+        case 1: return pi0_ * (1 - exp_);
+        default: return 0;
+      }
+    case 1:
+      switch (j) {
+        case 0: return (1-pi0_) * (1 - exp_);
+        case 1: return pi0_ + (1-pi0_) * exp_;
+        default: return 0;
+      }
+    default: return 0;
   }
-  case 1: {
-    switch (j)
-    {
-    case 0: return (1-pi0_) * (1 - exp_);
-    case 1: return pi0_ + (1-pi0_) * exp_;
-    }
-  }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -132,24 +129,21 @@ double TwoParameterBinarySubstitutionModel::dPij_dt(size_t i, size_t j, double d
 {
   exp_ = rate_ * exp(-lambda_ * rate_ * d);
 
-  switch (i)
-  {
-  case 0: {
-    switch (j)
-    {
-    case 0: return -1 * pi0_ * exp_;
-    case 1: return pi0_ * exp_;
-    }
+  switch (i) {
+    case 0:
+      switch (j) {
+        case 0: return -1 * pi0_ * exp_;
+        case 1: return pi0_ * exp_;
+        default: return 0;
+      }
+    case 1:
+      switch (j) {
+        case 0: return (1 - pi0_) * exp_;
+        case 1: return -1 * (1 - pi0_) * exp_;
+        default: return 0;
+      }
+    default: return 0;
   }
-  case 1: {
-    switch (j)
-    {
-    case 0: return (1 - pi0_) * exp_;
-    case 1: return -1 * (1 - pi0_) * exp_;
-    }
-  }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -158,22 +152,20 @@ double TwoParameterBinarySubstitutionModel::d2Pij_dt2(size_t i, size_t j, double
 {
   exp_ = rate_ * rate_ * exp(-lambda_ * rate_ * d);
 
-  switch (i)
-  {
-  case 0: {
-    switch (j)
-    {
-    case 0: return  pi0_ * exp_;
-    case 1: return  -1 * pi0_ * exp_;
-    }
-  }
-  case 1: {
-    switch (j)
-    {
-    case 0: return -1 * (1 - pi0_) * exp_;
-    case 1: return  (1 - pi0_) * exp_;
-    }
-  }
+  switch (i) {
+    case 0:
+      switch (j) {
+        case 0: return  pi0_ * exp_;
+        case 1: return  -1 * pi0_ * exp_;
+        default: return 0;
+      }
+    case 1:
+      switch (j) {
+        case 0: return -1 * (1 - pi0_) * exp_;
+        case 1: return  (1 - pi0_) * exp_;
+        default: return 0;
+      }
+    default: return 0;
   }
   return 0;
 }

@@ -595,7 +595,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
 
   // Derivatives in Likelihood DF
-  ParameterList tmp = lik.getParameters();
+  ParameterList tmp;// = lik.getParameters();
 
 
   fnum->setParametersToDerivate(tmp.getParameterNames());
