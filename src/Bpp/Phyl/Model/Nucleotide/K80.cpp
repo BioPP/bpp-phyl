@@ -148,44 +148,40 @@ double K80::Pij_t(size_t i, size_t j, double d) const
   exp2_ = exp(-k_ * l_);
 	
   switch(i) {
-    //A
-  case 0 : {
-    switch(j) {
-    case 0 : return 0.25 * (1. + exp1_) + 0.5 * exp2_; //A
-    case 1 : return 0.25 * (1. - exp1_);               //C
-    case 2 : return 0.25 * (1. + exp1_) - 0.5 * exp2_; //G
-    case 3 : return 0.25 * (1. - exp1_);               //T, U
-    }
-  } 
-    //C
-  case 1 : {
-    switch(j) {
-    case 0 : return 0.25 * (1. - exp1_);               //A
-    case 1 : return 0.25 * (1. + exp1_) + 0.5 * exp2_; //C
-    case 2 : return 0.25 * (1. - exp1_);               //G
-    case 3 : return 0.25 * (1. + exp1_) - 0.5 * exp2_; //T, U
-    }
+    case 0: //A
+      switch(j) {
+        case 0: return 0.25 * (1. + exp1_) + 0.5 * exp2_; //A
+        case 1: return 0.25 * (1. - exp1_);               //C
+        case 2: return 0.25 * (1. + exp1_) - 0.5 * exp2_; //G
+        case 3: return 0.25 * (1. - exp1_);               //T, U
+        default: return 0;
+      }
+    case 1: //C
+      switch(j) {
+        case 0: return 0.25 * (1. - exp1_);               //A
+        case 1: return 0.25 * (1. + exp1_) + 0.5 * exp2_; //C
+        case 2: return 0.25 * (1. - exp1_);               //G
+        case 3: return 0.25 * (1. + exp1_) - 0.5 * exp2_; //T, U
+        default: return 0;
+      }
+    case 2: //G
+      switch(j) {
+        case 0: return 0.25 * (1. + exp1_) - 0.5 * exp2_; //A
+        case 1: return 0.25 * (1. - exp1_);               //C
+        case 2: return 0.25 * (1. + exp1_) + 0.5 * exp2_; //G
+        case 3: return 0.25 * (1. - exp1_);               //T, U
+        default: return 0;
+      }
+    case 3: //T, U
+      switch(j) {
+        case 0: return 0.25 * (1. - exp1_);               //A
+        case 1: return 0.25 * (1. + exp1_) - 0.5 * exp2_; //C
+        case 2: return 0.25 * (1. - exp1_);               //G
+        case 3: return 0.25 * (1. + exp1_) + 0.5 * exp2_; //T, U
+        default: return 0;
+      }
+    default: return 0;
   }
-    //G
-  case 2 : {
-    switch(j) {
-    case 0 : return 0.25 * (1. + exp1_) - 0.5 * exp2_; //A
-    case 1 : return 0.25 * (1. - exp1_);               //C
-    case 2 : return 0.25 * (1. + exp1_) + 0.5 * exp2_; //G
-    case 3 : return 0.25 * (1. - exp1_);               //T, U
-    }
-  }
-    //T, U
-  case 3 : {
-    switch(j) {
-    case 0 : return 0.25 * (1. - exp1_);               //A
-    case 1 : return 0.25 * (1. + exp1_) - 0.5 * exp2_; //C
-    case 2 : return 0.25 * (1. - exp1_);               //G
-    case 3 : return 0.25 * (1. + exp1_) + 0.5 * exp2_; //T, U
-    }
-  }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -197,44 +193,40 @@ double K80::dPij_dt(size_t i, size_t j, double d) const
   exp2_ = exp(-k_ * l_);
 
   switch(i) {
-    //A
-  case 0 : {
-    switch(j) {
-    case 0 : return rate_ * r_/4. * (- exp1_ - 2. * k_ * exp2_); //A
-    case 1 : return rate_ * r_/4. * (  exp1_);                   //C
-    case 2 : return rate_ * r_/4. * (- exp1_ + 2. * k_ * exp2_); //G
-    case 3 : return rate_ * r_/4. * (  exp1_);                   //T, U
-    }
-  } 
-    //C
-  case 1 : {
-    switch(j) {
-    case 0 : return rate_ * r_/4. * (  exp1_);                   //A
-    case 1 : return rate_ * r_/4. * (- exp1_ - 2. * k_ * exp2_); //C
-    case 2 : return rate_ * r_/4. * (  exp1_);                   //G
-    case 3 : return rate_ * r_/4. * (- exp1_ + 2. * k_ * exp2_); //T, U
-    }
+    case 0: //A
+      switch(j) {
+        case 0: return rate_ * r_/4. * (- exp1_ - 2. * k_ * exp2_); //A
+        case 1: return rate_ * r_/4. * (  exp1_);                   //C
+        case 2: return rate_ * r_/4. * (- exp1_ + 2. * k_ * exp2_); //G
+        case 3: return rate_ * r_/4. * (  exp1_);                   //T, U
+        default: return 0;
+      }
+    case 1: //C
+      switch(j) {
+        case 0: return rate_ * r_/4. * (  exp1_);                   //A
+        case 1: return rate_ * r_/4. * (- exp1_ - 2. * k_ * exp2_); //C
+        case 2: return rate_ * r_/4. * (  exp1_);                   //G
+        case 3: return rate_ * r_/4. * (- exp1_ + 2. * k_ * exp2_); //T, U
+        default: return 0;
+      }
+    case 2: //G
+      switch(j) {
+        case 0: return rate_ * r_/4. * (- exp1_ + 2. * k_ * exp2_); //A
+        case 1: return rate_ * r_/4. * (  exp1_);                   //C
+        case 2: return rate_ * r_/4. * (- exp1_ - 2. * k_ * exp2_); //G
+        case 3: return rate_ * r_/4. * (  exp1_);                   //T, U
+        default: return 0;
+      }
+    case 3: //T, U
+      switch(j) {
+        case 0: return rate_ * r_/4. * (  exp1_);                   //A
+        case 1: return rate_ * r_/4. * (- exp1_ + 2. * k_ * exp2_); //C
+        case 2: return rate_ * r_/4. * (  exp1_);                   //G
+        case 3: return rate_ * r_/4. * (- exp1_ - 2. * k_ * exp2_); //T, U
+        default: return 0;
+      }
+    default: return 0;
   }
-    //G
-  case 2 : {
-    switch(j) {
-    case 0 : return rate_ * r_/4. * (- exp1_ + 2. * k_ * exp2_); //A
-    case 1 : return rate_ * r_/4. * (  exp1_);                   //C
-    case 2 : return rate_ * r_/4. * (- exp1_ - 2. * k_ * exp2_); //G
-    case 3 : return rate_ * r_/4. * (  exp1_);                   //T, U
-    }
-  }
-    //T, U
-  case 3 : {
-    switch(j) {
-    case 0 : return rate_ * r_/4. * (  exp1_);                   //A
-    case 1 : return rate_ * r_/4. * (- exp1_ + 2. * k_ * exp2_); //C
-    case 2 : return rate_ * r_/4. * (  exp1_);                   //G
-    case 3 : return rate_ * r_/4. * (- exp1_ - 2. * k_ * exp2_); //T, U
-    }
-  }
-  }
-  return 0;
 }
 
 /******************************************************************************/
@@ -248,42 +240,39 @@ double K80::d2Pij_dt2(size_t i, size_t j, double d) const
   exp2_ = exp(-k_ * l_);
 
   switch(i) {
-    //A
-  case 0 : {
-    switch(j) {
-    case 0 : return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //A
-    case 1 : return r_2/4. * (- exp1_);                    //C
-    case 2 : return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //G
-    case 3 : return r_2/4. * (- exp1_);                    //T, U
-    }
-  } 
-    //C
-  case 1 : {
-    switch(j) {
-    case 0 : return r_2/4. * (- exp1_);                    //A
-    case 1 : return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //C
-    case 2 : return r_2/4. * (- exp1_);                    //G
-    case 3 : return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //T, U
-    }
-  }
-    //G
-  case 2 : {
-    switch(j) {
-    case 0 : return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //A
-    case 1 : return r_2/4. * (- exp1_);                    //C
-    case 2 : return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //G
-    case 3 : return r_2/4. * (- exp1_);                    //T, U
-    }
-  }
-    //T, U
-  case 3 : {
-    switch(j) {
-    case 0 : return r_2/4. * (- exp1_);                    //A
-    case 1 : return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //C
-    case 2 : return r_2/4. * (- exp1_);                    //G
-    case 3 : return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //T, U
-    }
-  }
+    case 0: //A
+      switch(j) {
+        case 0: return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //A
+        case 1: return r_2/4. * (- exp1_);                    //C
+        case 2: return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //G
+        case 3: return r_2/4. * (- exp1_);                    //T, U
+        default: return 0;
+      }
+    case 1: //C
+      switch(j) {
+        case 0: return r_2/4. * (- exp1_);                    //A
+        case 1: return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //C
+        case 2: return r_2/4. * (- exp1_);                    //G
+        case 3: return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //T, U
+        default: return 0;
+      }
+    case 2: //G
+      switch(j) {
+        case 0: return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //A
+        case 1: return r_2/4. * (- exp1_);                    //C
+        case 2: return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //G
+        case 3: return r_2/4. * (- exp1_);                    //T, U
+        default: return 0;
+      }
+    case 3: //T, U
+      switch(j) {
+        case 0: return r_2/4. * (- exp1_);                    //A
+        case 1: return r_2/4. * (  exp1_ - 2. * k_2 * exp2_); //C
+        case 2: return r_2/4. * (- exp1_);                    //G
+        case 3: return r_2/4. * (  exp1_ + 2. * k_2 * exp2_); //T, U
+        default: return 0;
+      }
+    default: return 0;
   }
   return 0;
 }
