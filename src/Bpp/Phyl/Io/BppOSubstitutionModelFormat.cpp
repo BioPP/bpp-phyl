@@ -1867,7 +1867,8 @@ void BppOSubstitutionModelFormat::initialize_(
         throw Exception("Unknown initFreqs argument");
     }
     unparsedArguments_.erase(unparsedArguments_.find(model.getNamespace() + "initFreqs"));
-    unparsedArguments_.erase(unparsedArguments_.find(model.getNamespace() + "initFreqs.observedPseudoCount"));
+    if (unparsedArguments_.find(model.getNamespace() + "initFreqs.observedPseudoCount")!=unparsedArguments_.end())
+      unparsedArguments_.erase(unparsedArguments_.find(model.getNamespace() + "initFreqs.observedPseudoCount"));
   }
 
   ParameterList pl = model.getIndependentParameters();
