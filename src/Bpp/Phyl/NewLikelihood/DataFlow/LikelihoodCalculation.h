@@ -98,11 +98,6 @@ namespace bpp {
       return likelihood_;
     }
 
-    double getLogLikelihood()
-    {
-      return getLikelihoodNode()->getTargetValue();
-    }
-
     virtual bool isInitialized() const {
       return true;
     };
@@ -121,6 +116,16 @@ namespace bpp {
       likelihood_=ll;
     }
 
+    /*
+     * @brief fix Factor such that valRef value becomes normal.
+     *
+     */
+    
+    virtual void fixFactor(ValueRef<double> valRef)
+    {
+      throw Exception("LikelihoodCalculation::fixFactor not implemented.");
+    }
+    
   protected:
 
     /* @brief Build the likelihood DF  */

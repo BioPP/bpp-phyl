@@ -243,22 +243,33 @@ namespace bpp {
     /* Likelihood tree on mean likelihoods on rate categories */
     std::shared_ptr<ConditionalLikelihoodTree> condLikelihoodTree_;
       
+    /*
+     * @brief Factor to multiply transition probabilities (default: 0,
+     * which means no multiplication factor).
+     */
+    
+    std::shared_ptr<NumericMutable<uint>> factorNode_;
+    
   public:
     LikelihoodCalculationSingleProcess(Context & context,
                                        const AlignedValuesContainer & sites,
-                                       const SubstitutionProcess& process);
+                                       const SubstitutionProcess& process,
+                                       uint factor = 1);
 
     LikelihoodCalculationSingleProcess(Context & context,
-                                       const SubstitutionProcess& process);
+                                       const SubstitutionProcess& process,
+                                       uint factor = 1);
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const AlignedValuesContainer & sites,
                                        const SubstitutionProcess& process,
-                                       ParameterList& paramList);
+                                       ParameterList& paramList,
+                                       uint factor = 1);
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const SubstitutionProcess& process,
-                                       ParameterList& paramList);
+                                       ParameterList& paramList,
+                                       uint factor = 1);
 
     /*
      * @brief Build using Nodes of CollectionNodes.
@@ -270,10 +281,14 @@ namespace bpp {
 
     LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                        const AlignedValuesContainer & sites,
-                                       size_t nProcess);
+                                       size_t nProcess,
+                                       uint factor = 1);
+
     
     LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                       size_t nProcess);
+                                       size_t nProcess,
+                                       uint factor = 1);
+
     
     LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
 
@@ -323,6 +338,23 @@ namespace bpp {
     }
 
 
+    /**
+     * @brief Set a factor for likelihood computation
+     *
+     */
+
+    void setFactor(uint factor);
+
+    /*
+     * @brief fix Factor such that valRef value becomes normal.
+     *
+     * There is a counter to avoid infinite loop (mostly if valRef
+     * does not depend on fixFactor).
+     *
+     */
+    
+    void fixFactor(ValueRef<double> valRef);
+    
     /*
      * @brief Get indexes of the nodes in the Likelihood DAG that have
      * a given species index.
@@ -402,7 +434,6 @@ namespace bpp {
       return processNodes_.modelNode_->getTargetValue()->getStateMap();
     }
       
-
     /************************************************
      *** Patterns
      ****************************/
@@ -488,7 +519,7 @@ namespace bpp {
      * @brief Get Matrix of Conditional Likelihoods at Node *
      *
      * !!!! These likelihoods are multiplied by the normalization
-     *      factor (nbstates^nbedges) to prevent underflow.
+     *      factor to prevent underflow.
      *
      * @param nodeId  Id of the node in PhyloTree, ie species id
      * @param shrunk if matrix is on shrunked data (default: false)
@@ -510,7 +541,7 @@ namespace bpp {
      * above the node), for a given rate class.
      *
      * !!!! These likelihoods are multiplied by the normalization
-     *      factor (nbstates^nbedges) to prevent underflow.
+     *      factor to prevent underflow.
      *
      * @param nodeId Node Index in the forward tree (! ie in the
      * computation tree, not the species tree).
@@ -526,7 +557,7 @@ namespace bpp {
      * the top of the edge), for a given rate class.
      *
      * !!!! These likelihoods are multiplied by the normalization
-     *      factor (nbstates^nbedges) to prevent underflow.
+     *      factor to prevent underflow.
      *
      * These likelihoods are multiplied by the probability of the edge
      *
@@ -546,7 +577,7 @@ namespace bpp {
      * These likelihoods are multiplied by the probability of the node
      *
      * !!!! These likelihoods are multiplied by the normalization
-     *      factor (nbstates^nbedges) to prevent underflow.
+     *      factor to prevent underflow.
      *
      * @param edgeId Node Index in the backward tree (! ie in the
      * computation tree, not the species tree).
@@ -564,7 +595,7 @@ namespace bpp {
      * These likelihoods are multiplied by the probability of the node.
      *
      * !!!! These likelihoods are multiplied by the normalization
-     *      factor (nbstates^nbedges) to prevent underflow.
+     *      factor to prevent underflow.
      *
      * @param nodeId Node Index in the forward tree (! ie in the
      * computation tree, not the species tree).
@@ -582,7 +613,7 @@ namespace bpp {
      * These likelihoods are multiplied by the probability of the node.
      *
      * !!!! These likelihoods are multiplied by the normalization
-     *      factor (nbstates^nbedges) to prevent underflow.
+     *      factor to prevent underflow.
      *
      * @param nodeId Node Index in the forward tree (! ie in the
      * computation tree, not the species tree).

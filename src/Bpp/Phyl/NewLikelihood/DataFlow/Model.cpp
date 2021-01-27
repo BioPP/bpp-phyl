@@ -159,7 +159,7 @@ std::string TransitionMatrixFromModel::debugInfo () const {
   auto ret = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) + ":nDeriv=" + TextTools::toString(nDeriv);
   if (nbDependencies()>=5 && this->dependency (4))
   {
-    auto factor = accessValueConstCast<double> (*this->dependency (4));
+    auto factor = accessValueConstCast<uint> (*this->dependency (4));
     ret += ":factor=" +  TextTools::toString(factor);
   }
   return ret;
@@ -255,7 +255,7 @@ void TransitionMatrixFromModel::compute () {
 
   if (this->nbDependencies()>=5 && this->dependency(4))
   {
-    double factor = accessValueConstCast<double> (*this->dependency (4));
+    uint factor = accessValueConstCast<uint> (*this->dependency (4));
     r *= factor;
   }
 
@@ -274,7 +274,7 @@ std::string TransitionFunctionFromModel::debugInfo () const {
   auto ret = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) + ":nDeriv=" + TextTools::toString(nDeriv);
   if (this->nbDependencies()>=4 && this->dependency (3))
   {
-    auto factor = accessValueConstCast<double> (*this->dependency (3));
+    auto factor = accessValueConstCast<uint> (*this->dependency (3));
     ret += ":factor=" +  TextTools::toString(factor);
   }
   return ret;
@@ -339,7 +339,7 @@ void TransitionFunctionFromModel::compute () {
   const auto * model = accessValueConstCast<const BranchModel *> (*this->dependency (0));
   const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
 
-  double factor = (this->nbDependencies()>=4 && this->dependency(3))?accessValueConstCast<double> (*this->dependency (3)):1.;
+  uint factor = (this->nbDependencies()>=4 && this->dependency(3))?accessValueConstCast<uint> (*this->dependency (3)):1;
   
   auto & r = this->accessValueMutable ();
 

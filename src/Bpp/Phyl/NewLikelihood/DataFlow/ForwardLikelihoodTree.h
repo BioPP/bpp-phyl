@@ -135,11 +135,11 @@ namespace bpp
     Eigen::Index nbSites_;
 
     /*
-     * @brief Says if transition probabilities are multiplied by the
-     * numbers of states (default : yes).
+     * @brief Factor to multiply transition probabilities (default: 0,
+     * which means no multiplication factor).
      */
     
-    bool withFactor_;
+    ValueRef<uint> factorNode_;
     
     /* Map of the indexes of nodes between species tree and
      * likelihood tree */
@@ -154,9 +154,10 @@ namespace bpp
       
     ForwardLikelihoodTree(Context& c, 
                           std::shared_ptr<ProcessTree> tree,
-                          const StateMap& statemap) :
+                          const StateMap& statemap,
+                          ValueRef<uint> factorNode) :
       DAClass(),
-      context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0), withFactor_(true)
+      context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0), factorNode_(factorNode)
     {
     }
 
@@ -216,11 +217,6 @@ namespace bpp
       return context_;
     }
 
-    void setsFactor(bool factor)
-    {
-      withFactor_ = factor;
-    }
-    
   public:
       
     /*
@@ -264,16 +260,6 @@ namespace bpp
     {
       return getRoot();
     }
-
-    /*
-     * @brief Return if model transitions are multiplied by the number of states.
-     */
-    
-    bool usesFactor() const 
-    {
-      return withFactor_;
-    }
-    
 
     friend class LikelihoodCalculationSingleProcess;
     friend class ProbabilityDAG;
