@@ -151,15 +151,6 @@ namespace bpp
       return getLikelihoodCalculation()->getLikelihoodNode();
     }
 
-    /*
-     * @brief Kept for legacy
-     *
-     */
-    
-    virtual double getLogLikelihood() const override
-    {
-      return getLikelihoodCalculation()->getLogLikelihood();
-    }
 
     // bpp::Function
 
@@ -186,7 +177,16 @@ namespace bpp
       if (!isInitialized())
         throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
 
-      minusLogLik_=-(getLikelihoodNode()?getLikelihoodNode()->getTargetValue():getLogLikelihood());;
+      if (!getLikelihoodNode())
+        throw Exception("AbstractPhyloLikelihood::getValue(). LikelihoodNode is not built.");
+
+      
+      minusLogLik_=-getLikelihoodNode()->getTargetValue();
+      if (std::isinf(minusLogLik_))
+      {
+        getLikelihoodCalculation()->fixFactor(getLikelihoodNode());
+        minusLogLik_=-getLikelihoodNode()->getTargetValue();
+      }
       return minusLogLik_;
     }
 

@@ -90,7 +90,10 @@ namespace bpp
      * @return The logarithm of the likelihood of the dataset.
      */
     
-    virtual double getLogLikelihood() const = 0;
+    double getLogLikelihood() const
+    {
+      return -getValue();
+    }
       
     /**
      * @brief Get the derivates of the LogLikelihood.

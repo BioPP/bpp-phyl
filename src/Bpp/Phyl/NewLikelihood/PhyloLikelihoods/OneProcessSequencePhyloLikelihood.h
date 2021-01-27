@@ -132,7 +132,7 @@ namespace bpp
 
     virtual ~OneProcessSequencePhyloLikelihood() {}
 
-    OneProcessSequencePhyloLikelihood* clone() const { return new OneProcessSequencePhyloLikelihood(*this); }
+    OneProcessSequencePhyloLikelihood* clone() const override { return new OneProcessSequencePhyloLikelihood(*this); }
 
   public:
     /**
@@ -141,26 +141,37 @@ namespace bpp
      * @{
      */
 
-    void setData(const AlignedValuesContainer& sites, size_t nData = 0) 
+    void setData(const AlignedValuesContainer& sites, size_t nData = 0) override
     {
       AbstractSequencePhyloLikelihood::setData(sites, nData);
       getLikelihoodCalculationSingleProcess()->setData(sites);
     }
 
-    bool isInitialized() const {
+    bool isInitialized() const override {
       return getLikelihoodCalculationSingleProcess()->getData();
     };
+
+    /**
+     * @brief Set a factor for likelihood computation
+     *
+     */
+
+    virtual void setFactor(uint factor) override
+    {
+      getLikelihoodCalculationSingleProcess()->setFactor(factor);
+    }
+    
 
     /**
      * @brief return a pointer to the compressed data.
      *
      */
-    const AlignedValuesContainer* getData() const
+    const AlignedValuesContainer* getData() const override
     {
       return getLikelihoodCalculationSingleProcess()->getData();
     }
 
-    const Alphabet* getAlphabet() const
+    const Alphabet* getAlphabet() const override
     {
       return getLikelihoodCalculationSingleProcess()->getStateMap().getAlphabet();
     }
@@ -209,12 +220,12 @@ namespace bpp
      * @return The underlying likelihood computation structure.
      */
     
-    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
+    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const override
     {
       return likCal_;
     } 
     
-    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation()const
+    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const override
     {
       return likCal_;
     } 
