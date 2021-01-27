@@ -510,6 +510,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
+  // Variables not derivatived in Likelihood DF but in numerical way
 
   ParameterList tmp = lik->getParameters();
 
@@ -594,10 +595,9 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
 
-  // Derivatives in Likelihood DF
-  ParameterList tmp;// = lik.getParameters();
-
-
+  // Variables not derivatived in Likelihood DF but in numerical way
+  ParameterList tmp = lik.getParameters();
+  
   fnum->setParametersToDerivate(tmp.getParameterNames());
 
   optimizer->setVerbose(verbose);
