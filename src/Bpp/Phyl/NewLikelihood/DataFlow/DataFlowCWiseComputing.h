@@ -56,6 +56,8 @@
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parameter.h>
 
+//#define DEBUG
+
 namespace bpp {
 
  
@@ -293,6 +295,17 @@ namespace bpp {
       const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
       cwise (result) = cwise (x0) + cwise (x1);
+
+#ifdef DEBUG
+        std::cerr << "=== Add ====================================" << std::endl;
+        std::cerr << x0 << std::endl;
+        std::cerr << x1 << std::endl;
+        std::cerr << "=======================================" << std::endl;
+        
+        std::cerr << result << std::endl;
+
+        std::cerr << std::endl << std::endl;
+#endif
     }
 
     template<class U>
@@ -384,6 +397,16 @@ namespace bpp {
       const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
       cwise (result) = cwise (x0) - cwise (x1);
+#ifdef DEBUG
+        std::cerr << "=== Sub ====================================" << std::endl;
+        std::cerr << x0 << std::endl;
+        std::cerr << x1 << std::endl;
+        std::cerr << "=======================================" << std::endl;
+        
+        std::cerr << result << std::endl;
+
+        std::cerr << std::endl << std::endl;
+#endif
     }
 
     Dimension<R> targetDimension_;
@@ -897,6 +920,17 @@ namespace bpp {
       const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
       cwise (result) = cwise (x0) * cwise (x1);
+
+#ifdef DEBUG
+        std::cerr << "===== Mul ==================================" << std::endl;
+        std::cerr << x0 << std::endl;
+        std::cerr << x1 << std::endl;
+        std::cerr << "=======================================" << std::endl;
+        
+        std::cerr << result << std::endl;
+
+        std::cerr << std::endl << std::endl;
+#endif
     }
 
     template<class U, class V>
@@ -1016,6 +1050,7 @@ namespace bpp {
       for (const auto & depNodeRef : this->dependencies ()) {
         cwise (result) *= cwise (accessValueConstCast<T> (*depNodeRef));
       }
+
     }
 
     Dimension<R> targetDimension_;
@@ -1633,6 +1668,9 @@ namespace bpp {
   private:
     void compute () final
     {
+#ifdef DEBUG
+      std::cerr << "================== SUMOFLOGARITHMS " << std::endl;
+#endif
       auto & result = this->accessValueMutable ();
 
       const auto & m = accessValueConstCast<F> (*this->dependency (0));
@@ -1649,6 +1687,10 @@ namespace bpp {
           return r;
         });
         result = product.log();
+#ifdef DEBUG
+        std::cerr << "product " << product << std::endl;
+        std::cerr << "result log " << result << std::endl;
+#endif
       }
       else
       {
@@ -1672,7 +1714,14 @@ namespace bpp {
         });
         
         result = product.log ();
+#ifdef DEBUG
+        std::cerr << "PRODUCT " << product << std::endl;
+        std::cerr << "RESULT log " << result << std::endl;
+#endif
       }
+#ifdef DEBUG
+      std::cerr << "================== sumoflogarithms " << std::endl;
+#endif
     }
   
     Dimension<F> mTargetDimension_;
@@ -1857,6 +1906,21 @@ namespace bpp {
       const auto & x1 = accessValueConstCast<DepT1> (*this->dependency (1));
       result.noalias () =
         NumericalDependencyTransform<T0>::transform (x0) * NumericalDependencyTransform<T1>::transform (x1);
+#ifdef DEBUG
+      if ((x1.cols() + x1.rows() ==65) &&  (x0.cols() + x0.rows() ==65))
+      {
+        std::cerr << "=========================== MatrixProd " << std::endl;
+        std::cerr << x0.rows() << " x " << x0.cols() << std::endl;
+        std::cerr << x1.rows() << " x " << x1.cols() << std::endl;
+        std::cerr << result << std::endl;
+        std::cerr << NumericalDependencyTransform<T0>::transform (x0) << std::endl;
+        std::cerr << NumericalDependencyTransform<T1>::transform (x1) << std::endl;
+
+        std::cerr << "=========================== MatrixProd " << std::endl;
+        std::cerr << std::endl;
+
+      }
+#endif
     }
 
     Dimension<R> targetDimension_;
@@ -2208,6 +2272,7 @@ namespace bpp {
   extern template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::VectorXd>;
 
   extern template class CWiseMul<double, std::tuple<double, double>>;
+  extern template class CWiseMul<double, std::tuple<double, uint>>;
   extern template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
   extern template class CWiseMul<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
   extern template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;

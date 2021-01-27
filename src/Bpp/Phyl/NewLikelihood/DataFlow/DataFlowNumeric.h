@@ -171,6 +171,11 @@ namespace bpp {
     Dimension (const double &) {}
   };
 
+  template <> struct Dimension<uint> : NoDimension {
+    Dimension () = default;
+    Dimension (const uint &) {}
+  };
+
   template <> struct Dimension<char> : NoDimension {
     Dimension () = default;
     Dimension (const char &) {}
@@ -943,6 +948,7 @@ namespace bpp {
   };
 
   // Precompiled instantiations
+  extern template class ConstantZero<uint>;
   extern template class ConstantZero<double>;
   extern template class ConstantZero<Eigen::VectorXd>;
   extern template class ConstantZero<Eigen::RowVectorXd>;
@@ -951,6 +957,7 @@ namespace bpp {
   extern template class ConstantZero<char>;
   extern template class ConstantZero<std::string>;
 
+  extern template class ConstantOne<uint>;
   extern template class ConstantOne<double>;
   extern template class ConstantOne<Eigen::VectorXd>;
   extern template class ConstantOne<Eigen::RowVectorXd>;
@@ -959,6 +966,7 @@ namespace bpp {
   extern template class ConstantZero<char>;
   extern template class ConstantZero<std::string>;
 
+  extern template class NumericConstant<uint>;
   extern template class NumericConstant<std::string>;
   extern template class NumericConstant<double>;
   extern template class NumericConstant<Eigen::VectorXd>;
@@ -966,6 +974,7 @@ namespace bpp {
   extern template class NumericConstant<Eigen::MatrixXd>;
 
   extern template class NumericMutable<double>;
+  extern template class NumericMutable<uint>;
   extern template class NumericMutable<char>; // for symbolic derivation
   extern template class NumericMutable<Eigen::VectorXd>;
   extern template class NumericMutable<Eigen::RowVectorXd>;
