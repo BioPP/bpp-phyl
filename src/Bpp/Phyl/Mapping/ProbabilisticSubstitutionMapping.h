@@ -166,18 +166,13 @@ namespace bpp
 
   public:
 
-    /*
-     * @brief From Mapping interface
-     *
-     * @{
-     */
     
-    const PhyloBranch& getBranch(unsigned int branchIndex) const
+    const PhyloBranchMapping& getBranch(unsigned int branchIndex) const
     {
       return *getEdge(branchIndex);
     }
 
-    PhyloBranch& getBranch(unsigned int branchIndex)
+    PhyloBranchMapping& getBranch(unsigned int branchIndex)
     {
       return *getEdge(branchIndex);
     }
@@ -186,10 +181,6 @@ namespace bpp
     {
       return getNumberOfEdges();
     }
-
-    /*
-     * @}
-     */
 
     size_t getNumberOfDistinctSites() const
     {
@@ -229,6 +220,19 @@ namespace bpp
       return (*getEdge(branchId))(siteIndex, type);
     }
 
+    /**
+     * @brief Fill a VVdouble with the counts at a given site.
+     *    The 1st coordinate of this VVdouble correspond to edges,
+     *    ordered through their ids, & the second coordinate
+     *    corresponds to the type numbers
+     *
+     * Branches are read in the same order as returned by
+     * getAllEdgesIndexes() function.
+     *
+     */
+    
+    void fillMappingVectorForSite(size_t siteIndex, VVdouble& counts) const;
+    
     /**
      * @brief Direct access to substitution numbers, with COMPRESSED
      * site positions (ie site indexes)
