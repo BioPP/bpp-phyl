@@ -242,23 +242,30 @@ namespace bpp {
 
     /* Likelihood tree on mean likelihoods on rate categories */
     std::shared_ptr<ConditionalLikelihoodTree> condLikelihoodTree_;
+    /**************************************/
+    /* indicates whether the root likelihoods should be determined according to likelihood */
+    bool weightedRootFrequencies_;
       
   public:
     LikelihoodCalculationSingleProcess(Context & context,
                                        const AlignedValuesContainer & sites,
-                                       const SubstitutionProcess& process);
+                                       const SubstitutionProcess& process,
+                                       bool weightedRootFreqs = false);
 
     LikelihoodCalculationSingleProcess(Context & context,
-                                       const SubstitutionProcess& process);
+                                       const SubstitutionProcess& process,
+                                       bool weightedRootFreqs = false);
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const AlignedValuesContainer & sites,
                                        const SubstitutionProcess& process,
-                                       ParameterList& paramList);
+                                       ParameterList& paramList,
+                                       bool weightedRootFreqs = false);
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const SubstitutionProcess& process,
-                                       ParameterList& paramList);
+                                       ParameterList& paramList,
+                                       bool weightedRootFreqs = false);
 
     /*
      * @brief Build using Nodes of CollectionNodes.
@@ -270,10 +277,12 @@ namespace bpp {
 
     LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                        const AlignedValuesContainer & sites,
-                                       size_t nProcess);
+                                       size_t nProcess,
+                                       bool weightedRootFreqs = false);
     
     LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                       size_t nProcess);
+                                       size_t nProcess,
+                                       bool weightedRootFreqs = false);
     
     LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
 
@@ -303,8 +312,18 @@ namespace bpp {
      *  - remove all branch lengths parameters from the parameters
      *
      */
-      
     void setClockLike(double rate=1);
+    /**
+     * get root frequencies weighted by likelihood: f(i) = Li/sigma_j{Lj}
+     */
+    std::vector<double> findWeightedRootFrequencies();
+    /**
+     * Set root new root frequencies that are determined by the likelhood
+     * @param vector of root frequencies to set.
+     */
+    void setWeightedRootFrequencies(std::vector<double> freqs);
+
+    
 
     /**************************************************/
 

@@ -109,6 +109,15 @@ Vdouble PhyloTree::getBranchLengths() const
   return vl;
 }
 
+double PhyloTree::getTotalLength() const{
+  double treeLength = 0;
+  Vdouble branchLengths = getBranchLengths();
+  for (size_t i = 0; i < branchLengths.size(); i++){
+    treeLength += branchLengths[i];
+  }
+  return treeLength;
+}
+
 
 PhyloTree& PhyloTree::operator+=(const PhyloTree& phylotree)
 {

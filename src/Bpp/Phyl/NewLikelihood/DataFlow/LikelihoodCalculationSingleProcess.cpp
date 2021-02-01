@@ -21,11 +21,13 @@ using namespace bpp;
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
                                                                        const AlignedValuesContainer & sites,
-                                                                       const SubstitutionProcess& process):
+                                                                       const SubstitutionProcess& process,
+                                                                       bool weightedRootFreqs):
   AlignedLikelihoodCalculation(context), process_(process), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), condLikelihoodTree_(0),
+  weightedRootFrequencies_(weightedRootFreqs)
 {
   setPatterns_();
   makeProcessNodes_();
@@ -35,12 +37,14 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
 }
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
-                                                                       const SubstitutionProcess& process):
+                                                                       const SubstitutionProcess& process,
+                                                                       bool weightedRootFreqs):
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), condLikelihoodTree_(0),
+  weightedRootFrequencies_(weightedRootFreqs)
 {
   makeProcessNodes_();
 
@@ -51,12 +55,14 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
                                                                        const AlignedValuesContainer & sites,
                                                                        const SubstitutionProcess& process,
-                                                                       ParameterList& paramList):
+                                                                       ParameterList& paramList,
+                                                                       bool weightedRootFreqs):
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), condLikelihoodTree_(0),
+  weightedRootFrequencies_(weightedRootFreqs)
 {
   setPatterns_();
   makeProcessNodes_(paramList);
@@ -68,12 +74,14 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
                                                                        const SubstitutionProcess& process,
-                                                                       ParameterList& paramList):
+                                                                       ParameterList& paramList,
+                                                                       bool weightedRootFreqs):
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), condLikelihoodTree_(0),
+  weightedRootFrequencies_(weightedRootFreqs)
 {
   makeProcessNodes_(paramList);
 
@@ -84,11 +92,13 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                                                        const AlignedValuesContainer & sites,
-                                                                       size_t nProcess):
+                                                                       size_t nProcess,
+                                                                       bool weightedRootFreqs):
   AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), condLikelihoodTree_(0),
+  weightedRootFrequencies_(weightedRootFreqs)
 {
   setPatterns_();
   makeProcessNodes_(collection, nProcess);
@@ -99,11 +109,13 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
 
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                                                       size_t nProcess):
+                                                                       size_t nProcess,
+                                                                       bool weightedRootFreqs):
   AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), condLikelihoodTree_(0),
+  weightedRootFrequencies_(weightedRootFreqs)
 {
   makeProcessNodes_(collection, nProcess);
 
@@ -117,7 +129,8 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
   process_(lik.process_), psites_(lik.psites_),
   rootPatternLinks_(lik.rootPatternLinks_), rootWeights_(), shrunkData_(lik.shrunkData_),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), condLikelihoodTree_(0),
+  weightedRootFrequencies_(lik.weightedRootFrequencies_)
 {
   setPatterns_();
   makeProcessNodes_();
@@ -212,7 +225,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(ParameterList& paramL
   // rootFrequencies node
 
   auto root = process_.getRootFrequencySet();
-  if (root)
+  if ((root) && (!weightedRootFrequencies_))
   {
     suff=spcm?("_"+TextTools::toString(spcm->getRootFrequenciesNumber())):"";
     processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(getContext_(), *root, paramList, suff);
@@ -261,7 +274,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& coll
   ///////////////////////////
   // rootFrequencies node
 
-  if (!spcm.isStationary())
+  if ((!spcm.isStationary()) && (!weightedRootFrequencies_))
     processNodes_.rootFreqsNode_ = collection.getFrequencies(spcm.getRootFrequenciesNumber());
 
   //////////////////////
@@ -399,12 +412,19 @@ AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsFo
 void LikelihoodCalculationSingleProcess::makeRootFreqs_()
 {
 // Set root frequencies 
+  if (weightedRootFrequencies_){
+    std::vector<double> weightedRootFreqs = findWeightedRootFrequencies();
+    setWeightedRootFrequencies(weightedRootFreqs);
+  }else{
+    size_t nbState = getStateMap().getNumberOfModelStates();
+    rFreqs_ = processNodes_.rootFreqsNode_?ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet> (
+      getContext_(), {processNodes_.rootFreqsNode_}, RowVectorDimension (Eigen::Index (nbState))):
+      ConfiguredParametrizable::createRowVector<ConfiguredModel, EquilibriumFrequenciesFromModel> (
+        getContext_(), {processNodes_.modelNode_}, RowVectorDimension (Eigen::Index (nbState)));
 
-  size_t nbState = getStateMap().getNumberOfModelStates();
-  rFreqs_ = processNodes_.rootFreqsNode_?ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet> (
-    getContext_(), {processNodes_.rootFreqsNode_}, RowVectorDimension (Eigen::Index (nbState))):
-    ConfiguredParametrizable::createRowVector<ConfiguredModel, EquilibriumFrequenciesFromModel> (
-      getContext_(), {processNodes_.modelNode_}, RowVectorDimension (Eigen::Index (nbState)));
+  }
+
+
 }
 
 
@@ -832,4 +852,38 @@ std::shared_ptr<ForwardLikelihoodTree> LikelihoodCalculationSingleProcess::getFo
     throw Exception("LikelihoodCalculationSingleProcess::getForwardTree : bad class number " + TextTools::toString(nCat));
   
   return vRateCatTrees_[nCat].flt;
+}
+/******************************************************************************************************/
+std::vector<double> LikelihoodCalculationSingleProcess::findWeightedRootFrequencies(){
+  std::vector <double> rootFreqs;
+  size_t nbState = getStateMap().getNumberOfModelStates();
+  double sumOfLikelihoods = 0;
+  for (size_t i = 0; i < nbState; i++){
+    sumOfLikelihoods += vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue()(i, 0);
+  }
+  for (size_t i = 0; i < nbState; i++){
+    double freqState = vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue()(i, 0)/sumOfLikelihoods;
+    rootFreqs.push_back(freqState);
+  }
+  // std::cout << "number of rows: " << vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue().rows() << endl;
+  // std::cout << "number of rows: " << vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue().cols() << endl;
+
+
+  // std::cout << "***** Test Weighted Likelihood ******\n";
+  // std::cout << "The overall Likelihood: " << sumOfLikelihoods << endl;
+
+  return rootFreqs;
+
+}
+/***************************************************************************************/
+void LikelihoodCalculationSingleProcess::setWeightedRootFrequencies(std::vector<double> freqs){
+  size_t nbState = getStateMap().getNumberOfModelStates();
+  std::shared_ptr<FixedFrequencySet> rootFreqsFixed (new FixedFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(process_.getStateMap(), false)), freqs));
+  std::shared_ptr<FrequencySet> rootFreqs = static_pointer_cast<FrequencySet>(rootFreqsFixed);
+  const auto spcm=dynamic_cast<const SubstitutionProcessCollectionMember*>(&process_);
+  std::string suff=spcm?("_"+TextTools::toString(spcm->getRootFrequenciesNumber())):"";
+  ParameterList paramList = process_.getParameters();
+  processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(getContext_(), *rootFreqs, paramList, suff);
+  rFreqs_ = ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet> (
+    getContext_(), {processNodes_.rootFreqsNode_}, RowVectorDimension (Eigen::Index (nbState)));
 }
