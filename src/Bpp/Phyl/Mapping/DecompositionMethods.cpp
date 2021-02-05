@@ -169,7 +169,8 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
     for (unsigned int j = 0; j < nbStates_; ++j) {
       double dd = lambda[i] - lambda[j];
       double idd = ilambda[i] - ilambda[j];
-      if (dd == 0 && idd == 0) {
+      if ((abs(dd) < NumConstants::TINY()) && (abs(idd) < NumConstants::TINY()))
+      {
         result(i, j) = t * cosLam[i];
         iresult(i, j) = t * sinLam[i];
       }
