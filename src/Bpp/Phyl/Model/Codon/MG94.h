@@ -60,11 +60,14 @@ namespace bpp
  *
  * @f$\mu \rho \pi_{j_k} @f$  if exactly 1 of the pairs
  * @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different (@f$k@f$), and that
- * difference is synonymous.
+ * difference is non-synonymous.
  *
  * @f$\mu \pi_{j_k} @f$  if exactly 1 of the pairs
  * @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different (@f$k@f$), and that
- * difference is non-synonymous.
+ * difference is synonymous.
+ *
+ * @f$\rho@f$ corresponds to ratio $f$\frac{\beta}{\alpha}@f$ in
+ * original publication.
  *
  * @f$\mu@f$ is a normalization factor.
  *
