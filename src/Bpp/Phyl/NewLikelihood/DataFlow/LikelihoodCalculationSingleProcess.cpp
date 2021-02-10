@@ -412,11 +412,16 @@ AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsFo
 void LikelihoodCalculationSingleProcess::makeRootFreqs_()
 {
 // Set root frequencies 
+  size_t nbState = getStateMap().getNumberOfModelStates();
   if (weightedRootFrequencies_){
-    std::vector<double> weightedRootFreqs = findWeightedRootFrequencies();
-    setWeightedRootFrequencies(weightedRootFreqs);
+      std::vector<double> weightedRootFreqs = findWeightedRootFrequencies();
+      setWeightedRootFrequencies(weightedRootFreqs);
+      //auto sumOfWeights = CWiseAdd<double, Eigen::RowVectorXd>::create(getContext_(), {vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, Dimension<double>());
+      //auto inverseSumOfWeights = CWiseInverse<double>::create(getContext_(), {sumOfWeights}, Dimension<double>());
+      //rFreqs_ = CWiseDiv<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, double>>::create(getContext_(),{vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot(), sumOfWeights}, RowVectorDimension(Eigen::Index(nbState)));
+      //rFreqs_ = CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>::create(getContext_(),{inverseSumOfWeights, vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, RowVectorDimension (Eigen::Index (nbState)));
   }else{
-    size_t nbState = getStateMap().getNumberOfModelStates();
+    
     rFreqs_ = processNodes_.rootFreqsNode_?ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet> (
       getContext_(), {processNodes_.rootFreqsNode_}, RowVectorDimension (Eigen::Index (nbState))):
       ConfiguredParametrizable::createRowVector<ConfiguredModel, EquilibriumFrequenciesFromModel> (
