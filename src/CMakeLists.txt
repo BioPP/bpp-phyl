@@ -44,6 +44,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/ChromosomeNumberOptimizer.cpp
   Bpp/Phyl/Likelihood/DRASDRTreeLikelihoodData.cpp
   Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.cpp
   Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.cpp

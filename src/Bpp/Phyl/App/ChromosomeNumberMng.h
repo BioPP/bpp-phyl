@@ -73,13 +73,14 @@
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
-#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
+//#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+//#include <Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
+//#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/Parsimony/DRTreeParsimonyScore.h>
 //#include <Bpp/Phyl/Likelihood/MLAncestralStateReconstruction.h>
 //#include <Bpp/Phyl/Likelihood/MarginalNonRevAncestralStateReconstruction.h>
-//#include <Bpp/Phyl/Likelihood/ChromosomeNumberOptimizer.h>
+#include <Bpp/Phyl/Likelihood/ChromosomeNumberOptimizer.h>
 //#include <Bpp/Phyl/Mapping/ComputeChromosomeTransitionsExp.h>
 #include <Bpp/Phyl/Model/ChromosomeSubstitutionModel.h>
 //#include <Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h>
@@ -131,10 +132,9 @@ namespace bpp{
             void getTree(const string &path, double treeLength = 0);
 
             //core functions of ChromEvol
-            void runTest();
-            vector <double> getRootFrequencies(const string &path);
-            // void runChromEvol();
-            // ChromosomeNumberOptimizer* optimizeLikelihoodMultiStartPoints() const;
+            //void runTest();
+            void runChromEvol();
+            ChromosomeNumberOptimizer* optimizeLikelihoodMultiStartPoints() const;
             // void getJointMLAncestralReconstruction(DRNonHomogeneousTreeLikelihood* lik) const;
             // map<int, map<size_t, VVdouble>> getMarginalAncestralReconstruction(DRNonHomogeneousTreeLikelihood* lik) const;
             // void computeExpectations(DRNonHomogeneousTreeLikelihood* lik, map<int, map<size_t, VVdouble>>& jointProbabilitiesFatherSon, int numOfSimulations) const;
@@ -144,7 +144,7 @@ namespace bpp{
         protected:
             VectorSiteContainer* resizeAlphabetForSequenceContainer(VectorSequenceContainer* vsc, ChromosomeAlphabet* initialAlpha);
             void rescale_tree(PhyloTree* tree, double chrRange);
-            //void getMaxParsimonyUpperBound(double* parsimonyScore) const;
+            void getMaxParsimonyUpperBound(double* parsimonyScore) const;
             // functions to print the tree with ancestral reconstruction
             // void printTreeWithStates(TreeTemplate<Node> tree, std::map<int, std::vector<size_t> > ancestors, const string &filePath, std::map<int, map<size_t, std::vector<double>>>* probs = 0) const;
             // void printSimulatedDataAndAncestors(RASiteSimulationResult* simResult) const;

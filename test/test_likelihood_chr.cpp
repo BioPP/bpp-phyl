@@ -73,7 +73,7 @@ int main(int args, char **argv) {
         }
         mng->getTree(ChromEvolOptions::treeFilePath_, ChromEvolOptions::treeLength_);       
         //mng->runChromEvol();
-        mng->runTest();
+        mng->runChromEvol();
         time(&t2);
         std::cout << "****** Max allowed chromosome number: "<< ChromEvolOptions::maxChrNum_ <<endl;
         std::cout <<"Total running time is: "<< static_cast<int>(t2-t1) <<endl;

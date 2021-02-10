@@ -147,17 +147,19 @@ void ChromosomeNumberMng::rescale_tree(PhyloTree* tree, double chrRange){
 
 }
 /*****************************************************************************************/
-/* void ChromosomeNumberMng::getMaxParsimonyUpperBound(double* parsimonyBound) const{
-
-    TreeTemplate<Node>* treeForParsimonyBound = tree_->clone();
-    DRTreeParsimonyScore maxParsimonyObject = DRTreeParsimonyScore(*treeForParsimonyBound, *vsc_);
-    *parsimonyBound = (maxParsimonyObject.getScore())/(tree_->getTotalLength());
-    delete treeForParsimonyBound;
+void ChromosomeNumberMng::getMaxParsimonyUpperBound(double* parsimonyBound) const{
+    Newick reader;
+    TreeTemplate<Node>* tree = reader.readTree(ChromEvolOptions::treeFilePath_);
+    double factor = tree_->getTotalLength()/tree->getTotalLength();
+    tree->scaleTree(factor);
+    DRTreeParsimonyScore maxParsimonyObject = DRTreeParsimonyScore(*tree, *vsc_);
+    *parsimonyBound = (maxParsimonyObject.getScore())/(tree->getTotalLength());
+    delete tree;
     return;   
 
-} */
+}
 /*****************************************************************************************/
-/* ChromosomeNumberOptimizer* ChromosomeNumberMng::optimizeLikelihoodMultiStartPoints() const{
+ChromosomeNumberOptimizer* ChromosomeNumberMng::optimizeLikelihoodMultiStartPoints() const{
     
     vector<double> modelParams;
     modelParams.reserve(ChromosomeSubstitutionModel::NUM_OF_CHR_PARAMS);
@@ -166,13 +168,13 @@ void ChromosomeNumberMng::rescale_tree(PhyloTree* tree, double chrRange){
     if (ChromEvolOptions::maxParsimonyBound_){
         getMaxParsimonyUpperBound(&parsimonyBound);
     }
-    bool calculateDerivatives = true;
-    if (ChromEvolOptions::optimizationMethod_ == "Brent"){
-        calculateDerivatives  = false;
-    }
+    //bool calculateDerivatives = true;
+    //if (ChromEvolOptions::optimizationMethod_ == "Brent"){
+        //calculateDerivatives  = false;
+    //}
     unsigned int maxBaseNumTransition = (ChromEvolOptions::simulateData_) ? ChromEvolOptions::maxBaseNumTransition_ : chrRange_;
     ChromosomeNumberOptimizer* opt = new ChromosomeNumberOptimizer(tree_, alphabet_, vsc_, maxBaseNumTransition);
-    opt->initModels(modelParams, parsimonyBound, ChromEvolOptions::rateChangeType_, ChromEvolOptions::seed_, ChromEvolOptions::OptPointsNum_[0], calculateDerivatives, ChromEvolOptions::fixedFrequenciesFilePath_, ChromEvolOptions::fixedParams_);
+    opt->initModels(modelParams, parsimonyBound, ChromEvolOptions::rateChangeType_, ChromEvolOptions::seed_, ChromEvolOptions::OptPointsNum_[0], ChromEvolOptions::fixedFrequenciesFilePath_, ChromEvolOptions::fixedParams_);
 
     //initialize all the optimization specific parameters
     opt->initOptimizer(ChromEvolOptions::OptPointsNum_, ChromEvolOptions::OptIterNum_, ChromEvolOptions::optimizationMethod_, ChromEvolOptions::baseNumOptimizationMethod_,
@@ -183,7 +185,7 @@ void ChromosomeNumberMng::rescale_tree(PhyloTree* tree, double chrRange){
     // it is safe to delete the chrOptimizer, because the destructor doesn't delete nothing associated with the vector of likelihoods
     return opt;
        
-} */
+}
 /******************************************************************************************************/
 /* void ChromosomeNumberMng::getJointMLAncestralReconstruction(DRNonHomogeneousTreeLikelihood* lik) const{
     std::cout << "ML Joint Ancestral Reconstruction"<<endl;
@@ -262,90 +264,136 @@ void ChromosomeNumberMng::rescale_tree(PhyloTree* tree, double chrRange){
     delete expCalculator;
 } */
 /***********************************************************************************/
-void ChromosomeNumberMng::runTest(){
+// void ChromosomeNumberMng::runTest(){
 
-    vector<double> modelParams;
-    modelParams.reserve(ChromosomeSubstitutionModel::NUM_OF_CHR_PARAMS);
-    ChromEvolOptions::initVectorOfChrNumParameters(modelParams);
-    ParametrizablePhyloTree parTree(*tree_);
-    unsigned int maxBaseNumTransition = chrRange_;
-    std::shared_ptr<SubstitutionModel> chrModel = std::make_shared<ChromosomeSubstitutionModel>(alphabet_, modelParams, maxBaseNumTransition, ChromosomeSubstitutionModel::rootFreqType::FIXED, ChromosomeSubstitutionModel::LINEAR);
-    DiscreteDistribution* rdist =  new GammaDiscreteRateDistribution(1, 1.0);
-    vector <double> rootFreqs = getRootFrequencies(ChromEvolOptions::fixedFrequenciesFilePath_);
-    std::shared_ptr<FixedFrequencySet> rootFreqsFixed = std::make_shared<FixedFrequencySet>(std::shared_ptr<const StateMap>(new CanonicalStateMap(chrModel.get()->getStateMap(), false)), rootFreqs);
-    std::shared_ptr<FrequencySet> rootFrequencies = static_pointer_cast<FrequencySet>(rootFreqsFixed);
-    std::vector<std::string> globalParameterNames;
-    globalParameterNames.push_back("Chromosome.baseNum");
-    globalParameterNames.push_back("Chromosome.baseNumR");
-    globalParameterNames.push_back("Chromosome.dupl");
-    globalParameterNames.push_back("Chromosome.loss");
-    globalParameterNames.push_back("Chromosome.gain");
-    //globalParameterNames.push_back("Chromosome.lossR");
-    //globalParameterNames.push_back("Chromosome.gainR");
-    //globalParameterNames.push_back("Chromosome.duplR");
-    globalParameterNames.push_back("Chromosome.demi");
-    NonHomogeneousSubstitutionProcess* subProSim= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(chrModel, rdist, parTree.clone(), rootFrequencies, globalParameterNames);
-    SubstitutionProcess* nsubPro=subProSim->clone();
-    Context context;
-    auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *vsc_->clone(), *nsubPro, true);
+//     vector<double> modelParams;
+//     modelParams.reserve(ChromosomeSubstitutionModel::NUM_OF_CHR_PARAMS);
+//     ChromEvolOptions::initVectorOfChrNumParameters(modelParams);
+//     ParametrizablePhyloTree parTree(*tree_);
+//     unsigned int maxBaseNumTransition = chrRange_;
+//     std::shared_ptr<SubstitutionModel> chrModel = std::make_shared<ChromosomeSubstitutionModel>(alphabet_, modelParams, maxBaseNumTransition, ChromosomeSubstitutionModel::rootFreqType::FIXED, ChromosomeSubstitutionModel::LINEAR);
+//     DiscreteDistribution* rdist =  new GammaDiscreteRateDistribution(1, 1.0);
+//     vector <double> rootFreqs = getRootFrequencies(ChromEvolOptions::fixedFrequenciesFilePath_);
+//     std::shared_ptr<FixedFrequencySet> rootFreqsFixed = std::make_shared<FixedFrequencySet>(std::shared_ptr<const StateMap>(new CanonicalStateMap(chrModel.get()->getStateMap(), false)), rootFreqs);
+//     std::shared_ptr<FrequencySet> rootFrequencies = static_pointer_cast<FrequencySet>(rootFreqsFixed);
+//     std::vector<std::string> globalParameterNames;
+//     globalParameterNames.push_back("baseNum");
+//     globalParameterNames.push_back("baseNumR");
+//     globalParameterNames.push_back("dupl");
+//     globalParameterNames.push_back("loss");
+//     globalParameterNames.push_back("gain");
+//     //globalParameterNames.push_back("lossR");
+//     //globalParameterNames.push_back("gainR");
+//     //globalParameterNames.push_back("duplR");
+//     globalParameterNames.push_back("demi");
+//     //NonHomogeneousSubstitutionProcess* subProSim= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(chrModel, rdist, parTree.clone(), rootFrequencies, globalParameterNames);
+//     NonHomogeneousSubstitutionProcess* subProSim= NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(chrModel, rdist, parTree.clone(), rootFrequencies);
+//     SubstitutionProcess* nsubPro=subProSim->clone();
+//     Context context;
+//     auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *vsc_->clone(), *nsubPro, true);
     
-    SingleProcessPhyloLikelihood ntl(context, lik, lik->getParameters());
-    cout << setprecision(10) << "NewTL init: "  << ntl.getValue()  << endl;
+//     SingleProcessPhyloLikelihood ntl(context, lik, lik->getParameters());
+
+//     cout << setprecision(10) << "NewTL init: "  << ntl.getValue()  << endl;
+//     ValueRef <Eigen::RowVectorXd> rootFreqVector = lik.get()->getRootFreqs();
+//     for (size_t i = 0; i < (size_t)rootFreqVector.get()->getTargetValue().size(); i ++){
+//         cout << "F[" << i << "] = " << rootFreqVector.get()->getTargetValue()[i] << endl;
+//     }
+//     DerivableSecondOrder* f = &ntl;
+//     BrentOneDimension* optimizer = new BrentOneDimension(f);
+//     optimizer->setVerbose(1);
+//     optimizer->setProfiler(0);
+//     optimizer->setMessageHandler(0);
+//     optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+//     optimizer->setMaximumNumberOfEvaluations(100);
+//     optimizer->setBracketing(BrentOneDimension::BRACKET_SIMPLE);
+//     unsigned int numberOfIterations = ChromEvolOptions::OptIterNum_[0];
+//     double currentLikelihood = ntl.getValue();
+//     double prevLikelihood;
+    
+    
+//     for (size_t i = 0; i < numberOfIterations; i++){
+//         if ((i == 1) & (numberOfIterations > 2)){
+//             optimizer->getStopCondition()->setTolerance(ChromEvolOptions::tolerance_ * 2);
+
+//         }else{
+//             optimizer->getStopCondition()->setTolerance(ChromEvolOptions::tolerance_);
+//         }
+//         ParameterList params = ntl.getParameters();
+//         //ParameterList params = optimizer->getFunction()->getParameters();
+//         ParameterList substitutionModelParams = ntl.getSubstitutionModelParameters();
+//         vector <string> paramsNames = substitutionModelParams.getParameterNames();        
+//         size_t nbParams = substitutionModelParams.size();
+//         prevLikelihood = currentLikelihood;
+//         cout << "*****" << endl;
+//         for (size_t j = 0; j < nbParams; j++){
+//             string nameOfParam = substitutionModelParams[j].getName();
+//             Parameter param = params.getParameter(nameOfParam);
+//             cout <<"Parameter name is: "<< nameOfParam << endl;
+//             string paramNameInModel = globalParameterNames[j];
+//             //const ChromosomeSubstitutionModel* model = dynamic_cast <const ChromosomeSubstitutionModel>(ntl.getSubstitutionProcess().getModel(0));
+            
+//             dynamic_pointer_cast<ChromosomeSubstitutionModel>(chrModel)->setBoundsForEquivalentParameter(param, paramNameInModel);
+//             dynamic_pointer_cast<ChromosomeSubstitutionModel>(chrModel)->checkParametersBounds();
+//             double lowerBound = dynamic_pointer_cast<IntervalConstraint>(param.getConstraint())->getLowerBound();
+//             double upperBound = dynamic_pointer_cast<IntervalConstraint>(param.getConstraint())->getUpperBound();
+//             if (param.getName() == "Chromosome.baseNum_1"){
+//                 continue;
+//             }
+//             std::cout << "Parameter Value before optimization: " << ntl.getLikelihoodCalculation()->getParameter(param.getName()).getValue() << endl;
+//             optimizer->setInitialInterval(lowerBound, upperBound);
+//             optimizer->init(params.createSubList(param.getName()));
+//             currentLikelihood = optimizer->optimize();
+            
+//             std::cout << "Parameter Value after optimization: " << setprecision(10) << ntl.getLikelihoodCalculation()->getParameter(param.getName()).getValue() << endl;
+//             //std::cout <<"*"<< endl;
 
 
+//         }
+//         cout << "Likelihood after iteration "<< i <<" " << ntl.getValue() << endl;
+//         rootFreqVector = lik.get()->getRootFreqs();
+//         for (size_t s = 0; s < (size_t)rootFreqVector.get()->getTargetValue().size(); s ++){
+//             cout << "F[" << s << "] = " << rootFreqVector.get()->getTargetValue()[s] << endl;
+//         }
+//         if (abs(prevLikelihood - currentLikelihood) < ChromEvolOptions::tolerance_){
+//             break;
+//         }
 
-}
+        
+
+//     }
+
+//     delete optimizer;
+
+// }
+
+
 /***********************************************************************************/
-vector <double> ChromosomeNumberMng::getRootFrequencies(const string &path){
-    ifstream stream;
-    stream.open(path.c_str());
-    vector <double> freqs;
-    vector <string> lines = FileTools::putStreamIntoVectorOfStrings(stream);
-    stream.close();
-    for (size_t i = 0; i < lines.size(); i++){
-        string freq_i_str = TextTools::removeSurroundingWhiteSpaces(lines[i]);
-        if (freq_i_str == ""){
-            continue;
-        }
-        double freq_i = TextTools::toDouble(freq_i_str);
-        if (static_cast<unsigned int> (freqs.size()) >= alphabet_->getSize()){
-            if (freq_i > 0){
-                throw Exception ("Invalid root frequencies file!\n");
-            }
+void ChromosomeNumberMng::runChromEvol(){
+    // if (ChromEvolOptions::simulateData_){
+    //     //simulate data using a tree and a set of model parameters
+    //     RandomTools::setSeed(static_cast<long>(ChromEvolOptions::seed_));
+    //     simulateData();
+    //     if (ChromEvolOptions::numOfDataToSimulate_ > 1){
+    //         return;
+    //     }
 
-        }else{
-            freqs.push_back(freq_i);
-        }
-    }
-    return freqs;
-
-}
-/***********************************************************************************/
-/* void ChromosomeNumberMng::runChromEvol(){
-    if (ChromEvolOptions::simulateData_){
-        //simulate data using a tree and a set of model parameters
-        RandomTools::setSeed(static_cast<long>(ChromEvolOptions::seed_));
-        simulateData();
-        if (ChromEvolOptions::numOfDataToSimulate_ > 1){
-            return;
-        }
-
-    }
+    // }
     // optimize likelihood
     ChromosomeNumberOptimizer* chrOptimizer = optimizeLikelihoodMultiStartPoints();
-    std::vector <DRNonHomogeneousTreeLikelihood> lik_vec = chrOptimizer->getVectorOfLikelihoods();
+    //std::vector <DRNonHomogeneousTreeLikelihood> lik_vec = chrOptimizer->getVectorOfLikelihoods();
     // get joint ML ancestral reconstruction
-    getJointMLAncestralReconstruction(&lik_vec[0]);
+    //getJointMLAncestralReconstruction(&lik_vec[0]);
     //get Marginal ML ancestral reconstruction, and with the help of them- calculate expectations of transitions
-    std::map<int, std::map<size_t, VVdouble>>  jointProbabilitiesFatherSon = getMarginalAncestralReconstruction(&lik_vec[0]);
+    //std::map<int, std::map<size_t, VVdouble>>  jointProbabilitiesFatherSon = getMarginalAncestralReconstruction(&lik_vec[0]);
     
     //compute expectations
-    computeExpectations(&lik_vec[0], jointProbabilitiesFatherSon, ChromEvolOptions::NumOfSimulations_);
+    //computeExpectations(&lik_vec[0], jointProbabilitiesFatherSon, ChromEvolOptions::NumOfSimulations_);
     //Clear the vector of likelihoods entirely
     delete chrOptimizer;
 
 
-} */
+}
 /**************************************************************************************/
 /* void ChromosomeNumberMng::printPosteriorProbNodes(std::map<int, std::map<size_t, VVdouble>>& jointProbabilitiesFatherSon, vector<double>& rootPosterior) const{
     if (ChromEvolOptions::resultsPathDir_ == "none"){
