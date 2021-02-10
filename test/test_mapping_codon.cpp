@@ -193,11 +193,21 @@ int main() {
     cout << totalReal << "\t" << totalObs1 << "\t" << totalObs2 
          << "\t" << totalObs4 << "\t\t" << totalDnDs<< "\t" << totalObs3 << "\t" << totalObs5
          << endl;
+    
+    cout << "\t\t\t";
+
+    cout << 
+      (abs(totalReal - totalObs1) / totalReal)  << "\t"
+         << (abs(totalReal - totalObs2) / totalReal ) << "\t"
+         << (abs(totalReal - totalObs4) / totalReal ) << "\t"
+         << (abs(totalDnDs - totalObs3) / totalDnDs ) << "\t"
+         << (abs(totalDnDs - totalObs5) / totalDnDs ) << endl;
+
     if (abs(totalReal - totalObs1) / totalReal > 0.1) return 1;
     if (abs(totalReal - totalObs2) / totalReal > 0.1) return 1;
-    if (abs(totalDnDs - totalObs3) / totalReal > 0.1) return 1;
     if (abs(totalReal - totalObs4) / totalReal > 0.1) return 1;
-    if (abs(totalDnDs - totalObs5) / totalReal > 0.1) return 1;
+    if (abs(totalDnDs - totalObs3) / totalDnDs > 0.1) return 1;
+    if (abs(totalDnDs - totalObs5) / totalDnDs > 0.1) return 1;
   }
 
   //-------------

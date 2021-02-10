@@ -143,6 +143,11 @@ namespace bpp
 
     AbstractCodonSubstitutionModel* clone() const = 0;
 
+    void setNamespace(const std::string& prefix)
+    {
+      AbstractWordSubstitutionModel::setNamespace(prefix);
+    }
+    
   protected:
     /**
      * @brief Method inherited from AbstractWordSubstitutionModel
@@ -157,13 +162,6 @@ namespace bpp
 
     const GeneticCode* getGeneticCode() const { return gCode_; }
   
-    /**
-     * @brief Method inherited from CodonSubstitutionModel
-     *
-     * Here this methods returns 1;
-     *
-     **/
-    virtual double getCodonsMulRate(size_t i, size_t j) const { return 1.; }
   };
 } // end of namespace bpp.
 

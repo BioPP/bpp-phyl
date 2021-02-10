@@ -38,7 +38,6 @@
 
 #include "DFP07.h"
 #include "DFPDistanceFrequenciesSubstitutionModel.h"
-#include "CodonSameAARateSubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>

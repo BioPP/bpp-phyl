@@ -58,16 +58,18 @@ CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
   X_(20,20),
   phi_(20)
 {
-  pCodonModel->enableEigenDecomposition(false);
-  pAAmodel->enableEigenDecomposition(false); 
+  pCodonModel->enableEigenDecomposition(true);
+  pAAmodel->enableEigenDecomposition(true); 
 
   pAAmodel_->setNamespace("SameAARate." + pAAmodel_->getNamespace());
   pCodonModel_->setNamespace("SameAARate." + pCodonModel_->getNamespace());
+
   if (pFreq_ && pFreq_!=((CoreCodonSubstitutionModel*)(pCodonModel.get()))->getFrequencySet())
     pFreq_->setNamespace("SameAARate." + pFreq_->getNamespace());
 
   addParameters_(pAAmodel_->getParameters());
   addParameters_(pCodonModel_->getParameters());
+
   if (pFreq_ && pFreq_!=((CoreCodonSubstitutionModel*)(pCodonModel.get()))->getFrequencySet())
     addParameters_(pFreq_->getParameters());
 
@@ -79,6 +81,7 @@ void CodonSameAARateSubstitutionModel::fireParameterChanged(const ParameterList&
 {
   pAAmodel_->matchParametersValues(parameters);
   pCodonModel_->matchParametersValues(parameters);
+
   if (pFreq_)
     pFreq_->matchParametersValues(parameters);
   
@@ -91,7 +94,7 @@ void CodonSameAARateSubstitutionModel::compute_()
   const auto& freq=pFreq_?pFreq_->getFrequencies():pCodonModel_->getFrequencies();
 
   const auto& gen = pCodonModel_->getGenerator();
-  
+
   std::fill(phi_.begin(),phi_.end(),0);
 
   for (size_t i = 0; i< stateMap_->getNumberOfModelStates(); i++)

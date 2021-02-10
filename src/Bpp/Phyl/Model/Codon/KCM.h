@@ -69,7 +69,8 @@ namespace bpp
  *
  * Reference:
  * -  Zaheri, M. and Linda, D. and Salamin, N. A Generalized
- * Mechanistic Codon Model (2014).
+ * Mechanistic Codon Model,  Mol Biol Evol. 2014 Sep;31(9):2528-41.
+ * doi: 10.1093/molbev/msu196. Epub 2014 Jun 23.
  *
  */
   

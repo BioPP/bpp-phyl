@@ -3295,7 +3295,7 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
       tl->setParameters(pl);
       if (abs(tl->getValue() - fval) > 0.000001)
         ApplicationTools::displayWarning("Warning, incorrect likelihood value after restoring from backup file.");
-      ApplicationTools::displayResult("Restoring log-likelihood", -fval);
+      ApplicationTools::displayResult("Restoring log-likelihood", -tl->getValue());
     }
   }
 
@@ -3706,7 +3706,7 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
       lik->setParameters(pl);
       if (abs(lik->getValue() - fval) > 0.000001)
         ApplicationTools::displayMessage("Changed likelihood from backup file.");
-      ApplicationTools::displayResult("Restoring log-likelihood", -fval);
+      ApplicationTools::displayResult("Restoring log-likelihood", -lik->getValue());
     }
   }
 
@@ -4004,7 +4004,7 @@ void PhylogeneticsApplicationTools::optimizeParameters(
       tl->setParameters(pl);
       if (abs(tl->getValue() - fval) > 0.000001)
         ApplicationTools::displayMessage("Changed likelihood from backup file.");
-      ApplicationTools::displayResult("Restoring log-likelihood", -fval);
+      ApplicationTools::displayResult("Restoring log-likelihood", -tl->getValue());
     }
   }
 

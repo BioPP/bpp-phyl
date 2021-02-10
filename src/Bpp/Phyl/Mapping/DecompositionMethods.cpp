@@ -150,9 +150,9 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, double 
   for (unsigned int i = 0; i < nbStates_; ++i) {
     for (unsigned int j = 0; j < nbStates_; ++j) {
       double dd = lambda[i] - lambda[j];
-      if (dd == 0) {
+      if (abs(dd) < NumConstants::TINY()) 
         result(i, j) = t * expLam[i];
-      } else {
+      else {
         result(i, j) = (expLam[i] - expLam[j]) / dd;
       }
     }
@@ -169,7 +169,8 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
     for (unsigned int j = 0; j < nbStates_; ++j) {
       double dd = lambda[i] - lambda[j];
       double idd = ilambda[i] - ilambda[j];
-      if (dd == 0 && idd == 0) {
+      if ((abs(dd) < NumConstants::TINY()) && (abs(idd) < NumConstants::TINY()))
+      {
         result(i, j) = t * cosLam[i];
         iresult(i, j) = t * sinLam[i];
       }
@@ -196,7 +197,7 @@ void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, doubl
   if (model_->isDiagonalizable())
   {
     jFunction_(model_->getEigenValues(), length, jMat_);
-    
+
     MatrixTools::hadamardMult(jMat_, insideProducts_[0], tmp1);
     MatrixTools::mult(model_->getColumnRightEigenVectors(), tmp1, tmp2);
     MatrixTools::mult(tmp2, model_->getRowLeftEigenVectors(), mapping);
@@ -220,7 +221,7 @@ void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, doubl
 void DecompositionMethods::computeExpectations(std::vector< RowMatrix<double> >& mappings, double length) const
 {
   if (!model_)
-    throw Exception("DecompositionMethods::computeExpectations 2: model not defined.");
+    throw Exception("DecompositionMethods::computeExpectations: model not defined.");
 
   RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
 

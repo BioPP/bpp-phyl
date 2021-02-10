@@ -46,6 +46,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
 
+#include "NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h"
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Numeric/Function/ThreePointsNumericalDerivative.h>
+
 using namespace bpp;
 
 /**************************************************************************/
@@ -99,7 +103,7 @@ double PseudoNewtonOptimizer::doStep()
   // Compute derivative at current point:
   std::vector<double> movements(n_);
   ParameterList newPoint = getParameters();
-  
+
   for (size_t i = 0; i < n_; i++)
   {
     double firstOrderDerivative = getFunction()->getFirstOrderDerivative(params_[i]);
@@ -125,7 +129,7 @@ double PseudoNewtonOptimizer::doStep()
     //cerr << "PN[" << params_[i] << "]=" << getParameters().getParameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
     newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
     //Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
-    movements[i] = getParameters()[i].getValue() - newPoint[i].getValue(); 
+      movements[i] = getParameters()[i].getValue() - newPoint[i].getValue(); 
   }
   newValue = getFunction()->f(newPoint);
 

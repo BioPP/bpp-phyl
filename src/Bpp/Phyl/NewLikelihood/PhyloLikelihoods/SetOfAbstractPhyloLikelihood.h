@@ -160,8 +160,8 @@ namespace bpp
       {
         return (*pPhyloCont_)[nPhyl];
       }
-
-      /**
+ 
+     /**
        *
        * @}
        *
@@ -179,7 +179,7 @@ namespace bpp
        * @return 'true' is the likelihood function has been initialized.
        */
       
-      bool isInitialized() const 
+      bool isInitialized() const override
       {
         for (size_t i=0; i<nPhylo_.size(); i++)
           if (!getPhyloLikelihood(nPhylo_[i])->isInitialized())
@@ -189,7 +189,7 @@ namespace bpp
       
     public:
       
-      virtual void fireParameterChanged(const ParameterList& params)
+      virtual void fireParameterChanged(const ParameterList& params) override
       {
         for (size_t i=0; i<nPhylo_.size(); i++){
           getAbstractPhyloLikelihood(nPhylo_[i])->matchParametersValues(params);
@@ -207,13 +207,18 @@ namespace bpp
        * @{
        */
     
+
+      ParameterList getNonDerivableParameters() const override;
+
+      ParameterList getDerivableParameters() const override;
+
       /**
        * @brief Get the branch lengths parameters.
        *
        * @return A ParameterList with all branch lengths.
        */
 
-      ParameterList getBranchLengthParameters() const;
+      ParameterList getBranchLengthParameters() const override;
       
       /**
       * @brief Get the parameters associated to substitution model(s).
@@ -221,7 +226,7 @@ namespace bpp
       * @return A ParameterList.
       */
 
-      ParameterList getSubstitutionModelParameters() const;
+      ParameterList getSubstitutionModelParameters() const override;
 
       /**
        * @brief Get the parameters associated to the rate distribution(s).
@@ -229,7 +234,7 @@ namespace bpp
        * @return A ParameterList.
        */
 
-      ParameterList getRateDistributionParameters() const;
+      ParameterList getRateDistributionParameters() const override;
 
       /**
        * @brief Get the parameters associated to the root frequencies(s).
@@ -237,7 +242,7 @@ namespace bpp
        * @return A ParameterList.
        */
 
-      ParameterList getRootFrequenciesParameters() const;
+      ParameterList getRootFrequenciesParameters() const override;
 
       /** @} */
 

@@ -510,11 +510,12 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
+  // Variables not derivatived in Likelihood DF but in numerical way
 
   ParameterList tmp = lik->getParameters();
 
-  // // if (useClock)
-  // //   tmp.addParameters(fclock->getHeightParameters());
+  // if (useClock)
+  //   tmp.addParameters(fclock->getHeightParameters());
 
   fnum->setParametersToDerivate(tmp.getParameterNames());
 
@@ -594,16 +595,10 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
 
-  // Derivatives in Likelihood DF
-
+  // Variables not derivatived in Likelihood DF but in numerical way
   ParameterList tmp = lik.getParameters();
-
-
-  // // if (useClock)
-  // //   tmp.addParameters(fclock->getHeightParameters());
-
+  
   fnum->setParametersToDerivate(tmp.getParameterNames());
-
 
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);

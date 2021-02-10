@@ -114,7 +114,7 @@ namespace bpp
      * @return the alphabet associated to the dataset.
      */    
     virtual const Alphabet* getAlphabet() const = 0;
-    
+
     /**
      * @}
      */
@@ -176,6 +176,12 @@ namespace bpp
     
     size_t getNumberOfStates() const { return nbStates_; }
     
+    /**
+     * @brief Set a factor for likelihood computation
+     *
+     */
+
+    virtual void setFactor(uint factor) = 0;
   };
       
 } //end of namespace bpp.

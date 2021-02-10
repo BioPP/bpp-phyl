@@ -63,6 +63,7 @@
 #include "../Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonAdHocSubstitutionModel.h"
 #include "../Model/Codon/CodonSameAARateSubstitutionModel.h"
+#include "../Model/Codon/DFP07.h"
 #include "../Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/KroneckerCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/KCM.h"
@@ -349,7 +350,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
       auto  nestedCodonModel = std::shared_ptr<CodonSubstitutionModel>(dynamic_cast<CodonSubstitutionModel*>(nestedCodonReader.readSubstitutionModel(alphabet, args["codonmodel"], data, false)));
       
       unparsedParameterValuesNested = nestedCodonReader.getUnparsedArguments();
-      unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
+      for (const auto& it:unparsedParameterValuesNested)
+        unparsedArguments_["SameAARate."+it.first]=it.second;
 
       model.reset(new CodonSameAARateSubstitutionModel(nestedProtModel, nestedCodonModel, codonFreqs, geneticCode_));
     }
@@ -967,7 +969,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
   if (v_nestedModelDescription.size() != nbmodels)
   {
-    BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+    BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, false, true, false, false, warningLevel_);
     model.reset(nestedReader.readSubstitutionModel(pWA->getNAlphabet(0), v_nestedModelDescription[0], data, false));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     string pref = "";
@@ -1707,6 +1709,35 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
     comma=true;
   }
   
+  const DFP07* pDFP = dynamic_cast<const DFP07*>(&model);
+  if (pDFP)
+  {
+    if (comma)
+      out << ",";
+
+    out << "protmodel=";
+    auto protModel = pDFP->getProtModel();
+    write(*protModel, out, globalAliases, writtenNames);
+    
+    comma=true;
+  }
+
+  const auto* pSameAA = dynamic_cast<const CodonSameAARateSubstitutionModel*>(&model);
+  if (pSameAA)
+  {
+    if (comma)
+      out << ",";
+
+    out << "codonmodel=";
+    write(*pSameAA->getCodonModel(), out, globalAliases, writtenNames);
+    
+    out << ", protmodel=";
+    write(*pSameAA->getProtModel(), out, globalAliases, writtenNames);
+    
+    comma=true;
+  }
+
+  
   // case of Biblio models, update writtenNames
 
   const auto* absm=dynamic_cast<const AbstractBiblioTransitionModel*>(&model);
@@ -1836,6 +1867,8 @@ void BppOSubstitutionModelFormat::initialize_(
         throw Exception("Unknown initFreqs argument");
     }
     unparsedArguments_.erase(unparsedArguments_.find(model.getNamespace() + "initFreqs"));
+    if (unparsedArguments_.find(model.getNamespace() + "initFreqs.observedPseudoCount")!=unparsedArguments_.end())
+      unparsedArguments_.erase(unparsedArguments_.find(model.getNamespace() + "initFreqs.observedPseudoCount"));
   }
 
   ParameterList pl = model.getIndependentParameters();
@@ -1845,7 +1878,7 @@ void BppOSubstitutionModelFormat::initialize_(
     ap.setMessageHandler(ApplicationTools::warning.get());
     pl.setParameter(i, ap);
   }
-  
+
   size_t posp;
   for (size_t i = 0; i < pl.size(); i++)
   {
@@ -1873,7 +1906,7 @@ void BppOSubstitutionModelFormat::initialize_(
   
     catch (Exception& e) {}
   }
-  
+
   model.matchParametersValues(pl);
 }
 

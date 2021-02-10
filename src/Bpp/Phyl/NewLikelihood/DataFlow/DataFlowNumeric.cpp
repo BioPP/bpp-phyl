@@ -151,6 +151,7 @@ namespace bpp {
   }
 
   // Precompiled instantiations of numeric nodes
+  template class ConstantZero<uint>;
   template class ConstantZero<double>;
   template class ConstantZero<Parameter>;
   template class ConstantZero<Eigen::VectorXd>;
@@ -160,6 +161,7 @@ namespace bpp {
   template class ConstantZero<char>;
   template class ConstantZero<std::string>;
 
+  template class ConstantOne<uint>;
   template class ConstantOne<double>;
   template class ConstantOne<Parameter>;
   template class ConstantOne<Eigen::VectorXd>;
@@ -169,6 +171,7 @@ namespace bpp {
   template class ConstantOne<char>;
   template class ConstantOne<std::string>;
 
+  template class NumericConstant<uint>;
   template class NumericConstant<double>;
   template class NumericConstant<size_t>;
   template class NumericConstant<Eigen::VectorXd>;
@@ -176,6 +179,7 @@ namespace bpp {
   template class NumericConstant<Eigen::MatrixXd>;
   template class NumericConstant<std::string>;
 
+  template class NumericMutable<uint>;
   template class NumericMutable<double>;
   template class NumericMutable<Eigen::VectorXd>;
   template class NumericMutable<Eigen::RowVectorXd>;

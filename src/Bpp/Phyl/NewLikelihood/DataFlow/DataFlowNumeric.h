@@ -171,6 +171,11 @@ namespace bpp {
     Dimension (const double &) {}
   };
 
+  template <> struct Dimension<uint> : NoDimension {
+    Dimension () = default;
+    Dimension (const uint &) {}
+  };
+
   template <> struct Dimension<char> : NoDimension {
     Dimension () = default;
     Dimension (const char &) {}
@@ -200,9 +205,9 @@ namespace bpp {
   public:
     Dimension () = default;
     Dimension (Eigen::Index rows_, Eigen::Index cols_) : MatrixDimension(rows_, cols_){}
-
   };
 
+  
   /** @brief Specialisation of Dimension<T> for eigen matrix types.
    *
    * Note that in Eigen, a vector is a matrix with one column.
@@ -369,7 +374,6 @@ namespace bpp {
     
     template <typename R, typename F> void convert (R & r, const F & from, const Dimension<R> & dim) {
       r = convert (from, dim);
-      //assert (Dimension<R> (r) == dim); // debug post check of size
     }
 
     /*******************************************/
@@ -396,14 +400,14 @@ namespace bpp {
     std::string debug (const T & t, typename std::enable_if<std::is_arithmetic<T>::value>::type* = 0) {
       // For basic arithmetic scalar types, just print the value itself
       using std::to_string;
-      return "value=" + to_string (t);
+      return "value=" + to_string_with_precision<T> (t, 20);
     }
     
     template <typename T>
     std::string debug (const Parameter& t){
       // For basic arithmetic scalar types, just print the value itself
       using std::to_string;
-      return "value=" + to_string(t.getValue());
+      return "value=" + to_string_with_precision<double>(t.getValue(), 20);
     }
 
     template <typename T = std::string>
@@ -944,6 +948,7 @@ namespace bpp {
   };
 
   // Precompiled instantiations
+  extern template class ConstantZero<uint>;
   extern template class ConstantZero<double>;
   extern template class ConstantZero<Eigen::VectorXd>;
   extern template class ConstantZero<Eigen::RowVectorXd>;
@@ -952,6 +957,7 @@ namespace bpp {
   extern template class ConstantZero<char>;
   extern template class ConstantZero<std::string>;
 
+  extern template class ConstantOne<uint>;
   extern template class ConstantOne<double>;
   extern template class ConstantOne<Eigen::VectorXd>;
   extern template class ConstantOne<Eigen::RowVectorXd>;
@@ -960,6 +966,7 @@ namespace bpp {
   extern template class ConstantZero<char>;
   extern template class ConstantZero<std::string>;
 
+  extern template class NumericConstant<uint>;
   extern template class NumericConstant<std::string>;
   extern template class NumericConstant<double>;
   extern template class NumericConstant<Eigen::VectorXd>;
@@ -967,6 +974,7 @@ namespace bpp {
   extern template class NumericConstant<Eigen::MatrixXd>;
 
   extern template class NumericMutable<double>;
+  extern template class NumericMutable<uint>;
   extern template class NumericMutable<char>; // for symbolic derivation
   extern template class NumericMutable<Eigen::VectorXd>;
   extern template class NumericMutable<Eigen::RowVectorXd>;

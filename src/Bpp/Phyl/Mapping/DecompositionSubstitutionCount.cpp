@@ -138,7 +138,7 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
     for (size_t j = 0; j < nbStates_; j++) {
       for (size_t k = 0; k < nbStates_; k++) {
         counts_[i](j, k) /= P(j, k);
-        if (std::isinf(counts_[i](j, k)) || std::isnan(counts_[i](j, k)) || (!distances_ && counts_[i](j, k) < 0.))
+        if (!std::isnormal(counts_[i](j, k)))
           counts_[i](j, k) = 0.;
         if (weights_)
           counts_[i](j, k) *= weights_->getIndex(supportedStates[j], supportedStates[k]);

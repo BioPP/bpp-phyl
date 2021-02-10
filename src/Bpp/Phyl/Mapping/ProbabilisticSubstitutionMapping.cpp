@@ -85,3 +85,19 @@ void ProbabilisticSubstitutionMapping::setNumberOfSubstitutionTypes(size_t numbe
 }
 
 
+void ProbabilisticSubstitutionMapping::fillMappingVectorForSite(size_t siteIndex, VVdouble& counts) const
+{
+  unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
+  size_t nT = (**nIT)->getNumberOfTypes();
+  VectorTools::resize2(counts, getNumberOfBranches(), nT);
+
+  auto count_i = counts.begin();
+  for (;!nIT->end(); nIT->next())
+  {
+    for (size_t t =0; t < nT; t++)
+      (*count_i)[t]=(***nIT)(siteIndex, t);
+    count_i++;
+  }
+}
+
+

@@ -185,6 +185,7 @@ namespace bpp {
 
   public:
     const HmmStateAlphabet& getHmmStateAlphabet() const { return *hiddenAlphabet_; }
+
     HmmStateAlphabet& getHmmStateAlphabet() { return *hiddenAlphabet_; }
 
     /*
@@ -197,6 +198,7 @@ namespace bpp {
     const Eigen::MatrixXd& getHmmTransitionMatrix() const { return hmmTrans_->accessValueConst(); }
 
     const HmmPhyloEmissionProbabilities& getHmmEmissionProbabilities() const { return *emissionProbabilities_; }
+
     HmmPhyloEmissionProbabilities& getHmmEmissionProbabilities() { return *emissionProbabilities_; }
 
     void setParameters(const ParameterList& pl)
@@ -224,6 +226,11 @@ namespace bpp {
       return vec.dot(hmmEmis_->accessValueConst().col(Eigen::Index(site)));
     }
 
+    void fixFactor(ValueRef<double> valRef)
+    {
+      throw Exception("HmmLikelihood_DF::fixFactor not implemented");
+    }
+    
   };
 
 }

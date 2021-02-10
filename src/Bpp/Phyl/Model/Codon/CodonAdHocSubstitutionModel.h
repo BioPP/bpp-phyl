@@ -137,7 +137,7 @@ namespace bpp
     }
 
     void setNamespace(const std::string& prefix){
-      AbstractParameterAliasable::setNamespace(prefix);
+      AbstractCodonSubstitutionModel::setNamespace(prefix);
       for (auto& model : vModel_)
         model->setNamespace(prefix);
     }

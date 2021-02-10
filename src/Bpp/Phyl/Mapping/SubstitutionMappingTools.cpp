@@ -524,7 +524,6 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
         // Rewards for this model
         auto subReward = mModRewards[sm];
 
-        
         const auto& likelihoodsTopEdge = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->getTargetValue();
 
         auto sonid = rltc.getForwardLikelihoodTree(ncl)->getSon(id);
@@ -540,15 +539,15 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
         {
           // compute all rxy * pxy first:
           subReward[t]->storeAllRewards(edge->getBrLen()->getValue(), rpxy);
-      
+
           rpxy.array() *= pxy.array();
 
           // Now loop over sites:
 
           auto rew = rpxy * likelihoodsBotEdge;
-        
+          
           auto bb = (likelihoodsTopEdge.cwiseProduct(rew)).colwise().sum();
-        
+
           // Normalizes by likelihood on this node
           Eigen::RowVectorXd cc = bb.array() / likelihoodsFather.array();
 
@@ -560,7 +559,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
       for (size_t t = 0; t < nbTypes; ++t)
         rewardsForCurrentNode[t] += rewardsForCurrentClass[t] * pr;
     }
-    
+
     // Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbDistinctSites; ++i)
     {

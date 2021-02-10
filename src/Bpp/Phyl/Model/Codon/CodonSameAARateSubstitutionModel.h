@@ -149,14 +149,15 @@ namespace bpp
       const CodonSameAARateSubstitutionModel& model) : 
       AbstractParameterAliasable(model),
       AbstractSubstitutionModel(model),
-      pAAmodel_ (model.pAAmodel_),
-      pCodonModel_ (model.pCodonModel_),
-      pFreq_ (model.pFreq_),
+      pAAmodel_ (model.pAAmodel_->clone()),
+      pCodonModel_ (model.pCodonModel_->clone()),
+      pFreq_ (model.pFreq_?model.pFreq_->clone():0),
       pgencode_ (model.pgencode_),
       X_ (model.X_),
       phi_ (model.phi_)
     {
       compute_();
+      updateMatrices();
     }
 
     CodonSameAARateSubstitutionModel& operator=(
@@ -164,9 +165,9 @@ namespace bpp
     {
       AbstractSubstitutionModel::operator=(model);
 
-      pAAmodel_ = model.pAAmodel_;
-      pCodonModel_ = model.pCodonModel_;
-      pFreq_ = model.pFreq_;
+      pAAmodel_ = std::shared_ptr<ProteinSubstitutionModel>(model.pAAmodel_->clone());
+      pCodonModel_ = std::shared_ptr<CodonSubstitutionModel>(model.pCodonModel_->clone());
+      pFreq_ = model.pFreq_?std::shared_ptr<CodonFrequencySet>(model.pFreq_->clone()):0;
 
       pgencode_ = model.pgencode_;
     
@@ -195,7 +196,7 @@ namespace bpp
       return getAlphabet()->getSize();
     }
 
-    std::shared_ptr<ProteinSubstitutionModel> getAAModel() const
+    std::shared_ptr<ProteinSubstitutionModel> getProtModel() const
     {
       return pAAmodel_;
     }
@@ -210,14 +211,12 @@ namespace bpp
     void setNamespace(const std::string& prefix)
     {
       AbstractParameterAliasable::setNamespace(prefix);
-      pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
-
-      // Not for pCodonModel_, since it does not belong to this object
-      //pCodonModel_->setNamespace(prefix + pCodonModel_->getNamespace());
       
+      pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
+      pCodonModel_->setNamespace(prefix + pCodonModel_->getNamespace());
+
       if (pFreq_)
         pFreq_->setNamespace(prefix + pFreq_->getNamespace());
-      
     }
 
     const std::shared_ptr<FrequencySet> getFrequencySet() const

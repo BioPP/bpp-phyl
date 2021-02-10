@@ -204,26 +204,18 @@ namespace bpp {
     };
 
     /**
-     * @}
+     * @brief Set a factor for likelihood computation
+     *
      */
 
-    /**
-     * @name The likelihood functions.
-     *
-     * @{
-     */
-      
-    /**
-     * @brief Get the logarithm of the likelihood for the whole dataset.
-     *
-     * @return The logarithm of the likelihood of the dataset.
-     */
-    
-    double getLogLikelihood() const override {
-      return getLikelihoodCalculationSingleProcess()->getLogLikelihood();
+    virtual void setFactor(uint factor) override
+    {
+      getLikelihoodCalculationSingleProcess()->setFactor(factor);
     }
     
-    /** @} */
+    /**
+     * @}
+     */
 
     /**
      * @name Retrieve some particular independent parameters subsets.
@@ -231,6 +223,17 @@ namespace bpp {
      * @{
      */
     
+
+    ParameterList getNonDerivableParameters() const override
+    {
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getNonDerivableParameters();
+    }
+
+    ParameterList getDerivableParameters() const override
+    {
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getBranchLengthParameters(true);
+    }
+
     /**
      * @brief Get the independent branch lengths parameters.
      *

@@ -234,7 +234,7 @@ int main(int argc, char** argv)
 
   */
 
-  auto rootFreqs = new GCFrequencySet(&c.alphabet, 0.1);
+  auto rootFreqs = std::make_shared<GCFrequencySet>(&c.alphabet, 0.1);
 
   auto distribution = new ConstantRateDistribution();
   //auto distribution = new GammaDiscreteRateDistribution(3, 1);
@@ -252,13 +252,13 @@ int main(int argc, char** argv)
 //  process->setModelScenario(scenario);
 
   
-  auto process  = std::make_shared<NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
+  // auto process  = std::make_shared<NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
 
-  process->addModel(k80, Vuint({0,1,3}));
+  // process->addModel(k80, Vuint({0,1,3}));
 
-  process->addModel(t92, Vuint({2}));
+  // process->addModel(t92, Vuint({2}));
     
-//std::shared_ptr<NonHomogeneousSubstitutionProcess>(NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs));//, scenario));
+  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, paramPhyloTree, rootFreqs);//, scenario));
 
   // Build likelihood value node
   auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, *process);
@@ -292,10 +292,10 @@ int main(int argc, char** argv)
 
   // // Manual access to dkappa
   
-  // auto kappa= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("T92.kappa_Gamma.alpha_1").get());
-  // auto dlogLik_dkappa = lik->getLikelihood()->deriveAsValue(context, *kappa->dependency(0));
-  // std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
-  // dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
+  auto kappa= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("K80.kappa_1").get());
+  auto dlogLik_dkappa = lik->getLikelihoodNode()->deriveAsValue(context, *kappa->dependency(0));
+  std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
+  dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
   
   // auto d2logLik_dkappa2 = dlogLik_dkappa->deriveAsValue(context, *kappa->dependency(0));
   // std::cout << "[d2kappa] " << d2logLik_dkappa2->getTargetValue() << "\n";

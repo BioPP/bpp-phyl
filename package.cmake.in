@@ -1,4 +1,4 @@
-# CMake package file for Bio++ PhylLib
+# CMake package file for Bio++ Phyl
 # Authors:
 #   Francois Gindraud (2017)
 # Created: 08/03/2017
@@ -14,14 +14,22 @@ if (NOT @PROJECT_NAME@_FOUND)
   set (BPP_LIBS_STATIC "${BPP_LIBS_STATIC}" @PROJECT_NAME@-static)
   set (BPP_LIBS_SHARED "${BPP_LIBS_SHARED}" @PROJECT_NAME@-shared)
   # Print some path info for targets
-  get_property (static-location TARGET @PROJECT_NAME@-static PROPERTY LOCATION)
+  if (BUILD_STATIC)
+    get_property (static-location TARGET @PROJECT_NAME@-static PROPERTY LOCATION)
+  endif (BUILD_STATIC)
   get_property (shared-location TARGET @PROJECT_NAME@-shared PROPERTY LOCATION)
-  get_property (header-location TARGET @PROJECT_NAME@-static PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+  get_property (header-location TARGET @PROJECT_NAME@-shared PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
   message (STATUS "@PROJECT_NAME@ @PROJECT_VERSION@ found:")
-  message (STATUS "  static lib: ${static-location}")
+  if (BUILD_STATIC)
+    message (STATUS "  static lib: ${static-location}")
+  else (BUILD_STATIC)
+    message (STATUS "  static lib: not built/installed")
+  endif (BUILD_STATIC)
   message (STATUS "  shared lib: ${shared-location}")
   message (STATUS "  includes: ${header-location}")
-  unset (static-location)
+  if (BUILD_STATIC)
+    unset (static-location)
+  endif (BUILD_STATIC)
   unset (shared-location)
   unset (header-location)
 endif (NOT @PROJECT_NAME@_FOUND)

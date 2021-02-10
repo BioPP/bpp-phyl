@@ -112,6 +112,25 @@ bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::s
   return false;
 }
 
+ParameterList SetOfAbstractPhyloLikelihood::getNonDerivableParameters() const
+{
+  ParameterList pl;
+  for (size_t i=0; i<nPhylo_.size(); i++)
+    pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getNonDerivableParameters());
+  
+  return pl;
+}
+
+ParameterList SetOfAbstractPhyloLikelihood::getDerivableParameters() const
+{
+  ParameterList pl;
+  for (size_t i=0; i<nPhylo_.size(); i++)
+    pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getDerivableParameters());
+  
+  return pl;
+}
+
+
 ParameterList SetOfAbstractPhyloLikelihood::getBranchLengthParameters() const
 {
   ParameterList pl;
