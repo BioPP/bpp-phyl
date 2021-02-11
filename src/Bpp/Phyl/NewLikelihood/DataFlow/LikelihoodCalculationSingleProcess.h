@@ -243,8 +243,6 @@ namespace bpp {
     /* Likelihood tree on mean likelihoods on rate categories */
     std::shared_ptr<ConditionalLikelihoodTree> condLikelihoodTree_;
     /**************************************/
-    /* indicates whether the root likelihoods should be determined according to likelihood */
-    bool weightedRootFrequencies_;
       
     /*
      * @brief Factor to multiply transition probabilities (default: 0,
@@ -252,6 +250,8 @@ namespace bpp {
      */
     
     std::shared_ptr<NumericMutable<uint>> factorNode_;
+    /* indicates whether the root likelihoods should be determined according to likelihood */
+    bool weightedRootFrequencies_;
     
   public:
     LikelihoodCalculationSingleProcess(Context & context,

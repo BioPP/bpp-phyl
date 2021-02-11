@@ -63,8 +63,12 @@ SingleProcessPhyloLikelihood* ChromosomeNumberOptimizer::getLikelihoodFunction(c
     // if (ChromEvolOptions::optimizationMethod_ == "Brent"){
     //     calculateDerivatives  = false;
     // }
+    
     bool weightedRootFreqs;
     std::shared_ptr<SubstitutionModel> model(static_pointer_cast<SubstitutionModel>(chrModel)->clone());
+    unsigned int nbStates = (unsigned int)(model->getNumberOfStates());
+    unsigned int nbEdges = (unsigned int)(tree_->getBranchLengths().size());
+    unsigned int factor = nbStates * nbEdges;
     NonHomogeneousSubstitutionProcess* subProSim;
     ParametrizablePhyloTree parTree(*tree_);
     if (fixedRootFreqPath != "none"){
@@ -84,7 +88,7 @@ SingleProcessPhyloLikelihood* ChromosomeNumberOptimizer::getLikelihoodFunction(c
     Context context;
     vectorOfContexts_.push_back(context);
 
-    auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(vectorOfContexts_[vectorOfContexts_.size()-1], *vsc_->clone(), *nsubPro, weightedRootFreqs);
+    auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(vectorOfContexts_[vectorOfContexts_.size()-1], *vsc_->clone(), *nsubPro, factor, weightedRootFreqs);
     
     SingleProcessPhyloLikelihood* ntl = new SingleProcessPhyloLikelihood(vectorOfContexts_[vectorOfContexts_.size()-1], lik, lik->getParameters());
     delete subProSim;
