@@ -838,7 +838,7 @@ void BppOFrequencySetFormat::initialize_(FrequencySet& freqSet, const AlignedVal
       double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue(), "", true, warningLevel_);
       
       pl[i].setValue(value);
-      
+
       if (unparsedArguments_.find(pName) != unparsedArguments_.end())
         unparsedArguments_.erase(unparsedArguments_.find(pName));
       
@@ -847,7 +847,7 @@ void BppOFrequencySetFormat::initialize_(FrequencySet& freqSet, const AlignedVal
     }
     catch (Exception& e) {}
   }
-  
+
   freqSet.matchParametersValues(pl);
 }
 
