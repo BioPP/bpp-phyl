@@ -225,6 +225,8 @@ namespace bpp
             void fillVectorOfBaseNumCandidates(vector <unsigned int> &baseNumCandidates, unsigned int lowerBound, unsigned int upperBound) const;
             void getAllPossibleChrRanges(vector <unsigned int> &baseNumCandidates) const;
             string findParameterNameInModel(string fullParameterName) const;
+            void constructParamPairsMap(map<string, pair<string, bool>> &paramPairsMap);
+            void setNewBounds(const ParameterList params, Parameter &param, map<string, pair<string, bool>> &paramPairsMap, double* lowerBound, const ChromosomeSubstitutionModel* model);
 
             //print functions
             void printLikParameters(SingleProcessPhyloLikelihood* lik, unsigned int optimized, const string path = "none") const;

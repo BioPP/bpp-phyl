@@ -905,6 +905,7 @@ const Matrix<double>& ChromosomeSubstitutionModel::getPij_t(double t) const
       for (size_t j = 0; j < size_; j++){
         if (pijt_(i,j) < 0){
           pijt_(i,j) = NumConstants::VERY_TINY(); // trying to do it exactly as in ChromEvol. Maybe the "nan" problem will be solved
+          //pijt_(i,j) = 0;
         }
         else if (pijt_(i, j) > 1){
           pijt_(i,j) = 1.0;

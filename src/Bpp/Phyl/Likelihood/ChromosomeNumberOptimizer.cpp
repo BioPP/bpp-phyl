@@ -450,6 +450,8 @@ unsigned int ChromosomeNumberOptimizer::useMixedOptimizers(SingleProcessPhyloLik
 unsigned int ChromosomeNumberOptimizer::optimizeModelParametersOneDimension(SingleProcessPhyloLikelihood* tl, double tol, unsigned int maxNumOfIterations, std::vector <unsigned int> &baseNumCandidates, bool mixed, unsigned curentIterNum){
 
     // Initialize optimizer
+    map <string,pair<string, bool>> paramPairs;
+    constructParamPairsMap(paramPairs);
     DerivableSecondOrder* f = tl;
     BrentOneDimension* optimizer = new BrentOneDimension(f);
     optimizer->setVerbose(1);
@@ -498,14 +500,14 @@ unsigned int ChromosomeNumberOptimizer::optimizeModelParametersOneDimension(Sing
             Parameter param = params.getParameter(nameOfParam);
             cout <<"Parameter name is: "<< nameOfParam << endl;
             string paramNameInModel = findParameterNameInModel(nameOfParam);
-            //const SubstitutionModel* substitutionModel = dynamic_cast<const SubstitutionModel*>(tl->getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getModel(1));
+            const ChromosomeSubstitutionModel* model = dynamic_cast<const ChromosomeSubstitutionModel*>(dynamic_cast<const SubstitutionModel*>(tl->getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getModel(1)));
             //const ChromosomeSubstitutionModel* model = dynamic_cast<const ChromosomeSubstitutionModel*>(substitutionModel);
 
             //model->setBoundsForEquivalentParameter(param, paramNameInModel);
             //model->checkParametersBounds();
             double lowerBound = dynamic_pointer_cast<IntervalConstraint>(tl->getLikelihoodCalculation()->getParameter(param.getName()).getConstraint())->getLowerBound();
             double upperBound = dynamic_pointer_cast<IntervalConstraint>(tl->getLikelihoodCalculation()->getParameter(param.getName()).getConstraint())->getUpperBound();
-            //setNewBounds(params, params[j], &lowerBound);
+            setNewBounds(tl->getLikelihoodCalculation()->getParameters(), param, paramPairs, &lowerBound, model);
  
             //model->checkParametersBounds();
             if ((baseNumOptimizationMethod_ != "Brent") && (param.getName() == "Chromosome.baseNum_1")){
@@ -545,6 +547,45 @@ unsigned int ChromosomeNumberOptimizer::optimizeModelParametersOneDimension(Sing
     }
     delete optimizer;
     return numOfEvaluations;
+}
+/*******************************************************************************/
+void ChromosomeNumberOptimizer::setNewBounds(const ParameterList params, Parameter &param, map<string, pair<string, bool>> &paramPairsMap, double* lowerBound, const ChromosomeSubstitutionModel* model){
+    if (paramPairsMap.find(param.getName()) == paramPairsMap.end()){
+        return;
+    }
+    vector<string> parametersNames = params.getParameterNames();
+    pair <string, bool> matchedParamAndType = paramPairsMap[param.getName()];
+    if (!(std::count(parametersNames.begin(), parametersNames.end(), matchedParamAndType.first))){
+        return;
+    }
+    Parameter matchedParam = params.getParameter(matchedParamAndType.first);
+    double valueOfMatched = matchedParam.getValue();
+    std::shared_ptr<IntervalConstraint> interval = dynamic_pointer_cast<IntervalConstraint>(param.getConstraint());
+    if (matchedParamAndType.second){
+        if (!(ChromEvolOptions::rateChangeType_)){
+            *lowerBound = std::max(lowerBoundOfRateParam, -valueOfMatched*(model->getMax()-1));
+            interval->setLowerBound(*lowerBound, interval->strictLowerBound());
+        }
+        
+
+    }else{
+        if (!(ChromEvolOptions::rateChangeType_)){
+            *lowerBound = -valueOfMatched/(model->getMax()-1);
+            interval->setLowerBound(*lowerBound, interval->strictLowerBound());
+
+        }
+        
+    }
+    
+}
+/*******************************************************************************/
+void ChromosomeNumberOptimizer::constructParamPairsMap(map<string, pair<string, bool>> &paramPairsMap){
+    paramPairsMap["Chromosome.gain_1"] = pair<string, bool>("Chromosome.gainR_1", true);
+    paramPairsMap["Chromosome.gainR_1"] = pair<string, bool>("Chromosome.gain_1", false);
+    paramPairsMap["Chromosome.loss_1"] = pair<string, bool>("Chromosome.lossR_1", true);
+    paramPairsMap["Chromosome.lossR_1"] = pair<string, bool>("Chromosome.loss_1", false);
+    paramPairsMap["Chromosome.dupl_1"] = pair<string, bool>("Chromosome.duplR_1", true);
+    paramPairsMap["Chromosome.duplR_1"] = pair<string, bool>("Chromosome.dupl_1", false);
 }
 /*******************************************************************************/
 std::vector <string> ChromosomeNumberOptimizer::getNonFixedParams(std::vector <unsigned int> fixedParams, ParameterList &allParams) const{
