@@ -56,8 +56,6 @@
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parameter.h>
 
-//#define DEBUG
-
 namespace bpp {
 
  
@@ -297,14 +295,11 @@ namespace bpp {
       cwise (result) = cwise (x0) + cwise (x1);
 
 #ifdef DEBUG
-        std::cerr << "=== Add ====================================" << std::endl;
-        std::cerr << x0 << std::endl;
-        std::cerr << x1 << std::endl;
-        std::cerr << "=======================================" << std::endl;
-        
-        std::cerr << result << std::endl;
-
-        std::cerr << std::endl << std::endl;
+      std::cerr << "=== Add === " << this << std::endl;
+      std::cerr << "x0= " << x0 << std::endl;
+      std::cerr << "x1= " << x1 << std::endl;
+      std::cerr << "res=" << result << std::endl;
+      std::cerr << "=== end Add === " << this << std::endl << std::endl;
 #endif
     }
 
@@ -398,14 +393,11 @@ namespace bpp {
       const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
       cwise (result) = cwise (x0) - cwise (x1);
 #ifdef DEBUG
-        std::cerr << "=== Sub ====================================" << std::endl;
-        std::cerr << x0 << std::endl;
-        std::cerr << x1 << std::endl;
-        std::cerr << "=======================================" << std::endl;
-        
-        std::cerr << result << std::endl;
-
-        std::cerr << std::endl << std::endl;
+      std::cerr << "=== Sub === " << this << std::endl;
+      std::cerr << "x0= " << x0 << std::endl;
+      std::cerr << "x1= " << x1 << std::endl;
+      std::cerr << "result= " << result << std::endl;
+      std::cerr << "=== end Sub === " << this << std::endl << std::endl;
 #endif
     }
 
@@ -922,14 +914,11 @@ namespace bpp {
       cwise (result) = cwise (x0) * cwise (x1);
 
 #ifdef DEBUG
-        std::cerr << "===== Mul ==================================" << std::endl;
-        std::cerr << x0 << std::endl;
-        std::cerr << x1 << std::endl;
-        std::cerr << "=======================================" << std::endl;
-        
-        std::cerr << result << std::endl;
-
-        std::cerr << std::endl << std::endl;
+      std::cerr << "=== Mul === " << this << std::endl;
+      std::cerr << "x0= "     << x0 << std::endl;
+      std::cerr << "x1= "     << x1 << std::endl;
+      std::cerr << "result= " << result << std::endl;
+      std::cerr << "=== end Mul === " << this << std::endl << std::endl;
 #endif
     }
 
@@ -1669,8 +1658,9 @@ namespace bpp {
     void compute () final
     {
 #ifdef DEBUG
-      std::cerr << "================== SUMOFLOGARITHMS " << std::endl;
+      std::cerr << "=== SumOfLogarithms === " << this << std::endl;
 #endif
+
       auto & result = this->accessValueMutable ();
 
       const auto & m = accessValueConstCast<F> (*this->dependency (0));
@@ -1688,8 +1678,8 @@ namespace bpp {
         });
         result = product.log();
 #ifdef DEBUG
-        std::cerr << "product " << product << std::endl;
-        std::cerr << "result log " << result << std::endl;
+        std::cerr << "product= " << product << std::endl;
+        std::cerr << "result log= " << result << std::endl;
 #endif
       }
       else
@@ -1715,12 +1705,12 @@ namespace bpp {
         
         result = product.log ();
 #ifdef DEBUG
-        std::cerr << "PRODUCT " << product << std::endl;
-        std::cerr << "RESULT log " << result << std::endl;
+        std::cerr << "PRODUCT= " << product << std::endl;
+        std::cerr << "RESULT log= " << result << std::endl;
 #endif
       }
 #ifdef DEBUG
-      std::cerr << "================== sumoflogarithms " << std::endl;
+      std::cerr << "=== end SumOfLogarithms === " << this << std::endl;
 #endif
     }
   
@@ -1907,18 +1897,15 @@ namespace bpp {
       result.noalias () =
         NumericalDependencyTransform<T0>::transform (x0) * NumericalDependencyTransform<T1>::transform (x1);
 #ifdef DEBUG
-      if ((x1.cols() + x1.rows() ==65) &&  (x0.cols() + x0.rows() ==65))
+      if ((x1.cols() + x1.rows() < 100 ) &&  (x0.cols() + x0.rows() < 100))
       {
-        std::cerr << "=========================== MatrixProd " << std::endl;
-        std::cerr << x0.rows() << " x " << x0.cols() << std::endl;
-        std::cerr << x1.rows() << " x " << x1.cols() << std::endl;
-        std::cerr << result << std::endl;
-        std::cerr << NumericalDependencyTransform<T0>::transform (x0) << std::endl;
-        std::cerr << NumericalDependencyTransform<T1>::transform (x1) << std::endl;
-
-        std::cerr << "=========================== MatrixProd " << std::endl;
-        std::cerr << std::endl;
-
+      std::cerr << "=== MatrixProd === " << this << std::endl;
+      std::cerr << "x0= "     << x0.rows() << " x " << x0.cols() << std::endl;
+      std::cerr << "x0= " << NumericalDependencyTransform<T0>::transform (x0) << std::endl;
+      std::cerr << "x1= "     << x1.rows() << " x " << x1.cols() << std::endl;
+      std::cerr << "x1= " << NumericalDependencyTransform<T1>::transform (x1) << std::endl;
+      std::cerr << "result= " << result << std::endl;
+      std::cerr << "=== end MatrixProd === " << this << std::endl << std::endl;
       }
 #endif
     }
