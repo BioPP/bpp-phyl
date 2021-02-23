@@ -311,7 +311,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
       BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
       freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
 
-      codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
+      codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data));
       for (const auto& it:freqReader.getUnparsedArguments())
         unparsedArguments_[modelName + "." + it.first] = it.second;
     }
@@ -1129,7 +1129,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
       BppOFrequencySetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model
-      pFS = bIOFreq.readFrequencySet(pCA, args["frequencies"], data, false);
+      pFS = bIOFreq.readFrequencySet(pCA, args["frequencies"], data);
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -1375,10 +1375,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       auto pFit(bIOFreq.readFrequencySet(pCA, args["fitness"], data, false));
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      {
-        unparsedArguments_[modelName + ".fit_" + it->first] = it->second;
-      }
+      for (auto& it : unparsedParameterValuesNested)
+        unparsedArguments_[modelName + ".fit_" + it.first] = it.second;
 
       if (v_nestedModelDescription.size() != 3)
       {

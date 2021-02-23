@@ -27,6 +27,15 @@ IF(NO_DEP_CHECK)
   MESSAGE("-- Dependencies checking disabled. Only distribution can be built.")
 ELSE(NO_DEP_CHECK)
 
+#### Optional Debug
+
+option(USE_DEBUG "Enter Debug Mode" OFF)
+
+IF (USE_DEBUG)
+  MESSAGE("-- Enter Debug mode")
+  add_compile_options(-DDEBUG)
+ENDIF()
+
 # Libtool-like version number
 # CURRENT:REVISION:AGE => file.so.(C-A).A.R
 # current:  The most recent interface number that this library implements.
