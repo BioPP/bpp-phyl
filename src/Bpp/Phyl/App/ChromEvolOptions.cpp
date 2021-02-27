@@ -43,6 +43,7 @@ string ChromEvolOptions::resultsPathDir_;
 int ChromEvolOptions::maxBaseNumTransition_;
 double ChromEvolOptions::treeLength_;
 int ChromEvolOptions::maxNumOfTrials_;
+uint ChromEvolOptions::transitionMatFactor_;
 
 /*************************************************************************/
 void ChromEvolOptions::initAllParameters(BppApplication& ChromEvol){
@@ -84,6 +85,7 @@ void ChromEvolOptions::initDefaultParameters(){
     maxBaseNumTransition_ = 18;
     treeLength_ = 0;
     maxNumOfTrials_ = 100;
+    transitionMatFactor_ = 1;
 
 
 
@@ -202,6 +204,7 @@ void ChromEvolOptions::initParametersFromFile(BppApplication& ChromEvol){
     maxBaseNumTransition_ = ApplicationTools::getIntParameter("_maxBaseNumTransition", ChromEvol.getParams(), maxBaseNumTransition_, "", true, 0);
     treeLength_ = ApplicationTools::getDoubleParameter("_treeLength", ChromEvol.getParams(), treeLength_, "", true, 0);
     maxNumOfTrials_ = ApplicationTools::getIntParameter("_maxNumOfTrials", ChromEvol.getParams(), maxNumOfTrials_, "", true, 0);
+    transitionMatFactor_ = (uint)(ApplicationTools::getIntParameter("_transitionMatFactor", ChromEvol.getParams(), transitionMatFactor_, "", true, 0));
 
 }
 /*************************************************************************/

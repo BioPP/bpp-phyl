@@ -75,6 +75,7 @@ public:
     static int maxBaseNumTransition_; // needed for the simulator, since there is no data to infer it!
     static double treeLength_;
     static int maxNumOfTrials_; // to test the severity of the underflow problems
+    static uint transitionMatFactor_;
 
 private:
     static void initDefaultParameters();
