@@ -144,12 +144,11 @@ void NonHomogeneousSubstitutionProcess::addModel(std::shared_ptr<BranchModel> mo
   modelSet_.push_back(model);
   size_t thisModelIndex = modelSet_.size() - 1;
 
+  
   // Associate this model to specified nodes:
+  modelToNodes_[thisModelIndex]=nodesId;
   for (size_t i = 0; i < nodesId.size(); i++)
-  {
     nodeToModel_[nodesId[i]] = thisModelIndex;
-    modelToNodes_[thisModelIndex].push_back(nodesId[i]);
-  }
 
   // Associate parameters:
   string pname;

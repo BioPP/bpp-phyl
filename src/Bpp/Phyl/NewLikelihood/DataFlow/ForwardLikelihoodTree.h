@@ -46,6 +46,10 @@
 
 namespace bpp
 {
+  using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
+  using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+  
+
   inline Dimension<TransitionFunction> transitionFunctionDimension (Eigen::Index nbState) {
     return Dimension<TransitionFunction>(nbState, nbState);
   }
@@ -62,7 +66,7 @@ namespace bpp
    * Using member wise multiply: c = prod_member_i f_i.
    */
     
-  using SpeciationForward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+  using SpeciationForward = CWiseMul<MatrixLik, ReductionOf<MatrixLik>>;
 
   /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
    * conditionalLikelihood: Matrix(state, site).
@@ -72,7 +76,7 @@ namespace bpp
    * Using member wise addition: c = sum_member_i f_i 
    */
     
-  using MixtureForward = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+  using MixtureForward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>;
 
   /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
    * - forwardLikelihood: Matrix(state, site).
@@ -83,10 +87,10 @@ namespace bpp
    */
     
   using ForwardTransition =
-    MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
+    MatrixProduct<MatrixLik, MatrixLik, MatrixLik>;
 
   using ForwardTransitionFunction =
-    CWiseApply<Eigen::MatrixXd, Eigen::MatrixXd, TransitionFunction>;
+    CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
     
   /** @brief forwardLikelihood = f(transitionMatrix, proportion).
    * - forwardLikelihood: Matrix(state, site).
@@ -97,7 +101,7 @@ namespace bpp
    */
     
   using ForwardProportion =
-    CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
+    CWiseMul<MatrixLik, std::tuple<double, MatrixLik>>;
 
   /**
    * @brief Interface LikelihoodTree data structure.
@@ -112,11 +116,11 @@ namespace bpp
    * @see LikelihoodNode
    */
 
-  using ConditionalLikelihoodForward = Value<Eigen::MatrixXd>;
-  using ConditionalLikelihoodForwardRef = ValueRef<Eigen::MatrixXd>;
+  using ConditionalLikelihoodForward = Value<MatrixLik>;
+  using ConditionalLikelihoodForwardRef = ValueRef<MatrixLik>;
 
-  using ForwardLikelihoodBelow = Value<Eigen::MatrixXd>;
-  using ForwardLikelihoodBelowRef = ValueRef<Eigen::MatrixXd>;
+  using ForwardLikelihoodBelow = Value<MatrixLik>;
+  using ForwardLikelihoodBelowRef = ValueRef<MatrixLik>;
 
   using DAGindexes = std::vector<uint>;
   using Speciesindex = uint;
@@ -165,7 +169,7 @@ namespace bpp
     {
       nbSites_ = Eigen::Index(sites.getNumberOfSites ()); 
       likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
-      ConditionalLikelihoodForwardRef bidonRoot=ConstantZero<Eigen::MatrixXd>::create(context_, MatrixDimension(1,1));
+      ConditionalLikelihoodForwardRef bidonRoot=ConstantZero<MatrixLik>::create(context_, MatrixDimension(1,1));
       createNode(bidonRoot);
       /* Not sure it is necessary:
          
@@ -251,12 +255,12 @@ namespace bpp
      * @param nodeId : index of the node in the likelihood DAG.
      */
     
-    const ValueRef<Eigen::MatrixXd> getForwardLikelihoodArray(uint nodeId) const
+    const ValueRef<MatrixLik> getForwardLikelihoodArray(uint nodeId) const
     {
       return getNode(nodeId);
     }
 
-    const ValueRef<Eigen::MatrixXd> getForwardLikelihoodArrayAtRoot() const
+    const ValueRef<MatrixLik> getForwardLikelihoodArrayAtRoot() const
     {
       return getRoot();
     }
