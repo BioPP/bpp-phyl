@@ -85,7 +85,10 @@ namespace bpp {
   class ProcessTree;
   class ForwardLikelihoodTree;
   class BackwardLikelihoodTree;
-    
+
+  using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
+  using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+  
   /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
    * - likelihood: RowVector(site).
    * - equilibriumFrequencies: RowVector(state).
@@ -96,14 +99,14 @@ namespace bpp {
    */
 
   using LikelihoodFromRootConditional =
-    MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
+    MatrixProduct<RowLik, RowLik, MatrixLik>;
     
   /** @brief totalLikelihood = product_site likelihood(site).
    * - likelihood: RowVector (site).
    * - totalLikelihood: Extended float.
    */
     
-  using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
+  using TotalLogLikelihood = SumOfLogarithms<RowLik>;
 
   /** @brief Conditionallikelihood = AboveConditionalLikelihood * BelowConditionalLikelihood
    *
@@ -112,15 +115,15 @@ namespace bpp {
    */
 
   using BuildConditionalLikelihood =
-    CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+    CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
     
-  using ConditionalLikelihood = Value<Eigen::MatrixXd>;
-  using ConditionalLikelihoodRef = ValueRef<Eigen::MatrixXd>;
+  using ConditionalLikelihood = Value<MatrixLik>;
+  using ConditionalLikelihoodRef = ValueRef<MatrixLik>;
     
-  using SiteLikelihoods = Value<Eigen::RowVectorXd>;
-  using SiteLikelihoodsRef = ValueRef<Eigen::RowVectorXd>;
+  using SiteLikelihoods = Value<RowLik>;
+  using SiteLikelihoodsRef = ValueRef<RowLik>;
     
-  using AllRatesSiteLikelihoods = Eigen::MatrixXd;
+  using AllRatesSiteLikelihoods = MatrixLik;
     
   using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
 
@@ -483,12 +486,12 @@ namespace bpp {
      *
      */
       
-    ValueRef<Eigen::RowVectorXd> expandVector(ValueRef<Eigen::RowVectorXd> vector)
+    ValueRef<RowLik> expandVector(ValueRef<RowLik> vector)
     {
       if (!rootPatternLinks_)
         return vector;
       else
-        return CWisePattern<Eigen::RowVectorXd>::create(getContext_(),{vector,rootPatternLinks_}, RowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
+        return CWisePattern<RowLik>::create(getContext_(),{vector,rootPatternLinks_}, RowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*
@@ -498,12 +501,12 @@ namespace bpp {
      *
      */
       
-    ValueRef<Eigen::MatrixXd> expandMatrix(ValueRef<Eigen::MatrixXd> matrix)
+    ValueRef<MatrixLik> expandMatrix(ValueRef<MatrixLik> matrix)
     {
       if (!rootPatternLinks_)
         return matrix;
       else
-        return CWisePattern<Eigen::MatrixXd>::create(getContext_(),{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
+        return CWisePattern<MatrixLik>::create(getContext_(),{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*
@@ -664,7 +667,7 @@ namespace bpp {
      *@param shrunk : if returns on shrunked data (default: false)
      */
       
-    Eigen::RowVectorXd getSiteLikelihoodsForAClass(size_t nCat, bool shrunk = false);
+    RowLik getSiteLikelihoodsForAClass(size_t nCat, bool shrunk = false);
 
     /*
      *@brief Output array (Classes X Sites) of likelihoods for all

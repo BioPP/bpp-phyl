@@ -371,7 +371,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
   sort(ids.begin(), ids.end()); 
   vector<size_t> vModN=getModelNumbers();
   
-  size_t maxMod=*max_element(vModN.begin(),vModN.end())+1;
+  size_t maxMod=*max_element(vModN.begin(),vModN.end());
   
   std::map<size_t, std::vector<unsigned int> > mModBr;
   mModBr[nMod]=vector<uint>(1,ids[0]);

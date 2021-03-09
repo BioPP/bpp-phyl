@@ -123,11 +123,8 @@ inline bool SubstitutionProcessCollectionMember::matchParametersValues(const Par
 std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
 {
   vector<size_t> vMN;
-  std::map<size_t, std::vector<unsigned int> >::const_iterator it;
-  for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
-  {
-    vMN.push_back(it->first);
-  }
+  for (const auto& it : modelToNodes_)
+    vMN.push_back(it.first);
 
   return vMN;
 }
