@@ -1,4 +1,6 @@
 #include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatTools.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatMatrix.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
 
 
 using namespace std;
@@ -550,6 +552,86 @@ int main() {
    ExtendedFloatTools::scale(efMat1, 2);
    cout << "Mat after scaling: " << ExtendedFloatTools::convertMatToDouble(efMat1) << endl;
    cout << "Mat before scaling: " << mat1 << endl;
+
+   cout << "***************************************************" << endl;
+   cout <<"***   ***   ***   ***   ***   ***   ***   ***   ***" << endl;
+   ExtendedFloatMatrix<Eigen::Dynamic> EfMatrix;
+   EfMatrix = mat1;
+   cout << EfMatrix << endl;
+   ExtendedFloatMatrix<1> v(2);
+   v(0) = 8;
+   v(1) = 9;
+   cout << "vector is: " << endl;
+   cout << v << endl;
+   ExtendedFloatMatrix<1> EfV = v;
+   cout << EfV << endl;
+   
+   ExtendedFloatMatrix<Eigen::Dynamic> newMat(2,2);
+   newMat(0,0) = 1;
+   newMat(0,1) = 2;
+   newMat(1,0) = 3;
+   newMat(1,1) = 4;
+   //ExtendedFloatMatrix<Eigen::Dynamic> newMatTry = newMat;
+   ExtendedFloatMatrix<Eigen::Dynamic> addSum = newMat + EfMatrix;
+   cout << "Testing Sum ..." << endl;
+   cout << addSum << endl;
+   cout << "Testing various Eigen functions...." << endl;
+   ExtendedFloatMatrix<Eigen::Dynamic> ones = ExtendedFloatMatrix<Eigen::Dynamic>::Identity(2,2);
+   cout << ones << endl;
+
+
+
+//    ExtendedFloatMatrix EfMatrix = ExtendedFloatMatrix::Zero(2,2);
+//    for (size_t i = 0; i < 2; i++){
+//        for (size_t j = 0; j < 2; j++){
+//            EfMatrix(i, j) = (double)(i+j);
+//            //EfMatrix(i, j) = ExtendedFloat{(double)(i+j)};
+//            //EfMatrix(i, j).normalize();
+//        }
+//    }
+//    cout << EfMatrix << endl;
+//    cout << "***************************************************" << endl;
+//    cout <<"***   ***   ***   ***   ***   ***   ***   ***   ***" << endl;
+//    Eigen::MatrixXd m1(3,3);
+//    Eigen::MatrixXd m2(3,2);
+//    Eigen::MatrixXd maxRes(3,2);
+//    double val = 0;
+//    for (size_t i = 0; i < 3; i++){
+//        for (size_t j = 0; j < 3; j++){
+//            val ++;
+//            m1(i, j) = val;
+//        }
+//    }
+//    val = 0;
+//    for (size_t i = 0; i < 2; i++){
+//        for (size_t j = 0; j < 3; j++){
+//            val ++;
+//            m2(j, i) = val;
+//        }
+//    }
+//    cout << m1 << endl;
+//    cout << m2 << endl;
+
+//    for (size_t i = 0; i < 3; i++){
+//        for (size_t j = 0; j < 2; j++){
+//            Eigen::ArrayXd m1Arr = m1.row(i).array();
+           
+//            Eigen::ArrayXd m2Arr = m2.col(j).array();
+           
+//            cout << m1Arr << endl;
+//            cout << "***" << endl;
+//            cout << m2Arr << endl;
+//            cout << "***" << endl;
+//            Eigen::ArrayXd prod = m1Arr * m2Arr;
+//            cout << prod << endl;
+//            cout << "***" << endl;
+//            maxRes(i, j) = prod.maxCoeff();
+//        }
+//        //cwise(maxRes) = cwise (m2) * cwise (m2);
+//    }
+//    cout << maxRes << endl;
+
+
    
 
    return 0;

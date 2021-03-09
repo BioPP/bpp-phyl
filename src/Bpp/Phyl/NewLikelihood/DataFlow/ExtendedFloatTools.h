@@ -60,6 +60,7 @@ namespace bpp
  */
 typedef Eigen::Matrix<ExtendedFloat, Eigen::Dynamic, Eigen::Dynamic> MatrixXef;
 typedef Eigen::Matrix<ExtendedFloat, Eigen::Dynamic, 1> VectorXef;
+typedef Eigen::Matrix<ExtendedFloat, 1, Eigen::Dynamic> RowVectorXef;
 class ExtendedFloatTools{
 
 
