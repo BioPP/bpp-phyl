@@ -11,7 +11,7 @@
 #include "AbstractSubstitutionModel.h"
 #include <Bpp/Seq/Alphabet/ChromosomeAlphabet.h>
 #include <Bpp/Exceptions.h>
-#include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatTools.h>
+//#include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatTools.h>
 
 #define lowerBoundOfRateParam 0.0
 #define lowerBoundOfExpParam -3.0
@@ -53,16 +53,11 @@ private:
   int ChrMaxNum_;
   double firstNormQ_;
   mutable bool pijtCalledFromDeriv_;
-  mutable MatrixXef pijtEf_;
-  mutable MatrixXef dpijtEf_;
-  mutable MatrixXef d2pijtEf_;
-  mutable bool useExtendedFloatTools_;
+ 
 
-  
 
 protected:
   mutable std::vector< RowMatrix<double> > vPowExp_;
-  mutable std::vector <MatrixXef> vPowExpEf_;
 
 
 
@@ -79,16 +74,14 @@ public:
     double duplR,
     unsigned int maxChrRange, 
     rootFreqType freqType,
-    rateChangeFunc rateChangeType,
-    bool useExtendedFloat = false);
+    rateChangeFunc rateChangeType);
 
   //constructor with vector of parameters
   ChromosomeSubstitutionModel(const ChromosomeAlphabet* alpha, 
     vector<double> modelParams,
     unsigned int maxChrRange,
     rootFreqType freqType,
-    rateChangeFunc rateChangeType,
-    bool useExtendedFloat = false);
+    rateChangeFunc rateChangeType);
 
   virtual ~ChromosomeSubstitutionModel() {}
 
@@ -103,24 +96,20 @@ public:
     rootFreqType rootFrequenciesType,
     rateChangeFunc rateChangeType,
     vector<unsigned int>& fixedParams,
-    double parsimonyBound = 0,
-    bool useExtendedFloat = false);
+    double parsimonyBound = 0);
 
 
 
   const Matrix<double>& getPij_t    (double d) const;
-  const MatrixXef& getPijEf_t(double t) const;
+  const Matrix<double>& getdPij_dt  (double d) const;
+  const Matrix<double>& getd2Pij_dt2(double d) const;
+  //The following four functions are just for test.. Finally will bw removed.
   const Matrix<double>& getPij_t_func2(double d) const;
   const Matrix<double>& getPijt_test(double d) const;
-  const MatrixXef& getPijtEf_test(double d) const;
   const Matrix<double>& getPij_t_func3(double d) const;
   const Matrix<double>& getPij_t_func4(double d) const;
-  const Matrix<double>& getdPij_dt  (double d) const;
-  const MatrixXef& getdPijEf_dt  (double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
-  const MatrixXef& getd2PijEf_dt2(double d) const;
 
-  //void calculateExp_Qt(int pow, double s, size_t m, double v);
+
   std::string getName() const { return "Chromosome"; }
   void setFreq(std::map<int, double>& freqs);
   size_t getNumberOfStates() const { return size_; }
@@ -128,7 +117,6 @@ public:
   int getMax() const {return ChrMaxNum_;}
   unsigned int getMaxChrRange() const {return maxChrRange_;}
   bool checkIfReachedConvergence(const Matrix<double>& pijt, const Matrix<double>& mt_prev) const;
-  bool checkIfReachedConvergence(const MatrixXef& pijt, const MatrixXef& mt_prev) const;
   double getInitValue(size_t i, int state) const;
   int getBaseNumber() const {return baseNum_;}
   double getDemiDupl() const {return demiploidy_;}
@@ -164,7 +152,7 @@ protected:
   void updateEigenMatrices();
   void getParametersValues();
   void calculateExp_Qt(size_t pow, double s, size_t m, double v) const;
-  void calculateExp_Qt(size_t pow, double* s, double v, bool ef = false) const;
+  void calculateExp_Qt(size_t pow, double* s, double v) const;
   double getFirstNorm() const;
   double get_epsilon() const{ return 0.0001;};
   void updateConstRateParameter(double paramValueConst, double paramValueChange, string parameterName, std::shared_ptr<IntervalConstraint> interval);

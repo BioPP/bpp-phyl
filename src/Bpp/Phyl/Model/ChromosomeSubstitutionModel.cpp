@@ -31,8 +31,7 @@ ChromosomeSubstitutionModel :: ChromosomeSubstitutionModel(
   double duplR,
   unsigned int chrRange, 
   rootFreqType freqType,
-  rateChangeFunc rateChangeType,
-  bool useExtendedFloat):
+  rateChangeFunc rateChangeType):
     AbstractParameterAliasable("Chromosome."),
     AbstractSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, alpha->getMin(), alpha->getMax(), false)), "Chromosome."),
     gain_(gain),
@@ -51,12 +50,7 @@ ChromosomeSubstitutionModel :: ChromosomeSubstitutionModel(
     ChrMaxNum_(alpha->getMax()),
     firstNormQ_(0),
     pijtCalledFromDeriv_(false),
-    pijtEf_(size_, size_),
-    dpijtEf_(size_, size_),
-    d2pijtEf_(size_, size_),
-    useExtendedFloatTools_(useExtendedFloat),
-    vPowExp_(),
-    vPowExpEf_()
+    vPowExp_()
 {
 
     updateParameters();
@@ -70,8 +64,7 @@ ChromosomeSubstitutionModel::ChromosomeSubstitutionModel(const ChromosomeAlphabe
   vector<double> modelParams,
   unsigned int chrRange,
   rootFreqType freqType,
-  rateChangeFunc rateChangeType,
-  bool useExtendedFloat):
+  rateChangeFunc rateChangeType):
     AbstractParameterAliasable("Chromosome."),
     AbstractSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, alpha->getMin(), alpha->getMax(), false)), "Chromosome."),
     gain_(0),
@@ -90,12 +83,7 @@ ChromosomeSubstitutionModel::ChromosomeSubstitutionModel(const ChromosomeAlphabe
     ChrMaxNum_(alpha->getMax()),
     firstNormQ_(0),
     pijtCalledFromDeriv_(false),
-    pijtEf_(size_, size_),
-    dpijtEf_(size_, size_),
-    d2pijtEf_(size_, size_),
-    useExtendedFloatTools_(useExtendedFloat),
-    vPowExp_(),
-    vPowExpEf_()
+    vPowExp_()
   {
     //initialize model parameters
     for (size_t i = 0; i < modelParams.size(); i++){
@@ -148,8 +136,7 @@ ChromosomeSubstitutionModel* ChromosomeSubstitutionModel::initRandomModel(
   rootFreqType rootFrequenciesType,
   rateChangeFunc rateChangeType,
   vector<unsigned int>& fixedParams,
-  double parsimonyBound,
-  bool useExtendedFloat)
+  double parsimonyBound)
 {
   //double gain, loss, dupl, demiDupl, gainR, lossR, baseNumR, duplR;
   //int baseNum;
@@ -169,7 +156,7 @@ ChromosomeSubstitutionModel* ChromosomeSubstitutionModel::initRandomModel(
   for (size_t i = 0; i < initParams.size(); i ++){
     getRandomParameter(static_cast<paramType>(i), initParams[i], randomParams, upperBound, upperBoundLinear, upperBoundExp, rateChangeType, alpha->getMax(), chrRange, setOfFixedParameters);
   }
-  ChromosomeSubstitutionModel* model = new ChromosomeSubstitutionModel(alpha, randomParams, chrRange, rootFrequenciesType, rateChangeType, useExtendedFloat);
+  ChromosomeSubstitutionModel* model = new ChromosomeSubstitutionModel(alpha, randomParams, chrRange, rootFrequenciesType, rateChangeType);//, useExtendedFloat);
   return model;
 
 }
@@ -785,21 +772,12 @@ void ChromosomeSubstitutionModel::updateEigenMatrices()
       isNonSingular_ = false;
       isDiagonalizable_ = false;
     }
-    if (useExtendedFloatTools_){
-      if(vPowExpEf_.size() == 0){
-        vPowExpEf_.resize(30);
-      }
-      ExtendedFloatTools::getIdentityMatrix(vPowExpEf_[0], salph);
-      MatrixXef generator = ExtendedFloatTools::convertBppMatrixToEigenEF(generator_);
-      ExtendedFloatTools::Taylor(generator, 30, vPowExpEf_);
-    }else{
-      if (vPowExp_.size() == 0){
-        vPowExp_.resize(30);
-      }
-      MatrixTools::getId(salph, vPowExp_[0]);
-      MatrixTools::Taylor(generator_, 30, vPowExp_);
 
+    if (vPowExp_.size() == 0){
+      vPowExp_.resize(30);
     }
+    MatrixTools::getId(salph, vPowExp_[0]);
+    MatrixTools::Taylor(generator_, 30, vPowExp_);
 
   }
 
@@ -847,41 +825,7 @@ const Matrix<double>& ChromosomeSubstitutionModel::getPij_t(double t) const
   else if (isNonSingular_)
   {
     calculatePijtUsingEigenValues(t);
-    // if (isDiagonalizable_)
-    // {
-    //   MatrixTools::mult<double>(rightEigenVectors_, VectorTools::exp(eigenValues_ * (rate_ * t)), leftEigenVectors_, pijt_);
-    // }
-    // else
-    // {
-    //   std::vector<double> vdia(size_);
-    //   std::vector<double> vup(size_ - 1);
-    //   std::vector<double> vlo(size_ - 1);
-    //   double c = 0, s = 0;
-    //   double l = rate_ * t;
-    //   for (size_t i = 0; i < size_; i++)
-    //   {
-    //     vdia[i] = std::exp(eigenValues_[i] * l);
-    //     if (iEigenValues_[i] != 0)
-    //     {
-    //       s = std::sin(iEigenValues_[i] * l);
-    //       c = std::cos(iEigenValues_[i] * l);
-    //       vup[i] = vdia[i] * s;
-    //       vlo[i] = -vup[i];
-    //       vdia[i] *= c;
-    //       vdia[i + 1] = vdia[i]; // trick to avoid computation
-    //       i++;
-    //     }
-    //     else
-    //     {
-    //       if (i < size_ - 1)
-    //       {
-    //         vup[i] = 0;
-    //         vlo[i] = 0;
-    //       }
-    //     }
-    //   }
-    //   MatrixTools::mult<double>(rightEigenVectors_, vdia, vup, vlo, leftEigenVectors_, pijt_);
-    // }
+    
   }
   else
   {
@@ -963,90 +907,6 @@ double ChromosomeSubstitutionModel::getFirstNorm() const{
   }
   return norm;
 }
-/******************************************************************************/
-const MatrixXef& ChromosomeSubstitutionModel::getPijEf_t(double t) const{
-  if (t == 0){
-    ExtendedFloatTools::getIdentityMatrix(pijtEf_, size_);
-
-  }else if (isNonSingular_){
-    calculatePijtUsingEigenValues(t);
-    pijtEf_ = ExtendedFloatTools::convertBppMatrixToEigenEF(pijt_);
-  }else{
-    MatrixXef pijt_temp;
-    ExtendedFloatTools::getIdentityMatrix(pijt_temp, size_);
-    double s = 1.0;
-    double v = rate_ * t;
-    double norm = v * firstNormQ_;
-
-    //ExtendedFloat s = ExtendedFloatTools::convertToExtendedFloat(1.0);
-    size_t m = 0;
-    bool converged = false;
-    //while (v > 0.5)    // exp(r*t*A)=(exp(r*t/(2^m) A))^(2^m)
-    while (norm > 0.5)
-    {
-      m += 1;
-      v /= 2;
-      norm /= 2;
-    }
-    for (size_t iternum = 2; iternum <  vPowExpEf_.size(); iternum++){
-      calculateExp_Qt(iternum, &s, v, true);
-
-      if (iternum > 2){
-        converged = checkIfReachedConvergence(pijtEf_, pijt_temp);
-        if (converged){
-          break;
-        }
-      }
-      ExtendedFloatTools::copy(pijtEf_, pijt_temp);
-      if (iternum > 250){
-        //std :: cout << "ERROR: Pijt did not reach convergence for t = "<< t <<"!"<<endl;
-        throw Exception("ChromosomeSubstitutionModel: Taylor series did not reach convergence!");
-        break;
-      }
-      if (iternum == vPowExpEf_.size()-1 && !converged){  //need to add more powers to the matrix
-        MatrixXef new_pow;
-      //new_pow.resize(size_, size_);
-        MatrixXef generator = ExtendedFloatTools::convertBppMatrixToEigenEF(generator_);
-        ExtendedFloatTools :: mult(vPowExpEf_[vPowExpEf_.size()-1], generator, new_pow);
-        vPowExpEf_.push_back(new_pow);
-
-      }
-
-    }
-    MatrixXef tmpMat;
-    
-    while (m > 0){  // recover the 2^m
-      
-      //ExtendedFloatTools::mult(pijtEf_, pijtEf_, tmpMat_);
-      //ExtendedFloatTools::copy(tmpMat_, pijtEf_);
-      //Do I really need tmpMat_? Seems like it is the only usage...
-      ExtendedFloatTools::mult(pijtEf_, pijtEf_, tmpMat);
-      ExtendedFloatTools::copy(tmpMat, pijtEf_);
-
-      m--;
-    }
-
-  }
-   //just for test/////////////////////
-  // bool correct = true;
-  if (!pijtCalledFromDeriv_){
-    
-    for (size_t i = 0; i < size_; i++){
-      for (size_t j = 0; j < size_; j++){
-        if (convert(pijtEf_(i,j)) < 0){
-          pijtEf_(i,j) = ExtendedFloatTools::convertToExtendedFloat(NumConstants::VERY_TINY()); // trying to do it exactly as in ChromEvol. Maybe the "nan" problem will be solved
-          //pijt_(i,j) = 0;
-        }
-        else if (convert(pijtEf_(i, j)) > 1){
-          pijtEf_(i,j) = ExtendedFloatTools::convertToExtendedFloat(1.0);
-        }
-
-      }
-    }
-
-  }
-  return pijtEf_;
-}
 
 /******************************************************************************/
 
@@ -1063,23 +923,7 @@ bool ChromosomeSubstitutionModel::checkIfReachedConvergence(const Matrix<double>
     }
     return true;
 }
-/******************************************************************************/
 
-bool ChromosomeSubstitutionModel::checkIfReachedConvergence(const MatrixXef& pijt, const MatrixXef& mt_prev) const{
-  size_t nCols = pijt.cols();
-  size_t nRows = pijt.rows();
-  for (size_t i = 0; i < nRows; i++){
-    for (size_t j = 0; j < nCols; j++){
-      ExtendedFloat diff = ExtendedFloatTools::abs(pijt(i,j) - mt_prev(i,j));
-      if (convert(diff) > get_epsilon()){
-        return false;
-      }else if ((convert(pijt(i,j)) + get_epsilon() < 0) || (convert(pijt(i,j)) > 1 + get_epsilon())){
-        return false;
-      }
-    }
-  }
-    return true;
-}
 /******************************************************************************/
 void ChromosomeSubstitutionModel::calculateExp_Qt(size_t pow, double s, size_t m, double v) const{
   MatrixTools::getId(size_, pijt_);
@@ -1106,36 +950,10 @@ const Matrix<double>& ChromosomeSubstitutionModel::getdPij_dt  (double d) const{
   pijt = getPij_t(d);
   MatrixTools::mult(pijt, generator_, dpijt_);
   MatrixTools::scale(dpijt_, rate_);
-    //pijt_calculated_ = true;
-  //}else{
-    //mult(pijt_, generator_, dpijt_);
-  //}
-  
-  // dp(t) = p(t)*rate_*Q
   pijtCalledFromDeriv_ = false;
   return dpijt_;
 
 }
-/******************************************************************************/
-const MatrixXef& ChromosomeSubstitutionModel::getdPijEf_dt  (double d) const{
-  pijtCalledFromDeriv_ = true;
-  MatrixXef pijt;
-  //if (!pijt_calculated_){
-  pijt = getPijEf_t(d);
-  MatrixXef generator = ExtendedFloatTools::convertBppMatrixToEigenEF(generator_);
-  ExtendedFloatTools::mult(pijt, generator, dpijtEf_);
-  ExtendedFloatTools::scale(dpijtEf_, rate_);
-    //pijt_calculated_ = true;
-  //}else{
-    //mult(pijt_, generator_, dpijt_);
-  //}
-  
-  // dp(t) = p(t)*rate_*Q
-  pijtCalledFromDeriv_ = false;
-  return dpijtEf_;
-
-}
-
 
 /******************************************************************************/
 const Matrix<double>& ChromosomeSubstitutionModel::getd2Pij_dt2(double d) const{
@@ -1146,31 +964,10 @@ const Matrix<double>& ChromosomeSubstitutionModel::getd2Pij_dt2(double d) const{
   
   MatrixTools::mult(vPowExp_[2], pijt, d2pijt_);
   MatrixTools::scale(d2pijt_, rate_ * rate_);
-    //pijt_calculated_ = true;
-  //}else{
-    //mult(vPowGen_[2], pijt_, d2pijt_);
-  //}
-  // ddp(t) = Q^2 * p(t)*rate_^2
   pijtCalledFromDeriv_ = false;
   return d2pijt_;
 }
-/******************************************************************************/
-const MatrixXef& ChromosomeSubstitutionModel::getd2PijEf_dt2(double d) const{
-  pijtCalledFromDeriv_ = true;
-  MatrixXef pijt;
-  //if (!pijt_calculated_){
-  pijt = getPijEf_t(d);
-  
-  ExtendedFloatTools::mult(vPowExpEf_[2], pijt, d2pijtEf_);
-  ExtendedFloatTools::scale(d2pijtEf_, rate_ * rate_);
-    //pijt_calculated_ = true;
-  //}else{
-    //mult(vPowGen_[2], pijt_, d2pijt_);
-  //}
-  // ddp(t) = Q^2 * p(t)*rate_^2
-  pijtCalledFromDeriv_ = false;
-  return d2pijtEf_;
-}
+
 /******************************************************************************/
 const Matrix<double>& ChromosomeSubstitutionModel::getPij_t_func2(double d) const{
   RowMatrix<double> pijt_temp;
@@ -1235,34 +1032,21 @@ const Matrix<double>& ChromosomeSubstitutionModel::getPij_t_func3(double d) cons
 }
 
 /******************************************************************************/
-void ChromosomeSubstitutionModel::calculateExp_Qt(size_t pow, double* s, double v, bool ef) const{
+void ChromosomeSubstitutionModel::calculateExp_Qt(size_t pow, double* s, double v) const{
   if (pow == 2){
-    (ef)? ExtendedFloatTools::getIdentityMatrix(pijtEf_, size_) : MatrixTools::getId(size_, pijt_);
+    MatrixTools::getId(size_, pijt_);
     for (size_t i = 1; i <= pow; i++){
       *s *= v / static_cast<double>(i);// the initial value of v is rt/(2^m)
-      if (ef){
-        ExtendedFloatTools::add(pijtEf_, *s, vPowExpEf_[i]);
-
-      }else{
-        MatrixTools::add(pijt_, *s, vPowExp_[i]);
-      }
+      MatrixTools::add(pijt_, *s, vPowExp_[i]);
       
     }
 
   }else{
     *s *= v / static_cast<double>(pow);
-    (ef) ? ExtendedFloatTools::add(pijtEf_, *s, vPowExpEf_[pow]) : MatrixTools::add(pijt_, *s, vPowExp_[pow]);
-
+    MatrixTools::add(pijt_, *s, vPowExp_[pow]);
+ 
   }
   
-
-/*   while (m > 0)  // recover the 2^m
-  {
-    MatrixTools::mult(pijt_, pijt_, tmpMat_);
-    MatrixTools::copy(tmpMat_, pijt_);
-
-    m--;
-  } */
 
 }
 /******************************************************************************/
@@ -1404,99 +1188,4 @@ const Matrix<double>& ChromosomeSubstitutionModel::getPijt_test(double t) const 
 
 }
 
-/*************************************************************************/
-const MatrixXef& ChromosomeSubstitutionModel::getPijtEf_test(double t) const{
-  MatrixXef pijt_temp;
-  ExtendedFloatTools::getIdentityMatrix(pijt_temp, size_);
-  double s = 1.0;
-  double v = rate_ * t;
-  double norm = v * firstNormQ_;
-
-  //ExtendedFloat s = ExtendedFloatTools::convertToExtendedFloat(1.0);
-  size_t m = 0;
-  bool converged = false;
-  //while (v > 0.5)    // exp(r*t*A)=(exp(r*t/(2^m) A))^(2^m)
-  while (norm > 0.5)
-  {
-    m += 1;
-    v /= 2;
-    norm /= 2;
-  }
-  for (size_t iternum = 2; iternum <  vPowExpEf_.size(); iternum++){
-    calculateExp_Qt(iternum, &s, v, true);
-
-    if (iternum > 2){
-      converged = checkIfReachedConvergence(pijtEf_, pijt_temp);
-      if (converged){
-        break;
-      }
-    }
-    ExtendedFloatTools::copy(pijtEf_, pijt_temp);
-    if (iternum > 250){
-      //std :: cout << "ERROR: Pijt did not reach convergence for t = "<< t <<"!"<<endl;
-      throw Exception("ChromosomeSubstitutionModel: Taylor series did not reach convergence!");
-      break;
-    }
-    if (iternum == vPowExpEf_.size()-1 && !converged){  //need to add more powers to the matrix
-      MatrixXef new_pow;
-      //new_pow.resize(size_, size_);
-      MatrixXef generator = ExtendedFloatTools::convertBppMatrixToEigenEF(generator_);
-      ExtendedFloatTools :: mult(vPowExpEf_[vPowExpEf_.size()-1], generator, new_pow);
-      vPowExpEf_.push_back(new_pow);
-
-    }
-
-  }
-  MatrixXef tmpMat;
-    
-  while (m > 0){  // recover the 2^m
-      
-    //ExtendedFloatTools::mult(pijtEf_, pijtEf_, tmpMat_);
-    //ExtendedFloatTools::copy(tmpMat_, pijtEf_);
-    //Do I really need tmpMat_? Seems like it is the only usage...
-    ExtendedFloatTools::mult(pijtEf_, pijtEf_, tmpMat);
-    ExtendedFloatTools::copy(tmpMat, pijtEf_);
-
-    m--;
-  }
-  //just for test/////////////////////
-  // bool correct = true;
-  if (!pijtCalledFromDeriv_){
-    
-    for (size_t i = 0; i < size_; i++){
-      for (size_t j = 0; j < size_; j++){
-        if (convert(pijtEf_(i,j)) < 0){
-          pijtEf_(i,j) = ExtendedFloatTools::convertToExtendedFloat(NumConstants::VERY_TINY()); // trying to do it exactly as in ChromEvol. Maybe the "nan" problem will be solved
-          //pijt_(i,j) = 0;
-        }
-        else if (convert(pijtEf_(i, j)) > 1){
-          pijtEf_(i,j) = ExtendedFloatTools::convertToExtendedFloat(1.0);
-        }
-
-      }
-    }
-
-  }
-  return pijtEf_;
-}
-
-/* size_t ChromosomeSubstitutionModel::getMaxChrNum(const Alphabet* alpha){
-  //Alphabet* new_alpha = alpha->clone();
-  //AbstractAlphabet* chr_alpha = dynamic_cast <AbstractAlphabet*>(new_alpha);
-  
-  size_t number_of_alpha_states = alpha->getNumberOfStates();
-  AlphabetState state = alpha->getStateAt(number_of_alpha_states-1);
-  size_t max_state_num = state.getNum();
-  return max_state_num;
-
-} */
 /******************************************************************************/
-/* 
-size_t ChromosomeSubstitutionModel::getMinChrNum(const Alphabet* alpha){
-  //Alphabet* new_alpha = alpha->clone();
-  //AbstractAlphabet* chr_alpha = dynamic_cast <AbstractAlphabet*>(new_alpha);
-  AlphabetState state = alpha->getStateAt(1);
-  size_t min_state_num = state.getNum();
-  return min_state_num;
-
-} */
