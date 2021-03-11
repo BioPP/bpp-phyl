@@ -50,6 +50,7 @@
 #include <functional>
 #include <unordered_map>
 #include <iostream>
+#include "Definitions.h"
 
 #include <Bpp/Numeric/ParameterList.h>
 
@@ -203,23 +204,23 @@ namespace bpp {
        */
 
       template<typename ConfiguredObject, typename Self>
-      static ValueRef<Eigen::RowVectorXd>
+      static ValueRef<RowLik>
       createRowVector (Context & c, NodeRefVec && deps,
-                    const Dimension<Eigen::RowVectorXd> & dim) {        
+                    const Dimension<RowLik> & dim) {        
         checkDependencyVectorMinSize (typeid (Self), deps, 1);
         checkNthDependencyNotNull (typeid (Self), deps, 0);
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
-        return cachedAs<Value<Eigen::RowVectorXd>> (c, std::make_shared<Self> (std::move (deps), dim));
+        return cachedAs<Value<RowLik>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
 
       template<typename ConfiguredObject, typename Self>
-      static ValueRef<Eigen::VectorXd>
+      static ValueRef<VectorLik>
       createVector (Context & c, NodeRefVec && deps,
-                    const Dimension<Eigen::VectorXd> & dim) {        
+                    const Dimension<VectorLik> & dim) {        
         checkDependencyVectorMinSize (typeid (Self), deps, 1);
         checkNthDependencyNotNull (typeid (Self), deps, 0);
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
-        return cachedAs<Value<Eigen::VectorXd>> (c, std::make_shared<Self> (std::move (deps), dim));
+        return cachedAs<Value<VectorLik>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
 
       /** Create a new vector of dependencies node to a MatrixXd,
@@ -229,9 +230,9 @@ namespace bpp {
        */
 
       template<typename ConfiguredObject, typename Self>
-      static ValueRef<Eigen::MatrixXd>
+      static ValueRef<MatrixLik>
       createMatrix (Context & c, NodeRefVec && deps,
-                    const Dimension<Eigen::MatrixXd> & dim) {
+                    const Dimension<MatrixLik> & dim) {
         checkDependencyVectorMinSize (typeid (Self), deps, 1);
         checkNthDependencyNotNull (typeid (Self), deps, 0);
         if (deps.size()>1)
@@ -240,7 +241,7 @@ namespace bpp {
         if (deps.size()>1)
           checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
 
-        return cachedAs<Value<Eigen::MatrixXd>> (c, std::make_shared<Self> (std::move (deps), dim));
+        return cachedAs<Value<MatrixLik>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
 
 

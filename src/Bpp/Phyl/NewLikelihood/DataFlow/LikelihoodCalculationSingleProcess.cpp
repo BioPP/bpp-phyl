@@ -449,12 +449,12 @@ void LikelihoodCalculationSingleProcess::makeRootFreqs_()
 // Set root frequencies 
   size_t nbState = getStateMap().getNumberOfModelStates();
   if (weightedRootFrequencies_){
-      auto sumOfWeights = CWiseAdd<double, Eigen::RowVectorXd>::create(getContext_(), {vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, Dimension<double>());
+      auto sumOfWeights = CWiseAdd<double, RowLik>::create(getContext_(), {vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, Dimension<double>());
       // warning: this is correct only for one site!!!!
       size_t nbSite = vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue().cols();
-      auto converted = Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>::create(getContext_(), {vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, MatrixDimension (nbSite, nbState));
-      auto rootCondLik = CWiseAdd<Eigen::RowVectorXd, Eigen::MatrixXd>::create(getContext_(), {converted}, RowVectorDimension(Eigen::Index(nbState)));
-      rFreqs_ = CWiseDiv<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, double>>::create(getContext_(),{rootCondLik, sumOfWeights}, RowVectorDimension(Eigen::Index(nbState)));
+      auto converted = Convert<MatrixLik, Transposed<MatrixLik>>::create(getContext_(), {vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, MatrixDimension (nbSite, nbState));
+      auto rootCondLik = CWiseAdd<RowLik, MatrixLik>::create(getContext_(), {converted}, RowVectorDimension(Eigen::Index(nbState)));
+      rFreqs_ = CWiseDiv<RowLik, std::tuple<RowLik, double>>::create(getContext_(),{rootCondLik, sumOfWeights}, RowVectorDimension(Eigen::Index(nbState)));
   }else{
     
     rFreqs_ = processNodes_.rootFreqsNode_?ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet> (

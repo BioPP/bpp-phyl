@@ -47,6 +47,7 @@
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
+#include "Definitions.h"
 
 namespace bpp {
 
@@ -55,14 +56,14 @@ namespace bpp {
      *
      */
     
-    class Sequence_DF : public Value<Eigen::MatrixXd>
+    class Sequence_DF : public Value<MatrixLik>
     {
     private:
       std::string name_;
  
     public:
       using Self = Sequence_DF;
-      using T = Eigen::MatrixXd;
+      using T = MatrixLik;
  
       static ValueRef<T> create (Context & c, T&& value, const std::string& name)
       {

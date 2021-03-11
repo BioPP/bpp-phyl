@@ -49,6 +49,7 @@
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
+#include "Definitions.h"
 
 namespace bpp {
   /* Likelihood discrete distribution.
@@ -123,11 +124,11 @@ namespace bpp {
      * Node construction should be done with the create static method.
      */
 
-    class ProbabilitiesFromDiscreteDistribution : public Value<Eigen::RowVectorXd> {
+    class ProbabilitiesFromDiscreteDistribution : public Value<RowLik> {
     public:
       using Self = ProbabilitiesFromDiscreteDistribution;
       using Dep = ConfiguredDistribution;
-      using T = Eigen::RowVectorXd;
+      using T = RowLik;
 
       ProbabilitiesFromDiscreteDistribution (NodeRefVec && deps, const Dimension<T> & dim);
 

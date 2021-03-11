@@ -45,7 +45,7 @@
 
 namespace bpp {
 
-  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix) {
+  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix,MatrixLik & eigenMatrix) {
     const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
     const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
     eigenMatrix.resize (eigenRows, eigenCols);
@@ -56,7 +56,7 @@ namespace bpp {
     }
   }
 
-  void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector) {
+  void copyBppToEigen (const bpp::Vdouble& bppVector, VectorLik & eigenVector) {
     const auto eigenRows = static_cast<Eigen::Index> (bppVector.size());
     eigenVector.resize (eigenRows);
     for (Eigen::Index i = 0; i < eigenRows; ++i) {
@@ -64,7 +64,7 @@ namespace bpp {
     }
   }
 
-  void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector) {
+  void copyBppToEigen (const bpp::Vdouble& bppVector, RowLik & eigenVector) {
     const auto eigenRows = Eigen::Index(bppVector.size());
     eigenVector.resize (eigenRows);
     for (Eigen::Index i = 0; i < eigenRows; ++i) {
@@ -72,7 +72,7 @@ namespace bpp {
     }
   }
 
-  void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix)
+  void copyEigenToBpp (const MatrixLik & eigenMatrix, bpp::Matrix<double> & bppMatrix)
   {
     const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
     const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
@@ -85,7 +85,7 @@ namespace bpp {
     }
   } 
 
-  void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix)
+  void copyEigenToBpp (const MatrixLik & eigenMatrix, VVdouble& bppMatrix)
   {
     const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
     const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
@@ -101,22 +101,22 @@ namespace bpp {
   }    
 
 
-  void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector)
+  void copyEigenToBpp (const VectorLik & eigenVector, bpp::Vdouble& bppVector)
   {
     bppVector.resize(size_t(eigenVector.size()));  
-    Eigen::VectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+    VectorLik::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
 
-  void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector)
+  void copyEigenToBpp (Eigen::Ref<const VectorLik> & eigenVector, bpp::Vdouble& bppVector)
   {
     bppVector.resize(size_t(eigenVector.size()));  
-    Eigen::VectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+    VectorLik::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
 
-  void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector)
+  void copyEigenToBpp (const RowLik & eigenVector, bpp::Vdouble& bppVector)
   {
     bppVector.resize(size_t(eigenVector.size()));  
-    Eigen::RowVectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+    RowLik::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
   
 
@@ -154,9 +154,9 @@ namespace bpp {
   template class ConstantZero<uint>;
   template class ConstantZero<double>;
   template class ConstantZero<Parameter>;
-  template class ConstantZero<Eigen::VectorXd>;
-  template class ConstantZero<Eigen::RowVectorXd>;
-  template class ConstantZero<Eigen::MatrixXd>;
+  template class ConstantZero<VectorLik>;
+  template class ConstantZero<RowLik>;
+  template class ConstantZero<MatrixLik>;
   template class ConstantZero<TransitionFunction>;
   template class ConstantZero<char>;
   template class ConstantZero<std::string>;
@@ -164,9 +164,9 @@ namespace bpp {
   template class ConstantOne<uint>;
   template class ConstantOne<double>;
   template class ConstantOne<Parameter>;
-  template class ConstantOne<Eigen::VectorXd>;
-  template class ConstantOne<Eigen::RowVectorXd>;
-  template class ConstantOne<Eigen::MatrixXd>;
+  template class ConstantOne<VectorLik>;
+  template class ConstantOne<RowLik>;
+  template class ConstantOne<MatrixLik>;
   template class ConstantOne<TransitionFunction>;
   template class ConstantOne<char>;
   template class ConstantOne<std::string>;
@@ -174,28 +174,28 @@ namespace bpp {
   template class NumericConstant<uint>;
   template class NumericConstant<double>;
   template class NumericConstant<size_t>;
-  template class NumericConstant<Eigen::VectorXd>;
-  template class NumericConstant<Eigen::RowVectorXd>;
-  template class NumericConstant<Eigen::MatrixXd>;
+  template class NumericConstant<VectorLik>;
+  template class NumericConstant<RowLik>;
+  template class NumericConstant<MatrixLik>;
   template class NumericConstant<std::string>;
 
   template class NumericMutable<uint>;
   template class NumericMutable<double>;
-  template class NumericMutable<Eigen::VectorXd>;
-  template class NumericMutable<Eigen::RowVectorXd>;
-  template class NumericMutable<Eigen::MatrixXd>;
+  template class NumericMutable<VectorLik>;
+  template class NumericMutable<RowLik>;
+  template class NumericMutable<MatrixLik>;
 
   template class Convert<double, double>;
-  template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
-  template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXd>;
-  template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXi>;
-  template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
-  template class Convert<Eigen::VectorXd, double>;
-  template class Convert<Eigen::RowVectorXd, double>;
-  template class Convert<Eigen::MatrixXd, double>;
-  template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
-  template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
-  template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
+  template class Convert<VectorLik, VectorLik>;
+  template class Convert<RowLik, RowLik>;
+  template class Convert<RowLik, Eigen::RowVectorXi>;
+  template class Convert<MatrixLik, MatrixLik>;
+  template class Convert<VectorLik, double>;
+  template class Convert<RowLik, double>;
+  template class Convert<MatrixLik, double>;
+  template class Convert<MatrixLik, Transposed<MatrixLik>>;
+  template class Convert<RowLik, Transposed<VectorLik>>;
+  template class Convert<VectorLik, Transposed<RowLik>>;
 
   template class Identity<double>;
 

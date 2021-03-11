@@ -51,6 +51,7 @@
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
+#include "Definitions.h"
 
 namespace bpp {
   inline MatrixDimension transitionMatrixDimension (std::size_t nbState) {
@@ -133,11 +134,11 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
 
-  class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd> {
+  class EquilibriumFrequenciesFromModel : public Value<RowLik> {
   public:
     using Self = EquilibriumFrequenciesFromModel;
     using Dep = ConfiguredModel;
-    using T = Eigen::RowVectorXd;
+    using T = RowLik;
 
     EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
@@ -172,11 +173,11 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
 
-  class TransitionMatrixFromModel : public Value<Eigen::MatrixXd> {
+  class TransitionMatrixFromModel : public Value<MatrixLik> {
   public:
     using Self = TransitionMatrixFromModel;
     using Dep = ConfiguredModel;
-    using T = Eigen::MatrixXd;
+    using T = MatrixLik;
 
   private:
     Dimension<T> targetDimension_;
@@ -274,11 +275,11 @@ namespace bpp {
    */
 
 
-  class ProbabilitiesFromMixedModel : public Value<Eigen::RowVectorXd> {
+  class ProbabilitiesFromMixedModel : public Value<RowLik> {
   public:
     using Self = ProbabilitiesFromMixedModel;
     using Dep = ConfiguredModel;
-    using T = Eigen::RowVectorXd;
+    using T = RowLik;
 
     ProbabilitiesFromMixedModel (NodeRefVec && deps, const Dimension<T> & dim);
 

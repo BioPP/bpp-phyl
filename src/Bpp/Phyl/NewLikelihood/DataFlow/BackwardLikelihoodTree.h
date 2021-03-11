@@ -46,8 +46,8 @@
 
 namespace bpp
 {
-  using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
-  using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+  //using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
+  //using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
   
     
   /** @brief : At the top of each edge below a speciation node
@@ -127,7 +127,7 @@ namespace bpp
     Eigen::Index nbSite_;
     std::shared_ptr<ForwardLikelihoodTree> forwardTree_;
     std::shared_ptr<ProcessTree> processTree_;
-    ValueRef<Eigen::RowVectorXd> rFreqs_;
+    ValueRef<RowLik> rFreqs_;
     MatrixDimension likelihoodMatrixDim_;
     const StateMap& statemap_;
 
@@ -136,7 +136,7 @@ namespace bpp
     BackwardLikelihoodTree(Context& c, 
                            std::shared_ptr<ForwardLikelihoodTree> forwardTree,
                            std::shared_ptr<ProcessTree> tree,
-                           ValueRef<Eigen::RowVectorXd> rFreqs,
+                           ValueRef<RowLik> rFreqs,
                            const StateMap& statemap,
                            Eigen::Index nbSite) :
       DAClass(forwardTree->getGraph()),
@@ -144,9 +144,9 @@ namespace bpp
     {
     }
 
-    ConditionalLikelihoodRef setRootFrequencies(const ValueRef<Eigen::RowVectorXd> rootFreqs)
+    ConditionalLikelihoodRef setRootFrequencies(const ValueRef<RowLik> rootFreqs)
     {
-      auto r2=CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
+      auto r2=CWiseFill<MatrixLik, RowLik>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
 
       associateNode(r2, forwardTree_->getNodeGraphid(forwardTree_->getRoot()));
       setNodeIndex(r2, forwardTree_->getRootIndex());

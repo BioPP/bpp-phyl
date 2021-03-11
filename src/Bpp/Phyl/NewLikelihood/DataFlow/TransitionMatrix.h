@@ -48,6 +48,7 @@
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
+#include "Definitions.h"
 
 namespace bpp {
   /** @brief Data flow node representing a TransitionMatrix
@@ -113,11 +114,11 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
 
-  class EquilibriumFrequenciesFromTransitionMatrix : public Value<Eigen::VectorXd> {
+  class EquilibriumFrequenciesFromTransitionMatrix : public Value<VectorLik> {
   public:
     using Self = EquilibriumFrequenciesFromTransitionMatrix;
     using Dep = ConfiguredTransitionMatrix;
-    using T = Eigen::VectorXd;
+    using T = VectorLik;
     
     EquilibriumFrequenciesFromTransitionMatrix (NodeRefVec && deps, const Dimension<T> & dim);
 
@@ -145,11 +146,11 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
 
-  class TransitionMatrixFromTransitionMatrix : public Value<Eigen::MatrixXd> {
+  class TransitionMatrixFromTransitionMatrix : public Value<MatrixLik> {
   public:
     using Self = TransitionMatrixFromTransitionMatrix;
     using Dep = ConfiguredTransitionMatrix;
-    using T = Eigen::MatrixXd;
+    using T = MatrixLik;
     
   private:
     Dimension<T> targetDimension_;

@@ -86,8 +86,8 @@ namespace bpp {
   class ForwardLikelihoodTree;
   class BackwardLikelihoodTree;
 
-  using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
-  using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+  //using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
+  //using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
   
   /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
    * - likelihood: RowVector(site).
@@ -238,7 +238,7 @@ namespace bpp {
 
     ProcessNodes processNodes_;
 
-    ValueRef<Eigen::RowVectorXd> rFreqs_;
+    ValueRef<RowLik> rFreqs_;
 
     /* Likelihood Trees with for all rate categories */
     std::vector<RateCategoryTrees> vRateCatTrees_;
@@ -525,7 +525,7 @@ namespace bpp {
       return rootWeights_;
     }
 
-    ValueRef<Eigen::RowVectorXd> getRootFreqs()
+    ValueRef<RowLik> getRootFreqs()
     {
       return rFreqs_;
     }

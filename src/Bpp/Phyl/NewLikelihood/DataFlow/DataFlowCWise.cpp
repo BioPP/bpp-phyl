@@ -45,20 +45,20 @@
 
 namespace bpp {
   // Precompiled instantiations of numeric nodes
-  template class CWiseFill<Eigen::RowVectorXd, double>;
-  template class CWiseFill<Eigen::VectorXd, double>;
-  template class CWiseFill<Eigen::MatrixXd, Eigen::VectorXd>;
-  template class CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>;
+  template class CWiseFill<RowLik, double>;
+  template class CWiseFill<VectorLik, double>;
+  template class CWiseFill<MatrixLik, VectorLik>;
+  template class CWiseFill<MatrixLik, RowLik>;
 
-  template class CWisePattern<Eigen::RowVectorXd>;
-  template class CWisePattern<Eigen::MatrixXd>;
+  template class CWisePattern<RowLik>;
+  template class CWisePattern<MatrixLik>;
 
-  template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
-  template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-  template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<double>>;
-  template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
+  template class CWiseMatching<RowLik, ReductionOf<RowLik>>;
+  template class CWiseMatching<MatrixLik, ReductionOf<MatrixLik>>;
+  template class CWiseMatching<RowLik, ReductionOf<double>>;
+  template class CWiseMatching<MatrixLik, ReductionOf<RowLik>>;
 
-  template class CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
-  template class CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::VectorXd>>;
+  template class CWiseCompound<MatrixLik, ReductionOf<RowLik>>;
+  template class CWiseCompound<MatrixLik, ReductionOf<VectorLik>>;
 
 } // namespace bpp

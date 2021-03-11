@@ -50,6 +50,7 @@
 
 #include "Model.h"
 #include "Parameter.h"
+#include "Definitions.h"
 
 //From the stl:
 #include <string>
@@ -96,7 +97,7 @@ namespace bpp
       
     std::shared_ptr<NumericConstant<size_t>> nMod_;
 
-    ValueRef<Eigen::MatrixXd> transitionMatrix_;
+    ValueRef<MatrixLik> transitionMatrix_;
     /*
      *@ brief Probablity of the edge, used in case of mixture models.
      *
@@ -151,12 +152,12 @@ namespace bpp
       brlen_=brlen;
     }
 
-    void setTransitionMatrix(ValueRef<Eigen::MatrixXd> transitionMatrix)
+    void setTransitionMatrix(ValueRef<MatrixLik> transitionMatrix)
     {
       transitionMatrix_ = transitionMatrix;
     }
 
-    ValueRef<Eigen::MatrixXd> getTransitionMatrix()
+    ValueRef<MatrixLik> getTransitionMatrix()
     {
       return transitionMatrix_;
     }
