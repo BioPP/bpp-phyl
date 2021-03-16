@@ -83,9 +83,9 @@ namespace bpp {
      *
      */
       
-    mutable std::unordered_map<std::string, ValueRef<Eigen::RowVectorXd>> firstOrderDerivativeVectors_;
+    mutable std::unordered_map<std::string, ValueRef<RowLik>> firstOrderDerivativeVectors_;
 
-    mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<Eigen::RowVectorXd>,
+    mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>,
                                StringPairHash>
     secondOrderDerivativeVectors_;
 
@@ -296,11 +296,11 @@ namespace bpp {
 
     // Get nodes of derivatives directly
       
-    ValueRef<Eigen::RowVectorXd> getFirstOrderDerivativeVector (const std::string & variable) const  {
+    ValueRef<RowLik> getFirstOrderDerivativeVector (const std::string & variable) const  {
       return firstOrderDerivativeVector(variable);
     }
 
-    ValueRef<Eigen::RowVectorXd> firstOrderDerivativeVector (const std::string & variable) const {
+    ValueRef<RowLik> firstOrderDerivativeVector (const std::string & variable) const {
       const auto it = firstOrderDerivativeVectors_.find (variable);
       if (it != firstOrderDerivativeVectors_.end ()) {
         return it->second;
@@ -311,16 +311,16 @@ namespace bpp {
       }
     }
       
-    ValueRef<Eigen::RowVectorXd> getSecondOrderDerivativeVector (const std::string & variable) const {
+    ValueRef<RowLik> getSecondOrderDerivativeVector (const std::string & variable) const {
       return getSecondOrderDerivativeVector (variable, variable);
     }
 
-    ValueRef<Eigen::RowVectorXd> getSecondOrderDerivativeVector (const std::string & variable1,
+    ValueRef<RowLik> getSecondOrderDerivativeVector (const std::string & variable1,
                                                                   const std::string & variable2) const {
       return secondOrderDerivativeVector (variable1, variable2);
     }
 
-    ValueRef<Eigen::RowVectorXd> secondOrderDerivativeVector (const std::string & variable1,
+    ValueRef<RowLik> secondOrderDerivativeVector (const std::string & variable1,
                                                               const std::string & variable2) const {
       const auto key = std::make_pair (variable1, variable2);
       const auto it = secondOrderDerivativeVectors_.find (key);

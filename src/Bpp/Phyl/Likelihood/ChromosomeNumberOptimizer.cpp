@@ -260,7 +260,7 @@ void ChromosomeNumberOptimizer::printRootFrequencies(SingleProcessPhyloLikelihoo
         outFile.open(filePath);
     }
     
-    ValueRef <Eigen::RowVectorXd> rootFreqVector = lik->getLikelihoodCalculationSingleProcess()->getRootFreqs();
+    ValueRef <RowLik> rootFreqVector = lik->getLikelihoodCalculationSingleProcess()->getRootFreqs();
     for (size_t s = 0; s < (size_t)rootFreqVector->getTargetValue().size(); s ++){
         cout << "F[" << s + alphabet_->getMin() << "] = " << rootFreqVector.get()->getTargetValue()[s] << endl;
         if (filePath != "none"){

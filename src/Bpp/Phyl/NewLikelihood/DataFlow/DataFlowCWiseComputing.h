@@ -184,7 +184,7 @@ namespace bpp {
     void compute() override { compute<T>();}
       
     template<class U>
-    typename std::enable_if<std::is_same<U, MatrixLik>::value && std::is_same<F, TransitionFunction>::value, void>::type
+    typename std::enable_if<std::is_base_of<U, MatrixLik>::value && std::is_same<F, TransitionFunction>::value, void>::type
       compute () {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
@@ -497,7 +497,7 @@ namespace bpp {
         
       result = [lT, this](const VectorLik& x)->VectorLik{
 
-        VectorLik r = zero (Dimension<VectorLik>(targetDimension_.cols,1));
+        VectorLik r = zero (Dimension<Eigen::VectorXd>(targetDimension_.cols,1));
           
         for (const auto f:lT)
           cwise(r)+= cwise((*f)(x));
@@ -565,21 +565,21 @@ namespace bpp {
     void compute() override { compute<R,T>();}
       
     template<class U, class V>
-    typename std::enable_if<std::is_same<V, MatrixLik>::value && std::is_same<U, RowLik>::value, void>::type
+    typename std::enable_if<(std::is_base_of<V, MatrixLik>::value) && (std::is_same<U, RowLik>::value || std::is_same<U, Eigen::RowVectorXd>::value), void>::type
       compute () {
       const auto& mat = accessValueConstCast<T>(*this->dependency(0));
       this->accessValueMutable () = mat.colwise().sum();
     }
 
     template<class U, class V>
-    typename std::enable_if<std::is_same<V, MatrixLik>::value && std::is_same<U, VectorLik>::value, void>::type
+    typename std::enable_if<(std::is_base_of<V, MatrixLik>::value) && (std::is_same<U, VectorLik>::value || std::is_same<U, Eigen::VectorXd>::value), void>::type
       compute () {
       const auto& mat = accessValueConstCast<T>(*this->dependency(0));
       this->accessValueMutable () = mat.rowwise().sum();
     }
 
     template<class U, class V>
-    typename std::enable_if<std::is_same<V, VectorLik>::value || std::is_same<V, RowLik>::value, void>::type
+    typename std::enable_if<(std::is_base_of<V, VectorLik>::value) || (std::is_same<V, RowLik>::value || std::is_same<V, Eigen::RowVectorXd>::value), void>::type
       compute () {
       const auto& vec = accessValueConstCast<T>(*this->dependency(0));
       this->accessValueMutable () = vec.sum();
@@ -2296,7 +2296,7 @@ namespace bpp {
 
       result = [vT, lambda, this](const VectorLik& x)->VectorLik{
         using namespace numeric;
-        VectorLik r = zero (Dimension<VectorLik>(this->targetDimension_.cols,1));
+        VectorLik r = zero (Dimension<Eigen::VectorXd>(this->targetDimension_.cols,1));
         
         for (std::size_t i = 0; i < this->coeffs_.size (); ++i) {
           cwise(r) += (lambda * this->coeffs_[i]) * cwise((*vT[i])(x));
