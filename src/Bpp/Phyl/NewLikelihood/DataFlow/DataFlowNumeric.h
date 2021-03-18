@@ -64,21 +64,29 @@
 
 namespace bpp {
 
-  extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, MatrixLik & eigenMatrix);
+  extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix);
+  extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix);
 
-  extern void copyBppToEigen (const bpp::Vdouble& bppVector, VectorLik & eigenVector);
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector);
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatVector & eigenVector);
 
-  extern void copyBppToEigen (const bpp::Vdouble& bppVector, RowLik & eigenVector);
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector);
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatRowVector & eigenVector);
   
-  extern void copyEigenToBpp (const MatrixLik & eigenMatrix, bpp::Matrix<double> & bppMatrix);
+  //extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix);
+  extern void copyEigenToBpp (const ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix, bpp::Matrix<double> & bppMatrix);
 
-  extern void copyEigenToBpp (const MatrixLik & eigenMatrix, VVdouble& bppMatrix);
+  //extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix);
+  extern void copyEigenToBpp (const ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix, VVdouble& bppMatrix);
 
-  extern void copyEigenToBpp (const VectorLik & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const ExtendedFloatVector & eigenVector, bpp::Vdouble& bppVector);
 
-  extern void copyEigenToBpp (Eigen::Ref<const VectorLik> & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (Eigen::Ref<const ExtendedFloatVector> & eigenVector, bpp::Vdouble& bppVector);
 
-  extern void copyEigenToBpp (const RowLik & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const ExtendedFloatRowVector & eigenVector, bpp::Vdouble& bppVector);
   
   /*******************************************/
   /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/

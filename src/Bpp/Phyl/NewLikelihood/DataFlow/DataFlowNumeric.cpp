@@ -45,7 +45,7 @@
 
 namespace bpp {
 
-  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix,MatrixLik & eigenMatrix) {
+  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix,Eigen::MatrixXd & eigenMatrix) {
     const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
     const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
     eigenMatrix.resize (eigenRows, eigenCols);
@@ -56,7 +56,19 @@ namespace bpp {
     }
   }
 
-  void copyBppToEigen (const bpp::Vdouble& bppVector, VectorLik & eigenVector) {
+// This function should be re-implemented once ExtendedFloatMatrix has an implementation.
+  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix) {
+    const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
+    const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
+    eigenMatrix.resize (eigenRows, eigenCols);
+    for (Eigen::Index i = 0; i < eigenRows; ++i) {
+      for (Eigen::Index j = 0; j < eigenCols; ++j) {
+        eigenMatrix (i, j) = bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
+      }
+    }
+  }
+
+  void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector) {
     const auto eigenRows = static_cast<Eigen::Index> (bppVector.size());
     eigenVector.resize (eigenRows);
     for (Eigen::Index i = 0; i < eigenRows; ++i) {
@@ -64,7 +76,24 @@ namespace bpp {
     }
   }
 
-  void copyBppToEigen (const bpp::Vdouble& bppVector, RowLik & eigenVector) {
+// This function should be re-implemented once ExtendedFloatMatrix has an implementation.
+  void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatVector & eigenVector) {
+    const auto eigenRows = static_cast<Eigen::Index> (bppVector.size());
+    eigenVector.resize (eigenRows);
+    for (Eigen::Index i = 0; i < eigenRows; ++i) {
+      eigenVector (i) = bppVector[size_t(i)];
+    }
+  }
+
+  void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector) {
+    const auto eigenRows = Eigen::Index(bppVector.size());
+    eigenVector.resize (eigenRows);
+    for (Eigen::Index i = 0; i < eigenRows; ++i) {
+      eigenVector (i) = bppVector[size_t(i)];
+    }
+  }
+// This function should be re-implemented once ExtendedFloatMatrix has an implementation.
+  void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatRowVector & eigenVector) {
     const auto eigenRows = Eigen::Index(bppVector.size());
     eigenVector.resize (eigenRows);
     for (Eigen::Index i = 0; i < eigenRows; ++i) {
@@ -72,7 +101,22 @@ namespace bpp {
     }
   }
 
-  void copyEigenToBpp (const MatrixLik & eigenMatrix, bpp::Matrix<double> & bppMatrix)
+
+/*   void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix)
+  {
+    const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
+    const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
+    
+    bppMatrix.resize (eigenRows, eigenCols);
+    for (size_t i = 0; i < eigenRows; ++i) {
+      for (size_t j = 0; j < eigenCols; ++j) {
+        bppMatrix(i, j) = eigenMatrix (static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j));
+      }
+    }
+  }  */
+
+// This function should be re-implemented once ExtendedFloatMatrix has an implementation.
+  void copyEigenToBpp (const ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix, bpp::Matrix<double> & bppMatrix)
   {
     const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
     const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
@@ -85,7 +129,22 @@ namespace bpp {
     }
   } 
 
-  void copyEigenToBpp (const MatrixLik & eigenMatrix, VVdouble& bppMatrix)
+  // void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix)
+  // {
+  //   const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
+  //   const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
+
+  //   bppMatrix.resize (eigenRows);
+  //   for (size_t i = 0; i < eigenRows; ++i) {
+  //     bppMatrix[i].resize (eigenCols);
+  //     auto bMi = &bppMatrix[i];
+  //     for (size_t j = 0; j < eigenCols; ++j) {
+  //       (*bMi)[j] = eigenMatrix (static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j));
+  //     }
+  //   }
+  // }
+// This function should be re-implemented once ExtendedFloatMatrix has an implementation.
+  void copyEigenToBpp (const ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix, VVdouble& bppMatrix)
   {
     const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
     const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
@@ -98,25 +157,44 @@ namespace bpp {
         (*bMi)[j] = eigenMatrix (static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j));
       }
     }
-  }    
+  }     
 
-
-  void copyEigenToBpp (const VectorLik & eigenVector, bpp::Vdouble& bppVector)
+  void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector)
   {
     bppVector.resize(size_t(eigenVector.size()));  
-    VectorLik::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+    Eigen::VectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
 
-  void copyEigenToBpp (Eigen::Ref<const VectorLik> & eigenVector, bpp::Vdouble& bppVector)
+// This function should be re-implemented once ExtendedFloatMatrix has an implementation.
+  void copyEigenToBpp (const ExtendedFloatVector & eigenVector, bpp::Vdouble& bppVector)
   {
     bppVector.resize(size_t(eigenVector.size()));  
-    VectorLik::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+    ExtendedFloatVector::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
 
-  void copyEigenToBpp (const RowLik & eigenVector, bpp::Vdouble& bppVector)
+  void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector)
   {
     bppVector.resize(size_t(eigenVector.size()));  
-    RowLik::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+    Eigen::VectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+  }
+
+// This function should be re-implemented once ExtendedFloatMatrix has an implementation.
+  void copyEigenToBpp (Eigen::Ref<const ExtendedFloatVector> & eigenVector, bpp::Vdouble& bppVector)
+  {
+    bppVector.resize(size_t(eigenVector.size()));  
+    ExtendedFloatVector::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+  }
+
+  void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector)
+  {
+    bppVector.resize(size_t(eigenVector.size()));  
+    Eigen::RowVectorXd::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+  }
+
+  void copyEigenToBpp (const ExtendedFloatRowVector & eigenVector, bpp::Vdouble& bppVector)
+  {
+    bppVector.resize(size_t(eigenVector.size()));  
+    ExtendedFloatRowVector::Map(&bppVector[0], eigenVector.size()) = eigenVector;
   }
   
 
