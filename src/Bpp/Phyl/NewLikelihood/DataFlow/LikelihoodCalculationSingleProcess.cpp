@@ -36,26 +36,6 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
-LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
-                                                                       const AlignedValuesContainer & sites,
-                                                                       const SubstitutionProcess& process, 
-                                                                       ValueRef<RowLik> rootFreqs, uint factor,
-                                                                       bool weightedRootFreqs):
-  AlignedLikelihoodCalculation(context), process_(process), psites_(&sites),
-  rootPatternLinks_(), rootWeights_(), shrunkData_(),
-  processNodes_(), rFreqs_(rootFreqs),
-  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(NumericMutable<uint>::create(getContext_(), factor)),
-  weightedRootFrequencies_(weightedRootFreqs)
-{
-  setPatterns_();
-  makeProcessNodes_();
-
-  // Default Derivate 
-  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
-}
-
-
-
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
                                                                        const SubstitutionProcess& process, uint factor,
                                                                        bool weightedRootFreqs):
@@ -483,23 +463,6 @@ void LikelihoodCalculationSingleProcess::makeRootFreqs_()
         getContext_(), {processNodes_.modelNode_}, RowVectorDimension (Eigen::Index (nbState)));
 
   }
-
-}
-double LikelihoodCalculationSingleProcess::makeJointMLAncestralReconstruction(){
-  // Build conditional likelihoods up to root recursively.
-  if (!processNodes_.treeNode_->isRooted ()) {
-    throw Exception ("LikelihoodCalculationSingleProcess::makeJointMLAncestralReconstruction : PhyloTree must be rooted");
-  }
-  vRateCatTrees_.resize(1);
-  vRateCatTrees_[0].phyloTree=processNodes_.treeNode_;
-
-  auto flt=std::make_shared<FwLikMLAncestralReconstruction >(getContext_(), processNodes_.treeNode_, processNodes_.modelNode_->getTargetValue()->getStateMap(), rFreqs_);
-  ValueRef<double> likValue;
-  if (getShrunkData())
-    likValue = flt->initialize(*getShrunkData());
-  else
-    likValue = flt->initialize(*psites_);
-  return likValue->getTargetValue();
 
 }
 
@@ -933,37 +896,6 @@ std::shared_ptr<ForwardLikelihoodTree> LikelihoodCalculationSingleProcess::getFo
   
   return vRateCatTrees_[nCat].flt;
 }
-/******************************************************************************************************/
-std::vector<double> LikelihoodCalculationSingleProcess::findWeightedRootFrequencies(){
-  std::vector <double> rootFreqs;
-  size_t nbState = getStateMap().getNumberOfModelStates();
-  double sumOfLikelihoods = 0;
-  for (size_t i = 0; i < nbState; i++){
-    sumOfLikelihoods += vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue()(i, 0);
-  }
-  for (size_t i = 0; i < nbState; i++){
-    double freqState = vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue()(i, 0)/sumOfLikelihoods;
-    rootFreqs.push_back(freqState);
-  }
-  // std::cout << "number of rows: " << vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue().rows() << endl;
-  // std::cout << "number of rows: " << vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()->getTargetValue().cols() << endl;
 
 
-  // std::cout << "***** Test Weighted Likelihood ******\n";
-  // std::cout << "The overall Likelihood: " << sumOfLikelihoods << endl;
 
-  return rootFreqs;
-
-}
-/***************************************************************************************/
-void LikelihoodCalculationSingleProcess::setWeightedRootFrequencies(std::vector<double> freqs){
-  size_t nbState = getStateMap().getNumberOfModelStates();
-  std::shared_ptr<FixedFrequencySet> rootFreqsFixed (new FixedFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(process_.getStateMap(), false)), freqs));
-  std::shared_ptr<FrequencySet> rootFreqs = static_pointer_cast<FrequencySet>(rootFreqsFixed);
-  const auto spcm=dynamic_cast<const SubstitutionProcessCollectionMember*>(&process_);
-  std::string suff=spcm?("_"+TextTools::toString(spcm->getRootFrequenciesNumber())):"";
-  ParameterList paramList = process_.getParameters();
-  processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(getContext_(), *rootFreqs, paramList, suff);
-  rFreqs_ = ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet> (
-    getContext_(), {processNodes_.rootFreqsNode_}, RowVectorDimension (Eigen::Index (nbState)));
-}

@@ -180,26 +180,6 @@ void ChromosomeNumberOptimizer::optimize()
     cout <<"*****  Final Optimized -logL *********"  <<endl;
     printLikParameters(vectorOfLikelohoods_[0], 1, outPath);
     std:: cout << "final number of evaluations is : " << totalNumOfEvaluations << endl;
-
-    //just to test ancestral reconstruction before proceeding
-    SingleProcessPhyloLikelihood* lik = vectorOfLikelohoods_[0];
-    ValueRef <RowLik> rootFreqs = lik->getLikelihoodCalculationSingleProcess()->getRootFreqs();
-    const SubstitutionModel* modelRaw = dynamic_cast<const SubstitutionModel*>(lik->getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getModel(1));
-    std::shared_ptr<SubstitutionModel> model(modelRaw->clone());
-    DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(1, 1.0);
-    NonHomogeneousSubstitutionProcess* subProSim;
-    ParametrizablePhyloTree parTree(*tree_);
-    subProSim= NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, rdist, parTree.clone());
-    SubstitutionProcess* subProcess = subProSim->clone();
-    Context context;
-    auto likAncestralRec = std::make_shared<LikelihoodCalculationSingleProcess>(context, *vsc_->clone(), *subProcess, rootFreqs);
-    double likVal = likAncestralRec->makeJointMLAncestralReconstruction();
-    std::cout << "********************************************\n";
-    std::cout << " * * * * * * * * * * * * * * * * * * * * *\n";
-    std::cout << "********************************************\n";
-    std::cout << "Ancestral reconstruction best for root is : " << likVal << endl;
-    delete subProSim;
-
 }
 
 /********************************************************************************/

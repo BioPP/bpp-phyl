@@ -48,8 +48,6 @@
 #include "Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.h"
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
-#include <Bpp/Phyl/NewLikelihood/DataFlow/FwLikMLAncestralReconstruction.h>
-
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
@@ -263,12 +261,6 @@ namespace bpp {
                                        const SubstitutionProcess& process, uint factor = 1,
                                        bool weightedRootFreqs = false);
 
-    LikelihoodCalculationSingleProcess(Context & context,
-                                       const AlignedValuesContainer & sites,
-                                       const SubstitutionProcess& process, 
-                                       ValueRef<RowLik> rootFreqs, uint factor = 1,
-                                       bool weightedRootFreqs = false);
-
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const SubstitutionProcess& process,
@@ -336,17 +328,6 @@ namespace bpp {
      *
      */
     void setClockLike(double rate=1);
-    /**
-     * get root frequencies weighted by likelihood: f(i) = Li/sigma_j{Lj}
-     */
-    std::vector<double> findWeightedRootFrequencies();
-    /**
-     * Set root new root frequencies that are determined by the likelhood
-     * @param vector of root frequencies to set.
-     */
-    void setWeightedRootFrequencies(std::vector<double> freqs);
-
-    double makeJointMLAncestralReconstruction();
 
     
 
