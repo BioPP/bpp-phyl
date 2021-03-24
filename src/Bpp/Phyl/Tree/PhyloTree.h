@@ -124,12 +124,6 @@ namespace bpp
      */
 
     void scaleTree(std::shared_ptr<PhyloNode> node, double factor);
-    
-    /**
-     * @brief Calculate the sum of branches of the phylotree.
-     */
-
-    double getTotalLength() const;
 
     /**
      * @brief Add the lengths of branches of another phylotree to this

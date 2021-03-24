@@ -252,33 +252,27 @@ namespace bpp {
      */
     
     std::shared_ptr<NumericMutable<uint>> factorNode_;
-    /* indicates whether the root likelihoods should be determined according to likelihood */
-    bool weightedRootFrequencies_;
     
   public:
     LikelihoodCalculationSingleProcess(Context & context,
                                        const AlignedValuesContainer & sites,
-                                       const SubstitutionProcess& process, uint factor = 1,
-                                       bool weightedRootFreqs = false);
-
+                                       const SubstitutionProcess& process, 
+                                       uint factor = 1);
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const SubstitutionProcess& process,
-                                       uint factor = 1, bool weightedRootFreqs = false);
-
+                                       uint factor = 1);
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const AlignedValuesContainer & sites,
                                        const SubstitutionProcess& process,
-                                       ParameterList& paramList, uint factor = 1,
-                                       bool weightedRootFreqs = false);
-
+                                       ParameterList& paramList, 
+                                       uint factor = 1);
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const SubstitutionProcess& process,
-                                       ParameterList& paramList, uint factor = 1,
-                                       bool weightedRootFreqs = false);
-
+                                       ParameterList& paramList, 
+                                       uint factor = 1);
 
     /*
      * @brief Build using Nodes of CollectionNodes.
@@ -290,13 +284,13 @@ namespace bpp {
 
     LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                        const AlignedValuesContainer & sites,
-                                       size_t nProcess, uint factor = 1,
-                                       bool weightedRootFreqs = false);
+                                       size_t nProcess,
+                                       uint factor = 1);
+
     
     LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                       size_t nProcess, uint factor = 1,
-                                       bool weightedRootFreqs = false);
-
+                                       size_t nProcess,
+                                       uint factor = 1);
 
     
     LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
@@ -327,9 +321,8 @@ namespace bpp {
      *  - remove all branch lengths parameters from the parameters
      *
      */
-    void setClockLike(double rate=1);
 
-    
+    void setClockLike(double rate=1);
 
     /**************************************************/
 

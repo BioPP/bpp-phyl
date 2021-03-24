@@ -62,15 +62,6 @@ CanonicalStateMap::CanonicalStateMap(const StateMap& sm, bool includeGaps):
     states_.push_back(sm.getAlphabet()->getGapCharacterCode());
 }
 
-CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, int min, int max, bool includeGaps):
-  AbstractStateMap(alphabet){
-  for (int i = min; i <= max; ++i) {
-    states_.push_back(i);
-  }
-  if (includeGaps)
-    states_.push_back(alphabet->getGapCharacterCode());
-}
-
 MarkovModulatedStateMap::MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses):
   AbstractStateMap(unitMap.getAlphabet()),
   nbClasses_(nbClasses)

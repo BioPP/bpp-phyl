@@ -36,13 +36,6 @@ IF (USE_DEBUG)
   add_compile_options(-DDEBUG)
 ENDIF()
 
-### Optional usage of ExtendedFloat
-option(USE_EF "Enter ExtendedFloat Mode" OFF)
-IF (USE_EF)
-  MESSAGE("-- Enter ExtendedFloat Mode")
-  add_compile_options(-DUSEEF)
-ENDIF()
-
 # Libtool-like version number
 # CURRENT:REVISION:AGE => file.so.(C-A).A.R
 # current:  The most recent interface number that this library implements.
