@@ -1997,14 +1997,48 @@ namespace bpp {
 
   private:
     void compute () final {
+      using namespace numeric;
       auto & result = this->accessValueMutable ();
       const auto & x0 = accessValueConstCast<DepT0> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<DepT1> (*this->dependency (1));
+      //bool rowVector = (x0.cols() == 1) ? (true) : (false);
       size_t nrows = x0.rows();
+      // if (rowVector){
+      //   nrows = 1;
+      // }else{
+      //   nrows = x0.rows();
+      // }    
       size_t ncols = x1.cols();
+      result = zero (targetDimension_);
+      if (x0.cols() == 1){
+        nrows = 1;
+      }
       for (size_t i = 0; i < nrows; i++){
        for (size_t j = 0; j < ncols; j++){
-         result (i, j) = (x0.row(i).array() * x1.col(j).array()).maxCoeff();
+         //auto y1 = (rowVector) ? (x0.transpose().array()) : (x0.row(i).array());
+         if (nrows == 1){
+            auto y1 = x0.col(i).transpose().array();
+            auto y2 = (x1.col(j).transpose()).array();
+            std::cerr << "y1= " << y1 << std::endl;
+            std::cerr << "y2= " << y2 << std::endl;
+            auto prod = y1 * y2;
+            std::cerr << "prod= " << prod << std::endl;
+            std::cerr << "max= " << prod.maxCoeff() << std::endl;
+            result (i, j) = prod.maxCoeff();
+
+
+         }else{
+            auto y1 = x0.row(i).array();
+            auto y2 = (x1.col(j).transpose()).array();
+            std::cerr << "y1= " << y1 << std::endl;
+            std::cerr << "y2= " << y2 << std::endl;
+            auto prod = y1 * y2;
+            std::cerr << "prod= " << prod << std::endl;
+            std::cerr << "max= " << prod.maxCoeff() << std::endl;
+            result (i, j) = prod.maxCoeff();
+
+         }
+
        }
       }
     }
@@ -2412,6 +2446,10 @@ namespace bpp {
   extern template class MatrixProduct<MatrixLik, MatrixLik, MatrixLik>;
   extern template class MatrixProduct<RowLik, RowLik, MatrixLik>;
   extern template class MatrixProduct<MatrixLik, Transposed<MatrixLik>, MatrixLik>;
+
+  extern template class MatrixMaxProduct<MatrixLik, MatrixLik, MatrixLik>;
+  extern template class MatrixMaxProduct<RowLik, RowLik, MatrixLik>;
+  extern template class MatrixMaxProduct<MatrixLik, Transposed<MatrixLik>, MatrixLik>;
 
   extern template class ShiftDelta<double>;
   extern template class ShiftDelta<VectorLik>;

@@ -3,13 +3,13 @@
 #include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatMatrix.h>
 
 namespace bpp {
-    typedef ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> MatrixLik;
-    typedef ExtendedFloatRowVector RowLik;
-    typedef ExtendedFloatVector VectorLik;
+    // typedef ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> MatrixLik;
+    // typedef ExtendedFloatRowVector RowLik;
+    // typedef ExtendedFloatVector VectorLik;
 
-    // typedef Eigen::MatrixXd MatrixLik;
-    // typedef Eigen::RowVectorXd RowLik;
-    // typedef Eigen::VectorXd VectorLik;
+    typedef Eigen::MatrixXd MatrixLik;
+    typedef Eigen::RowVectorXd RowLik;
+    typedef Eigen::VectorXd VectorLik;
 
 
     

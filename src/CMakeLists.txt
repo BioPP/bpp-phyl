@@ -73,6 +73,7 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatTools.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/ForwardLikelihoodTree.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/FwLikMLAncestralReconstruction.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/Model.cpp

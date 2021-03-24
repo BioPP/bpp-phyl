@@ -83,7 +83,7 @@ namespace bpp {
   extern void copyEigenToBpp (const ExtendedFloatVector & eigenVector, bpp::Vdouble& bppVector);
 
   extern void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector);
-  extern void copyEigenToBpp (Eigen::Ref<const ExtendedFloatVector> & eigenVector, bpp::Vdouble& bppVector);
+  //extern void copyEigenToBpp (Eigen::Ref<const ExtendedFloatVector> & eigenVector, bpp::Vdouble& bppVector);
 
   extern void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector);
   extern void copyEigenToBpp (const ExtendedFloatRowVector & eigenVector, bpp::Vdouble& bppVector);

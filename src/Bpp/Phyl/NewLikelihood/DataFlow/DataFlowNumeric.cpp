@@ -179,11 +179,11 @@ namespace bpp {
   }
 
 // This function should be re-implemented once ExtendedFloatMatrix has an implementation.
-  void copyEigenToBpp (Eigen::Ref<const ExtendedFloatVector> & eigenVector, bpp::Vdouble& bppVector)
-  {
-    bppVector.resize(size_t(eigenVector.size()));  
-    ExtendedFloatVector::Map(&bppVector[0], eigenVector.size()) = eigenVector;
-  }
+  // void copyEigenToBpp (Eigen::Ref<const ExtendedFloatVector> & eigenVector, bpp::Vdouble& bppVector)
+  // {
+  //   bppVector.resize(size_t(eigenVector.size()));  
+  //   ExtendedFloatVector::Map(&bppVector[0], eigenVector.size()) = eigenVector;
+  // }
 
   void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector)
   {

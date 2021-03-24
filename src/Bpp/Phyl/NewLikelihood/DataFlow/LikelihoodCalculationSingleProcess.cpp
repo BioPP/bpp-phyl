@@ -36,6 +36,26 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
+LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
+                                                                       const AlignedValuesContainer & sites,
+                                                                       const SubstitutionProcess& process, 
+                                                                       ValueRef<RowLik> rootFreqs, uint factor,
+                                                                       bool weightedRootFreqs):
+  AlignedLikelihoodCalculation(context), process_(process), psites_(&sites),
+  rootPatternLinks_(), rootWeights_(), shrunkData_(),
+  processNodes_(), rFreqs_(rootFreqs),
+  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(NumericMutable<uint>::create(getContext_(), factor)),
+  weightedRootFrequencies_(weightedRootFreqs)
+{
+  setPatterns_();
+  makeProcessNodes_();
+
+  // Default Derivate 
+  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
+}
+
+
+
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
                                                                        const SubstitutionProcess& process, uint factor,
                                                                        bool weightedRootFreqs):
@@ -464,6 +484,22 @@ void LikelihoodCalculationSingleProcess::makeRootFreqs_()
 
   }
 
+}
+double LikelihoodCalculationSingleProcess::makeJointMLAncestralReconstruction(){
+  // Build conditional likelihoods up to root recursively.
+  if (!processNodes_.treeNode_->isRooted ()) {
+    throw Exception ("LikelihoodCalculationSingleProcess::makeJointMLAncestralReconstruction : PhyloTree must be rooted");
+  }
+  vRateCatTrees_.resize(1);
+  vRateCatTrees_[0].phyloTree=processNodes_.treeNode_;
+
+  auto flt=std::make_shared<FwLikMLAncestralReconstruction >(getContext_(), processNodes_.treeNode_, processNodes_.modelNode_->getTargetValue()->getStateMap(), rFreqs_);
+  ValueRef<double> likValue;
+  if (getShrunkData())
+    likValue = flt->initialize(*getShrunkData());
+  else
+    likValue = flt->initialize(*psites_);
+  return likValue->getTargetValue();
 
 }
 
