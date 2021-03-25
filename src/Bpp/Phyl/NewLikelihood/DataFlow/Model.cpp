@@ -92,8 +92,8 @@ NodeRef ConfiguredModel::recreate (Context & c, NodeRefVec && deps) {
 // EquilibriumFrequenciesFromModel
 
 EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (
-  NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
-  : Value<Eigen::RowVectorXd> (std::move (deps)), targetDimension_ (dim) {
+  NodeRefVec && deps, const Dimension<RowLik> & dim)
+  : Value<RowLik> (std::move (deps)), targetDimension_ (dim) {
 }
 
 std::string EquilibriumFrequenciesFromModel::debugInfo () const {
@@ -149,8 +149,8 @@ void EquilibriumFrequenciesFromModel::compute () {
 // TransitionMatrixFromModel
 
 TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec && deps,
-                                                      const Dimension<Eigen::MatrixXd> & dim)
-  : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension_ (dim) {
+                                                      const Dimension<MatrixLik> & dim)
+  : Value<MatrixLik> (std::move (deps)), targetDimension_ (dim) {
 }
 
 std::string TransitionMatrixFromModel::debugInfo () const {
@@ -343,7 +343,7 @@ void TransitionFunctionFromModel::compute () {
   
   auto & r = this->accessValueMutable ();
 
-  r = [model, brlen, nDeriv, factor](const Eigen::VectorXd& values)
+  r = [model, brlen, nDeriv, factor](const VectorLik& values)
     {
       switch(nDeriv){
       case 0:
@@ -364,8 +364,8 @@ void TransitionFunctionFromModel::compute () {
 // ProbabilitiesFromMixedModel
 
 ProbabilitiesFromMixedModel::ProbabilitiesFromMixedModel (
-  NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
-  : Value<Eigen::RowVectorXd> (std::move (deps)), nbClass_ (dim) {}
+  NodeRefVec && deps, const Dimension<RowLik> & dim)
+  : Value<RowLik> (std::move (deps)), nbClass_ (dim) {}
 
     
 std::string ProbabilitiesFromMixedModel::debugInfo () const {

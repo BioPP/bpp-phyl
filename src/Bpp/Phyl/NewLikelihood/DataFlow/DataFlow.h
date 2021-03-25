@@ -421,7 +421,7 @@ namespace bpp {
   /// Helper: access value of Node as a Value<T> with unchecked
   /// cast.
   template <typename T> const T & accessValueConstCast (const Node_DF & node) {
-    assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
+    //assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
     return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
   }
 

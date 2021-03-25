@@ -43,11 +43,12 @@
 #include "Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.h"
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 #include <Bpp/Graph/AssociationDAGraphImplObserver.h>
+#include "Definitions.h"
 
 namespace bpp
 {
-  using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
-  using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+  //using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
+  //using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
   
 
   inline Dimension<TransitionFunction> transitionFunctionDimension (Eigen::Index nbState) {

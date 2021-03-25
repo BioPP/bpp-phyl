@@ -48,7 +48,6 @@
 #include "Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.h"
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
-
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
@@ -86,8 +85,8 @@ namespace bpp {
   class ForwardLikelihoodTree;
   class BackwardLikelihoodTree;
 
-  using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
-  using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+  //using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
+  //using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
   
   /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
    * - likelihood: RowVector(site).
@@ -238,13 +237,14 @@ namespace bpp {
 
     ProcessNodes processNodes_;
 
-    ValueRef<Eigen::RowVectorXd> rFreqs_;
+    ValueRef<RowLik> rFreqs_;
 
     /* Likelihood Trees with for all rate categories */
     std::vector<RateCategoryTrees> vRateCatTrees_;
 
     /* Likelihood tree on mean likelihoods on rate categories */
     std::shared_ptr<ConditionalLikelihoodTree> condLikelihoodTree_;
+    /**************************************/
       
     /*
      * @brief Factor to multiply transition probabilities (default: 0,
@@ -256,7 +256,7 @@ namespace bpp {
   public:
     LikelihoodCalculationSingleProcess(Context & context,
                                        const AlignedValuesContainer & sites,
-                                       const SubstitutionProcess& process,
+                                       const SubstitutionProcess& process, 
                                        uint factor = 1);
 
     LikelihoodCalculationSingleProcess(Context & context,
@@ -266,12 +266,12 @@ namespace bpp {
     LikelihoodCalculationSingleProcess(Context & context,
                                        const AlignedValuesContainer & sites,
                                        const SubstitutionProcess& process,
-                                       ParameterList& paramList,
+                                       ParameterList& paramList, 
                                        uint factor = 1);
 
     LikelihoodCalculationSingleProcess(Context & context,
                                        const SubstitutionProcess& process,
-                                       ParameterList& paramList,
+                                       ParameterList& paramList, 
                                        uint factor = 1);
 
     /*
@@ -321,7 +321,7 @@ namespace bpp {
      *  - remove all branch lengths parameters from the parameters
      *
      */
-      
+
     void setClockLike(double rate=1);
 
     /**************************************************/
@@ -508,7 +508,7 @@ namespace bpp {
       return rootWeights_;
     }
 
-    ValueRef<Eigen::RowVectorXd> getRootFreqs()
+    ValueRef<RowLik> getRootFreqs()
     {
       return rFreqs_;
     }

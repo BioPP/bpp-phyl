@@ -44,6 +44,7 @@
 
 #include "Bpp/Phyl/NewLikelihood/DataFlow/DataFlowNumeric.h"
 #include <Bpp/Numeric/AbstractParametrizable.h>
+#include "Definitions.h"
 
 namespace bpp {
 
@@ -146,8 +147,8 @@ namespace bpp {
 
   };
 
-  using SiteLikelihoods = Value<Eigen::RowVectorXd>;
-  using SiteLikelihoodsRef = ValueRef<Eigen::RowVectorXd>;
+  using SiteLikelihoods = Value<RowLik>;
+  using SiteLikelihoodsRef = ValueRef<RowLik>;
     
   class AlignedLikelihoodCalculation :
     public LikelihoodCalculation

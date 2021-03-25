@@ -91,8 +91,8 @@ namespace bpp {
     // ProbabilitiesFromDiscreteDistribution
 
     ProbabilitiesFromDiscreteDistribution::ProbabilitiesFromDiscreteDistribution (
-      NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
-      : Value<Eigen::RowVectorXd> (std::move (deps)), nbClass_ (dim) {}
+      NodeRefVec && deps, const Dimension<RowLik> & dim)
+      : Value<RowLik> (std::move (deps)), nbClass_ (dim) {}
 
     
     std::string ProbabilitiesFromDiscreteDistribution::debugInfo () const {

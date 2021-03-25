@@ -49,7 +49,7 @@
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
-
+#include "Definitions.h"
 namespace bpp {
 
   class Simplex;
@@ -125,10 +125,10 @@ namespace bpp {
      * Node construction should be done with the create static method.
      */
 
-    class FrequenciesFromSimplex : public Value<Eigen::RowVectorXd> {
+    class FrequenciesFromSimplex : public Value<RowLik> {
     public:
       using Self = FrequenciesFromSimplex;
-      using T = Eigen::RowVectorXd;
+      using T = RowLik;
 
       // static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       FrequenciesFromSimplex (NodeRefVec && deps, const Dimension<T> & dim);

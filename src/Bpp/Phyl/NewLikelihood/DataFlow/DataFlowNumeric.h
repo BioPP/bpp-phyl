@@ -46,6 +46,7 @@
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/Matrix/Matrix.h>
 #include <Bpp/Numeric/VectorTools.h>
+#include "Definitions.h"
   
 #include <Eigen/Core>
 #include <algorithm>
@@ -64,25 +65,33 @@
 namespace bpp {
 
   extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix);
+  extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix);
 
   extern void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector);
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatVector & eigenVector);
 
   extern void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector);
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatRowVector & eigenVector);
   
-  extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix);
+  //extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix);
+  extern void copyEigenToBpp (const ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix, bpp::Matrix<double> & bppMatrix);
 
-  extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix);
+  //extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix);
+  extern void copyEigenToBpp (const ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix, VVdouble& bppMatrix);
 
   extern void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const ExtendedFloatVector & eigenVector, bpp::Vdouble& bppVector);
 
   extern void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector);
+  //extern void copyEigenToBpp (Eigen::Ref<const ExtendedFloatVector> & eigenVector, bpp::Vdouble& bppVector);
 
   extern void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const ExtendedFloatRowVector & eigenVector, bpp::Vdouble& bppVector);
   
   /*******************************************/
   /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/
 
-  using TransitionFunction = std::function<Eigen::VectorXd(const Eigen::VectorXd&)>;
+  using TransitionFunction = std::function<VectorLik(const VectorLik&)>;
 
   /*
    * The same but with constant result
@@ -93,7 +102,7 @@ namespace bpp {
     public TransitionFunction
   {
   private:
-    Eigen::VectorXd result_;
+    VectorLik result_;
 
   public:
     ConstantTransitionFunction(double val, Eigen::Index row) :
@@ -102,10 +111,10 @@ namespace bpp {
       result_.fill(val);
     }
     
-    ConstantTransitionFunction(const Eigen::VectorXd& res) :
+    ConstantTransitionFunction(const VectorLik& res) :
       result_(res){}
       
-    const Eigen::VectorXd& operator()(const Eigen::VectorXd&)
+    const VectorLik& operator()(const VectorLik&)
     {
       return result_;
     }
@@ -217,6 +226,20 @@ namespace bpp {
     using MatrixDimension::MatrixDimension; // Have the same constructors as MatrixDimension
     Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {} // From MatrixDimension
   };
+  template <> struct Dimension <ExtendedFloatRowVector> : RowVectorDimension{
+    using RowVectorDimension::RowVectorDimension;
+    Dimension(const RowVectorDimension & dim):RowVectorDimension(dim){}
+
+  };
+  template <> struct Dimension <ExtendedFloatVector> : VectorDimension{
+    using VectorDimension::VectorDimension;
+    Dimension(const VectorDimension & dim):VectorDimension(dim){}
+
+  };
+  template <int Rows, int Cols> struct Dimension <ExtendedFloatMatrix<Rows, Cols>> : MatrixDimension{
+    using MatrixDimension::MatrixDimension;
+    Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {}
+  };
 
   /******************************************************************************
    * Collection of overloaded numerical functions.
@@ -253,9 +276,26 @@ namespace bpp {
       return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols);
     }
 
+    template <int Rows, int Cols>
+    auto zero (const Dimension<ExtendedFloatMatrix<Rows, Cols>> & dim)
+      -> decltype (ExtendedFloatMatrix<Rows, Cols>::Zero (dim.rows, dim.cols)) {
+      return ExtendedFloatMatrix<Rows, Cols>::Zero (dim.rows, dim.cols);
+    }
+
+    template <typename T = void>
+    auto zero (const Dimension<ExtendedFloatVector> & dim)
+      -> decltype (ExtendedFloatVector::Zero (dim.rows, dim.cols)) {
+      return ExtendedFloatVector::Zero (dim.rows, dim.cols);
+    }
+    template <typename T = void>
+    auto zero (const Dimension<ExtendedFloatRowVector> & dim)
+      -> decltype (ExtendedFloatRowVector::Zero (dim.rows, dim.cols)) {
+      return ExtendedFloatRowVector::Zero (dim.rows, dim.cols);
+    }
+
     template <typename T = void>
     TransitionFunction zero (const Dimension<TransitionFunction> & dim) {
-      return TransitionFunction([dim](const Eigen::VectorXd& x){ return Eigen::VectorXd::Zero(dim.cols);});
+      return TransitionFunction([dim](const VectorLik& x){ return VectorLik::Zero(dim.cols);});
     }
 
 
@@ -286,9 +326,25 @@ namespace bpp {
       return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
     }
 
+    template <int Rows, int Cols>
+    auto one (const Dimension<ExtendedFloatMatrix<Rows, Cols>> & dim)
+      -> decltype (ExtendedFloatMatrix<Rows, Cols>::Ones (dim.rows, dim.cols)) {
+      return ExtendedFloatMatrix<Rows, Cols>::Ones (dim.rows, dim.cols);
+    }
+    template <typename T = void>
+    auto one (const Dimension<ExtendedFloatVector> & dim)
+      -> decltype (ExtendedFloatVector::Ones (dim.rows)){
+      return ExtendedFloatVector::Ones(dim.rows);
+    }
+    template <typename T = void>
+    auto one (const Dimension <ExtendedFloatRowVector> & dim)
+      ->decltype (ExtendedFloatRowVector::Ones(dim.cols)){
+      return ExtendedFloatRowVector::Ones(dim.cols);
+    }
+
     template <typename T = void>
     TransitionFunction one (const Dimension<TransitionFunction> & dim) {
-      return TransitionFunction([dim](const Eigen::VectorXd& x){ return Eigen::VectorXd::Ones(dim.cols);});
+      return TransitionFunction([dim](const VectorLik& x){ return VectorLik::Ones(dim.cols);});
     }
 
     // Create an identity value of the given dimension (fails if not a square matrix)
@@ -302,6 +358,13 @@ namespace bpp {
       checkDimensionIsSquare (dim);
       return Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows, dim.cols);
     }
+    template <int Rows, int Cols>
+    auto identity (const Dimension<ExtendedFloatMatrix<Rows, Cols>> & dim)
+      -> decltype (ExtendedFloatMatrix<Rows, Cols>::Identity (dim.rows, dim.cols)) {
+      checkDimensionIsSquare (dim);
+      return ExtendedFloatMatrix<Rows, Cols>::Identity (dim.rows, dim.cols);
+    }
+
 
     // Check if value is identity itself
     template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
@@ -344,13 +407,20 @@ namespace bpp {
       // scalar -> matrix
       return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from);
     }
+    template <int Rows, int Cols, typename F,
+              typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
+    auto convert (const F & from, const Dimension<ExtendedFloatMatrix<Rows, Cols>> & dim)
+      -> decltype (ExtendedFloatMatrix<Rows, Cols>::Constant (dim.rows, dim.cols, from)) {
+      // scalar -> matrix
+      return ExtendedFloatMatrix<Rows, Cols>::Constant (dim.rows, dim.cols, from);
+    }
     
-    inline Eigen::RowVectorXd convert (const Eigen::RowVectorXi& from, const Dimension<Eigen::RowVectorXd>& dim)
+    inline RowLik convert (const Eigen::RowVectorXi& from, const Dimension<RowLik>& dim)
     {
       return from.template cast<double>();
     }
 
-    inline Eigen::RowVectorXd convert (Eigen::RowVectorXi& from, const Dimension<Eigen::RowVectorXd>& dim)
+    inline RowLik convert (Eigen::RowVectorXi& from, const Dimension<RowLik>& dim)
     {
       return from.template cast<double>();
     }
@@ -368,6 +438,13 @@ namespace bpp {
     template <typename T, int Rows, int Cols, typename DerivedF>
     const DerivedF & convert (const Eigen::MatrixBase<DerivedF> & from,
                               const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim,
+                              typename std::enable_if<! std::is_same<DerivedF, Eigen::RowVectorXi>::value>::type* = 0) {
+      return from.derived (); // matrix -> matrix, conversion will be done in the assignment
+    }
+
+    template <int Rows, int Cols, typename DerivedF>
+    const DerivedF & convert (const Eigen::MatrixBase<DerivedF> & from,
+                              const Dimension<ExtendedFloatMatrix<Rows, Cols>> & dim,
                               typename std::enable_if<! std::is_same<DerivedF, Eigen::RowVectorXi>::value>::type* = 0) {
       return from.derived (); // matrix -> matrix, conversion will be done in the assignment
     }
@@ -950,18 +1027,18 @@ namespace bpp {
   // Precompiled instantiations
   extern template class ConstantZero<uint>;
   extern template class ConstantZero<double>;
-  extern template class ConstantZero<Eigen::VectorXd>;
-  extern template class ConstantZero<Eigen::RowVectorXd>;
-  extern template class ConstantZero<Eigen::MatrixXd>;
+  extern template class ConstantZero<VectorLik>;
+  extern template class ConstantZero<RowLik>;
+  extern template class ConstantZero<MatrixLik>;
   extern template class ConstantZero<TransitionFunction>;
   extern template class ConstantZero<char>;
   extern template class ConstantZero<std::string>;
 
   extern template class ConstantOne<uint>;
   extern template class ConstantOne<double>;
-  extern template class ConstantOne<Eigen::VectorXd>;
-  extern template class ConstantOne<Eigen::RowVectorXd>;
-  extern template class ConstantOne<Eigen::MatrixXd>;
+  extern template class ConstantOne<VectorLik>;
+  extern template class ConstantOne<RowLik>;
+  extern template class ConstantOne<MatrixLik>;
   extern template class ConstantOne<TransitionFunction>;
   extern template class ConstantZero<char>;
   extern template class ConstantZero<std::string>;
@@ -969,27 +1046,27 @@ namespace bpp {
   extern template class NumericConstant<uint>;
   extern template class NumericConstant<std::string>;
   extern template class NumericConstant<double>;
-  extern template class NumericConstant<Eigen::VectorXd>;
-  extern template class NumericConstant<Eigen::RowVectorXd>;
-  extern template class NumericConstant<Eigen::MatrixXd>;
+  extern template class NumericConstant<VectorLik>;
+  extern template class NumericConstant<RowLik>;
+  extern template class NumericConstant<MatrixLik>;
 
   extern template class NumericMutable<double>;
   extern template class NumericMutable<uint>;
   extern template class NumericMutable<char>; // for symbolic derivation
-  extern template class NumericMutable<Eigen::VectorXd>;
-  extern template class NumericMutable<Eigen::RowVectorXd>;
-  extern template class NumericMutable<Eigen::MatrixXd>;
+  extern template class NumericMutable<VectorLik>;
+  extern template class NumericMutable<RowLik>;
+  extern template class NumericMutable<MatrixLik>;
 
   extern template class Convert<double, double>;
-  extern template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
-  extern template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXd>;
-  extern template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
-  extern template class Convert<Eigen::VectorXd, double>;
-  extern template class Convert<Eigen::RowVectorXd, double>;
-  extern template class Convert<Eigen::MatrixXd, double>;
-  extern template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
-  extern template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
-  extern template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
+  extern template class Convert<VectorLik, VectorLik>;
+  extern template class Convert<RowLik, RowLik>;
+  extern template class Convert<MatrixLik, MatrixLik>;
+  extern template class Convert<VectorLik, double>;
+  extern template class Convert<RowLik, double>;
+  extern template class Convert<MatrixLik, double>;
+  extern template class Convert<MatrixLik, Transposed<MatrixLik>>;
+  extern template class Convert<RowLik, Transposed<VectorLik>>;
+  extern template class Convert<VectorLik, Transposed<RowLik>>;
 
   extern template class Identity<double>;
 

@@ -54,6 +54,7 @@
 #include "DataFlowNumeric.h"
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parameter.h>
+#include "Definitions.h"
 
 namespace bpp {
 
@@ -151,7 +152,7 @@ namespace bpp {
     template<class U=T>
 
 
-    typename std::enable_if<std::is_same<U,Eigen::RowVectorXd>::value>::type
+    typename std::enable_if<std::is_same<U,RowLik>::value>::type
     compute ()
     {
       using namespace numeric;
@@ -161,7 +162,7 @@ namespace bpp {
     }      
 
     template<class U=T>
-    typename std::enable_if<std::is_same<U,Eigen::VectorXd>::value>::type
+    typename std::enable_if<std::is_same<U,VectorLik>::value>::type
     compute ()
     {
       using namespace numeric;
@@ -396,14 +397,14 @@ namespace bpp {
       
       template<typename T2 = T>
       const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-                                        typename std::enable_if< std::is_same<T2,Eigen::RowVectorXd>::value, T*>::type* = 0) const
+                                        typename std::enable_if< std::is_same<T2,RowLik>::value, T*>::type* = 0) const
       {
         return (*m_arg_[size_t(row)])(col);
       }
 
       template<typename T2 = T>
       const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-                                        typename std::enable_if< std::is_same<T2,Eigen::VectorXd>::value, T*>::type* = 0) const
+                                        typename std::enable_if< std::is_same<T2,VectorLik>::value, T*>::type* = 0) const
       {
         return (*m_arg_[size_t(col)])(row);
       }
@@ -470,22 +471,22 @@ namespace bpp {
   };
     
   // Precompiled instantiations
-  extern template class CWiseFill<Eigen::RowVectorXd, double>;
-  extern template class CWiseFill<Eigen::VectorXd, double>;
-  extern template class CWiseFill<Eigen::MatrixXd, Eigen::VectorXd>;
-  extern template class CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>;
+  extern template class CWiseFill<RowLik, double>;
+  extern template class CWiseFill<VectorLik, double>;
+  extern template class CWiseFill<MatrixLik, VectorLik>;
+  extern template class CWiseFill<MatrixLik, RowLik>;
 
-  extern template class CWisePattern<Eigen::RowVectorXd>;
-  extern template class CWisePattern<Eigen::MatrixXd>;
+  extern template class CWisePattern<RowLik>;
+  extern template class CWisePattern<MatrixLik>;
   
-  extern template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
-  extern template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-  extern template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
-  extern template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<double>>;
+  extern template class CWiseMatching<RowLik, ReductionOf<RowLik>>;
+  extern template class CWiseMatching<MatrixLik, ReductionOf<MatrixLik>>;
+  extern template class CWiseMatching<MatrixLik, ReductionOf<RowLik>>;
+  extern template class CWiseMatching<RowLik, ReductionOf<double>>;
 
-  extern template class CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
-  extern template class CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::VectorXd>>;
-  extern template class CWiseCompound<Eigen::RowVectorXd, ReductionOf<double>>;
+  extern template class CWiseCompound<MatrixLik, ReductionOf<RowLik>>;
+  extern template class CWiseCompound<MatrixLik, ReductionOf<VectorLik>>;
+  extern template class CWiseCompound<RowLik, ReductionOf<double>>;
 
 
 } // namespace bpp

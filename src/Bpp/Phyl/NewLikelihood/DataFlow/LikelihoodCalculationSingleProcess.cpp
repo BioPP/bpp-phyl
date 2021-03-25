@@ -21,7 +21,7 @@ using namespace bpp;
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
                                                                        const AlignedValuesContainer & sites,
-                                                                       const SubstitutionProcess& process,
+                                                                       const SubstitutionProcess& process, 
                                                                        uint factor):
   AlignedLikelihoodCalculation(context), process_(process), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
@@ -53,7 +53,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
                                                                        const AlignedValuesContainer & sites,
                                                                        const SubstitutionProcess& process,
-                                                                       ParameterList& paramList,
+                                                                       ParameterList& paramList, 
                                                                        uint factor):
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(&sites),
@@ -104,7 +104,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
 
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                                                       size_t nProcess,
+                                                                       size_t nProcess, 
                                                                        uint factor):
   AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
@@ -439,7 +439,7 @@ void LikelihoodCalculationSingleProcess::makeRootFreqs_()
 {
 // Set root frequencies 
 
-  size_t nbState = getStateMap().getNumberOfModelStates();
+  size_t nbState = getStateMap().getNumberOfModelStates(); 
   rFreqs_ = processNodes_.rootFreqsNode_?ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet> (
     getContext_(), {processNodes_.rootFreqsNode_}, RowVectorDimension (Eigen::Index (nbState))):
     ConfiguredParametrizable::createRowVector<ConfiguredModel, EquilibriumFrequenciesFromModel> (
@@ -876,3 +876,6 @@ std::shared_ptr<ForwardLikelihoodTree> LikelihoodCalculationSingleProcess::getFo
   
   return vRateCatTrees_[nCat].flt;
 }
+
+
+
