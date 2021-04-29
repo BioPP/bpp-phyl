@@ -77,20 +77,20 @@ namespace bpp {
   template class CWiseMean<VectorLik, ReductionOf<VectorLik>, ReductionOf<double>>;
   template class CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double>>;
   template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, ReductionOf<double>>;
-  template class CWiseMean<double, ReductionOf<double>, RowLik>;
+  template class CWiseMean<double, ReductionOf<double>, Eigen::RowVectorXd>;
 
-  template class CWiseMean<VectorLik, ReductionOf<VectorLik>, VectorLik>;
-  template class CWiseMean<RowLik, ReductionOf<RowLik>, VectorLik>;
-  template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, VectorLik>;
-  template class CWiseMean<VectorLik, ReductionOf<VectorLik>, RowLik>;
-  template class CWiseMean<RowLik, ReductionOf<RowLik>, RowLik>;
-  template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, RowLik>;
+  template class CWiseMean<VectorLik, ReductionOf<VectorLik>, Eigen::VectorXd>;
+  template class CWiseMean<RowLik, ReductionOf<RowLik>,  Eigen::VectorXd>;
+  template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, Eigen::VectorXd>;
+  template class CWiseMean<VectorLik, ReductionOf<VectorLik>, Eigen::RowVectorXd>;
+  template class CWiseMean<RowLik, ReductionOf<RowLik>, Eigen::RowVectorXd>;
+  template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, Eigen::RowVectorXd>;
 
   template class CWiseSub<double, std::tuple<double, double>>;
   template class CWiseSub<VectorLik, std::tuple<VectorLik, VectorLik>>;
-  template class CWiseSub<VectorLik, std::tuple<double, VectorLik>>;
+//  template class CWiseSub<VectorLik, std::tuple<double, VectorLik>>;
   template class CWiseSub<RowLik, std::tuple<RowLik, RowLik>>;
-  template class CWiseSub<RowLik, std::tuple<double, RowLik>>;
+//  template class CWiseSub<RowLik, std::tuple<double, RowLik>>;
   template class CWiseSub<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
 
   template class CWiseMul<double, std::tuple<double, double>>;
@@ -139,8 +139,8 @@ namespace bpp {
   template class ScalarProduct<VectorLik, VectorLik>;
   template class ScalarProduct<RowLik, RowLik>;
 
-  template class LogSumExp<VectorLik, VectorLik>;
-  template class LogSumExp<RowLik, RowLik>;
+  template class LogSumExp<VectorLik, Eigen::VectorXd>;
+  template class LogSumExp<RowLik, Eigen::RowVectorXd>;
 
   template class SumOfLogarithms<VectorLik>;
   template class SumOfLogarithms<RowLik>;

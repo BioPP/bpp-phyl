@@ -128,7 +128,7 @@ namespace bpp
     std::shared_ptr<ForwardLikelihoodTree> forwardTree_;
     std::shared_ptr<ProcessTree> processTree_;
     ValueRef<RowLik> rFreqs_;
-    MatrixDimension likelihoodMatrixDim_;
+    Dimension<MatrixLik> likelihoodMatrixDim_;
     const StateMap& statemap_;
 
   public:

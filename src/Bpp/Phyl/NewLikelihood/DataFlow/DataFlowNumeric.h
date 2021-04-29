@@ -65,28 +65,28 @@
 namespace bpp {
 
   extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix);
-  extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix);
+  extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, ExtendedFloatMatrixXd& eigenMatrix);
 
   extern void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector);
-  extern void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatVector & eigenVector);
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatVectorXd & eigenVector);
 
   extern void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector);
-  extern void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatRowVector & eigenVector);
-  
-  //extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix);
-  extern void copyEigenToBpp (const ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix, bpp::Matrix<double> & bppMatrix);
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatRowVectorXd & eigenVector);
 
-  //extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix);
-  extern void copyEigenToBpp (const ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> & eigenMatrix, VVdouble& bppMatrix);
+  extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix);
+  extern void copyEigenToBpp (const ExtendedFloatMatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix);
 
-  extern void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector);
-  extern void copyEigenToBpp (const ExtendedFloatVector & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix);
+  extern void copyEigenToBpp (const ExtendedFloatMatrixXd & eigenMatrix, VVdouble& bppMatrix);
+
+  extern void copyEigenToBpp (const Eigen::VectorXd& eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const ExtendedFloatVectorXd & eigenVector, bpp::Vdouble& bppVector);
 
   extern void copyEigenToBpp (Eigen::Ref<const Eigen::VectorXd> & eigenVector, bpp::Vdouble& bppVector);
   //extern void copyEigenToBpp (Eigen::Ref<const ExtendedFloatVector> & eigenVector, bpp::Vdouble& bppVector);
 
   extern void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector);
-  extern void copyEigenToBpp (const ExtendedFloatRowVector & eigenVector, bpp::Vdouble& bppVector);
+  extern void copyEigenToBpp (const ExtendedFloatRowVectorXd & eigenVector, bpp::Vdouble& bppVector);
   
   /*******************************************/
   /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/
@@ -105,7 +105,7 @@ namespace bpp {
     VectorLik result_;
 
   public:
-    ConstantTransitionFunction(double val, Eigen::Index row) :
+    ConstantTransitionFunction(double val, int row) :
       result_(row)
     {
       result_.fill(val);
@@ -209,7 +209,6 @@ namespace bpp {
     Dimension (const Parameter &) {}
   };
 
-  
   template <> struct Dimension<TransitionFunction> : MatrixDimension {
   public:
     Dimension () = default;
@@ -222,23 +221,34 @@ namespace bpp {
    * Note that in Eigen, a vector is a matrix with one column.
    * Redirect to MatrixDimension for all eigen matrix variants.
    */
-  template <typename T, int Rows, int Cols> struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
+
+  template <typename T, int Rows, int Cols> struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension
+  {
     using MatrixDimension::MatrixDimension; // Have the same constructors as MatrixDimension
     Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {} // From MatrixDimension
   };
-  template <> struct Dimension <ExtendedFloatRowVector> : RowVectorDimension{
-    using RowVectorDimension::RowVectorDimension;
-    Dimension(const RowVectorDimension & dim):RowVectorDimension(dim){}
 
+  template <int Rows, int Cols> struct Dimension <ExtendedFloatMatrix<Rows,Cols>> : MatrixDimension
+  {
+    using MatrixDimension::MatrixDimension;   
+    Dimension<ExtendedFloatMatrix<Rows, Cols>>(const ExtendedFloatMatrix<Rows, Cols>& matrix) :
+      MatrixDimension(matrix.float_part()) {};
   };
-  template <> struct Dimension <ExtendedFloatVector> : VectorDimension{
+
+  template <int Rows>
+  struct Dimension<ExtendedFloatVector<Rows>> : VectorDimension
+  {
     using VectorDimension::VectorDimension;
-    Dimension(const VectorDimension & dim):VectorDimension(dim){}
-
+    Dimension<ExtendedFloatVector<Rows>>(const ExtendedFloatVector<Rows>& vector) :
+      VectorDimension(vector.size()) {};
   };
-  template <int Rows, int Cols> struct Dimension <ExtendedFloatMatrix<Rows, Cols>> : MatrixDimension{
-    using MatrixDimension::MatrixDimension;
-    Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {}
+
+  template <int Cols>
+  struct Dimension<ExtendedFloatRowVector<Cols>> : RowVectorDimension
+  {
+    using RowVectorDimension::RowVectorDimension;
+    Dimension<ExtendedFloatRowVector<Cols>>(const ExtendedFloatRowVector<Cols>& vector) :
+      RowVectorDimension(vector.size()) {};
   };
 
   /******************************************************************************
@@ -282,16 +292,28 @@ namespace bpp {
       return ExtendedFloatMatrix<Rows, Cols>::Zero (dim.rows, dim.cols);
     }
 
-    template <typename T = void>
-    auto zero (const Dimension<ExtendedFloatVector> & dim)
-      -> decltype (ExtendedFloatVector::Zero (dim.rows, dim.cols)) {
-      return ExtendedFloatVector::Zero (dim.rows, dim.cols);
+    template <int Rows>
+    auto zero (const Dimension<ExtendedFloatVector<Rows>> & dim)
+      -> decltype (ExtendedFloatVector<Rows>::Zero (dim.rows)) {
+      return ExtendedFloatVector<Rows>::Zero (dim.rows);
     }
-    template <typename T = void>
-    auto zero (const Dimension<ExtendedFloatRowVector> & dim)
-      -> decltype (ExtendedFloatRowVector::Zero (dim.rows, dim.cols)) {
-      return ExtendedFloatRowVector::Zero (dim.rows, dim.cols);
+
+    template <int Cols>
+    auto zero (const Dimension<ExtendedFloatRowVector<Cols>> & dim)
+      -> decltype (ExtendedFloatRowVector<Cols>::Zero (dim.cols)) {
+      return ExtendedFloatRowVector<Cols>::Zero (dim.cols);
     }
+    
+    // template <typename T = void>
+    // auto zero (const Dimension<ExtendedFloatVector> & dim)
+    //   -> decltype (Eigen::Vector::Zero (dim.rows, dim.cols)) {
+    //   return ExtendedFloatVector::Zero (dim.rows, dim.cols);
+    // }
+    // template <typename T = void>
+    // auto zero (const Dimension<ExtendedFloatRowVector> & dim)
+    //   -> decltype (ExtendedFloatRowVector::Zero (dim.rows, dim.cols)) {
+    //   return ExtendedFloatRowVector::Zero (dim.rows, dim.cols);
+    // }
 
     template <typename T = void>
     TransitionFunction zero (const Dimension<TransitionFunction> & dim) {
@@ -331,16 +353,30 @@ namespace bpp {
       -> decltype (ExtendedFloatMatrix<Rows, Cols>::Ones (dim.rows, dim.cols)) {
       return ExtendedFloatMatrix<Rows, Cols>::Ones (dim.rows, dim.cols);
     }
-    template <typename T = void>
-    auto one (const Dimension<ExtendedFloatVector> & dim)
-      -> decltype (ExtendedFloatVector::Ones (dim.rows)){
-      return ExtendedFloatVector::Ones(dim.rows);
+
+    template <int Rows>
+    auto one (const Dimension<ExtendedFloatVector<Rows>> & dim)
+      -> decltype (ExtendedFloatVector<Rows>::Ones (dim.rows)) {
+      return ExtendedFloatVector<Rows>::Ones (dim.rows);
     }
-    template <typename T = void>
-    auto one (const Dimension <ExtendedFloatRowVector> & dim)
-      ->decltype (ExtendedFloatRowVector::Ones(dim.cols)){
-      return ExtendedFloatRowVector::Ones(dim.cols);
+
+    template <int Cols>
+    auto one (const Dimension<ExtendedFloatRowVector<Cols>> & dim)
+      -> decltype (ExtendedFloatRowVector<Cols>::Ones (dim.cols)) {
+      return ExtendedFloatRowVector<Cols>::Ones (dim.cols);
     }
+   
+ 
+    // template <typename T = void>
+    // auto one (const Dimension<ExtendedFloatVector> & dim)
+    //   -> decltype (ExtendedFloatVector::Ones (dim.rows)){
+    //   return ExtendedFloatVector::Ones(dim.rows);
+    // }
+    // template <typename T = void>
+    // auto one (const Dimension <ExtendedFloatRowVector> & dim)
+    //   ->decltype (ExtendedFloatRowVector::Ones(dim.cols)){
+    //   return ExtendedFloatRowVector::Ones(dim.cols);
+    // }
 
     template <typename T = void>
     TransitionFunction one (const Dimension<TransitionFunction> & dim) {
@@ -352,12 +388,14 @@ namespace bpp {
     T identity (const Dimension<T> &) {
       return T (1); // Equivalent to matrix of size 1x1
     }
+    
     template <typename T, int Rows, int Cols>
     auto identity (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
       -> decltype (Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows, dim.cols)) {
       checkDimensionIsSquare (dim);
       return Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows, dim.cols);
     }
+    
     template <int Rows, int Cols>
     auto identity (const Dimension<ExtendedFloatMatrix<Rows, Cols>> & dim)
       -> decltype (ExtendedFloatMatrix<Rows, Cols>::Identity (dim.rows, dim.cols)) {
@@ -380,6 +418,11 @@ namespace bpp {
     template <typename Derived> bool isIdentity (const Eigen::MatrixBase<Derived> & m) {
       auto dim = Dimension<Derived> (m.derived ());
       return dim.rows == dim.cols && m == identity (dim);
+    }
+
+    template <int R, int C> bool isIdentity (const ExtendedFloatMatrix<R, C> & efm)
+    {
+      return isIdentity(efm.float_part()) && efm.exponent_part()==0;
     }
 
     
@@ -407,6 +450,7 @@ namespace bpp {
       // scalar -> matrix
       return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from);
     }
+    
     template <int Rows, int Cols, typename F,
               typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
     auto convert (const F & from, const Dimension<ExtendedFloatMatrix<Rows, Cols>> & dim)
@@ -414,25 +458,51 @@ namespace bpp {
       // scalar -> matrix
       return ExtendedFloatMatrix<Rows, Cols>::Constant (dim.rows, dim.cols, from);
     }
+
+    template <int Rows, typename F,
+              typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
+    auto convert (const F & from, const Dimension<ExtendedFloatVector<Rows>> & dim)
+      -> decltype (ExtendedFloatVector<Rows>::Constant (dim.rows, from)) {
+      // scalar -> matrix
+      return ExtendedFloatVector<Rows>::Constant (dim.rows, from);
+    }
+
+    template <int Cols, typename F,
+              typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
+    auto convert (const F & from, const Dimension<ExtendedFloatRowVector<Cols>> & dim)
+      -> decltype (ExtendedFloatRowVector<Cols>::Constant (dim.cols, from)) {
+      // scalar -> matrix
+      return ExtendedFloatRowVector<Cols>::Constant (dim.cols, from);
+    }
+
+    inline ExtendedFloatRowVectorXd convert (const Eigen::RowVectorXi& from, const Dimension<ExtendedFloatRowVectorXd>& dim)
+    {
+      return ExtendedFloatRowVectorXd(from.template cast<double>(), 0);
+    }
+
+    // inline ExtendedFloatRowVectorXd convert (Eigen::RowVectorXi& from, const Dimension<ExtendedFloatRowVectorXd>& dim)
+    // {
+    //   return ExtendedFloatRowVectorXd(from.template cast<double>(), 0);
+    // }
     
-    inline RowLik convert (const Eigen::RowVectorXi& from, const Dimension<RowLik>& dim)
+    inline Eigen::RowVectorXd convert (const Eigen::RowVectorXi& from, const Dimension<Eigen::RowVectorXd>& dim)
     {
       return from.template cast<double>();
     }
 
-    inline RowLik convert (Eigen::RowVectorXi& from, const Dimension<RowLik>& dim)
-    {
-      return from.template cast<double>();
-    }
+    // inline Eigen::RowVectorXd convert (Eigen::RowVectorXi& from, const Dimension<Eigen::RowVectorXd>& dim)
+    // {
+    //   return from.template cast<double>();
+    // }
 
-    inline TransitionFunction convert (const TransitionFunction& from, const Dimension<TransitionFunction>& dim)
-    {
-      return TransitionFunction(from);
-    }
+    // inline TransitionFunction convert (const TransitionFunction& from, const Dimension<TransitionFunction>& dim)
+    // {
+    //   return TransitionFunction(from);
+    // }
 
     inline TransitionFunction convert (double from, const Dimension<TransitionFunction>& dim)
     {
-      return ConstantTransitionFunction(from, dim.cols);
+      return ConstantTransitionFunction(from, (int)dim.cols);
     }
 
     template <typename T, int Rows, int Cols, typename DerivedF>
@@ -442,15 +512,19 @@ namespace bpp {
       return from.derived (); // matrix -> matrix, conversion will be done in the assignment
     }
 
-    template <int Rows, int Cols, typename DerivedF>
-    const DerivedF & convert (const Eigen::MatrixBase<DerivedF> & from,
-                              const Dimension<ExtendedFloatMatrix<Rows, Cols>> & dim,
-                              typename std::enable_if<! std::is_same<DerivedF, Eigen::RowVectorXi>::value>::type* = 0) {
-      return from.derived (); // matrix -> matrix, conversion will be done in the assignment
+    template <int R, int C, typename DerivedF>
+    const DerivedF& convert (const ExtendedFloatEigenBase<DerivedF> & from,
+                             const Dimension<ExtendedFloatMatrix<R, C>> & dim)
+    {
+      return from.derived(); // matrix -> matrix, conversion will be done in the assignment
     }
-    
+
     template <typename R, typename F> void convert (R & r, const F & from, const Dimension<R> & dim) {
       r = convert (from, dim);
+    }
+
+    template <typename R> void convert (R & r, const R & from, const Dimension<R> & dim) {
+      r = R(from);
     }
 
     /*******************************************/
@@ -463,6 +537,11 @@ namespace bpp {
       return T (1) / t;
     }
     using Eigen::inverse;
+
+    template <typename Derived>
+    Derived inverse (ExtendedFloatEigenBase<Derived> base) {
+      return Derived(base.der.float_part().inverse(), -base.der.exponent_part());
+    }
 
     // x^y
     using Eigen::pow;
@@ -521,7 +600,14 @@ namespace bpp {
       props += "}";
       return props;
     }
-    
+
+    template <int R, int C>
+    std::string debug (const ExtendedFloatMatrix<R, C>& m){
+      // For basic arithmetic scalar types, just print the value itself
+      using std::to_string;
+      return debug(m.float_part()) + " exp " + debug(m.exponent_part());
+    }
+
     template <typename T = TransitionFunction>
     std::string debug (const TransitionFunction& f){//, typename std::enable_if<!std::is_same<Derived, Parameter const&>::value>::type* = 0) {
       // With matrices, check some numeric properties and encode results as text
@@ -551,6 +637,14 @@ namespace bpp {
       }
       return seed;
     }
+
+    template <int R, int C>
+    std::size_t hash (const ExtendedFloatMatrix<R, C>& efm) {
+      std::size_t seed = hash(efm.float_part());
+      combineHash(seed, efm.exponent_part());
+      return seed;
+    }
+
   } // namespace numeric
 
   
@@ -1040,8 +1134,8 @@ namespace bpp {
   extern template class ConstantOne<RowLik>;
   extern template class ConstantOne<MatrixLik>;
   extern template class ConstantOne<TransitionFunction>;
-  extern template class ConstantZero<char>;
-  extern template class ConstantZero<std::string>;
+  extern template class ConstantOne<char>;
+  extern template class ConstantOne<std::string>;
 
   extern template class NumericConstant<uint>;
   extern template class NumericConstant<std::string>;

@@ -496,7 +496,7 @@ namespace bpp {
         
       result = [lT, this](const VectorLik& x)->VectorLik{
 
-        VectorLik r = zero (Dimension<Eigen::VectorXd>(targetDimension_.cols,1));
+        VectorLik r = zero (Dimension<VectorLik>(targetDimension_.cols,1));
           
         for (const auto f:lT)
           cwise(r)+= cwise((*f)(x));
@@ -1313,7 +1313,9 @@ namespace bpp {
    *
    * Node construction should be done with the create static method.
    */
-    
+
+  using std::log;
+  
   template <typename T> class CWiseLog : public Value<T> {
   public:
     using Self = CWiseLog;
@@ -1379,6 +1381,8 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
     
+  using std::exp;
+
   template <typename T> class CWiseExp : public Value<T> {
   public:
     using Self = CWiseExp;
@@ -1585,7 +1589,8 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
-      result = x0.dot (x1); // Using lhs.dot(rhs) method from Eigen only
+      auto d = x0.dot (x1); // Using lhs.dot(rhs) method from Eigen only
+      result = d;
     }
   };
 
@@ -1785,14 +1790,12 @@ namespace bpp {
       const auto & p = accessValueConstCast<T1> (*this->dependency (1));
 
       auto M = v.maxCoeff();
+      if (std::isinf(M))
+        result=M;
+      else
       {
-        if (std::isinf(M))
-          result=M;
-        else
-        {
-          auto ve = p.dot(v.unaryExpr([M](double x){return std::exp(x-M);}));
-          result=std::log(ve) + M;
-        }
+        auto ve = p.dot(v.unaryExpr([M](double x){return std::exp(x-M);}));
+        result=std::log(ve) + M;
       }
     }
       
@@ -2197,7 +2200,7 @@ namespace bpp {
 
       result = [vT, lambda, this](const VectorLik& x)->VectorLik{
         using namespace numeric;
-        VectorLik r = zero (Dimension<Eigen::VectorXd>(this->targetDimension_.cols,1));
+        VectorLik r = zero (Dimension<VectorLik>(this->targetDimension_.cols,1));
         
         for (std::size_t i = 0; i < this->coeffs_.size (); ++i) {
           cwise(r) += (lambda * this->coeffs_[i]) * cwise((*vT[i])(x));
@@ -2324,6 +2327,7 @@ namespace bpp {
   extern template class CombineDeltaShifted<RowLik>;
   extern template class CombineDeltaShifted<MatrixLik>;
   extern template class CombineDeltaShifted<TransitionFunction>;
+
   /*****************************************************************************
    * Numerical derivation helpers.
    */

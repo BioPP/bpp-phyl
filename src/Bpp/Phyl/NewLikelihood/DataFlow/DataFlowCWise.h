@@ -77,7 +77,13 @@ namespace bpp {
     {
       return m.template cast<double>().array ();
     }
-    
+
+    template<int R, int C>
+    inline ExtendedFloatArray<R,C> cwise (const ExtendedFloatMatrix<R,C>& m)
+    {
+      return ExtendedFloatArray<R,C>(m.float_part().array(), m.exponent_part());
+    }
+
   }
   
   /******************************************************************************
@@ -150,8 +156,6 @@ namespace bpp {
     }      
 
     template<class U=T>
-
-
     typename std::enable_if<std::is_same<U,RowLik>::value>::type
     compute ()
     {
@@ -168,8 +172,8 @@ namespace bpp {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
       const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
-      result.colwise()=x0;
-    }      
+      result.colwise() = x0;
+    }
 
     Dimension<R> targetDimension_;
 
@@ -433,7 +437,7 @@ namespace bpp {
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
-    // CWisePattern additional arguments = ().
+    // CWiseCompound additional arguments = ().
     bool compareAdditionalArguments (const Node_DF & other) const final {
       return dynamic_cast<const Self *> (&other) != nullptr;
     }

@@ -54,6 +54,18 @@ namespace bpp {
     return n == 0 ? 1.0 : (n > 0 ? constexpr_power (d, n - 1) * d : constexpr_power (d, n + 1) / d);
   }
 
+  // Compute power of integers
+  inline int powi (int base, unsigned int exp)
+  {
+    int res = 1;
+    while (exp) {
+      if (exp & 1)
+        res *= base;
+      exp >>= 1;
+      base *= base;
+    }
+    return res;
+  }
   
   class ExtendedFloat {
     // Assumes positive integer
@@ -67,12 +79,15 @@ namespace bpp {
     // Radix is the float exponent base
     static constexpr int radix = std::numeric_limits<FloatType>::radix;
 
+    const static double ln_radix;
+    
     // biggest_repr_radix_power = max { n ; radix^n is representable }
     static constexpr int biggest_repr_radix_power = std::numeric_limits<FloatType>::max_exponent - 1;
     
     // biggest_normalized_radix_power = max { n ; (radix^n)^allowed_product_without_normalization is representable }
     static constexpr int biggest_normalized_radix_power =
       biggest_repr_radix_power / allowed_product_without_normalization;
+
 
     // biggest_normalized_value = max { f ; f^allowed_product_without_normalization is representable }
     static constexpr FloatType biggest_normalized_value =
@@ -145,9 +160,15 @@ namespace bpp {
         ExtendedFloat(rhs.float_part () - lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part () - rhs.exponent_part ()), rhs.exponent_part ());
     }
 
+    inline static ExtendedFloat denorm_sub (const ExtendedFloat & lhs, const double & rhs) {
+      return (lhs.exponent_part ()>=0)?
+        ExtendedFloat(lhs.float_part () - rhs * constexpr_power<double>(ExtendedFloat::radix, - lhs.exponent_part ()), lhs.exponent_part ()):
+        ExtendedFloat(rhs - lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part ()), 0);
+    }
+
     inline static ExtendedFloat denorm_pow (const ExtendedFloat & lhs, double exp) {
       double b=lhs.exponent_part()*exp;
-      ExtendedFloat::ExtType e=ExtendedFloat::ExtType(lround(b));
+      ExtendedFloat::ExtType e=ExtendedFloat::ExtType(std::lround(b));
       ExtendedFloat r(std::pow(lhs.float_part(),exp)*std::pow(ExtendedFloat::radix,(b-e)), e);
       return r;
     }
@@ -180,6 +201,12 @@ namespace bpp {
     }
 
     inline ExtendedFloat operator- (const ExtendedFloat & rhs) const {
+      auto r = denorm_sub (*this, rhs);
+      r.normalize ();
+      return r;
+    }
+
+    inline ExtendedFloat operator- (const double & rhs) const {
       auto r = denorm_sub (*this, rhs);
       r.normalize ();
       return r;
@@ -281,16 +308,55 @@ namespace bpp {
     }
 
     inline double log () const {
-      static const auto ln_radix = std::log (static_cast<double> (ExtendedFloat::radix));
       return std::log (float_part ()) + static_cast<double> (exponent_part ()) * ln_radix;
     }
 
+    // Compute lround, and return tuple <lround, remainder>
+    inline std::tuple<long,double> lround() const
+    {
+      throw Exception("ExtendedFloat::lround need to be checked.");
+      auto c=float_part ();
+      auto b=exponent_part();
+      if (b<=0)
+      {
+        double t = convert(*this);
+        auto d = std::lround(t);
+        return std::tuple<int, double>{d, remainder(t,1)};
+      }
+      if (b>0)
+      {
+        long long res(0);
+        while (b>0)
+        {
+          auto lrc = std::lround(c);
+          res += lrc * powi(radix,uint(b));
+          c -= (double)lrc;
+          c *= biggest_normalized_value;
+          b -= biggest_normalized_radix_power;
+        }
+        auto t = c * constexpr_power<double>(radix, b);
+        auto it = std::lround(t);
+        return std::tuple<long, double>{res+it, remainder(t,1)};
+      }
+    }
+
+    
+    // exp(a.r^b)=r^(a/log(r) * r^b) = r^(c * r^b) = r^([c * r^b]) * r^(c * r^b - [c * r^b])
+    // with c=a/log(r)
+    
+    inline ExtendedFloat exp () const {
+      auto c = float_part ()/ln_radix;
+      auto ef=ExtendedFloat(c, exponent_part());
+      auto u = ef.lround();
+      return ExtendedFloat(std::pow(radix, std::get<1>(u)), (int)std::get<0>(u));
+    }
+    
     //!!! no check on the validation of the conversion
-    inline double convert(const ExtendedFloat & ef) {
+    static inline double convert(const ExtendedFloat & ef) {
       return ef.float_part () * constexpr_power<double>(ExtendedFloat::radix, ef.exponent_part ());
     }
 
-  private:
+    private:
     FloatType f_;
     ExtType exp_;
 
@@ -310,13 +376,16 @@ namespace bpp {
     using std::to_string;
     return "double(" + to_string (ef.float_part ()) + " * 2^" + to_string (ef.exponent_part ()) + ")";
   }
+
 } // namespace bpp
+
 
 
 /*
  * Storing ExtendedFloat in Eigen objects
  *
  */
+
 
 namespace Eigen {
   

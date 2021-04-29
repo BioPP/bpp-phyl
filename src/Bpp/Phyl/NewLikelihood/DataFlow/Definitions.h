@@ -1,15 +1,17 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
-#include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatMatrix.h>
+
+#include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatEigen.h>
 
 namespace bpp {
-    typedef ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> MatrixLik;
-    typedef ExtendedFloatRowVector RowLik;
-    typedef ExtendedFloatVector VectorLik;
 
-    //typedef Eigen::MatrixXd MatrixLik;
-    //typedef Eigen::RowVectorXd RowLik;
-    //typedef Eigen::VectorXd VectorLik;
+  typedef ExtendedFloatMatrixXd MatrixLik;
+  typedef ExtendedFloatRowVectorXd RowLik;
+  typedef ExtendedFloatVectorXd VectorLik;
+
+  // typedef Eigen::MatrixXd MatrixLik;
+  // typedef Eigen::RowVectorXd RowLik;
+  // typedef Eigen::VectorXd VectorLik;
 
 
     

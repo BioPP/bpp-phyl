@@ -474,7 +474,7 @@ namespace bpp {
       if (!rootPatternLinks_)
         return vector;
       else
-        return CWisePattern<RowLik>::create(getContext_(),{vector,rootPatternLinks_}, RowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
+        return CWisePattern<RowLik>::create(getContext_(),{vector,rootPatternLinks_}, Dimension<RowLik> (Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*
@@ -489,7 +489,7 @@ namespace bpp {
       if (!rootPatternLinks_)
         return matrix;
       else
-        return CWisePattern<MatrixLik>::create(getContext_(),{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
+        return CWisePattern<MatrixLik>::create(getContext_(),{matrix,rootPatternLinks_}, Dimension<MatrixLik> (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*

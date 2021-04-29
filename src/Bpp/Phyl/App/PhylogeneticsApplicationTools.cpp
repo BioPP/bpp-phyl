@@ -5262,7 +5262,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       {
         for (size_t j = 0; j < nbP; j++)
         {
-          row[4 + j] = TextTools::toString(log(vvL[i][j]));
+          row[4 + j] = TextTools::toString(std::log(vvL[i][j]));
         }
         for (size_t j = 0; j < nbP; j++)
         {

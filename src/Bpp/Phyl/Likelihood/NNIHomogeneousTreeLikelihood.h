@@ -82,7 +82,7 @@ public:
     nbStates_(0),
     nbClasses_(0),
     pxy_(),
-    lnL_(log(0.)),
+    lnL_(std::log(0.)),
     weights_(weights)
   {
     addParameter_(new Parameter("BrLen", 1, 0));
