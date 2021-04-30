@@ -93,6 +93,7 @@ namespace bpp
                                  const std::string& prefix = "AbstractDFP. ");
 
     AbstractDFPSubstitutionModel(const AbstractDFPSubstitutionModel& mod) :
+      AbstractParameterAliasable(mod),
       AbstractSubstitutionModel(mod),
       gCode_(mod.gCode_),
       tr_(mod.tr_), trr_(mod.trr_), tvv_(mod.tvv_), trv_(mod.trv_), tsub_(mod.tsub_)
