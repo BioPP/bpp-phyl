@@ -180,7 +180,6 @@ namespace bpp
      * This method is used to compute likelihoods in recursions.
      * It computes the probability of a vector given a start state.
      *
-     * @param i the index of the state in the model.
      * @param values An vector of states on the site.
      * @param t time
      * @throw IndexOutOfBoundsException if array position is out of range.
