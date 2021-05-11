@@ -47,6 +47,7 @@
 #include <string>
 #include <iostream>
 #include <Eigen/Core>
+#include <Bpp/Exceptions.h>
 
 namespace bpp {
 
@@ -206,9 +207,10 @@ namespace bpp {
       return r;
     }
 
-    inline ExtendedFloat operator- (const double & rhs) const {
+    template <typename F, typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
+    inline ExtendedFloat operator- (const F & rhs) const {
       auto r = denorm_sub (*this, rhs);
-      r.normalize ();
+//      r.normalize ();
       return r;
     }
 
@@ -216,6 +218,13 @@ namespace bpp {
       auto r = denorm_mul (*this, rhs);
       r.normalize ();
       return r;
+    }
+
+    template <typename F, typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
+    inline ExtendedFloat operator* (const F& rhs) const {
+      ExtendedFloat r(float_part () * rhs, exponent_part ());
+      r.normalize ();
+      return r;      
     }
 
     inline ExtendedFloat operator/ (const ExtendedFloat & rhs) const {
@@ -311,8 +320,12 @@ namespace bpp {
       return std::log (float_part ()) + static_cast<double> (exponent_part ()) * ln_radix;
     }
 
+    inline ExtendedFloat abs () const {
+      return ExtendedFloat(std::abs (float_part ()), exponent_part ());
+    }
+
     // Compute lround, and return tuple <lround, remainder>
-    inline std::tuple<long,double> lround() const
+    inline std::tuple<int,double> lround() const
     {
       throw Exception("ExtendedFloat::lround need to be checked.");
       auto c=float_part ();
@@ -336,7 +349,7 @@ namespace bpp {
         }
         auto t = c * constexpr_power<double>(radix, b);
         auto it = std::lround(t);
-        return std::tuple<long, double>{res+it, remainder(t,1)};
+        return std::tuple<int, double>{res+it, remainder(t,1)};
       }
     }
 
@@ -350,13 +363,27 @@ namespace bpp {
       auto u = ef.lround();
       return ExtendedFloat(std::pow(radix, std::get<1>(u)), (int)std::get<0>(u));
     }
+
+    /*************/
+    /* Dirty trick to allow for Eigen::Nullary_wrapers output only the float part, for ExtendedFloatEigen */
+
+  private:
+    /* Necessary to keep this private to prevent misuse */
+    operator double() const
+    {
+      return float_part();
+    }
+
+    template<typename Scalar,typename NullaryOp, bool has_nullary, bool has_unary, bool has_binary>
+    friend struct Eigen::internal::nullary_wrapper;
     
+  public:
     //!!! no check on the validation of the conversion
     static inline double convert(const ExtendedFloat & ef) {
       return ef.float_part () * constexpr_power<double>(ExtendedFloat::radix, ef.exponent_part ());
     }
 
-    private:
+  protected:
     FloatType f_;
     ExtType exp_;
 
@@ -376,6 +403,50 @@ namespace bpp {
     using std::to_string;
     return "double(" + to_string (ef.float_part ()) + " * 2^" + to_string (ef.exponent_part ()) + ")";
   }
+
+  inline double log (const ExtendedFloat& ef)
+  {
+    return ef.log();
+  }
+
+  inline ExtendedFloat operator* (const double& lhs, const ExtendedFloat& rhs) {
+    return rhs * lhs;
+  }
+
+  inline ExtendedFloat operator- (const double& lhs, const ExtendedFloat& rhs) {
+    return rhs.ExtendedFloat::operator +(-lhs);
+  }
+
+  inline ExtendedFloat operator+ (const double& lhs, const ExtendedFloat& rhs) {
+    return rhs.ExtendedFloat::operator +(lhs);
+  }
+
+  inline ExtendedFloat operator/ (const double& lhs, const ExtendedFloat& rhs) {
+    return rhs * (1/lhs);
+  }
+
+  
+  inline ExtendedFloat pow (const ExtendedFloat& ef,  double exp)
+  {
+    return ef.pow(exp);
+  }
+
+  inline ExtendedFloat exp (const ExtendedFloat& ef)
+  {
+    return ef.exp();
+  }
+
+  inline ExtendedFloat abs (const ExtendedFloat& ef)
+  {
+    return ef.abs();
+  }
+
+
+  //!!! no check on the validation of the conversion
+  inline double convert(const bpp::ExtendedFloat & ef) {
+    return ef.float_part () * bpp::constexpr_power<double>(bpp::ExtendedFloat::radix, ef.exponent_part ());
+  }
+
 
 } // namespace bpp
 
@@ -413,11 +484,6 @@ namespace Eigen {
     struct ScalarBinaryOpTraits<double,bpp::ExtendedFloat,BinaryOp> { typedef bpp::ExtendedFloat ReturnType;  };
 }
 
-
-  //!!! no check on the validation of the conversion
-  inline double convert(const bpp::ExtendedFloat & ef) {
-    return ef.float_part () * bpp::constexpr_power<double>(bpp::ExtendedFloat::radix, ef.exponent_part ());
-  }
 
 
 #endif // BPP_NEWPHYL_EXTENDEDFLOAT_H

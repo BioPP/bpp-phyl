@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <algorithm>
 using namespace bpp;
 using namespace std;
+using namespace numeric;
 
 /***********************************/
 /* Forward Likelihood */
@@ -54,48 +55,50 @@ void ForwardHmmLikelihood_DF::compute()
   const auto& hmmEq = accessValueConstCast<Eigen::VectorXd>(*this->dependency(0));
 
   const auto& hmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(1));
-  const auto& hmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(2));
-
-  auto & scales = this->accessValueMutable ();
+  const auto& hmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(2));
 
   auto& condLik = dynamic_pointer_cast<CondLikelihood>(condLik_)->accessValueMutable();
 
   auto nbSites = hmmEmis.cols();
 
-  Eigen::VectorXd tmp;
+  std::vector<DataLik> tscales((size_t)nbSites);
   
   //Initialisation:
 
-  Eigen::Ref<Eigen::VectorXd>  col0 = parCondLik_.col(0);
-  
-  col0 = hmmTrans * hmmEq;
+  auto& col0(parCondLik_[0]);
 
-  col0.array() *= hmmEmis.col(0).array();
+  col0 = (hmmTrans * hmmEq).eval();
 
-  scales(0) = col0.sum();
+//  col0 = tmp;
   
-  condLik.col(0) = col0 / scales(0);
+  cwise(col0) *= cwise(hmmEmis.col(0));
+
+  tscales[0] = col0.sum();
+  
+  condLik.col(0) = col0 / tscales[0];
 
   //Iteration
   for (auto i = 1; i < nbSites; i++)
   {
-    Eigen::Ref<Eigen::VectorXd> coli = parCondLik_.col(i);
+    auto& coli = parCondLik_[(size_t)i];
     
     coli =  hmmTrans * condLik.col(i-1);
 
-    coli.array() *= hmmEmis.col(i).array();
+    cwise(coli) *= cwise(hmmEmis.col(i));
 
-    scales(i) = coli.sum();
+    tscales[(size_t)i] = coli.sum();
 
-    condLik.col(i) = coli / scales(i);
+    condLik.col(i) = coli / tscales[(size_t)i];
   }
-  
+
+  copyBppToEigen(tscales, this->accessValueMutable ());
+
 }
 
 NodeRef ForwardHmmLikelihood_DF::derive (Context & c, const Node_DF & node)
 {
   if (&node == this) {
-    return ConstantOne<Eigen::RowVectorXd>::create (c, targetDimension_);
+    return ConstantOne<MatrixLik>::create (c, targetDimension_);
   }
     
   /*
@@ -104,13 +107,13 @@ NodeRef ForwardHmmLikelihood_DF::derive (Context & c, const Node_DF & node)
    * Dependencies are:
    *  Value<VectorXd> : Starting vector of states probabililies
    *  Value<MatrixXd> : TransitionMatrix
-   *  Value<MatrixXd> : Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : Matrix of Emission likelihoods states X sites
    *
    *  ForwardHmmLikelihood_DF : Forward Computations
    *
    *  Value<VectorXd> : Derivatives of starting vector of states probabililies
    *  Value<MatrixXd> : Derivatives of TransitionMatrix
-   *  Value<MatrixXd> : Derivatives Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : Derivatives Matrix of Emission likelihoods states X sites
    */
       
   return ForwardHmmDLikelihood_DF::create (c, {
@@ -133,7 +136,7 @@ void ForwardHmmDLikelihood_DF::compute()
   const auto& hmmEq = accessValueConstCast<Eigen::VectorXd>(*this->dependency(0));
 
   const auto& hmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(1));
-  const auto& hmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(2));
+  const auto& hmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(2));
 
   
   auto forwardNode = dynamic_pointer_cast<ForwardHmmLikelihood_DF>(this->dependency(3));
@@ -144,55 +147,56 @@ void ForwardHmmDLikelihood_DF::compute()
   
   const auto& scales = forwardNode -> getTargetValue();
   
-
-  
   const auto& dHmmEq = accessValueConstCast<Eigen::VectorXd>(*this->dependency(4));
 
   const auto& dHmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(5));
   
-  const auto& dHmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(6));
-
-  auto & dScales = this->accessValueMutable ();
-
-  
-  auto& dCondLik = dynamic_pointer_cast<CondLikelihood>(dCondLik_)->accessValueMutable();
+  const auto& dHmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(6));
 
   auto nbSites = hmmEmis.cols();
 
-  Eigen::VectorXd tmp(hmmEmis.rows());
+  std::vector<DataLik> tdScales((size_t)nbSites);
+  
+  auto& dCondLik = dynamic_pointer_cast<CondLikelihood>(dCondLik_)->accessValueMutable();
+
+  VectorLik tmp((int)hmmEmis.rows());
   
   //Initialisation:
-  Eigen::Ref<Eigen::VectorXd>  col0 = dParCondLik_.col(0);
+  auto& col0 = dParCondLik_[0];
 
-  col0 = dHmmTrans * hmmEq + hmmTrans * dHmmEq;
+  // I do not know how to get rid of t2
+  auto t2 = (dHmmTrans * hmmEq + hmmTrans * dHmmEq).eval();
+  col0 = t2;
+  
+  cwise(tmp) = cwise(col0) * cwise(hmmEmis.col(0))
+    +  cwise(dHmmEmis.col(0)) *  cwise(parCondLik[0]);
 
-  tmp.array() = col0.array() * hmmEmis.col(0).array()
-    +  dHmmEmis.col(0).array() *  parCondLik.col(0).array();
+  tdScales[0] = tmp.sum();
 
-  dScales(0) = tmp.sum();
-
-  dCondLik.col(0) = (tmp - condLik.col(0) * dScales(0))/scales(0);
+  dCondLik.col(0) = (tmp - condLik.col(0) * tdScales[0])/scales(0);
 
   //Iteration
   for (auto i = 1; i < nbSites; i++)
   {
-    Eigen::Ref<Eigen::VectorXd>  coli = dParCondLik_.col(i);
+    auto& coli = dParCondLik_[(size_t)i];
     
-    coli = dHmmTrans * condLik.col(i-1) + hmmTrans * dCondLik.col(i-1);
-
-    tmp.array() = coli.array() * hmmEmis.col(i).array() + parCondLik.col(i).array() * dHmmEmis.col(i).array();
-  
-    dScales(i) = tmp.sum();
-  
-    dCondLik.col(i) = (tmp - condLik.col(i) * dScales(i))/scales(i);
+    auto t3 = dHmmTrans * condLik.col(i-1) + hmmTrans * dCondLik.col(i-1);
+    coli = t3;
+    
+    cwise(tmp) = cwise(coli) * cwise(hmmEmis.col(i)) + cwise(parCondLik[(size_t)i]) * cwise(dHmmEmis.col(i));
+    tdScales[(size_t)i] = tmp.sum();
+                                     
+    dCondLik.col(i) = (tmp - condLik.col(i) * tdScales[(size_t)i])/scales(i);
   }
+
+  copyBppToEigen(tdScales, this->accessValueMutable ());
   
 }
 
 NodeRef ForwardHmmDLikelihood_DF::derive (Context & c, const Node_DF & node)
 {
   if (&node == this) {
-    return ConstantOne<Eigen::RowVectorXd>::create (c, targetDimension_);
+    return ConstantOne<MatrixLik>::create (c, targetDimension_);
   }
 
   /*
@@ -202,19 +206,19 @@ NodeRef ForwardHmmDLikelihood_DF::derive (Context & c, const Node_DF & node)
    * Dependencies are:
    *  Value<VectorXd> : Starting vector of states probabililies
    *  Value<MatrixXd> : TransitionMatrix
-   *  Value<MatrixXd> : Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : Matrix of Emission likelihoods states X sites
    *
    *  ForwardHmmLikelihood_DF : Forward Computations
    *
    *  Value<VectorXd> : 1st Derivatives of starting vector of states probabililies
    *  Value<MatrixXd> : 1st Derivatives of TransitionMatrix
-   *  Value<MatrixXd> : 1st Derivatives Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : 1st Derivatives Matrix of Emission likelihoods states X sites
    *
    *  ForwardHmmDLikelihood_DF : 1st order derivatives Forward Computations
    *
    *  Value<VectorXd> : 2nd Derivatives of starting vector of states probabililies
    *  Value<MatrixXd> : 2nd Derivatives of TransitionMatrix
-   *  Value<MatrixXd> : 2nd Derivatives Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : 2nd Derivatives Matrix of Emission likelihoods states X sites
    */
       
   return ForwardHmmD2Likelihood_DF::create (c, {
@@ -250,7 +254,7 @@ void ForwardHmmD2Likelihood_DF::compute()
   const auto& hmmEq = accessValueConstCast<Eigen::VectorXd>(*this->dependency(0));
 
   const auto& hmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(1));
-  const auto& hmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(2));
+  const auto& hmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(2));
 
   
   auto forwardNode = dynamic_pointer_cast<ForwardHmmLikelihood_DF>(this->dependency(3));
@@ -267,7 +271,7 @@ void ForwardHmmD2Likelihood_DF::compute()
 
   const auto& dHmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(5));
   
-  const auto& dHmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(6));
+  const auto& dHmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(6));
 
 
   auto forwardDNode = dynamic_pointer_cast<ForwardHmmDLikelihood_DF>(this->dependency(7));
@@ -284,29 +288,32 @@ void ForwardHmmD2Likelihood_DF::compute()
 
   const auto& d2HmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(9));
   
-  const auto& d2HmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(10));
+  const auto& d2HmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(10));
 
 
   //////////////////////////////////////
   
-  auto & d2Scales = this->accessValueMutable ();
-  
-  Eigen::VectorXd d2CondLik(hmmEmis.rows());
-
   auto nbSites = hmmEmis.cols();
 
-  Eigen::VectorXd d2ParCondLik, tmp(hmmEmis.rows());
+  std::vector<DataLik> td2Scales((size_t)nbSites);
+
+  
+  VectorLik d2CondLik((int)hmmEmis.rows());
+
+
+  VectorLik d2ParCondLik, tmp((int)hmmEmis.rows());
   
   //Initialisation:
-  d2ParCondLik = d2HmmTrans * hmmEq + 2 * dHmmTrans * dHmmEq + hmmTrans * d2HmmEq;
+  auto t = (d2HmmTrans * hmmEq + 2 * dHmmTrans * dHmmEq + hmmTrans * d2HmmEq).eval();
+  d2ParCondLik = t;
 
-  tmp.array() = d2ParCondLik.array() * hmmEmis.col(0).array()
-    + 2 * parDCondLik.col(0).array() * dHmmEmis.col(0).array()
-    + parCondLik.col(0).array() * d2HmmEmis.col(0).array();
+  cwise(tmp) = cwise(d2ParCondLik) * cwise(hmmEmis.col(0))
+    + 2 * cwise(parDCondLik[0]) * cwise(dHmmEmis.col(0))
+    + cwise(parCondLik[0]) * cwise(d2HmmEmis.col(0));
   
-  d2Scales(0) = tmp.sum();
+  td2Scales[0] = tmp.sum();
   
-  d2CondLik = (tmp - 2 * dCondLik.col(0) * dScales(0) - condLik.col(0) * d2Scales(0))/scales(0);
+  d2CondLik = (tmp - 2 * dCondLik.col(0) * dScales(0) - condLik.col(0) * td2Scales[0])/scales(0);
 
   //Iteration
   for (auto i = 1; i < nbSites; i++)
@@ -314,14 +321,16 @@ void ForwardHmmD2Likelihood_DF::compute()
     d2ParCondLik = d2HmmTrans * condLik.col(i)
       + 2 * dHmmTrans * dCondLik.col(i) + hmmTrans * d2CondLik;
 
-    tmp.array() = d2ParCondLik.array() * hmmEmis.col(i).array()
-      + 2 * parDCondLik.col(i).array() * dHmmEmis.col(i).array()
-      + parCondLik.col(i).array() * d2HmmEmis.col(i).array();
+    cwise(tmp) = cwise(d2ParCondLik) * cwise(hmmEmis.col(i))
+      + 2 * cwise(parDCondLik[(size_t)i]) * cwise(dHmmEmis.col(i))
+      + cwise(parCondLik[(size_t)i]) * cwise(d2HmmEmis.col(i));
   
-    d2Scales(i) = tmp.sum();
+    td2Scales[(size_t)i] = tmp.sum();
   
-    d2CondLik = (tmp - 2 * dCondLik.col(i) * dScales(i) - condLik.col(i) * d2Scales(i))/scales(i);
+    d2CondLik = (tmp - 2 * dCondLik.col(i) * dScales(i) - condLik.col(i) * td2Scales[(size_t)i])/scales(i);
   }
+  
+  copyBppToEigen(td2Scales, this->accessValueMutable ());
 }
 
 /*****************************************
@@ -334,28 +343,31 @@ void BackwardHmmLikelihood_DF::compute()
   const auto& scales = accessValueConstCast<Eigen::RowVectorXd>(*this->dependency(0));
 
   const auto& hmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(1));
-  const auto& hmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(2));
+  const auto& hmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(2));
 
-  auto & backward = this->accessValueMutable ();
 
   auto nbSites = hmmEmis.cols();
   auto nbStates = hmmEmis.rows();
 
-  Eigen::VectorXd tmp(nbStates);
+  std::vector<VectorLik> tScales((size_t)nbSites);
+  
+  VectorLik tmp((int)nbStates);
   
   //Initialisation:
-  backward.col(nbSites-1) = Eigen::VectorXd::Constant(nbStates, 1);
+  tScales[(size_t)(nbSites-1)] = VectorLik::Constant(nbStates, 1);
 
   //Iteration
   for (auto i = nbSites-1; i > 0; i--)
   {
-    tmp.array() =  hmmEmis.col(i).array() * backward.col(i).array();
+    cwise(tmp) = cwise(hmmEmis.col(i)) * cwise(tScales[(size_t)i]);
 
-    backward.col(i-1) = hmmTrans * tmp;
+    tScales[(size_t)(i-1)] = hmmTrans * tmp;
 
-    backward.col(i-1) /= scales(i);
+    tScales[(size_t)(i-1)] /= scales(i);
   }
-  
+
+  copyBppToEigen(tScales, this->accessValueMutable ());
+
 }
 
 

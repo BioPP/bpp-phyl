@@ -52,6 +52,7 @@
 #include <Bpp/Seq/AlphabetIndex/UserAlphabetIndex1.h>
 
 using namespace bpp;
+using namespace numeric;
 using namespace std;
 
 // From the STL:
@@ -196,18 +197,18 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
       continue;
 
-    vector<Eigen::RowVectorXd> substitutionsForCurrentNode(nbTypes);
+    vector<RowLik> substitutionsForCurrentNode(nbTypes);
      for (auto& sub:substitutionsForCurrentNode)
-       sub.setZero(Eigen::Index(nbDistinctSites));
+       sub=RowLik::Zero((int)nbDistinctSites);
 
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
       processTree = rltc.getTreeNode(ncl);
       double pr = sp.getProbabilityForModel(ncl);
 
-      vector<Eigen::RowVectorXd> substitutionsForCurrentClass(nbTypes);
+      vector<RowLik> substitutionsForCurrentClass(nbTypes);
       for (auto& sub:substitutionsForCurrentClass)
-        sub.setZero(Eigen::Index(nbDistinctSites));
+        sub=RowLik::Zero((int)nbDistinctSites);
       
       const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
 
@@ -259,13 +260,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
           auto counts = npxy * likelihoodsBotEdge;
 
-          auto bb = (likelihoodsTopEdge.cwiseProduct(counts)).colwise().sum();
+          auto bb = (cwise(likelihoodsTopEdge) * cwise(counts)).colwise().sum();
 
           // Normalizes by likelihood on this node
-          Eigen::RowVectorXd cc = bb.array() / likelihoodsFather.array();
+          auto cc = bb / cwise(likelihoodsFather);
 
           // adds, with branch ponderation  ( * edge / edge * father) probs
-          substitutionsForCurrentClass[t] += cc * probaDAG.getProbaAtNode(fatid);
+          cwise(substitutionsForCurrentClass[t]) += cc * probaDAG.getProbaAtNode(fatid);
         }
       }
 
@@ -485,18 +486,18 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
     if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
       continue;
 
-    vector<Eigen::RowVectorXd> rewardsForCurrentNode(nbTypes);
+    vector<RowLik> rewardsForCurrentNode(nbTypes);
     for (auto& sub:rewardsForCurrentNode)
-      sub.setZero(Eigen::Index(nbDistinctSites));
+      sub=RowLik::Zero((int)nbDistinctSites);
 
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
       processTree = rltc.getTreeNode(ncl);
       double pr = sp.getProbabilityForModel(ncl);
       
-      vector<Eigen::RowVectorXd> rewardsForCurrentClass(nbTypes);
+      vector<RowLik> rewardsForCurrentClass(nbTypes);
       for (auto& sub:rewardsForCurrentClass)
-        sub.setZero(Eigen::Index(nbDistinctSites));
+        sub=RowLik::Zero((int)nbDistinctSites);
       
       const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
       
@@ -546,13 +547,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
 
           auto rew = rpxy * likelihoodsBotEdge;
           
-          auto bb = (likelihoodsTopEdge.cwiseProduct(rew)).colwise().sum();
+          auto bb = (cwise(likelihoodsTopEdge) * cwise(rew)).colwise().sum();
 
           // Normalizes by likelihood on this node
-          Eigen::RowVectorXd cc = bb.array() / likelihoodsFather.array();
+          auto cc = bb / cwise(likelihoodsFather);
 
           // adds, with branch ponderation  ( * edge / edge * father) probs
-          rewardsForCurrentClass[t] += cc  * probaDAG.getProbaAtNode(fatid);
+          cwise(rewardsForCurrentClass[t]) += cc  * probaDAG.getProbaAtNode(fatid);
         }
       }
       

@@ -97,7 +97,7 @@ namespace bpp
       
     std::shared_ptr<NumericConstant<size_t>> nMod_;
 
-    ValueRef<MatrixLik> transitionMatrix_;
+    ValueRef<Eigen::MatrixXd> transitionMatrix_;
     /*
      *@ brief Probablity of the edge, used in case of mixture models.
      *
@@ -152,12 +152,12 @@ namespace bpp
       brlen_=brlen;
     }
 
-    void setTransitionMatrix(ValueRef<MatrixLik> transitionMatrix)
+    void setTransitionMatrix(ValueRef<Eigen::MatrixXd> transitionMatrix)
     {
       transitionMatrix_ = transitionMatrix;
     }
 
-    ValueRef<MatrixLik> getTransitionMatrix()
+    ValueRef<Eigen::MatrixXd> getTransitionMatrix()
     {
       return transitionMatrix_;
     }

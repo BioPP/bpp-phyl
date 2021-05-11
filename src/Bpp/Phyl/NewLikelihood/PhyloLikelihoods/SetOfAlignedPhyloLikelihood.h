@@ -127,7 +127,7 @@ namespace bpp
        */
 
   
-      double getLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
+      DataLik getLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
       {
         return getPhyloLikelihood(nPhyl)->getLikelihoodForASite(site);
       }

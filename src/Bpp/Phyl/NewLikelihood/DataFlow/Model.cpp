@@ -92,8 +92,8 @@ NodeRef ConfiguredModel::recreate (Context & c, NodeRefVec && deps) {
 // EquilibriumFrequenciesFromModel
 
 EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (
-  NodeRefVec && deps, const Dimension<RowLik> & dim)
-  : Value<RowLik> (std::move (deps)), targetDimension_ (dim) {
+  NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
+  : Value<Eigen::RowVectorXd> (std::move (deps)), targetDimension_ (dim) {
 }
 
 std::string EquilibriumFrequenciesFromModel::debugInfo () const {
@@ -149,8 +149,8 @@ void EquilibriumFrequenciesFromModel::compute () {
 // TransitionMatrixFromModel
 
 TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec && deps,
-                                                      const Dimension<MatrixLik> & dim)
-  : Value<MatrixLik> (std::move (deps)), targetDimension_ (dim) {
+                                                      const Dimension<Eigen::MatrixXd> & dim)
+  : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension_ (dim) {
 }
 
 std::string TransitionMatrixFromModel::debugInfo () const {
@@ -342,18 +342,19 @@ void TransitionFunctionFromModel::compute () {
   uint factor = (this->nbDependencies()>=4 && this->dependency(3))?accessValueConstCast<uint> (*this->dependency (3)):1;
   
   auto & r = this->accessValueMutable ();
-
-  r = [model, brlen, nDeriv, factor](const VectorLik& values)
+  const auto& dim = targetDimension_;
+  
+  r = [model, brlen, nDeriv, factor, dim](const VectorLik& values)
     {
       switch(nDeriv){
       case 0:
-      return factor * model->Lik_t(values, brlen);
+        return numeric::convert<VectorLik,Eigen::VectorXd>(factor * model->Lik_t(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen), dim);
       case 1:
-      return factor * model->dLik_dt(values, brlen);
+        return numeric::convert<VectorLik, Eigen::VectorXd>(factor * model->dLik_dt(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen),dim);
       case 2:
-      return factor * model->d2Lik_dt2(values, brlen);
+        return numeric::convert<VectorLik, Eigen::VectorXd>(factor * model->d2Lik_dt2(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen),dim);
       default:
-      throw Exception("TransitionFunctionFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
+        throw Exception("TransitionFunctionFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
       }
     };
   
@@ -364,8 +365,8 @@ void TransitionFunctionFromModel::compute () {
 // ProbabilitiesFromMixedModel
 
 ProbabilitiesFromMixedModel::ProbabilitiesFromMixedModel (
-  NodeRefVec && deps, const Dimension<RowLik> & dim)
-  : Value<RowLik> (std::move (deps)), nbClass_ (dim) {}
+  NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
+  : Value<Eigen::RowVectorXd> (std::move (deps)), nbClass_ (dim) {}
 
     
 std::string ProbabilitiesFromMixedModel::debugInfo () const {

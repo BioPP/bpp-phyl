@@ -74,6 +74,6 @@ void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(std::shared_ptr<HmmState
   
   // Compound to put site log lik of different processes in a matrix
   
-  emProb_ = EmissionLogk::create(context_, std::move(vEM), MatrixDimension(Eigen::Index(nbStates), Eigen::Index(nbSites_)));
+  emProb_ = EmissionLogk::create(context_, std::move(vEM), Dimension<MatrixLik>(Eigen::Index(nbStates), Eigen::Index(nbSites_)));
 }
 

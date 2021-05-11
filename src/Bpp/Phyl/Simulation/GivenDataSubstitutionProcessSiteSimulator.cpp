@@ -49,6 +49,7 @@
 
 using namespace bpp;
 using namespace std;
+using namespace numeric;
 
 /******************************************************************************/
 
@@ -76,25 +77,25 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
 
   const  auto dRoot = process_->getRootFrequencies();
   qRoots_.resize(nbClasses_);
-  Vdouble temp(nbStates_);
+  RowLik temp((int)nbStates_);
 
   for (size_t c=0;c<nbClasses_;c++)
   {
-    const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getNodeIndex(tree_.getRoot()), c)->getTargetValue().col(pos_);
+    temp = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getNodeIndex(tree_.getRoot()), c)->getTargetValue().col(pos_);
+    
+    temp /= temp.sum();
 
-    for (size_t x = 0; x < size_t(nbStates_); x++)
-      temp[x] = siteForwLik(Eigen::Index(x));
+    Vdouble temp2;
+    copyEigenToBpp(temp,temp2);
     
-    temp /= VectorTools::sum(temp);
-    
-    qRoots_[c] = VectorTools::cumSum(temp);
+    qRoots_[c] = VectorTools::cumSum(temp2);
   }
   
   // Initialize cumulative pxy for edges that have models
 
   auto edges = tree_.getAllEdges();
 
-  Vdouble postTrans(nbStates_);
+  std::vector<DataLik> postTrans(nbStates_);
 
   for (auto& edge : edges)
   {
@@ -150,8 +151,12 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
           postTrans[y] = std::max((*P)(x, y), NumConstants::PICO()) * siteForwLik(Eigen::Index(y)); // to avoid null trans prob on short branches, and then null sum of the postTrans
 
         postTrans /= VectorTools::sum(postTrans);
+
+        Vdouble pT2(postTrans.size());
+        for (size_t i=0; i<postTrans.size(); i++)
+          pT2[i]=convert(postTrans[i]);
         
-        (*cumpxy_node_c_)[x] = VectorTools::cumSum(postTrans);
+        (*cumpxy_node_c_)[x] = VectorTools::cumSum(pT2);
       }
     }
   }
@@ -164,7 +169,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
     if (node->isMixture()) // set probas to chose
     {
       auto outEdges = tree_.getOutgoingEdges(node);
-      VVdouble vprob;
+      std::vector<std::vector<DataLik>> vprob;
       vprob.resize(nbClasses_);
 
       for (auto edge : outEdges)
@@ -185,7 +190,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
         // forward lik
         for (size_t c = 0; c < nbClasses_; c++)
         {
-          double forwLik = calcul_->getForwardLikelihoodTree(c)->getEdge(outid)->getTargetValue().col(pos_).sum();
+          auto forwLik = calcul_->getForwardLikelihoodTree(c)->getEdge(outid)->getTargetValue().col(pos_).sum();
           vprob[c].push_back(x * forwLik);
         }
 
@@ -195,7 +200,14 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
       for (size_t c = 0; c < nbClasses_; c++)
       {
         vprob[c] /= VectorTools::sum(vprob[c]);
-        node->cumProb_[c] = VectorTools::cumSum(vprob[c]);
+
+        Vdouble pT2(vprob.size());
+
+        // convert to double
+        for (size_t i=0; i<vprob.size(); i++)
+          pT2[i]=convert(vprob[c][i]);
+
+        node->cumProb_[c] = VectorTools::cumSum(pT2);
       }
     }
   }

@@ -42,7 +42,7 @@
 #define EXTENDED_FLOAT_EIGEN_H
 
 #include "ExtendedFloat.h"
-#include "ExtendedFloatVectorwiseOp.h"
+#include "ExtendedFloatEigenTools.h"
 
 namespace bpp {
 
@@ -53,14 +53,18 @@ namespace bpp {
    *
    *
    */
-  
+
+  struct ExtendedFloatEigenCore {};
+
   template<typename Derived>
-  class ExtendedFloatEigenBase {
+  class ExtendedFloatEigenBase :
+    public ExtendedFloatEigenCore
+  {
   private:
     Derived& der_;
 
   public:
-    using Scalar = double;
+    using Scalar = ExtendedFloat;
     using RealScalar = double;
     
     ExtendedFloatEigenBase(Derived& der) :
@@ -75,10 +79,26 @@ namespace bpp {
     {
       return der_;
     }    
+
+    // No Alias
+
+    ExtendedFloatNoAlias<Derived> noalias()
+    {
+      return ExtendedFloatNoAlias<Derived>(derived());
+    }
+    
+
   };
 
+  
+  template < int R,  int C>
+  using EFMatrix = Eigen::Matrix<double, R, C>;
+  
+  template < int R,  int C>
+  using EFArray = Eigen::Array<double, R, C>;
+
   /*
-   * Class associating Eigen::Matrix & exponant to hable underflow.
+   * Class associating Eigen::Matrix & exponant to hanble underflow.
    *
    * BEWARE: Most operators (such as operator (), = ) handle only Eigen object.
    *  
@@ -86,88 +106,201 @@ namespace bpp {
    *
    */
 
-  template <int R, int C>
-  using EFMatrix = Eigen::Matrix<double, R, C>;
-  
-  template <int R, int C>
-  using EFArray = Eigen::Array<double, R, C>;
-
-  template<int R, int C, template<int R2, int C2> class EigenType>
+  template< int R,  int C, template< int R2,  int C2> class EigenType>
   class ExtendedFloatEigen : public ExtendedFloatEigenBase<ExtendedFloatEigen<R, C, EigenType>>  {
-    using ExtType = int;
+    using ExtType =  int;
     using MatType = EigenType<R,C>;
+    
+    using RefMatType = Eigen::Ref<EigenType<R,C>>;
 
     using Self = ExtendedFloatEigen<R, C, EigenType>;
 
-    using Base = ExtendedFloatEigenBase<Self>;//<double, R, C>>;
+    using Base = ExtendedFloatEigenBase<Self>;
 
-    template <int R2, int C2>
+    template < int R2,  int C2>
     using ExtendedFloatMatrix =  ExtendedFloatEigen<R2, C2, EFMatrix>;
 
-    template <int R2, int C2>
+    template < int R2,  int C2>
     using ExtendedFloatArray =  ExtendedFloatEigen<R2, C2, EFArray>;
 
 
   private:
+
     MatType mat_;
     ExtType exp_;
 
+    // For specific output without too many creations
+    class OwnedExtendedFloat : public ExtendedFloat
+    {
+    private:
+      const ExtendedFloatEigen& eigen_;
+
+      void set_float_part(double x)
+      {
+        f_=x;
+      }
+      
+    public:
+      OwnedExtendedFloat(const ExtendedFloatEigen& eigen) :
+        ExtendedFloat(),
+        eigen_(eigen) {}
+      
+      const ExtendedFloat::ExtType& exponent_part() const
+      {
+        return eigen_.exponent_part();
+      }
+
+      friend class ExtendedFloatEigen;
+    };
+
+    mutable OwnedExtendedFloat EFtmp_;
+    
   public:
     ExtendedFloatEigen(void):
       ExtendedFloatEigenBase<Self>(*this),
       mat_(MatType()),
-      exp_(0)
+      exp_(0),
+      EFtmp_(*this)
     {}
 
     ExtendedFloatEigen(Eigen::DenseBase<MatType>& mat,
-                       int exp = 0) :
+                       ExtType exp = 0) :
       ExtendedFloatEigenBase<Self>(*this),
       mat_(mat.derived()),
-      exp_(exp) 
+      exp_(exp),
+      EFtmp_(*this)
+    {  
+    }
+
+    ExtendedFloatEigen(MatType& mat,
+                       ExtType exp = 0) :
+      ExtendedFloatEigenBase<Self>(*this),
+      mat_(mat),
+      exp_(exp),
+      EFtmp_(*this)
     {  
     }
 
     ExtendedFloatEigen(const Eigen::DenseBase<MatType>& mat,
-                       int exp = 0) :
+                       ExtType exp = 0) :
       ExtendedFloatEigenBase<Self>(*this),
       mat_(mat.derived()),
-      exp_(exp) 
+      exp_(exp),
+      EFtmp_(*this) 
     {  
     }
 
-    ExtendedFloatEigen(const ExtendedFloatEigenBase<Self>& other) :
+    ExtendedFloatEigen(const Eigen::internal::traits<MatType>& mat,
+                       ExtType exp = 0) :
       ExtendedFloatEigenBase<Self>(*this),
-      mat_(other.derived().mat_),
-      exp_(other.derived().exp_) {}
+      mat_(mat),
+      exp_(exp),
+      EFtmp_(*this) 
+    {  
+    }
+
+    template<class Other>
+    ExtendedFloatEigen(const ExtendedFloatEigenBase<Other>& other) :
+      ExtendedFloatEigenBase<Self>(*this),
+      mat_(other.derived().float_part()),
+      exp_(other.derived().exponent_part()),
+      EFtmp_(*this) {}
 
     ExtendedFloatEigen(const ExtendedFloatEigen& other) :
       ExtendedFloatEigenBase<Self>(*this),
-      mat_(other.mat_),
-      exp_(other.exp_) {}
+      mat_(other.float_part()),
+      exp_(other.exponent_part()),
+      EFtmp_(*this) {}
 
     ExtendedFloatEigen(const MatType& mat,
-                       int exp = 0) :
+                       ExtType exp = 0) :
       ExtendedFloatEigenBase<Self>(*this),
       mat_(mat),
-      exp_(exp) 
+      exp_(exp),
+      EFtmp_(*this) 
     {  
     }
 
-    ExtendedFloatEigen(int rows, int cols) :
+    ExtendedFloatEigen( int rows,  int cols) :
       ExtendedFloatEigenBase<Self>(*this),
       mat_(MatType::Zero(rows, cols)),
-      exp_(0) {}
+      exp_(0),
+      EFtmp_(*this) {}
     
-    ExtendedFloatEigen(int cols):
+    ExtendedFloatEigen( int cols):
       ExtendedFloatEigenBase<Self>(*this),
       mat_(MatType::Zero(cols)),
-      exp_(0) {
+      exp_(0),
+      EFtmp_(*this) {}
+
+    // Specific constructors
+    
+    static Self Zero(Eigen::Index rows, Eigen::Index cols)
+    {
+      return Self(MatType::Zero(rows, cols), 0);
     }
 
+    static Self Zero(Eigen::Index rows)
+    {
+      return Self(MatType::Zero(rows), 0);
+    }
+
+    static Self Ones(Eigen::Index rows, Eigen::Index cols)
+    {
+      return Self(MatType::Ones(rows, cols), 0);
+    }
+
+    static Self Ones(Eigen::Index rows)
+    {
+      return Self(MatType::Ones(rows), 0);
+    }
+
+    static Self Identity(Eigen::Index rows)
+    {
+      return Self(MatType::Identity(rows, rows), 0);
+    }
+
+    static Self Constant(Eigen::Index rows, Eigen::Index cols, double value)
+    {
+      return Self(MatType::Constant(rows, cols, value), 0);
+    }
+
+    static Self Constant(Eigen::Index rows, Eigen::Index cols, const ExtendedFloat& value)
+    {
+      return Self(MatType::Constant(rows, cols, value.float_part()), value.exponent_part());
+    }
+
+    static Self Constant(Eigen::Index rows, double value)
+    {
+      return Self(MatType::Constant(rows, value), 0);
+    }
+
+    static Self Constant(Eigen::Index rows, const ExtendedFloat& value)
+    {
+      return Self(MatType::Constant(rows, value.float_part()), value.exponent_part());
+    }
+
+    // operators
+    
     ExtendedFloatEigen& operator=(const ExtendedFloatEigen& other)
     {
       mat_ = other.mat_;
       exp_ = other.exp_;
+      return *this;
+    }
+
+    ExtendedFloatEigen& operator=(const MatType& other)
+    {
+      mat_ = other;
+      exp_ = 0;
+      return *this;
+    }
+
+    template<typename Derived>
+    Self& operator=(const ExtendedFloatEigenBase<Derived>& other)
+    {
+      mat_ = other.derived().float_part();
+      exp_ = other.derived().exponent_part();
       return *this;
     }
 
@@ -180,7 +313,6 @@ namespace bpp {
     ExtType & exponent_part () noexcept { return exp_; }
 
     MatType & float_part () noexcept { return mat_; }
-
 
     // Normalization methods
     
@@ -207,30 +339,83 @@ namespace bpp {
       normalize_small ();
     }
 
-
     // Static methods without normalization
-    inline static Self denorm_mul (const Self & lhs, const Self & rhs) {
+    template< int R2,  int C2>
+    inline static ExtendedFloatEigen<R, C2, EigenType> denorm_mul (const Self & lhs, const ExtendedFloatEigen<R2, C2, EigenType> & rhs)
+    {
       return {lhs.float_part () * rhs.float_part (), lhs.exponent_part () + rhs.exponent_part ()};
     }
 
-    inline static Self denorm_dot (const Self & lhs, const Self & rhs) {
-      return {lhs.float_part ().dot(rhs.float_part ()), lhs.exponent_part () + rhs.exponent_part ()};
+    template< typename Derived>
+    inline static Self denorm_mul(const Self & lhs, const Eigen::EigenBase<Derived> & rhs)
+    {
+      return {lhs.float_part () * rhs.derived(), lhs.exponent_part ()};
     }
 
-    inline static Self denorm_div (const Self & lhs, const Self & rhs) {
+    template< typename Derived>
+    inline static Self denorm_mul(const Eigen::EigenBase<Derived> & lhs, const Self & rhs)
+    {
+      return {lhs.derived() * rhs.float_part (), rhs.exponent_part ()};
+    }
+
+    template<typename T>
+    typename std::enable_if< std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+    inline static denorm_mul (const Self & lhs, const T& rhs)
+    {
+      return {lhs.float_part () * rhs, lhs.exponent_part ()};
+    }
+
+    inline static Self denorm_mul (const Self & lhs, const double& rhs)
+    {
+      return {lhs.float_part () * rhs, lhs.exponent_part ()};
+    }
+
+    inline static Self denorm_mul (const Self & lhs, const ExtendedFloat rhs) {
+      return {lhs.float_part () * rhs.float_part (), lhs.exponent_part () + rhs.exponent_part ()};
+    }
+
+    template<typename T>
+    typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value, Self>::type
+    inline static denorm_div (const Self & lhs, const T & rhs) {
       return {lhs.float_part () / rhs.float_part (), lhs.exponent_part () - rhs.exponent_part ()};
     }
 
-    inline static Self denorm_add (const Self & lhs, const Self & rhs) {
+    template<typename Derived>
+    inline Self static denorm_div (const Self & lhs, const ExtendedFloatEigenBase<Derived> & rhs) {
+      return {lhs.float_part () / rhs.derived().float_part (), lhs.exponent_part () - rhs.derived().exponent_part ()};
+    }
+
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+    inline static denorm_add (const Self & lhs, const T & rhs) {
+      return (lhs.exponent_part ()>= 0)?
+        Self(lhs.float_part () + rhs * constexpr_power<double>(ExtendedFloat::radix, - lhs.exponent_part ()), lhs.exponent_part ()):
+        Self(rhs + lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part ()), 0);
+    }
+
+    template<typename T>
+    typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value, Self>::type
+    inline static denorm_add (const Self & lhs, const T & rhs) {
       return (lhs.exponent_part ()>=rhs.exponent_part ())?
         Self(lhs.float_part () + rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - lhs.exponent_part ()), lhs.exponent_part ()):
         Self(rhs.float_part () + lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part () - rhs.exponent_part ()), rhs.exponent_part ());
     }
 
-    inline static Self denorm_sub (const Self & lhs, const Self & rhs) {
+    template<typename T>
+    typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value, Self>::type
+    inline static denorm_sub (const Self & lhs, const T & rhs) {
       return (lhs.exponent_part ()>=rhs.exponent_part ())?
         Self(lhs.float_part () - rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - lhs.exponent_part ()), lhs.exponent_part ()):
         Self(rhs.float_part () - lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part () - rhs.exponent_part ()), rhs.exponent_part ());
+    }
+
+    
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+    inline static denorm_sub (const Self & lhs, const T& rhs) {
+      return (lhs.exponent_part ()>=0)?
+        Self(lhs.float_part () - rhs * constexpr_power<double>(ExtendedFloat::radix, - lhs.exponent_part ()), lhs.exponent_part ()):
+        Self(rhs - lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part ()),0);
     }
 
     inline static Self denorm_pow (const Self& arr, double exp)
@@ -261,51 +446,164 @@ namespace bpp {
      ** Utilities
      *********************************/
 
-    inline Self operator+ (const Self & rhs) const {
+    /***
+     * Operators
+     *
+     */
+         
+    template<typename T>
+    typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value
+                   || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+    inline operator+ (const T & rhs) const {
       auto r = denorm_add (*this, rhs);
       r.normalize ();
       return r;
     }
 
-    inline Self operator- (const Self & rhs) const {
+    template<template<int R2=R, int C2=C> class EigenType2>
+    inline Self operator+ (const ExtendedFloatEigen<R, C, EigenType2> & rhs) const
+    {
+      auto r = denorm_add (*this, rhs);
+      r.normalize ();
+      return r;
+    }
+
+    template<typename T>
+    typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value
+                   || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+    inline operator- (const T & rhs) const {
       auto r = denorm_sub (*this, rhs);
       r.normalize ();
       return r;
     }
 
-    inline Self operator* (const Self & rhs) const {
+    template<int R2=C,  int C2, template<int R3=R2, int C3=C2> class EigenType2>
+    inline ExtendedFloatEigen<R, C2, EigenType> operator* (const ExtendedFloatEigen<R2, C2, EigenType2> & rhs) const
+    {
       auto r = denorm_mul (*this, rhs);
       r.normalize ();
       return r;
     }
 
-    inline Self dot (const Self & rhs) const {
-      auto r = denorm_dot (*this, rhs);
+    // Not sure the product will be fine, in case of dimension mismatch
+    template<typename Derived>
+    inline Self operator* (const Eigen::EigenBase<Derived> & rhs) const
+    {
+      auto r = denorm_mul(*this, rhs);
       r.normalize ();
       return r;
     }
 
-    inline Self operator/ (const Self & rhs) const {
-      auto r = denorm_div (*this, rhs);
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value || std::is_same<T, ExtendedFloat>::value, Self>::type
+    inline operator*(const T& fact) const
+    {
+      auto r = denorm_mul(*this, fact);
       r.normalize ();
       return r;
     }
 
-    inline Self& operator*= (const Self & rhs) {
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value || std::is_same<T, ExtendedFloat>::value, Self>::type
+    inline operator/(const T& fact) const
+    {
+      auto r = denorm_div(*this, fact);
+      r.normalize ();
+      return r;
+    }
+
+    template<typename Derived>
+    inline Self operator/ (const ExtendedFloatEigenBase<Derived> & rhs) const
+    {
+      auto r = denorm_div(*this, rhs);
+      r.normalize ();
+      return r;
+    }
+    
+    template<typename Derived>
+    inline ExtendedFloat dot (const ExtendedFloatEigenBase<Derived> & rhs) const
+    {
+      auto r= ExtendedFloat(float_part().dot(rhs.derived().float_part ()), exponent_part () + rhs.derived().exponent_part ());
+      r.normalize();
+      return r;
+    }
+
+    template<typename Derived>
+    inline ExtendedFloat dot (const Eigen::DenseBase<Derived> & rhs) const {
+      auto r = ExtendedFloat(float_part().dot(rhs.derived ()), exponent_part ());
+      r.normalize();
+      return r;
+    }
+
+    template<typename Obj>
+    inline ExtendedFloat dot (const Eigen::Ref<Obj> & rhs) const {
+      auto r = ExtendedFloat(float_part().dot(rhs.derived ()), exponent_part ());
+      r.normalize();
+      return r;
+    }
+
+    inline Self operator- () const {
+      return Self(-float_part(), exponent_part());
+    }
+
+    /*
+     * Modifying operators
+     *
+     */
+    
+    template<typename T>
+    typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value, Self&>::type
+    inline operator*= (const T & rhs) {
       float_part () *= rhs.float_part ();
       exponent_part () += rhs.exponent_part ();
       normalize();
       return *this;
     }
+
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value, Self&>::type
+    inline operator*= (const T& div) {
+      float_part () *= div;
+      normalize();
+      return *this;
+    }
+
+    template<typename Derived>
+    inline Self& operator*= (const Eigen::DenseBase<Derived>& div) {
+      float_part () *= div.derived().float_part();
+      normalize();
+      return *this;
+    }
+
+    template<typename Derived>
+    inline Self& operator*= (const ExtendedFloatEigenBase<Derived>& div) {
+      float_part () *= div.derived().float_part();
+      exponent_part () += div.derived().exponent_part ();
+      normalize();
+      return *this;
+    }
+
     
-    inline Self& operator/= (const Self & rhs) {
+    template<typename T>
+    typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value, Self&>::type
+    inline operator/= (const T & rhs) {
       float_part () /= rhs.float_part ();
       exponent_part () -= rhs.exponent_part ();
       normalize();
       return *this;
     }
 
-    inline Self& operator+= (const Self & rhs) {
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value, Self&>::type
+    inline operator/= (const T& div) {
+      float_part () /= div;
+      return *this;
+    }
+
+
+    template<typename T>
+    typename std::enable_if<std::is_base_of<ExtendedFloatEigenCore, T>::value || std::is_same<T, ExtendedFloat>::value, Self&>::type
+    inline operator+= (const T & rhs) {
       if (exponent_part ()>=rhs.exponent_part ())
       {
         float_part() += rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - exponent_part ());
@@ -318,8 +616,26 @@ namespace bpp {
       normalize ();
       return *this;
     }
-    
-    inline Self& operator-= (const Self & rhs) {
+
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value, Self&>::type
+    inline operator+= (const T & rhs) {
+      if (exponent_part ()>=0)
+      {
+        float_part() += rhs * constexpr_power<double>(ExtendedFloat::radix, - exponent_part ());
+      }
+      else
+      {
+        float_part() = rhs.float_part () + float_part () * constexpr_power<double>(ExtendedFloat::radix, exponent_part ());
+        exponent_part() = 0;
+      }
+      normalize ();
+      return *this;
+    }
+
+    template<typename T>
+    typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value, Self&>::type
+    inline operator-= (const T & rhs) {
       if (exponent_part ()>=rhs.exponent_part ())
       {
         float_part() -= rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - exponent_part ());
@@ -333,8 +649,47 @@ namespace bpp {
       return *this;
     }
     
-    inline Self operator- () const {
-      return Self(-float_part(), exponent_part());
+    template<typename T>
+    typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value, Self&>::type
+    inline operator-= (const T & rhs) {
+      if (exponent_part ()>=0)
+      {
+        float_part() -= rhs * constexpr_power<double>(ExtendedFloat::radix, - exponent_part ());
+      }
+      else
+      {
+        float_part() = float_part () * constexpr_power<double>(ExtendedFloat::radix, exponent_part ()) - rhs.float_part ();
+        exponent_part() = 0;
+      }
+      normalize ();
+      return *this;
+    }
+
+    
+    inline Self log () const
+    {
+      return Self(float_part ().log() + static_cast<double> (exponent_part ()) * ExtendedFloat::ln_radix, 0);
+    }
+
+  
+    inline Self exp () const
+    {
+      // look for max, ie most important exp
+      Eigen::Index maxRow, maxCol;
+      const auto& arrf = float_part();
+      auto max = arrf.maxCoeff(&maxRow, &maxCol);
+
+      auto rcoeff = ExtendedFloat(max/ExtendedFloat::ln_radix, exponent_part()).lround();
+
+      MatType c(arrf/ExtendedFloat::ln_radix);
+      c.unaryExpr([rcoeff](double x){return(std::pow(ExtendedFloat::radix, x-(double)std::get<0>(rcoeff)));});
+    
+      // more precision for the max
+      c(maxRow, maxCol)=std::pow(ExtendedFloat::radix, std::get<1>(rcoeff));
+    
+      Self expM(c, std::get<0>(rcoeff));
+      expM.normalize();
+      return(expM);
     }
 
     /*
@@ -343,19 +698,13 @@ namespace bpp {
      */
     
     inline bool operator== (const Self & rhs) const {
+      throw Exception("ExtendedFloat::operator== not fiable. Ask developpers");
       return (float_part()==rhs.float_part() && exponent_part()==rhs.exponent_part());
     }
 
     inline bool operator!= (const Self & rhs) const {
+      throw Exception("ExtendedFloat::operator!= not fiable. Ask developpers");
       return (float_part()!=rhs.float_part() || exponent_part()!=rhs.exponent_part());
-    }
-
-    template<int R2, int C2, template<int R3=R2, int C3=C2> class ET2> 
-    ExtendedFloatEigen& operator=(const ExtendedFloatEigen<R2, C2, ET2>& other)
-    {
-      mat_ = other.mat_;
-      exp_ = other.exp_;
-      return *this;
     }
 
     /*
@@ -365,69 +714,23 @@ namespace bpp {
      
     void fill(double val)
     {
-      mat_.fill(val);
+      float_part().fill(val);
+      exponent_part()=0;
     }
 
     Eigen::Index cols() const
     {
-      return mat_.cols();
+      return float_part().cols();
     }
 
     Eigen::Index rows() const
     {
-      return mat_.rows();
+      return float_part().rows();
     }
-
-    static Self Zero(Eigen::Index rows, Eigen::Index cols)
-    {
-      return Self(MatType::Zero(rows, cols), 0);
-    }
-
-    static Self Zero(Eigen::Index rows)
-    {
-      return Self(MatType::Zero(rows), 0);
-    }
-
-    static Self Ones(Eigen::Index rows, Eigen::Index cols)
-    {
-      return Self(MatType::Ones(rows, cols), 0);
-    }
-
-    static Self Ones(Eigen::Index rows)
-    {
-      return Self(MatType::Ones(rows), 0);
-    }
-
-    static Self Identity(Eigen::Index rows, Eigen::Index cols)
-    {
-      return Self(MatType::Identity(rows, cols), 0);
-    }
-
-    static Self Constant(Eigen::Index rows, Eigen::Index cols, double value)
-    {
-      return Self(MatType::Constant(rows, cols, value), 0);
-    }
-
-    static Self Constant(Eigen::Index rows, double value)
-    {
-      return Self(MatType::Constant(rows, value), 0);
-    }
-
     template<typename CustomNullaryOp>
     static Self NullaryExpr(Eigen::Index rows, Eigen::Index cols, const CustomNullaryOp& func)
     {
-      return Self(MatType::NullaryExpr(rows, cols, func), 0);
-    }
-
-    // template<typename CustomNullaryOp>
-    Self unaryExpr(const double& func) const
-    {
-      return Self(float_part().rows(), float_part().cols());//, func), 0);
-    }
-
-    const double& operator()(Eigen::Index row, Eigen::Index col) const
-    {
-      return mat_(row,col);
+      return Self(MatType::NullaryExpr(rows, cols, func), func.exponent_part());
     }
 
     ExtendedFloatVectorwiseOp<Self, MatType, Eigen::Vertical> colwise()
@@ -435,10 +738,91 @@ namespace bpp {
       return ExtendedFloatVectorwiseOp<Self, MatType, Eigen::Vertical>(*this);
     }
 
+    ExtendedFloatVectorwiseOp<const Self, const MatType, Eigen::Vertical> colwise() const
+    {
+      return ExtendedFloatVectorwiseOp<const Self, const MatType, Eigen::Vertical>(*this);
+    }
+
+    template<typename M=MatType>
+    typename std::enable_if<std::is_same<M, EFMatrix<R,C>>::value, ExtendedFloatMatrix<1,C> >::type
+    row(Eigen::Index pos) const 
+    {
+      return ExtendedFloatMatrix<1,C>(float_part().row(pos),exponent_part());
+    }
+
     ExtendedFloatVectorwiseOp<Self, MatType, Eigen::Horizontal> rowwise()
     {
       return ExtendedFloatVectorwiseOp<Self, MatType, Eigen::Horizontal>(*this);
     }
+
+    ExtendedFloatVectorwiseOp<const Self, const MatType, Eigen::Horizontal> rowwise() const
+    {
+      return ExtendedFloatVectorwiseOp<const Self, const MatType, Eigen::Horizontal>(*this);
+    }
+
+
+    /****
+     * @brief Access to elements of the matrix
+     *
+     */
+
+    const ExtendedFloat& operator()(Eigen::Index col) const
+    {
+      EFtmp_.set_float_part(float_part()(col));
+      return EFtmp_;
+    }
+
+    const ExtendedFloat& operator()(Eigen::Index row, Eigen::Index col) const
+    {
+      EFtmp_.set_float_part(float_part()(row, col));
+      return EFtmp_;
+    }
+
+    template<typename M=MatType>
+    typename std::enable_if<std::is_same<M, EFArray<R,C>>::value, const ExtendedFloat&>::type
+    operator[](Eigen::Index pos) const
+    {
+      EFtmp_.set_float_part(float_part()[pos]);
+      return EFtmp_;
+    }
+
+    const ExtendedFloat& sum() const
+    {
+      EFtmp_.set_float_part(float_part().sum());
+      return EFtmp_;
+    }
+
+    const ExtendedFloat& mean() const
+    {
+      EFtmp_.set_float_part(float_part().mean());
+      return EFtmp_;
+    }
+
+    const ExtendedFloat& maxCoeff(size_t* pos = 0) const
+    {
+      if (pos)
+        EFtmp_.set_float_part(float_part().maxCoeff(pos));
+      else
+        EFtmp_.set_float_part(float_part().maxCoeff());
+      return EFtmp_;
+    }
+
+    ExtendedFloatEigen<R, 1, EigenType> col(Eigen::Index col) const
+    {
+      return ExtendedFloatEigen<R, 1, EigenType>(float_part().col(col),exponent_part());
+    }
+
+    ExtendedFloatEigen<R, 1, EigenType> col(Eigen::Index col)
+    {
+      return ExtendedFloatEigen<R, 1, EigenType>(float_part().col(col),exponent_part());
+    }
+
+    /****
+     * @brief Access to elements of the matrix for modification
+     *
+     * !!! ONLY eigen element is reachable like this, and can be changed
+     *
+     */
 
     double& operator()(Eigen::Index row, Eigen::Index col)
     {
@@ -449,15 +833,13 @@ namespace bpp {
     {
       return float_part()(row);
     }
-
-    const double& operator()(Eigen::Index row) const
-    {
-      return float_part()(row);
-    }
+    
+    /*********************************************/
+    /*** Modifications  ******/
 
     ExtendedFloatMatrix<C, R> transpose() const
     {
-      return ExtendedFloatMatrix<C, R>(mat_.transpose(), exp_);
+      return ExtendedFloatMatrix<C, R>(float_part().transpose(), exponent_part());
     }
 
     void resize(Eigen::Index rows, Eigen::Index cols)
@@ -475,40 +857,26 @@ namespace bpp {
       return float_part().size();
     }
 
-    inline double maxCoeff() const
-    {
-      return convert(ExtendedFloat(float_part().Maxcoeff(),exponent_part()));
-    }
-
   };
 
-  template<int R, int C, template<int R2, int C2> class EigenType>
-  ExtendedFloatEigen<R,C,EigenType> operator*(const ExtendedFloatEigen<R, C, EigenType>& mat, const double fact)
-  {
-    return ExtendedFloatEigenBase<ExtendedFloatEigen<R, C, EigenType>>  (mat.float_part()*fact,mat.exponent_part());
-  }
 
-  template<int R, int C, template<int R2, int C2> class EigenType>
-  ExtendedFloatEigen<R,C,EigenType> operator*(const double fact, const ExtendedFloatEigen<R, C, EigenType>& mat)
-  {
-    return mat * fact;
-  }
 
+  
   /*
    * Convenient shortnames.
    *
    */
 
-  template <int R, int C>
+  template < int R,  int C>
   using ExtendedFloatMatrix =  ExtendedFloatEigen<R, C, EFMatrix>;
 
-  template <int R, int C>
+  template < int R,  int C>
   using ExtendedFloatArray =  ExtendedFloatEigen<R, C, EFArray>;
 
-  template <int R>
+  template < int R>
   using ExtendedFloatVector =  ExtendedFloatMatrix<R, 1>;
 
-  template <int C>
+  template < int C>
   using ExtendedFloatRowVector = ExtendedFloatMatrix<1, C>;
 
   typedef ExtendedFloatMatrix<Eigen::Dynamic, Eigen::Dynamic> ExtendedFloatMatrixXd;
@@ -517,54 +885,79 @@ namespace bpp {
 
   typedef ExtendedFloatVector<Eigen::Dynamic> ExtendedFloatVectorXd;
 
-  /* Specific Methods */
+  typedef ExtendedFloatArray<Eigen::Dynamic, 1> ExtendedFloatArrayXd;
 
-  template<int R, int C>
-  static inline ExtendedFloatArray<R, C> log (const ExtendedFloatArray<R, C>& arr)
+  
+  /*  Extern Methods */
+
+  template< int R,  int C>
+  inline ExtendedFloatArray<R, C> log (const ExtendedFloatArray<R, C>& arr)
   {
-    return ExtendedFloatArray<R,C>(arr.float_part ().log() + static_cast<double> (arr.exponent_part ()) * ExtendedFloat::ln_radix, 0);
+    return arr.log();
   }
 
   
-  template<int R, int C>
-  static inline ExtendedFloatArray<R, C> exp (const ExtendedFloatArray<R, C>& arr)
+  template< int R,  int C, template< int R2=R,  int C2=C> class MatType>
+  inline ExtendedFloatEigen<R, C, MatType> exp (const ExtendedFloatEigen<R, C, MatType>& arr)
   {
-    // look for max, ie most important exp
-    Eigen::Index maxRow, maxCol;
-    const auto& arrf = arr.float_part();
-    auto max = arrf.maxCoeff(&maxRow, &maxCol);
-
-    auto rcoeff = ExtendedFloat(max/ExtendedFloat::ln_radix, arr.exponent_part()).lround();
-
-    auto c = arrf/ExtendedFloat::ln_radix;
-    c.unaryExpr([rcoeff](double x){return(std::pow(ExtendedFloat::radix, x-(double)std::get<0>(rcoeff)));});
-    
-    // more precision for the max
-    c(maxRow, maxCol)=std::pow(ExtendedFloat::radix, std::get<1>(rcoeff));
-    
-    ExtendedFloatArray<R,C>  expM(c, std::get<0>(rcoeff));
-    expM.normalize();
-    return(expM);
+    return arr.exp();
   }
 
-  template<int R, int C>
-  static inline ExtendedFloatArray<R, C> pow (const ExtendedFloatArray<R, C>& obj, double exp)
+  template< int R,  int C>
+  inline ExtendedFloatArray<R, C> pow (const ExtendedFloatArray<R, C>& obj, double exp)
   {
-    auto r = denorm_pow(obj, exp);
+    auto r = ExtendedFloatArray<R, C>::denorm_pow(obj, exp);
     r.normalize ();
     return r;
   }
 
-  template<int R, int C>
-  static inline ExtendedFloatArray<R, C> pow (const ExtendedFloatArray<R, C>& obj, int exp)
+  template< int R,  int C>
+  inline ExtendedFloatArray<R, C> pow (const ExtendedFloatArray<R, C>& obj, int exp)
   {
-    auto  r = denorm_pow(obj, exp);
+    auto  r = ExtendedFloatArray<R, C>::denorm_pow(obj, exp);
     r.normalize ();
     return r;
   }
 
-
   
+  template<int R, int C, template< int R2=R,  int C2=C> class MatType, typename T>
+  typename std::enable_if<std::is_same<T, ExtendedFloat>::value
+                          || std::is_floating_point<T>::value || std::is_integral<T>::value,
+                          ExtendedFloatEigen<R, C, MatType> >::type
+  inline operator+ (const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
+  {
+    return rhs + d;
+  }
+
+  template<int R, int C, template< int R2=R, int C2=C> class MatType, typename T>
+  typename std::enable_if<std::is_same<T, ExtendedFloat>::value
+                          || std::is_floating_point<T>::value || std::is_integral<T>::value,
+                          ExtendedFloatEigen<R, C, MatType> >::type
+  inline operator- (const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
+  {
+    return - (rhs - d);
+  }
+
+  template<int R, int C, template< int R2=R,  int C2=C> class MatType, typename T>
+  typename std::enable_if<std::is_same<T, ExtendedFloat>::value
+                          || std::is_floating_point<T>::value || std::is_integral<T>::value,
+                          ExtendedFloatEigen<R, C, MatType> >::type
+  inline operator* (const T& fact, const ExtendedFloatEigen<R, C, MatType> mat)
+  {
+    auto r = ExtendedFloatEigen<R,C,MatType>::denorm_mul (mat, fact); 
+    r.normalize ();
+    return r;
+  }
+
+  template<typename Derived, typename EFType>
+  inline EFType operator* (const Eigen::EigenBase<Derived> & lhs,
+                           const ExtendedFloatEigenBase<EFType>& rhs)
+  {
+    auto r = EFType::denorm_mul(lhs.derived(), rhs);
+    r.normalize ();
+    return r;
+  }
+
 }
 
 #endif // EXTENDEDFLOATEIGEN_H

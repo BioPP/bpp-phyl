@@ -98,7 +98,7 @@ VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodPerSitePerProcess() c
     l_i->resize(getNumberOfSubstitutionProcess());
     for (size_t c = 0; c < l_i->size(); ++c)
       {
-        (*l_i)[c] = getLikelihoodForASiteForAProcess(i, c);
+        (*l_i)[c] = convert(getLikelihoodForASiteForAProcess(i, c));
       }
   }
   return l;

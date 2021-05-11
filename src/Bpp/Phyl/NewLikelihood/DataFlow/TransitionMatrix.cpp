@@ -138,8 +138,8 @@ void EquilibriumFrequenciesFromTransitionMatrix::compute () {
 // TransitionMatrixFromTransitionMatrix
 
 TransitionMatrixFromTransitionMatrix::TransitionMatrixFromTransitionMatrix (NodeRefVec && deps,
-                                                      const Dimension<MatrixLik> & dim)
-  : Value<MatrixLik> (std::move (deps)), targetDimension_ (dim) {}
+                                                                            const Dimension<Eigen::MatrixXd> & dim)
+  : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension_ (dim) {}
 
 std::string TransitionMatrixFromTransitionMatrix::debugInfo () const {
   using namespace numeric;

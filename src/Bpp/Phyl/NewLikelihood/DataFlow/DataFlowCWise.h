@@ -65,6 +65,14 @@ namespace bpp {
       return t; // Do nothing for basic types
     }
 
+    inline ExtendedFloat & cwise (ExtendedFloat & t) {
+      return t; // Do nothing 
+    }
+
+    inline const ExtendedFloat & cwise (const ExtendedFloat & t) {
+      return t; // Do nothing 
+    }
+
     template <typename Derived> auto cwise (const Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
       return m.array (); // Use Array API in Eigen
     }
@@ -83,6 +91,24 @@ namespace bpp {
     {
       return ExtendedFloatArray<R,C>(m.float_part().array(), m.exponent_part());
     }
+
+    // template<int R, int C>
+    // inline EFRefArray<R,C> cwise (const EFRefMatrix<R,C>& m)
+    // {
+    //   return EFRefArray<R,C>(m.float_part().array(), m.exponent_part());
+    // }
+
+    template<int R, int C>
+    inline ExtendedFloatArray<R,C> cwise (ExtendedFloatMatrix<R,C>& m)
+    {
+      return ExtendedFloatArray<R,C>(m.float_part().array(), m.exponent_part());
+    }
+
+    // template<int R, int C>
+    // inline EFRefArray<R,C> cwise (EFRefMatrix<R,C>& m)
+    // {
+    //   return EFRefArray<R,C>(m.float_part().array(), m.exponent_part());
+    // }
 
   }
   
@@ -172,8 +198,8 @@ namespace bpp {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
       const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
-      result.colwise() = x0;
-    }
+      result.colwise() =x0;
+    }      
 
     Dimension<R> targetDimension_;
 
@@ -199,10 +225,23 @@ namespace bpp {
     public:
       pattern_functor(const R& arg, const PatternType& pattern) :
         m_arg_(arg), pattern_(pattern) {}
+
       
       const typename R::Scalar& operator()(Eigen::Index row, Eigen::Index col) const
       {
         return m_arg_(row, Eigen::Index(pattern_[col]));
+      }
+
+      const typename R::Scalar& operator()(Eigen::Index col) const
+      {
+        return m_arg_(Eigen::Index(pattern_[col]));
+      }
+
+      // Specific for ExtendedFloatEigen
+      template<typename R2=R>
+      ExtendedFloat::ExtType exponent_part(typename std::enable_if< std::is_base_of<ExtendedFloatEigenBase<R2>,R2>::value>::type* = 0) const
+      {
+        return m_arg_.exponent_part();
       }
 
     };
@@ -264,7 +303,7 @@ namespace bpp {
 
   
   /*************************************************************************
-   * @brief build a Value to a Eigen R which columns and rows are
+   * @brief build a Value to a Matrix R which columns and rows are
    * accessible through a vector of T objects and a function of
    * matching positions from T objects to R object.
    *
@@ -299,24 +338,39 @@ namespace bpp {
       
       template<typename T2 = T>
       const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-        typename std::enable_if< !std::is_same<T2,double>::value, T*>::type* = 0) const
+                                        typename std::enable_if< !std::is_same<T2,typename R::Scalar>::value, T*>::type* = 0) const
       {
         return (*m_arg_[matching_(col,0)])(row, Eigen::Index(matching_(col,1)));
       }
 
+
+      // Specific case of Eigen::RowVector made from several elements
       template<typename T2 = T>
       const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-        typename std::enable_if< std::is_same<T2,double>::value, T*>::type* = 0) const
+                                        typename std::enable_if< std::is_same<T2,typename R::Scalar>::value, T*>::type* = 0) const
       {
         return *m_arg_[matching_(col,0)];
       }
 
+      // Specific for ExtendedFloat
+      template<typename R2=R>
+      ExtendedFloat::ExtType exponent_part(typename std::enable_if< std::is_base_of<ExtendedFloatEigenBase<R2>,R2>::value>::type* = 0) const
+      {
+        std::vector<ExtendedFloat::ExtType> vexp(m_arg_.size());
+        std::transform(m_arg_.begin(),m_arg_.end(),vexp.begin(),[](const T* t){return(t->exponent_part());});
+
+        if (! std::equal(vexp.begin() + 1, vexp.end(), vexp.begin()) )
+          throw Exception("DataFlowCwise::CWiseMatching not possible on ExtendedFloatEigen data with different exponents. Ask developpers.");
+        
+        return vexp[0];
+      }
+      
     };
             
   public:
     using Self = CWiseMatching;
 
-    /// Build a new CWiseFill node.
+    /// Build a new CWiseMatching node.
     static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
       // Check dependencies
       checkDependenciesNotNull (typeid (Self), deps);
@@ -411,6 +465,19 @@ namespace bpp {
                                         typename std::enable_if< std::is_same<T2,VectorLik>::value, T*>::type* = 0) const
       {
         return (*m_arg_[size_t(col)])(row);
+      }
+
+      // Specific for ExtendedFloat
+      template<typename R2=R>
+      ExtendedFloat::ExtType exponent_part(typename std::enable_if< std::is_base_of<ExtendedFloatEigenBase<R2>,R2>::value>::type* = 0) const
+      {
+        std::vector<ExtendedFloat::ExtType> vexp(m_arg_.size());
+        std::transform(m_arg_.begin(),m_arg_.end(),vexp.begin(),[](const T* t){return(t->exponent_part());});
+
+        if (! std::equal(vexp.begin() + 1, vexp.end(), vexp.begin()) )
+          throw Exception("DataFlowCwise::CWiseCompound not possible on ExtendedFloatEigen data with different exponents. Ask developpers.");
+        
+        return vexp[0];
       }
 
     };

@@ -191,8 +191,8 @@ int main() {
   cerr << "Mlc: " << mlc.getValue() << endl;
 
   for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
-    double x=spl1->getLikelihoodForASite(pos) * mlc.getSubProcessProb(0) + spl2->getLikelihoodForASite(pos) * mlc.getSubProcessProb(1);
-    if (abs(x-mlc.getLikelihoodForASite(pos))>0.001)
+    DataLik x=spl1->getLikelihoodForASite(pos) * mlc.getSubProcessProb(0) + spl2->getLikelihoodForASite(pos) * mlc.getSubProcessProb(1);
+    if (convert(abs(x-mlc.getLikelihoodForASite(pos)))>0.001)
       cerr << "Mixture Process : Problem on site " << x << endl;
   }
 
@@ -220,8 +220,8 @@ int main() {
   cerr << "Moap: " << moap.getValue() << endl;
 
   for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
-    double x=spl1->getLikelihoodForASite(pos) * moap.getPhyloProb(0) + spl2->getLikelihoodForASite(pos) * moap.getPhyloProb(1);
-    if (abs(x-moap.getLikelihoodForASite(pos))>0.001)
+    DataLik x=spl1->getLikelihoodForASite(pos) * moap.getPhyloProb(0) + spl2->getLikelihoodForASite(pos) * moap.getPhyloProb(1);
+    if (convert(abs(x-moap.getLikelihoodForASite(pos)))>0.001)
       cerr << "Mixture Alignment: Problem on site " << x << endl;
   }
 

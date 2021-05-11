@@ -224,7 +224,7 @@ namespace bpp {
      * @param shrunk : on shrunked data (default false)
      */
     
-    double getLikelihoodForASite(size_t pos, bool shrunk = false)
+    DataLik getLikelihoodForASite(size_t pos, bool shrunk = false)
     {
       if (!(siteLikelihoods_ || patternedSiteLikelihoods_))
         makeLikelihoods();
@@ -237,7 +237,8 @@ namespace bpp {
 
     double getLogLikelihoodForASite(size_t pos, bool shrunk = false)
     {
-      return std::log(getLikelihoodForASite(pos, shrunk));
+      using namespace std;
+      return log(getLikelihoodForASite(pos, shrunk));
     }
 
     /**

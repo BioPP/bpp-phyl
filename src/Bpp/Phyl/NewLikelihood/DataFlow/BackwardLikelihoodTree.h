@@ -87,7 +87,7 @@ namespace bpp
    */
     
   using BackwardTransition =
-    MatrixProduct<MatrixLik, Transposed<MatrixLik>, MatrixLik>;
+    MatrixProduct<MatrixLik, MatrixLik, Transposed<Eigen::MatrixXd>>;
 
   /** @brief : Above each node : in case of mixture of above edges
    *
@@ -127,8 +127,8 @@ namespace bpp
     Eigen::Index nbSite_;
     std::shared_ptr<ForwardLikelihoodTree> forwardTree_;
     std::shared_ptr<ProcessTree> processTree_;
-    ValueRef<RowLik> rFreqs_;
-    Dimension<MatrixLik> likelihoodMatrixDim_;
+    ValueRef<Eigen::RowVectorXd> rFreqs_;
+    MatrixDimension likelihoodMatrixDim_;
     const StateMap& statemap_;
 
   public:
@@ -136,7 +136,7 @@ namespace bpp
     BackwardLikelihoodTree(Context& c, 
                            std::shared_ptr<ForwardLikelihoodTree> forwardTree,
                            std::shared_ptr<ProcessTree> tree,
-                           ValueRef<RowLik> rFreqs,
+                           ValueRef<Eigen::RowVectorXd> rFreqs,
                            const StateMap& statemap,
                            Eigen::Index nbSite) :
       DAClass(forwardTree->getGraph()),
@@ -144,7 +144,7 @@ namespace bpp
     {
     }
 
-    ConditionalLikelihoodRef setRootFrequencies(const ValueRef<RowLik> rootFreqs)
+    ConditionalLikelihoodRef setRootFrequencies(const ValueRef<Eigen::RowVectorXd> rootFreqs)
     {
       auto r2=CWiseFill<MatrixLik, RowLik>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
 

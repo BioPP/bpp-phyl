@@ -58,6 +58,7 @@ namespace bpp {
   template class CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
     
   template class CWiseAdd<double, std::tuple<double, double>>;
+  template class CWiseAdd<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
   template class CWiseAdd<VectorLik, std::tuple<VectorLik, VectorLik>>;
   template class CWiseAdd<RowLik, std::tuple<RowLik, RowLik>>;
   template class CWiseAdd<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
@@ -65,10 +66,11 @@ namespace bpp {
 
   template class CWiseAdd<RowLik, MatrixLik>;
   template class CWiseAdd<VectorLik, MatrixLik>;
-  template class CWiseAdd<double, VectorLik>;
-  template class CWiseAdd<double, RowLik>;
+  template class CWiseAdd<DataLik, VectorLik>;
+  template class CWiseAdd<DataLik, RowLik>;
 
   template class CWiseAdd<double, ReductionOf<double>>;
+  template class CWiseAdd<ExtendedFloat, ReductionOf<ExtendedFloat>>;
   template class CWiseAdd<VectorLik, ReductionOf<VectorLik>>;
   template class CWiseAdd<RowLik, ReductionOf<RowLik>>;
   template class CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>;
@@ -77,7 +79,8 @@ namespace bpp {
   template class CWiseMean<VectorLik, ReductionOf<VectorLik>, ReductionOf<double>>;
   template class CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double>>;
   template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, ReductionOf<double>>;
-  template class CWiseMean<double, ReductionOf<double>, Eigen::RowVectorXd>;
+  template class CWiseMean<double, ReductionOf<double>, ReductionOf<double>>;
+  template class CWiseMean<ExtendedFloat, ReductionOf<ExtendedFloat>, ReductionOf<double>>;
 
   template class CWiseMean<VectorLik, ReductionOf<VectorLik>, Eigen::VectorXd>;
   template class CWiseMean<RowLik, ReductionOf<RowLik>,  Eigen::VectorXd>;
@@ -87,67 +90,79 @@ namespace bpp {
   template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, Eigen::RowVectorXd>;
 
   template class CWiseSub<double, std::tuple<double, double>>;
+  template class CWiseSub<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
   template class CWiseSub<VectorLik, std::tuple<VectorLik, VectorLik>>;
-//  template class CWiseSub<VectorLik, std::tuple<double, VectorLik>>;
   template class CWiseSub<RowLik, std::tuple<RowLik, RowLik>>;
-//  template class CWiseSub<RowLik, std::tuple<double, RowLik>>;
   template class CWiseSub<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
+
+  template class CWiseSub<VectorLik, std::tuple<VectorLik, DataLik>>;
+  template class CWiseSub<RowLik, std::tuple<RowLik, DataLik>>;
 
   template class CWiseMul<double, std::tuple<double, double>>;
   template class CWiseMul<double, std::tuple<double, uint>>;
+  template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
+  template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, uint>>;
   template class CWiseMul<VectorLik, std::tuple<VectorLik, VectorLik>>;
   template class CWiseMul<RowLik, std::tuple<RowLik, RowLik>>;
+  template class CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
+  
   template class CWiseMul<RowLik, std::tuple<RowLik, Eigen::RowVectorXi>>;
   template class CWiseMul<VectorLik, std::tuple<VectorLik, Eigen::RowVectorXi>>;
-  template class CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
-  template class CWiseMul<VectorLik, std::tuple<double, VectorLik>>;
-  template class CWiseMul<RowLik, std::tuple<double, RowLik>>;
-  template class CWiseMul<MatrixLik, std::tuple<double, MatrixLik>>;
+  template class CWiseMul<VectorLik, std::tuple<DataLik, VectorLik>>;
+  template class CWiseMul<RowLik, std::tuple<DataLik, RowLik>>;
+  template class CWiseMul<MatrixLik, std::tuple<DataLik, MatrixLik>>;
   template class CWiseMul<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
   template class CWiseMul<TransitionFunction, std::tuple<double, TransitionFunction>>;
     
   template class CWiseMul<double, ReductionOf<double>>;
+  template class CWiseMul<ExtendedFloat, ReductionOf<ExtendedFloat>>;
   template class CWiseMul<VectorLik, ReductionOf<VectorLik>>;
   template class CWiseMul<RowLik, ReductionOf<RowLik>>;
   template class CWiseMul<MatrixLik, ReductionOf<MatrixLik>>;
 
   template class CWiseNegate<double>;
+  template class CWiseNegate<ExtendedFloat>;
   template class CWiseNegate<VectorLik>;
   template class CWiseNegate<RowLik>;
   template class CWiseNegate<MatrixLik>;
 
   template class CWiseInverse<double>;
+  template class CWiseInverse<ExtendedFloat>;
   template class CWiseInverse<VectorLik>;
   template class CWiseInverse<RowLik>;
   template class CWiseInverse<MatrixLik>;
 
   template class CWiseLog<double>;
+  template class CWiseLog<ExtendedFloat>;
   template class CWiseLog<VectorLik>;
   template class CWiseLog<RowLik>;
   template class CWiseLog<MatrixLik>;
     
   template class CWiseExp<double>;
+  template class CWiseExp<ExtendedFloat>;
   template class CWiseExp<VectorLik>;
   template class CWiseExp<RowLik>;
   template class CWiseExp<MatrixLik>;
     
   template class CWiseConstantPow<double>;
+  template class CWiseConstantPow<ExtendedFloat>;
   template class CWiseConstantPow<VectorLik>;
   template class CWiseConstantPow<RowLik>;
   template class CWiseConstantPow<MatrixLik>;
 
-  template class ScalarProduct<VectorLik, VectorLik>;
-  template class ScalarProduct<RowLik, RowLik>;
+  template class ScalarProduct<DataLik, VectorLik, VectorLik>;
+  template class ScalarProduct<DataLik, RowLik, RowLik>;
 
-  template class LogSumExp<VectorLik, Eigen::VectorXd>;
-  template class LogSumExp<RowLik, Eigen::RowVectorXd>;
+  template class LogSumExp<DataLik, VectorLik, Eigen::VectorXd>;
+  template class LogSumExp<DataLik, RowLik, Eigen::RowVectorXd>;
 
   template class SumOfLogarithms<VectorLik>;
   template class SumOfLogarithms<RowLik>;
 
-  template class MatrixProduct<MatrixLik, MatrixLik, MatrixLik>;
-  template class MatrixProduct<RowLik, RowLik, MatrixLik>;
-  template class MatrixProduct<MatrixLik, Transposed<MatrixLik>, MatrixLik>;
+  template class MatrixProduct<ExtendedFloatRowVectorXd, Eigen::RowVectorXd, ExtendedFloatMatrixXd>;
+  template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
+  template class MatrixProduct<MatrixLik, MatrixLik, Eigen::MatrixXd>;
+  template class MatrixProduct<MatrixLik, MatrixLik, Transposed<Eigen::MatrixXd>>;
 
   template class ShiftDelta<double>;
   template class ShiftDelta<VectorLik>;

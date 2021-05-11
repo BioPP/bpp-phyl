@@ -134,11 +134,11 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
 
-  class EquilibriumFrequenciesFromModel : public Value<RowLik> {
+  class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd> {
   public:
     using Self = EquilibriumFrequenciesFromModel;
     using Dep = ConfiguredModel;
-    using T = RowLik;
+    using T = Eigen::RowVectorXd;
 
     EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
@@ -173,11 +173,11 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
 
-  class TransitionMatrixFromModel : public Value<MatrixLik> {
+  class TransitionMatrixFromModel : public Value<Eigen::MatrixXd> {
   public:
     using Self = TransitionMatrixFromModel;
     using Dep = ConfiguredModel;
-    using T = MatrixLik;
+    using T = Eigen::MatrixXd;
 
   private:
     Dimension<T> targetDimension_;
@@ -275,11 +275,11 @@ namespace bpp {
    */
 
 
-  class ProbabilitiesFromMixedModel : public Value<RowLik> {
+  class ProbabilitiesFromMixedModel : public Value<Eigen::RowVectorXd> {
   public:
     using Self = ProbabilitiesFromMixedModel;
     using Dep = ConfiguredModel;
-    using T = RowLik;
+    using T = Eigen::RowVectorXd;
 
     ProbabilitiesFromMixedModel (NodeRefVec && deps, const Dimension<T> & dim);
 

@@ -99,7 +99,10 @@ namespace bpp {
 
   using LikelihoodFromRootConditional =
     MatrixProduct<RowLik, RowLik, MatrixLik>;
-    
+
+  using LikelihoodFromRootConditionalAtRoot =
+    MatrixProduct<RowLik, Eigen::RowVectorXd, MatrixLik>;
+
   /** @brief totalLikelihood = product_site likelihood(site).
    * - likelihood: RowVector (site).
    * - totalLikelihood: Extended float.
@@ -237,7 +240,7 @@ namespace bpp {
 
     ProcessNodes processNodes_;
 
-    ValueRef<RowLik> rFreqs_;
+    ValueRef<Eigen::RowVectorXd> rFreqs_;
 
     /* Likelihood Trees with for all rate categories */
     std::vector<RateCategoryTrees> vRateCatTrees_;
@@ -474,7 +477,7 @@ namespace bpp {
       if (!rootPatternLinks_)
         return vector;
       else
-        return CWisePattern<RowLik>::create(getContext_(),{vector,rootPatternLinks_}, Dimension<RowLik> (Eigen::Index (getData()->getNumberOfSites())));
+        return CWisePattern<RowLik>::create(getContext_(),{vector,rootPatternLinks_}, RowVectorDimension ((int)getData()->getNumberOfSites()));
     }
 
     /*
@@ -489,7 +492,7 @@ namespace bpp {
       if (!rootPatternLinks_)
         return matrix;
       else
-        return CWisePattern<MatrixLik>::create(getContext_(),{matrix,rootPatternLinks_}, Dimension<MatrixLik> (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
+        return CWisePattern<MatrixLik>::create(getContext_(),{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*
@@ -508,7 +511,7 @@ namespace bpp {
       return rootWeights_;
     }
 
-    ValueRef<RowLik> getRootFreqs()
+    ValueRef<Eigen::RowVectorXd> getRootFreqs()
     {
       return rFreqs_;
     }

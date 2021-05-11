@@ -138,7 +138,7 @@ namespace bpp
         return vLikCal_[p];
       }
       
-      double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
+      DataLik getLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
         return vLikCal_[p]->getLikelihoodForASite(site);
       }

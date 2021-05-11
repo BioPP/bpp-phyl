@@ -112,7 +112,7 @@ namespace bpp
      * @return The likelihood for site <i>site</i>.
      */
 
-    virtual double getLikelihoodForASite(size_t site) const = 0;
+    virtual DataLik getLikelihoodForASite(size_t site) const = 0;
     
     /**
      * @brief Get the log likelihood for a site, and its derivatives.
@@ -172,7 +172,7 @@ namespace bpp
      * @return The likelihood for site <i>site</i>.
      */
 
-    double getLikelihoodForASite(size_t site) const
+    DataLik getLikelihoodForASite(size_t site) const
     {
       return getAlignedLikelihoodCalculation()->getLikelihoodForASite(site);
     }

@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
 
-  using EmissionLogk = CWiseCompound<Eigen::MatrixXd, ReductionOf<Eigen::RowVectorXd>>;
+  using EmissionLogk = CWiseCompound<MatrixLik, ReductionOf<RowLik>>;
 
 /**
  * @brief Emission probabilities in the context of DF phylolikeihoods.
@@ -67,12 +67,12 @@ namespace bpp
     std::shared_ptr<HmmPhyloAlphabet> phylAlph_;
 
     /*
-     *@brief Emission probabilities are stored in a Matrix from a set of
+     *@brief Emission likelihoods are stored in a Matrix from a set of
      * RowVectors. 
      *
      */
      
-    ValueRef<Eigen::MatrixXd> emProb_;
+    ValueRef<MatrixLik> emProb_;
     
     size_t nbSites_;
   public:
@@ -124,12 +124,12 @@ namespace bpp
      *
      */
 
-    double operator()(size_t pos, size_t state) const
+    DataLik operator()(size_t pos, size_t state) const
     {
       return (emProb_->getTargetValue())(Eigen::Index(state),Eigen::Index(pos));
     }
 
-    ValueRef<Eigen::MatrixXd> getEmissionProbabilities()
+    ValueRef<MatrixLik> getEmissionProbabilities()
     {
       return emProb_;
     }
@@ -144,7 +144,7 @@ namespace bpp
      * @return A vector of probabilities, whose size is the number of hidden states.
      */
     
-    Eigen::Ref<const Eigen::VectorXd> operator()(size_t pos) const
+    VectorLik operator()(size_t pos) const
     {
       return emProb_->getTargetValue().col(Eigen::Index(pos));
     }

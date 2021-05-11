@@ -163,8 +163,9 @@ VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesPerSitePerC
     for (size_t i=0;i<nbS;i++)
     {
       vv[i].resize(size_t(vvLik.rows()));
-      auto sv = vvLik.col(Eigen::Index(i)).array() * probas.array();
-      Eigen::VectorXd::Map(&vv[i][0], Eigen::Index(vv[i].size())) = sv / sv.sum();
+      VectorLik sv(numeric::cwise(vvLik.col(Eigen::Index(i))) * probas.array());
+      sv /= sv.sum();
+      copyEigenToBpp(sv, vv[i]);
     }
   }
   return vv;
@@ -217,7 +218,7 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorStateFrequencies(uint nod
   for (auto i=0;i<vv.cols();i++)
     vv.col(i)/=vv.col(i).sum();
 
-  Eigen::VectorXd vs(vv.rowwise().mean());
+  VectorLik vs(vv.rowwise().mean());
     
   Vdouble v;
   copyEigenToBpp(vs, v);

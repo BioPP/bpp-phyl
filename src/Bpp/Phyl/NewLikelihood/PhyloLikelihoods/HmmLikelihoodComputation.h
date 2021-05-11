@@ -53,7 +53,7 @@
 
 namespace bpp {
 
-  class CondLikelihood : public Value<Eigen::MatrixXd>
+  class CondLikelihood : public Value<MatrixLik>
   {
   private:
 
@@ -62,10 +62,10 @@ namespace bpp {
      *
      */
     
-    Dimension<Eigen::MatrixXd> targetDimension_;
+    Dimension<MatrixLik> targetDimension_;
 
   public:
-    static ValueRef<Eigen::MatrixXd> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
+    static ValueRef<MatrixLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
     {
       // Check dependencies
       checkDependenciesNotNull (typeid (CondLikelihood), deps);
@@ -74,11 +74,11 @@ namespace bpp {
       // dependency on the name, to make objects different
       checkNthDependencyIsValue<std::string>(typeid(CondLikelihood), deps, 1);
                                   
-      return cachedAs<Value<Eigen::MatrixXd>> (c, std::make_shared<CondLikelihood> (std::move (deps), dim));
+      return cachedAs<Value<MatrixLik>> (c, std::make_shared<CondLikelihood> (std::move (deps), dim));
     }
 
-    CondLikelihood (NodeRefVec && deps, const Dimension<Eigen::MatrixXd> & dim)
-      : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension_ (dim)
+    CondLikelihood (NodeRefVec && deps, const Dimension<MatrixLik> & dim)
+      : Value<MatrixLik> (std::move (deps)), targetDimension_ (dim)
     {      
       this->accessValueMutable().resize(dim.rows, dim.cols);
     }
@@ -106,12 +106,12 @@ namespace bpp {
       return CondLikelihood::create (c, std::move (deps), targetDimension_);
     }
 
-    Eigen::MatrixXd& getCondLikelihood() 
+    MatrixLik& getCondLikelihood() 
     {
       return this->accessValueMutable();
     }
 
-    const Eigen::MatrixXd& getCondLikelihood() const
+    const MatrixLik& getCondLikelihood() const
     {
       return this->accessValueConst();
     }
@@ -133,7 +133,7 @@ namespace bpp {
    * Dependencies are:
    *  Value<VectorXd> : Starting vector of states probabililies
    *  Value<MatrixXd> : TransitionMatrix
-   *  Value<MatrixXd> : Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : Matrix of Emission likelihoods states X sites
    *
    * After computation, its value stores the conditional forward
    * likelihoods of the sites, P(x_j|x_1,...,x_{j-1}), where the x are
@@ -145,7 +145,7 @@ namespace bpp {
    *
    */
 
-  class ForwardHmmLikelihood_DF : public Value<Eigen::RowVectorXd>
+  class ForwardHmmLikelihood_DF : public Value<RowLik>
   {
   private:
     /**
@@ -155,8 +155,10 @@ namespace bpp {
      * condLik_(i,j) corresponds to Pr(x_1...x_j, y_j=i)/Pr(x_1...x_j),
      * where the x are the observed states, and y the hidden states.
      */
+
+    typedef std::vector<VectorLik> vVectorLik;
     
-    ValueRef<Eigen::MatrixXd> condLik_;
+    ValueRef<MatrixLik> condLik_;
 
     /*
      * @brief Conditional partial likelihood, used for computation.
@@ -165,19 +167,19 @@ namespace bpp {
      * where the x are the observed states, and y the hidden states.
      */
 
-    Eigen::MatrixXd parCondLik_;
+    std::vector<VectorLik> parCondLik_;
     
-    /**
+    /*
      * @brief Dimension of the data : states X sites
      *
      */
       
-    Dimension<Eigen::MatrixXd> targetDimension_;
+    Dimension<MatrixLik> targetDimension_;
 
   public:
     using Self = ForwardHmmLikelihood_DF;
 
-    static ValueRef<Eigen::RowVectorXd> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
+    static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
     {
       // Check dependencies
       checkDependenciesNotNull (typeid (Self), deps);
@@ -185,17 +187,20 @@ namespace bpp {
 
       checkNthDependencyIsValue<Eigen::VectorXd> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 1);
-      checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 2);
+      checkNthDependencyIsValue<MatrixLik> (typeid (Self), deps, 2);
 
       auto sself = std::make_shared<Self> (std::move (deps), dim);
       sself->build(c);
       
-      return cachedAs<Value<Eigen::RowVectorXd>> (c, sself);
+      return cachedAs<Value<RowLik>> (c, sself);
     }
 
-    ForwardHmmLikelihood_DF (NodeRefVec && deps, const Dimension<Eigen::MatrixXd> & dim)
-      : Value<Eigen::RowVectorXd> (std::move (deps)), condLik_(), parCondLik_(dim.rows, dim.cols), targetDimension_ (dim)
+    ForwardHmmLikelihood_DF (NodeRefVec && deps, const Dimension<MatrixLik> & dim)
+      : Value<RowLik> (std::move (deps)), condLik_(), parCondLik_((size_t)dim.cols), targetDimension_ (dim)
     {
+      for (auto& v:parCondLik_)
+        v.resize(dim.rows);
+      
       this->accessValueMutable().resize(targetDimension_.cols);
     }
 
@@ -218,7 +223,7 @@ namespace bpp {
       if (hmmTrans.cols()!=targetDimension_.rows)
         throw BadSizeException("ForwardHmmLikelihood_DF: bad number of columns for transition matrix", size_t(hmmTrans.cols()), size_t(targetDimension_.rows));
 
-      const auto& hmmEmis = dynamic_pointer_cast<Value<Eigen::MatrixXd>>(this->dependency(2))->getTargetValue();
+      const auto& hmmEmis = dynamic_pointer_cast<Value<MatrixLik>>(this->dependency(2))->getTargetValue();
       
       if (hmmEmis.rows()!=targetDimension_.rows)
         throw BadSizeException("ForwardHmmLikelihood_DF: bad number of states for emission matrix", size_t(hmmEmis.rows()), size_t(targetDimension_.rows));
@@ -242,12 +247,12 @@ namespace bpp {
       return Self::create (c, std::move (deps), targetDimension_);
     }
 
-    ValueRef<Eigen::MatrixXd> getForwardCondLikelihood() const
+    ValueRef<MatrixLik> getForwardCondLikelihood() const
     {
       return condLik_;
     }
 
-    const Eigen::MatrixXd& getParCondLik() const
+    const std::vector<VectorLik>& getParCondLik() const
     {
       return parCondLik_;
     }
@@ -263,13 +268,13 @@ namespace bpp {
    * Dependencies are:
    *  Value<VectorXd> : Starting vector of states probabililies
    *  Value<MatrixXd> : TransitionMatrix
-   *  Value<MatrixXd> : Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : Matrix of Emission likelihoods states X sites
    *
    *  ForwardHmmLikelihood_DF : Forward Computations
    *
    *  Value<VectorXd> : Derivatives of starting vector of states probabililies
    *  Value<MatrixXd> : Derivatives of TransitionMatrix
-   *  Value<MatrixXd> : Derivatives Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : Derivatives Matrix of Emission likelihoods states X sites
    *
    * After computation, its value stores the derivates of the
    * conditional forward likelihoods of the sites,
@@ -283,7 +288,7 @@ namespace bpp {
 
 
 
-  class ForwardHmmDLikelihood_DF : public Value<Eigen::RowVectorXd>
+  class ForwardHmmDLikelihood_DF : public Value<RowLik>
   {
   private:
     /**
@@ -295,7 +300,7 @@ namespace bpp {
      *
      */
     
-    ValueRef<Eigen::MatrixXd> dCondLik_;
+    ValueRef<MatrixLik> dCondLik_;
     
     /*
      * @brief Conditional partial likelihood derivatives, used for
@@ -303,19 +308,19 @@ namespace bpp {
      *
      */
 
-    Eigen::MatrixXd dParCondLik_;
+    std::vector<VectorLik> dParCondLik_;
     
     /**
      * @brief Dimension of the data : states X sites
      *
      */
       
-    Dimension<Eigen::MatrixXd> targetDimension_;
+    Dimension<MatrixLik> targetDimension_;
 
   public:
     using Self = ForwardHmmDLikelihood_DF;
 
-    static ValueRef<Eigen::RowVectorXd> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
+    static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
     {
       // Check dependencies
       checkDependenciesNotNull (typeid (Self), deps);
@@ -323,23 +328,25 @@ namespace bpp {
 
       checkNthDependencyIsValue<Eigen::VectorXd> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 1);
-      checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 2);
+      checkNthDependencyIsValue<MatrixLik> (typeid (Self), deps, 2);
 
       checkNthDependencyIs<ForwardHmmLikelihood_DF> (typeid (Self), deps, 3);
 
       checkNthDependencyIsValue<Eigen::VectorXd> (typeid (Self), deps, 4);
       checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 5);
-      checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 6);
+      checkNthDependencyIsValue<MatrixLik> (typeid (Self), deps, 6);
 
       auto sself = std::make_shared<Self> (std::move (deps), dim);
       sself->build(c);
       
-      return cachedAs<Value<Eigen::RowVectorXd>> (c, sself);
+      return cachedAs<Value<RowLik>> (c, sself);
     }
 
-    ForwardHmmDLikelihood_DF (NodeRefVec && deps, const Dimension<Eigen::MatrixXd> & dim)
-      : Value<Eigen::RowVectorXd> (std::move (deps)), dCondLik_(), dParCondLik_(dim.rows, dim.cols), targetDimension_ (dim)
+    ForwardHmmDLikelihood_DF (NodeRefVec && deps, const Dimension<MatrixLik> & dim)
+      : Value<RowLik> (std::move (deps)), dCondLik_(), dParCondLik_((size_t)dim.cols), targetDimension_ (dim)
     {
+      for (auto& v:dParCondLik_)
+        v.resize(dim.rows);
       this->accessValueMutable().resize(targetDimension_.cols);
     }
 
@@ -366,12 +373,12 @@ namespace bpp {
       return Self::create (c, std::move (deps), targetDimension_);
     }
 
-    ValueRef<Eigen::MatrixXd> getForwardDCondLikelihood() const
+    ValueRef<MatrixLik> getForwardDCondLikelihood() const
     {
       return dCondLik_;
     }
     
-    const Eigen::MatrixXd& getParDCondLik() const
+    const std::vector<VectorLik>& getParDCondLik() const
     {
       return dParCondLik_;
     }
@@ -387,19 +394,19 @@ namespace bpp {
    * Dependencies are:
    *  Value<VectorXd> : Starting vector of states probabililies
    *  Value<MatrixXd> : TransitionMatrix
-   *  Value<MatrixXd> : Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : Matrix of Emission likelihoods states X sites
    *
    *  ForwardHmmLikelihood_DF : Forward Computations
    *
    *  Value<VectorXd> : 1st Derivatives of starting vector of states probabililies
    *  Value<MatrixXd> : 1st Derivatives of TransitionMatrix
-   *  Value<MatrixXd> : 1st Derivatives Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : 1st Derivatives Matrix of Emission likelihoods states X sites
    *
    *  ForwardHmmDLikelihood_DF : 1st order derivatives Forward Computations
    *
    *  Value<VectorXd> : 2nd Derivatives of starting vector of states probabililies
    *  Value<MatrixXd> : 2nd Derivatives of TransitionMatrix
-   *  Value<MatrixXd> : 2nd Derivatives Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : 2nd Derivatives Matrix of Emission likelihoods states X sites
    *
    * After computation, its value stores the 2nd derivates of the
    * conditional forward likelihoods of the sites,
@@ -413,7 +420,7 @@ namespace bpp {
 
 
 
-  class ForwardHmmD2Likelihood_DF : public Value<Eigen::RowVectorXd>
+  class ForwardHmmD2Likelihood_DF : public Value<RowLik>
   {
   private:
     /**
@@ -425,19 +432,19 @@ namespace bpp {
      * y the hidden states.
      */
     
-    ValueRef<Eigen::MatrixXd> d2CondLik_;
+    ValueRef<MatrixLik> d2CondLik_;
     
     /**
      * @brief Dimension of the data : states X sites
      *
      */
       
-    Dimension<Eigen::MatrixXd> targetDimension_;
+    Dimension<MatrixLik> targetDimension_;
 
   public:
     using Self = ForwardHmmD2Likelihood_DF;
 
-    static ValueRef<Eigen::RowVectorXd> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
+    static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
     {
       // Check dependencies
       checkDependenciesNotNull (typeid (Self), deps);
@@ -445,28 +452,28 @@ namespace bpp {
 
       checkNthDependencyIsValue<Eigen::VectorXd> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 1);
-      checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 2);
+      checkNthDependencyIsValue<MatrixLik> (typeid (Self), deps, 2);
 
       checkNthDependencyIs<ForwardHmmLikelihood_DF> (typeid (Self), deps, 3);
 
       checkNthDependencyIsValue<Eigen::VectorXd> (typeid (Self), deps, 4);
       checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 5);
-      checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 6);
+      checkNthDependencyIsValue<MatrixLik> (typeid (Self), deps, 6);
 
       checkNthDependencyIs<ForwardHmmDLikelihood_DF> (typeid (Self), deps, 7);
 
       checkNthDependencyIsValue<Eigen::VectorXd> (typeid (Self), deps, 8);
       checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 9);
-      checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 10);
+      checkNthDependencyIsValue<MatrixLik> (typeid (Self), deps, 10);
 
       auto sself = std::make_shared<Self> (std::move (deps), dim);
       sself->build(c);
 
-      return cachedAs<Value<Eigen::RowVectorXd>> (c, sself);
+      return cachedAs<Value<RowLik>> (c, sself);
     }
 
-    ForwardHmmD2Likelihood_DF (NodeRefVec && deps, const Dimension<Eigen::MatrixXd> & dim)
-      : Value<Eigen::RowVectorXd> (std::move (deps)), d2CondLik_(), targetDimension_ (dim)
+    ForwardHmmD2Likelihood_DF (NodeRefVec && deps, const Dimension<MatrixLik> & dim)
+      : Value<RowLik> (std::move (deps)), d2CondLik_(), targetDimension_ (dim)
     {
       this->accessValueMutable().resize(targetDimension_.cols);
     }
@@ -511,14 +518,14 @@ namespace bpp {
    * Dependencies are:
    *  Value<VectorXd> : Vector of conditional Forward Likelihoods
    *  Value<MatrixXd> : TransitionMatrix
-   *  Value<MatrixXd> : Matrix of Emission likelihoods states X sites
+   *  Value<MatrixLik> : Matrix of Emission likelihoods states X sites
    *  Value<size_t> : level of derivation 
    *
    * After computation, stores the conditional likelihoods of the
    * sites for all states.
    */
   
-  class BackwardHmmLikelihood_DF : public Value<Eigen::MatrixXd>
+  class BackwardHmmLikelihood_DF : public Value<MatrixLik>
   {
   private:
     /**
@@ -536,12 +543,12 @@ namespace bpp {
      *
      */
     
-    Dimension<Eigen::MatrixXd> targetDimension_;
+    Dimension<MatrixLik> targetDimension_;
 
   public:
     using Self = BackwardHmmLikelihood_DF;
 
-    static ValueRef<Eigen::MatrixXd> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
+    static ValueRef<MatrixLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
     {
       // Check dependencies
       checkDependenciesNotNull (typeid (Self), deps);
@@ -549,13 +556,13 @@ namespace bpp {
 
       checkNthDependencyIsValue<Eigen::RowVectorXd> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 1);
-      checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 2);
+      checkNthDependencyIsValue<MatrixLik> (typeid (Self), deps, 2);
 
-      return cachedAs<Value<Eigen::MatrixXd>> (c, std::make_shared<Self> (std::move (deps), dim));
+      return cachedAs<Value<MatrixLik>> (c, std::make_shared<Self> (std::move (deps), dim));
     }
 
-    BackwardHmmLikelihood_DF (NodeRefVec && deps, const Dimension<Eigen::MatrixXd> & dim)
-      : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension_ (dim)
+    BackwardHmmLikelihood_DF (NodeRefVec && deps, const Dimension<MatrixLik> & dim)
+      : Value<MatrixLik> (std::move (deps)), targetDimension_ (dim)
     {      
       this->accessValueMutable().resize(dim.rows, dim.cols);
 
@@ -570,7 +577,7 @@ namespace bpp {
       if (hmmTrans.cols()!=dim.rows)
         throw BadSizeException("BackwardHmmLikelihood_DF: bad number of columns for transition matrix", size_t(hmmTrans.cols()), size_t(dim.rows));
 
-      const auto& hmmEmis = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(2));
+      const auto& hmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(2));
       if (hmmEmis.rows()!=dim.rows)
         throw BadSizeException("BackwardHmmLikelihood_DF: bad number of states for emission matrix", size_t(hmmEmis.rows()), size_t(dim.rows));
       if (hmmEmis.cols()!=dim.cols)

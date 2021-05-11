@@ -55,7 +55,8 @@ namespace bpp {
 
   template class CWiseMatching<RowLik, ReductionOf<RowLik>>;
   template class CWiseMatching<MatrixLik, ReductionOf<MatrixLik>>;
-  template class CWiseMatching<RowLik, ReductionOf<double>>;
+  template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<double>>;
+  template class CWiseMatching<ExtendedFloatRowVectorXd, ReductionOf<ExtendedFloat>>;
   template class CWiseMatching<MatrixLik, ReductionOf<RowLik>>;
 
   template class CWiseCompound<MatrixLik, ReductionOf<RowLik>>;

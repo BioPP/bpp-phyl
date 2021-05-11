@@ -52,10 +52,10 @@ namespace bpp
   
 
   inline Dimension<TransitionFunction> transitionFunctionDimension (Eigen::Index nbState) {
-    return Dimension<TransitionFunction>(nbState, nbState);
+    return Dimension<TransitionFunction>(nbState);
   }
 
-  inline Dimension<MatrixLik> conditionalLikelihoodDimension (Eigen::Index nbState, Eigen::Index nbSite) {
+  inline MatrixDimension conditionalLikelihoodDimension (Eigen::Index nbState, Eigen::Index nbSite) {
     return {nbState, nbSite};
   }
     
@@ -88,7 +88,7 @@ namespace bpp
    */
     
   using ForwardTransition =
-    MatrixProduct<MatrixLik, MatrixLik, MatrixLik>;
+    MatrixProduct<MatrixLik, MatrixLik, Eigen::MatrixXd>;
 
   using ForwardTransitionFunction =
     CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
@@ -170,7 +170,7 @@ namespace bpp
     {
       nbSites_ = Eigen::Index(sites.getNumberOfSites ()); 
       likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
-      ConditionalLikelihoodForwardRef bidonRoot=ConstantZero<MatrixLik>::create(context_, Dimension<MatrixLik>(1,1));
+      ConditionalLikelihoodForwardRef bidonRoot=ConstantZero<MatrixLik>::create(context_, MatrixDimension(1,1));
       createNode(bidonRoot);
       /* Not sure it is necessary:
          

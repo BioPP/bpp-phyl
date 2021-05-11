@@ -114,11 +114,11 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
 
-  class EquilibriumFrequenciesFromTransitionMatrix : public Value<VectorLik> {
+  class EquilibriumFrequenciesFromTransitionMatrix : public Value<Eigen::VectorXd> {
   public:
     using Self = EquilibriumFrequenciesFromTransitionMatrix;
     using Dep = ConfiguredTransitionMatrix;
-    using T = VectorLik;
+    using T = Eigen::VectorXd;
     
     EquilibriumFrequenciesFromTransitionMatrix (NodeRefVec && deps, const Dimension<T> & dim);
 
@@ -146,11 +146,11 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
 
-  class TransitionMatrixFromTransitionMatrix : public Value<MatrixLik> {
+  class TransitionMatrixFromTransitionMatrix : public Value<Eigen::MatrixXd> {
   public:
     using Self = TransitionMatrixFromTransitionMatrix;
     using Dep = ConfiguredTransitionMatrix;
-    using T = MatrixLik;
+    using T = Eigen::MatrixXd;
     
   private:
     Dimension<T> targetDimension_;

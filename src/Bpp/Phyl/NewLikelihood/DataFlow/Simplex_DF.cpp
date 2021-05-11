@@ -95,8 +95,8 @@ namespace bpp {
   // FrequenciesFromSimplex
 
   FrequenciesFromSimplex::FrequenciesFromSimplex (
-    NodeRefVec && deps, const Dimension<RowLik> & dim)
-    : Value<RowLik> (std::move (deps)), targetDimension_ (dim) {}
+    NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
+    : Value<Eigen::RowVectorXd> (std::move (deps)), targetDimension_ (dim) {}
 
   std::string FrequenciesFromSimplex::debugInfo () const {
     using namespace numeric;

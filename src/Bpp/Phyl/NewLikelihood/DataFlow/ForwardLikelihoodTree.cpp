@@ -51,7 +51,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
 {
   size_t nbSites=sites.getNumberOfSites();
   const auto sequenceIndex = sites.getSequencePosition (sequenceName);
-  MatrixLik initCondLik (nbState_, nbSites);
+  MatrixLik initCondLik ((int)nbState_, (int)nbSites);
   for (size_t site = 0; site < nbSites; ++site) {
     for (auto state = 0; state < nbState_; ++state) {
       initCondLik (Eigen::Index (state), Eigen::Index (site)) =
@@ -79,11 +79,11 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
   {
     if (dynamic_cast<const TransitionModel*>(model->getTargetValue()))
     {
-      auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, zero, nMod, factorNode_}, transitionMatrixDimension (size_t(nbState_)));
+      auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel, Eigen::MatrixXd> (context_, {model, brlen, zero, nMod, factorNode_}, transitionMatrixDimension (size_t(nbState_)));
       
       processEdge->setTransitionMatrix(transitionMatrix);
       forwardEdge = ForwardTransition::create (
-        context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
+        context_, {childConditionalLikelihood, transitionMatrix}, likelihoodMatrixDim_);
     }
     else{
       auto transitionFunction = TransitionFunctionFromModel::create(context_, {model, brlen, zero, factorNode_}, transitionFunctionDimension(nbState_));

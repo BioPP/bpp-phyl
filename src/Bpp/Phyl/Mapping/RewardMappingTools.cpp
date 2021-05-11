@@ -47,6 +47,7 @@
 #include "../NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
 
 using namespace bpp;
+using namespace numeric;
 
 // From the STL:
 #include <iomanip>
@@ -165,8 +166,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
       continue;
 
-    Eigen::RowVectorXd rewardsForCurrentNode;
-    rewardsForCurrentNode.setZero(Eigen::Index(nbDistinctSites));
+    RowLik rewardsForCurrentNode(RowLik::Zero(int(nbDistinctSites)));
     
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
@@ -174,8 +174,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
 
       double pr = sp.getProbabilityForModel(ncl);
 
-      Eigen::RowVectorXd rewardsForCurrentClass;
-      rewardsForCurrentClass.setZero(Eigen::Index(nbDistinctSites));
+      RowLik rewardsForCurrentClass(RowLik::Zero(Eigen::Index(nbDistinctSites)));
 
       const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
 
@@ -223,13 +222,13 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
 
         auto rew = rpxy * likelihoodsBotEdge;
       
-        auto bb = (likelihoodsTopEdge.cwiseProduct(rew)).colwise().sum();
+        auto bb = (cwise(likelihoodsTopEdge) * cwise(rew)).colwise().sum();
 
         // Normalizes by likelihood on this node
-        Eigen::RowVectorXd cc = bb.array() / likelihoodsFather.array();
+        auto cc = bb / cwise(likelihoodsFather);
 
         // adds, with branch ponderation  ( * edge / edge * father) probs
-        rewardsForCurrentClass += cc * probaDAG.getProbaAtNode(fatid);
+        cwise(rewardsForCurrentClass) += cc * probaDAG.getProbaAtNode(fatid);
       }
 
       rewardsForCurrentNode += rewardsForCurrentClass * pr;

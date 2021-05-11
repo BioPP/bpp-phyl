@@ -74,6 +74,7 @@ namespace bpp {
   template <typename Result, typename From> class CWiseMul;
   template <typename Result, typename From> class CWiseDiv;
 
+  template <typename R, typename T0, typename T1> class MatrixProduct;
   // Return same type as given
   template <typename T> class CWiseNegate;
   template <typename T> class CWiseInverse;
@@ -81,13 +82,15 @@ namespace bpp {
   template <typename T> class CWiseExp;
   template <typename T> class CWiseConstantPow;
 
+  // Return DataLik (R)
+  template <typename R, typename T0, typename T1> class ScalarProduct;
+  template <typename R, typename T0, typename T1> class LogSumExp;
+
   // Return double
-  template <typename T0, typename T1> class ScalarProduct;
-  template <typename T0, typename T1> class LogSumExp;
   template <typename F> class SumOfLogarithms;
 
-  template <typename R, typename T0, typename T1> class MatrixProduct;
-
+  // Return same type as given
+  
   template <typename T> class ShiftDelta;
   template <typename T> class CombineDeltaShifted;
 
@@ -496,7 +499,7 @@ namespace bpp {
         
       result = [lT, this](const VectorLik& x)->VectorLik{
 
-        VectorLik r = zero (Dimension<VectorLik>(targetDimension_.cols,1));
+        VectorLik r = zero (Dimension<VectorLik>(targetDimension_.cols,(Eigen::Index)1));
           
         for (const auto f:lT)
           cwise(r)+= cwise((*f)(x));
@@ -1536,12 +1539,12 @@ namespace bpp {
    *
    * Node construction should be done with the create static method.
    */
-  template <typename T0, typename T1> class ScalarProduct : public Value<double> {
+  template <typename R, typename T0, typename T1> class ScalarProduct : public Value<R> {
   public:
     using Self = ScalarProduct;
 
     /// Build a new ScalarProduct node.
-    static ValueRef<double> create (Context & c, NodeRefVec && deps) {
+    static ValueRef<R> create (Context & c, NodeRefVec && deps) {
       // Check dependencies
       checkDependenciesNotNull (typeid (Self), deps);
       checkDependencyVectorSize (typeid (Self), deps, 2);
@@ -1550,13 +1553,13 @@ namespace bpp {
       // Select node
       if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero) ||
           deps[1]->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-        return ConstantZero<double>::create (c, Dimension<double> ());
+        return ConstantZero<R>::create (c, Dimension<R> ());
       } else {
-        return cachedAs<Value<double>> (c, std::make_shared<Self> (std::move (deps)));
+        return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps)));
       }
     }
 
-    ScalarProduct (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
+    ScalarProduct (NodeRefVec && deps) : Value<R> (std::move (deps)) {}
 
     std::string debugInfo () const override {
       using namespace numeric;
@@ -1570,14 +1573,14 @@ namespace bpp {
 
     NodeRef derive (Context & c, const Node_DF & node) final {
       if (&node == this) {
-        return ConstantOne<double>::create (c, Dimension<double> ());
+        return ConstantOne<R>::create (c, Dimension<R> ());
       }
       const auto & x0 = this->dependency (0);
       const auto & x1 = this->dependency (1);
       auto dx0_prod = Self::create (c, {x0->derive (c, node), x1});
       auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)});
-      return CWiseAdd<double, std::tuple<double, double>>::create (c, {dx0_prod, dx1_prod},
-                                                                   Dimension<double> ());
+      return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod},
+                                                    Dimension<R> ());
     }
 
     NodeRef recreate (Context & c, NodeRefVec && deps) final {
@@ -1601,7 +1604,7 @@ namespace bpp {
    * - m: F (matrix-like type).
    *
    * or  r = sum_{i in 0:len(m)-1} log (p[i]*m[i]).
-   * - r: double.
+   * - r: DataLik
    * - m: F (matrix-like type).
    * - p: <Eigen::RowVectorXd>
    *
@@ -1650,10 +1653,10 @@ namespace bpp {
       if (nbDependencies()==2 && dependency(1))
       {
         auto m2 = CWiseMul<F,std::tuple<F,Eigen::RowVectorXi>>::create (c, {m_inverse, dependency (1)}, mTargetDimension_);
-        return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m2)});
+        return ScalarProduct<typename F::Scalar, F, F>::create (c, {std::move (dm_dn), std::move (m2)});
       } 
       else
-        return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m_inverse)});
+        return ScalarProduct<typename F::Scalar, F, F>::create (c, {std::move (dm_dn), std::move (m_inverse)});
     }
 
     NodeRef recreate (Context & c, NodeRefVec && deps) final {
@@ -1661,7 +1664,11 @@ namespace bpp {
     }
 
   private:
-    void compute () final
+    void compute() override { compute<F>();}
+
+    template<class G=F>
+    typename std::enable_if<std::is_convertible<G*, Eigen::DenseBase<G>*>::value, void>::type
+    compute () 
     {
 #ifdef DEBUG
       std::cerr << "=== SumOfLogarithms === " << this << std::endl;
@@ -1719,6 +1726,67 @@ namespace bpp {
       std::cerr << "=== end SumOfLogarithms === " << this << std::endl;
 #endif
     }
+
+    template<class G=F>
+    typename std::enable_if<std::is_convertible<G*, ExtendedFloatEigenBase<G>*>::value, void>::type
+    compute () 
+    {
+#ifdef DEBUG
+      std::cerr << "=== SumOfLogarithms === " << this << std::endl;
+#endif
+
+      auto & result = this->accessValueMutable ();
+
+      const auto & m = accessValueConstCast<F> (*this->dependency (0));
+        
+      if (nbDependencies()==1)
+      {
+        const ExtendedFloat product = m.float_part().unaryExpr ([](double d) {
+          ExtendedFloat ef{d};
+          ef.normalize_small ();
+          return ef;
+        }).redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+          auto r = ExtendedFloat::denorm_mul (lhs, rhs);
+          r.normalize_small ();
+          return r;
+        });
+        result = product.log() + m.exponent_part() * ExtendedFloat::ln_radix;
+#ifdef DEBUG
+        std::cerr << "product= " << product << std::endl;
+        std::cerr << "result log= " << result << std::endl;
+#endif
+      }
+      else
+      {
+        const auto & p = accessValueConstCast<Eigen::RowVectorXi> (*this->dependency (1));
+        //Old version:
+        //double resold  = (numeric::cwise(m).log() * numeric::cwise(p)).sum();
+
+        temp_ = m.float_part().unaryExpr ([](double d) {
+          ExtendedFloat ef{d};
+          ef.normalize ();
+          return ef;
+        });
+
+        for (Eigen::Index i=0;i< Eigen::Index(p.size());i++)
+          temp_[i]=temp_[i].pow(p[i]);
+          
+        const ExtendedFloat product = temp_.redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+          auto r = ExtendedFloat::denorm_mul (lhs, rhs);
+          r.normalize ();
+          return r;
+        });
+        
+        result = product.log () + m.exponent_part() * ExtendedFloat::ln_radix;
+#ifdef DEBUG
+        std::cerr << "PRODUCT= " << product << std::endl;
+        std::cerr << "RESULT log= " << result << std::endl;
+#endif
+      }
+#ifdef DEBUG
+      std::cerr << "=== end SumOfLogarithms === " << this << std::endl;
+#endif
+    }
   
     Dimension<F> mTargetDimension_;
 
@@ -1728,7 +1796,7 @@ namespace bpp {
 
   /*************************************************************************
    * @brief r = log(sum_i p_i * exp (v_i))
-   * - r: double.
+   * - r: R.
    * - v: T0 (vector like type).
    * - p: T1 (vector like type).
    *
@@ -1736,22 +1804,22 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */
     
-  template <typename T0, typename T1> class LogSumExp : public Value<double> {
+  template <typename R, typename T0, typename T1> class LogSumExp : public Value<R> {
   public:
     using Self = LogSumExp;
 
     /// Build a new LogSumExp node with the given input matrix dimensions.
-    static ValueRef<double> create (Context & c, NodeRefVec && deps, const Dimension<T0> & mDim) {
+    static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<T0> & mDim) {
       checkDependenciesNotNull (typeid (Self), deps);
       checkDependencyVectorSize (typeid (Self), deps, 2);
       checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
       // Select node
-      return cachedAs<Value<double>> (c, std::make_shared<Self> (std::move (deps), mDim));
+      return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), mDim));
     }
       
     LogSumExp (NodeRefVec && deps, const Dimension<T0> & mDim)
-      : Value<double> (std::move (deps)), mTargetDimension_ (mDim) {}
+      : Value<R> (std::move (deps)), mTargetDimension_ (mDim) {}
       
     std::string debugInfo () const override {
       using namespace numeric;
@@ -1765,16 +1833,16 @@ namespace bpp {
 
     NodeRef derive (Context & c, const Node_DF & node) final {
       if (&node == this) {
-        return ConstantOne<double>::create (c, Dimension<double>());
+        return ConstantOne<R>::create (c, Dimension<R>());
       }
       const auto & v = this->dependency (0);
       const auto & p = this->dependency (1);
-      auto diffvL=CWiseSub<T0, std::tuple<double, T0>>::create(c, {this->shared_from_this(),v}, mTargetDimension_);
+      auto diffvL=CWiseSub<T0, std::tuple<R, T0>>::create(c, {this->shared_from_this(),v}, mTargetDimension_);
       auto expdiffvL=CWiseExp<T0>::create(c, {std::move(diffvL)}, mTargetDimension_);
-      auto dp_prod = ScalarProduct<T0,T1>::create (c,{expdiffvL, p->derive (c, node)});
-      auto pexpdiffvL=CWiseMul<T1,std::tuple<T0,T1>>::create(c, {expdiffvL, p}, mTargetDimension_);        
-      auto dv_prod = ScalarProduct<T0, T1>::create (c,{std::move(pexpdiffvL), v->derive (c, node)});        
-      return CWiseAdd<double, std::tuple<double, double>>::create (c, {std::move (dv_prod), std::move (dp_prod)}, Dimension<double>());
+      auto dp_prod = ScalarProduct<R, T0,T1>::create (c,{expdiffvL, p->derive (c, node)});
+      auto pexpdiffvL=CWiseMul<T0,std::tuple<T0,T1>>::create(c, {expdiffvL, p}, mTargetDimension_);        
+      auto dv_prod = ScalarProduct<R, T0, T1>::create (c,{std::move(pexpdiffvL), v->derive (c, node)});        
+      return CWiseAdd<R, std::tuple<R, R>>::create (c, {std::move (dv_prod), std::move (dp_prod)}, Dimension<R>());
     }
 
     NodeRef recreate (Context & c, NodeRefVec && deps) final {
@@ -1784,18 +1852,19 @@ namespace bpp {
   private:
     void compute () final {
       using namespace numeric;
-        
       auto & result = this->accessValueMutable ();
       const auto & v = accessValueConstCast<T0> (*this->dependency (0));
       const auto & p = accessValueConstCast<T1> (*this->dependency (1));
 
       auto M = v.maxCoeff();
-      if (std::isinf(M))
+      if (isinf(M))
         result=M;
       else
       {
-        auto ve = p.dot(v.unaryExpr([M](double x){return std::exp(x-M);}));
-        result=std::log(ve) + M;
+        T0 v2;
+        cwise(v2) = exp(cwise(v - T0::Constant(mTargetDimension_.rows, mTargetDimension_.cols, M)));
+        auto ve = v2.dot(p);
+        result=log(ve) + M;
       }
     }
       
@@ -1916,6 +1985,7 @@ namespace bpp {
 
     Dimension<R> targetDimension_;
   };
+  
   /*************************************************************************
    * @brief r = n * delta + x.
    * - r: T.
@@ -2200,7 +2270,7 @@ namespace bpp {
 
       result = [vT, lambda, this](const VectorLik& x)->VectorLik{
         using namespace numeric;
-        VectorLik r = zero (Dimension<VectorLik>(this->targetDimension_.cols,1));
+        VectorLik r = zero (Dimension<VectorLik>(this->targetDimension_.cols,(Eigen::Index)1));
         
         for (std::size_t i = 0; i < this->coeffs_.size (); ++i) {
           cwise(r) += (lambda * this->coeffs_[i]) * cwise((*vT[i])(x));
@@ -2215,14 +2285,12 @@ namespace bpp {
     int n_;
   };
 
-  // Precompiled instantiations
+  // Precompiled instantiations of numeric nodes
 
-  // extern template class CWiseApply<Eigen::RowVectorXd, double>;
-  // extern template class CWiseApply<Eigen::VectorXd, double>;
   extern template class CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
-  // extern template class CWiseApply<Eigen::MatrixXd, Eigen::RowVectorXd>;
-
+    
   extern template class CWiseAdd<double, std::tuple<double, double>>;
+  extern template class CWiseAdd<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
   extern template class CWiseAdd<VectorLik, std::tuple<VectorLik, VectorLik>>;
   extern template class CWiseAdd<RowLik, std::tuple<RowLik, RowLik>>;
   extern template class CWiseAdd<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
@@ -2230,92 +2298,103 @@ namespace bpp {
 
   extern template class CWiseAdd<RowLik, MatrixLik>;
   extern template class CWiseAdd<VectorLik, MatrixLik>;
-  extern template class CWiseAdd<double, VectorLik>;
-  extern template class CWiseAdd<double, RowLik>;
-
-  extern template class CWiseSub<double, std::tuple<double, double>>;
-  extern template class CWiseSub<VectorLik, std::tuple<VectorLik, VectorLik>>;
-  extern template class CWiseSub<RowLik, std::tuple<RowLik, RowLik>>;
-  extern template class CWiseSub<VectorLik, std::tuple<VectorLik, double>>;
-  extern template class CWiseSub<VectorLik, std::tuple<double, VectorLik>>;
-  extern template class CWiseSub<RowLik, std::tuple<RowLik, double>>;
-  extern template class CWiseSub<RowLik, std::tuple<double, RowLik>>;
-  extern template class CWiseSub<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
+  extern template class CWiseAdd<DataLik, VectorLik>;
+  extern template class CWiseAdd<DataLik, RowLik>;
 
   extern template class CWiseAdd<double, ReductionOf<double>>;
+  extern template class CWiseAdd<ExtendedFloat, ReductionOf<ExtendedFloat>>;
   extern template class CWiseAdd<VectorLik, ReductionOf<VectorLik>>;
   extern template class CWiseAdd<RowLik, ReductionOf<RowLik>>;
   extern template class CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>;
   extern template class CWiseAdd<TransitionFunction, ReductionOf<TransitionFunction>>;
 
-
-  extern template class CWiseMean<double, ReductionOf<double>, ReductionOf<double>>;
   extern template class CWiseMean<VectorLik, ReductionOf<VectorLik>, ReductionOf<double>>;
   extern template class CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double>>;
   extern template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, ReductionOf<double>>;
+  extern template class CWiseMean<double, ReductionOf<double>, ReductionOf<double>>;
+  extern template class CWiseMean<ExtendedFloat, ReductionOf<ExtendedFloat>, ReductionOf<double>>;
 
-  extern template class CWiseMean<double, ReductionOf<double>, double>;
-  extern template class CWiseMean<double, ReductionOf<double>, RowLik>;
-  extern template class CWiseMean<VectorLik, ReductionOf<VectorLik>, VectorLik>;
-  extern template class CWiseMean<RowLik, ReductionOf<RowLik>, VectorLik>;
-  extern template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, VectorLik>;
+  extern template class CWiseMean<VectorLik, ReductionOf<VectorLik>, Eigen::VectorXd>;
+  extern template class CWiseMean<RowLik, ReductionOf<RowLik>,  Eigen::VectorXd>;
+  extern template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, Eigen::VectorXd>;
+  extern template class CWiseMean<VectorLik, ReductionOf<VectorLik>, Eigen::RowVectorXd>;
+  extern template class CWiseMean<RowLik, ReductionOf<RowLik>, Eigen::RowVectorXd>;
+  extern template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, Eigen::RowVectorXd>;
+
+  extern template class CWiseSub<double, std::tuple<double, double>>;
+  extern template class CWiseSub<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
+  extern template class CWiseSub<VectorLik, std::tuple<VectorLik, VectorLik>>;
+  extern template class CWiseSub<RowLik, std::tuple<RowLik, RowLik>>;
+  extern template class CWiseSub<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
+
+  extern template class CWiseSub<VectorLik, std::tuple<VectorLik, DataLik>>;
+  extern template class CWiseSub<RowLik, std::tuple<RowLik, DataLik>>;
 
   extern template class CWiseMul<double, std::tuple<double, double>>;
   extern template class CWiseMul<double, std::tuple<double, uint>>;
+  extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
+  extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, uint>>;
   extern template class CWiseMul<VectorLik, std::tuple<VectorLik, VectorLik>>;
   extern template class CWiseMul<RowLik, std::tuple<RowLik, RowLik>>;
   extern template class CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
-  extern template class CWiseMul<VectorLik, std::tuple<double, VectorLik>>;
-  extern template class CWiseMul<RowLik, std::tuple<double, RowLik>>;
-  extern template class CWiseMul<MatrixLik, std::tuple<double, MatrixLik>>;
+  
+  extern template class CWiseMul<RowLik, std::tuple<RowLik, Eigen::RowVectorXi>>;
+  extern template class CWiseMul<VectorLik, std::tuple<VectorLik, Eigen::RowVectorXi>>;
+  extern template class CWiseMul<VectorLik, std::tuple<DataLik, VectorLik>>;
+  extern template class CWiseMul<RowLik, std::tuple<DataLik, RowLik>>;
+  extern template class CWiseMul<MatrixLik, std::tuple<DataLik, MatrixLik>>;
   extern template class CWiseMul<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
   extern template class CWiseMul<TransitionFunction, std::tuple<double, TransitionFunction>>;
-
+    
   extern template class CWiseMul<double, ReductionOf<double>>;
+  extern template class CWiseMul<ExtendedFloat, ReductionOf<ExtendedFloat>>;
   extern template class CWiseMul<VectorLik, ReductionOf<VectorLik>>;
   extern template class CWiseMul<RowLik, ReductionOf<RowLik>>;
   extern template class CWiseMul<MatrixLik, ReductionOf<MatrixLik>>;
 
   extern template class CWiseNegate<double>;
+  extern template class CWiseNegate<ExtendedFloat>;
   extern template class CWiseNegate<VectorLik>;
   extern template class CWiseNegate<RowLik>;
   extern template class CWiseNegate<MatrixLik>;
 
   extern template class CWiseInverse<double>;
+  extern template class CWiseInverse<ExtendedFloat>;
   extern template class CWiseInverse<VectorLik>;
   extern template class CWiseInverse<RowLik>;
   extern template class CWiseInverse<MatrixLik>;
 
   extern template class CWiseLog<double>;
+  extern template class CWiseLog<ExtendedFloat>;
   extern template class CWiseLog<VectorLik>;
   extern template class CWiseLog<RowLik>;
   extern template class CWiseLog<MatrixLik>;
-
+    
   extern template class CWiseExp<double>;
+  extern template class CWiseExp<ExtendedFloat>;
   extern template class CWiseExp<VectorLik>;
   extern template class CWiseExp<RowLik>;
   extern template class CWiseExp<MatrixLik>;
-
+    
   extern template class CWiseConstantPow<double>;
+  extern template class CWiseConstantPow<ExtendedFloat>;
   extern template class CWiseConstantPow<VectorLik>;
   extern template class CWiseConstantPow<RowLik>;
   extern template class CWiseConstantPow<MatrixLik>;
 
-  extern template class ScalarProduct<VectorLik, VectorLik>;
-  extern template class ScalarProduct<RowLik, RowLik>;
+  extern template class ScalarProduct<DataLik, VectorLik, VectorLik>;
+  extern template class ScalarProduct<DataLik, RowLik, RowLik>;
 
-  extern template class LogSumExp<VectorLik, VectorLik>;
-  extern template class LogSumExp<RowLik, RowLik>;
+  extern template class LogSumExp<DataLik, VectorLik, Eigen::VectorXd>;
+  extern template class LogSumExp<DataLik, RowLik, Eigen::RowVectorXd>;
 
   extern template class SumOfLogarithms<VectorLik>;
   extern template class SumOfLogarithms<RowLik>;
 
-  extern template class LogSumExp<VectorLik, VectorLik>;
-  extern template class LogSumExp<RowLik, RowLik>;
-
-  extern template class MatrixProduct<MatrixLik, MatrixLik, MatrixLik>;
-  extern template class MatrixProduct<RowLik, RowLik, MatrixLik>;
-  extern template class MatrixProduct<MatrixLik, Transposed<MatrixLik>, MatrixLik>;
+  extern template class MatrixProduct<ExtendedFloatRowVectorXd, Eigen::RowVectorXd, ExtendedFloatMatrixXd>;
+  extern template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
+  extern template class MatrixProduct<MatrixLik, MatrixLik, Eigen::MatrixXd>;
+  extern template class MatrixProduct<MatrixLik, MatrixLik, Transposed<Eigen::MatrixXd>>;
 
   extern template class ShiftDelta<double>;
   extern template class ShiftDelta<VectorLik>;
@@ -2327,6 +2406,7 @@ namespace bpp {
   extern template class CombineDeltaShifted<RowLik>;
   extern template class CombineDeltaShifted<MatrixLik>;
   extern template class CombineDeltaShifted<TransitionFunction>;
+
 
   /*****************************************************************************
    * Numerical derivation helpers.

@@ -61,7 +61,6 @@ static void dotOutput(const std::string& testName, const std::vector<const Node_
 }
 
 using bpp::Dimension;
-using bpp::MatrixDimension;
 
 /******************************************************************************
  * Test dataflow basics.
@@ -183,7 +182,7 @@ TEST_CASE("ConstantZero")
 {
   Context c;
   auto d = ConstantZero<double>::create(c, Dimension<double>());
-  auto m = ConstantZero<Eigen::MatrixXd>::create(c, MatrixDimension(1, 2));
+  auto m = ConstantZero<Eigen::MatrixXd>::create(c, Dimension<Eigen::MatrixXd>(1, 2));
 
   // Check value
   CHECK(d->getTargetValue() == 0);
@@ -205,7 +204,7 @@ TEST_CASE("ConstantOne")
 {
   Context c;
   auto d = ConstantOne<double>::create(c, Dimension<double>());
-  auto m = ConstantOne<Eigen::MatrixXd>::create(c, MatrixDimension(1, 2));
+  auto m = ConstantOne<Eigen::MatrixXd>::create(c, Dimension<Eigen::MatrixXd>(1, 2));
 
   // Check value
   CHECK(d->getTargetValue() == 1);
@@ -299,7 +298,7 @@ TEST_CASE("Convert")
   CHECK(m2Value(0, 1) == 42);
 
   // Matrix to a Fixed size type (RowVector2d).
-  auto m3 = Convert<Eigen::RowVector2d, Eigen::MatrixXd>::create(c, {m}, MatrixDimension(1, 2));
+  auto m3 = Convert<Eigen::RowVector2d, Eigen::MatrixXd>::create(c, {m}, Dimension<Eigen::MatrixXd>(1, 2));
   const auto& m3Value = m3->getTargetValue();
   CHECK(MatrixDimension(m3Value) == MatrixDimension(1, 2));
   CHECK(m3Value(0, 0) == 42);

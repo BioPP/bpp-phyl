@@ -112,14 +112,14 @@ namespace bpp {
      *
      */
     
-    ValueRef<Eigen::MatrixXd> hmmEmis_;
+    ValueRef<MatrixLik> hmmEmis_;
 
     /**
      * DF Conditional Likelihoods for sites:
      *
      */
     
-    ValueRef<Eigen::RowVectorXd> forwardLik_;
+    ValueRef<RowLik> forwardLik_;
 
 
     /**
@@ -130,7 +130,7 @@ namespace bpp {
      *
      */
     
-    ValueRef<Eigen::MatrixXd> backwardLik_;
+    ValueRef<MatrixLik> backwardLik_;
 
     /**
      * Hidden Posterior Probabilities
@@ -140,7 +140,7 @@ namespace bpp {
      *
      */
     
-    ValueRef<Eigen::MatrixXd> hiddenPostProb_;
+    ValueRef<MatrixLik> hiddenPostProb_;
 
     Eigen::Index nbStates_, nbSites_;
 
@@ -208,22 +208,22 @@ namespace bpp {
 
     void setNamespace(const std::string& nameSpace);
 
-    const Eigen::MatrixXd& getHiddenStatesPosteriorProbabilities() const
+    const MatrixLik& getHiddenStatesPosteriorProbabilities() const
     {
       return hiddenPostProb_->getTargetValue();
     }
 
-    Eigen::Ref<const Eigen::VectorXd> getHiddenStatesPosteriorProbabilitiesForASite(size_t site) const
+    VectorLik getHiddenStatesPosteriorProbabilitiesForASite(size_t site) const
     {
       auto& mat = hiddenPostProb_->getTargetValue();
       return mat.col(Eigen::Index(site));
     }
 
-    double getLikelihoodForASite(size_t site) const 
+    DataLik getLikelihoodForASite(size_t site) const 
     {
       auto vec = getHiddenStatesPosteriorProbabilitiesForASite(site);
 
-      return vec.dot(hmmEmis_->accessValueConst().col(Eigen::Index(site)));
+      return hmmEmis_->accessValueConst().col(int(site)).dot(vec);
     }
 
     void fixFactor(ValueRef<double> valRef)

@@ -55,182 +55,182 @@ namespace bpp {
   /* Likelihood discrete distribution.
    */
 
-    /** @brief Data flow node representing a DiscreteDistribution
-     * configured with parameter values.
-     *
-     * This class wraps a bpp::DiscreteDistribution as a data flow node.
-     * It depends on Value<double> nodes (one for each parameter
-     * declared in the distribution).
-     * It provides a dummy value representing the "distribution
-     * configured by its parameters".
-     *
-     * The dummy value is implemented as a pointer to the internal
-     * distribution for simplicity.
-     */
+  /** @brief Data flow node representing a DiscreteDistribution
+   * configured with parameter values.
+   *
+   * This class wraps a bpp::DiscreteDistribution as a data flow node.
+   * It depends on Value<double> nodes (one for each parameter
+   * declared in the distribution).
+   * It provides a dummy value representing the "distribution
+   * configured by its parameters".
+   *
+   * The dummy value is implemented as a pointer to the internal
+   * distribution for simplicity.
+   */
     
-    class ConfiguredDistribution : public Value<const DiscreteDistribution*>,
-                                   public AbstractParametrizable
-    {
+  class ConfiguredDistribution : public Value<const DiscreteDistribution*>,
+                                 public AbstractParametrizable
+  {
     // private:
     //   Context& context_;
       
-    public:
-      using Self = ConfiguredDistribution;
-      using Target = DiscreteDistribution;
+  public:
+    using Self = ConfiguredDistribution;
+    using Target = DiscreteDistribution;
       
-      ConfiguredDistribution (Context& context, NodeRefVec && deps, std::unique_ptr<DiscreteDistribution> && distrib);
-      ~ConfiguredDistribution ();
+    ConfiguredDistribution (Context& context, NodeRefVec && deps, std::unique_ptr<DiscreteDistribution> && distrib);
+    ~ConfiguredDistribution ();
 
-      ConfiguredDistribution* clone() const
-      {
-        throw bpp::Exception("ConfiguredDistribution clone should not happen.");
-      }
+    ConfiguredDistribution* clone() const
+    {
+      throw bpp::Exception("ConfiguredDistribution clone should not happen.");
+    }
       
-      std::string description () const final;
-      std::string debugInfo () const final;
-      std::string color() const final
-      {
-        return "blue";
-      }
+    std::string description () const final;
+    std::string debugInfo () const final;
+    std::string color() const final
+    {
+      return "blue";
+    }
       
-      bool compareAdditionalArguments (const Node_DF & other) const;
+    bool compareAdditionalArguments (const Node_DF & other) const;
       
-      std::size_t hashAdditionalArguments () const;
+    std::size_t hashAdditionalArguments () const;
       
-      /// Configuration for numerical derivation of computation nodes using this Model.
-      NumericalDerivativeConfiguration config;
+    /// Configuration for numerical derivation of computation nodes using this Model.
+    NumericalDerivativeConfiguration config;
 
-      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+    NodeRef recreate (Context & c, NodeRefVec && deps) final;
       
-      const ConfiguredParameter& getConfiguredParameter(const std::string& name)
-      {
-        return static_cast<const ConfiguredParameter&>(getParameter(name));
-      }
+    const ConfiguredParameter& getConfiguredParameter(const std::string& name)
+    {
+      return static_cast<const ConfiguredParameter&>(getParameter(name));
+    }
 
-    private:
-      void compute ()
-      {
-        distrib_->matchParametersValues(getParameters());
-      }
+  private:
+    void compute ()
+    {
+      distrib_->matchParametersValues(getParameters());
+    }
 
-      std::unique_ptr<DiscreteDistribution> distrib_;
+    std::unique_ptr<DiscreteDistribution> distrib_;
       
-    };
+  };
 
-    /** Probabilities = f(DiscreteDistribution).
-     * Probabilities: RowVector(nbClass).
-     * DiscreteDistribution: ConfiguredDistribution.
-     *
-     * Node construction should be done with the create static method.
-     */
+  /** Probabilities = f(DiscreteDistribution).
+   * Probabilities: RowVector(nbClass).
+   * DiscreteDistribution: ConfiguredDistribution.
+   *
+   * Node construction should be done with the create static method.
+   */
 
-    class ProbabilitiesFromDiscreteDistribution : public Value<RowLik> {
-    public:
-      using Self = ProbabilitiesFromDiscreteDistribution;
-      using Dep = ConfiguredDistribution;
-      using T = RowLik;
+  class ProbabilitiesFromDiscreteDistribution : public Value<Eigen::RowVectorXd> {
+  public:
+    using Self = ProbabilitiesFromDiscreteDistribution;
+    using Dep = ConfiguredDistribution;
+    using T = Eigen::RowVectorXd;
 
-      ProbabilitiesFromDiscreteDistribution (NodeRefVec && deps, const Dimension<T> & dim);
+    ProbabilitiesFromDiscreteDistribution (NodeRefVec && deps, const Dimension<T> & dim);
 
-      std::string debugInfo () const final;
+    std::string debugInfo () const final;
 
-      std::string color() const final
-      {
-        return "blue";
-      }
+    std::string color() const final
+    {
+      return "blue";
+    }
 
-      bool compareAdditionalArguments (const Node_DF & other) const final;
+    bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node_DF & node) final;
-      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+    NodeRef derive (Context & c, const Node_DF & node) final;
+    NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
-    private:
-      void compute () final;
+  private:
+    void compute () final;
 
-      Dimension<T> nbClass_;
+    Dimension<T> nbClass_;
 
-    public:
-      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps);
+  public:
+    static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps);
       
-    };
+  };
 
-    /** Proba = f(DiscreteDistribution, Category).
-     * Proba: Double.
-     * DiscreteDistribution: ConfiguredDistribution.
-     * Category: number of the category
-     *
-     * Node construction should be done with the create static method.
-     */
+  /** Proba = f(DiscreteDistribution, Category).
+   * Proba: Double.
+   * DiscreteDistribution: ConfiguredDistribution.
+   * Category: number of the category
+   *
+   * Node construction should be done with the create static method.
+   */
 
-    class ProbabilityFromDiscreteDistribution : public Value<double> {
-    private:
-      uint nCat_;
+  class ProbabilityFromDiscreteDistribution : public Value<double> {
+  private:
+    uint nCat_;
       
-    public:
-      using Self = ProbabilityFromDiscreteDistribution;
-      using Dep = ConfiguredDistribution;
-      using T = double;
+  public:
+    using Self = ProbabilityFromDiscreteDistribution;
+    using Dep = ConfiguredDistribution;
+    using T = double;
 
-      ProbabilityFromDiscreteDistribution (NodeRefVec && deps, uint nCat_);
+    ProbabilityFromDiscreteDistribution (NodeRefVec && deps, uint nCat_);
 
-      std::string debugInfo () const final;
+    std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node_DF & other) const final;
+    bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node_DF & node) final;
-      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+    NodeRef derive (Context & c, const Node_DF & node) final;
+    NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
-      std::string color() const final
-      {
-        return "blue";
-      }
+    std::string color() const final
+    {
+      return "blue";
+    }
 
-    private:
-      void compute () final;
+  private:
+    void compute () final;
 
-    public:
-      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, uint nCat);
+  public:
+    static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, uint nCat);
 
-    };
+  };
 
-    /** Rate = f(DiscreteDistribution, Category).
-     * Rate: Double.
-     * DiscreteDistribution: ConfiguredDistribution.
-     * Category: number of the category
-     *
-     * Node construction should be done with the create static method.
-     */
+  /** Rate = f(DiscreteDistribution, Category).
+   * Rate: Double.
+   * DiscreteDistribution: ConfiguredDistribution.
+   * Category: number of the category
+   *
+   * Node construction should be done with the create static method.
+   */
 
-    class CategoryFromDiscreteDistribution : public Value<double> {
-    private:
-      uint nCat_;
+  class CategoryFromDiscreteDistribution : public Value<double> {
+  private:
+    uint nCat_;
       
-    public:
-      using Self = CategoryFromDiscreteDistribution;
-      using Dep = ConfiguredDistribution;
-      using T = double;
+  public:
+    using Self = CategoryFromDiscreteDistribution;
+    using Dep = ConfiguredDistribution;
+    using T = double;
 
-      CategoryFromDiscreteDistribution (NodeRefVec && deps, uint nCat_);
+    CategoryFromDiscreteDistribution (NodeRefVec && deps, uint nCat_);
 
-      std::string debugInfo () const final;
+    std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node_DF & other) const final;
+    bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node_DF & node) final;
-      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+    NodeRef derive (Context & c, const Node_DF & node) final;
+    NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
-      std::string color() const final
-      {
-        return "blue";
-      }
+    std::string color() const final
+    {
+      return "blue";
+    }
 
-    private:
-      void compute () final;
+  private:
+    void compute () final;
 
-    public:
-      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, uint nCat);
+  public:
+    static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, uint nCat);
 
-    };
+  };
 
 } // namespace bpp
 

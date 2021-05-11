@@ -70,7 +70,7 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& contex
   simplex_->config.delta = deltaNode;
   simplex_->config.type = config;
 
-  auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex>(getContext(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
+  auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex, Eigen::RowVectorXd>(getContext(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
 
   // get RowVectorXd for each single Calculation
   std::vector<std::shared_ptr<Node_DF>> vSL;
@@ -82,11 +82,11 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& contex
 
   vSL.push_back(fsf);
 
-  auto sL = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), RowVectorDimension (Eigen::Index(nbSites_)));
+  auto sL = CWiseMean<RowLik, ReductionOf<RowLik>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), RowVectorDimension (Eigen::Index(nbSites_)));
 
   likCal_->setSiteLikelihoods(sL);
 
-  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, RowVectorDimension (Eigen::Index (nbSites_)));
+  auto su = SumOfLogarithms<RowLik>::create (getContext(), {sL}, RowVectorDimension (Eigen::Index (nbSites_)));
 
   likCal_->setLikelihoodNode(su);
 }

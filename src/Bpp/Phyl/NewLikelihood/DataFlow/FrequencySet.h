@@ -56,103 +56,103 @@ namespace bpp {
 
   class FrequencySet;
 
-    /** @brief Data flow node representing a Frequencies Set
-     * configured with parameter values.
-     *
-     * This class wraps a bpp::FrequencySet as a data flow node.
-     *
-     * It depends on Value<double> nodes (one for each parameter
-     * declared in the freq set).
-     * It provides a dummy value representing the "frequencies set
-     * configured by its parameters".
-     *
-     * The dummy value is implemented as a pointer to the internal
-     * frequencies set for simplicity.
-     */
+  /** @brief Data flow node representing a Frequencies Set
+   * configured with parameter values.
+   *
+   * This class wraps a bpp::FrequencySet as a data flow node.
+   *
+   * It depends on Value<double> nodes (one for each parameter
+   * declared in the freq set).
+   * It provides a dummy value representing the "frequencies set
+   * configured by its parameters".
+   *
+   * The dummy value is implemented as a pointer to the internal
+   * frequencies set for simplicity.
+   */
     
-    class ConfiguredFrequencySet : public Value<const FrequencySet*>,
-                                     public AbstractParametrizable
-    {
+  class ConfiguredFrequencySet : public Value<const FrequencySet*>,
+                                 public AbstractParametrizable
+  {
     // private:
 
     //   const Context& context_;
 
-    public:
-      using Self = ConfiguredFrequencySet;
-      using Target = FrequencySet;
+  public:
+    using Self = ConfiguredFrequencySet;
+    using Target = FrequencySet;
       
-      ConfiguredFrequencySet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequencySet> && freqset);
+    ConfiguredFrequencySet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequencySet> && freqset);
       
-      ~ConfiguredFrequencySet ();
+    ~ConfiguredFrequencySet ();
       
-      ConfiguredFrequencySet* clone() const
-      {
-        throw bpp::Exception("ConfiguredFrequencySet clone should not happen.");
-      }
+    ConfiguredFrequencySet* clone() const
+    {
+      throw bpp::Exception("ConfiguredFrequencySet clone should not happen.");
+    }
       
-      std::string description () const final;
-      std::string debugInfo () const final;
-      std::string color() const final
-      {
-        return "#ffff00";
-      }
+    std::string description () const final;
+    std::string debugInfo () const final;
+    std::string color() const final
+    {
+      return "#ffff00";
+    }
 
-      bool compareAdditionalArguments (const Node_DF & other) const;
+    bool compareAdditionalArguments (const Node_DF & other) const;
       
-      std::size_t hashAdditionalArguments () const;
+    std::size_t hashAdditionalArguments () const;
       
-      /// Configuration for numerical derivation of computation nodes using this FrequencySet.
-      NumericalDerivativeConfiguration config;
+    /// Configuration for numerical derivation of computation nodes using this FrequencySet.
+    NumericalDerivativeConfiguration config;
 
-      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+    NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
-      const ConfiguredParameter& getConfiguredParameter(const std::string& name)
-      {
-        return static_cast<const ConfiguredParameter&>(getParameter(name));
-      }
+    const ConfiguredParameter& getConfiguredParameter(const std::string& name)
+    {
+      return static_cast<const ConfiguredParameter&>(getParameter(name));
+    }
 
-    private:
-      void compute ()
-      {
-        freqset_->matchParametersValues(getParameters());
-      }
+  private:
+    void compute ()
+    {
+      freqset_->matchParametersValues(getParameters());
+    }
 
 
-      std::unique_ptr<FrequencySet> freqset_;
-    };
+    std::unique_ptr<FrequencySet> freqset_;
+  };
 
-    /** Frequencies = f(FrequencySet).
-     * Frequencies: RowVector(nbState).
-     * Frequenciesset: ConfiguredFrequencySet.
-     *
-     * Node construction should be done with the create static method.
-     */
+  /** Frequencies = f(FrequencySet).
+   * Frequencies: RowVector(nbState).
+   * Frequenciesset: ConfiguredFrequencySet.
+   *
+   * Node construction should be done with the create static method.
+   */
 
-    class FrequenciesFromFrequencySet : public Value<RowLik> {
-    public:
-      using Self = FrequenciesFromFrequencySet;
-      using T = RowLik;
+  class FrequenciesFromFrequencySet : public Value<Eigen::RowVectorXd> {
+  public:
+    using Self = FrequenciesFromFrequencySet;
+    using T = Eigen::RowVectorXd;
 
-      // static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
-      FrequenciesFromFrequencySet (NodeRefVec && deps, const Dimension<T> & dim);
+    // static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
+    FrequenciesFromFrequencySet (NodeRefVec && deps, const Dimension<T> & dim);
 
-      std::string debugInfo () const final;
+    std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node_DF & other) const final;
+    bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node_DF & node) final;
-      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+    NodeRef derive (Context & c, const Node_DF & node) final;
+    NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
-      std::string color() const final
-      {
-        return "#ffff66";
-      }
+    std::string color() const final
+    {
+      return "#ffff66";
+    }
 
-    private:
-      void compute () final;
+  private:
+    void compute () final;
 
-      Dimension<T> targetDimension_;
-    };
+    Dimension<T> targetDimension_;
+  };
 
 } // namespace bpp
 

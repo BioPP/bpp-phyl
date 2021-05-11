@@ -865,7 +865,7 @@ namespace bpp
           return 0;
       }
 
-      int d=abs(x-y);
+      int d=std::abs(x-y);
 
       while (d!=0)
       {

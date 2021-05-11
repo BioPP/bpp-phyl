@@ -41,4 +41,4 @@
 #include "ExtendedFloat.h"
 
 
-ExtendedFloat::ln_radix = std::log (static_cast<double> (ExtendedFloat::radix));
+const double bpp::ExtendedFloat::ln_radix(std::log (static_cast<double> (ExtendedFloat::radix)));

@@ -269,11 +269,11 @@ void PartitionProcessPhyloLikelihood::makeLikCal_()
 
   vLik.push_back(matchingDF);
   
-  auto sL = CWiseMatching<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>::create(getContext(), std::move(vLik), RowVectorDimension (Eigen::Index (getNumberOfSites())));
+  auto sL = CWiseMatching<RowLik, ReductionOf<RowLik>>::create(getContext(), std::move(vLik), RowVectorDimension (getNumberOfSites()));
 
   likCal_->setSiteLikelihoods(sL);
 
-  auto lik = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, RowVectorDimension (Eigen::Index (getNumberOfSites())));
+  auto lik = SumOfLogarithms<RowLik>::create (getContext(), {sL}, RowVectorDimension (getNumberOfSites()));
 
   likCal_->setLikelihoodNode(lik);
 

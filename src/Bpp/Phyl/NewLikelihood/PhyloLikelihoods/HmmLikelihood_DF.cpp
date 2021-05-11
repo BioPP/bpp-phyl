@@ -107,12 +107,12 @@ HmmLikelihood_DF::HmmLikelihood_DF(
 
   auto eqdim = VectorDimension(Eigen::Index(nbStates_));
     
-  hmmEq_ = ConfiguredParametrizable::createVector<ConfiguredTransitionMatrix, EquilibriumFrequenciesFromTransitionMatrix> (context_, {matrix_}, eqdim);
+  hmmEq_ = ConfiguredParametrizable::createVector<ConfiguredTransitionMatrix, EquilibriumFrequenciesFromTransitionMatrix, Eigen::VectorXd> (context_, {matrix_}, eqdim);
 
   // transition
 
-  auto transdim = MatrixDimension(Eigen::Index(nbStates_), Eigen::Index(nbStates_));
-  hmmTrans_ = ConfiguredParametrizable::createMatrix<ConfiguredTransitionMatrix, TransitionMatrixFromTransitionMatrix> (context_, {matrix_}, transdim);
+  auto transdim = MatrixDimension(nbStates_, nbStates_);
+  hmmTrans_ = ConfiguredParametrizable::createMatrix<ConfiguredTransitionMatrix, TransitionMatrixFromTransitionMatrix, Eigen::MatrixXd> (context_, {matrix_}, transdim);
 
   // emission
 
@@ -125,7 +125,7 @@ HmmLikelihood_DF::HmmLikelihood_DF(
   // forward computation
   forwardLik_ = ForwardHmmLikelihood_DF::create(context_, {hmmEq_, hmmTrans_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
 
-  setLikelihoodNode(SumOfLogarithms<Eigen::RowVectorXd>::create (getContext_(), {forwardLik_}, RowVectorDimension (Eigen::Index (nbSites_))));
+  setLikelihoodNode(SumOfLogarithms<RowLik>::create (getContext_(), {forwardLik_}, RowVectorDimension (nbSites_)));
 
   // backward computation
   backwardLik_ = BackwardHmmLikelihood_DF::create(context_, {forwardLik_, hmmTrans_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
@@ -135,14 +135,13 @@ HmmLikelihood_DF::HmmLikelihood_DF(
   
   auto forwardNode = dynamic_pointer_cast<ForwardHmmLikelihood_DF>(forwardLik_);
 
-  hiddenPostProb_ = CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>::create(context_, {forwardNode->getForwardCondLikelihood(), backwardLik_}, MatrixDimension(nbStates_, nbSites_));
-
+  hiddenPostProb_ = CWiseMul<MatrixLik, std::tuple<MatrixLik,MatrixLik>>::create(context_, {forwardNode->getForwardCondLikelihood(), backwardLik_}, MatrixDimension(nbStates_, nbSites_));
+  
   // and site likelihoods
 
-  auto statesLog = CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>::create(context_, {hiddenPostProb_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
+  auto statesLog = CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>::create(context_, {hiddenPostProb_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
 
-  setSiteLikelihoods(CWiseAdd<Eigen::RowVectorXd,Eigen::MatrixXd>::create(context_, {statesLog}, RowVectorDimension(nbSites_)));
-
+  setSiteLikelihoods(CWiseAdd<RowLik,MatrixLik>::create(context_, {statesLog}, RowVectorDimension(nbSites_)));
 }
 
 void HmmLikelihood_DF::setNamespace(const std::string& nameSpace)

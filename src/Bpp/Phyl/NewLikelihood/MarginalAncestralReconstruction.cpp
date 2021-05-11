@@ -48,7 +48,7 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
 {
   vector<size_t> ancestors(nbDistinctSites_);
 
-  double r;
+  DataLik r;
 
   auto vv = likelihood_->getLikelihoodsAtNode(nodeId)->getTargetValue();
 
@@ -66,7 +66,7 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
       for (size_t j = 0; j < nbStates_; j++)
       {
         r -= coli(Eigen::Index(j));
-        if (r < 0)
+        if (r < DataLik(0))
         {
           ancestors[i] = j;
           break;

@@ -87,30 +87,8 @@ namespace bpp
      * @param state The index of the hidden state to consider, as defined by the HmmStateAlphabet object associated to this class.
      */
   
-    virtual double operator()(size_t pos, size_t state) const = 0;
+    virtual DataLik operator()(size_t pos, size_t state) const = 0;
 
-//    virtual ValueRef<Eigen::MatrixXd> getEmissionProbabilities() = 0;
-
-    // virtual void computeDEmissionProbabilities(std::string& variable) const
-    // {
-    //   throw (NotImplementedException("HmmEmissionProbabilities::computeDEmissionProbabilities is not overdefined."));
-    // }
-  
-    // virtual void computeD2EmissionProbabilities(std::string& variable) const
-    // {
-    //   throw (NotImplementedException("HmmEmissionProbabilities::computeD2EmissionProbabilities is not overdefined."));
-    // }
-  
-    // virtual const std::vector<double>& getDEmissionProbabilities(size_t pos) const
-    // {
-    //   throw (NotImplementedException("HmmEmissionProbabilities::getDEmissionProbability is not overdefined."));
-    // }
-  
-    // virtual const std::vector<double>& getD2EmissionProbabilities(size_t pos) const
-    // {
-    //   throw (NotImplementedException("HmmEmissionProbabilities::getD2EmissionProbability is not overdefined."));
-    // }
-  
     /**
      * @brief Operator access to the emission probabilities.
      *
@@ -121,7 +99,7 @@ namespace bpp
      * @return A vector of probabilities, whose size is the number of hidden states.
      */
 
-    virtual Eigen::Ref<const Eigen::VectorXd> operator()(size_t pos) const = 0;
+    virtual VectorLik operator()(size_t pos) const = 0;
     
     /**
      * @return The number of positions in the data.
