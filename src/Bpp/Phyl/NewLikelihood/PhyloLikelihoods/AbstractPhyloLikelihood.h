@@ -70,16 +70,16 @@ namespace bpp
      *
      **/
       
-    mutable double minusLogLik_;
+    mutable DataLik minusLogLik_;
 
     /**
      * @brief For Dataflow computing
      *
      */
       
-    mutable std::unordered_map<std::string, ValueRef<double>> firstOrderDerivativeNodes_;
+    mutable std::unordered_map<std::string, ValueRef<DataLik>> firstOrderDerivativeNodes_;
 
-    mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<double>,
+    mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<DataLik>,
                                StringPairHash>
     secondOrderDerivativeNodes_;
 
@@ -147,7 +147,7 @@ namespace bpp
      *
      */
     
-    ValueRef<double> getLikelihoodNode() const {
+    ValueRef<DataLik> getLikelihoodNode() const {
       return getLikelihoodCalculation()->getLikelihoodNode();
     }
 
@@ -174,29 +174,32 @@ namespace bpp
       
     double getValue() const  override
     {
+      using namespace std; //for isinf
+      using namespace numeric; //for isinf
       if (!isInitialized())
         throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
 
       if (!getLikelihoodNode())
         throw Exception("AbstractPhyloLikelihood::getValue(). LikelihoodNode is not built.");
-
       
       minusLogLik_=-getLikelihoodNode()->getTargetValue();
-      if (std::isinf(minusLogLik_))
+      if (isinf(minusLogLik_))
       {
         getLikelihoodCalculation()->fixFactor(getLikelihoodNode());
         minusLogLik_=-getLikelihoodNode()->getTargetValue();
       }
-      return minusLogLik_;
+      return convert(minusLogLik_);
     }
 
     // bpp::DerivableFirstOrder
     double getFirstOrderDerivative (const std::string & variable) const override {
-      return -firstOrderDerivativeNode (variable)->getTargetValue ();
+      using namespace std; //for isinf
+      using namespace numeric; //for isinf
+      return convert(-firstOrderDerivativeNode (variable)->getTargetValue ());
     }
 
     // Get nodes of derivatives directly
-    ValueRef<double> firstOrderDerivativeNode (const std::string & variable) const {
+    ValueRef<DataLik> firstOrderDerivativeNode (const std::string & variable) const {
       const auto it = firstOrderDerivativeNodes_.find (variable);
       if (it != firstOrderDerivativeNodes_.end ()) {
         return it->second;
@@ -214,11 +217,13 @@ namespace bpp
 
     double getSecondOrderDerivative (const std::string & variable1,
                                      const std::string & variable2) const override {
-      return -secondOrderDerivativeNode (variable1, variable2)->getTargetValue ();
+      using namespace std; //for isinf
+      using namespace numeric; //for isinf
+      return convert(-secondOrderDerivativeNode (variable1, variable2)->getTargetValue ());
     }
 
-    ValueRef<double> secondOrderDerivativeNode (const std::string & variable1,
-                                                const std::string & variable2) const {
+    ValueRef<DataLik> secondOrderDerivativeNode (const std::string & variable1,
+                                                 const std::string & variable2) const {
       const auto key = std::make_pair (variable1, variable2);
       const auto it = secondOrderDerivativeNodes_.find (key);
       if (it != secondOrderDerivativeNodes_.end ()) {

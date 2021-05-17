@@ -162,7 +162,8 @@ namespace
     CommonStuff()
       : alphabet(AlphabetTools::DNA_ALPHABET)
       , sites(&alphabet)
-      , treeStr("((A:0.01, B:0.02):0.03,C:0.01);")
+      , treeStr("(A:0.01, B:0.02);")
+//      , treeStr("((A:0.01, B:0.02):0.03,C:0.01);")
     {
       // Init sequences
       sites.addSequence(

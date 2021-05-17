@@ -209,6 +209,8 @@ void TransitionMatrixFromModel::compute () {
   const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
   
   auto & r = this->accessValueMutable ();
+
+  r.resize(4,4);
   
   const auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (accessValueConstCast<const BranchModel *> (*this->dependency (0)));
 

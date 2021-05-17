@@ -124,7 +124,7 @@ namespace bpp {
     using ExtendedFloatArray =  ExtendedFloatEigen<R2, C2, EFArray>;
 
 
-  private:
+  protected:
 
     MatType mat_;
     ExtType exp_;
@@ -546,6 +546,11 @@ namespace bpp {
       return Self(-float_part(), exponent_part());
     }
 
+    inline Self eval() const {
+      return Self(float_part().eval(), exponent_part());
+    }
+
+    
     /*
      * Modifying operators
      *
@@ -670,7 +675,6 @@ namespace bpp {
     {
       return Self(float_part ().log() + static_cast<double> (exponent_part ()) * ExtendedFloat::ln_radix, 0);
     }
-
   
     inline Self exp () const
     {
@@ -698,12 +702,10 @@ namespace bpp {
      */
     
     inline bool operator== (const Self & rhs) const {
-      throw Exception("ExtendedFloat::operator== not fiable. Ask developpers");
       return (float_part()==rhs.float_part() && exponent_part()==rhs.exponent_part());
     }
 
     inline bool operator!= (const Self & rhs) const {
-      throw Exception("ExtendedFloat::operator!= not fiable. Ask developpers");
       return (float_part()!=rhs.float_part() || exponent_part()!=rhs.exponent_part());
     }
 
@@ -857,9 +859,13 @@ namespace bpp {
       return float_part().size();
     }
 
+    /**************************************/
+    /* Output */
+    
+    friend std::ostream& operator<<(std::ostream& out, const Self& ef){
+      return out << "( " << ef.float_part() << " ) *  2^" << ef.exponent_part();
+    }
   };
-
-
 
   
   /*
@@ -956,6 +962,75 @@ namespace bpp {
     auto r = EFType::denorm_mul(lhs.derived(), rhs);
     r.normalize ();
     return r;
+  }
+
+
+  
+  template< int R,  int C>
+  class ExtendedFloatArrayWrapper 
+  {
+    using Self = ExtendedFloatArrayWrapper<R, C>;
+
+    using MatType = EFArray<R,C>;
+
+    using ExtType =  int;
+
+    using Array = ExtendedFloatArray<R,C>;
+    
+  private:
+
+      
+    ExtendedFloatMatrix<R,C>* const efm_;
+  public:
+
+    ExtendedFloatArrayWrapper(ExtendedFloatMatrix<R,C>& other) :
+      efm_(&other) {};
+    
+    Self operator=(const Array& rhs) 
+    {
+      std::cerr << "ExtendedFloatArrayWrapper::operator= " << std::endl;
+      efm_->float_part().array() = rhs.float_part();
+      efm_->exponent_part() = rhs.exponent_part();
+      return *this;
+    }
+
+    Self operator+=(const Array& rhs) 
+    {
+      if (efm_->exponent_part ()>=rhs.exponent_part ())
+      {
+        efm_->float_part().array() += rhs.float_part() * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - efm_->exponent_part ());
+      }
+      else
+      {
+        efm_->float_part().array() = rhs.float_part () + efm_->float_part ().array() * constexpr_power<double>(ExtendedFloat::radix, efm_->exponent_part () - rhs.exponent_part ());
+        efm_->exponent_part() = rhs.exponent_part ();
+      }
+      efm_->normalize ();
+      return *this;
+    }
+
+    Self operator*=(const Array& rhs) 
+    {
+      efm_->float_part().array() *= rhs.float_part ();
+      efm_->exponent_part() += rhs.exponent_part ();
+      efm_->normalize ();
+      return *this;
+    }
+
+    Array operator*(const Array& rhs)  const
+    {
+      Array r(efm_->float_part().array() * rhs.float_part (), efm_->exponent_part () + rhs.exponent_part ());
+      r.normalize();
+      return r;
+    }
+
+  };
+
+  template<int R, int C>
+  inline ExtendedFloatArray<R,C> operator* (const ExtendedFloatArray<R,C> & lhs,
+                                            const ExtendedFloatArrayWrapper<R,C>& rhs)
+  {
+    return rhs * lhs; //cwise * is commutative
   }
 
 }

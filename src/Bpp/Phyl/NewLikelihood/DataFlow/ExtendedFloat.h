@@ -316,6 +316,10 @@ namespace bpp {
       return (exponent_part()>rhs.exponent_part() || (exponent_part()==rhs.exponent_part() && float_part()>=rhs.float_part()));
     }
 
+    inline bool operator> (const ExtendedFloat & rhs) const {
+      return (exponent_part()>rhs.exponent_part() || (exponent_part()==rhs.exponent_part() && float_part()>rhs.float_part()));
+    }
+
     inline double log () const {
       return std::log (float_part ()) + static_cast<double> (exponent_part ()) * ln_radix;
     }

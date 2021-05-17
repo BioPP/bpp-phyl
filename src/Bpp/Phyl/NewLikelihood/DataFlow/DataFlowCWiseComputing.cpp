@@ -161,8 +161,8 @@ namespace bpp {
 
   template class MatrixProduct<ExtendedFloatRowVectorXd, Eigen::RowVectorXd, ExtendedFloatMatrixXd>;
   template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
-  template class MatrixProduct<MatrixLik, MatrixLik, Eigen::MatrixXd>;
-  template class MatrixProduct<MatrixLik, MatrixLik, Transposed<Eigen::MatrixXd>>;
+  template class MatrixProduct<MatrixLik, Eigen::MatrixXd, MatrixLik>;
+  template class MatrixProduct<MatrixLik, Transposed<Eigen::MatrixXd>, MatrixLik>;
 
   template class ShiftDelta<double>;
   template class ShiftDelta<VectorLik>;

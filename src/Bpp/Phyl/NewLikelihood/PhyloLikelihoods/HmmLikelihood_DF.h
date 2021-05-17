@@ -226,9 +226,9 @@ namespace bpp {
       return hmmEmis_->accessValueConst().col(int(site)).dot(vec);
     }
 
-    void fixFactor(ValueRef<double> valRef)
+    void fixFactor(ValueRef<DataLik> valRef)
     {
-      throw Exception("HmmLikelihood_DF::fixFactor not implemented");
+      return;
     }
     
   };

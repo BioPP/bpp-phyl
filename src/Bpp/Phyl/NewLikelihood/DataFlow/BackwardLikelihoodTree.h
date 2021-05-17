@@ -87,7 +87,7 @@ namespace bpp
    */
     
   using BackwardTransition =
-    MatrixProduct<MatrixLik, MatrixLik, Transposed<Eigen::MatrixXd>>;
+    MatrixProduct<MatrixLik, Transposed<Eigen::MatrixXd>, MatrixLik>;
 
   /** @brief : Above each node : in case of mixture of above edges
    *

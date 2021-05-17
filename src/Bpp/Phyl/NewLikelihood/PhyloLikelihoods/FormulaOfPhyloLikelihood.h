@@ -117,7 +117,7 @@ namespace bpp
      *
      */
 
-    ValueRef<double> makeLikelihoods()
+    ValueRef<DataLik> makeLikelihoods()
     {
       return makeLikelihoodsFromOperator(compTree_->getRoot());
     }
@@ -127,7 +127,7 @@ namespace bpp
      *
      */
 
-    ValueRef<double> makeLikelihoodsFromOperator(std::shared_ptr<Operator> op);
+    ValueRef<DataLik> makeLikelihoodsFromOperator(std::shared_ptr<Operator> op);
       
       
     /** @} */

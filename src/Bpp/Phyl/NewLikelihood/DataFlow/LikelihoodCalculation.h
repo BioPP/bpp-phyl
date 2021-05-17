@@ -63,7 +63,7 @@ namespace bpp {
     /******************************************/
     /** Likelihoods  **/
           
-    mutable ValueRef<double> likelihood_;
+    mutable ValueRef<DataLik> likelihood_;
 
   public:
     LikelihoodCalculation(Context & context) :
@@ -91,7 +91,7 @@ namespace bpp {
       return new LikelihoodCalculation(*this);
     }
     
-    ValueRef<double> getLikelihoodNode()
+    ValueRef<DataLik> getLikelihoodNode()
     {
       if (!likelihood_)
         makeLikelihoods();
@@ -112,7 +112,7 @@ namespace bpp {
      *
      */
     
-    void setLikelihoodNode(ValueRef<double> ll)
+    void setLikelihoodNode(ValueRef<DataLik> ll)
     {
       likelihood_=ll;
     }
@@ -122,7 +122,7 @@ namespace bpp {
      *
      */
     
-    virtual void fixFactor(ValueRef<double> valRef)
+    virtual void fixFactor(ValueRef<DataLik> valRef)
     {
       throw Exception("LikelihoodCalculation::fixFactor not implemented.");
     }
@@ -140,7 +140,7 @@ namespace bpp {
     }
 
     
-    ValueRef<double> getLikelihoodNode_()
+    ValueRef<DataLik> getLikelihoodNode_()
     {
       return likelihood_;
     }
@@ -235,7 +235,7 @@ namespace bpp {
         return siteLikelihoods_->getTargetValue()(Eigen::Index(pos));
     }
 
-    double getLogLikelihoodForASite(size_t pos, bool shrunk = false)
+    DataLik getLogLikelihoodForASite(size_t pos, bool shrunk = false)
     {
       using namespace std;
       return log(getLikelihoodForASite(pos, shrunk));
@@ -248,10 +248,10 @@ namespace bpp {
      *
      */
 
-    Vdouble getLikelihoodPerSite()
+    VDataLik getLikelihoodPerSite()
     {
       auto vLik=getSiteLikelihoods(false)->getTargetValue();
-      Vdouble v;
+      VDataLik v;
       copyEigenToBpp(vLik, v);
       return v;
     }

@@ -83,7 +83,7 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
       
       processEdge->setTransitionMatrix(transitionMatrix);
       forwardEdge = ForwardTransition::create (
-        context_, {childConditionalLikelihood, transitionMatrix}, likelihoodMatrixDim_);
+        context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
     }
     else{
       auto transitionFunction = TransitionFunctionFromModel::create(context_, {model, brlen, zero, factorNode_}, transitionFunctionDimension(nbState_));

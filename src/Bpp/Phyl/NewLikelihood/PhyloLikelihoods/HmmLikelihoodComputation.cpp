@@ -61,7 +61,7 @@ void ForwardHmmLikelihood_DF::compute()
 
   auto nbSites = hmmEmis.cols();
 
-  std::vector<DataLik> tscales((size_t)nbSites);
+  VDataLik tscales((size_t)nbSites);
   
   //Initialisation:
 
@@ -155,14 +155,14 @@ void ForwardHmmDLikelihood_DF::compute()
 
   auto nbSites = hmmEmis.cols();
 
-  std::vector<DataLik> tdScales((size_t)nbSites);
+  VDataLik tdScales((size_t)nbSites);
   
   auto& dCondLik = dynamic_pointer_cast<CondLikelihood>(dCondLik_)->accessValueMutable();
 
   VectorLik tmp((int)hmmEmis.rows());
   
   //Initialisation:
-  auto& col0 = dParCondLik_[0];
+  VectorLik& col0 = dParCondLik_[0];
 
   // I do not know how to get rid of t2
   auto t2 = (dHmmTrans * hmmEq + hmmTrans * dHmmEq).eval();
@@ -295,7 +295,7 @@ void ForwardHmmD2Likelihood_DF::compute()
   
   auto nbSites = hmmEmis.cols();
 
-  std::vector<DataLik> td2Scales((size_t)nbSites);
+  VDataLik td2Scales((size_t)nbSites);
 
   
   VectorLik d2CondLik((int)hmmEmis.rows());

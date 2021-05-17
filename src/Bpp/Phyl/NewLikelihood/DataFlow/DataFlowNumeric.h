@@ -65,6 +65,8 @@
 
 namespace bpp {
 
+  /******************/
+  
   template<typename eVector, typename bVector>
   using ForConvert = typename std::enable_if< ((std::is_same<bVector, Vdouble>::value
                                                 || std::is_same<bVector, std::vector<ExtendedFloat>>::value)
@@ -83,6 +85,14 @@ namespace bpp {
     }
   }
 
+  extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, Eigen::VectorXd & eigenVector);  
+  extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, Eigen::RowVectorXd & eigenVector);
+  extern template void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector);
+  extern template void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector);  
+
+
+  /*****************/
+  
   template<typename eVector>
   using EFVector = typename std::enable_if<(std::is_same<eVector, ExtendedFloatRowVectorXd>::value
                                             || std::is_same<eVector, ExtendedFloatVectorXd>::value), bool>::type;
@@ -100,14 +110,19 @@ namespace bpp {
                                                                  return(bppVector[(size_t)i].float_part() * bpp::constexpr_power<double>(bpp::ExtendedFloat::radix, bppVector[(size_t)i].exponent_part () - maxE));});
   }
 
+  
+  extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, ExtendedFloatRowVectorXd & eigenVector);
+  extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, ExtendedFloatVectorXd & eigenVector);
 
 
+  /****************/
+  
   template<typename eVector>
   using EFoutput = typename std::enable_if<(std::is_same<eVector, ExtendedFloatRowVectorXd>::value
                                             || std::is_same<eVector, ExtendedFloatVectorXd>::value), bool>::type;
 
-
-  template<typename eVector, EFoutput<eVector> = true>
+  template<typename eVector, 
+           EFoutput<eVector> = true>
   void copyBppToEigen (const Vdouble& bppVector, eVector & eigenVector)
   {
     // Look for largest extendedfloat
@@ -117,21 +132,12 @@ namespace bpp {
   }
   
 
-  extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, Eigen::RowVectorXd & eigenVector);
-  extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, Eigen::VectorXd & eigenVector);  
-  extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, ExtendedFloatRowVectorXd & eigenVector);
-  extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, ExtendedFloatVectorXd & eigenVector);
-
-  extern template void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector);
-  extern template void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector);  
   extern template void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatRowVectorXd & eigenVector);
   extern template void copyBppToEigen (const bpp::Vdouble& bppVector, ExtendedFloatVectorXd & eigenVector);
 
+  
+  /********************************/
 
-  // template<typename eMatrix,
-  //          typename = typename std::enable_if<(std::is_same<eMatrix, Eigen::MatrixXd>::value
-  //                                              || std::is_same<eMatrix, ExtendedFloatMatrixXd>::value)>::type>
-  // void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, eMatrix& eigenMatrix);
 
   template<typename eMatrix,
            typename = typename std::enable_if<(std::is_same<eMatrix, Eigen::MatrixXd>::value
@@ -139,6 +145,11 @@ namespace bpp {
   void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, eMatrix & eigenMatrix) {
     const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
     const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
+#ifdef DEBUG
+    std::cerr << "copyBppToEigen(" << typeid(bppMatrix).name() << ", " << typeid(eigenMatrix).name() << ")" << std::endl;
+    
+    std::cerr << eigenRows << "," << eigenCols << std::endl;
+#endif
     eigenMatrix.resize (eigenRows, eigenCols);
     eigenMatrix.fill(0);
     for (Eigen::Index i = 0; i < eigenRows; ++i) {
@@ -148,21 +159,70 @@ namespace bpp {
     }
   }
 
+  
   extern template void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, Eigen::MatrixXd & eigenMatrix);
   extern template void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, ExtendedFloatMatrixXd & eigenMatrix);
+
+
   
   extern void copyBppToEigen (const std::vector<Eigen::VectorXd>& bppVector, Eigen::MatrixXd & eigenMatrix);
   extern void copyBppToEigen (const std::vector<ExtendedFloatVectorXd>& bppVector, ExtendedFloatMatrixXd & eigenMatrix);
 
-//  extern void copyBppToEigen (const bpp::VVdouble& bppMatrix, Eigen::MatrixXd & eigenMatrix);
-
 
   
-  extern void copyEigenToBpp(const MatrixLik & eigenMatrix, VVdouble & bppMatrix);
+  /****************/
+  /* copyEigenToBpp */
+       
+
+  template<typename eType,
+           typename = typename std::enable_if<(std::is_same<eType, double>::value
+                                               || std::is_same<eType, ExtendedFloat>::value)>::type>
+  void copyEigenToBpp (const MatrixLik & eigenMatrix, std::vector<std::vector<eType>>& bppMatrix)
+  {
+    const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
+    const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
+
+    bppMatrix.resize (eigenRows);
+    for (size_t i = 0; i < eigenRows; ++i) {
+      bppMatrix[i].resize (eigenCols);
+      auto bMi = &bppMatrix[i];
+      for (size_t j = 0; j < eigenCols; ++j) {
+        (*bMi)[j] = convert(eigenMatrix (static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j)));
+      }
+    }
+  }
+
+
+  extern template void copyEigenToBpp(const MatrixLik & eigenMatrix, std::vector<std::vector<double>> & bppMatrix);
+  extern template void copyEigenToBpp(const MatrixLik & eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>> & bppMatrix);
+
+
   extern void copyEigenToBpp(const MatrixLik & eigenMatrix, Matrix<double> & bppMatrix);
 
-  extern void copyEigenToBpp (const RowLik& eigenVector, bpp::Vdouble& bppVector);
-  extern void copyEigenToBpp (const VectorLik& eigenVector, bpp::Vdouble& bppVector);
+  
+  template<typename eVector, typename bVector>
+  using ForConvert2 = typename std::enable_if< ((std::is_same<bVector, Vdouble>::value
+                                                || std::is_same<bVector, std::vector<ExtendedFloat>>::value)
+                                               &&
+                                               (std::is_same<eVector, Eigen::RowVectorXd>::value
+                                                || std::is_same<eVector, Eigen::VectorXd>::value
+                                                || std::is_same<eVector, ExtendedFloatVectorXd>::value
+                                                || std::is_same<eVector, ExtendedFloatRowVectorXd>::value)), bool>::type;
+
+  
+  template<typename eVector,
+           typename bVector, ForConvert2<bVector, eVector> = true>
+  void copyEigenToBpp (const bVector& eigenVector, eVector& bppVector)
+  {
+    bppVector.resize(size_t(eigenVector.size()));
+    for (auto i=0; i<eigenVector.size(); i++)
+      bppVector[(size_t)i]=convert(eigenVector(i));
+  }
+  
+  extern template void copyEigenToBpp (const RowLik& eigenVector, Vdouble& bppVector);
+  extern template void copyEigenToBpp (const VectorLik& eigenVector, Vdouble& bppVector);
+  extern template void copyEigenToBpp (const RowLik& eigenVector, std::vector<ExtendedFloat>& bppVector);
+  extern template void copyEigenToBpp (const VectorLik& eigenVector, std::vector<ExtendedFloat>& bppVector);
 
   /*******************************************/
   /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/

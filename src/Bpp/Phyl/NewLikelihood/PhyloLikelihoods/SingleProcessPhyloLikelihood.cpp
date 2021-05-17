@@ -41,7 +41,7 @@
 
 using namespace bpp;
 using namespace std;
-
+using namespace numeric;
       
 
 Vdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(size_t pos) const
@@ -94,9 +94,9 @@ VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerClass(
       
 /******************************************************************************/
 
-VVdouble SingleProcessPhyloLikelihood::getLikelihoodPerSitePerClass() const
+VVDataLik SingleProcessPhyloLikelihood::getLikelihoodPerSitePerClass() const
 {
-  VVdouble vd;
+  VVDataLik vd;
   auto eg = getLikelihoodCalculationSingleProcess()->getSiteLikelihoodsForAllClasses();
   copyEigenToBpp(eg.transpose(),vd);
   return vd;
@@ -107,11 +107,11 @@ VVdouble SingleProcessPhyloLikelihood::getLikelihoodPerSitePerClass() const
 vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbPerSite() const
 {
   size_t nbSites = getNumberOfSites();
-  VVdouble l = getLikelihoodPerSitePerClass();
+  auto l = getLikelihoodPerSitePerClass();
   vector<size_t> classes(nbSites);
   for (size_t i = 0; i < nbSites; ++i)
   {
-    classes[i] = VectorTools::whichMax<double>(l[i]);
+    classes[i] = VectorTools::whichMax<DataLik>(l[i]);
   }
   return classes;
 }
@@ -125,14 +125,14 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRatePerSite() const
   
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
-  VVdouble pb = getLikelihoodPerSitePerClass();
-  Vdouble l  = getLikelihoodPerSite();
+  auto pb = getLikelihoodPerSitePerClass();
+  auto l  = getLikelihoodPerSite();
   Vdouble prates(nbSites, 0.);
   for (size_t i = 0; i < nbSites; i++)
   {
     for (size_t j = 0; j < nbClasses; j++)
     {
-      prates[i] += (pb[i][j] / l[i]) * probas[j] *  rates[j];
+      prates[i] += convert((pb[i][j] / l[i]) * probas[j] *  rates[j]);
     }
   }
   return prates;

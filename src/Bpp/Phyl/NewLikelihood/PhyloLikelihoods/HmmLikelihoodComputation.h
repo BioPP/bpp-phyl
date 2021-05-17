@@ -218,10 +218,10 @@ namespace bpp {
 
       const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd>>(this->dependency(1))->getTargetValue();
       
+      if (hmmTrans.cols()!=hmmTrans.rows())
+        throw BadSizeException("ForwardHmmLikelihood_DF: Transition matrix should be square", size_t(hmmTrans.cols()), size_t(hmmTrans.rows()));
       if (hmmTrans.rows()!=targetDimension_.rows)
         throw BadSizeException("ForwardHmmLikelihood_DF: bad number of rows for transition matrix", size_t(hmmTrans.rows()), size_t(targetDimension_.rows));
-      if (hmmTrans.cols()!=targetDimension_.rows)
-        throw BadSizeException("ForwardHmmLikelihood_DF: bad number of columns for transition matrix", size_t(hmmTrans.cols()), size_t(targetDimension_.rows));
 
       const auto& hmmEmis = dynamic_pointer_cast<Value<MatrixLik>>(this->dependency(2))->getTargetValue();
       
@@ -516,7 +516,7 @@ namespace bpp {
    *
    *
    * Dependencies are:
-   *  Value<VectorXd> : Vector of conditional Forward Likelihoods
+   *  Value<RowLik> : Vector of conditional Forward Likelihoods
    *  Value<MatrixXd> : TransitionMatrix
    *  Value<MatrixLik> : Matrix of Emission likelihoods states X sites
    *  Value<size_t> : level of derivation 
@@ -554,7 +554,7 @@ namespace bpp {
       checkDependenciesNotNull (typeid (Self), deps);
       checkDependencyVectorSize (typeid (Self), deps, 3);
 
-      checkNthDependencyIsValue<Eigen::RowVectorXd> (typeid (Self), deps, 0);
+      checkNthDependencyIsValue<RowLik> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<Eigen::MatrixXd> (typeid (Self), deps, 1);
       checkNthDependencyIsValue<MatrixLik> (typeid (Self), deps, 2);
 
@@ -566,16 +566,14 @@ namespace bpp {
     {      
       this->accessValueMutable().resize(dim.rows, dim.cols);
 
-      const auto& hmmScale = accessValueConstCast<Eigen::RowVectorXd>(*this->dependency(0));
+      const auto& hmmScale = accessValueConstCast<RowLik>(*this->dependency(0));
       if (hmmScale.cols()!=dim.cols)
-        throw BadSizeException("BackwardHmmLikelihood_DF: bad dimension for forward likelihoods vector", size_t(hmmScale.rows()), size_t(dim.rows));
+        throw BadSizeException("BackwardHmmLikelihood_DF: bad dimension for forward likelihoods vector", size_t(hmmScale.cols()), size_t(dim.cols));
       
 
       const auto& hmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(1));
-      if (hmmTrans.rows()!=dim.rows)
-        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of rows for transition matrix", size_t(hmmTrans.rows()), size_t(dim.rows));
       if (hmmTrans.cols()!=dim.rows)
-        throw BadSizeException("BackwardHmmLikelihood_DF: bad number of columns for transition matrix", size_t(hmmTrans.cols()), size_t(dim.rows));
+        throw BadSizeException("BackwardHmmLikelihood_DF: bad size for transition matrix", size_t(hmmTrans.cols()), size_t(dim.rows));
 
       const auto& hmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(2));
       if (hmmEmis.rows()!=dim.rows)

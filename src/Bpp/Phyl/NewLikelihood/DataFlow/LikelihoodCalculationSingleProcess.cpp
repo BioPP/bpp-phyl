@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace bpp;
+using namespace numeric;
 using namespace Eigen;
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
@@ -375,28 +376,28 @@ void LikelihoodCalculationSingleProcess::setFactor(uint factor)
     throw BadIntegerException("LikelihoodCalculationSingleProcess::setFactor should be >=1",(int)factor);
 }
 
-void LikelihoodCalculationSingleProcess::fixFactor(ValueRef<double> valRef)
+void LikelihoodCalculationSingleProcess::fixFactor(ValueRef<DataLik> valRef)
 {
-  uint fact0 = factorNode_->getTargetValue();
-  auto val = valRef->getTargetValue();
+  // uint fact0 = factorNode_->getTargetValue();
+  // auto val = valRef->getTargetValue();
 
-  uint cpt = 0; // to prevent infinite loop
+  // uint cpt = 0; // to prevent infinite loop
   
-  while (std::isinf(val) && val<0 && (cpt++<20))
-  {
-    setFactor(factorNode_->getTargetValue()+1);
-    val = valRef->getTargetValue();
-  }
+  // while (isinf(val) && val<0 && (cpt++<20))
+  // {
+  //   setFactor(factorNode_->getTargetValue()+1);
+  //   val = valRef->getTargetValue();
+  // }
       
-  while (std::isinf(val) && val>0 && factorNode_->getTargetValue()>1  && (cpt++<20)){
-    setFactor(factorNode_->getTargetValue()-1);
-    val = valRef->getTargetValue();
-  }
+  // while (isinf(val) && val>0 && factorNode_->getTargetValue()>1  && (cpt++<20)){
+  //   setFactor(factorNode_->getTargetValue()-1);
+  //   val = valRef->getTargetValue();
+  // }
 
-  if (!std::isnormal(val)){
-    cout << "Warning:: LikelihoodCalculationSingleProcess:fixFactor can not fix Likelihood, still not normal." << endl;
-    setFactor(fact0);
-  }
+  // if (!std::isnormal(val)){
+  //   cout << "Warning:: LikelihoodCalculationSingleProcess:fixFactor can not fix Likelihood, still not normal." << endl;
+  //   setFactor(fact0);
+  // }
 }
 
 RowLik LikelihoodCalculationSingleProcess::getSiteLikelihoodsForAClass(size_t nCat, bool shrunk)
@@ -541,7 +542,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   setSiteLikelihoods(expandVector(patternedSiteLikelihoods_), false);
 
   // global likelihood
-  ValueRef<double> val;
+  ValueRef<DataLik> val;
   if (rootPatternLinks_)
     val = SumOfLogarithms<RowLik>::create (getContext_(), {sL, rootWeights_}, RowVectorDimension (Eigen::Index (nbDistSite)));
   else
@@ -560,7 +561,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   auto logS = CWiseMul<double, std::tuple<double, uint>>::create(getContext_(),{logFactor,lgNode}, Dimension<double>());
 
   
-  setLikelihoodNode(CWiseSub<double, std::tuple<double,double>>::create(getContext_(), {val, logS}, Dimension<double>()));
+  setLikelihoodNode(CWiseSub<DataLik, std::tuple<DataLik,double>>::create(getContext_(), {val, logS}, Dimension<DataLik>()));
   
   
 // using bpp::DotOptions;

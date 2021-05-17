@@ -359,7 +359,7 @@ namespace bpp {
      *
      */
     
-    void fixFactor(ValueRef<double> valRef);
+    void fixFactor(ValueRef<DataLik> valRef);
     
     /*
      * @brief Get indexes of the nodes in the Likelihood DAG that have

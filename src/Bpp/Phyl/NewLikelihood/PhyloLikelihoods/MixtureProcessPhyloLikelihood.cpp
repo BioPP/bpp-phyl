@@ -43,6 +43,7 @@
 
 using namespace std;
 using namespace bpp;
+using namespace numeric;
 
 /******************************************************************************/
 
@@ -117,8 +118,8 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProce
 {
   size_t nbProcess = getNumberOfSubstitutionProcess();
 
-  VVdouble pb = getLikelihoodPerSitePerProcess();
-  Vdouble l = getLikelihoodPerSite();
+  auto pb = getLikelihoodPerSitePerProcess();
+  auto l = getLikelihoodPerSite();
 
   const auto& freq = simplex_->getTargetValue()->getFrequencies();
   
@@ -126,7 +127,7 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProce
   {
     for (size_t j = 0; j < nbProcess; ++j)
     {
-      pb[i][j] = pb[i][j] * freq[j] / l[i];
+      pb[i][j] = convert(pb[i][j] * freq[j] / l[i]);
     }
   }
   return pb;

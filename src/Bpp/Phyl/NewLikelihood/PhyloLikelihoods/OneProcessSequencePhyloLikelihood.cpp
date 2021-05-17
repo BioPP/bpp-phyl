@@ -41,6 +41,7 @@
 
 using namespace std;
 using namespace bpp;
+using namespace numeric;
 
 /******************************************************************************/
 
@@ -195,14 +196,14 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRatePerSite() const
   
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
-  VVdouble pb = getLikelihoodPerSitePerClass();
-  Vdouble l  = getLikelihoodPerSite();
+  auto pb = getLikelihoodPerSitePerClass();
+  auto l  = getLikelihoodPerSite();
   Vdouble prates(nbSites, 0.);
   for (size_t i = 0; i < nbSites; i++)
   {
     for (size_t j = 0; j < nbClasses; j++)
     {
-      prates[i] += (pb[i][j] / l[i]) * probas[j] *  rates[j];
+      prates[i] += convert((pb[i][j] / l[i]) * probas[j] *  rates[j]);
     }
   }
   return prates;

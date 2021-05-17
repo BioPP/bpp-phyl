@@ -132,7 +132,7 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeBackwardLikelihoodAtNode (P
       // Uses the transposed transition matrix to compute the bottom
       // of the edge
 
-      backLikeEdge=BackwardTransition::create (context_, {backEdge, transitionMatrix}, likelihoodMatrixDim_);
+      backLikeEdge=BackwardTransition::create (context_, {transitionMatrix, backEdge}, likelihoodMatrixDim_);
     }
     else if (brprob)
       backLikeEdge = BackwardProportion::create(context_, {brprob, backEdge}, likelihoodMatrixDim_);

@@ -77,7 +77,7 @@ int main() {
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   
   auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
-  auto model = std::make_shared<T92>(alphabet, 3.);
+  auto model = std::make_shared<T92>(alphabet, 3., .1);
   std::map<std::string, std::vector<Vint>> globalParameterVectors;
   globalParameterVectors["T92.kappa"]=std::vector<Vint>();
   

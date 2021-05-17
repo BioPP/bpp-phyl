@@ -92,23 +92,12 @@ namespace bpp {
       return ExtendedFloatArray<R,C>(m.float_part().array(), m.exponent_part());
     }
 
-    // template<int R, int C>
-    // inline EFRefArray<R,C> cwise (const EFRefMatrix<R,C>& m)
-    // {
-    //   return EFRefArray<R,C>(m.float_part().array(), m.exponent_part());
-    // }
 
     template<int R, int C>
-    inline ExtendedFloatArray<R,C> cwise (ExtendedFloatMatrix<R,C>& m)
+    inline ExtendedFloatArrayWrapper<R,C> cwise (ExtendedFloatMatrix<R,C>& m)
     {
-      return ExtendedFloatArray<R,C>(m.float_part().array(), m.exponent_part());
+      return ExtendedFloatArrayWrapper<R,C>(m);
     }
-
-    // template<int R, int C>
-    // inline EFRefArray<R,C> cwise (EFRefMatrix<R,C>& m)
-    // {
-    //   return EFRefArray<R,C>(m.float_part().array(), m.exponent_part());
-    // }
 
   }
   

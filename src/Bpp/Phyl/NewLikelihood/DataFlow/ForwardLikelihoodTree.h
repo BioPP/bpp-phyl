@@ -88,7 +88,7 @@ namespace bpp
    */
     
   using ForwardTransition =
-    MatrixProduct<MatrixLik, MatrixLik, Eigen::MatrixXd>;
+    MatrixProduct<MatrixLik, Eigen::MatrixXd, MatrixLik>;
 
   using ForwardTransitionFunction =
     CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;

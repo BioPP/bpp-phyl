@@ -296,7 +296,7 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
-      cwise (result) = cwise (x0) + cwise (x1);
+      result = cwise(x0) + cwise(x1);
 
 #ifdef DEBUG
       std::cerr << "=== Add === " << this << std::endl;
@@ -315,7 +315,7 @@ namespace bpp {
       const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
         
-      result = [x0, x1](const VectorLik& x)->VectorLik{return cwise(x0(x)) + cwise(x1(x));};
+      result = [x0, x1](const VectorLik& x)->VectorLik{return x0(x) + x1(x);};
     }
       
     Dimension<R> targetDimension_;
@@ -395,7 +395,7 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
-      cwise (result) = cwise (x0) - cwise (x1);
+      result = cwise(x0) - cwise(x1);
 #ifdef DEBUG
       std::cerr << "=== Sub === " << this << std::endl;
       std::cerr << "x0= " << x0 << std::endl;
@@ -483,7 +483,7 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       result = zero (targetDimension_);
       for (const auto & depNodeRef : this->dependencies ()) {
-        cwise (result) += cwise (accessValueConstCast<T> (*depNodeRef));
+        result += accessValueConstCast<T> (*depNodeRef);
       }
     }
 
@@ -502,7 +502,7 @@ namespace bpp {
         VectorLik r = zero (Dimension<VectorLik>(targetDimension_.cols,(Eigen::Index)1));
           
         for (const auto f:lT)
-          cwise(r)+= cwise((*f)(x));
+          cwise(r) += cwise((*f)(x));
         return(r);
       };
     }
@@ -715,7 +715,7 @@ namespace bpp {
       size_t half=this->nbDependencies()/2;
       for (size_t i=0; i<half; i++)
       {
-        cwise (result) += cwise (accessValueConstCast<P> (*this->dependency(i+half))) * cwise (accessValueConstCast<T> (*this->dependency(i)));
+        cwise(result) += cwise (accessValueConstCast<P> (*this->dependency(i+half))) * cwise (accessValueConstCast<T> (*this->dependency(i)));
       }
     }
 
@@ -807,9 +807,9 @@ namespace bpp {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
       auto& p = accessValueConstCast<P>(*this->dependency(this->nbDependencies()-1));
-      cwise (result) = cwise(p)[0] * cwise (accessValueConstCast<T> (*this->dependency(0)));
+      result = cwise(p)[0] * cwise (accessValueConstCast<T> (*this->dependency(0)));
       for (Eigen::Index i=1; i<Eigen::Index(this->nbDependencies()-1); i++)
-        cwise (result) += cwise(p)[i] * cwise (accessValueConstCast<T> (*this->dependency(size_t(i))));
+        cwise(result) += cwise(p)[i] * cwise (accessValueConstCast<T> (*this->dependency(size_t(i))));
     }
 
     Dimension<R> targetDimension_;
@@ -915,7 +915,7 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
-      cwise (result) = cwise (x0) * cwise (x1);
+      result = cwise (x0) * cwise (x1);
 
 #ifdef DEBUG
       std::cerr << "=== Mul === " << this << std::endl;
@@ -1041,7 +1041,7 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       result = one (targetDimension_);
       for (const auto & depNodeRef : this->dependencies ()) {
-        cwise (result) *= cwise (accessValueConstCast<T> (*depNodeRef));
+        cwise(result) *= cwise (accessValueConstCast<T> (*depNodeRef));
       }
 
     }
@@ -1143,7 +1143,7 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
       const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
-      cwise (result) = cwise (x0) / cwise (x1);
+      result = cwise (x0) / cwise (x1);
     }
 
     template<class U, class V>
@@ -1237,7 +1237,7 @@ namespace bpp {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
       const auto & x = accessValueConstCast<T> (*this->dependency (0));
-      cwise (result) = -cwise (x);
+      result = - x;
     }
 
     Dimension<T> targetDimension_;
@@ -1303,7 +1303,7 @@ namespace bpp {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
       const auto & x = accessValueConstCast<T> (*this->dependency (0));
-      cwise (result) = inverse (cwise (x));
+      result = inverse (cwise (x));
     }
 
     Dimension<T> targetDimension_;
@@ -1369,7 +1369,7 @@ namespace bpp {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
       const auto & x = accessValueConstCast<T> (*this->dependency (0));
-      cwise (result) = log (cwise (x));
+      result = log (cwise (x));
     }
 
     Dimension<T> targetDimension_;
@@ -1436,7 +1436,7 @@ namespace bpp {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
       const auto & x = accessValueConstCast<T> (*this->dependency (0));
-      cwise (result) = exp (cwise (x));
+      result = exp (cwise (x));
     }
 
     Dimension<T> targetDimension_;
@@ -1522,7 +1522,7 @@ namespace bpp {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
       const auto & x = accessValueConstCast<T> (*this->dependency (0));
-      cwise (result) = factor_ * pow (cwise (x), exponent_);
+      result = factor_ * pow (cwise (x), exponent_);
     }
 
     Dimension<T> targetDimension_;
@@ -1613,22 +1613,22 @@ namespace bpp {
    * Node construction should be done with the create static method.
    */ 
 
-  template <typename F> class SumOfLogarithms : public Value<double> {
+  template <typename F> class SumOfLogarithms : public Value<DataLik> {
   public:
     using Self = SumOfLogarithms;
 
     /// Build a new SumOfLogarithms node with the given input matrix dimensions.
-    static ValueRef<double> create (Context & c, NodeRefVec && deps, const Dimension<F> & mDim) {
+    static ValueRef<DataLik> create (Context & c, NodeRefVec && deps, const Dimension<F> & mDim) {
       checkDependenciesNotNull (typeid (Self), deps);
       checkDependencyVectorMinSize (typeid (Self), deps, 1);
       checkNthDependencyIsValue<F> (typeid (Self), deps, 0);
       if (deps.size()==2)
         checkNthDependencyIsValue<Eigen::RowVectorXi>(typeid (Self), deps, 1);
-      return cachedAs<Value<double>> (c, std::make_shared<Self> (std::move (deps), mDim));
+      return cachedAs<Value<DataLik>> (c, std::make_shared<Self> (std::move (deps), mDim));
     }
 
     SumOfLogarithms (NodeRefVec && deps, const Dimension<F> & mDim)
-      : Value<double> (std::move (deps)), mTargetDimension_ (mDim) {//, temp_() {
+      : Value<DataLik> (std::move (deps)), mTargetDimension_ (mDim) {//, temp_() {
 //         if (dependencies().size()==2)
 //         {
 //           const auto & p = accessValueConstCast<Eigen::VectorXi> (*this->dependency (1));
@@ -1862,7 +1862,7 @@ namespace bpp {
       else
       {
         T0 v2;
-        cwise(v2) = exp(cwise(v - T0::Constant(mTargetDimension_.rows, mTargetDimension_.cols, M)));
+        v2 = exp(cwise(v - T0::Constant(mTargetDimension_.rows, mTargetDimension_.cols, M)));
         auto ve = v2.dot(p);
         result=log(ve) + M;
       }
@@ -2067,7 +2067,7 @@ namespace bpp {
       auto & result = this->accessValueMutable ();
       const auto & delta = accessValueConstCast<double> (*this->dependency (0));
       const auto & x = accessValueConstCast<T> (*this->dependency (1));
-      cwise (result) = n_ * delta + cwise (x);
+      result = n_ * delta + cwise (x);
     }
 
     Dimension<T> targetDimension_;

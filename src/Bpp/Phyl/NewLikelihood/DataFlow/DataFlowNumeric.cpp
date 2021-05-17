@@ -66,6 +66,7 @@ namespace bpp {
 
   template void copyBppToEigen(const bpp::Matrix<double>&, Eigen::MatrixXd&);
   template void copyBppToEigen<ExtendedFloatMatrixXd>(const bpp::Matrix<double>&, ExtendedFloatMatrixXd&);
+
   
   void copyBppToEigen (const std::vector<ExtendedFloatVectorXd>& bppVector, ExtendedFloatMatrixXd & eigenVector)
   {
@@ -100,6 +101,9 @@ namespace bpp {
   /*****************************************/
   /* copyEigenToBpp */
 
+  template void copyEigenToBpp(const MatrixLik & eigenMatrix, std::vector<std::vector<double>> & bppMatrix);
+  template void copyEigenToBpp(const MatrixLik & eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>> & bppMatrix);
+
   void copyEigenToBpp (const MatrixLik & eigenMatrix, bpp::Matrix<double> & bppMatrix)
   {
     const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
@@ -113,35 +117,11 @@ namespace bpp {
     }
   } 
   
-  void copyEigenToBpp (const MatrixLik & eigenMatrix, VVdouble& bppMatrix)
-  {
-    const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
-    const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
+  template void copyEigenToBpp (const RowLik& eigenVector, Vdouble& bppVector);
+  template void copyEigenToBpp (const VectorLik& eigenVector, Vdouble& bppVector);
+  template void copyEigenToBpp (const RowLik& eigenVector, std::vector<ExtendedFloat>& bppVector);
+  template void copyEigenToBpp (const VectorLik& eigenVector, std::vector<ExtendedFloat>& bppVector);
 
-    bppMatrix.resize (eigenRows);
-    for (size_t i = 0; i < eigenRows; ++i) {
-      bppMatrix[i].resize (eigenCols);
-      auto bMi = &bppMatrix[i];
-      for (size_t j = 0; j < eigenCols; ++j) {
-        (*bMi)[j] = convert(eigenMatrix (static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j)));
-      }
-    }
-  }
-
-
-  void copyEigenToBpp (const RowLik& eigenVector, bpp::Vdouble& bppVector)
-  {
-    bppVector.resize(size_t(eigenVector.size()));
-    for (auto i=0; i<eigenVector.size(); i++)
-      bppVector[(size_t)i]=convert(eigenVector(i));
-  }
-
-  void copyEigenToBpp (const VectorLik& eigenVector, bpp::Vdouble& bppVector)
-  {
-    bppVector.resize(size_t(eigenVector.size()));
-    for (auto i=0; i<eigenVector.size(); i++)
-      bppVector[(size_t)i]=convert(eigenVector(i));
-  }
 
   /***************************************************/
   /*  to string  */

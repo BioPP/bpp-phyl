@@ -353,7 +353,7 @@ namespace bpp {
      *@return 2D-vector sites x classes
      */
     
-    VVdouble getLikelihoodPerSitePerClass() const;
+    VVDataLik getLikelihoodPerSitePerClass() const;
     
     std::vector<size_t> getClassWithMaxPostProbPerSite() const;
 

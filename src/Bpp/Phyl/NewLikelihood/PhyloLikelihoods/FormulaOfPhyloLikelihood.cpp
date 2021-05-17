@@ -109,17 +109,17 @@ std::string FormulaOfPhyloLikelihood::output() const
   return compTree_->output();
 }
 
-ValueRef<double> FormulaOfPhyloLikelihood::makeLikelihoodsFromOperator(std::shared_ptr<Operator> op)
+ValueRef<DataLik> FormulaOfPhyloLikelihood::makeLikelihoodsFromOperator(std::shared_ptr<Operator> op)
 {
   auto cst = dynamic_pointer_cast<ConstantOperator>(op);
   if (cst)
-    return NumericConstant<double>::create(context_, cst->getValue());
+    return NumericConstant<DataLik>::create(context_, cst->getValue());
 
   auto neg = dynamic_pointer_cast<NegativeOperator>(op);
   if (neg)
   {
     auto sonDF = makeLikelihoodsFromOperator(neg->getSon());
-    return CWiseNegate<double>::create(context_, {sonDF}, Dimension<double> ());
+    return CWiseNegate<DataLik>::create(context_, {sonDF}, Dimension<DataLik> ());
   }
 
   auto bin = dynamic_pointer_cast<BinaryOperator>(op);
@@ -131,18 +131,18 @@ ValueRef<double> FormulaOfPhyloLikelihood::makeLikelihoodsFromOperator(std::shar
     switch(bin->getSymbol())
     {
     case '+':
-      return CWiseAdd<double, std::tuple<double, double>>::create(context_, {left, right}, Dimension<double> ());
+      return CWiseAdd<DataLik, std::tuple<DataLik, DataLik>>::create(context_, {left, right}, Dimension<DataLik> ());
     case '-':
-      return CWiseSub<double, std::tuple<double, double>>::create(context_, {left, right}, Dimension<double> ());
+      return CWiseSub<DataLik, std::tuple<DataLik, DataLik>>::create(context_, {left, right}, Dimension<DataLik> ());
     case '/':
       {
-        auto inv = CWiseInverse<double>::create(context_, {right}, Dimension<double> ());
-        return CWiseMul<double, std::tuple<double, double>>::create(context_, {left, inv}, Dimension<double> ());
+        auto inv = CWiseInverse<DataLik>::create(context_, {right}, Dimension<DataLik> ());
+        return CWiseMul<DataLik, std::tuple<DataLik, DataLik>>::create(context_, {left, inv}, Dimension<DataLik> ());
       }
     case '*':
-      return CWiseMul<double, std::tuple<double, double>>::create(context_, {left, right}, Dimension<double> ());
+      return CWiseMul<DataLik, std::tuple<DataLik, DataLik>>::create(context_, {left, right}, Dimension<DataLik> ());
     default:
-      return NumericConstant<double>::create(context_, 0);
+      return NumericConstant<DataLik>::create(context_, 0);
     }
   }
   
@@ -152,9 +152,9 @@ ValueRef<double> FormulaOfPhyloLikelihood::makeLikelihoodsFromOperator(std::shar
     auto sonDF = makeLikelihoodsFromOperator(mat->getSon());
     auto name = mat->getName();
     if (name=="exp")
-      return CWiseExp<double>::create(context_, {sonDF}, Dimension<double> ());
+      return CWiseExp<DataLik>::create(context_, {sonDF}, Dimension<DataLik> ());
     else if (name=="log")
-      return CWiseLog<double>::create(context_, {sonDF}, Dimension<double> ());
+      return CWiseLog<DataLik>::create(context_, {sonDF}, Dimension<DataLik> ());
     else
       throw Exception("FormulaOfPhyloLikelihood::Makelikelihoodsfromoperator : unknown function " + name + ". Ask developpers.");
   }

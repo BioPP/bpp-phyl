@@ -129,7 +129,7 @@ namespace bpp
      * @return A vector with all site likelihoods.
      */
     
-    virtual Vdouble getLikelihoodPerSite() const = 0;
+    virtual VDataLik getLikelihoodPerSite() const = 0;
 
 /** @} */
 
@@ -186,7 +186,9 @@ namespace bpp
 
     double getLogLikelihoodForASite(size_t site) const
     {
-      return getAlignedLikelihoodCalculation()->getLogLikelihoodForASite(site);
+      using namespace numeric;
+
+      return convert(getAlignedLikelihoodCalculation()->getLogLikelihoodForASite(site));
     }
 
     /**
@@ -196,7 +198,7 @@ namespace bpp
      *
      */
 
-    Vdouble getLikelihoodPerSite() const
+    VDataLik getLikelihoodPerSite() const
     {
       return getAlignedLikelihoodCalculation()->getLikelihoodPerSite();
     }
