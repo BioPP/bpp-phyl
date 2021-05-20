@@ -1680,8 +1680,12 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   KeyvalTools::parseProcedure(procDesc, procName, args);
 
   if ((procName != "OnePerBranch") && (procName != "Homogeneous") && (procName != "Nonhomogeneous") &&  (procName != "NonHomogeneous"))
-    return 0;
+  {
+    if (warn)
+      ApplicationTools::displayWarning("Warning, unknown process name: " + procName);
 
+    return 0;
+  }
 
   // ///
   // tree number
