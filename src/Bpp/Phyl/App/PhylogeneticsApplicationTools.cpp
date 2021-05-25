@@ -2354,13 +2354,19 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
     size_t nData = (args.find("data") == args.end()? 1: (size_t)TextTools::toInt(args["data"]));
     
     if (mData.find(nData) == mData.end())
-      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:", (int)nData);
+    {
+      ApplicationTools::displayWarning("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:" + TextTools::toString(nData) + ". Not built.");
+      continue;
+    }
 
     const AlignedValuesContainer* data = dynamic_cast<const AlignedValuesContainer*>(mData.find(nData)->second);
 
     if (!data)
-      throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences");
-
+    {
+      ApplicationTools::displayWarning("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences. Not built.");
+      continue;
+    }
+    
     if (verbhere)
       ApplicationTools::displayResult(" Data used ", TextTools::toString(nData));
 
