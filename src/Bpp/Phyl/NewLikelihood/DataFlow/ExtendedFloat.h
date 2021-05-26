@@ -120,7 +120,7 @@ namespace bpp {
     void normalize_big () noexcept {
       if (std::isfinite (f_)) {
         while (std::abs(f_) > biggest_normalized_value) {
-          f_ *= normalize_big_factor;
+          f_ *= (double)normalize_big_factor;
           exp_ += biggest_normalized_radix_power;
         }
       }
@@ -129,7 +129,7 @@ namespace bpp {
     void normalize_small () {
       if (f_!=0) {
         while (std::abs(f_) < smallest_normalized_value) {
-        f_ *= normalize_small_factor;
+        f_ *= (double)normalize_small_factor;
         exp_ += smallest_normalized_radix_power;
         }
       }
