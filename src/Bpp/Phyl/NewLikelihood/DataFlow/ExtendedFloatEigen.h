@@ -321,7 +321,7 @@ namespace bpp {
       
       if (isfinite(float_part().cwiseAbs().maxCoeff())) {
         while (float_part().cwiseAbs().maxCoeff() > ExtendedFloat::biggest_normalized_value) {
-          float_part() *= ExtendedFloat::normalize_big_factor;
+          float_part() *= (double)ExtendedFloat::normalize_big_factor;
           exp_ += ExtendedFloat::biggest_normalized_radix_power;
         }
       }
@@ -330,7 +330,7 @@ namespace bpp {
     void normalize_small () {
       if (float_part().cwiseAbs().minCoeff()!=0) {
         while (float_part().cwiseAbs().minCoeff() < ExtendedFloat::smallest_normalized_value) {
-          float_part() *= ExtendedFloat::normalize_small_factor;
+          float_part() *= (double)ExtendedFloat::normalize_small_factor;
           exp_ -= ExtendedFloat::biggest_normalized_radix_power;
         }
       }
