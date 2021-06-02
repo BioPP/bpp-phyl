@@ -157,11 +157,6 @@ std::string TransitionMatrixFromModel::debugInfo () const {
   using namespace numeric;
   const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
   auto ret = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) + ":nDeriv=" + TextTools::toString(nDeriv);
-  if (nbDependencies()>=5 && this->dependency (4))
-  {
-    auto factor = accessValueConstCast<uint> (*this->dependency (4));
-    ret += ":factor=" +  TextTools::toString(factor);
-  }
   return ret;
 }
 
@@ -176,14 +171,13 @@ NodeRef TransitionMatrixFromModel::derive (Context & c, const Node_DF & node) {
   auto brlenDep = this->dependency (1);
   NodeRef derivNode = this->dependency (2);
   NodeRef subNode = nbDependencies()<4?0:this->dependency (3);
-  NodeRef factorNode = nbDependencies()<5?0:this->dependency (4);
 
   const auto nDeriv = accessValueConstCast<size_t> (*derivNode);
 
   // Model part
   auto & model = static_cast<Dep &> (*modelDep);
-  auto buildFWithNewModel = [this, &c, &brlenDep, &derivNode, &subNode, &factorNode](NodeRef && newModel) {
-    return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep, derivNode, subNode, factorNode}, targetDimension_);
+  auto buildFWithNewModel = [this, &c, &brlenDep, &derivNode, &subNode](NodeRef && newModel) {
+    return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep, derivNode, subNode}, targetDimension_);
   };
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
     c, model, node, targetDimension_, buildFWithNewModel);
@@ -193,7 +187,7 @@ NodeRef TransitionMatrixFromModel::derive (Context & c, const Node_DF & node) {
     auto nDerivp=NumericConstant<size_t>::create(c, nDeriv+1);
 
     auto df_dbrlen =
-      ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModel>(c, {modelDep, brlenDep, nDerivp, subNode, factorNode}, targetDimension_);
+      ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModel>(c, {modelDep, brlenDep, nDerivp, subNode}, targetDimension_);
     derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
                                       c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
   }
@@ -253,12 +247,6 @@ void TransitionMatrixFromModel::compute () {
     }
   }
 
-  if (this->nbDependencies()>=5 && this->dependency(4))
-  {
-    uint factor = accessValueConstCast<uint> (*this->dependency (4));
-    r *= factor;
-  }
-
 }
 
 ////////////////////////////////////////////////////////////
@@ -272,11 +260,6 @@ std::string TransitionFunctionFromModel::debugInfo () const {
   using namespace numeric;
   const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
   auto ret = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) + ":nDeriv=" + TextTools::toString(nDeriv);
-  if (this->nbDependencies()>=4 && this->dependency (3))
-  {
-    auto factor = accessValueConstCast<uint> (*this->dependency (3));
-    ret += ":factor=" +  TextTools::toString(factor);
-  }
   return ret;
 }
 
@@ -339,19 +322,17 @@ void TransitionFunctionFromModel::compute () {
   const auto * model = accessValueConstCast<const BranchModel *> (*this->dependency (0));
   const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
 
-  uint factor = (this->nbDependencies()>=4 && this->dependency(3))?accessValueConstCast<uint> (*this->dependency (3)):1;
-  
   auto & r = this->accessValueMutable ();
 
-  r = [model, brlen, nDeriv, factor](const Eigen::VectorXd& values)
+  r = [model, brlen, nDeriv](const Eigen::VectorXd& values)
     {
       switch(nDeriv){
       case 0:
-      return factor * model->Lik_t(values, brlen);
+      return model->Lik_t(values, brlen);
       case 1:
-      return factor * model->dLik_dt(values, brlen);
+      return model->dLik_dt(values, brlen);
       case 2:
-      return factor * model->d2Lik_dt2(values, brlen);
+      return model->d2Lik_dt2(values, brlen);
       default:
       throw Exception("TransitionFunctionFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
       }

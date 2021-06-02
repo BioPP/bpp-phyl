@@ -143,17 +143,6 @@ namespace bpp
         return vLikCal_[p]->getLikelihoodForASite(site);
       }
 
-      /**
-       * @brief Set a factor for likelihood computation
-       *
-       */
-
-      void setFactor(uint factor)
-      {
-        for (auto& lik : vLikCal_)
-          lik->setFactor(factor);
-      }
-      
       VVdouble getLikelihoodPerSitePerProcess() const;
 
       /*

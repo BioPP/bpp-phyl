@@ -79,14 +79,14 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
   {
     if (dynamic_cast<const TransitionModel*>(model->getTargetValue()))
     {
-      auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, zero, nMod, factorNode_}, transitionMatrixDimension (size_t(nbState_)));
+      auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, zero, nMod}, transitionMatrixDimension (size_t(nbState_)));
       
       processEdge->setTransitionMatrix(transitionMatrix);
       forwardEdge = ForwardTransition::create (
         context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
     }
     else{
-      auto transitionFunction = TransitionFunctionFromModel::create(context_, {model, brlen, zero, factorNode_}, transitionFunctionDimension(nbState_));
+      auto transitionFunction = TransitionFunctionFromModel::create(context_, {model, brlen, zero}, transitionFunctionDimension(nbState_));
       
       forwardEdge = ForwardTransitionFunction::create(context_ , {childConditionalLikelihood, transitionFunction}, likelihoodMatrixDim_);
     }

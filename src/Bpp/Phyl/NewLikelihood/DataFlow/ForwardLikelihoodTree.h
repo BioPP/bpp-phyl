@@ -138,13 +138,6 @@ namespace bpp
     Eigen::Index nbState_;
     Eigen::Index nbSites_;
 
-    /*
-     * @brief Factor to multiply transition probabilities (default: 0,
-     * which means no multiplication factor).
-     */
-    
-    ValueRef<uint> factorNode_;
-    
     /* Map of the indexes of nodes between species tree and
      * likelihood tree */
 
@@ -158,10 +151,9 @@ namespace bpp
       
     ForwardLikelihoodTree(Context& c, 
                           std::shared_ptr<ProcessTree> tree,
-                          const StateMap& statemap,
-                          ValueRef<uint> factorNode) :
+                          const StateMap& statemap) :
       DAClass(),
-      context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0), factorNode_(factorNode)
+      context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0)
     {
     }
 
