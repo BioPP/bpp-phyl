@@ -2610,7 +2610,11 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
 
   if (mPhylo->getNumbersOfPhyloLikelihoods().size() == 0)
-    throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : No phyloLikelihoods described");
+  {
+    if (warn)
+      ApplicationTools::displayMessage("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : No phyloLikelihoods described");
+    return mPhylo;
+  }
 
   // get the result phylogeny => with number 0 in the
   // PhyloLikelihoodContainer
