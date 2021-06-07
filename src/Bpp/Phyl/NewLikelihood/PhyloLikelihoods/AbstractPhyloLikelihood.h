@@ -182,11 +182,6 @@ namespace bpp
 
       
       minusLogLik_=-getLikelihoodNode()->getTargetValue();
-      if (std::isinf(minusLogLik_))
-      {
-        getLikelihoodCalculation()->fixFactor(getLikelihoodNode());
-        minusLogLik_=-getLikelihoodNode()->getTargetValue();
-      }
       return minusLogLik_;
     }
 

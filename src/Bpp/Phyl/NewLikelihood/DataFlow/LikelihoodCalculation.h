@@ -121,11 +121,6 @@ namespace bpp {
      *
      */
     
-    virtual void fixFactor(ValueRef<double> valRef)
-    {
-      throw Exception("LikelihoodCalculation::fixFactor not implemented.");
-    }
-    
   protected:
 
     /* @brief Build the likelihood DF  */

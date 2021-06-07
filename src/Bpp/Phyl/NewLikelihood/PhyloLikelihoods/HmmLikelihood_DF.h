@@ -226,11 +226,6 @@ namespace bpp {
       return vec.dot(hmmEmis_->accessValueConst().col(Eigen::Index(site)));
     }
 
-    void fixFactor(ValueRef<double> valRef)
-    {
-      throw Exception("HmmLikelihood_DF::fixFactor not implemented");
-    }
-    
   };
 
 }
