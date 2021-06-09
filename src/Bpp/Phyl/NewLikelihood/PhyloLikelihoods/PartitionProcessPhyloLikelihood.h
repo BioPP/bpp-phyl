@@ -151,20 +151,6 @@ namespace bpp
   
       void setData(const AlignedValuesContainer& data, size_t nData = 0);
 
-      /**
-       * @brief Set a factor for likelihood computation
-       *
-       */
-
-      void setFactor(uint factor)
-      {
-        for (const auto& num: getNumbersOfPhyloLikelihoods())
-        {
-          auto* lsp=dynamic_cast<SingleProcessPhyloLikelihood*>(getPhyloLikelihood(num));
-          lsp->setFactor(factor);
-        }
-      }
-      
       /*
        * @brief Get PhyloLikelihood Number for a given site.
        * @param siteIndex the index of the site

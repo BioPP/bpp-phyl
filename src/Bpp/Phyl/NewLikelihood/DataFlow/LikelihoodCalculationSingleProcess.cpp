@@ -23,12 +23,11 @@ using namespace Eigen;
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
                                                                        const AlignedValuesContainer & sites,
-                                                                       const SubstitutionProcess& process, 
-                                                                       uint factor):
+                                                                       const SubstitutionProcess& process):
   AlignedLikelihoodCalculation(context), process_(process), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(NumericMutable<uint>::create(getContext_(), factor))
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
   makeProcessNodes_();
@@ -38,13 +37,12 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
 }
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
-                                                                       const SubstitutionProcess& process,
-                                                                       uint factor):
+                                                                       const SubstitutionProcess& process):
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(NumericMutable<uint>::create(getContext_(), factor))
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   makeProcessNodes_();
 
@@ -55,13 +53,12 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
                                                                        const AlignedValuesContainer & sites,
                                                                        const SubstitutionProcess& process,
-                                                                       ParameterList& paramList, 
-                                                                       uint factor):
+                                                                       ParameterList& paramList):
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(NumericMutable<uint>::create(getContext_(), factor))
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
   makeProcessNodes_(paramList);
@@ -73,13 +70,12 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
                                                                        const SubstitutionProcess& process,
-                                                                       ParameterList& paramList,
-                                                                       uint factor):
+                                                                       ParameterList& paramList):
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(NumericMutable<uint>::create(getContext_(), factor))
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   makeProcessNodes_(paramList);
 
@@ -90,12 +86,11 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                                                        const AlignedValuesContainer & sites,
-                                                                       size_t nProcess,
-                                                                       uint factor):
+                                                                       size_t nProcess):
   AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(NumericMutable<uint>::create(getContext_(), factor))
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
   makeProcessNodes_(collection, nProcess);
@@ -106,12 +101,11 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
 
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                                                       size_t nProcess, 
-                                                                       uint factor):
+                                                                       size_t nProcess):
   AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(NumericMutable<uint>::create(getContext_(), factor))
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   makeProcessNodes_(collection, nProcess);
 
@@ -125,7 +119,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
   process_(lik.process_), psites_(lik.psites_),
   rootPatternLinks_(lik.rootPatternLinks_), rootWeights_(), shrunkData_(lik.shrunkData_),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0), factorNode_(lik.factorNode_)
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
   makeProcessNodes_();
@@ -367,39 +361,6 @@ void LikelihoodCalculationSingleProcess::setClockLike(double rate)
   shareParameter_(rateNode);
 }
 
-
-void LikelihoodCalculationSingleProcess::setFactor(uint factor)
-{
-  if (factor>=1)
-    factorNode_->setValue(factor);
-  else
-    throw BadIntegerException("LikelihoodCalculationSingleProcess::setFactor should be >=1",(int)factor);
-}
-
-void LikelihoodCalculationSingleProcess::fixFactor(ValueRef<DataLik> valRef)
-{
-  // uint fact0 = factorNode_->getTargetValue();
-  // auto val = valRef->getTargetValue();
-
-  // uint cpt = 0; // to prevent infinite loop
-  
-  // while (isinf(val) && val<0 && (cpt++<20))
-  // {
-  //   setFactor(factorNode_->getTargetValue()+1);
-  //   val = valRef->getTargetValue();
-  // }
-      
-  // while (isinf(val) && val>0 && factorNode_->getTargetValue()>1  && (cpt++<20)){
-  //   setFactor(factorNode_->getTargetValue()-1);
-  //   val = valRef->getTargetValue();
-  // }
-
-  // if (!std::isnormal(val)){
-  //   cout << "Warning:: LikelihoodCalculationSingleProcess:fixFactor can not fix Likelihood, still not normal." << endl;
-  //   setFactor(fact0);
-  // }
-}
-
 RowLik LikelihoodCalculationSingleProcess::getSiteLikelihoodsForAClass(size_t nCat, bool shrunk)
 {  
   if (shrunk)
@@ -470,7 +431,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
       
       vRateCatTrees_[nCat].phyloTree=treeCat;      
 
-      auto flt=std::make_shared<ForwardLikelihoodTree>(getContext_(), treeCat, getStateMap(), factorNode_);
+      auto flt=std::make_shared<ForwardLikelihoodTree>(getContext_(), treeCat, getStateMap());
 
       if (getShrunkData())
         flt->initialize(*getShrunkData());
@@ -484,7 +445,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
     vRateCatTrees_.resize(1);
     vRateCatTrees_[0].phyloTree=processNodes_.treeNode_;
 
-    auto flt=std::make_shared<ForwardLikelihoodTree >(getContext_(), processNodes_.treeNode_, processNodes_.modelNode_->getTargetValue()->getStateMap(), factorNode_);
+    auto flt=std::make_shared<ForwardLikelihoodTree >(getContext_(), processNodes_.treeNode_, processNodes_.modelNode_->getTargetValue()->getStateMap());
 
     if (getShrunkData())
       flt->initialize(*getShrunkData());
@@ -548,20 +509,9 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   else
     val = SumOfLogarithms<RowLik>::create (getContext_(), {sL}, RowVectorDimension (Eigen::Index (nbDistSite)));
 
-  // Factor used for transition matrices in ForwardLikelihoodTree. 
-
-  auto convF = Convert<double, uint>::create(getContext_(), {factorNode_}, Dimension<double>());
-    
   auto nbE =  NumericConstant<uint>::create(getContext_(), (uint)process_.getParametrizablePhyloTree().getNumberOfEdges());
 
-  auto logFactor = CWiseMul<double, tuple<double, uint>>::create(getContext_(), {CWiseLog<double>::create(getContext_(), {convF}, Dimension<double>()), nbE}, Dimension<double>());
-
-  auto lgNode=NumericConstant<uint>::create(getContext_(), (uint)getNumberOfSites());  
-
-  auto logS = CWiseMul<double, std::tuple<double, uint>>::create(getContext_(),{logFactor,lgNode}, Dimension<double>());
-
-  
-  setLikelihoodNode(CWiseSub<DataLik, std::tuple<DataLik,double>>::create(getContext_(), {val, logS}, Dimension<DataLik>()));
+  setLikelihoodNode(val);
   
   
 // using bpp::DotOptions;
