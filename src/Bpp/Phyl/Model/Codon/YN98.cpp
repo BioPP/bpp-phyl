@@ -56,7 +56,7 @@ YN98::YN98(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   computeFrequencies(false);
   
   addParameter_(new Parameter("YN98.kappa", 1, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("YN98.omega", 1, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 999, true, true)));
+  addParameter_(new Parameter("YN98.omega", 1, std::make_shared<IntervalConstraint>(0.002, 999, true, true)));
 
   pmodel_->setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());

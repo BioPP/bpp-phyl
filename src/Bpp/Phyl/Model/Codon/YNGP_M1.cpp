@@ -98,7 +98,7 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
     }
   }
 
-  addParameter_(new Parameter("YNGP_M1.omega", 0.5, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 1, true, false, NumConstants::MILLI())));
+  addParameter_(new Parameter("YNGP_M1.omega", 0.5, std::make_shared<IntervalConstraint>(0.002, 1, true, false, 0.002)));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)
