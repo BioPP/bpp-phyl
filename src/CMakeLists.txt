@@ -8,6 +8,7 @@
 # File list
 set (CPP_FILES
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
+  Bpp/Phyl/App/BppPhylogeneticsApplication.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp
   Bpp/Phyl/Distance/DistanceEstimation.cpp

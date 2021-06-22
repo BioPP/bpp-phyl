@@ -188,7 +188,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
- 
+
 map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
   const map<string, string>& params,
   const map<size_t, AlignedValuesContainer*>& mSeq,
@@ -465,7 +465,7 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
   return mTree;
 }
 
-map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloTrees(
+map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhyloTrees(
   const map<string, string>& params,
   const map<size_t, AlignedValuesContainer*>& mSeq,
   map<string, string>& unparsedParams,
@@ -477,7 +477,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
 {
   vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
-  map<size_t, std::shared_ptr<PhyloTree>> mTree;
+  map<size_t, std::shared_ptr<PhyloTree> > mTree;
 
   for (size_t nT = 0; nT < vTreesName.size(); nT++)
   {
@@ -586,7 +586,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
     else if (treeName == "random")
     {
       throw Exception("Random Phylotrees not defined yet. Ask developpers.");
-      
+
       size_t seqNum;
 
       if (args.find("data") == args.end())
@@ -696,7 +696,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
           double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
           ApplicationTools::displayResult("Grafen's rho", rho);
           PhyloTreeTools::computeBranchLengthsGrafen(*tree, rho);
-  
+
           double nh = PhyloTreeTools::getHeight(*tree, tree->getRoot());
           tree->scaleTree(h / nh);
         }
@@ -716,7 +716,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
 
         double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
         ApplicationTools::displayResult("Grafen's rho", rho);
-                  
+
         PhyloTreeTools::computeBranchLengthsGrafen(*tree, rho);
         double nh = PhyloTreeTools::getHeight(*tree, tree->getRoot());
 
@@ -737,7 +737,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
 
       if (TextTools::isDecimalInteger(apeq))
       {
-        shared_ptr<PhyloBranch> branch=mTree[num]->getEdgeToFather(mTree[num]->getNode(static_cast<PhyloTree::NodeIndex> (TextTools::toInt(aveq.substr(5, string::npos)))));
+        shared_ptr<PhyloBranch> branch = mTree[num]->getEdgeToFather(mTree[num]->getNode(static_cast<PhyloTree::NodeIndex>(TextTools::toInt(aveq.substr(5, string::npos)))));
         if (branch)
           branch->setLength(TextTools::toDouble(apeq));
       }
@@ -822,11 +822,11 @@ BranchModel* PhylogeneticsApplicationTools::getBranchModel(
   unparsedParams.insert(tmpUnparsedParameterValues.begin(), tmpUnparsedParameterValues.end());
 
   return model;
-}      
+}
 
 /******************************************************************************/
 
-map<size_t, std::shared_ptr<DiscreteDistribution>> PhylogeneticsApplicationTools::getRateDistributions(
+map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTools::getRateDistributions(
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -844,7 +844,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution>> PhylogeneticsApplicationTools
   vector<string> vratesName = ApplicationTools::matchingParameters("rate_distribution*", paramDist);
 
   BppORateDistributionFormat bIO(true);
-  map<size_t, std::shared_ptr<DiscreteDistribution>> mDist;
+  map<size_t, std::shared_ptr<DiscreteDistribution> > mDist;
 
 
   for (size_t i = 0; i < vratesName.size(); i++)
@@ -878,7 +878,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution>> PhylogeneticsApplicationTools
   if (mDist.size() == 0)
   {
     string distDescription = ApplicationTools::getStringParameter("rate_distribution", paramDist, "Constant()", suffix, suffixIsOptional);
-    mDist[0]= std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
+    mDist[0] = std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
   return mDist;
@@ -889,7 +889,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution>> PhylogeneticsApplicationTools
 /******* MODELS **********************************************/
 /*************************************************************/
 
-map<size_t, std::shared_ptr<BranchModel>> PhylogeneticsApplicationTools::getBranchModels(
+map<size_t, std::shared_ptr<BranchModel> > PhylogeneticsApplicationTools::getBranchModels(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const map<size_t, AlignedValuesContainer*>& mData,
@@ -922,18 +922,18 @@ map<size_t, std::shared_ptr<BranchModel>> PhylogeneticsApplicationTools::getBran
       modelsNum.push_back((size_t) TextTools::toInt(name.substr(5, poseq - 5)));
   }
 
-  map<size_t, std::shared_ptr<BranchModel>> mModel;
+  map<size_t, std::shared_ptr<BranchModel> > mModel;
 
   BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn);
   bIO.setGeneticCode(gCode);
 
   for (size_t i = 0; i < modelsNum.size(); i++)
   {
-    if (i>=10)
+    if (i >= 10)
     {
       bIO.setVerbose(false);
-      warn=10;
-      if (i==10)
+      warn = 10;
+      if (i == 10)
         ApplicationTools::displayMessage("");
       ApplicationTools::displayResult("Model " + TextTools::toString(modelsNum[i]), string("..."));
     }
@@ -942,7 +942,7 @@ map<size_t, std::shared_ptr<BranchModel>> PhylogeneticsApplicationTools::getBran
       ApplicationTools::displayMessage("");
       ApplicationTools::displayMessage("Model " + TextTools::toString(modelsNum[i]));
     }
-    
+
     string modelDescription = ApplicationTools::getStringParameter("model" + TextTools::toString(modelsNum[i]), paramModel, "", suffix, suffixIsOptional, warn);
 
     map<string, string> args;
@@ -955,17 +955,19 @@ map<size_t, std::shared_ptr<BranchModel>> PhylogeneticsApplicationTools::getBran
     if (args.find("data") != args.end())
       nData = (size_t) TextTools::toInt(args["data"]);
 
-    
+
     shared_ptr<BranchModel> model;
-    if (args.find("data") != args.end() && mData.find(nData)!= mData.end())
+    if (args.find("data") != args.end() && mData.find(nData) != mData.end())
       model = shared_ptr<BranchModel>(bIO.readBranchModel(alphabet, modelDescription, mData.find(nData)->second, true));
     else
       model = shared_ptr<BranchModel>(bIO.readBranchModel(alphabet, modelDescription, 0, true));
-    
+
     map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
     for (auto& it : tmpUnparsedParameterValues)
+    {
       unparsedParams[it.first + "_" + TextTools::toString(modelsNum[i])] = it.second;
+    }
 
     if (verbose)
     {
@@ -997,7 +999,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 
   if (initFreqs != "")
   {
-    auto tmodel=dynamic_cast<TransitionModel*>(&model);
+    auto tmodel = dynamic_cast<TransitionModel*>(&model);
     if (!tmodel)
       ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
     else
@@ -1013,7 +1015,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
       {
         // Initialization using the "values" argument
         map<int, double> frequencies;
-        
+
         string rf = initFreqs.substr(6);
         StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
         int i = 0;
@@ -1087,7 +1089,7 @@ std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getFrequencySet(
       throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  auto pFS=bIO.readFrequencySet(alphabet, freqDescription, data, true);
+  auto pFS = bIO.readFrequencySet(alphabet, freqDescription, data, true);
 
   map<string, string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -1096,7 +1098,7 @@ std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getFrequencySet(
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-    pFS=std::make_shared<MarkovModulatedFrequencySet>(pFS, rateFreqs);
+    pFS = std::make_shared<MarkovModulatedFrequencySet>(pFS, rateFreqs);
   }
 
   return pFS;
@@ -1128,7 +1130,9 @@ std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getRootFrequencySet
     freq->setNamespace("root." + freq->getNamespace());
 
     for (auto& it : unparams)
+    {
       sharedparams["root." + it.first] = it.second;
+    }
 
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
@@ -1137,7 +1141,7 @@ std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getRootFrequencySet
 }
 
 
-map<size_t, std::shared_ptr<FrequencySet>> PhylogeneticsApplicationTools::getRootFrequencySets(
+map<size_t, std::shared_ptr<FrequencySet> > PhylogeneticsApplicationTools::getRootFrequencySets(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const map<size_t, AlignedValuesContainer*>& mData,
@@ -1176,7 +1180,7 @@ map<size_t, std::shared_ptr<FrequencySet>> PhylogeneticsApplicationTools::getRoo
   BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, verbose, warn);
   bIO.setGeneticCode(gCode);
 
-  map<size_t, std::shared_ptr<FrequencySet>> mFS;
+  map<size_t, std::shared_ptr<FrequencySet> > mFS;
 
   for (size_t i = 0; i < rfNum.size(); i++)
   {
@@ -1200,7 +1204,9 @@ map<size_t, std::shared_ptr<FrequencySet>> PhylogeneticsApplicationTools::getRoo
     map<string, string> unparsedparam = bIO.getUnparsedArguments();
 
     for (auto& it : unparsedparam)
+    {
       sharedparams["root." + it.first + "_" + TextTools::toString(rfNum[i])] = it.second;
+    }
 
     if (verbose)
     {
@@ -1219,12 +1225,15 @@ map<size_t, std::shared_ptr<FrequencySet>> PhylogeneticsApplicationTools::getRoo
 /**** SETOFMODELPATH **********************************/
 /******************************************************/
 
-map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelPaths(
+map<size_t, std::shared_ptr<ModelPath> > PhylogeneticsApplicationTools::getModelPaths(
   const std::map<std::string, std::string>& params,
-  const map<size_t, std::shared_ptr<BranchModel>>& mModel,
-  bool verbose)
+  const map<size_t, std::shared_ptr<BranchModel> >& mModel,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn)
 {
-  string ModelPathsPath = ApplicationTools::getAFilePath("path.file", params, false, false, "", true,  "none", 1);
+  string ModelPathsPath = ApplicationTools::getAFilePath("path.file", params, false, false, suffix, suffixIsOptional,  "none", warn);
   map<string, string> paramMP;
 
   if (ModelPathsPath != "none")
@@ -1234,30 +1243,31 @@ map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelP
 
   vector<string> vmpName = ApplicationTools::matchingParameters("path*", paramMP);
 
-  map<size_t, std::shared_ptr<ModelPath>> modelPaths;
+  map<size_t, std::shared_ptr<ModelPath> > modelPaths;
 
   for (size_t i = 0; i < vmpName.size(); i++)
   {
-    const auto& name=vmpName[i];
+    const auto& name = vmpName[i];
 
     string desc = ApplicationTools::getStringParameter(name, paramMP, "", "", true);
 
     size_t num;
-    try{
-      num=size_t(TextTools::toInt(name.substr(4)));
+    try
+    {
+      num = TextTools::to<size_t>(name.substr(4));
     }
     catch (const Exception& e)
     {
       throw Exception("PhylogeneticsApplicationTools::getModelPaths: bad path number in line " + name);
     }
 
-    modelPaths[num]=std::make_shared<ModelPath>();
+    modelPaths[num] = std::make_shared<ModelPath>();
 
     if (verbose)
     {
       if (i >= 10)
       {
-        if (i==10)
+        if (i == 10)
           ApplicationTools::displayMessage("");
         ApplicationTools::displayResult("Path " + TextTools::toString(num), string("..."));
       }
@@ -1267,7 +1277,7 @@ map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelP
         ApplicationTools::displayMessage("Path " + TextTools::toString(num));
       }
     }
-    
+
     StringTokenizer st(desc, "&");
     while (st.hasMoreToken())
     {
@@ -1278,47 +1288,48 @@ map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelP
       if ((indexo == string::npos) | (indexf == string::npos))
         throw Exception("PhylogeneticsApplicationTools::getModelPaths. Bad path syntax, should contain `[]' symbols: " + submodel);
 
-      auto pos=submodel.find("model");
-      if (pos==string::npos)
+      auto pos = submodel.find("model");
+      if (pos == string::npos)
         throw Exception("PhylogeneticsApplicationTools::getModelPaths. Missing identifier 'model' in description: " + submodel);
-        
-      size_t num2 = TextTools::to<size_t>(submodel.substr(pos+5, indexo - 5 - pos));
-      if (mModel.find(num2)==mModel.end())
+
+      size_t num2 = TextTools::to<size_t>(submodel.substr(pos + 5, indexo - 5 - pos));
+      if (mModel.find(num2) == mModel.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::getModelPaths: Wrong model number", static_cast<int>(num2));
-      
+
       auto pSM = std::dynamic_pointer_cast<MixedTransitionModel>(mModel.at(num2));
       if (!pSM)
-        throw Exception("PhylogeneticsApplicationTools::getModelPaths: Model number "+ TextTools::toString(num2) + " ( " + mModel.at(num2)->getName() + " ) is not Mixed.");
-      
-      string lp2 = submodel.substr(indexo + 1, indexf - indexo - 1);      
+        throw Exception("PhylogeneticsApplicationTools::getModelPaths: Model number " + TextTools::toString(num2) + " ( " + mModel.at(num2)->getName() + " ) is not Mixed.");
+
+      string lp2 = submodel.substr(indexo + 1, indexf - indexo - 1);
       StringTokenizer stp2(lp2, ",");
       while (stp2.hasMoreToken())
       {
-        string p2=stp2.nextToken();
+        string p2 = stp2.nextToken();
 
         uint n2;
-        bool n2ok=true;
-        try  {
-          n2=TextTools::to<uint>(p2);
-          if (n2<=0 || n2>pSM->getNumberOfModels())
-            n2ok=false;
+        bool n2ok = true;
+        try
+        {
+          n2 = TextTools::to<uint>(p2);
+          if (n2 <= 0 || n2 > pSM->getNumberOfModels())
+            n2ok = false;
           else
-            submodelNb.push_back(n2-1);
+            submodelNb.push_back(n2 - 1);
         }
         catch (Exception& e)
         {
           Vuint submodnb = pSM->getSubmodelNumbers(p2);
-          if (submodelNb.size()==0)
-            submodelNb=submodnb;
+          if (submodelNb.size() == 0)
+            submodelNb = submodnb;
           else
-            submodelNb=VectorTools::vectorIntersection(submodelNb,submodnb);
+            submodelNb = VectorTools::vectorIntersection(submodelNb, submodnb);
         }
 
         if (!n2ok)
           throw BadIntegerException("PhylogeneticsApplicationTools::getModelPaths: Wrong model number for model " + TextTools::toString(num2), int(n2));
       }
 
-      modelPaths[num]->setModel(pSM,submodelNb);
+      modelPaths[num]->setModel(pSM, submodelNb);
       if (!modelPaths[num]->getLeadModel())
         modelPaths[num]->setLeadModel(pSM);
     }
@@ -1326,18 +1337,21 @@ map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelP
     if (verbose &&  (i < 10))
       ApplicationTools::displayResult("Model Path", desc);
   }
-  
+
   return modelPaths;
 }
 
 
-map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getModelScenarios(
+map<size_t, std::shared_ptr<ModelScenario> > PhylogeneticsApplicationTools::getModelScenarios(
   const std::map<std::string, std::string>& params,
-  const map<size_t, std::shared_ptr<ModelPath>>& mModelPath,
-  const map<size_t, std::shared_ptr<BranchModel>>& mModel,
-  bool verbose)
+  const map<size_t, std::shared_ptr<ModelPath> >& mModelPath,
+  const map<size_t, std::shared_ptr<BranchModel> >& mModel,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn)
 {
-  string ModelPathsPath = ApplicationTools::getAFilePath("scenario.file", params, false, false, "", true,  "none", 1);
+  string ModelPathsPath = ApplicationTools::getAFilePath("scenario.file", params, false, false, suffix, suffixIsOptional,  "none", warn);
   map<string, string> paramMS;
 
   if (ModelPathsPath != "none")
@@ -1347,30 +1361,31 @@ map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
 
   vector<string> vmsName = ApplicationTools::matchingParameters("scenario*", paramMS);
 
-  map<size_t, std::shared_ptr<ModelScenario>> somp;
+  map<size_t, std::shared_ptr<ModelScenario> > somp;
 
   for (size_t i = 0; i < vmsName.size(); i++)
   {
-    const auto& name=vmsName[i];
+    const auto& name = vmsName[i];
 
-    string desc = ApplicationTools::getStringParameter(name, paramMS, "", "", true);
+    string desc = ApplicationTools::getStringParameter(name, paramMS, "", suffix, suffixIsOptional, warn);
 
     size_t num;
-    try{
-      num=size_t(TextTools::toInt(name.substr(8)));
+    try
+    {
+      num = TextTools::to<size_t>(name.substr(8));
     }
     catch (const Exception& e)
     {
       throw Exception("PhylogeneticsApplicationTools::getModelScenarios: bad scenario number in line " + name);
     }
 
-    somp[num]=std::make_shared<ModelScenario>();
+    somp[num] = std::make_shared<ModelScenario>();
 
     if (verbose)
     {
       if (i >= 10)
       {
-        if (i==10)
+        if (i == 10)
           ApplicationTools::displayMessage("");
         ApplicationTools::displayResult("Scenario " + TextTools::toString(num), string("..."));
       }
@@ -1381,41 +1396,42 @@ map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
       }
     }
 
-    bool complete=false;
+    bool complete = false;
     size_t numpath;
 
     StringTokenizer st(desc, "&");
     while (st.hasMoreToken())
-    {      
+    {
       string path = st.nextToken();
-      bool numok=true;
-      try {
-        if (path=="complete")
-          complete=true;
-        else if (path.substr(0,5)=="split")
+      bool numok = true;
+      try
+      {
+        if (path == "complete")
+          complete = true;
+        else if (path.substr(0, 5) == "split")
         {
-          auto pos=path.find("model");
-          if (pos==string::npos)
+          auto pos = path.find("model");
+          if (pos == string::npos)
             throw Exception("PhylogeneticsApplicationTools::getModelScenarios. Missing identifier 'model' in scenarion description: " + path);
 
-          auto poseq = path.find("=",pos);
-          size_t num2 = TextTools::to<size_t>(path.substr(poseq+1));
-          
-          if (mModel.find(num2)==mModel.end())
+          auto poseq = path.find("=", pos);
+          size_t num2 = TextTools::to<size_t>(path.substr(poseq + 1));
+
+          if (mModel.find(num2) == mModel.end())
             throw BadIntegerException("PhylogeneticsApplicationTools::getModelScenarios: Wrong model number", static_cast<int>(num2));
-      
+
           auto pSM = std::dynamic_pointer_cast<MixedTransitionModel>(mModel.at(num2));
           if (!pSM)
-            throw Exception("PhylogeneticsApplicationTools::getModelScenarios: Model number "+ TextTools::toString(num2) + " ( " + mModel.at(num2)->getName() + " ) is not Mixed.");
+            throw Exception("PhylogeneticsApplicationTools::getModelScenarios: Model number " + TextTools::toString(num2) + " ( " + mModel.at(num2)->getName() + " ) is not Mixed.");
 
-          std::vector<std::shared_ptr<ModelPath>> modelPaths;
+          std::vector<std::shared_ptr<ModelPath> > modelPaths;
 
           auto nmod = pSM->getNumberOfModels();
-          
+
           for (uint nm = 0; nm < (uint)nmod; nm++)
           {
             auto mp = std::make_shared<ModelPath>();
-            mp->setModel(pSM,Vuint({nm}));
+            mp->setModel(pSM, Vuint({nm}));
             mp->setLeadModel(pSM);
             somp[num]->addModelPath(mp);
           }
@@ -1423,8 +1439,8 @@ map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
         else
         {
           numpath = TextTools::to<size_t>(path.substr(4));
-          if (mModelPath.find(numpath)==mModelPath.end())
-            numok=false;
+          if (mModelPath.find(numpath) == mModelPath.end())
+            numok = false;
           else
             somp[num]->addModelPath(mModelPath.at(numpath));
         }
@@ -1433,22 +1449,22 @@ map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
       {
         Exception("PhylogeneticsApplicationTools::getModelScenarios: wrong path description " + path);
       }
-      
+
       if (!numok)
         throw BadIntegerException("PhylogeneticsApplicationTools::getModelScenarios: Wrong path number", static_cast<int>(numpath));
     }
-    
+
 
     if (verbose &&  (i < 10))
       ApplicationTools::displayResult("Model Scenario", desc);
-    
+
     if (complete)
     {
-      if (somp[num]->getNumberOfModelPaths()==0)
+      if (somp[num]->getNumberOfModelPaths() == 0)
         throw Exception("PhylogeneticsApplicationTools::getModelScenarios: 'complete' is not possible on empty scenarios");
       somp[num]->complete();
     }
-    
+
     somp[num]->computeModelPathsProbabilities();
   }
 
@@ -1547,7 +1563,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
           throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
       }
       else
-        rootFrequencies=getRootFrequencySet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn);
+        rootFrequencies = getRootFrequencySet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn);
 
       stationarity = !rootFrequencies.get();
     }
@@ -1605,14 +1621,16 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
         for (auto& it : tmpUnparsedParameterValues)
+        {
           unparsedParams[it.first + "_" + TextTools::toString(i + 1)] = it.second;
+        }
 
         vector<unsigned int> nodesId;
 
         auto snodesid = prefix + ".nodes_id";
         auto descnodes = ApplicationTools::getStringParameter(snodesid, params, "", suffix, suffixIsOptional, warn);
 
-        const auto& tree= SP->getParametrizablePhyloTree();
+        const auto& tree = SP->getParametrizablePhyloTree();
         if (descnodes == "All")
         {
           nodesId = pTree->getEdgeIndexes(pTree->getSubtreeEdges(tree.getRoot()));
@@ -1623,7 +1641,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         }
         else if (descnodes == "NoLeaves")
         {
-          auto allIds= pTree->getEdgeIndexes(pTree->getSubtreeEdges(tree.getRoot()));
+          auto allIds = pTree->getEdgeIndexes(pTree->getSubtreeEdges(tree.getRoot()));
           auto leavesId = pTree->getNodeIndexes(pTree->getLeavesUnderNode(tree.getRoot()));
           VectorTools::diff(allIds, leavesId, nodesId);
         }
@@ -1711,13 +1729,13 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   size_t pp = sRate.find(".");
 
-  numRate = static_cast<size_t> (TextTools::toInt(sRate.substr(0, pp)));
+  numRate = static_cast<size_t>(TextTools::toInt(sRate.substr(0, pp)));
   if (!SubProColl->hasDistributionNumber(numRate))
     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
 
   if (pp != string::npos)
   {
-    size_t numSRate = static_cast<size_t> (TextTools::toInt(sRate.substr(pp + 1)));
+    size_t numSRate = static_cast<size_t>(TextTools::toInt(sRate.substr(pp + 1)));
     SubProColl->addDistribution(std::make_shared<ConstantDistribution>(SubProColl->getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
 
     numRate = 10000 * (numRate + 1) + numSRate;
@@ -1741,7 +1759,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   // scenario number
 
   size_t numScen = 0;
-  
+
   if (args.find("scenario") != args.end())
   {
     numScen = (size_t) ApplicationTools::getIntParameter("scenario", args, 1, "", true, warn);
@@ -1749,7 +1767,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (!SubProColl->hasModelScenario(numScen))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown scenario number", (int)numScen);
   }
-  
+
   // ////////////////
   // / models
 
@@ -1765,9 +1783,9 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A model number is compulsory.");
 
     size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
-    
+
     if (!SubProColl->hasModelNumber(numModel))
-      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int> (numModel));
+      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int>(numModel));
 
     vector<uint> vNodes = SubProColl->getTree(numTree).getAllEdgesIndexes();
 
@@ -1784,9 +1802,9 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       else
         ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate / 10000 - 1) + "." + TextTools::toString(numRate % 10000));
 
-      if (numScen!=0)
+      if (numScen != 0)
         ApplicationTools::displayResult (" Scenario number", TextTools::toString(numScen));
-      
+
       if (!stationarity)
         ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
       else
@@ -1816,7 +1834,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       auto snodesid = "model" + TextTools::toString(indModel)  + ".nodes_id";
       auto descnodes = ApplicationTools::getStringParameter(snodesid, args, "", "", true, warn);
 
-      auto& tree= SubProColl->getTree(numTree);
+      auto& tree = SubProColl->getTree(numTree);
       if (descnodes == "All")
       {
         nodesId = tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
@@ -1827,7 +1845,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       }
       else if (descnodes == "NoLeaves")
       {
-        auto allIds= tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
+        auto allIds = tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
         auto leavesId = tree.getNodeIndexes(tree.getLeavesUnderNode(tree.getRoot()));
         VectorTools::diff(allIds, leavesId, nodesId);
       }
@@ -1887,18 +1905,19 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
         ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
       else
         ApplicationTools::displayMessage(" Stationarity assumed.");
-      
+
       for (const auto& sP : sharedParameters)
+      {
         ApplicationTools::displayResult(" Shared parameter", sP);
+      }
     }
   }
 
-  if (numScen!=0)
+  if (numScen != 0)
     SubProColl->getSubstitutionProcess(procNum).setModelScenario(numScen);
 
   return true;
 }
-
 
 
 /******************************************************************************/
@@ -1906,11 +1925,11 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionProcessCollection(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
-  const map<size_t, std::shared_ptr<BranchModel>>& mMod,
-  const map<size_t, std::shared_ptr<FrequencySet>>& mRootFreq,
-  const map<size_t, std::shared_ptr<DiscreteDistribution>>& mDist,
-  const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
+  const map<size_t, std::shared_ptr<PhyloTree> >& mTree,
+  const map<size_t, std::shared_ptr<BranchModel> >& mMod,
+  const map<size_t, std::shared_ptr<FrequencySet> >& mRootFreq,
+  const map<size_t, std::shared_ptr<DiscreteDistribution> >& mDist,
+  const map<size_t, std::shared_ptr<ModelScenario> >& mScen,
   const map<string, string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -1928,8 +1947,10 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   if (mTree.size() == 0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
   for (const auto& itt : mTree)
+  {
     SPC->addTree(std::make_shared<ParametrizablePhyloTree>(*(itt.second)), itt.first);
-  
+  }
+
   // ///////////////////////
   // Rates
 
@@ -1937,7 +1958,9 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     throw Exception("Missing rate distribution in construction of SubstitutionProcessCollection.");
 
   for (const auto& itd : mDist)
+  {
     SPC->addDistribution(itd.second, itd.first);
+  }
 
   // ////////////////////////
   // Models
@@ -1946,20 +1969,26 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     throw Exception("Missing model in construction of SubstitutionProcessCollection.");
 
   for (const auto& itm : mMod)
+  {
     SPC->addModel(itm.second, itm.first);
+  }
 
   // ///////////////////////////
   // Root Frequencies
 
   for (const auto& itr : mRootFreq)
+  {
     SPC->addFrequencies(itr.second, itr.first);
+  }
 
   // ///////////////////////
   // Scenarios
 
   for (const auto& itt : mScen)
+  {
     SPC->addScenario(itt.second, itt.first);
-  
+  }
+
   // //////////////////////////////
   // Now processes
 
@@ -1981,14 +2010,14 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     else
       num = 1;
 
-    bool addok=addSubstitutionProcessCollectionMember(SPC, num, params, (nT<10?verbose:false), warn);
+    bool addok = addSubstitutionProcessCollectionMember(SPC, num, params, (nT < 10 ? verbose : false), warn);
 
     if (addok)
     {
-      if (nT==10)
+      if (nT == 10)
         ApplicationTools::displayMessage("");
-      
-      if (nT>=10)
+
+      if (nT >= 10)
         ApplicationTools::displayResult("Process" + TextTools::toString(num), string("..."));
     }
   }
@@ -2011,10 +2040,10 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   //   size_t poseq=processName[i].find("=");
   //   processNum.push_back((size_t)TextTools::toInt(processName[i].substr(7,poseq-7)));
   // }
-  
+
   // if (processNum.size()==0)
   //   throw Exception("Missing process in construction of SubstitutionProcessCollection.");
-  
+
   // for (size_t i=0; i<processNum.size(); i++)
   //   addSubstitutionProcessCollectionMember(SPC, params, processNum[i]);
 
@@ -2229,7 +2258,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
         vector<double> v = ApplicationTools::getVectorParameter<double>("lambdas", args, ',', vs);
 
         ParameterList pl;
-        
+
         for (size_t i = 0; i < v.size(); i++)
         {
           pl.addParameter(Parameter("AutoCorr.lambda" + TextTools::toString(i + 1), v[i]));
@@ -2242,12 +2271,13 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
       else
         throw Exception("Unknown Process description : " + evolName);
 
-      if (verbose){
+      if (verbose)
+      {
         ApplicationTools::displayResult (" Process numbers", VectorTools::paste(vproc, ","));
         ApplicationTools::displayMessage("");
       }
     }
-    
+
     mEvol[evolsNum[mPi]] = nEvol;
   }
 
@@ -2312,7 +2342,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
     phylosMap[phyln] = vphyl;
   }
-  
+
   vector<size_t> usedPhylo;
 
   // //////////////////////////////////////////
@@ -2320,11 +2350,11 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
   uint nbPh(0);
   bool verbhere(verbose);
-  
+
   for (const auto& it : phylosMap)
   {
     nbPh++;
-    
+
     if (it.second.size() != 0)
       continue;
 
@@ -2339,11 +2369,11 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
     if (verbose)
     {
-      if (nbPh<=20)
+      if (nbPh <= 20)
         ApplicationTools::displayMessage("");
       else
-        verbhere=false;
-      
+        verbhere = false;
+
       ApplicationTools::displayMessage("Phylolikelihood " + TextTools::toString(phylonum));
     }
 
@@ -2351,8 +2381,8 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
     // Data
 
-    size_t nData = (args.find("data") == args.end()? 1: (size_t)TextTools::toInt(args["data"]));
-    
+    size_t nData = (args.find("data") == args.end() ? 1 : (size_t)TextTools::toInt(args["data"]));
+
     if (mData.find(nData) == mData.end())
     {
       ApplicationTools::displayWarning("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:" + TextTools::toString(nData) + ". Not built.");
@@ -2366,20 +2396,20 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
       ApplicationTools::displayWarning("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences. Not built.");
       continue;
     }
-    
+
     if (verbhere)
       ApplicationTools::displayResult(" Data used ", TextTools::toString(nData));
 
     // Sequence Evolution or process
 
-    size_t nProcess = (args.find("process") == args.end()? 1: (size_t) TextTools::toInt(args["process"]));
+    size_t nProcess = (args.find("process") == args.end() ? 1 : (size_t) TextTools::toInt(args["process"]));
     if (verbhere)
       ApplicationTools::displayResult(" Process ", TextTools::toString(nProcess));
 
 
     // Compression
 
-    char compression = (args.find("compression") != args.end() && args["compression"] == "recursive")?'R':'S';
+    char compression = (args.find("compression") != args.end() && args["compression"] == "recursive") ? 'R' : 'S';
     if (verbhere)
       ApplicationTools::displayResult(" Compression ", (compression == 'R') ? "recursive" : "simple");
 
@@ -2441,7 +2471,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   }
 
   // Now clean the map
-  for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); )
+  for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end();)
   {
     if (it->second.size() == 0)
     {
@@ -2454,7 +2484,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
     {
       vector<size_t>::iterator posp = find(usedPhylo.begin(), usedPhylo.end(), vphyl[i - 1]);
       if (posp != usedPhylo.end())
-        vphyl.erase(vphyl.begin() + static_cast<ptrdiff_t> (i - 1));
+        vphyl.erase(vphyl.begin() + static_cast<ptrdiff_t>(i - 1));
     }
     ++it;
   }
@@ -2474,7 +2504,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
     for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); it++)
     {
       nbPh++;
-      
+
       if (it->second.size() == 0)
       {
         size_t phylonum = it->first;
@@ -2489,11 +2519,11 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
         if (verbose)
         {
-          if (nbPh<=20)
+          if (nbPh <= 20)
             ApplicationTools::displayMessage("");
           else
-            verbhere=false;
-      
+            verbhere = false;
+
           ApplicationTools::displayMessage("Phylolikelihood " + TextTools::toString(phylonum));
         }
 
@@ -2589,7 +2619,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
     }
 
     // Now clean the map
-    for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); )
+    for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end();)
     {
       if (it->second.size() == 0)
       {
@@ -2602,7 +2632,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
       {
         vector<size_t>::iterator posp = find(usedPhylo.begin(), usedPhylo.end(), vphyl[i - 1]);
         if (posp != usedPhylo.end())
-          vphyl.erase(vphyl.begin() + static_cast<ptrdiff_t> (i - 1));
+          vphyl.erase(vphyl.begin() + static_cast<ptrdiff_t>(i - 1));
       }
       ++it;
     }
@@ -2621,34 +2651,35 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
   ApplicationTools::displayMessage("");
   ApplicationTools::displayMessage("Result Phylolikelihood ");
-  
+
   string sumAll;
   const vector<size_t>& nPhyl = mPhylo->getNumbersOfPhyloLikelihoods();
-  
+
   for (size_t i = 0; i < nPhyl.size(); i++)
   {
-    if (i!=0)
-      sumAll+=" + ";
-    
-    sumAll += "phylo"+TextTools::toString(nPhyl[i]);
+    if (i != 0)
+      sumAll += " + ";
+
+    sumAll += "phylo" + TextTools::toString(nPhyl[i]);
   }
-  
+
   string resultDesc = ApplicationTools::getStringParameter("result", params, sumAll);
 
   // check if really formula, or previous phylo
 
   std::shared_ptr<PhyloLikelihood> nPL(0);
   size_t nP(0);
-  bool flag(resultDesc.substr(0,5)=="phylo");
+  bool flag(resultDesc.substr(0, 5) == "phylo");
 
   if (flag)
   {
-    try {
-      nP=(size_t)TextTools::toInt(resultDesc.substr(5));
+    try
+    {
+      nP = (size_t)TextTools::toInt(resultDesc.substr(5));
     }
     catch (Exception& e)
     {
-      flag=false;
+      flag = false;
     }
   }
 
@@ -2661,9 +2692,9 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   else
   {
     if (!mPhylo->hasPhyloLikelihood(nP))
-      throw BadIntegerException("Unknown Phylolikelihood number for result",(int)nP);
+      throw BadIntegerException("Unknown Phylolikelihood number for result", (int)nP);
     else
-      nPL=mPhylo->getPhyloLikelihood(nP);
+      nPL = mPhylo->getPhyloLikelihood(nP);
     if (verbose)
       ApplicationTools::displayResult(" Result", resultDesc);
   }
@@ -2696,7 +2727,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
     throw Exception("The number of models can't be 0 !");
 
   bool nomix = true;
-  for (size_t i = 0; nomix &(i < nbModels); i++)
+  for (size_t i = 0; nomix& (i < nbModels); i++)
   {
     string prefix = "model" + TextTools::toString(i + 1);
     string modelDesc;
@@ -2913,12 +2944,12 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       int num = TextTools::toInt(submodel.substr(5, indexo - 5));
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
-      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getModel(static_cast<size_t> (num - 1)));
+      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getModel(static_cast<size_t>(num - 1)));
       if (pSM == NULL)
         throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", num - 1);
       Vuint submodnb = pSM->getSubmodelNumbers(p2);
 
-      mixedModelSet.addToHyperNode(static_cast<size_t> (num - 1), submodnb);
+      mixedModelSet.addToHyperNode(static_cast<size_t>(num - 1), submodnb);
     }
 
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
@@ -2981,7 +3012,7 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
     rf = args["classes"];
     StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
     while (strtok2.hasMoreToken())
-      classes.push_back(static_cast<size_t> (TextTools::toInt(strtok2.nextToken())));
+      classes.push_back(static_cast<size_t>(TextTools::toInt(strtok2.nextToken())));
 
     pMDD = new DirichletDiscreteDistribution(classes, alphas);
     vector<string> v = pMDD->getParameters().getParameterNames();
@@ -3148,15 +3179,15 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
       {
         vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
 
-        bool verbhere=verbose;
-        
-        if (vs.size()>=20)
+        bool verbhere = verbose;
+
+        if (vs.size() >= 20)
         {
           if (verbose)
             ApplicationTools::displayResult("Number of parameters ignored", vs.size());
-          verbhere=false;
-        } 
-          
+          verbhere = false;
+        }
+
         for (auto& it :  vs)
         {
           parametersToEstimate.deleteParameter(it);
@@ -3210,7 +3241,7 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         if (!nhtl)
           ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
         else
-           parNames2 = nhtl->getRootFrequenciesParameters().getParameterNames();
+          parNames2 = nhtl->getRootFrequenciesParameters().getParameterNames();
       }
       else if (param == "Model")
       {
@@ -3462,8 +3493,8 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    string bf=backupFile+".def";
-    rename(backupFile.c_str(),bf.c_str());
+    string bf = backupFile + ".def";
+    rename(backupFile.c_str(), bf.c_str());
   }
   return tl;
 }
@@ -3578,15 +3609,15 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
       {
         vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
 
-        bool verbhere=verbose;
-        
-        if (vs.size()>=20)
+        bool verbhere = verbose;
+
+        if (vs.size() >= 20)
         {
           if (verbose)
             ApplicationTools::displayResult("Number of parameters ignored", vs.size());
-          verbhere=false;
-        } 
-          
+          verbhere = false;
+        }
+
         for (auto& it :  vs)
         {
           parametersToEstimate.deleteParameter(it);
@@ -3828,7 +3859,6 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
       n = OptimizationTools::optimizeNumericalParameters2(
         lik, parametersToEstimate,
         backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
-
   }
   else
     throw Exception("Unknown optimization method: " + optName);
@@ -3869,8 +3899,8 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    string bf=backupFile+".def";
-    rename(backupFile.c_str(),bf.c_str());
+    string bf = backupFile + ".def";
+    rename(backupFile.c_str(), bf.c_str());
   }
   return lik;
 }
@@ -4213,11 +4243,11 @@ void PhylogeneticsApplicationTools::writeTrees(
   if (!checkOnly)
   {
     treeWriter->writeTrees(trees, file, true);
-    
+
     if (verbose)
       ApplicationTools::displayResult("Wrote trees to file ", file);
   }
-  
+
   delete treeWriter;
 }
 
@@ -4263,7 +4293,7 @@ void PhylogeneticsApplicationTools::writeTrees(
           node->setProperty("NodeId", BppString(TextTools::toString(tree.getNodeIndex(node))));
       }
 
-      Newick* nt=dynamic_cast<Newick*>(treeWriter);
+      Newick* nt = dynamic_cast<Newick*>(treeWriter);
       if (nt)
         nt->enableExtendedBootstrapProperty("NodeId");
 
@@ -4511,12 +4541,12 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
   vector<size_t> vSce = collection->getScenarioNumbers();
 
-  if (vSce.size()>0)
+  if (vSce.size() > 0)
     out.endLine();
 
   vector<const ModelPath*> vMP;
 
-  // first output the scenarios 
+  // first output the scenarios
   for (const auto& scennum : vSce)
   {
     const auto& scen = collection->getModelScenario(scennum);
@@ -4525,46 +4555,46 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
     out << "scenario" << scennum << "=";
 
-    size_t nbMP=scen.getNumberOfModelPaths();
-    
+    size_t nbMP = scen.getNumberOfModelPaths();
+
     for (size_t mpn = 0; mpn < nbMP; mpn++)
     {
       const auto& mp = scen.getModelPath(mpn);
 
-      auto itmp=find(vMP.begin(),vMP.end(),mp.get());
-      auto inmp=std::distance(vMP.begin(), itmp);
-      if (itmp==vMP.end())
+      auto itmp = find(vMP.begin(), vMP.end(), mp.get());
+      auto inmp = std::distance(vMP.begin(), itmp);
+      if (itmp == vMP.end())
         vMP.push_back(mp.get());
 
-      if (mpn!=0)
+      if (mpn != 0)
         out << "&";
-      out << "path" << TextTools::toString(inmp+1);
+      out << "path" << TextTools::toString(inmp + 1);
     }
     out.endLine();
   }
 
-  // then the model path 
+  // then the model path
   for (size_t inmp = 0; inmp < vMP.size(); inmp++)
   {
     out.endLine();
-    out << "path" << inmp+1 << "=";
+    out << "path" << inmp + 1 << "=";
 
     const ModelPath& mp = *vMP[inmp];
 
     auto vMod = mp.getModels();
 
-    bool dem=true;
+    bool dem = true;
     for (const auto& mod:vMod)
     {
       // look for model number in collection
-      size_t modN=collection->getModelIndex(mod);
+      size_t modN = collection->getModelIndex(mod);
 
       if (!dem)
       {
         out << "&";
-        dem=false;
+        dem = false;
       }
-      
+
       out << "model" << modN;
       out << "[" << mp.getPathNode(mod).to_string() <<  "]";
     }
@@ -4621,7 +4651,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
     if (spcm.hasModelScenario())
       out << ", scenario=" << spcm.getModelScenarioNumber();
-    
+
     out << ")";
     out.endLine();
     out.endLine();
@@ -4655,30 +4685,30 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
   vector<size_t> phyldep;
 
   if (!pop)
-  {  
+  {
     out << "phylo1";
     phyldep.push_back(1);
   }
   else
   {
-    string popout=pop->output();
+    string popout = pop->output();
 
     out << popout;
-  
-    StringTokenizer st(popout,"phylo",true, true);
+
+    StringTokenizer st(popout, "phylo", true, true);
     st.nextToken();
-    
-    
+
+
     while (st.hasMoreToken())
     {
-      string ex=st.nextToken();
+      string ex = st.nextToken();
       phyldep.push_back((size_t)(atoi(ex.c_str())));
     }
   }
-  
+
   out.endLine();
   out.endLine();
-  
+
   // Then the other phylolikelihoods
 
   while (phyldep.size() != 0)
@@ -4906,7 +4936,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     return;
 
   vector<size_t> phyldep = phylocont.getNumbersOfPhyloLikelihoods();
-  
+
   while (phyldep.size() != 0)
   {
     size_t num = phyldep[0];
@@ -4919,21 +4949,21 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     string info_out = infosFile + "_" + TextTools::toString(num);
 
     if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike) != NULL
-        && num!=0 )
+        && num != 0)
       printAnalysisInformation(dynamic_cast<const SingleDataPhyloLikelihood&>(*phyloLike), info_out, warn);
     else
     {
       const SetOfAlignedPhyloLikelihood* sOAP = dynamic_cast<const SetOfAlignedPhyloLikelihood*>(phyloLike);
       if (sOAP != NULL)
       {
-        if (num!=0)
+        if (num != 0)
           printAnalysisInformation(*sOAP, info_out, warn);
 
         vector<size_t> vPN = sOAP->getNumbersOfPhyloLikelihoods();
 
         // update phyldep
-        phyldep.assign(vPN.begin(),vPN.end());
-        phyldep=VectorTools::unique(phyldep);
+        phyldep.assign(vPN.begin(), vPN.end());
+        phyldep = VectorTools::unique(phyldep);
       }
       else
       {
@@ -4943,8 +4973,8 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
           vector<size_t> vPN = sOAB->getNumbersOfPhyloLikelihoods();
 
           // update phyldep
-          phyldep.assign(vPN.begin(),vPN.end());
-          phyldep=VectorTools::unique(phyldep);
+          phyldep.assign(vPN.begin(), vPN.end());
+          phyldep = VectorTools::unique(phyldep);
         }
       }
     }
@@ -5051,31 +5081,33 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
   if (dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike) != NULL)
   {
     auto pSPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike);
-    
+
     StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
-    
+
     const SubstitutionProcess* pSP = &pSPL->getSubstitutionProcess();
-    
+
     vector<string> colNames;
     colNames.push_back("Sites");
     colNames.push_back("is.complete");
     colNames.push_back("is.constant");
     colNames.push_back("lnL");
-    
+
     const DiscreteDistribution* pDD = pSP->getRateDistribution();
     size_t nbR = 0;
-    
+
     if (pDD != NULL)
     {
       nbR = pDD->getNumberOfCategories();
 
       if (nbR > 1)
         for (size_t i = 0; i < nbR; i++)
+        {
           colNames.push_back("prob" + TextTools::toString(i + 1));
+        }
     }
 
     const AlignedValuesContainer* sites = phyloLike.getData();
-    
+
     vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
 
@@ -5084,7 +5116,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
-      
+
       const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
       int currentSitePosition = currentSite.getPosition();
       string isCompl = "NA";
@@ -5105,13 +5137,13 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       row[1] = isCompl;
       row[2] = isConst;
       row[3] = TextTools::toString(lnL);
-      
+
       if (nbR > 1)
         for (size_t j = 0; j < nbR; j++)
         {
           row[4 + j] = TextTools::toString(vvPP[i][j]);
         }
-      
+
       infos->addRow(row);
     }
 
@@ -5121,54 +5153,56 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
   else if (dynamic_cast<const PartitionProcessPhyloLikelihood*>(&phyloLike) != NULL)
   {
     const PartitionProcessPhyloLikelihood* pPPL = dynamic_cast<const PartitionProcessPhyloLikelihood*>(&phyloLike);
-    
-    const PartitionSequenceEvolution& pSE=dynamic_cast<const PartitionSequenceEvolution&>(pPPL->getSequenceEvolution());
 
-    const map<size_t, vector<size_t> >& mProcPos=pSE.getMapOfProcessSites();
-    
-    vector<size_t> nbProc=pSE.getSubstitutionProcessNumbers();
-    
+    const PartitionSequenceEvolution& pSE = dynamic_cast<const PartitionSequenceEvolution&>(pPPL->getSequenceEvolution());
+
+    const map<size_t, vector<size_t> >& mProcPos = pSE.getMapOfProcessSites();
+
+    vector<size_t> nbProc = pSE.getSubstitutionProcessNumbers();
+
     map<size_t, size_t> mNbr;
 
     for (auto nP : nbProc)
     {
-      const SubstitutionProcess& sp=pSE.getSubstitutionProcess(nP);
+      const SubstitutionProcess& sp = pSE.getSubstitutionProcess(nP);
       const DiscreteDistribution* pDD = sp.getRateDistribution();
-      mNbr[nP]=(pDD?pDD->getNumberOfCategories():1);
+      mNbr[nP] = (pDD ? pDD->getNumberOfCategories() : 1);
     }
 
-    size_t maxR=max_element(mNbr.begin(), mNbr.end(), [](const std::pair<size_t, size_t>& p1, const std::pair<size_t, size_t>& p2){ return p1.second < p2.second;})->second;
+    size_t maxR = max_element(mNbr.begin(), mNbr.end(), [](const std::pair<size_t, size_t>& p1, const std::pair<size_t, size_t>& p2){
+      return p1.second < p2.second;
+    })->second;
 
     StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
-    
+
     vector<string> colNames;
     colNames.push_back("Sites");
     colNames.push_back("is.complete");
     colNames.push_back("is.constant");
     colNames.push_back("lnL");
-    
+
     if (maxR > 1)
       for (size_t i = 0; i < maxR; i++)
       {
         colNames.push_back("prob" + TextTools::toString(i + 1));
       }
 
-    size_t nbSites = pSE.getNumberOfSites();    
-    
+    size_t nbSites = pSE.getNumberOfSites();
+
     vector<string> row(4 + (maxR > 1 ? maxR : 0));
-    DataTable* infos = new DataTable(nbSites,colNames);
-    
+    DataTable* infos = new DataTable(nbSites, colNames);
+
     for (auto nP : nbProc)
     {
       auto pSPPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(pPPL->getAbstractPhyloLikelihood(nP));
 
       if (!pSPPL)
         throw Exception("PhylogeneticsApplicationTools::printAnalysisInformation : no SingleProcessPhyloLikelihood in PartitionProcessPhyloLikelihood.");
-      
-      size_t nbr=mNbr[pSPPL->getSubstitutionProcessNumber()];
 
-      const vector<size_t>& mPos=mProcPos.at(nP);
-      
+      size_t nbr = mNbr[pSPPL->getSubstitutionProcessNumber()];
+
+      const vector<size_t>& mPos = mProcPos.at(nP);
+
       const AlignedValuesContainer* sites = pSPPL->getData();
 
       for (size_t i = 0; i < sites->getNumberOfSites(); i++)
@@ -5195,22 +5229,26 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
         row[1] = isCompl;
         row[2] = isConst;
         row[3] = TextTools::toString(lnL);
-      
-        if (nbr>1)
+
+        if (nbr > 1)
         {
           Vdouble vPP = pSPPL->getPosteriorProbabilitiesForSitePerClass(i);
 
           for (size_t j = 0; j < nbr; j++)
+          {
             row[4 + j] = TextTools::toString(vPP[j]);
+          }
         }
 
-        for (size_t j = nbr; j<maxR; j++)
+        for (size_t j = nbr; j < maxR; j++)
+        {
           row[4 + j] = "NA";
+        }
 
-        infos->setRow(mPos[i],row);
+        infos->setRow(mPos[i], row);
       }
     }
-    
+
     DataTable::write(*infos, out, "\t");
     delete infos;
   }
@@ -5241,7 +5279,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     }
 
     const AlignedValuesContainer* sites = phyloLike.getData();
-    
+
     vector<string> row(4 + (nbP > 1 ? 2 * nbP : 0));
     DataTable* infos = new DataTable(colNames);
 
@@ -5396,8 +5434,8 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   bool verbose,
   int warn)
 {
-  const StateMap& stateMap=model->getStateMap();
-  
+  const StateMap& stateMap = model->getStateMap();
+
   SubstitutionCount* substitutionCount = 0;
   string nijtOption;
   map<string, string> nijtParams;
@@ -5434,9 +5472,9 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     std::shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
     string distanceOption = ApplicationTools::getStringParameter("distance", nijtParams, "", "", true, warn + 1);
-    if (distanceOption!="")
+    if (distanceOption != "")
       ApplicationTools::displayMessage("Naive substitution count: distances not handled");
-    
+
     substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), false, weights);
   }
   else if (nijtOption == "Label")
@@ -5467,12 +5505,12 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   map<string, string> regArgs;
   KeyvalTools::parseProcedure(regTypeDesc, regType, regArgs);
 
-  const Alphabet* alphabet=stateMap.getAlphabet();
-  
+  const Alphabet* alphabet = stateMap.getAlphabet();
+
   SubstitutionRegister* reg = 0;
   weights = 0;
   distances = 0;
-  
+
   string weightOption = ApplicationTools::getStringParameter("weight", regArgs, "None", "", true, 1);
   string distanceOption = ApplicationTools::getStringParameter("distance", regArgs, "None", "", true, 1);
 
@@ -5486,13 +5524,13 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
     distances = SequenceApplicationTools::getAlphabetIndex2(alphabet, distanceOption, "Substitution distances:");
   }
-  
-  if (regType=="Combination")
+
+  if (regType == "Combination")
   {
-    AlphabetIndex2* w2=0;
-    AlphabetIndex2* d2=0;
-    
-    VectorOfSubstitionRegisters* vreg= new VectorOfSubstitionRegisters(stateMap);
+    AlphabetIndex2* w2 = 0;
+    AlphabetIndex2* d2 = 0;
+
+    VectorOfSubstitionRegisters* vreg = new VectorOfSubstitionRegisters(stateMap);
 
     size_t i = 0;
     while (++i)
@@ -5500,8 +5538,8 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
       string regDesc = ApplicationTools::getStringParameter("reg" + TextTools::toString(i), regArgs, "", "", false, 1);
       if (regDesc == "")
         break;
-      
-      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode, w2, d2);
+
+      SubstitutionRegister* sreg = getSubstitutionRegister(regDesc, stateMap, genCode, w2, d2);
 
       vreg->addRegister(sreg);
     }
@@ -5515,17 +5553,18 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   else if (regType == "Total")
   {
     reg = new TotalSubstitutionRegister(stateMap);
-  }    
-  else if (regType == "Selected"){  
+  }
+  else if (regType == "Selected")
+  {
     string subsList = ApplicationTools::getStringParameter("substitution.list", regArgs, "All", "", true, false);
-    reg = new SelectedSubstitutionRegister(stateMap, subsList);  
+    reg = new SelectedSubstitutionRegister(stateMap, subsList);
   }
 
 
   // Alphabet dependent registers
 
   else if (AlphabetTools::isNucleicAlphabet(alphabet))
-  {    
+  {
     if (regType == "GC")
       reg = new GCSubstitutionRegister(stateMap, false);
     else if (regType == "TsTv")
@@ -5534,9 +5573,9 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
       reg = new SWSubstitutionRegister(stateMap);
     else
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unsupported substitution categorization:" + regType + " for alphabet " + alphabet->getAlphabetType());
-  }  
+  }
   else if (AlphabetTools::isCodonAlphabet(alphabet))
-  {    
+  {
     if (regType == "IntraAA")
       reg = new AAInteriorSubstitutionRegister(stateMap, *genCode);
     else if (regType == "InterAA")
@@ -5554,9 +5593,9 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else
       throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + alphabet->getAlphabetType());
   }
-  
+
   else if (AlphabetTools::isProteicAlphabet(alphabet))
-  {  
+  {
     if (regType == "KrKc")
       reg = new KrKcSubstitutionRegister(stateMap);
     else
