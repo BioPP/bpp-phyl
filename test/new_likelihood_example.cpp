@@ -266,6 +266,10 @@ int main(int argc, char** argv)
   l->setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
 
+  std::cerr << "$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
+  
+  LikelihoodCalculationSingleProcess l2(*l);
+
   OneProcessSequenceEvolution ope(*process);
 
   OneProcessSequencePhyloLikelihood llh(context, c.sites,  ope);

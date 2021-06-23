@@ -284,7 +284,7 @@ namespace bpp {
 
     LikelihoodCalculationSingleProcess* clone() const
     {
-      return new LikelihoodCalculationSingleProcess(*this);
+      throw bpp::Exception("LikelihoodCalculationSingleProcess clone should not happen.");
     }
 
     void setData(const AlignedValuesContainer& sites)
