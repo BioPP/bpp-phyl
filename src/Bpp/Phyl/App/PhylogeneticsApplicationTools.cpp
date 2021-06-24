@@ -2065,7 +2065,15 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcessCollection. Bad alias syntax, should contain `->' symbol: " + alias);
     string p1 = alias.substr(0, index);
     string p2 = alias.substr(index + 2);
-    unparsedParams[p1] = p2;
+    try
+    {
+      auto v2= TextTools::toDouble(p2);
+      SPC->setParameterValue(p1,v2);
+    }
+    catch (Exception& e)
+    {
+      unparsedParams[p1] = p2;
+    }
   }
 
   SPC->aliasParameters(unparsedParams, verbose);
