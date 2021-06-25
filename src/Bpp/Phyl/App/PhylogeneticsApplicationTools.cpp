@@ -5575,6 +5575,8 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   {
     if (regType == "GC")
       reg = new GCSubstitutionRegister(stateMap, false);
+    if (regType == "GCw")
+      reg = new GCSubstitutionRegister(stateMap, true);
     else if (regType == "TsTv")
       reg = new TsTvSubstitutionRegister(stateMap);
     else if (regType == "SW")
@@ -5590,6 +5592,20 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
       reg = new AAExteriorSubstitutionRegister(stateMap, *genCode);
     else if (regType == "GC")
       reg = new GCSynonymousSubstitutionRegister(stateMap, *genCode);
+    else if (regType == "GC1")
+      reg = new GCPositionSubstitutionRegister(stateMap, *genCode, 0);
+    else if (regType == "GC2")
+      reg = new GCPositionSubstitutionRegister(stateMap, *genCode, 1);
+    else if (regType == "GC3")
+      reg = new GCPositionSubstitutionRegister(stateMap, *genCode, 2);
+    else if (regType == "GCw")
+      reg = new GCSynonymousSubstitutionRegister(stateMap, *genCode, true);
+    else if (regType == "GC1w")
+      reg = new GCPositionSubstitutionRegister(stateMap, *genCode, 0, true);
+    else if (regType == "GC2w")
+      reg = new GCPositionSubstitutionRegister(stateMap, *genCode, 1, true);
+    else if (regType == "GC3w")
+      reg = new GCPositionSubstitutionRegister(stateMap, *genCode, 2, true);
     else if (regType == "TsTv")
       reg = new TsTvSubstitutionRegister(stateMap, *genCode);
     else if (regType == "SW")

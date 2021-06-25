@@ -353,8 +353,6 @@ namespace bpp
     GCSynonymousSubstitutionRegister* clone() const { return new GCSynonymousSubstitutionRegister(*this); }
 
   public:
-    size_t getNumberOfSubstitutionTypes() const { return 2; }
-
     size_t getType(size_t fromState, size_t toState) const
     {
       int x = getStateMap().getAlphabetStateAsInt(fromState);
@@ -382,25 +380,133 @@ namespace bpp
 
     std::string getTypeName (size_t type) const
     {
-      if (type == 0)
-      {
+      switch(type){
+      case 0:
         return "no AT<->GC substitution or non-synonymous substitution";
-      }
-      else if (type == 1)
-      {
+      case 1:
         return "AT->GC synonymous";
-      }
-      else if (type == 2)
-      {
+      case 2:
         return "GC->AT synonymous";
-      }
-      else
-      {
+      case 3:
+        return "AT->AT synonymous";
+      case 4:
+        return "GC->GC synonymous";
+      default:
         throw Exception("GCSynonymousSubstitutionRegister::getTypeName. Bad substitution type.");
       }
     }
   };
 
+
+  /**
+   * @brief Distinguishes AT->GC vs GC->AT on given codon position (0, 1, or 2)
+   *
+   * This register has two substitution types, mapped as:
+   * - 0 not a counted substitution
+   * - 1 a AT->GC substitution
+   * - 2 a GC->AT substitution
+   *
+   * Multiple substitutions are forbidden.
+   *
+   */
+
+  class GCPositionSubstitutionRegister :
+    public CategorySubstitutionRegister
+  {
+  private:
+    const GeneticCode* genCode_;
+    size_t pos_;
+    
+  public:
+    GCPositionSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, size_t pos, bool within = false) :
+      CategorySubstitutionRegister(stateMap, within),
+      genCode_(&gencod),
+      pos_(pos)
+    {
+      const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+
+      std::map<int, int> categories;
+      for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
+      {
+        int n = pCA->getNPosition(i, pos_);
+        switch (n)
+        {
+        case 0:
+        case 3:
+          categories[i] = 1;
+          break;
+        case 1:
+        case 2:
+          categories[i] = 2;
+          break;
+        }
+      }
+      setAlphabetCategories<int>(categories);
+    }
+
+    GCPositionSubstitutionRegister(const GCPositionSubstitutionRegister& reg) :
+      CategorySubstitutionRegister(reg),
+      genCode_(reg.genCode_),
+      pos_(reg.pos_)
+    {}
+
+    GCPositionSubstitutionRegister& operator=(const GCPositionSubstitutionRegister& reg)
+    {
+      CategorySubstitutionRegister::operator=(reg);
+      genCode_ = reg.genCode_;
+      pos_ = reg.pos_;
+      return *this;
+    }
+
+    GCPositionSubstitutionRegister* clone() const { return new GCPositionSubstitutionRegister(*this); }
+
+  public:
+    size_t getType(size_t fromState, size_t toState) const
+    {
+      int x = getStateMap().getAlphabetStateAsInt(fromState);
+      int y = getStateMap().getAlphabetStateAsInt(toState);
+      
+      const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+
+      if (genCode_->isStop(x) || genCode_->isStop(y))
+        return 0;
+
+      // only substitutions between Nth positions
+
+      for (size_t pos=0; pos<3; pos++)
+        if (pos!=pos_)
+          if (pCA->getNPosition(x, pos) != pCA->getNPosition(y, pos))
+            return 0;
+
+      size_t fromCat = categories_[fromState];
+      size_t toCat   = categories_[toState];
+
+      if (fromCat > 0 && toCat > 0)
+        return index_[fromCat - 1][toCat - 1];
+      else
+        return 0;
+    }
+
+    std::string getTypeName (size_t type) const
+    {
+      auto p(TextTools::toString(pos_+1));
+      
+      switch(type){
+      case 0:
+        return "no AT"+p+"<->GC"+p+" substitution";
+      case 1:
+        return "AT"+p+"->GC"+p;
+      case 2:
+        return "GC"+p+"->AT"+p;
+      case 3:
+        return "AT"+p+"->AT"+p;
+      case 4:
+        return "GC"+p+"->GC"+p;
+      default:
+        throw Exception("GCPositionSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
+    }
+  };
 
 } // end of namespace bpp.
 
