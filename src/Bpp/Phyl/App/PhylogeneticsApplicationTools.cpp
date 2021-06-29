@@ -4598,13 +4598,11 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       size_t modN = collection->getModelIndex(mod);
 
       if (!dem)
-      {
         out << "&";
-        dem = false;
-      }
 
       out << "model" << modN;
       out << "[" << mp.getPathNode(mod).to_string() <<  "]";
+      dem = false;
     }
     out.endLine();
   }
