@@ -512,9 +512,11 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   setLikelihoodNode(val);
   
   
+#ifdef DEBUG
   using bpp::DotOptions;
   writeGraphToDot(
     "debug_lik.dot", {likelihood_.get()}, DotOptions::DetailedNodeInfo);
+#endif
 }
   
 
