@@ -183,11 +183,6 @@ namespace bpp
         throw Exception("AbstractPhyloLikelihood::getValue(). LikelihoodNode is not built.");
       
       minusLogLik_=-getLikelihoodNode()->getTargetValue();
-      if (isinf(minusLogLik_))
-      {
-        getLikelihoodCalculation()->fixFactor(getLikelihoodNode());
-        minusLogLik_=-getLikelihoodNode()->getTargetValue();
-      }
       return convert(minusLogLik_);
     }
 

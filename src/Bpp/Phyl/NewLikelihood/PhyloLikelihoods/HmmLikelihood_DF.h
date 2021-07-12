@@ -226,11 +226,6 @@ namespace bpp {
       return hmmEmis_->accessValueConst().col(int(site)).dot(vec);
     }
 
-    void fixFactor(ValueRef<DataLik> valRef)
-    {
-      return;
-    }
-    
   };
 
 }

@@ -1680,8 +1680,12 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   KeyvalTools::parseProcedure(procDesc, procName, args);
 
   if ((procName != "OnePerBranch") && (procName != "Homogeneous") && (procName != "Nonhomogeneous") &&  (procName != "NonHomogeneous"))
-    return 0;
+  {
+    if (warn)
+      ApplicationTools::displayWarning("Warning, unknown process name: " + procName);
 
+    return 0;
+  }
 
   // ///
   // tree number
@@ -2350,13 +2354,19 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
     size_t nData = (args.find("data") == args.end()? 1: (size_t)TextTools::toInt(args["data"]));
     
     if (mData.find(nData) == mData.end())
-      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:", (int)nData);
+    {
+      ApplicationTools::displayWarning("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:" + TextTools::toString(nData) + ". Not built.");
+      continue;
+    }
 
     const AlignedValuesContainer* data = dynamic_cast<const AlignedValuesContainer*>(mData.find(nData)->second);
 
     if (!data)
-      throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences");
-
+    {
+      ApplicationTools::displayWarning("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences. Not built.");
+      continue;
+    }
+    
     if (verbhere)
       ApplicationTools::displayResult(" Data used ", TextTools::toString(nData));
 
@@ -2600,7 +2610,11 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
 
   if (mPhylo->getNumbersOfPhyloLikelihoods().size() == 0)
-    throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : No phyloLikelihoods described");
+  {
+    if (warn)
+      ApplicationTools::displayMessage("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : No phyloLikelihoods described");
+    return mPhylo;
+  }
 
   // get the result phylogeny => with number 0 in the
   // PhyloLikelihoodContainer

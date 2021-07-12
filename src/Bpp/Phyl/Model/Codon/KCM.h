@@ -68,7 +68,7 @@ namespace bpp
  * The codon frequencies @f$\pi_j@f$ are either observed or infered.
  *
  * Reference:
- * -  Zaheri, M. and Linda, D. and Salamin, N. A Generalized
+ * -  Zaheri, M. and Dib, L. and Salamin, N. A Generalized
  * Mechanistic Codon Model,  Mol Biol Evol. 2014 Sep;31(9):2528-41.
  * doi: 10.1093/molbev/msu196. Epub 2014 Jun 23.
  *

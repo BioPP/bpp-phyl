@@ -152,17 +152,6 @@ namespace bpp
     };
 
     /**
-     * @brief Set a factor for likelihood computation
-     *
-     */
-
-    virtual void setFactor(uint factor) override
-    {
-      getLikelihoodCalculationSingleProcess()->setFactor(factor);
-    }
-    
-
-    /**
      * @brief return a pointer to the compressed data.
      *
      */
