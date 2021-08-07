@@ -75,7 +75,7 @@ namespace bpp {
     using ExtType = int;
 
     // Parameter: decide how much product we can do safely before having to normalize (smaller -> less normalizations)
-    static constexpr int allowed_product_without_normalization = 50;
+    static constexpr int allowed_product_without_normalization = 30;
 
     // Radix is the float exponent base
     static constexpr int radix = std::numeric_limits<FloatType>::radix;
@@ -117,27 +117,36 @@ namespace bpp {
     const FloatType & float_part () const noexcept { return f_; }
     const ExtType & exponent_part () const noexcept { return exp_; }
 
-    void normalize_big () noexcept {
+    bool normalize_big () noexcept {
       if (std::isfinite (f_)) {
+        bool normalized = false;
         while (std::abs(f_) > biggest_normalized_value) {
           f_ *= (double)normalize_big_factor;
           exp_ += biggest_normalized_radix_power;
+          normalized = true;
         }
+        return normalized;
       }
+      return false;
     }
     
-    void normalize_small () {
+    bool normalize_small () {
       if (f_!=0) {
+        bool normalized = false;
         while (std::abs(f_) < smallest_normalized_value) {
-        f_ *= (double)normalize_small_factor;
-        exp_ += smallest_normalized_radix_power;
+          f_ *= (double)normalize_small_factor;
+          exp_ += smallest_normalized_radix_power;
+          normalized = true;
         }
+        return normalized;
       }
+      return false;
     }
     
     void normalize () noexcept {
-      normalize_big ();
-      normalize_small ();
+      if (!normalize_big()){
+        normalize_small();
+      }
     }
 
     // Static methods without normalization
