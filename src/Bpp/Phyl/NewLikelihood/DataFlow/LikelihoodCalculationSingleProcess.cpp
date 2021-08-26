@@ -654,19 +654,6 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   condLikelihoodTree_->associateNode(conditionalLikelihoodsNode, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
   condLikelihoodTree_->setNodeIndex(conditionalLikelihoodsNode, speciesId);
 
-  if (processNodes_.ratesNode_)
-  {
-    auto catProb = ProbabilitiesFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_});
-    auto catProbEf = Convert<RowLik, Eigen::RowVectorXd>::create(getContext_(), {catProb}, RowVectorDimension (Eigen::Index (nbDistSite)));
-    vRoot.push_back(catProbEf);
-    vCondRate.push_back(catProbEf);
-
-    conditionalLikelihoodsNode = CWiseMean<MatrixLik, ReductionOf<MatrixLik>, RowLik>::create(getContext_(), std::move(vCondRate), MatrixDimension (nbState, nbDistSite));
-  }
-
-  condLikelihoodTree_->associateNode(conditionalLikelihoodsNode, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
-  condLikelihoodTree_->setNodeIndex(conditionalLikelihoodsNode, speciesId);
-
   // We want -log(likelihood)
   // auto totalNegLogLikelihood =
   //   CWiseNegate<double>::create (getContext_(), {totalLogLikelihood}, Dimension<double> ());

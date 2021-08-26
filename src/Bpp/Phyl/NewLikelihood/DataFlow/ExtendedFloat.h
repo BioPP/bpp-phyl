@@ -109,6 +109,15 @@ namespace bpp {
     static constexpr FloatType normalize_big_factor = 1. / biggest_normalized_value;
     static constexpr FloatType normalize_small_factor = 1. / smallest_normalized_value;
 
+    // constants to prevent oveflow in the float type. The overflow can happen when mulltiplying float part 
+    // values larger than biggest_value_for_mult. The maximum double value is 1.79769e+308 (~ 2^1023)
+    // In normalize_small() (in ExtendedFloatEigen.h) each float part value should be 2^(1023/2) ~ 2^511 to
+    // prevent potential overflow. Therefore, the normalization should be stopped before reaching a value larger
+    // than 2^(511 + smallest_normalized_radix_power) before the next iteration.
+    static constexpr int biggest_power_for_mult = 511 + smallest_normalized_radix_power;
+    static constexpr FloatType biggest_value_for_mult = constexpr_power (FloatType (radix), biggest_power_for_mult);
+
+
     // TODO add denorm info for sum
 
     constexpr ExtendedFloat (FloatType f = 0.0, ExtType e = 0) noexcept : f_ (f), exp_ (e) {
