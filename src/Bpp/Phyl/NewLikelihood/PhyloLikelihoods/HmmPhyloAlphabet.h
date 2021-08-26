@@ -169,11 +169,6 @@ namespace bpp {
       return stateAlphabet==this;
     }
 
-    /**
-     * @}
-     *
-     */
-
   };
 
 }

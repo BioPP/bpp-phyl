@@ -111,8 +111,6 @@ namespace bpp
     
     void setHmmStateAlphabet(std::shared_ptr<HmmStateAlphabet> stateAlphabet);
     
-    /**@} */
-
     /**
      * @brief Operator access to the emission probabilities.
      *

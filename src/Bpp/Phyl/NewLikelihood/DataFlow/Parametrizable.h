@@ -147,6 +147,7 @@ namespace bpp {
        * @param context
        * @param object : Object which will be cloned to the node.
        * @param parList: list of the ConfiguredParameters previously built
+       * @param suff  optional suffix for the parameter name, in the context of a full DataFlow
        *
        */
       

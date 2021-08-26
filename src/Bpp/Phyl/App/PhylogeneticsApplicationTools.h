@@ -1005,7 +1005,7 @@ public:
    *
    * See the Bio++ Program Suite manual for a descriptio of all available options.
    *
-   * @param trees            The trees to write.
+   * @param spc              The SubstitutionProcessCollection of all objects
    * @param params           The attribute map where options may be found.
    * @param prefix           A prefix to be applied to each attribute name.
    * @param suffix           A suffix to be applied to each attribute name.
@@ -1121,7 +1121,7 @@ public:
   /**
    * @brief Output information on the computation to a file.
    *
-   * @param phylolike The phylolikelihood to serialize.
+   * @param phylocont The phylolikelihood to serialize.
    * @param infosFile   The name of the file where to print.
    * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
    */

@@ -204,10 +204,6 @@ namespace bpp {
     };
 
     /**
-     * @}
-     */
-
-    /**
      * @name Retrieve some particular independent parameters subsets.
      *
      * @{
@@ -269,6 +265,11 @@ namespace bpp {
       return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRootFrequenciesParameters(true);
     }
       
+    /**
+     *
+     * @}
+     */
+    
     std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const override
     {
       return likCal_;

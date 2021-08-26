@@ -63,7 +63,6 @@ namespace bpp
  * Evolution, Volume 24, Issue 2, Pages 388–397,
  * https://doi.org/10.1093/molbev/msl175
  *
- *
  * This class should be used with models which equilibrium
  * distribution is fixed, ans does not depend on the parameters.
  * Otherwise there may be problems of identifiability of the
@@ -73,23 +72,16 @@ namespace bpp
  * AbstractCodonFrequenciesSubstitutionModel and
  * CodonSameAARateSubstitutionModel class.
  *
+ *
  * The additional parameters to AbstractDFPSubstitutionModel and
  * AbstractCodonFrequenciesSubstitutionModel are the rates of
  * nonsynonymous over synonymous substitutions.
  *
- * If a distance @f$d@f$ between amino-acids is defined, the
- *  non-synonymous rate is multiplied with, if the coded amino-acids
- *  are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
- *  non-negative parameter \c "alpha" and positive parameter \c
- *  "beta".
+ * This rates are a mixture of neutral model (omega=1) and negative
+ * selection (omega<1).
  *
- * If such a distance is not defined, the non-synonymous substitution
- *  rate is multiplied with @f$\beta@f$ with positive parameter \c
- *  "beta" (ie @f$d=0@f$).
+ * Parameter p0 is the proportion of negative "omega<1" sub-model.
  *
- * If such a distance is not defined, the ratio between non-synonymous
- * and synonymous substitutions rates is @f$\beta@f$ with positive
- * parameter \c "beta".
  */
 
   class DFP07:

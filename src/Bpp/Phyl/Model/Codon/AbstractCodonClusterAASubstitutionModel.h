@@ -58,7 +58,7 @@ namespace bpp
  *
  * Non-synonymous rates between amino-acids in the same cluster are
  *  multiplied with @f$\omega_C@f$, and non-synonymous rates between
- *  amino-acids in different clusters are multiplied with\omega_R@f$.
+ *  amino-acids in different clusters are multiplied with @f$\omega_R@f$.
  *
  *  Parameters names are \c "omegaR" and "omegaC".
  *

@@ -70,17 +70,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    virtual const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const = 0;
-
-    /**
-     * @brief Get a list of nodes id for which the given model is associated.
-     *
-     * @param i The index of the model in the set.
-     * @return A vector with the ids of the node associated to this model.
-     * @throw IndexOutOfBoundsException If the index is not valid.
-     */
-
-//    virtual const std::vector<unsigned int> getNodesWithModel(size_t i) const = 0;
+    virtual const TransitionModel* getModel(unsigned int branchId, size_t classIndex) const = 0;
 
     /*
      * @brief Checks and sets the models with given parameters.
@@ -104,8 +94,6 @@ namespace bpp
      */
 
     virtual void computeNormalizations(const ParameterList& nullParams, bool verbose = true) = 0;
-
-    // virtual void computeNormalizationsForASite(size_t site, const ParameterList& nullParams, bool verbose = true) = 0;
 
     /*
      * @brief return if normalizations have been performed.

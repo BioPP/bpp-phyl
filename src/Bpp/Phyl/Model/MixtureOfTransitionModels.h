@@ -89,7 +89,7 @@ namespace bpp
  * 1 <= i < n, \rho_i = K.(1-r_1)*(1-r_2)...(1-r_{i-1})*r_{i}
  * @f]
  * @f[
- * \rho_n = K.\frac{(1-r_1)*(1-r_2)*...*(1-r_{n-1})
+ * \rho_n = K.(1-r_1)*(1-r_2)*...*(1-r_{n-1})
  * @f]
  *
  * with @f[ K = \frac{1}{\sum_{i=1}^n p_i.\rho_i} @f] 

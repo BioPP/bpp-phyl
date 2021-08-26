@@ -102,10 +102,8 @@ namespace bpp
     /**
      * @brief Build a new ProbabilisticSubstitutionMapping object.
      *
-     * @param tree The tree object to use. It will be cloned for internal use.
-     * @param sc A pointer toward the substitution count object that has been used for the mapping, if any.
-     * This object allows to get the substitution types description, if there are several. If set to 0, then
-     * the mapping will be considered as having only one type of substitution mapped.
+     * @param tree The PhyloTree object to use.
+     * @param nbTypes the number of types
      * @param numberOfSites The number of sites to map.
      */
 

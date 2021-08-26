@@ -86,7 +86,6 @@ namespace bpp
     /**
      *@brief Build a new AbstractDFPSubstitutionModel object
      *
-     *@param palph pointer to a CodonAlphabet
      */
   
     AbstractDFPSubstitutionModel(const GeneticCode* gCode,

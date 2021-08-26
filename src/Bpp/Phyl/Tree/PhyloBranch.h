@@ -255,9 +255,6 @@ namespace bpp
       return ((dynamic_cast<const Number<double>*>(properties_.find("bootstrap")->second))->getValue());
     }
     
-      
-    /** @} */
-    
     
   }; //end of class PhyloBranch 
 

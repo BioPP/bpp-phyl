@@ -57,7 +57,9 @@
 
 #include <Bpp/Exceptions.h>
 
-/** @file Defines the basic types of data flow nodes.
+/**
+ *
+ *@brief Defines the basic types of data flow nodes.
  */
 
 namespace bpp {
