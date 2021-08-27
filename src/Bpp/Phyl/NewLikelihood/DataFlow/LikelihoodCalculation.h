@@ -82,7 +82,7 @@ namespace bpp {
 
     LikelihoodCalculation(const LikelihoodCalculation& lik) :
       AbstractParametrizable(lik),
-      context_(*std::shared_ptr<Context>().get()),
+      context_(*std::make_shared<Context>().get()),
       likelihood_()
     {};
 
@@ -152,6 +152,11 @@ namespace bpp {
 
     AlignedLikelihoodCalculation(Context& context) :
       LikelihoodCalculation(context) {}
+
+    AlignedLikelihoodCalculation(const AlignedLikelihoodCalculation& lik) :
+      LikelihoodCalculation(lik)
+    {};
+
 
     AlignedLikelihoodCalculation* clone() const
     {

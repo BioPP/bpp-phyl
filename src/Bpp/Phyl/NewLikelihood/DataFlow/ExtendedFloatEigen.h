@@ -998,6 +998,9 @@ namespace bpp {
 
     Self operator+=(const Array& rhs) 
     {
+      if (efm_->float_part().isZero())
+        return operator=(rhs);
+      
       if (efm_->exponent_part ()>=rhs.exponent_part ())
       {
         efm_->float_part().array() += rhs.float_part() * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - efm_->exponent_part ());
@@ -1008,6 +1011,7 @@ namespace bpp {
         efm_->exponent_part() = rhs.exponent_part ();
       }
       efm_->normalize ();
+
       return *this;
     }
 

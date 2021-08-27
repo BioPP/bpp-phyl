@@ -264,9 +264,13 @@ int main(int argc, char** argv)
   // Build likelihood value node
   auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, *process);
 
+  
   l->setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
 
+  LikelihoodCalculationSingleProcess l2(*l);
+
+  
   OneProcessSequenceEvolution ope(*process);
 
   OneProcessSequencePhyloLikelihood llh(context, c.sites,  ope);
