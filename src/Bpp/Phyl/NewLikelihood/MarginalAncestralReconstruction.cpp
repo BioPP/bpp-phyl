@@ -51,12 +51,12 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
   DataLik r;
 
   auto vv = likelihood_->getLikelihoodsAtNode(nodeId)->getTargetValue();
+  auto vv_t = vv.transpose();
+  auto vv_t_f = vv_t.float_part();
+  auto sumStates = vv_t_f.sum();
+  vv_t_f /= sumStates;
+  copyEigenToBpp(vv_t_f, probs);
 
-  for (auto i=0;i<vv.cols();i++)
-    vv.col(i)/=vv.col(i).sum();
-
-  copyEigenToBpp(vv.transpose(), probs);
-    
   if (sample)
   { 
     for (size_t i = 0; i < nbDistinctSites_; i++)

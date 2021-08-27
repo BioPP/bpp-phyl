@@ -146,7 +146,8 @@ namespace bpp
 
     ConditionalLikelihoodRef setRootFrequencies(const ValueRef<Eigen::RowVectorXd> rootFreqs)
     {
-      auto r2=CWiseFill<MatrixLik, RowLik>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
+      auto rootFreqsEf = Convert<ExtendedFloatRowVectorXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, RowVectorDimension (Eigen::Index (nbState_)));
+      auto r2=CWiseFill<MatrixLik, RowLik>::create(context_, {rootFreqsEf}, likelihoodMatrixDim_);
 
       associateNode(r2, forwardTree_->getNodeGraphid(forwardTree_->getRoot()));
       setNodeIndex(r2, forwardTree_->getRootIndex());

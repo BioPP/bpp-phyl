@@ -641,8 +641,10 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   if (processNodes_.ratesNode_)
   {
     auto catProb = ProbabilitiesFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_});
-    vRoot.push_back(catProb);
-    vCondRate.push_back(catProb);
+    auto catProbEf = Convert<RowLik, Eigen::RowVectorXd>::create(getContext_(), {catProb}, RowVectorDimension (Eigen::Index (nbDistSite)));
+    vRoot.push_back(catProbEf);
+    vCondRate.push_back(catProbEf);
+
 
     distinctSiteLikelihoodsNode = CWiseMean<RowLik, ReductionOf<RowLik>, RowLik>::create(getContext_(), std::move(vRoot), RowVectorDimension (nbDistSite));
 
@@ -651,12 +653,6 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
 
   condLikelihoodTree_->associateNode(conditionalLikelihoodsNode, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
   condLikelihoodTree_->setNodeIndex(conditionalLikelihoodsNode, speciesId);
-    
-  // // And sum all ll
-  // auto totalLogLikelihood =
-  //   SumOfLogarithms<RowLik>::create (getContext_(), {distinctSiteLikelihoodsNode, rootWeights_}, RowVectorDimension (Eigen::Index (nbDistSite)));
-
-  // return totalLogLikelihood;
 
   // We want -log(likelihood)
   // auto totalNegLogLikelihood =
