@@ -646,10 +646,10 @@ namespace bpp {
     }
 
     template< int R,  int C>
-    const Eigen::Matrix<double, R, C>& convert (const ExtendedFloatMatrix<R, C> & from,
+    const Eigen::Matrix<double, R, C> convert (const ExtendedFloatMatrix<R, C> & from,
                                                 const Dimension<Eigen::Matrix<double, R, C>> & dim)
     {
-      return from.float_part(); // efmatrix -> matrix
+      return from.float_part() * constexpr_power<double>(ExtendedFloat::radix, from.exponent_part()); // efmatrix -> matrix
     }
 
     // template< int R,  int C, template< int R2,  int C2> class EigenType>
@@ -673,9 +673,11 @@ namespace bpp {
       r = R(from);
     }
 
-    template <typename R, typename F>  
-    const R& convert (const F & from, const Dimension<R> & dim) {
-      return convert (from, dim);
+    template <typename R, typename F>
+    typename std::enable_if<!((std::is_base_of<R, Eigen::MatrixXd>::value) && (std::is_base_of<F, ExtendedFloatMatrixXd>::value)), const R &>::type
+    convert (const F & from, const Dimension<R> & dim) {
+      const R & result = convert (from, dim);
+      return result;
     }
 
 

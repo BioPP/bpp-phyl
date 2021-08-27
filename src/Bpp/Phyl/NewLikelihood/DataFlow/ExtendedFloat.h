@@ -75,7 +75,7 @@ namespace bpp {
     using ExtType = int;
 
     // Parameter: decide how much product we can do safely before having to normalize (smaller -> less normalizations)
-    static constexpr int allowed_product_without_normalization = 50;
+    static constexpr int allowed_product_without_normalization = 30;
 
     // Radix is the float exponent base
     static constexpr int radix = std::numeric_limits<FloatType>::radix;
@@ -109,6 +109,15 @@ namespace bpp {
     static constexpr FloatType normalize_big_factor = 1. / biggest_normalized_value;
     static constexpr FloatType normalize_small_factor = 1. / smallest_normalized_value;
 
+    // constants to prevent oveflow in the float type. The overflow can happen when mulltiplying float part 
+    // values larger than biggest_value_for_mult. The maximum double value is 1.79769e+308 (~ 2^1023)
+    // In normalize_small() (in ExtendedFloatEigen.h) each float part value should be 2^(1023/2) ~ 2^511 to
+    // prevent potential overflow. Therefore, the normalization should be stopped before reaching a value larger
+    // than 2^(511 + smallest_normalized_radix_power) before the next iteration.
+    static constexpr int biggest_power_for_mult = 511 + smallest_normalized_radix_power;
+    static constexpr FloatType biggest_value_for_mult = constexpr_power (FloatType (radix), biggest_power_for_mult);
+
+
     // TODO add denorm info for sum
 
     constexpr ExtendedFloat (FloatType f = 0.0, ExtType e = 0) noexcept : f_ (f), exp_ (e) {
@@ -117,27 +126,36 @@ namespace bpp {
     const FloatType & float_part () const noexcept { return f_; }
     const ExtType & exponent_part () const noexcept { return exp_; }
 
-    void normalize_big () noexcept {
+    bool normalize_big () noexcept {
       if (std::isfinite (f_)) {
+        bool normalized = false;
         while (std::abs(f_) > biggest_normalized_value) {
-          f_ *= normalize_big_factor;
+          f_ *= (double)normalize_big_factor;
           exp_ += biggest_normalized_radix_power;
+          normalized = true;
         }
+        return normalized;
       }
+      return false;
     }
     
-    void normalize_small () {
+    bool normalize_small () {
       if (f_!=0) {
+        bool normalized = false;
         while (std::abs(f_) < smallest_normalized_value) {
-        f_ *= normalize_small_factor;
-        exp_ += smallest_normalized_radix_power;
+          f_ *= (double)normalize_small_factor;
+          exp_ += smallest_normalized_radix_power;
+          normalized = true;
         }
+        return normalized;
       }
+      return false;
     }
     
     void normalize () noexcept {
-      normalize_big ();
-      normalize_small ();
+      if (!normalize_big()){
+        normalize_small();
+      }
     }
 
     // Static methods without normalization
