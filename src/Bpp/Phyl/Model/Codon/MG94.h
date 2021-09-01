@@ -66,7 +66,7 @@ namespace bpp
  * @f$(i_1,j_1) (i_2,j_2) (i_3,j_3) @f$ is different (@f$k@f$), and that
  * difference is synonymous.
  *
- * @f$\rho@f$ corresponds to ratio $f$\frac{\beta}{\alpha}@f$ in
+ * @f$\rho@f$ corresponds to ratio @f$\frac{\beta}{\alpha}@f$ in
  * original publication.
  *
  * @f$\mu@f$ is a normalization factor.
@@ -77,6 +77,7 @@ namespace bpp
  * Reference:
  * - Muse S.V. and Gaut B.S. (1994), Molecular_ Biology And Evolution_ 11(5) 715--724.
  */
+
   class MG94 :
     public AbstractBiblioSubstitutionModel,
     virtual public CodonReversibleSubstitutionModel

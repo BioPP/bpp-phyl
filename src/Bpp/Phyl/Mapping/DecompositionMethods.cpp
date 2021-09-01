@@ -329,7 +329,6 @@ void DecompositionMethods::initBMatrices_()
   //Re-initialize all B matrices according to substitution register.
   bMatrices_.resize(nbTypes_);
   insideProducts_.resize(nbTypes_);
-  
   for (size_t i = 0; i < nbTypes_; ++i) {
     bMatrices_[i].resize(nbStates_, nbStates_);
     insideProducts_[i].resize(nbStates_, nbStates_);

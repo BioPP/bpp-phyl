@@ -122,7 +122,7 @@ namespace bpp
        * phyloLikelihood 
        *
        * @param site The site index to analyse.
-       * @param p the phyloLikelihood index.
+       * @param nPhyl the phyloLikelihood index.
        * @return The likelihood for site <i>site</i>.
        */
 
@@ -137,7 +137,7 @@ namespace bpp
        * phyloLikelihood 
        *
        * @param site The site index to analyse.
-       * @param p the phyloLikelihood index.
+       * @param nPhyl the phyloLikelihood index.
        * @return The log likelihood for site <i>site</i>.
        */
 

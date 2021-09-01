@@ -70,7 +70,7 @@ namespace bpp
      * @brief Compute the reward vectors for a particular dataset
      * using the double-recursive likelihood computation.
      *
-     * @param rtlc              A LikelihoodCalculationSingleProcess object.
+     * @param rltc              A LikelihoodCalculationSingleProcess object.
      * @param edgeIds           The Ids of the nodes the reward vectors
      *                          are computed on.
      * @param reward            The Reward to use.
@@ -78,6 +78,7 @@ namespace bpp
      * @return A vector of reward vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
      */
+
     static ProbabilisticRewardMapping* computeRewardVectors(
       LikelihoodCalculationSingleProcess& rltc,
       const std::vector<uint>& edgeIds,

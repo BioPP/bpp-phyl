@@ -129,9 +129,6 @@ namespace bpp
 
     ValueRef<DataLik> makeLikelihoodsFromOperator(std::shared_ptr<Operator> op);
       
-      
-    /** @} */
-    
   };
 
 } //end of namespace bpp.

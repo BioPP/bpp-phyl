@@ -101,9 +101,9 @@ namespace bpp
      * @brief Build a new ProbabilisticRewardMapping object.
      *
      * @param tree The tree object to use. It will be cloned for internal use.
-     * @param reward A pointer toward the Reward object that has been used for the mapping, if any.
      * @param numberOfSites The number of sites to map.
      */
+
     ProbabilisticRewardMapping(const PhyloTree& tree, size_t numberOfSites) :
       AbstractMapping(numberOfSites), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(numberOfSites)
     {

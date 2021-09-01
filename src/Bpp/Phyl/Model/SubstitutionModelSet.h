@@ -394,7 +394,7 @@ public:
    * @brief Sets an assignment of a given modle index to a given onde id
    *
    * @param modelIndex The index of the model in the set.
-   * @param model      The node ID
+   * @param nodeId      The node ID
    *
    * @throw Exception if the modle index doesn't correspond to an existing modle in the modelSet
    */

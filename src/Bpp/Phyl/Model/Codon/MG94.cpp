@@ -51,7 +51,7 @@ MG94::MG94(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   AbstractBiblioSubstitutionModel("MG94."),
   pmodel_(new CodonDistancePhaseFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
-  addParameter_(new Parameter("MG94.rho", 1, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 999, true, true)));
+  addParameter_(new Parameter("MG94.rho", 1, std::make_shared<IntervalConstraint>(0.002, 999, true, true)));
 
   pmodel_->setNamespace("MG94.");
   addParameters_(pmodel_->getFrequencySet()->getParameters());

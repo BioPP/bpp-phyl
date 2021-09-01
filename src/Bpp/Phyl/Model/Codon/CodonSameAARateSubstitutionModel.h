@@ -71,7 +71,7 @@ namespace bpp
  * Which means, with @f$ \phi_a \sum_{l;a_l=a} \pi_l @f$
  *
  * \f[
- * x_{a_i,a_j} = \frac{ \phi_{a_i} A_{a_i,a_j}}{{\sum_{l;a_l=a_i} \sum_{s;a_s=a_j} \pi_l Q_{ls}} 
+ * x_{a_i,a_j} = \frac{ \phi_{a_i} A_{a_i,a_j}}{{\sum_{l;a_l=a_i} \sum_{s;a_s=a_j} \pi_l Q_{ls}}} 
  * \f]
  *
  */
@@ -134,7 +134,7 @@ namespace bpp
      * @param pFreq the Codon Frequency set, may be null, in which
      * case the equilibrium frequencies of the model are used.
      *
-     * @param prefix the Namespace
+     * @param pgencode the genetic code 
      *
      */
     

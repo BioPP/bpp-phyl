@@ -102,7 +102,7 @@ DFP07::DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel>
     }
   }
 
-  addParameter_(new Parameter("DFP07.omega", 0.5, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 1, true, false, NumConstants::MILLI())));
+  addParameter_(new Parameter("DFP07.omega", 0.5, std::make_shared<IntervalConstraint>(0.002 , 1, true, false, 0.002)));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)

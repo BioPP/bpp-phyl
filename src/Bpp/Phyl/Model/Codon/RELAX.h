@@ -58,9 +58,13 @@ namespace bpp
  * The site model of the background group is a mixture of 3 MG94 models 
  * The YN98 (i.e, kappa) parameters, except for the omega value, are shared between the 3 sub-models
  * Each site can be assigned to one of 3 omega classes that correspond to the 3 selective regimes:
- * \omega_0 = omega_1 * p < 1 @f$ (with probability @f$p_0 @f$)
- * \omega_1 <= 1 @f$ (with probability @f$p_1 @f$)
- * \omega_2 > 1 @f$ (with probability 1-@f$p_1-@f$p_0 @f$)
+ *
+ * @f$\omega_0 = omega_1 * p < 1 @f$ (with probability @f$p_0 @f$)
+ *
+ * @f$\omega_1 <= 1 @f$ (with probability @f$p_1 @f$)
+ *
+ * @f$\omega_2 > 1 @f$ (with probability @f$1-p_1-p_0 @f$)
+ *
  * The omegas of the foreground group are obtained by raising the omegas of the background group to the power of a selection intensity parameter k
  * Overall, the model consists of 9 parameters, base frequencies parameters excluded:
  * 5 parameters for the GTR model that is nested in the MG94 model (Currently, the model is implemented with a single kappa parameter rather than 5 GTR parameters)

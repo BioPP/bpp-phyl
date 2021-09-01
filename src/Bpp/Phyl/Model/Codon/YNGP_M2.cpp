@@ -102,9 +102,9 @@ YNGP_M2::YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
                                   pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
-  addParameter_(new Parameter("YNGP_M2.omega0", 0.5, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 1, true, false)));
+  addParameter_(new Parameter("YNGP_M2.omega0", 0.5, std::make_shared<IntervalConstraint>(0.002, 1, true, false)));
 
-  addParameter_(new Parameter("YNGP_M2.omega2", 2, std::make_shared<IntervalConstraint>(1, 999, false, false, NumConstants::MILLI())));
+  addParameter_(new Parameter("YNGP_M2.omega2", 2, std::make_shared<IntervalConstraint>(1, 999, false, false, 0.002)));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)

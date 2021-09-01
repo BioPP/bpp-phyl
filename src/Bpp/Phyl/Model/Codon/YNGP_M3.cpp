@@ -69,7 +69,7 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
     v2.push_back(1. / nbOmega);
   }
 
-  std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(v1, v2, NumConstants::MILLI()));
+  std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(v1, v2, 0.002 ));
 
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = psdd.get();
@@ -122,7 +122,7 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
 
   for (size_t i = 1; i < nbOmega; ++i)
   {
-    addParameter_(new Parameter("YNGP_M3.delta" + TextTools::toString(i), 0.5, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 999, true, true, NumConstants::MILLI())));
+    addParameter_(new Parameter("YNGP_M3.delta" + TextTools::toString(i), 0.5, std::make_shared<IntervalConstraint>(0.002, 999, true, true, 0.002)));
   }
 
   // look for synonymous codons

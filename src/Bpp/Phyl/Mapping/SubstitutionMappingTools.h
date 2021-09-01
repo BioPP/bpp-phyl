@@ -342,13 +342,23 @@ namespace bpp
      * @brief Sum all sites substitutions a given type.
      *
      * @param counts The substitution map to use.
+     * @param type  The number of the type
      *
      * @return A PhyloTree where branch lengths carry the branch counts.
      */
 
     static PhyloTree* getTreeForType(const ProbabilisticSubstitutionMapping& counts,
-                              size_t type);
+                                     size_t type);
 
+    /**
+     * @brief Sum all sites substitutions a given type.
+     *
+     * @param counts The substitution map to use.
+     * @param factors The substitution normalization to use.
+     * @param type  The number of the type
+     *
+     * @return A PhyloTree where branch lengths carry the branch counts.
+     */
     static PhyloTree* getTreeForType(const ProbabilisticSubstitutionMapping& counts,
                                      const ProbabilisticSubstitutionMapping& factors,
                                      size_t type);
@@ -424,7 +434,7 @@ namespace bpp
      * @brief Sum all sites substitutions for each type of a given branch.
      *
      * @param counts The substitution map to use.
-     * @param branchInd The id of the branch of the substitution tree for which the counts should be computed.
+     * @param branchId The id of the branch of the substitution tree for which the counts should be computed.
      * @return A std::vector will all counts summed for each type of substitutions.
      */
     
@@ -450,8 +460,8 @@ namespace bpp
      * @brief Compute the sum over all branches of the counts per type
      * per branch.
      *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
+     * @param rltc              A LikelihoodCalculationSingleProcess object.
+     * @param ids               The vector of numbers of the nodes of the tree
      * @param reg               the Substitution Register
      *
      *           If the SubstitutionRegister is a non-stationary
@@ -510,13 +520,11 @@ namespace bpp
 
     /**
      * @brief Sum and normalize all type of substitutions for each
-     * type of a given position.
+     * type of a given position on all nodes.
      *
      * @param counts The substitution map to use.
      * @param factors The substitution normalization to use.
      * @param site The site  for which the counts should be computed.
-     * @param ids  The ids of the branches where the the substitutions
-     *        are counted (default : all ids)
      * @param perTimeUnit           If true, normalized counts are per unit of
      *                          time (otherwise they are multiplied by
      *                          the length of the branches).
@@ -532,6 +540,23 @@ namespace bpp
       bool perTimeUnit,
       uint siteSize = 1);
 
+    /**
+     * @brief Sum and normalize all type of substitutions for each
+     * type of a given position on a set of nodes.
+     *
+     * @param counts The substitution map to use.
+     * @param factors The substitution normalization to use.
+     * @param site The site  for which the counts should be computed.
+     * @param ids  The ids of the branches where the the substitutions
+     *        are counted (default : all ids)
+     * @param perTimeUnit           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param siteSize          The length of a site, as considered as
+     *                          a counting unit (default = 1)
+     * @return A std::vector will all counts for all types of substitutions summed.
+     */
+
     static Vdouble getCountsForSitePerType(
       const ProbabilisticSubstitutionMapping& counts,
       const ProbabilisticSubstitutionMapping& factors,
@@ -544,7 +569,6 @@ namespace bpp
      * @brief Sum all type of substitutions for each site for each type. 
      *
      * @param counts The substitution map to use.
-     * @param factors The substitution normalization to use.
      * @param ids  The ids of the branches where the the substitutions
      *        are counted (default: all ids)
      * @return A std::vector will all counts for all types of substitutions summed.
@@ -555,7 +579,28 @@ namespace bpp
       const std::vector<uint>& ids = Vuint(0));
 
     /**
-     * @brief Sum and normalize all type of substitutions for each site for each type. 
+     * @brief Sum and normalize all type of substitutions for each
+     * site for each type on all nodes.
+     *
+     * @param counts The substitution map to use.
+     * @param factors The substitution normalization to use.
+     * @param perTimeUnit       If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param siteSize          The length of a site, as considered as
+     *                          a counting unit (default = 1)
+     * @return A std::vector will all counts for all types of substitutions summed.
+     */
+    
+    static VVdouble getCountsPerSitePerType(
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      bool perTimeUnit,
+      uint siteSize = 1);
+
+    /**
+     * @brief Sum and normalize all type of substitutions for each
+     * site for each type on a set of nodes.
      *
      * @param counts The substitution map to use.
      * @param factors The substitution normalization to use.
@@ -573,12 +618,6 @@ namespace bpp
       const ProbabilisticSubstitutionMapping& counts,
       const ProbabilisticSubstitutionMapping& factors,
       const std::vector<uint>& ids,
-      bool perTimeUnit,
-      uint siteSize = 1);
-
-    static VVdouble getCountsPerSitePerType(
-      const ProbabilisticSubstitutionMapping& counts,
-      const ProbabilisticSubstitutionMapping& factors,
       bool perTimeUnit,
       uint siteSize = 1);
 

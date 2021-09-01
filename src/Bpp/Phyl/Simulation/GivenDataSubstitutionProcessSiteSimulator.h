@@ -57,15 +57,17 @@ namespace bpp
  * Transition probabilities are computed a posteriori: On an edge with
  * states x -> y
  *
- *  P(y|x,D) = P(y|x) * P(D_ | y) / (sum_y' P(y'|x) * P(D_ | y')) where D_ is the data below son node
+ *  @f$P(y|x,D) = P(y|x) * P(D\_ | y) / (sum_y' P(y'|x) * P(D\_ | y'))@f$ where @f$D\_@f$ is the data below son node
  *
  * Mixture probabilities are computed a posteriori: On a node n, to
  * choose an edge e among all outgoing edges of n:
  *
- *  P(e|D) = P(e) * P(D_ | e) / (sum_e' P(e') * P(D_ | e')) where D_ is the data below son node
- *  and P(D_ | e') is the likelihood of D_ under the TOP of edge e':
+ *  @f$P(e|D) = P(e) * P(D\_ | e) / (sum_e' P(e') * P(D\_ | e'))@f$
+ *  where @f$D\_@f$ is the data below son node and @f$P(D\_ | e')@f$ is
+ *  the likelihood of @f$D\_@f$ under the TOP of edge e':
  *
- *  P(D_ | e') = 1/N . \sum_ x P(D_ | x) for x all states at the top of edge e' and N the number of states
+ *  @f$P(D\_ | e') = 1/N . \sum_x P(D\_ | x)@f$ for @f$x@f$ all states
+ *  at the top of edge @f$e'@f$ and @f$N@f$ the number of states
  *
  */
 

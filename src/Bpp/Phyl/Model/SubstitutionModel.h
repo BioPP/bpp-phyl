@@ -309,10 +309,8 @@ namespace bpp
      * This method is used to compute likelihoods in recursions.
      * It computes the probability of a vector given a start state.
      *
-     * @param i the index of the state in the model.
      * @param values An vector of states on the site.
-     * @throw IndexOutOfBoundsException if array position is out of range.
-     * @throw BadIntException if states are not allowed in the associated alphabet.
+     * @param t the branch length
      */
     
     const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const

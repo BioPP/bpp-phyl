@@ -85,7 +85,11 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
     mvPosNames_[nProc[i]].resize(seqNames_.size());
 
     for (size_t j=0; j<seqNames_.size(); j++)
+    {
+      if (!VectorTools::contains(seqNames2,seqNames_[j]))
+        throw Exception("SubstitutionProcessSequenceSimulator, unknown sequence name: " +  seqNames_[j]);
       mvPosNames_[nProc[i]][j]=VectorTools::which(seqNames2,seqNames_[j]);
+    }
   }
   
   // set up position specific processes

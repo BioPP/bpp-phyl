@@ -132,8 +132,6 @@ namespace bpp
 
     friend class ParametrizablePhyloTree;
     
-    /** @} */
-    
     
   }; //end of class PhyloBranchParam
 

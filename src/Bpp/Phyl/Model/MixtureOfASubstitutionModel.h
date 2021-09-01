@@ -60,10 +60,17 @@ public:
    * the models have rate 1 and equal probability.
    *
    * @param alpha pointer to the Alphabet
-   * @param vpModel vector of pointers to ASubstitutionModel. All the
-   *   ASubstitutionModel are owned by the instance.
-   * @warning providing a vpModel with size 0 will generate a segmentation fault!
+   * @param model pointer to the SubstitutionModel that will be mixed
+   * @param parametersDistributionsList list from parameters names towards discrete distributions to will define the mixtures.
+   * @param ffrom   index of the starting codon that will be used to homogeneize the rates of the submodels
+   * @param tto     index of the arriving codon that will be used to homogeneize the rates of the submodels
+   *
+   *   If ffrom and tto are not -1, for all submodels the transition
+   *   rate ffrom->tto is the same. Otherwise, all submodels are
+   *   normalized to have a substitution/time unit at equilibrium.
+   *
    */
+
   MixtureOfASubstitutionModel(const Alphabet* alpha,
                               SubstitutionModel* model,
                               std::map<std::string, DiscreteDistribution*> parametersDistributionsList,

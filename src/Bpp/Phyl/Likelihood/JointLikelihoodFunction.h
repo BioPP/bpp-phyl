@@ -243,7 +243,7 @@ class JointLikelihoodFunction:
 
     /**
      * @brief Returns a map of the names and values of the sequence model parameters
-     * @bool verbose - indicator weather the scanned parameters should also be reported to stdout
+     * @param verbose bool indicator weather the scanned parameters should also be reported to stdout
      */
     map<string,double> getModelParameters(bool verbose=true);
 

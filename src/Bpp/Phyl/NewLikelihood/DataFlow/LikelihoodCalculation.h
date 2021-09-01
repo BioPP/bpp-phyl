@@ -80,15 +80,21 @@ namespace bpp {
     }
 
 
+    /*
+     * @brief Copy the likelihood calculation IN THE SAME CONTEXT.
+     *
+     */
+     
     LikelihoodCalculation(const LikelihoodCalculation& lik) :
       AbstractParametrizable(lik),
-      context_(*std::make_shared<Context>().get()),
+      context_(lik.context_),
       likelihood_()
-    {};
+    {
+    };
 
     LikelihoodCalculation* clone() const
     {
-      return new LikelihoodCalculation(*this);
+      throw bpp::Exception("LikelihoodCalculation clone should not happen.");
     }
     
     ValueRef<DataLik> getLikelihoodNode()
@@ -160,7 +166,7 @@ namespace bpp {
 
     AlignedLikelihoodCalculation* clone() const
     {
-      return new AlignedLikelihoodCalculation(*this);
+      throw bpp::Exception("AlignedLikelihoodCalculation clone should not happen.");
     }
     
    protected:

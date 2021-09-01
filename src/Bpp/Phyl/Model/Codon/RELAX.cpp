@@ -174,18 +174,18 @@ void RELAX::updateMatrices()
       {                         // handle omega0 differently due to reparameterization via RELAX.p
         omega = getParameterValue("p") * getParameterValue("omega1");
         omega = pow(omega,k);
-        if (omega < 0.001)
+        if (omega < 0.002)
         {
-          omega = 0.001;
+          omega = 0.002;
         }
       }
       else if (ind == 1)
       {
         omega = getParameterValue("omega1");
         omega = pow (omega, k);  
-        if (omega <= 0.001)
+        if (omega <= 0.002)
         {
-          omega = 0.001;
+          omega = 0.002;
         }
       }
       else
