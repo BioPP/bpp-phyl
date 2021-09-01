@@ -280,6 +280,11 @@ namespace bpp {
                                        size_t nProcess);
 
     
+    /*
+     * @brief Copy the likelihood calculation IN THE SAME CONTEXT.
+     *
+     */
+     
     LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
 
     LikelihoodCalculationSingleProcess* clone() const

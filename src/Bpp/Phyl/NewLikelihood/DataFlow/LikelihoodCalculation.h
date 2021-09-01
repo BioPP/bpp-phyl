@@ -79,9 +79,14 @@ namespace bpp {
     }
 
 
+    /*
+     * @brief Copy the likelihood calculation IN THE SAME CONTEXT.
+     *
+     */
+     
     LikelihoodCalculation(const LikelihoodCalculation& lik) :
       AbstractParametrizable(lik),
-      context_(*std::make_shared<Context>()),
+      context_(lik.context_),
       likelihood_()
     {
     };
