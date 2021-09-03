@@ -275,15 +275,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
         substitutionsForCurrentNode[t] += substitutionsForCurrentClass[t] * pr;
     }
 
-    
     // Now we just have to copy the substitutions into the result vector:
 
     for (size_t i = 0; i < nbDistinctSites; ++i)
     {
       for (size_t t = 0; t < nbTypes; ++t)
       {
-        double x = substitutionsForCurrentNode[t](Eigen::Index(i));
-        
+        double x = convert(substitutionsForCurrentNode[t](Eigen::Index(i)));
         if (std::isnan(x) || std::isinf(x))
         {
           if (verbose)
@@ -299,7 +297,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
             (*br)(i,t)=0;
           }
           else     
-            (*br)(i,t)= x;;
+            (*br)(i,t)= x;
         }
       }
     }
@@ -565,7 +563,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
     for (size_t i = 0; i < nbDistinctSites; ++i)
     {
       for (size_t t = 0; t < nbTypes; ++t)
-        (*br)(i,t) = rewardsForCurrentNode[t](Eigen::Index(i));
+        (*br)(i,t) = convert(rewardsForCurrentNode[t](Eigen::Index(i)));
     }
   } // end of loop on branches
 

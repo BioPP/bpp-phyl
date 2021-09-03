@@ -64,14 +64,17 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
 
   // Set up cumsum rates
 
-  const auto dRate = process_->getRateDistribution();
+  const auto& dRate = process_->getRateDistribution();
+
+  std::vector<DataLik> qR(nbClasses_);
+  for (size_t i=0; i<nbClasses_; i++)
+    qR[i]=calcul_->getSiteLikelihoodsForAClass(i)(pos_, true);
+
+  auto sQ=VectorTools::sum(qR);
 
   qRates_.clear();
-  
-  for (size_t i=0; i<nbClasses_; i++)
-    qRates_.push_back(calcul_->getSiteLikelihoodsForAClass(i)(pos_, true));
-
-  qRates_ /= VectorTools::sum(qRates_);
+  for (size_t i=0;i<nbClasses_;i++)
+    qRates_.push_back(convert(qR[i]/sQ));
 
   // Initialize root frequencies
 

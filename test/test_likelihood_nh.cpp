@@ -97,7 +97,6 @@ int main() {
 
   NonHomogeneousSubstitutionProcess* subProSim= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, parTree.clone(), rootFreqs2, globalParameterNames);
 
-  SubstitutionProcess* nsubPro=subProSim->clone();
 
   // Simulation
   size_t nsites = 1000;
@@ -132,7 +131,7 @@ int main() {
     tl.initialize();
 
     Context context;
-    auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *sites->clone(), *nsubPro);
+    auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *sites->clone(), *subProSim->clone());
     
     SingleProcessPhyloLikelihood ntl(context, lik, lik->getParameters());
 

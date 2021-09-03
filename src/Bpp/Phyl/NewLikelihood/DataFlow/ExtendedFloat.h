@@ -123,6 +123,9 @@ namespace bpp {
     constexpr ExtendedFloat (FloatType f = 0.0, ExtType e = 0) noexcept : f_ (f), exp_ (e) {
     }
 
+    constexpr ExtendedFloat (const ExtendedFloat& ef) noexcept : f_ (ef.float_part()), exp_ (ef.exponent_part()) {
+    }
+
     const FloatType & float_part () const noexcept { return f_; }
     const ExtType & exponent_part () const noexcept { return exp_; }
 
@@ -212,6 +215,13 @@ namespace bpp {
     /*********************************
      ** Utilities
      *********************************/
+
+    inline ExtendedFloat& operator= (const ExtendedFloat& ef)
+    {
+      f_=ef.float_part();
+      exp_=ef.exponent_part();
+      return *this;
+    }
 
     inline ExtendedFloat operator+ (const ExtendedFloat & rhs) const {
       auto r = denorm_add (*this, rhs);

@@ -53,12 +53,16 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(s
   else
   {
     auto probas = rates->getProbabilities();
-    Vdouble vv(rates->getNumberOfCategories());
+    std::vector<DataLik> vv(rates->getNumberOfCategories());
     for (size_t i=0;i<vv.size();i++)
       vv[i]=probas[i] * (getLikelihoodCalculationSingleProcess()->getSiteLikelihoodsForAClass(i))(Eigen::Index(pos));
-      
-    vv/=VectorTools::sum(vv);
-    return vv;
+        
+    auto sv=VectorTools::sum(vv);
+    Vdouble res(rates->getNumberOfCategories());
+    
+    for (size_t i=0;i<vv.size();i++)
+      res[i]= convert(vv[i]/sv);
+    return(res);
   }
 }
 

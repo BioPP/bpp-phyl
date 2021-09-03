@@ -236,7 +236,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     
     // Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbDistinctSites; ++i)
-      (*br)(i) = rewardsForCurrentNode(Eigen::Index(i));
+      (*br)(i) = convert(rewardsForCurrentNode(Eigen::Index(i)));
 
   }
   if (verbose)

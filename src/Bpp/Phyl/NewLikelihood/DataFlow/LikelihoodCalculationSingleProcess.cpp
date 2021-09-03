@@ -146,12 +146,11 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
   
   // add Independent Parameters
   const auto& paramProc=process_.getIndependentParameters();
-  
+
   for (size_t i=0;i<paramProc.size();i++)
     paramList.shareParameter(ConfiguredParameter::create(getContext_(), paramProc[i]));
   
   // Share dependencies with aliased parameters
-
   for (size_t i=0;i<paramProc.size();i++)
   {
     auto vs=process_.getAlias(paramProc[i].getName());

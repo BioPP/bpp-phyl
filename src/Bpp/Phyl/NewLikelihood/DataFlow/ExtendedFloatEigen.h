@@ -842,19 +842,19 @@ namespace bpp {
     /****
      * @brief Access to elements of the matrix for modification
      *
-     * !!! ONLY eigen element is reachable like this, and can be changed
+     * !!! ONLY EIGEN ELEMENT IS REACHABLE LIKE THIS, AND CAN BE CHANGED
      *
      */
 
-    double& operator()(Eigen::Index row, Eigen::Index col)
-    {
-      return float_part()(row,col);
-    }
+    // double& operator()(Eigen::Index row, Eigen::Index col)
+    // {
+    //   return float_part()(row,col);
+    // }
 
-    double& operator()(Eigen::Index row)
-    {
-      return float_part()(row);
-    }
+    // double& operator()(Eigen::Index row)
+    // {
+    //   return float_part()(row);
+    // }
     
     /*********************************************/
     /*** Modifications  ******/

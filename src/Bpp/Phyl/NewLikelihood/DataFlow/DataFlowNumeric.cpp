@@ -64,9 +64,6 @@ namespace bpp {
 
   //template void copyBppToEigen(bpp::Matrix<double> const&, Eigen::Matrix<double, -1, -1, 0, -1, -1>&);
 
-  template void copyBppToEigen(const bpp::Matrix<double>&, Eigen::MatrixXd&);
-  template void copyBppToEigen<ExtendedFloatMatrixXd>(const bpp::Matrix<double>&, ExtendedFloatMatrixXd&);
-
   
   void copyBppToEigen (const std::vector<ExtendedFloatVectorXd>& bppVector, ExtendedFloatMatrixXd & eigenVector)
   {
@@ -97,6 +94,44 @@ namespace bpp {
     }
   }
 
+
+  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, ExtendedFloatMatrixXd & eigenMatrix) {
+    const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
+    const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
+    eigenMatrix.resize (eigenRows, eigenCols);
+    eigenMatrix.fill(0);
+    for (Eigen::Index i = 0; i < eigenRows; ++i) {
+      for (Eigen::Index j = 0; j < eigenCols; ++j) {
+        eigenMatrix.float_part() (i, j)=bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
+      }
+    }
+#ifdef DEBUG
+    std::cerr << "copyBppToEigen(" << typeid(bppMatrix).name() << ", " << typeid(eigenMatrix).name() << ")" << std::endl;
+    std::cerr << &bppMatrix << std::endl; 
+    std::cerr << eigenRows << "," << eigenCols << std::endl;
+    std::cerr << eigenMatrix << std::endl;
+#endif
+  }
+
+  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix) {
+    const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
+    const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
+    eigenMatrix.resize (eigenRows, eigenCols);
+    eigenMatrix.fill(0);
+    for (Eigen::Index i = 0; i < eigenRows; ++i) {
+      for (Eigen::Index j = 0; j < eigenCols; ++j) {
+        eigenMatrix (i, j) = bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
+      }
+    }
+#ifdef DEBUG
+    std::cerr << "copyBppToEigen(" << typeid(bppMatrix).name() << ", " << typeid(eigenMatrix).name() << ")" << std::endl;
+    std::cerr << &bppMatrix << std::endl; 
+    std::cerr << eigenRows << "," << eigenCols << std::endl;
+    std::cerr << eigenMatrix << std::endl;
+#endif
+  }
+
+  
   
   /*****************************************/
   /* copyEigenToBpp */

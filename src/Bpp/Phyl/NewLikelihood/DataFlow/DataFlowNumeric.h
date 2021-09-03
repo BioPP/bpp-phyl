@@ -138,32 +138,8 @@ namespace bpp {
   
   /********************************/
 
-
-  template<typename eMatrix,
-           typename = typename std::enable_if<(std::is_same<eMatrix, Eigen::MatrixXd>::value
-                                               || std::is_same<eMatrix, ExtendedFloatMatrixXd>::value)>::type>
-  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, eMatrix & eigenMatrix) {
-    const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
-    const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
-#ifdef DEBUG
-    std::cerr << "copyBppToEigen(" << typeid(bppMatrix).name() << ", " << typeid(eigenMatrix).name() << ")" << std::endl;
-    
-    std::cerr << eigenRows << "," << eigenCols << std::endl;
-#endif
-    eigenMatrix.resize (eigenRows, eigenCols);
-    eigenMatrix.fill(0);
-    for (Eigen::Index i = 0; i < eigenRows; ++i) {
-      for (Eigen::Index j = 0; j < eigenCols; ++j) {
-        eigenMatrix (i, j) = bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
-      }
-    }
-  }
-
-  
-  extern template void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, Eigen::MatrixXd & eigenMatrix);
-  extern template void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, ExtendedFloatMatrixXd & eigenMatrix);
-
-
+  extern void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, Eigen::MatrixXd & eigenMatrix);
+  extern void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, ExtendedFloatMatrixXd & eigenMatrix);
   
   extern void copyBppToEigen (const std::vector<Eigen::VectorXd>& bppVector, Eigen::MatrixXd & eigenMatrix);
   extern void copyBppToEigen (const std::vector<ExtendedFloatVectorXd>& bppVector, ExtendedFloatMatrixXd & eigenMatrix);
@@ -674,12 +650,11 @@ namespace bpp {
     }
 
     template <typename R, typename F>
-    typename std::enable_if<!((std::is_base_of<R, Eigen::MatrixXd>::value) && (std::is_base_of<F, ExtendedFloatMatrixXd>::value)), const R &>::type
+    typename std::enable_if<!((std::is_base_of<R, Eigen::MatrixXd>::value) && (std::is_base_of<F, ExtendedFloatMatrixXd>::value)), const R>::type
     convert (const F & from, const Dimension<R> & dim) {
-      const R & result = convert (from, dim);
+      const R result = convert (from, dim);
       return result;
     }
-
 
     /*******************************************/
     /*** Simple operators ***/

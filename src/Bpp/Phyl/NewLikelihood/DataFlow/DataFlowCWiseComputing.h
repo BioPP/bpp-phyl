@@ -1743,16 +1743,16 @@ namespace bpp {
       {
         const ExtendedFloat product = m.float_part().unaryExpr ([](double d) {
           ExtendedFloat ef{d};
-          ef.normalize_small ();
+          ef.normalize ();
           return ef;
         }).redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
           auto r = ExtendedFloat::denorm_mul (lhs, rhs);
           r.normalize_small ();
           return r;
         });
-        result = product.log() + m.exponent_part() * ExtendedFloat::ln_radix;
+        result = product.log() + double(m.exponent_part() * m.size()) * ExtendedFloat::ln_radix;
 #ifdef DEBUG
-        std::cerr << "product= " << product << std::endl;
+        std::cerr << "product= " << product << "* 2^" << m.size() * m.exponent_part() << std::endl;
         std::cerr << "result log= " << result << std::endl;
 #endif
       }
@@ -1777,9 +1777,9 @@ namespace bpp {
           return r;
         });
         
-        result = product.log () + m.exponent_part() * ExtendedFloat::ln_radix;
+        result = product.log () + double(m.exponent_part() * p.sum()) * ExtendedFloat::ln_radix;
 #ifdef DEBUG
-        std::cerr << "PRODUCT= " << product << std::endl;
+        std::cerr << "PRODUCT= " << product << "* 2^" << p.sum() * m.exponent_part() << std::endl;
         std::cerr << "RESULT log= " << result << std::endl;
 #endif
       }

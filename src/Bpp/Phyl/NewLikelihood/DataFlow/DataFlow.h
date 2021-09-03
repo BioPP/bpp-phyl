@@ -535,6 +535,17 @@ namespace bpp {
     {
       return nodeCache_.size();
     }
+
+    /*
+     * @brief Clear the context
+     *
+     */
+    
+    void clear()
+    {
+      nodeCache_.clear();
+    }
+    
   private:
     /* NodeRef is hashable and comparable as a pointer.
      * CachedNodeRef is hashable and comparable, by comparing the node configuration:
