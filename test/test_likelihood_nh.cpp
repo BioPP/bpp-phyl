@@ -132,8 +132,8 @@ int main() {
 
     Context context;
     auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *sites->clone(), *subProSim->clone());
-    
-    SingleProcessPhyloLikelihood ntl(context, lik, lik->getParameters());
+
+    SingleProcessPhyloLikelihood ntl(context, lik);
 
     cout << setprecision(10) << "OldTL init: "  << tl.getValue()  << endl;
     cout << setprecision(10) << "NewTL init: "  << ntl.getValue()  << endl;

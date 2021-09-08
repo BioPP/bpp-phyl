@@ -104,7 +104,7 @@ namespace bpp {
     }
 
     /*
-     * @brief: the parameters are those of the LikelihoodCalculation
+     * @brief: the parameters the independent parameters of the LikelihoodCalculation
      */
       
     SingleProcessPhyloLikelihood (Context & context,
@@ -117,7 +117,7 @@ namespace bpp {
       AbstractParametrizable(""),
       likCal_(likCal), nProc_(nProc)
     {
-      shareParameters_(likCal_->getParameters());
+      shareParameters_(likCal_->getIndependentParameters());
     }
 
     // Legacy boilerplate

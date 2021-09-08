@@ -106,7 +106,7 @@ int main() {
   //Now fit model:
   Context context;
   auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
-  SingleProcessPhyloLikelihood llh(context, l, l->getParameters());
+  SingleProcessPhyloLikelihood llh(context, l);
 
   OptimizationTools::optimizeNumericalParameters2(
       llh, llh.getParameters(), 0,
@@ -139,7 +139,7 @@ int main() {
   //Now fit model:
   auto process2 = std::shared_ptr<SubstitutionProcess>(process->clone());
   auto l2 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites2, *process2);
-  SingleProcessPhyloLikelihood llh2(context, l2, l2->getParameters());
+  SingleProcessPhyloLikelihood llh2(context, l2);
 
   OptimizationTools::optimizeNumericalParameters2(
     llh2, llh2.getParameters(), 0,

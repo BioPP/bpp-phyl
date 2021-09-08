@@ -257,15 +257,6 @@ namespace bpp {
     LikelihoodCalculationSingleProcess(Context & context,
                                        const SubstitutionProcess& process);
 
-    LikelihoodCalculationSingleProcess(Context & context,
-                                       const AlignedValuesContainer & sites,
-                                       const SubstitutionProcess& process,
-                                       ParameterList& paramList);
-
-    LikelihoodCalculationSingleProcess(Context & context,
-                                       const SubstitutionProcess& process,
-                                       ParameterList& paramList);
-
     /*
      * @brief Build using Nodes of CollectionNodes.
      *
@@ -645,15 +636,8 @@ namespace bpp {
     void makeProcessNodes_();
       
     void makeRootFreqs_();
-
+ 
     void makeLikelihoodsAtRoot_();
-
-    /*
-     *@ brief make DF nodes of the process, using
-     *ConfiguredParameters defined in a ParameterList.
-     */
-
-    void makeProcessNodes_(ParameterList& pl);
 
     /*
      *@ brief make DF nodes of a process in a collection, using

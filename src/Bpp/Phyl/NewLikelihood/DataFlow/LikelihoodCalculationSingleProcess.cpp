@@ -50,40 +50,6 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
   setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
-LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
-                                                                       const AlignedValuesContainer & sites,
-                                                                       const SubstitutionProcess& process,
-                                                                       ParameterList& paramList):
-  AlignedLikelihoodCalculation(context),
-  process_(process), psites_(&sites),
-  rootPatternLinks_(), rootWeights_(), shrunkData_(),
-  processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
-{
-  setPatterns_();
-  makeProcessNodes_(paramList);
-
-  // Default Derivate 
-  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
-}
-
-
-LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
-                                                                       const SubstitutionProcess& process,
-                                                                       ParameterList& paramList):
-  AlignedLikelihoodCalculation(context),
-  process_(process), psites_(),
-  rootPatternLinks_(), rootWeights_(), shrunkData_(),
-  processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
-{
-  makeProcessNodes_(paramList);
-
-  // Default Derivate 
-  setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
-}
-
-
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                                                        const AlignedValuesContainer & sites,
                                                                        size_t nProcess):
@@ -142,72 +108,44 @@ void LikelihoodCalculationSingleProcess::setPatterns_()
 
 void LikelihoodCalculationSingleProcess::makeProcessNodes_()
 {
-  ParameterList paramList;
-  
   // add Independent Parameters
   const auto& paramProc=process_.getIndependentParameters();
 
   for (size_t i=0;i<paramProc.size();i++)
-    paramList.shareParameter(ConfiguredParameter::create(getContext_(), paramProc[i]));
+    shareParameter_(ConfiguredParameter::create(getContext_(), paramProc[i]));
   
   // Share dependencies with aliased parameters
   for (size_t i=0;i<paramProc.size();i++)
   {
-    auto vs=process_.getAlias(paramProc[i].getName());
-    auto dep=dynamic_cast<const ConfiguredParameter*>(&paramList[i])->dependency(0);
+    auto name=paramProc[i].getName();
+    auto vs=process_.getAlias(name);
+
+    auto dep=dynamic_cast<const ConfiguredParameter*>(&getParameters_()[i])->dependency(0);
     for (const auto& s:vs)
     {
       auto newacp = ConfiguredParameter::create(getContext_(), {dep}, process_.getParameter(s));
-      paramList.shareParameter(newacp);
-    }
+      shareParameter_(newacp);
+      aliasParameters(name, s);
+   }
   }
-  makeProcessNodes_(paramList);
-}
 
-void LikelihoodCalculationSingleProcess::makeProcessNodes_(ParameterList& paramList)
-{
   const auto spcm=dynamic_cast<const SubstitutionProcessCollectionMember*>(&process_);
 
-  // share process_ parameters with those of the paramList
-  const auto& paramProc=process_.getParameters();
   
-  for (size_t i=0;i<paramProc.size();i++)
-  {
-    auto name=paramProc[i].getName();
-    if (!paramList.hasParameter(name))
-      throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes_ : paramList does not have parameter " + name);
-    auto* confPar=dynamic_cast<ConfiguredParameter*>(&paramList.getParameter(name));
-    if (!confPar)
-      throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes_ : parameter " + name + "is not a ConfiguredParameter.");
-      
-    shareParameter_(paramList.getSharedParameter(name));
-  }
-  
-  // // Share dependencies with aliased parameters
-
-  // for (size_t i=0;i<paramProc.size();i++)
-  // {
-  //   auto vs=process_.getAlias(paramProc[i].getName());
-  //   auto dep=dynamic_cast<const ConfiguredParameter*>(&paramList.getParameters()[i])->dependency(0);
-  //   for (const auto& s:vs)
-  //   {
-  //     auto newacp = ConfiguredParameter::create(getContext_(), {dep}, process_.getParameter(s));
-  //     paramList.shareParameter_(newacp);
-  //   }
-  // }
+  auto& pl2(getParameters_());
 
   // rates node
   std::string suff=spcm?("_"+TextTools::toString(spcm->getRateDistributionNumber())):"";
   
   auto rates = process_.getRateDistribution(); 
   if (rates && dynamic_cast<const ConstantRateDistribution*>(rates)==nullptr)
-    processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext_(), *rates, paramList, suff);
+    processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext_(), *rates, pl2, suff);
 
 
   ///////
   // tree node
   suff=spcm?("_"+TextTools::toString(spcm->getTreeNumber())):"";
-  processNodes_.treeNode_ = ProcessTree::makeProcessTree(getContext_(), process_, paramList, suff);
+  processNodes_.treeNode_ = ProcessTree::makeProcessTree(getContext_(), process_, pl2, suff);
 
   ///////////////////////////
   // rootFrequencies node
@@ -216,7 +154,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(ParameterList& paramL
   if (root)
   {
     suff=spcm?("_"+TextTools::toString(spcm->getRootFrequenciesNumber())):"";
-    processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(getContext_(), *root, paramList, suff);
+    processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(getContext_(), *root, pl2, suff);
   }
 
   auto itE = processNodes_.treeNode_->allEdgesIterator();
@@ -236,8 +174,8 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& coll
   auto& spcm = collection.getCollection().getSubstitutionProcess(nProc);
 
   // share process parameters with those of the collection
-  const auto& paramProc=spcm.getParameters();
-  
+  const auto& paramProc=spcm.getIndependentParameters();
+
   for (size_t i=0;i<paramProc.size();i++)
   {
     auto name=paramProc[i].getName();
@@ -245,6 +183,22 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& coll
       throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes_ : CollectionNodes does not have parameter " + name);
     
     shareParameter_(collection.getSharedParameter(name));
+  }
+
+  // share dependencies
+  
+  for (size_t i=0;i<paramProc.size();i++)
+  {
+    auto name=paramProc[i].getName();
+    auto vs=spcm.getAlias(name);
+
+    auto dep=dynamic_cast<const ConfiguredParameter*>(&getParameters_()[i])->dependency(0);
+    for (const auto& s:vs)
+    {
+      auto newacp = ConfiguredParameter::create(getContext_(), {dep}, spcm.getParameter(s));
+      shareParameter_(newacp);
+      aliasParameters(name, s);
+    }
   }
 
   // rates node
@@ -507,8 +461,6 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
     val = SumOfLogarithms<RowLik>::create (getContext_(), {sL, rootWeights_}, RowVectorDimension (Eigen::Index (nbDistSite)));
   else
     val = SumOfLogarithms<RowLik>::create (getContext_(), {sL}, RowVectorDimension (Eigen::Index (nbDistSite)));
-
-  auto nbE =  NumericConstant<uint>::create(getContext_(), (uint)process_.getParametrizablePhyloTree().getNumberOfEdges());
 
   setLikelihoodNode(val);
   

@@ -43,7 +43,7 @@
 #include <Eigen/Core>
 
 #include "Bpp/Phyl/NewLikelihood/DataFlow/DataFlowNumeric.h"
-#include <Bpp/Numeric/AbstractParametrizable.h>
+#include <Bpp/Numeric/AbstractParameterAliasable.h>
 #include "Definitions.h"
 
 namespace bpp {
@@ -53,7 +53,7 @@ namespace bpp {
    */
 
   class LikelihoodCalculation :
-    public AbstractParametrizable
+    public AbstractParameterAliasable
   {
   private:
     
@@ -67,13 +67,13 @@ namespace bpp {
 
   public:
     LikelihoodCalculation(Context & context) :
-      AbstractParametrizable(""),
+      AbstractParameterAliasable(""),
       context_(context)
     {}
 
     LikelihoodCalculation(Context & context,
                           ParameterList& paramList) : 
-      AbstractParametrizable(""),
+      AbstractParameterAliasable(""),
       context_(context)
     {  
       shareParameters_(paramList);
@@ -86,7 +86,7 @@ namespace bpp {
      */
      
     LikelihoodCalculation(const LikelihoodCalculation& lik) :
-      AbstractParametrizable(lik),
+      AbstractParameterAliasable(lik),
       context_(lik.context_),
       likelihood_()
     {

@@ -102,6 +102,7 @@ namespace bpp {
       ParameterList pl;
       for (size_t i=0; i<nb; i++)
       {
+        // no parameters for each SingleProcessPhyloLikelihood
         auto spl = make_shared<SingleProcessPhyloLikelihood>(getContext(), mpsp.getLikelihoodCalculationForAProcess(i), pl);
 
         if (!nbSites_)

@@ -144,6 +144,7 @@ int main() {
 
   modelColl->addSubstitutionProcess(2, mModBr2, 2, 2, 1);
 
+  modelColl->aliasParameters("T92.kappa_1","T92.kappa_2");
   // Data
 
   VectorSiteContainer sites(alphabet);
