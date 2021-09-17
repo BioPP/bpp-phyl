@@ -46,27 +46,25 @@ using namespace std;
 
 vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint nodeId, VVdouble& probs, bool sample) const
 {
-  vector<size_t> ancestors(nbDistinctSites_);
-
-  DataLik r;
+  vector<size_t> ancestors(nbSites_);
 
   auto vv = likelihood_->getLikelihoodsAtNode(nodeId)->getTargetValue();
-  auto vv_t = vv.transpose();
-  auto vv_t_f = vv_t.float_part();
-  auto sumStates = vv_t_f.sum();
-  vv_t_f /= sumStates;
-  copyEigenToBpp(vv_t_f, probs);
+
+  probs.resize(nbSites_);
+  
+  for (auto i=0;i<nbSites_;i++)
+    copyEigenToBpp(vv.col(i)/vv.col(i).sum(),probs[size_t(i)]);
 
   if (sample)
   { 
-    for (size_t i = 0; i < nbDistinctSites_; i++)
+    for (size_t i = 0; i < nbSites_; i++)
     {
-      const auto& coli = vv.col(Eigen::Index(i));
-      r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
+      const auto& coli = probs[i];
+      double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
       for (size_t j = 0; j < nbStates_; j++)
       {
-        r -= coli(Eigen::Index(j));
-        if (r < DataLik(0))
+        r -= coli[j];
+        if (r < 0)
         {
           ancestors[i] = j;
           break;
@@ -77,7 +75,7 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
   else
   {
     size_t pos;
-    for (size_t i = 0; i < nbDistinctSites_; i++)
+    for (size_t i = 0; i < nbSites_; i++)
     {
       vv.col(Eigen::Index(i)).maxCoeff(&pos);
       ancestors[i] = pos;
@@ -105,8 +103,10 @@ Sequence* MarginalAncestralReconstruction::getAncestralSequenceForNode(uint node
   const auto& statemap = likelihood_->getStateMap();
 
   VVdouble patternedProbs;
+  
   if (probs)
   {
+    
     auto states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     probs->resize(nbSites_);
     for (size_t i = 0; i < nbSites_; i++)

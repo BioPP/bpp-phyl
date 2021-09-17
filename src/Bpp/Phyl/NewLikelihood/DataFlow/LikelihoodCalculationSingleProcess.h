@@ -648,7 +648,7 @@ namespace bpp {
 
     /*
      * @brief Compute the likelihood at a given node in the tree,
-     * which number may not be the same number number in the DAG.
+     * which number may not be the same number in the DAG.
      *
      * Several nodes in the DAG may be related to this tree node, in
      * which case a sum is computed.

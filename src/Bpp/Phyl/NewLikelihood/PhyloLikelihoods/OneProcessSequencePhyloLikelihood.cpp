@@ -219,13 +219,22 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRatePerSite() const
 Vdouble OneProcessSequencePhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
 {
   auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode(nodeId)->getTargetValue();
-  
-  for (auto i=0;i<vv.cols();i++)
-    vv.col(i)/=vv.col(i).sum();
 
-  VectorLik vs(vv.rowwise().mean());
-    
-  Vdouble v;
-  copyEigenToBpp(vs, v);
+  size_t nbSites   = getNumberOfSites();
+  VVdouble pp;
+  pp.resize(nbSites);
+
+  for (auto i=0;i<nbSites;i++)
+    copyEigenToBpp(vv.col(i)/vv.col(i).sum(),pp[size_t(i)]);
+
+  Vdouble v(nbStates_);
+  for (auto st=0;st<nbStates_;st++)
+  {
+    auto s=0.0;
+    for (auto i=0;i<(size_t)nbSites;i++)
+      s+=pp[i][size_t(st)];
+
+    v[size_t(st)]=s/(double)nbSites;
+  }
   return v;
 }

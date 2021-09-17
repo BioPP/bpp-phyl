@@ -149,34 +149,23 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRatePerSite() const
 Vdouble SingleProcessPhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
 {
   auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode(nodeId)->getTargetValue();
-  
-  for (auto i=0;i<vv.cols();i++)
-    vv.col(i)/=vv.col(i).sum();
 
-  VectorLik vs(vv.rowwise().mean());
-    
-  Vdouble v;
-  copyEigenToBpp(vs, v);
+  size_t nbSites   = getNumberOfSites();
+  VVdouble pp;
+  pp.resize(nbSites);
+
+  for (auto i=0;i<nbSites;i++)
+    copyEigenToBpp(vv.col(i)/vv.col(i).sum(),pp[size_t(i)]);
+
+  Vdouble v(nbStates_);
+  for (auto st=0;st<nbStates_;st++)
+  {
+    auto s=0.0;
+    for (auto i=0;i<(size_t)nbSites;i++)
+      s+=pp[i][size_t(st)];
+
+    v[size_t(st)]=s/(double)nbSites;
+  }
   return v;
 }
 
-// void SingleProcessPhyloLikelihood::geAncestralFrequencies(std::map<int, Vdouble>& frequencies,
-//                                                           bool alsoForLeaves)
-// {
-//   const auto& condLikTree = getLikelihoodCalculationSingleProcess()->getLikelihoodsTree();
-
-//   auto allIndex = alsoForLeaves?condLikTree.getAllNodesIndexes():condLikTree.getAllInnerNodesIndexes();
-
-//   for (size_t id:allIndex)
-//   {
-//     auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode((uint)id)->getTargetValue();
-//     for (auto i=0;i<vv.cols();i++)
-//       vv.col(i)/=vv.col(i).sum();
-
-//     Eigen::VectorXd vs(vv.rowwise().mean());
-
-//     Vdouble v;
-//     copyEigenToBpp(vs, v);
-//     frequencies[(uint)id]=std::move(v);
-//   }
-// }

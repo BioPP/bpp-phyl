@@ -136,8 +136,11 @@ namespace bpp {
   /*****************************************/
   /* copyEigenToBpp */
 
-  template void copyEigenToBpp(const MatrixLik & eigenMatrix, std::vector<std::vector<double>> & bppMatrix);
-  template void copyEigenToBpp(const MatrixLik & eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>> & bppMatrix);
+  template void copyEigenToBpp(const ExtendedFloatMatrixXd & eigenMatrix, std::vector<std::vector<double>> & bppMatrix);
+  template void copyEigenToBpp(const ExtendedFloatMatrixXd & eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>> & bppMatrix);
+
+  template void copyEigenToBpp(const Eigen::MatrixXd & eigenMatrix, std::vector<std::vector<double>> & bppMatrix);
+  template void copyEigenToBpp(const Eigen::MatrixXd & eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>> & bppMatrix);
 
   void copyEigenToBpp (const MatrixLik & eigenMatrix, bpp::Matrix<double> & bppMatrix)
   {
@@ -151,7 +154,7 @@ namespace bpp {
       }
     }
   } 
-  
+
   template void copyEigenToBpp (const RowLik& eigenVector, Vdouble& bppVector);
   template void copyEigenToBpp (const VectorLik& eigenVector, Vdouble& bppVector);
   template void copyEigenToBpp (const RowLik& eigenVector, std::vector<ExtendedFloat>& bppVector);

@@ -153,7 +153,7 @@ namespace bpp {
   template<typename eType,
            typename = typename std::enable_if<(std::is_same<eType, double>::value
                                                || std::is_same<eType, ExtendedFloat>::value)>::type>
-  void copyEigenToBpp (const MatrixLik & eigenMatrix, std::vector<std::vector<eType>>& bppMatrix)
+  void copyEigenToBpp (const ExtendedFloatMatrixXd & eigenMatrix, std::vector<std::vector<eType>>& bppMatrix)
   {
     const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
     const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
@@ -169,8 +169,30 @@ namespace bpp {
   }
 
 
-  extern template void copyEigenToBpp(const MatrixLik & eigenMatrix, std::vector<std::vector<double>> & bppMatrix);
-  extern template void copyEigenToBpp(const MatrixLik & eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>> & bppMatrix);
+  extern template void copyEigenToBpp(const ExtendedFloatMatrixXd & eigenMatrix, std::vector<std::vector<double>> & bppMatrix);
+  extern template void copyEigenToBpp(const ExtendedFloatMatrixXd & eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>> & bppMatrix);
+
+  template<typename eType,
+           typename = typename std::enable_if<(std::is_same<eType, double>::value
+                                               || std::is_same<eType, ExtendedFloat>::value)>::type>
+  void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, std::vector<std::vector<eType>>& bppMatrix)
+  {
+    const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
+    const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
+
+    bppMatrix.resize (eigenRows);
+    for (size_t i = 0; i < eigenRows; ++i) {
+      bppMatrix[i].resize (eigenCols);
+      auto bMi = &bppMatrix[i];
+      for (size_t j = 0; j < eigenCols; ++j) {
+        (*bMi)[j] = eigenMatrix (static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j));
+      }
+    }
+  }
+
+
+  extern template void copyEigenToBpp(const Eigen::MatrixXd & eigenMatrix, std::vector<std::vector<double>> & bppMatrix);
+  extern template void copyEigenToBpp(const Eigen::MatrixXd & eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>> & bppMatrix);
 
 
   extern void copyEigenToBpp(const MatrixLik & eigenMatrix, Matrix<double> & bppMatrix);
