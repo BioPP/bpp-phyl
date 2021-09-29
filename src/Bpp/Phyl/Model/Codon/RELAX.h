@@ -49,15 +49,11 @@ namespace bpp
 
 /**
  * @brief The RELAX (2014) branch-site model for codons
- * The model detects changes in selective pressure based on a prior partition of the tree branches provided by the user
+ *
  * @author Keren Halabi
  *
- * This model cocnsists of a mixture of models, each defined as described in YN98 class (will use kappa instead of 5 GTR parameters),
- * The mixture is defined in two levels: the site level and the branch level
- * The model consists of two site models - each one for a different branches group: brackground and foreground
- * The site model of the background group is a mixture of 3 MG94 models 
- * The YN98 (i.e, kappa) parameters, except for the omega value, are shared between the 3 sub-models
- * Each site can be assigned to one of 3 omega classes that correspond to the 3 selective regimes:
+ * This model consists of a mixture of YN98 models, and allows for
+ * mixture in two levels: the site level and the branch level.
  *
  * @f$\omega_0 = omega_1 * p < 1 @f$ (with probability @f$p_0 @f$)
  *
@@ -65,11 +61,12 @@ namespace bpp
  *
  * @f$\omega_2 > 1 @f$ (with probability @f$1-p_1-p_0 @f$)
  *
- * The omegas of the foreground group are obtained by raising the omegas of the background group to the power of a selection intensity parameter k
- * Overall, the model consists of 9 parameters, base frequencies parameters excluded:
- * 5 parameters for the GTR model that is nested in the MG94 model (Currently, the model is implemented with a single kappa parameter rather than 5 GTR parameters)
- * 3 omega values parameters + 2 omega frequencies parameters
- * 1 selection intensity parameter k
+ * Each omega is raised to the power of a selection intensity
+ * parameter k.
+ *
+ * Used alone, this model is over-parameterized, and should be used in
+ * a branch heterogeneous modeling with shared parameters with other
+ * RELAX models.
  * 
  * References:
  *
