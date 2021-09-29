@@ -1833,7 +1833,7 @@ void BppOSubstitutionModelFormat::initialize_(
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedArguments_, "", "", true, warningLevel_);
   if (verbose_)
-    ApplicationTools::displayResult("External frequencies initialization for model", (initFreqs == "") ? "None" : initFreqs);
+    ApplicationTools::displayResult("External model frequencies init", (initFreqs == "") ? "None" : initFreqs);
 
   if (initFreqs != "")
   {

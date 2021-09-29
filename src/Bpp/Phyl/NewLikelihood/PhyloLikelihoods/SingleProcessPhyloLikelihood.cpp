@@ -161,7 +161,7 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
   for (auto st=0;st<nbStates_;st++)
   {
     auto s=0.0;
-    for (auto i=0;i<(size_t)nbSites;i++)
+    for (size_t i=0;i<(size_t)nbSites;i++)
       s+=pp[i][size_t(st)];
 
     v[size_t(st)]=s/(double)nbSites;
