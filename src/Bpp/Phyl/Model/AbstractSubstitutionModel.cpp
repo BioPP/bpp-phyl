@@ -479,12 +479,18 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
 //  MatrixTools::print(pijt_);
 
   // Check to avoid numerical issues
-  if (t<= NumConstants::SMALL())
+  // if (t<= NumConstants::SMALL())
     for (size_t i = 0; i < size_; i++)
       for (size_t j = 0; j < size_; j++)
         if (pijt_(i,j)<0.)
+        {
+          if (std::abs(pijt_(i,j))>NumConstants::SMALL())
+          {
+            throw Exception("There is an issue in the computation of transition matrix of " + getName() + " : pijt_(" + to_string(i) + "," + to_string(j) + ", " + to_string(t) + ")=" + to_string(pijt_(i,j)));
+          }
           pijt_(i,j)=0.;
-
+          
+        }
   return pijt_;
 }
 
