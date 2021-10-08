@@ -56,219 +56,209 @@ namespace bpp
  * mapping linked with a Single Process PhyloLikelihood
  *
  */
-  
-  struct ModelBranch 
+
+struct ModelBranch
+{
+  TransitionModel* pMod_;
+};
+
+
+class AbstractSinglePhyloSubstitutionMapping :
+  virtual public BranchedModelSet,
+  virtual public PhyloSubstitutionMapping,
+  public AssociationTreeGlobalGraphObserver<uint, ModelBranch>
+{
+public:
+  typedef AssociationTreeGlobalGraphObserver<uint, ModelBranch> modelTree;
+
+private:
+  const SubstitutionRegister* pReg_;
+
+  /*
+   * @brief weights of the substitutions. If null, no weights are
+   * used.
+   */
+
+  std::shared_ptr<const AlphabetIndex2> weights_;
+
+  /*
+   * @brief distances of the substitutions. If null, no distances are
+   * used.
+   */
+
+  std::shared_ptr<const AlphabetIndex2> distances_;
+
+protected:
+  std::unique_ptr<ProbabilisticSubstitutionMapping> counts_;
+  std::unique_ptr<ProbabilisticSubstitutionMapping> factors_;
+
+private:
+  /**
+   * @brief A collection of Transition Models
+   */
+
+  ParametrizableCollection<TransitionModel> modelColl_;
+
+  /**
+   *
+   * @brief a map <model index, vector of branch ids>
+   *
+   */
+
+  std::map<size_t, std::vector<uint> > mModBrid_;
+
+public:
+  AbstractSinglePhyloSubstitutionMapping(std::shared_ptr<TreeGlobalGraph> graph, const SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
+    modelTree(graph), pReg_(&reg), weights_(weights), distances_(distances), counts_(), factors_(), modelColl_(), mModBrid_()
+  {}
+
+  AbstractSinglePhyloSubstitutionMapping(const AbstractSinglePhyloSubstitutionMapping& sppm);
+
+  AbstractSinglePhyloSubstitutionMapping& operator=(const AbstractSinglePhyloSubstitutionMapping& sppm);
+
+  virtual ~AbstractSinglePhyloSubstitutionMapping() {}
+
+  /*
+   * @brief From BranchedModelSet
+   *
+   * @{
+   *
+   */
+  TransitionModel* getModelForBranch(uint branchId)
   {
-    TransitionModel* pMod_;
-  };
+    return (*getEdge(branchId)).pMod_;
+  }
 
-
-  class AbstractSinglePhyloSubstitutionMapping :
-    virtual public BranchedModelSet,
-    virtual public PhyloSubstitutionMapping,
-    public AssociationTreeGlobalGraphObserver<uint, ModelBranch>
+  const TransitionModel* getModelForBranch(uint branchId) const
   {
-  public:
+    return (*getEdge(branchId)).pMod_;
+  }
 
-    typedef AssociationTreeGlobalGraphObserver<uint, ModelBranch> modelTree;
-    
-  private:
+  TransitionModel* getModel(unsigned int branchId, size_t classIndex) const
+  {
+    return (*getEdge(branchId)).pMod_;
+  }
 
-    const SubstitutionRegister* pReg_;
+  TransitionModel* getModel(size_t index)
+  {
+    return modelColl_[index].get();
+  }
 
-    /*
-     * @brief weights of the substitutions. If null, no weights are
-     * used.
-     */
-    
-    std::shared_ptr<const AlphabetIndex2> weights_;
+  const TransitionModel* getModel(size_t index) const
+  {
+    return modelColl_[index].get();
+  }
 
-    /*
-     * @brief distances of the substitutions. If null, no distances are
-     * used.
-     */
-    
-    std::shared_ptr<const AlphabetIndex2> distances_;
+  std::vector<uint> getBranchesWithModel(size_t index) const
+  {
+    return mModBrid_.at(index);
+  }
 
-  protected:
-    
-    std::unique_ptr<ProbabilisticSubstitutionMapping> counts_;
-    std::unique_ptr<ProbabilisticSubstitutionMapping> factors_;
+  /*
+   * @}
+   *
+   */
 
-  private:
-    
-    /**
-     * @brief A collection of Transition Models
-     */
+  /*
+   * @brief From PhyloSubstitutionMapping.
+   *
+   * @{
+   */
 
-    ParametrizableCollection<TransitionModel> modelColl_;
+  /*
+   * @brief Return the tree of factors
+   *
+   */
+  bool normalizationsPerformed() const
+  {
+    return factors_ != 0;
+  }
 
-    /**
-     *
-     * @brief a map <model index, vector of branch ids>
-     *
-     */
-    
-    std::map<size_t, std::vector<uint> > mModBrid_;
-    
-  public:
-    AbstractSinglePhyloSubstitutionMapping(std::shared_ptr<TreeGlobalGraph> graph, const SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
-      modelTree(graph), pReg_(&reg), weights_(weights), distances_(distances), counts_(), factors_(), modelColl_(), mModBrid_()
-    {}
+  ProbabilisticSubstitutionMapping& getNormalizations()
+  {
+    return *factors_;
+  }
 
-    AbstractSinglePhyloSubstitutionMapping(const AbstractSinglePhyloSubstitutionMapping& sppm);
-    
-    AbstractSinglePhyloSubstitutionMapping& operator=(const AbstractSinglePhyloSubstitutionMapping& sppm);
+  const ProbabilisticSubstitutionMapping& getNormalizations() const
+  {
+    return *factors_;
+  }
 
-    virtual ~AbstractSinglePhyloSubstitutionMapping() {}
-    
-    /*
-     * @brief From BranchedModelSet
-     *
-     * @{
-     *
-     */
-    
-    TransitionModel* getModelForBranch(uint branchId)
-    {
-      return (*getEdge(branchId)).pMod_;
-    }
+  bool countsPerformed() const
+  {
+    return counts_ != 0;
+  }
 
-    const TransitionModel* getModelForBranch(uint branchId) const
-    {
-      return (*getEdge(branchId)).pMod_;
-    }
+  ProbabilisticSubstitutionMapping& getCounts()
+  {
+    return *counts_;
+  }
 
-    TransitionModel* getModel(unsigned int branchId, size_t classIndex) const
-    {
-      return (*getEdge(branchId)).pMod_;
-    }
-
-    TransitionModel* getModel(size_t index)
-    {
-      return modelColl_[index].get();
-    }
-
-    const TransitionModel* getModel(size_t index) const
-    {
-      return modelColl_[index].get();
-    }
-
-    std::vector<uint> getBranchesWithModel(size_t index) const
-    {
-      return mModBrid_.at(index);
-    }
-    
-    /*
-     * @}
-     *
-     */
-
-    /*
-     * @brief From PhyloSubstitutionMapping.
-     *
-     * @{
-     */
-    
-    /*
-     * @brief Return the tree of factors
-     *
-     */
-    
-    bool normalizationsPerformed() const
-    {
-      return factors_!=0;
-    }
-    
-    ProbabilisticSubstitutionMapping& getNormalizations()
-    {
-      return *factors_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getNormalizations() const
-    {
-      return *factors_;
-    }
-
-    bool countsPerformed() const
-    {
-      return counts_!=0;
-    }
-
-    ProbabilisticSubstitutionMapping& getCounts()
-    {
-      return *counts_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getCounts() const
-    {
-      return *counts_;
-    }
+  const ProbabilisticSubstitutionMapping& getCounts() const
+  {
+    return *counts_;
+  }
 
 
-    /*
-     *
-     *@brief For eegisters
-     *
-     */
-    
-    void setRegister(const SubstitutionRegister& reg)
-    {
-      pReg_=&reg;
-    }
+  /*
+   *
+   *@brief For eegisters
+   *
+   */
+  void setRegister(const SubstitutionRegister& reg)
+  {
+    pReg_ = &reg;
+  }
 
-    const SubstitutionRegister& getRegister() const
-    {
-      return *pReg_;
-    }
-    
-    bool matchParametersValues(const ParameterList& nullParams)
-    {
-      return modelColl_.matchParametersValues(nullParams);
-    }
+  const SubstitutionRegister& getRegister() const
+  {
+    return *pReg_;
+  }
 
-    const ParameterList& getParameters() const
-    {
-      return modelColl_.getParameters();
-    }
+  bool matchParametersValues(const ParameterList& nullParams)
+  {
+    return modelColl_.matchParametersValues(nullParams);
+  }
 
-    std::shared_ptr<const AlphabetIndex2> getWeights() const
-    {
-      return weights_;
-    }
+  const ParameterList& getParameters() const
+  {
+    return modelColl_.getParameters();
+  }
 
-    std::shared_ptr<const AlphabetIndex2> getDistances() const
-    {
-      return distances_;
-    }
+  std::shared_ptr<const AlphabetIndex2> getWeights() const
+  {
+    return weights_;
+  }
 
-    /* 
-     *
-     * @brief add a Substitition Model in the map, and on all branches
-     * with given Ids.
-     *
-     * @param index the index of the model
-     * @param model the model that will be COPIED.
-     * @param brIds the Ids of the branches that will carry this model.
-     *
-     *
-     */
-    
-    void addModel(size_t index, const TransitionModel& model, Vuint brIds);
+  std::shared_ptr<const AlphabetIndex2> getDistances() const
+  {
+    return distances_;
+  }
 
-    /*
-     * @brief change Distances
-     * 
-     *  BEWARE: counts are not updated automatically
-     */
+  /*
+   *
+   * @brief add a Substitition Model in the map, and on all branches
+   * with given Ids.
+   *
+   * @param index the index of the model
+   * @param model the model that will be COPIED.
+   * @param brIds the Ids of the branches that will carry this model.
+   *
+   *
+   */
 
-    void setDistances(const AlphabetIndex2& ndist)
-    {
-      distances_.reset(ndist.clone());
-    }
-    
-  };
-  
+  void addModel(size_t index, const TransitionModel& model, Vuint brIds);
+
+  /*
+   * @brief change Distances
+   *
+   *  BEWARE: counts are not updated automatically
+   */
+  void setDistances(const AlphabetIndex2& ndist)
+  {
+    distances_.reset(ndist.clone());
+  }
+};
 } // end of namespace bpp.
 
-#endif  // _ABSTRACT_SINGLE_PHYLO_SUBSTITUTION_MAPPING_H_
+#endif// _ABSTRACT_SINGLE_PHYLO_SUBSTITUTION_MAPPING_H_

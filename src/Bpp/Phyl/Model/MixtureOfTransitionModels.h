@@ -92,7 +92,7 @@ namespace bpp
  * \rho_n = K.(1-r_1)*(1-r_2)*...*(1-r_{n-1})
  * @f]
  *
- * with @f[ K = \frac{1}{\sum_{i=1}^n p_i.\rho_i} @f] 
+ * with @f[ K = \frac{1}{\sum_{i=1}^n p_i.\rho_i} @f]
  *
  * And on the reverse:
  *
@@ -133,8 +133,8 @@ public:
    * @warning providing a vpModel with size 0 will generate a segmentation fault!
    */
   MixtureOfTransitionModels(
-      const Alphabet* alpha,
-      std::vector<TransitionModel*> vpModel);
+    const Alphabet* alpha,
+    std::vector<TransitionModel*> vpModel);
 
   /**
    * @brief Constructor of a MixtureOfTransitionModels.
@@ -151,9 +151,9 @@ public:
    */
 
   MixtureOfTransitionModels(
-      const Alphabet* alpha,
-      std::vector<TransitionModel*> vpModel,
-      Vdouble& vproba, Vdouble& vrate);
+    const Alphabet* alpha,
+    std::vector<TransitionModel*> vpModel,
+    Vdouble& vproba, Vdouble& vrate);
 
   MixtureOfTransitionModels(const MixtureOfTransitionModels&);
 
@@ -172,9 +172,9 @@ public:
    * Return Null if not found.
    *
    */
-  
+
   const TransitionModel* getModel(const std::string& name) const;
-  
+
   const TransitionModel* getModel(size_t i) const
   {
     return AbstractMixedTransitionModel::getNModel(i);
@@ -210,9 +210,7 @@ public:
    * recovers the parameters values.
    */
   void setFreq(std::map<int, double>&);
-
 };
 } // end of namespace bpp.
 
-#endif  // _MIXTUREOFSUBSTITUTIONMODELS_H_
-
+#endif// _MIXTUREOFSUBSTITUTIONMODELS_H_

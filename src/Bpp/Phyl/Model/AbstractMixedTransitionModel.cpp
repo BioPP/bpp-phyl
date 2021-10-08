@@ -52,8 +52,7 @@ AbstractMixedTransitionModel::AbstractMixedTransitionModel(
   modelsContainer_(),
   vProbas_(),
   vRates_()
-{
-}
+{}
 
 AbstractMixedTransitionModel::AbstractMixedTransitionModel(const AbstractMixedTransitionModel& msm) :
   AbstractParameterAliasable(msm),

@@ -110,7 +110,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
 DRHomogeneousMixedTreeLikelihood& DRHomogeneousMixedTreeLikelihood::operator=(const DRHomogeneousMixedTreeLikelihood& lik)
 {
   DRHomogeneousTreeLikelihood::operator=(lik);
-  
+
   treeLikelihoodsContainer_.clear();
   probas_.clear();
 
@@ -120,7 +120,7 @@ DRHomogeneousMixedTreeLikelihood& DRHomogeneousMixedTreeLikelihood::operator=(co
     probas_.push_back(lik.probas_[i]);
   }
 
-  rootArray_=lik.rootArray_;
+  rootArray_ = lik.rootArray_;
 
   return *this;
 }
@@ -154,7 +154,7 @@ void DRHomogeneousMixedTreeLikelihood::initialize()
     treeLikelihoodsContainer_[i]->initialize();
   }
   DRHomogeneousTreeLikelihood::initialize();
-  if(rootArray_)
+  if (rootArray_)
     computeRootLikelihood();
 }
 
@@ -205,14 +205,13 @@ void DRHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
   {
     treeLikelihoodsContainer_[i]->computeTreeLikelihood();
   }
-  if(rootArray_)
+  if (rootArray_)
     computeRootLikelihood();
 }
 
 /******************************************************************************
 *                           Likelihoods                          *
 ******************************************************************************/
-
 double DRHomogeneousMixedTreeLikelihood::getLikelihood() const
 {
   double l = 1.;
@@ -223,7 +222,7 @@ double DRHomogeneousMixedTreeLikelihood::getLikelihood() const
   }
 
   double x;
-  const vector<unsigned int> * w = &likelihoodData_->getWeights();
+  const vector<unsigned int>* w = &likelihoodData_->getWeights();
   for (unsigned int i = 0; i < nbDistinctSites_; i++)
   {
     x = 0;
@@ -247,7 +246,7 @@ double DRHomogeneousMixedTreeLikelihood::getLogLikelihood() const
   }
 
   double x;
-  const vector<unsigned int> * w = &likelihoodData_->getWeights();
+  const vector<unsigned int>* w = &likelihoodData_->getWeights();
   vector<double> la(nbDistinctSites_);
   for (unsigned int i = 0; i < nbDistinctSites_; i++)
   {
@@ -282,7 +281,8 @@ double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASite(size_t site) cons
 double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASite(size_t site) const
 {
   double x = getLikelihoodForASite(site);
-  if (x < 0) x = 0;
+  if (x < 0)
+    x = 0;
   return log(x);
 }
 
@@ -300,7 +300,8 @@ double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(size
 double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   double x = getLikelihoodForASiteForARateClass(site, rateClass);
-  if (x < 0) x = 0;
+  if (x < 0)
+    x = 0;
   return log(x);
 }
 
@@ -319,7 +320,8 @@ double DRHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClassForAS
 double DRHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
   double x = getLikelihoodForASiteForARateClassForAState(site, rateClass, state);
-  if (x < 0) x = 0;
+  if (x < 0)
+    x = 0;
   return log(x);
 }
 
@@ -351,14 +353,18 @@ void DRHomogeneousMixedTreeLikelihood::computeRootLikelihood()
 void DRHomogeneousMixedTreeLikelihood::computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray, const Node* sonNode) const
 {
   likelihoodArray.resize(nbDistinctSites_);
-  for (size_t i = 0; i < nbDistinctSites_; i++){
+  for (size_t i = 0; i < nbDistinctSites_; i++)
+  {
     VVdouble* likelihoodArray_i = &likelihoodArray[i];
     likelihoodArray_i->resize(nbClasses_);
-    for (size_t c = 0; c < nbClasses_; c++) {
+    for (size_t c = 0; c < nbClasses_; c++)
+    {
       Vdouble* likelihoodArray_i_c = &(*likelihoodArray_i)[c];
       likelihoodArray_i_c->resize(nbStates_);
       for (size_t x = 0; x < nbStates_; x++)
+      {
         (*likelihoodArray_i_c)[x] = 0;
+      }
     }
   }
 
@@ -366,28 +372,28 @@ void DRHomogeneousMixedTreeLikelihood::computeLikelihoodAtNode_(const Node* node
   for (size_t nm = 0; nm < treeLikelihoodsContainer_.size(); nm++)
   {
     treeLikelihoodsContainer_[nm]->computeLikelihoodAtNode_(node, lArray, sonNode);
-    
+
     for (size_t i = 0; i < nbDistinctSites_; i++)
+    {
+      VVdouble* likelihoodArray_i = &likelihoodArray[i];
+      VVdouble* lArray_i = &lArray[i];
+
+      for (size_t c = 0; c < nbClasses_; c++)
       {
-        VVdouble* likelihoodArray_i = &likelihoodArray[i];
-        VVdouble* lArray_i = &lArray[i];
-        
-        for (size_t c = 0; c < nbClasses_; c++)
-          {
-            Vdouble* likelihoodArray_i_c = &(*likelihoodArray_i)[c];
-            Vdouble* lArray_i_c = &(*lArray_i)[c];
-            for (size_t x = 0; x < nbStates_; x++)
-              (*likelihoodArray_i_c)[x] += (*lArray_i_c)[x] * probas_[nm];
-         }
+        Vdouble* likelihoodArray_i_c = &(*likelihoodArray_i)[c];
+        Vdouble* lArray_i_c = &(*lArray_i)[c];
+        for (size_t x = 0; x < nbStates_; x++)
+        {
+          (*likelihoodArray_i_c)[x] += (*lArray_i_c)[x] * probas_[nm];
+        }
       }
-    
+    }
   }
 }
 
 /******************************************************************************
 *                           First Order Derivatives                          *
 ******************************************************************************/
-
 void DRHomogeneousMixedTreeLikelihood::computeTreeDLikelihoods()
 {
   for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
@@ -424,7 +430,7 @@ double DRHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const std::stri
 
   double d = 0;
   double x;
-  const vector<unsigned int> * w = &likelihoodData_->getWeights();
+  const vector<unsigned int>* w = &likelihoodData_->getWeights();
   for (unsigned int i = 0; i < nbDistinctSites_; i++)
   {
     x = 0;
@@ -442,7 +448,6 @@ double DRHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const std::stri
 /******************************************************************************
 *                           Second Order Derivatives                          *
 ******************************************************************************/
-
 void DRHomogeneousMixedTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node* node)
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
@@ -488,7 +493,7 @@ double DRHomogeneousMixedTreeLikelihood::getSecondOrderDerivative(const std::str
 
   double d = 0;
   double x, x2;
-  const vector<unsigned int> * w = &likelihoodData_->getWeights();
+  const vector<unsigned int>* w = &likelihoodData_->getWeights();
   for (unsigned int i = 0; i < nbDistinctSites_; i++)
   {
     x = 0;
@@ -516,4 +521,3 @@ void DRHomogeneousMixedTreeLikelihood::displayLikelihood(const Node* node)
     treeLikelihoodsContainer_[i]->displayLikelihood(node);
   }
 }
-

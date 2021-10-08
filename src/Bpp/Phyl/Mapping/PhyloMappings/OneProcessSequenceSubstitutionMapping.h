@@ -42,7 +42,7 @@
 
 #include "../../NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
 #include "../SubstitutionMappingTools.h"
-//#include "../SubstitutionMappingToolsForASite.h"
+// #include "../SubstitutionMappingToolsForASite.h"
 
 #include "AbstractSinglePhyloSubstitutionMapping.h"
 
@@ -56,97 +56,93 @@ namespace bpp
  *
  */
 
-  class OneProcessSequenceSubstitutionMapping :
-    public AbstractSinglePhyloSubstitutionMapping
+class OneProcessSequenceSubstitutionMapping :
+  public AbstractSinglePhyloSubstitutionMapping
+{
+private:
+  OneProcessSequencePhyloLikelihood* pOPSP_;
+
+  /*
+   * @brief Set the models of the BranchedModelSet to the adhoc
+   * branches, for normalization.
+   *
+   */
+
+  void setBranchedModelSet_();
+
+public:
+  OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances);
+
+  OneProcessSequenceSubstitutionMapping(const OneProcessSequenceSubstitutionMapping& sppm) :
+    AbstractSinglePhyloSubstitutionMapping(sppm),
+    pOPSP_(sppm.pOPSP_)
+  {}
+
+  OneProcessSequenceSubstitutionMapping& operator=(const OneProcessSequenceSubstitutionMapping& sppm)
   {
-  private:
-    OneProcessSequencePhyloLikelihood* pOPSP_;
+    AbstractSinglePhyloSubstitutionMapping::operator=(sppm);
+    pOPSP_ = sppm.pOPSP_;
 
-    /*
-     * @brief Set the models of the BranchedModelSet to the adhoc
-     * branches, for normalization.
-     *
-     */
-    
-    void setBranchedModelSet_();
-    
-  public:
-    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances);
+    return *this;
+  }
 
-    OneProcessSequenceSubstitutionMapping(const OneProcessSequenceSubstitutionMapping& sppm) :
-      AbstractSinglePhyloSubstitutionMapping(sppm),
-      pOPSP_(sppm.pOPSP_)
-    {
-    }
+  virtual ~OneProcessSequenceSubstitutionMapping() {}
 
-    OneProcessSequenceSubstitutionMapping& operator=(const OneProcessSequenceSubstitutionMapping& sppm)
-    {
-      AbstractSinglePhyloSubstitutionMapping::operator=(sppm);
-      pOPSP_ = sppm.pOPSP_;
-      
-      return *this;
-    }
+  OneProcessSequenceSubstitutionMapping* clone() const { return new OneProcessSequenceSubstitutionMapping(*this); }
 
-    virtual ~OneProcessSequenceSubstitutionMapping() {}
-    
-    OneProcessSequenceSubstitutionMapping* clone() const { return new OneProcessSequenceSubstitutionMapping(*this); }
+  /*
+   * @brief ComputeCounts
+   *
+   */
+  void computeCounts(double threshold = -1, bool verbose = true)
+  {
+    counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculationSingleProcess(),
+                                                          getRegister(),
+                                                          getWeights(),
+                                                          getDistances(),
+                                                          threshold,
+                                                          verbose));
+  }
 
-    /*
-     * @brief ComputeCounts
-     *
-     */
+  // void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
+  // {
+  //   counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
+  //                   site,
+  //                   getLikelihoodCalculationSingleProcess(),
+  //                   getRegister(),
+  //                   getWeights(),
+  //                   getDistances(),
+  //                   threshold,
+  //                   verbose));
+  // }
 
-    void computeCounts(double threshold = -1, bool verbose=true)
-    {
-      counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculationSingleProcess(),
-                                                            getRegister(),
-                                                            getWeights(),
-                                                            getDistances(),
-                                                            threshold,
-                                                            verbose));
-    }
+  void computeNormalizations(const ParameterList& nullParams,
+                             bool verbose = true);
 
-    // void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
-    // {
-    //   counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
-    //                   site,
-    //                   getLikelihoodCalculationSingleProcess(),
-    //                   getRegister(),
-    //                   getWeights(),
-    //                   getDistances(),
-    //                   threshold,
-    //                   verbose));
-    // }
+  // void computeNormalizationsForASite(size_t site,
+  //                                    const ParameterList& nullParams,
+  //                                    bool verbose = true);
 
-    void computeNormalizations(const ParameterList& nullParams,
-                               bool verbose = true);
+  size_t getNumberOfModels() const
+  {
+    return pOPSP_->getSubstitutionProcess().getNumberOfModels();
+  }
 
-    // void computeNormalizationsForASite(size_t site,
-    //                                    const ParameterList& nullParams,
-    //                                    bool verbose = true);
+  std::vector<size_t> getModelNumbers() const
+  {
+    return pOPSP_->getSubstitutionProcess().getModelNumbers();
+  }
 
-    size_t getNumberOfModels() const
-    {
-      return pOPSP_->getSubstitutionProcess().getNumberOfModels();
-    }
+  LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess()
+  {
+    return *pOPSP_->getLikelihoodCalculationSingleProcess();
+  }
 
-    std::vector<size_t> getModelNumbers() const
-    {
-      return pOPSP_->getSubstitutionProcess().getModelNumbers();
-    }
-        
-    LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess()
-    {
-      return *pOPSP_->getLikelihoodCalculationSingleProcess();
-    }
-
-    const LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess() const
-    {
-      return *pOPSP_->getLikelihoodCalculationSingleProcess();
-    }
-
-  };
-  
+  const LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess() const
+  {
+    return *pOPSP_->getLikelihoodCalculationSingleProcess();
+  }
+};
 } // end of namespace bpp.
 
-#endif  // _SINGLE_PROCESS_SUBSTITUTION_MAPPING_H_
+#endif// _SINGLE_PROCESS_SUBSTITUTION_MAPPING_H_

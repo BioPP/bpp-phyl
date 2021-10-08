@@ -51,12 +51,14 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
   auto vv = likelihood_->getLikelihoodsAtNode(nodeId)->getTargetValue();
 
   probs.resize(nbSites_);
-  
-  for (auto i=0;i<nbSites_;i++)
-    copyEigenToBpp(vv.col(i)/vv.col(i).sum(),probs[size_t(i)]);
+
+  for (auto i = 0; i < nbSites_; i++)
+  {
+    copyEigenToBpp(vv.col(i) / vv.col(i).sum(), probs[size_t(i)]);
+  }
 
   if (sample)
-  { 
+  {
     for (size_t i = 0; i < nbSites_; i++)
     {
       const auto& coli = probs[i];
@@ -103,10 +105,9 @@ Sequence* MarginalAncestralReconstruction::getAncestralSequenceForNode(uint node
   const auto& statemap = likelihood_->getStateMap();
 
   VVdouble patternedProbs;
-  
+
   if (probs)
   {
-    
     auto states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     probs->resize(nbSites_);
     for (size_t i = 0; i < nbSites_; i++)
@@ -133,8 +134,8 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   AlignedValuesContainer& data) const
 {
   if (tree_->isLeaf(node))
-  { 
-    const SiteContainer* sc=dynamic_cast<const SiteContainer*>(&data);
+  {
+    const SiteContainer* sc = dynamic_cast<const SiteContainer*>(&data);
     if (sc)
     {
       const Sequence& seq = sc->getSequence(node->getName());
@@ -157,8 +158,8 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   else
   {
     ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
-    vector<shared_ptr<PhyloNode> > vsons=tree_->getSons(node);
-  
+    vector<shared_ptr<PhyloNode> > vsons = tree_->getSons(node);
+
     for (size_t i = 0; i < vsons.size(); i++)
     {
       recursiveMarginalAncestralStates(vsons[i], ancestors, data);
@@ -178,4 +179,3 @@ AlignedSequenceContainer* MarginalAncestralReconstruction::getAncestralSequences
   }
   return asc;
 }
-

@@ -5,37 +5,37 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "Node.h"
 #include "TreeTools.h"
@@ -45,26 +45,30 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-//from the STL:
+// from the STL:
 #include <algorithm>
 #include <iostream>
 
 using namespace std;
 
 /** Copy constructor: *********************************************************/
-  
-Node::Node(const Node& node):
+
+Node::Node(const Node& node) :
   id_(node.id_), name_(0),
   sons_(), father_(0),
-  //, sons_(node.sons_), father_(node.father_),
+  // , sons_(node.sons_), father_(node.father_),
   distanceToFather_(0), nodeProperties_(), branchProperties_()
 {
-  name_             = node.hasName() ? new string(* node.name_) : 0;
-  distanceToFather_ = node.hasDistanceToFather() ? new double(* node.distanceToFather_) : 0;
-  for (map<string, Clonable *>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
+  name_             = node.hasName() ? new string(*node.name_) : 0;
+  distanceToFather_ = node.hasDistanceToFather() ? new double(*node.distanceToFather_) : 0;
+  for (map<string, Clonable*>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
+  {
     nodeProperties_[i->first] = i->second->clone();
-  for (map<string, Clonable *>::iterator i = node.branchProperties_.begin(); i != node.branchProperties_.end(); i++)
+  }
+  for (map<string, Clonable*>::iterator i = node.branchProperties_.begin(); i != node.branchProperties_.end(); i++)
+  {
     branchProperties_[i->first] = i->second->clone();
+  }
 }
 
 // Node::Node(const PhyloNode& pn):
@@ -75,7 +79,7 @@ Node::Node(const Node& node):
 // {
 //   name_             = pn.hasName() ? new string(pn.getName()) : 0;
 //   const PhyloBranch* pb = pn.getBranch();
-  
+
 //   distanceToFather_ = pb->hasLength() ? new double(pb->getLength()) : 0;
 //   const vector<string>& pnProp = pn.getPropertyNames();
 
@@ -83,39 +87,43 @@ Node::Node(const Node& node):
 //     nodeProperties_[*i] = pn.getProperty(*i)->clone();
 
 //   const vector<string>& pbProp = pb->getPropertyNames();
-  
+
 //   for (vector<string>::const_iterator i = pbProp.begin(); i != pbProp.end(); i++)
 //     branchProperties_[*i] = pb->getProperty(*i)->clone();
 // }
 
 /** Assignation operator: *****************************************************/
 
-Node& Node::operator=(const Node & node)
+Node& Node::operator=(const Node& node)
 {
   id_               = node.id_;
-  if(name_) delete name_;
-  name_             = node.hasName() ? new string(* node.name_) : 0;
-  //father_           = node.father_;
-  if(distanceToFather_) delete distanceToFather_;
-  distanceToFather_ = node.hasDistanceToFather() ? new double(* node.distanceToFather_) : 0;
-  //sons_             = node.sons_;
-  for(map<string, Clonable *>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
+  if (name_)
+    delete name_;
+  name_             = node.hasName() ? new string(*node.name_) : 0;
+  // father_           = node.father_;
+  if (distanceToFather_)
+    delete distanceToFather_;
+  distanceToFather_ = node.hasDistanceToFather() ? new double(*node.distanceToFather_) : 0;
+  // sons_             = node.sons_;
+  for (map<string, Clonable*>::iterator i = node.nodeProperties_.begin(); i != node.nodeProperties_.end(); i++)
   {
-    Clonable * p = nodeProperties_[i->first];
-    if(p) delete p;
+    Clonable* p = nodeProperties_[i->first];
+    if (p)
+      delete p;
     nodeProperties_[i->first] = i->second->clone();
   }
-  for(map<string, Clonable *>::iterator i = node.branchProperties_.begin(); i != node.branchProperties_.end(); i++)
+  for (map<string, Clonable*>::iterator i = node.branchProperties_.begin(); i != node.branchProperties_.end(); i++)
   {
-    Clonable * p = branchProperties_[i->first];
-    if(p) delete p;
+    Clonable* p = branchProperties_[i->first];
+    if (p)
+      delete p;
     branchProperties_[i->first] = i->second->clone();
   }
-  return * this;
+  return *this;
 }
-      
+
 /** Sons: *********************************************************************/
-      
+
 void Node::swap(size_t branch1, size_t branch2)
 {
   if (branch1 > branch2)
@@ -132,19 +140,27 @@ void Node::swap(size_t branch1, size_t branch2)
   addSon(branch2, node1);
 }
 
-vector<const Node *> Node::getNeighbors() const
+vector<const Node*> Node::getNeighbors() const
 {
-  vector<const Node *> neighbors;
-  if(hasFather()) neighbors.push_back(father_);
-  for(size_t i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
+  vector<const Node*> neighbors;
+  if (hasFather())
+    neighbors.push_back(father_);
+  for (size_t i = 0; i < sons_.size(); i++)
+  {
+    neighbors.push_back(sons_[i]);
+  }
   return neighbors;
 }
-    
-vector<Node *> Node::getNeighbors()
+
+vector<Node*> Node::getNeighbors()
 {
-  vector<Node *> neighbors;
-  if(hasFather()) neighbors.push_back(father_);
-  for(size_t i = 0; i < sons_.size(); i++) neighbors.push_back(sons_[i]);
+  vector<Node*> neighbors;
+  if (hasFather())
+    neighbors.push_back(father_);
+  for (size_t i = 0; i < sons_.size(); i++)
+  {
+    neighbors.push_back(sons_[i]);
+  }
   return neighbors;
 }
 
@@ -152,9 +168,10 @@ size_t Node::getSonPosition(const Node* son) const
 {
   if (!son)
     throw NullPointerException("Node::getSonPosition(). Empty node given as input.");
-  for(size_t i = 0; i < sons_.size(); i++)
+  for (size_t i = 0; i < sons_.size(); i++)
   {
-    if(sons_[i] == son) return i;
+    if (sons_[i] == son)
+      return i;
   }
   throw NodeNotFoundException("Son not found", TextTools::toString(son->getId()));
 }
@@ -166,11 +183,10 @@ bool Node::hasBootstrapValue() const
 
 double Node::getBootstrapValue() const
 {
-  if(hasBranchProperty(TreeTools::BOOTSTRAP))
-    return dynamic_cast<const Number<double> *>(getBranchProperty(TreeTools::BOOTSTRAP))->getValue();
+  if (hasBranchProperty(TreeTools::BOOTSTRAP))
+    return dynamic_cast<const Number<double>*>(getBranchProperty(TreeTools::BOOTSTRAP))->getValue();
   else
     throw PropertyNotFoundException("", TreeTools::BOOTSTRAP, this);
 }
 
 /******************************************************************************/
-

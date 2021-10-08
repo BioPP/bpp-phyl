@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _ONE_CHANGE_TRANSITION_MODEL_H_
 #define _ONE_CHANGE_TRANSITION_MODEL_H_
@@ -51,78 +51,75 @@ namespace bpp
  * It has the same parameters as the SubModel.
  */
 
-  class OneChangeTransitionModel :
-    public AbstractFromSubstitutionModelTransitionModel
+class OneChangeTransitionModel :
+  public AbstractFromSubstitutionModelTransitionModel
+{
+public:
+  OneChangeTransitionModel(const SubstitutionModel& originalModel) :
+    AbstractParameterAliasable("OneChange."),
+    AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange.")
+  {}
+
+  OneChangeTransitionModel(const OneChangeTransitionModel& fmsm) :
+    AbstractParameterAliasable(fmsm),
+    AbstractFromSubstitutionModelTransitionModel(fmsm)
+  {}
+
+  OneChangeTransitionModel& operator=(const OneChangeTransitionModel& fmsm)
   {
-  public:
-    OneChangeTransitionModel(const SubstitutionModel& originalModel) :
-      AbstractParameterAliasable("OneChange."),
-      AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange.")
-    {
-    }
-    
-    OneChangeTransitionModel(const OneChangeTransitionModel& fmsm) :
-      AbstractParameterAliasable(fmsm),
-      AbstractFromSubstitutionModelTransitionModel(fmsm)
-    {
-    }
+    AbstractFromSubstitutionModelTransitionModel::operator=(fmsm);
+    return *this;
+  }
 
-    OneChangeTransitionModel& operator=(const OneChangeTransitionModel& fmsm)
-    {
-      AbstractFromSubstitutionModelTransitionModel::operator=(fmsm);
-      return *this;
-    }
-    
-    ~OneChangeTransitionModel() {}
+  ~OneChangeTransitionModel() {}
 
-    OneChangeTransitionModel* clone() const { return new OneChangeTransitionModel(*this); }
+  OneChangeTransitionModel* clone() const { return new OneChangeTransitionModel(*this); }
 
-  public:
-    double Pij_t    (size_t i, size_t j, double t) const;
-    double dPij_dt  (size_t i, size_t j, double t) const;
-    double d2Pij_dt2(size_t i, size_t j, double t) const;
-    
-    const Matrix<double>& getPij_t(double t) const;
-    
-    const Matrix<double>& getdPij_dt(double t) const;
+public:
+  double Pij_t    (size_t i, size_t j, double t) const;
+  double dPij_dt  (size_t i, size_t j, double t) const;
+  double d2Pij_dt2(size_t i, size_t j, double t) const;
 
-    const Matrix<double>& getd2Pij_dt2(double t) const;
+  const Matrix<double>& getPij_t(double t) const;
 
-    
-    double freq(size_t i) const { return getTransitionModel().freq(i); }
+  const Matrix<double>& getdPij_dt(double t) const;
 
-    const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
+  const Matrix<double>& getd2Pij_dt2(double t) const;
 
-    const std::shared_ptr<FrequencySet> getFrequencySet() const {return getTransitionModel().getFrequencySet(); }
 
-    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
-    {
-      getTransitionModel().setFreqFromData(data, pseudoCount);
-    }
+  double freq(size_t i) const { return getTransitionModel().freq(i); }
 
-    virtual void setFreq(std::map<int, double>& m)
-    {  
-      getTransitionModel().setFreq(m);
-    }
+  const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
 
-    double getRate() const { return getTransitionModel().getRate(); }
+  const std::shared_ptr<FrequencySet> getFrequencySet() const {return getTransitionModel().getFrequencySet(); }
 
-    void setRate(double rate) { return getTransitionModel().setRate(rate); }
+  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+  {
+    getTransitionModel().setFreqFromData(data, pseudoCount);
+  }
 
-    double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
+  virtual void setFreq(std::map<int, double>& m)
+  {
+    getTransitionModel().setFreq(m);
+  }
 
-    std::string getName() const
-    {
-      return "OneChange";
-    }
+  double getRate() const { return getTransitionModel().getRate(); }
 
-    
-    /*
-     * @}
-     *
-     */
+  void setRate(double rate) { return getTransitionModel().setRate(rate); }
 
-  };
+  double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
+
+  std::string getName() const
+  {
+    return "OneChange";
+  }
+
+
+  /*
+   * @}
+   *
+   */
+};
 } // end of namespace bpp.
 
-#endif  // _ONE_CHANGE_TRANSITION_MODEL_H_
+#endif// _ONE_CHANGE_TRANSITION_MODEL_H_

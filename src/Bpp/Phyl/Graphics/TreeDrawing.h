@@ -5,37 +5,37 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide
-graphic components to develop bioinformatics applications.
+   This software is a computer program whose purpose is to provide
+   graphic components to develop bioinformatics applications.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _TREEDRAWING_H_
 #define _TREEDRAWING_H_
@@ -50,8 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
-
-//Forward declarations:
+// Forward declarations:
 class TreeDrawing;
 class TreeDrawingListener;
 
@@ -60,23 +59,23 @@ class TreeDrawingListener;
  */
 class TreeDrawingSettings
 {
-  public:
-    Font fontLeafNames;
-    Font fontBranchLengths;
-    Font fontBootstrapValues;
-    Font fontNodesId;
-    unsigned int pointSize;
-    double pointArea; //this specifies the radius of the point area
-    //More options will be added in the future...
-    
-  public:
-    TreeDrawingSettings() :
-      fontLeafNames("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 12),
-      fontBranchLengths("Courier", Font::STYLE_ITALIC, Font::WEIGHT_NORMAL, 10),
-      fontBootstrapValues("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 10),
-      fontNodesId("Courier", Font::STYLE_NORMAL, Font::WEIGHT_BOLD, 12),
-      pointSize(1),
-      pointArea(5)
+public:
+  Font fontLeafNames;
+  Font fontBranchLengths;
+  Font fontBootstrapValues;
+  Font fontNodesId;
+  unsigned int pointSize;
+  double pointArea; // this specifies the radius of the point area
+  // More options will be added in the future...
+
+public:
+  TreeDrawingSettings() :
+    fontLeafNames("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 12),
+    fontBranchLengths("Courier", Font::STYLE_ITALIC, Font::WEIGHT_NORMAL, 10),
+    fontBootstrapValues("Courier", Font::STYLE_NORMAL, Font::WEIGHT_NORMAL, 10),
+    fontNodesId("Courier", Font::STYLE_NORMAL, Font::WEIGHT_BOLD, 12),
+    pointSize(1),
+    pointArea(5)
   {}
 };
 
@@ -113,9 +112,7 @@ public:
     c.addY(y);
     return c;
   }
-
 };
-
 
 
 /**
@@ -123,40 +120,38 @@ public:
  */
 class DrawNodeEvent
 {
-  private:
-    const TreeDrawing* td_;
-    GraphicDevice* gd_;
-    int id_;
-    Cursor cursor_;
+private:
+  const TreeDrawing* td_;
+  GraphicDevice* gd_;
+  int id_;
+  Cursor cursor_;
 
-  public:
-    DrawNodeEvent(const TreeDrawing* source, GraphicDevice* gd, int nodeId, const Cursor& cursor) :
-      td_(source), gd_(gd), id_(nodeId), cursor_(cursor)
-    {}
+public:
+  DrawNodeEvent(const TreeDrawing* source, GraphicDevice* gd, int nodeId, const Cursor& cursor) :
+    td_(source), gd_(gd), id_(nodeId), cursor_(cursor)
+  {}
 
-    DrawNodeEvent(const DrawNodeEvent& dne) :
-      td_(dne.td_), gd_(dne.gd_), id_(dne.id_), cursor_(dne.cursor_)
-    {}
-    
-    DrawNodeEvent& operator=(const DrawNodeEvent& dne)
-    {
-      td_     = dne.td_;
-      gd_     = dne.gd_;
-      id_     = dne.id_;
-      cursor_ = dne.cursor_;
-      return *this;
-    }
+  DrawNodeEvent(const DrawNodeEvent& dne) :
+    td_(dne.td_), gd_(dne.gd_), id_(dne.id_), cursor_(dne.cursor_)
+  {}
 
-    virtual ~DrawNodeEvent() {}
+  DrawNodeEvent& operator=(const DrawNodeEvent& dne)
+  {
+    td_     = dne.td_;
+    gd_     = dne.gd_;
+    id_     = dne.id_;
+    cursor_ = dne.cursor_;
+    return *this;
+  }
 
-  public:
-    virtual const TreeDrawing* getTreeDrawing() const { return td_; }
-    virtual GraphicDevice* getGraphicDevice() const { return gd_; }
-    virtual int getNodeId() const { return id_; }
-    virtual const Cursor& getCursor() const { return cursor_; }
+  virtual ~DrawNodeEvent() {}
 
+public:
+  virtual const TreeDrawing* getTreeDrawing() const { return td_; }
+  virtual GraphicDevice* getGraphicDevice() const { return gd_; }
+  virtual int getNodeId() const { return id_; }
+  virtual const Cursor& getCursor() const { return cursor_; }
 };
-
 
 
 /**
@@ -164,45 +159,43 @@ class DrawNodeEvent
  */
 class DrawBranchEvent
 {
-  private:
-    const TreeDrawing* td_;
-    GraphicDevice* gd_;
-    int id_;
-    Cursor cursor_;
+private:
+  const TreeDrawing* td_;
+  GraphicDevice* gd_;
+  int id_;
+  Cursor cursor_;
 
-  public:
-    DrawBranchEvent(const TreeDrawing* source, GraphicDevice* gd, int nodeId, const Cursor& cursor) :
-      td_(source), gd_(gd), id_(nodeId), cursor_(cursor)
-    {}
+public:
+  DrawBranchEvent(const TreeDrawing* source, GraphicDevice* gd, int nodeId, const Cursor& cursor) :
+    td_(source), gd_(gd), id_(nodeId), cursor_(cursor)
+  {}
 
-    DrawBranchEvent(const DrawBranchEvent& dne) :
-      td_(dne.td_), gd_(dne.gd_), id_(dne.id_), cursor_(dne.cursor_)
-    {}
-    
-    DrawBranchEvent& operator=(const DrawBranchEvent& dne)
-    {
-      td_     = dne.td_;
-      gd_     = dne.gd_;
-      id_     = dne.id_;
-      cursor_ = dne.cursor_;
-      return *this;
-    }
+  DrawBranchEvent(const DrawBranchEvent& dne) :
+    td_(dne.td_), gd_(dne.gd_), id_(dne.id_), cursor_(dne.cursor_)
+  {}
 
-    virtual ~DrawBranchEvent() {}
+  DrawBranchEvent& operator=(const DrawBranchEvent& dne)
+  {
+    td_     = dne.td_;
+    gd_     = dne.gd_;
+    id_     = dne.id_;
+    cursor_ = dne.cursor_;
+    return *this;
+  }
 
-  public:
-    virtual const TreeDrawing* getTreeDrawing() const { return td_; }
-    virtual GraphicDevice* getGraphicDevice() const { return gd_; }
-    virtual int getNodeId() const { return id_; }
-    virtual const Cursor& getCursor() const { return cursor_; }
-    /**
-     * @return The coordinate of a point on the branch.
-     * @param position The position of the point on the branch, as a proportion of the total branch length.
-     */
-    virtual Cursor getBranchCursor(double position) const = 0;
+  virtual ~DrawBranchEvent() {}
 
+public:
+  virtual const TreeDrawing* getTreeDrawing() const { return td_; }
+  virtual GraphicDevice* getGraphicDevice() const { return gd_; }
+  virtual int getNodeId() const { return id_; }
+  virtual const Cursor& getCursor() const { return cursor_; }
+  /**
+   * @return The coordinate of a point on the branch.
+   * @param position The position of the point on the branch, as a proportion of the total branch length.
+   */
+  virtual Cursor getBranchCursor(double position) const = 0;
 };
-
 
 
 /**
@@ -210,34 +203,32 @@ class DrawBranchEvent
  */
 class DrawTreeEvent
 {
-  private:
-    const TreeDrawing* td_;
-    GraphicDevice* gd_;
+private:
+  const TreeDrawing* td_;
+  GraphicDevice* gd_;
 
-  public:
-    DrawTreeEvent(const TreeDrawing* source, GraphicDevice* gd) :
-      td_(source), gd_(gd)
-    {}
+public:
+  DrawTreeEvent(const TreeDrawing* source, GraphicDevice* gd) :
+    td_(source), gd_(gd)
+  {}
 
-    DrawTreeEvent(const DrawTreeEvent& dne) :
-      td_(dne.td_), gd_(dne.gd_)
-    {}
-    
-    DrawTreeEvent& operator=(const DrawTreeEvent& dte)
-    {
-      td_     = dte.td_;
-      gd_     = dte.gd_;
-      return *this;
-    }
+  DrawTreeEvent(const DrawTreeEvent& dne) :
+    td_(dne.td_), gd_(dne.gd_)
+  {}
 
-    virtual ~DrawTreeEvent() {}
+  DrawTreeEvent& operator=(const DrawTreeEvent& dte)
+  {
+    td_     = dte.td_;
+    gd_     = dte.gd_;
+    return *this;
+  }
 
-  public:
-    virtual const TreeDrawing* getTreeDrawing() const { return td_; }
-    virtual GraphicDevice* getGraphicDevice() const { return gd_; }
+  virtual ~DrawTreeEvent() {}
 
+public:
+  virtual const TreeDrawing* getTreeDrawing() const { return td_; }
+  virtual GraphicDevice* getGraphicDevice() const { return gd_; }
 };
-
 
 
 /**
@@ -261,141 +252,139 @@ class DrawTreeEvent
  * documentation of the specific implementation you are using for details.
  *
  */
-class TreeDrawing:
+class TreeDrawing :
   public virtual Clonable
 {
-  public:
-    TreeDrawing() {}
-    virtual ~TreeDrawing() {}
- 
-    TreeDrawing* clone() const = 0;
+public:
+  TreeDrawing() {}
+  virtual ~TreeDrawing() {}
 
-  public:
-    /**
-     * @return A string describing this drawing algorithm.
-     */
-    virtual std::string getName() const = 0;
+  TreeDrawing* clone() const = 0;
 
-    /**
-     * @return 'True' if a tree is attached to this instance.
-     */
-    virtual bool hasTree() const = 0;
+public:
+  /**
+   * @return A string describing this drawing algorithm.
+   */
+  virtual std::string getName() const = 0;
 
-    /**
-     * @return A pointer toward the tree associated to this drawing.
-     */
-    virtual const Tree* getTree() const = 0;
-    
-    /**
-     * @param tree A pointer toward the tree to associate with this drawing.
-     */
-    virtual void setTree(const Tree* tree) = 0;
+  /**
+   * @return 'True' if a tree is attached to this instance.
+   */
+  virtual bool hasTree() const = 0;
 
-    /**
-     * @brief Set the 'horizontal' expansion unit.
-     *
-     * The effect of this expansion factor depends on the implementation of the interface.
-     * @param xu The horizontal unit length.
-     */
-    virtual void setXUnit(double xu) = 0; 
+  /**
+   * @return A pointer toward the tree associated to this drawing.
+   */
+  virtual const Tree* getTree() const = 0;
 
-    /**
-     * @brief Set the 'vertical' expansion unit.
-     *
-     * The effect of this expansion factor depends on the implementation of the interface.
-     * @param yu The vertical unit length.
-     */
-    virtual void setYUnit(double yu) = 0;
+  /**
+   * @param tree A pointer toward the tree to associate with this drawing.
+   */
+  virtual void setTree(const Tree* tree) = 0;
 
-    /**
-     * @return The horizontal unit length.
-     */
-    virtual double getXUnit() const = 0;
-    
-    /**
-     * @return The vertical unit length.
-     */
-    virtual double getYUnit() const = 0;
+  /**
+   * @brief Set the 'horizontal' expansion unit.
+   *
+   * The effect of this expansion factor depends on the implementation of the interface.
+   * @param xu The horizontal unit length.
+   */
+  virtual void setXUnit(double xu) = 0;
 
-    /**
-     * @return The total width of the drawing, in X units.
-     */
-    virtual double getWidth() const = 0; 
+  /**
+   * @brief Set the 'vertical' expansion unit.
+   *
+   * The effect of this expansion factor depends on the implementation of the interface.
+   * @param yu The vertical unit length.
+   */
+  virtual void setYUnit(double yu) = 0;
 
-    /**
-     * @return The total height of the drawing, in Y units.
-     */
-    virtual double getHeight() const = 0; 
+  /**
+   * @return The horizontal unit length.
+   */
+  virtual double getXUnit() const = 0;
 
-    /**
-     * @brief Plot the tree onto the specified device.
-     *
-     * @param gDevice An object implementing the GraphicDevice interface.
-     */
-    virtual void plot(GraphicDevice& gDevice) const = 0;
+  /**
+   * @return The vertical unit length.
+   */
+  virtual double getYUnit() const = 0;
 
-    /**
-     * @brief Get the position of a node.
-     *
-     * @param nodeId The identifier of the node.
-     * @return The localization of the node using the coordinate system of the last GraphicDevice used.
-     * @throw NodeNotFoundException If the node does not correspond to a node in the tree.
-     */
-    virtual Point2D<double> getNodePosition(int nodeId) const = 0;
+  /**
+   * @return The total width of the drawing, in X units.
+   */
+  virtual double getWidth() const = 0;
 
-    /**
-     * @brief Get the node corresponding to a position on the device.
-     *
-     * @param position A position in the coordinates system of the last GraphicDevice used.
-     * @return The corresponding node identifier if available.
-     * @throw NodeNotFoundException If the node does not correspond to a node in the tree.
-     */
-    virtual int getNodeAt(const Point2D<double>& position) const = 0;
+  /**
+   * @return The total height of the drawing, in Y units.
+   */
+  virtual double getHeight() const = 0;
 
-    /**
-     * @brief Properties to draw.
-     *
-     * @{
-     */
+  /**
+   * @brief Plot the tree onto the specified device.
+   *
+   * @param gDevice An object implementing the GraphicDevice interface.
+   */
+  virtual void plot(GraphicDevice& gDevice) const = 0;
 
-    /**
-     * @brief Collapsing nodes
-     *
-     * @{
-     */
-    virtual void collapseNode(int nodeId, bool yn) = 0;
-    virtual bool isNodeCollapsed(int nodeId) const = 0;
-    /** @} */
+  /**
+   * @brief Get the position of a node.
+   *
+   * @param nodeId The identifier of the node.
+   * @return The localization of the node using the coordinate system of the last GraphicDevice used.
+   * @throw NodeNotFoundException If the node does not correspond to a node in the tree.
+   */
+  virtual Point2D<double> getNodePosition(int nodeId) const = 0;
 
-    /**
-     * @brief Global drawing settings.
-     *
-     * @{
-     */
-    virtual void setDisplaySettings(const TreeDrawingSettings* tds) = 0;
-    virtual const TreeDrawingSettings& getDisplaySettings() const = 0;
-    /** @} */
+  /**
+   * @brief Get the node corresponding to a position on the device.
+   *
+   * @param position A position in the coordinates system of the last GraphicDevice used.
+   * @return The corresponding node identifier if available.
+   * @throw NodeNotFoundException If the node does not correspond to a node in the tree.
+   */
+  virtual int getNodeAt(const Point2D<double>& position) const = 0;
 
-    /**
-     * @brief Add a drawing listener to this instance.
-     *
-     * @param listener a pointer toward an object implementing the TreeDrawingListener interface.
-     * This object will then be owned by the class and copied and deleted if/when needed, unless
-     * it is autonomous.
-     * @see TreeDrawingListener
-     */
-    virtual void addTreeDrawingListener(TreeDrawingListener* listener) = 0;
-     
-    /**
-     * @brief Remove a drawing listener from this instance.
-     *
-     * @param listener a pointer toward an object implementing the TreeDrawingListener interface.
-     * If the listener is autonomous, it will be deleted.
-     */
-    virtual void removeTreeDrawingListener(TreeDrawingListener* listener) = 0;
-    };
+  /**
+   * @brief Properties to draw.
+   *
+   * @{
+   */
 
-} //end of namespace bpp.
+  /**
+   * @brief Collapsing nodes
+   *
+   * @{
+   */
+  virtual void collapseNode(int nodeId, bool yn) = 0;
+  virtual bool isNodeCollapsed(int nodeId) const = 0;
+  /** @} */
 
-#endif //_TREEDRAWING_H_
+  /**
+   * @brief Global drawing settings.
+   *
+   * @{
+   */
+  virtual void setDisplaySettings(const TreeDrawingSettings* tds) = 0;
+  virtual const TreeDrawingSettings& getDisplaySettings() const = 0;
+  /** @} */
 
+  /**
+   * @brief Add a drawing listener to this instance.
+   *
+   * @param listener a pointer toward an object implementing the TreeDrawingListener interface.
+   * This object will then be owned by the class and copied and deleted if/when needed, unless
+   * it is autonomous.
+   * @see TreeDrawingListener
+   */
+  virtual void addTreeDrawingListener(TreeDrawingListener* listener) = 0;
+
+  /**
+   * @brief Remove a drawing listener from this instance.
+   *
+   * @param listener a pointer toward an object implementing the TreeDrawingListener interface.
+   * If the listener is autonomous, it will be deleted.
+   */
+  virtual void removeTreeDrawingListener(TreeDrawingListener* listener) = 0;
+};
+} // end of namespace bpp.
+
+#endif//_TREEDRAWING_H_

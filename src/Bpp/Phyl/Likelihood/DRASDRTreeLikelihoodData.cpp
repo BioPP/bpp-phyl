@@ -75,13 +75,13 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sit
   // Init data:
   // Clone data for more efficiency on sequences access:
 
-  const SiteContainer* sc=dynamic_cast<const SiteContainer*>(shrunkData_.get());
-  const VectorProbabilisticSiteContainer* psc=dynamic_cast<const VectorProbabilisticSiteContainer*>(shrunkData_.get());
-  
-  shared_ptr<const AlignedValuesContainer> sequences(sc?
-                                               static_cast<const AlignedValuesContainer*>(sc->clone()):
-                                               static_cast<const AlignedValuesContainer*>(psc->clone()));
-  
+  const SiteContainer* sc = dynamic_cast<const SiteContainer*>(shrunkData_.get());
+  const VectorProbabilisticSiteContainer* psc = dynamic_cast<const VectorProbabilisticSiteContainer*>(shrunkData_.get());
+
+  shared_ptr<const AlignedValuesContainer> sequences(sc ?
+                                                     static_cast<const AlignedValuesContainer*>(sc->clone()) :
+                                                     static_cast<const AlignedValuesContainer*>(psc->clone()));
+
   initLikelihoods(tree_->getRootNode(), *sequences, model);
 
   // Now initialize root likelihoods and derivatives:
@@ -113,10 +113,10 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedVa
   if (node->isLeaf())
   {
     // Init leaves likelihoods:
-    size_t posSeq;    
+    size_t posSeq;
     try
     {
-      posSeq=sites.getSequencePosition(node->getName());
+      posSeq = sites.getSequencePosition(node->getName());
     }
     catch (SequenceNotFoundException& snfe)
     {
@@ -267,4 +267,3 @@ void DRASDRTreeLikelihoodData::reInit(const Node* node)
 }
 
 /******************************************************************************/
-

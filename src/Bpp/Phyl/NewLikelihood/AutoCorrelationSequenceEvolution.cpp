@@ -84,10 +84,9 @@ void AutoCorrelationSequenceEvolution::fireParameterChanged(const ParameterList&
 
 ParameterList AutoCorrelationSequenceEvolution::getNonDerivableParameters() const
 {
-  ParameterList pl=MultiProcessSequenceEvolution::getNonDerivableParameters();
-  
+  ParameterList pl = MultiProcessSequenceEvolution::getNonDerivableParameters();
+
   pl.includeParameters(autoCorrTransMat_->getParameters());
 
   return pl;
 }
-

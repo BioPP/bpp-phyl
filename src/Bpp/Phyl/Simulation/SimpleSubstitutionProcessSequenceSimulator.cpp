@@ -63,6 +63,3 @@ std::shared_ptr<SiteContainer> SimpleSubstitutionProcessSequenceSimulator::simul
   }
   return sites;
 }
-
-
-

@@ -57,7 +57,7 @@ FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedTransition
   const auto sm = dynamic_cast<const SubstitutionModel*>(tm);
   if (sm == 0)
     throw Exception("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : model " + subModelName + " is not a substitution model.");
-  
+
   subModel_ = std::unique_ptr<SubstitutionModel>(sm->clone());
   subModel_->setNamespace(getNamespace());
 
@@ -70,7 +70,7 @@ FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedTransition
   subModel_(),
   mixtName_(mixtDesc)
 {
-  if (subModelNumber>=mixedModel.getNumberOfModels())
+  if (subModelNumber >= mixedModel.getNumberOfModels())
     throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
 
   const auto tm = mixedModel.getNModel(subModelNumber);
@@ -78,7 +78,7 @@ FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedTransition
 
   if (sm == 0)
     throw Exception("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : model with number " + TextTools::toString(subModelNumber) + " is not a substitution model.");
-  
+
   subModel_ = std::unique_ptr<SubstitutionModel>(sm->clone());
   subModel_->setNamespace(getNamespace());
 
@@ -108,5 +108,3 @@ FromMixtureSubstitutionModel& FromMixtureSubstitutionModel::operator=(const From
 
   return *this;
 }
-
-

@@ -84,4 +84,3 @@ void AutoCorrelationProcessPhyloLikelihood::fireParameterChanged(const Parameter
 
   hmm_->matchParametersValues(parameters);
 }
-

@@ -91,7 +91,7 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
     else
       distributionMap_[s1]->setNamespace(s1 + "_");
 
-    auto constr =model->getParameter(s2).getConstraint();
+    auto constr = model->getParameter(s2).getConstraint();
     if (constr)
       distributionMap_[s1]->restrictToConstraint(*constr);
   }
@@ -114,7 +114,7 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
 
   // Initialization of parameters_.
 
-  
+
   DiscreteDistribution* pd;
 
   for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
@@ -230,7 +230,7 @@ void MixtureOfATransitionModel::updateMatrices()
   {
     vProbas_[i] = 1;
     j = i;
-    for (auto & distrib:distributionMap_)
+    for (auto& distrib:distributionMap_)
     {
       s = distrib.first;
       l = j % distrib.second->getNumberOfCategories();
@@ -257,7 +257,6 @@ void MixtureOfATransitionModel::updateMatrices()
       freq_[i] += vProbas_[j] * modelsContainer_[j]->freq(i);
     }
   }
-
 }
 
 void MixtureOfATransitionModel::setFreq(std::map<int, double>& m)
@@ -268,11 +267,13 @@ void MixtureOfATransitionModel::setFreq(std::map<int, double>& m)
 
 const TransitionModel* MixtureOfATransitionModel::getModel(const std::string& name) const
 {
-  size_t nbmod=getNumberOfModels();
-  
-  for (size_t i=0; i<nbmod; i++)
-    if (getNModel(i)->getName()==name)
+  size_t nbmod = getNumberOfModels();
+
+  for (size_t i = 0; i < nbmod; i++)
+  {
+    if (getNModel(i)->getName() == name)
       return getNModel(i);
+  }
 
   return NULL;
 }

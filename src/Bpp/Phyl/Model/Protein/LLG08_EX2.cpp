@@ -96,5 +96,3 @@ LLG08_EX2::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string nam
 #include "__LLG08_EX2RatesProps"
   updateMatrices();
 }
-
-

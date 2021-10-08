@@ -757,13 +757,13 @@ vector<string> BipartitionList::buildBitBipartitions(const Node* nd, vector<int*
   }
 
   if (!nd->hasFather())
-    return underelements_;  // root node
+    return underelements_;                              // root node
 
   if (!nd->getFather()->hasFather())
   {
     size_t nbrootson = nd->getFather()->getNumberOfSons();
     if (nbrootson == 2 && nd == nd->getFather()->getSon(1))
-      return underelements_;  // son 2 of root node when root node has 2 sons
+      return underelements_;                                // son 2 of root node when root node has 2 sons
   }
 
   bool ones;
@@ -824,4 +824,3 @@ RowMatrix<int> BipartitionList::toMatrix() const
 }
 
 /******************************************************************************/
-

@@ -50,7 +50,6 @@
 
 namespace bpp
 {
-
 class MixtureOfASubstitutionModel :
   public MixtureOfATransitionModel
 {
@@ -79,23 +78,21 @@ public:
     AbstractParameterAliasable(model->getNamespace()),
     AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
     MixtureOfATransitionModel(alpha, model, parametersDistributionsList, ffrom, tto)
-  {
-  }
+  {}
 
   MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& model) :
     AbstractParameterAliasable(model),
     AbstractTransitionModel(model),
     MixtureOfATransitionModel(model)
-  {
-  }
-  
+  {}
+
 
   MixtureOfASubstitutionModel& operator=(const MixtureOfASubstitutionModel& model)
   {
     MixtureOfATransitionModel::operator=(model);
     return *this;
   }
-  
+
   MixtureOfASubstitutionModel* clone() const { return new MixtureOfASubstitutionModel(*this); }
 
   void updateMatrices()
@@ -115,14 +112,13 @@ public:
       setVRates(vd);
     }
   }
-  
+
   /**
    * @brief retrieve a pointer to the subsitution model with the given name.
    *
    * Return Null if not found.
    *
    */
-  
   const SubstitutionModel* getSubModel(const std::string& name) const
   {
     return dynamic_cast<const SubstitutionModel*>(getModel(name));
@@ -132,9 +128,7 @@ public:
   {
     return dynamic_cast<const SubstitutionModel*>(getNModel(i));
   }
-
 };
 } // end of namespace bpp.
 
-#endif  // _MIXTUREOFASUBSTITUTIONMODEL_H_
-
+#endif// _MIXTUREOFASUBSTITUTIONMODEL_H_

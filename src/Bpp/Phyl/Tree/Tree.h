@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use, 
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or 
-  data to be ensured and,  more generally, to use and operate it in the 
-  same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _TREE_H_
 #define _TREE_H_
@@ -75,7 +75,7 @@
  * @section reconstruction Phylogenetic reconstruction methods
  *
  * @par
- * PhylLib provides tools to reconstruct phylogenies from sequence data, using maximum parsimony, distance-based methods 
+ * PhylLib provides tools to reconstruct phylogenies from sequence data, using maximum parsimony, distance-based methods
  * and maximum likelihood, all of them implemented in an object-oriented way, and hence involving several classes.
  *
  * @par Maximum parcimony
@@ -96,7 +96,7 @@
  * - The bpp::RHomogeneousTreeLikelihood class is the most simple implementation. It uses Felsenstein's recursion.
  *   The possibility of compressing sites save comptation time and memory.
  * - The bpp::DRHomogeneousTreeLikelihood class is similar to the previous one, but uses a double-recursive algorithm.
- *   It is more CPU expensive when computing likelihoods, and uses more memory. Computation of branch length analytical 
+ *   It is more CPU expensive when computing likelihoods, and uses more memory. Computation of branch length analytical
  *   derivatives is nonetheless faster, since they do not involve any additionnal recursion.
  *   You also have to use this class in order to perform substitution mapping (bpp::SubstitutionMappingTools) or reconstruct
  *   ancestral sequences (bpp::AncestralStateReconstruction).
@@ -107,7 +107,7 @@
  * - Finally, the bpp::ClockTreeLikelihood interface uses a different parametrization by assuming a global molecular clock.
  *   It is implemented in the bpp::RHomogeneousClockTreeLikelihood class, which inherits from bpp::RHomogeneousTreeLikelihood.
  *
- * @par 
+ * @par
  * The bpp::TreeLikelihood class inherits from the bpp::Function interface, which means that any optimization method from
  * the NumCalc library can be used to estimate numerical parameters. The bpp::OptimizationTools static class provides
  * general methods with predefined options, including for topology estimation.
@@ -123,7 +123,7 @@
  * Rate across sites (RAS) models are integrated thanks to the bpp::DiscreteDistribution interface, providing support for the gamma
  * (bpp::GammaDiscreteDistribution) and gamma+invariant (bpp::InvariantMixedDiscreteDistribution) rate distributions.
  * Here again, this is very easy to add support for new rate distributions by implementing the corresponding interface.
- * 
+ *
  * @par
  * Markov-modulated Markov models (of which the covarion model is a particular case) are included via the bpp::MarkovModulatedSubstitutionModel interface,
  * and its implementation bpp::G2001 and bpp::TS98.
@@ -141,274 +141,270 @@
 
 namespace bpp
 {
+/**
+ * @brief Interface for phylogenetic tree objects.
+ */
+class Tree :
+  public virtual Clonable
+{
+public:
+  // Constructors and destructor:
+
+  Tree() {}
+  virtual ~Tree() {}
+
+  Tree* clone() const = 0;
 
   /**
-   * @brief Interface for phylogenetic tree objects. 
+   * @brief clones a Subtree rooted at given node Id
+   *
+   **/
+
+  virtual Tree* cloneSubtree(int newRootId) const = 0;
+
+public:
+  /**
+   * @brief Tree name.
+   *
+   * @{
    */
-  class Tree:
-    public virtual Clonable
-  {
+  virtual std::string getName() const = 0;
 
-  public: // Constructors and destructor:
-		
-    Tree() {}
-    virtual ~Tree() {}
+  virtual void setName(const std::string& name) = 0;
+  /** @} */
 
-    Tree* clone() const = 0;
+  virtual size_t getNumberOfLeaves() const = 0;
 
-    /**
-     * @brief clones a Subtree rooted at given node Id
-     *
-     **/
-    
-    virtual Tree* cloneSubtree(int newRootId) const = 0;
-  public:
-		
-    /**
-     * @brief Tree name.
-     *
-     * @{
-     */
-    virtual std::string getName() const = 0;
-		
-    virtual void setName(const std::string& name) = 0;
-    /** @} */
-		
-    virtual size_t getNumberOfLeaves() const = 0;
-		
-    virtual size_t getNumberOfNodes() const = 0;
-    
-    virtual size_t getNumberOfBranches() const = 0;
-    
-    virtual std::vector<double> getBranchLengths() const = 0;
+  virtual size_t getNumberOfNodes() const = 0;
 
-    virtual std::vector<std::string> getLeavesNames() const = 0;
+  virtual size_t getNumberOfBranches() const = 0;
 
-    /**
-     * @name Retrieving ids.
-     *
-     * @{
-     */
-    virtual int getRootId() const = 0;
+  virtual std::vector<double> getBranchLengths() const = 0;
 
-    virtual int getLeafId(const std::string& name) const= 0;
-	
-    virtual std::vector<int> getLeavesId() const = 0;
+  virtual std::vector<std::string> getLeavesNames() const = 0;
 
-    virtual std::vector<int> getNodesId() const = 0;
-		
-    virtual std::vector<int> getInnerNodesId() const = 0;
-		
-    virtual std::vector<int> getBranchesId() const = 0;
+  /**
+   * @name Retrieving ids.
+   *
+   * @{
+   */
+  virtual int getRootId() const = 0;
 
-    virtual std::vector<int> getSonsId(int parentId) const = 0;
+  virtual int getLeafId(const std::string& name) const = 0;
 
-    virtual std::vector<int> getAncestorsId(int nodeId) const = 0;
+  virtual std::vector<int> getLeavesId() const = 0;
 
-    virtual int getFatherId(int parentId) const = 0;
+  virtual std::vector<int> getNodesId() const = 0;
 
-    virtual bool hasFather(int nodeId) const = 0;
+  virtual std::vector<int> getInnerNodesId() const = 0;
+
+  virtual std::vector<int> getBranchesId() const = 0;
+
+  virtual std::vector<int> getSonsId(int parentId) const = 0;
+
+  virtual std::vector<int> getAncestorsId(int nodeId) const = 0;
+
+  virtual int getFatherId(int parentId) const = 0;
+
+  virtual bool hasFather(int nodeId) const = 0;
 
 /** @} */
 
-    /**
-     * @name Dealing with node names.
-     *
-     * @{
-     */
-    virtual std::string getNodeName(int nodeId) const = 0;
-		
-    virtual void setNodeName(int nodeId, const std::string& name) = 0;
-		
-    virtual void deleteNodeName(int nodeId) = 0;
-		
-    virtual bool hasNodeName(int nodeId) const = 0;
-    /** @} */
-		
-    /**
-     * @name Several tests.
-     *
-     * @{
-     */
-    virtual bool hasNode(int nodeId) const = 0;
+  /**
+   * @name Dealing with node names.
+   *
+   * @{
+   */
+  virtual std::string getNodeName(int nodeId) const = 0;
 
-    virtual bool isLeaf(int nodeId) const = 0;
+  virtual void setNodeName(int nodeId, const std::string& name) = 0;
 
-    virtual bool hasNoSon(int nodeId) const = 0;
+  virtual void deleteNodeName(int nodeId) = 0;
 
-    virtual bool isRoot(int nodeId) const = 0;
-    /** @} */
+  virtual bool hasNodeName(int nodeId) const = 0;
+  /** @} */
 
-    /**
-     * @name Acting on topology.
-     *
-     * @{
-     */
+  /**
+   * @name Several tests.
+   *
+   * @{
+   */
+  virtual bool hasNode(int nodeId) const = 0;
 
-    /**
-     * @brief Swap two son nodes.
-     *
-     * @param tree The tree.
-     * @param nodeId The node.
-     * @param i1 First son node index.
-     * @param i2 Second son node index.
-     * @throw NodeNotFoundException If the node is not found.
-     * @throw IndexOutOfBoundsException If one node index is not valid, or if the node
-     */
-    void swapNodes(const Tree& tree, int nodeId, size_t i1 = 0, size_t i2 = 1);
-  
-    /** @} */
+  virtual bool isLeaf(int nodeId) const = 0;
 
-    /**
-     * @name Dealing with branch lengths.
-     *
-     * @{
-     */
-    virtual double getDistanceToFather(int nodeId) const = 0;
-		
-    virtual void setDistanceToFather(int nodeId, double length) = 0;
-		
-    virtual void deleteDistanceToFather(int nodeId) = 0;
-		
-    virtual bool hasDistanceToFather(int nodeId) const = 0;
-    /** @} */
+  virtual bool hasNoSon(int nodeId) const = 0;
 
-    /**
-     * @name Node properties.
-     *
-     * @{
-     */
-    virtual bool hasNodeProperty(int nodeId, const std::string& name) const = 0;
-		
-    virtual void setNodeProperty(int nodeId, const std::string& name, const Clonable& property) = 0;
-				
-    virtual Clonable* getNodeProperty(int nodeId, const std::string& name) = 0;
-				
-    virtual const Clonable* getNodeProperty(int nodeId, const std::string& name) const = 0;
-				
-    virtual Clonable* removeNodeProperty(int nodeId, const std::string& name) = 0;
+  virtual bool isRoot(int nodeId) const = 0;
+  /** @} */
 
-    virtual std::vector<std::string> getNodePropertyNames(int nodeId) const = 0;
-    /** @} */
-		
-    /**
-     * @name Branch properties.
-     *
-     * @{
-     */
-    virtual bool hasBranchProperty(int nodeId, const std::string& name) const = 0;
-		
-    virtual void setBranchProperty(int nodeId, const std::string& name, const Clonable & property) = 0;
-				
-    virtual Clonable* getBranchProperty(int nodeId, const std::string& name) = 0;
-				
-    virtual const Clonable* getBranchProperty(int nodeId, const std::string& name) const = 0;
-				
-    virtual Clonable* removeBranchProperty(int nodeId, const std::string& name) = 0;
+  /**
+   * @name Acting on topology.
+   *
+   * @{
+   */
 
-    virtual std::vector<std::string> getBranchPropertyNames(int nodeId) const = 0;
-    /** @} */
+  /**
+   * @brief Swap two son nodes.
+   *
+   * @param tree The tree.
+   * @param nodeId The node.
+   * @param i1 First son node index.
+   * @param i2 Second son node index.
+   * @throw NodeNotFoundException If the node is not found.
+   * @throw IndexOutOfBoundsException If one node index is not valid, or if the node
+   */
+  void swapNodes(const Tree& tree, int nodeId, size_t i1 = 0, size_t i2 = 1);
 
-    /**
-     * @brief Change the root node.
-     *
-     * Works on unrooted tree.
-     * If the tree is rooted, the method unroots it first.
-     *
-     * @param nodeId The id of the node that will be the new root.
-     */
-    virtual void rootAt(int nodeId) = 0;
+  /** @} */
 
-    /**
-     * @brief Root a tree by specifying an outgroup.
-     *
-     * If the tree is rooted, unroot it first, change the root node and then
-     * reroot the tree using the previous root id.
-     * If the tree is unrooted, change the root node and then create a new root node.
-     *
-     * @param nodeId The id of the node that will be the new root.
-     */
-    virtual void newOutGroup(int nodeId) = 0;
-		
-    /**
-     * @brief Tell if the tree is rooted.
-     * 
-     * @return True if the tree is rooted.
-     */
-    virtual bool isRooted() const = 0;
-		
-    /**
-     * @brief Unroot a rooted tree.
-     *
-     * @return True if the tree has been unrooted.
-     * @throw UnrootedTreeException If the tree is already rooted.
-     */
-    virtual bool unroot() = 0;
+  /**
+   * @name Dealing with branch lengths.
+   *
+   * @{
+   */
+  virtual double getDistanceToFather(int nodeId) const = 0;
 
-    /**
-     * @brief Number nodes.
-     */
-    virtual void resetNodesId() = 0;
-		
-    // Works on (multi)furcations:
-		
-    /**
-     * @brief Tell if the tree is multifurcating.
-     * 
-     * @return True if the tree is multifurcating.
-     */
-    virtual bool isMultifurcating() const = 0;
-		
-    /**
-     * @brief Get all the branch lengths of a tree.
-     *
-     * @return A vector with all branch lengths.
-     * @throw NodeException If a branch length is lacking.
-     */
-    virtual std::vector<double> getBranchLengths() = 0;
+  virtual void setDistanceToFather(int nodeId, double length) = 0;
 
-    /**
-     * @brief Get the total length (sum of all branch lengths) of a tree.
-     *
-     * @return The total length of the subtree.
-     * @throw NodeException If a branch length is lacking.
-     */
-    virtual double getTotalLength() = 0;
+  virtual void deleteDistanceToFather(int nodeId) = 0;
 
-    /**
-     * @brief Set all the branch lengths of a tree.
-     *
-     * @param brLen The branch length to apply.
-     */
-    virtual void setBranchLengths(double brLen) = 0;
-		
-    /**
-     * @brief Give a length to branches that don't have one in a tree.
-     *
-     * @param brLen The branch length to apply.
-     */
-    virtual void setVoidBranchLengths(double brLen) = 0;
-	
-    /**
-     * @brief Scale a given tree.
-     *
-     * Multiply all branch lengths by a given factor.
-     *
-     * @param factor The factor to multiply all branch lengths with.
-     * @throw NodeException If a branch length is lacking.
-     */
-    virtual void scaleTree(double factor) = 0;
+  virtual bool hasDistanceToFather(int nodeId) const = 0;
+  /** @} */
 
-    /**
-     * @brief Get an id.
-     *
-     * @return an unused node id.
-     */
-    virtual int getNextId() = 0;
+  /**
+   * @name Node properties.
+   *
+   * @{
+   */
+  virtual bool hasNodeProperty(int nodeId, const std::string& name) const = 0;
 
-  };
+  virtual void setNodeProperty(int nodeId, const std::string& name, const Clonable& property) = 0;
 
-} //end of namespace bpp.
+  virtual Clonable* getNodeProperty(int nodeId, const std::string& name) = 0;
 
-#endif	//_TREE_H_
+  virtual const Clonable* getNodeProperty(int nodeId, const std::string& name) const = 0;
 
+  virtual Clonable* removeNodeProperty(int nodeId, const std::string& name) = 0;
+
+  virtual std::vector<std::string> getNodePropertyNames(int nodeId) const = 0;
+  /** @} */
+
+  /**
+   * @name Branch properties.
+   *
+   * @{
+   */
+  virtual bool hasBranchProperty(int nodeId, const std::string& name) const = 0;
+
+  virtual void setBranchProperty(int nodeId, const std::string& name, const Clonable& property) = 0;
+
+  virtual Clonable* getBranchProperty(int nodeId, const std::string& name) = 0;
+
+  virtual const Clonable* getBranchProperty(int nodeId, const std::string& name) const = 0;
+
+  virtual Clonable* removeBranchProperty(int nodeId, const std::string& name) = 0;
+
+  virtual std::vector<std::string> getBranchPropertyNames(int nodeId) const = 0;
+  /** @} */
+
+  /**
+   * @brief Change the root node.
+   *
+   * Works on unrooted tree.
+   * If the tree is rooted, the method unroots it first.
+   *
+   * @param nodeId The id of the node that will be the new root.
+   */
+  virtual void rootAt(int nodeId) = 0;
+
+  /**
+   * @brief Root a tree by specifying an outgroup.
+   *
+   * If the tree is rooted, unroot it first, change the root node and then
+   * reroot the tree using the previous root id.
+   * If the tree is unrooted, change the root node and then create a new root node.
+   *
+   * @param nodeId The id of the node that will be the new root.
+   */
+  virtual void newOutGroup(int nodeId) = 0;
+
+  /**
+   * @brief Tell if the tree is rooted.
+   *
+   * @return True if the tree is rooted.
+   */
+  virtual bool isRooted() const = 0;
+
+  /**
+   * @brief Unroot a rooted tree.
+   *
+   * @return True if the tree has been unrooted.
+   * @throw UnrootedTreeException If the tree is already rooted.
+   */
+  virtual bool unroot() = 0;
+
+  /**
+   * @brief Number nodes.
+   */
+  virtual void resetNodesId() = 0;
+
+  // Works on (multi)furcations:
+
+  /**
+   * @brief Tell if the tree is multifurcating.
+   *
+   * @return True if the tree is multifurcating.
+   */
+  virtual bool isMultifurcating() const = 0;
+
+  /**
+   * @brief Get all the branch lengths of a tree.
+   *
+   * @return A vector with all branch lengths.
+   * @throw NodeException If a branch length is lacking.
+   */
+  virtual std::vector<double> getBranchLengths() = 0;
+
+  /**
+   * @brief Get the total length (sum of all branch lengths) of a tree.
+   *
+   * @return The total length of the subtree.
+   * @throw NodeException If a branch length is lacking.
+   */
+  virtual double getTotalLength() = 0;
+
+  /**
+   * @brief Set all the branch lengths of a tree.
+   *
+   * @param brLen The branch length to apply.
+   */
+  virtual void setBranchLengths(double brLen) = 0;
+
+  /**
+   * @brief Give a length to branches that don't have one in a tree.
+   *
+   * @param brLen The branch length to apply.
+   */
+  virtual void setVoidBranchLengths(double brLen) = 0;
+
+  /**
+   * @brief Scale a given tree.
+   *
+   * Multiply all branch lengths by a given factor.
+   *
+   * @param factor The factor to multiply all branch lengths with.
+   * @throw NodeException If a branch length is lacking.
+   */
+  virtual void scaleTree(double factor) = 0;
+
+  /**
+   * @brief Get an id.
+   *
+   * @return an unused node id.
+   */
+  virtual int getNextId() = 0;
+};
+} // end of namespace bpp.
+
+#endif//_TREE_H_

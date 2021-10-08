@@ -54,7 +54,7 @@ YN98::YN98(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
   computeFrequencies(false);
-  
+
   addParameter_(new Parameter("YN98.kappa", 1, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("YN98.omega", 1, std::make_shared<IntervalConstraint>(0.001, 999, true, true)));
 
@@ -88,4 +88,3 @@ YN98& YN98::operator=(const YN98& yn98)
   pmodel_.reset(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_));
   return *this;
 }
-

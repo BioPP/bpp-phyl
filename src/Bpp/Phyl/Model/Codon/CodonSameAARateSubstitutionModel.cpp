@@ -55,22 +55,22 @@ CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
   pCodonModel_(pCodonModel),
   pFreq_(pFreq),
   pgencode_(pgencode),
-  X_(20,20),
+  X_(20, 20),
   phi_(20)
 {
   pCodonModel->enableEigenDecomposition(true);
-  pAAmodel->enableEigenDecomposition(true); 
+  pAAmodel->enableEigenDecomposition(true);
 
   pAAmodel_->setNamespace("SameAARate." + pAAmodel_->getNamespace());
   pCodonModel_->setNamespace("SameAARate." + pCodonModel_->getNamespace());
 
-  if (pFreq_ && pFreq_!=((CoreCodonSubstitutionModel*)(pCodonModel.get()))->getFrequencySet())
+  if (pFreq_ && pFreq_ != ((CoreCodonSubstitutionModel*)(pCodonModel.get()))->getFrequencySet())
     pFreq_->setNamespace("SameAARate." + pFreq_->getNamespace());
 
   addParameters_(pAAmodel_->getParameters());
   addParameters_(pCodonModel_->getParameters());
 
-  if (pFreq_ && pFreq_!=((CoreCodonSubstitutionModel*)(pCodonModel.get()))->getFrequencySet())
+  if (pFreq_ && pFreq_ != ((CoreCodonSubstitutionModel*)(pCodonModel.get()))->getFrequencySet())
     addParameters_(pFreq_->getParameters());
 
   compute_();
@@ -84,38 +84,40 @@ void CodonSameAARateSubstitutionModel::fireParameterChanged(const ParameterList&
 
   if (pFreq_)
     pFreq_->matchParametersValues(parameters);
-  
+
   compute_();
   updateMatrices();
 }
 
 void CodonSameAARateSubstitutionModel::compute_()
 {
-  const auto& freq=pFreq_?pFreq_->getFrequencies():pCodonModel_->getFrequencies();
+  const auto& freq = pFreq_ ? pFreq_->getFrequencies() : pCodonModel_->getFrequencies();
 
   const auto& gen = pCodonModel_->getGenerator();
 
-  std::fill(phi_.begin(),phi_.end(),0);
+  std::fill(phi_.begin(), phi_.end(), 0);
 
-  for (size_t i = 0; i< stateMap_->getNumberOfModelStates(); i++)
+  for (size_t i = 0; i < stateMap_->getNumberOfModelStates(); i++)
   {
     if (!pgencode_->isStop((int)i))
       phi_[pAAmodel_->getModelStates(pgencode_->translate((int)i))[0]] += freq[i];
   }
-  
-  
-  for (size_t ai=0;ai<20;ai++)
-    std::fill(X_.getRow(ai).begin(), X_.getRow(ai).end(),0);
-  
-  for (size_t i = 0; i< stateMap_->getNumberOfModelStates(); i++)
+
+
+  for (size_t ai = 0; ai < 20; ai++)
+  {
+    std::fill(X_.getRow(ai).begin(), X_.getRow(ai).end(), 0);
+  }
+
+  for (size_t i = 0; i < stateMap_->getNumberOfModelStates(); i++)
   {
     if (pgencode_->isStop((int)i))
       continue;
     auto ai = pAAmodel_->getModelStates(pgencode_->translate((int)i))[0];
 
     auto& X_i = X_.getRow(ai);
-    
-    for (size_t j = 0; j< stateMap_->getNumberOfModelStates(); j++)
+
+    for (size_t j = 0; j < stateMap_->getNumberOfModelStates(); j++)
     {
       if (pgencode_->isStop((int)j))
         continue;
@@ -124,35 +126,35 @@ void CodonSameAARateSubstitutionModel::compute_()
     }
   }
 
-  for (size_t ai=0;ai<20;ai++)
+  for (size_t ai = 0; ai < 20; ai++)
   {
     auto& X_i = X_.getRow(ai);
-    for (size_t aj=0;aj<20;aj++)
-      if (X_i[aj]!=0)
-        X_i[aj] = phi_[ai] * pAAmodel_->getGenerator()(ai,aj) / X_i[aj];
+    for (size_t aj = 0; aj < 20; aj++)
+    {
+      if (X_i[aj] != 0)
+        X_i[aj] = phi_[ai] * pAAmodel_->getGenerator()(ai, aj) / X_i[aj];
+    }
   }
 
 
-  for (size_t i = 0; i< stateMap_->getNumberOfModelStates(); i++)
+  for (size_t i = 0; i < stateMap_->getNumberOfModelStates(); i++)
   {
     if (pgencode_->isStop((int)i))
       continue;
     auto ai = pAAmodel_->getModelStates(pgencode_->translate((int)i))[0];
 
     const auto& X_i = X_.row(ai);
-    
-    for (size_t j = 0; j< stateMap_->getNumberOfModelStates(); j++)
+
+    for (size_t j = 0; j < stateMap_->getNumberOfModelStates(); j++)
     {
       if (pgencode_->isStop((int)j))
         continue;
       auto aj = pAAmodel_->getModelStates(pgencode_->translate((int)j))[0];
-      generator_(i,j) = gen(i,j) * X_i[aj];
+      generator_(i, j) = gen(i, j) * X_i[aj];
     }
   }
 
   // Set diagonal
-  
+
   setDiagonal();
 }
-  
-

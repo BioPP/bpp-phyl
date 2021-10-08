@@ -152,4 +152,3 @@ Node* PGMA::getParentNode(int id, Node* son1, Node* son2)
   parent->addSon(son2);
   return parent;
 }
-

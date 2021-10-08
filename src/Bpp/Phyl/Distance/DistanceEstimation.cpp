@@ -66,11 +66,11 @@ using namespace std;
 /******************************************************************************/
 
 TwoTreeLikelihood::TwoTreeLikelihood(
-    const std::string& seq1, const std::string& seq2,
-    const AlignedValuesContainer& data,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
-    bool verbose) :
+  const std::string& seq1, const std::string& seq2,
+  const AlignedValuesContainer& data,
+  TransitionModel* model,
+  DiscreteDistribution* rDist,
+  bool verbose) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   shrunkData_(0), seqnames_(2), model_(model), brLenParameters_(), pxy_(), dpxy_(), d2pxy_(),
   rootPatternLinks_(), rootWeights_(), nbSites_(0), nbClasses_(0), nbStates_(0), nbDistinctSites_(0),
@@ -80,7 +80,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 {
   seqnames_[0] = seq1;
   seqnames_[1] = seq2;
-  
+
   data_ = PatternTools::getSequenceSubset(data, seqnames_);
   if (data_->getAlphabet()->getAlphabetType()
       != model_->getAlphabet()->getAlphabetType())
@@ -98,7 +98,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
   SitePatterns pattern(data_);
   shrunkData_       = pattern.getSites();
   rootWeights_      = pattern.getWeights();
-  
+
   rootPatternLinks_.resize(size_t(pattern.getIndices().size()));
   SitePatterns::IndicesType::Map(&rootPatternLinks_[0], pattern.getIndices().size()) = pattern.getIndices();
 
@@ -107,18 +107,20 @@ TwoTreeLikelihood::TwoTreeLikelihood(
     ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));
 
   // Init _likelihoods:
-  if (verbose) ApplicationTools::displayTask("Init likelihoods arrays recursively");
+  if (verbose)
+    ApplicationTools::displayTask("Init likelihoods arrays recursively");
   // Clone data for more efficiency on sequences access:
-  const AlignedValuesContainer* sequences = (dynamic_cast<const SiteContainer*>(shrunkData_.get()))?static_cast<const AlignedValuesContainer*>(new AlignedSequenceContainer(dynamic_cast<SiteContainer&>(*shrunkData_))):
-    static_cast<const AlignedValuesContainer*>(new VectorProbabilisticSiteContainer(dynamic_cast<const VectorProbabilisticSiteContainer&>(*shrunkData_)));
-  
+  const AlignedValuesContainer* sequences = (dynamic_cast<const SiteContainer*>(shrunkData_.get())) ? static_cast<const AlignedValuesContainer*>(new AlignedSequenceContainer(dynamic_cast<SiteContainer&>(*shrunkData_))) :
+                                            static_cast<const AlignedValuesContainer*>(new VectorProbabilisticSiteContainer(dynamic_cast<const VectorProbabilisticSiteContainer&>(*shrunkData_)));
+
   initTreeLikelihoods(*sequences);
   delete sequences;
 
   brLen_ = minimumBrLen_;
   brLenConstraint_ = std::make_shared<IntervalConstraint>(1, minimumBrLen_, true);
 
-  if (verbose) ApplicationTools::displayTaskDone();
+  if (verbose)
+    ApplicationTools::displayTaskDone();
 }
 
 /******************************************************************************/
@@ -184,8 +186,7 @@ TwoTreeLikelihood& TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
 /******************************************************************************/
 
 TwoTreeLikelihood::~TwoTreeLikelihood()
-{
-}
+{}
 
 /******************************************************************************/
 
@@ -200,7 +201,8 @@ void TwoTreeLikelihood::initialize()
 
 ParameterList TwoTreeLikelihood::getBranchLengthsParameters() const
 {
-  if (!initialized_) throw Exception("TwoTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
+  if (!initialized_)
+    throw Exception("TwoTreeLikelihood::getBranchLengthsParameters(). Object is not initialized.");
   return brLenParameters_.getCommonParametersWith(getParameters());
 }
 
@@ -208,7 +210,8 @@ ParameterList TwoTreeLikelihood::getBranchLengthsParameters() const
 
 ParameterList TwoTreeLikelihood::getSubstitutionModelParameters() const
 {
-  if (!initialized_) throw Exception("TwoTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
+  if (!initialized_)
+    throw Exception("TwoTreeLikelihood::getSubstitutionModelParameters(). Object is not initialized.");
   return model_->getParameters().getCommonParametersWith(getParameters());
 }
 
@@ -314,7 +317,7 @@ void TwoTreeLikelihood::initBranchLengthsParameters()
 {
   if (brLen_ < minimumBrLen_)
   {
-   ApplicationTools::displayWarning("Branch length is too small: " + TextTools::toString(brLen_) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+    ApplicationTools::displayWarning("Branch length is too small: " + TextTools::toString(brLen_) + ". Value is set to " + TextTools::toString(minimumBrLen_));
     brLen_ = minimumBrLen_;
   }
   brLenParameters_.reset();
@@ -424,21 +427,22 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequencedValuesContainer& sequ
   leafLikelihoods2_.resize(nbDistinctSites_);
   for (size_t i = 0; i < nbDistinctSites_; i++)
   {
-   Vdouble* leafLikelihoods1_i = &leafLikelihoods1_[i];
-   Vdouble* leafLikelihoods2_i = &leafLikelihoods2_[i];
-   leafLikelihoods1_i->resize(nbStates_);
-   leafLikelihoods2_i->resize(nbStates_);
-   for (size_t s = 0; s < nbStates_; s++)
-   {
-     try {
-       (*leafLikelihoods1_i)[s] = sequences.getStateValueAt(i, seqnames_[0], model_->getAlphabetStateAsInt(s));
-       (*leafLikelihoods2_i)[s] = sequences.getStateValueAt(i, seqnames_[1], model_->getAlphabetStateAsInt(s));
-     }
-     catch (SequenceNotFoundException& snfe)
-     {
-       throw SequenceNotFoundException("TwoTreeLikelihood::initTreelikelihoods. Leaf name in tree not found in site conainer: ", snfe.getSequenceId());
-     }
-   }
+    Vdouble* leafLikelihoods1_i = &leafLikelihoods1_[i];
+    Vdouble* leafLikelihoods2_i = &leafLikelihoods2_[i];
+    leafLikelihoods1_i->resize(nbStates_);
+    leafLikelihoods2_i->resize(nbStates_);
+    for (size_t s = 0; s < nbStates_; s++)
+    {
+      try
+      {
+        (*leafLikelihoods1_i)[s] = sequences.getStateValueAt(i, seqnames_[0], model_->getAlphabetStateAsInt(s));
+        (*leafLikelihoods2_i)[s] = sequences.getStateValueAt(i, seqnames_[1], model_->getAlphabetStateAsInt(s));
+      }
+      catch (SequenceNotFoundException& snfe)
+      {
+        throw SequenceNotFoundException("TwoTreeLikelihood::initTreelikelihoods. Leaf name in tree not found in site conainer: ", snfe.getSequenceId());
+      }
+    }
   }
 
   // Initialize likelihood vector:
@@ -646,12 +650,13 @@ void DistanceEstimation::computeMatrix()
 {
   size_t n = sites_->getNumberOfSequences();
   vector<string> names = sites_->getSequencesNames();
-  if (dist_ != 0) delete dist_;
+  if (dist_ != 0)
+    delete dist_;
   dist_ = new DistanceMatrix(names);
   optimizer_->setVerbose(static_cast<unsigned int>(max(static_cast<int>(verbose_) - 2, 0)));
 
-  const SiteContainer* sc=dynamic_cast<const SiteContainer*>(sites_);
-  const VectorProbabilisticSiteContainer* psc=dynamic_cast<const VectorProbabilisticSiteContainer*>(sites_);
+  const SiteContainer* sc = dynamic_cast<const SiteContainer*>(sites_);
+  const VectorProbabilisticSiteContainer* psc = dynamic_cast<const VectorProbabilisticSiteContainer*>(sites_);
 
   for (size_t i = 0; i < n; ++i)
   {
@@ -671,12 +676,12 @@ void DistanceEstimation::computeMatrix()
       lik->initialize();
       lik->enableDerivatives(true);
 
-      size_t d = sc?
-        SymbolListTools::getNumberOfDistinctPositions(sc->getSequence(i), sc->getSequence(j)):
-        SymbolListTools::getNumberOfDistinctPositions(*psc->getSequence(i), *psc->getSequence(j));
-      size_t g = sc?
-        SymbolListTools::getNumberOfPositionsWithoutGap(sc->getSequence(i), sc->getSequence(j)):
-        SymbolListTools::getNumberOfPositionsWithoutGap(*psc->getSequence(i), *psc->getSequence(j));
+      size_t d = sc ?
+                 SymbolListTools::getNumberOfDistinctPositions(sc->getSequence(i), sc->getSequence(j)) :
+                 SymbolListTools::getNumberOfDistinctPositions(*psc->getSequence(i), *psc->getSequence(j));
+      size_t g = sc ?
+                 SymbolListTools::getNumberOfPositionsWithoutGap(sc->getSequence(i), sc->getSequence(j)) :
+                 SymbolListTools::getNumberOfPositionsWithoutGap(*psc->getSequence(i), *psc->getSequence(j));
 
       lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
@@ -690,9 +695,9 @@ void DistanceEstimation::computeMatrix()
       (*dist_)(i, j) = (*dist_)(j, i) = lik->getParameterValue("BrLen");
       delete lik;
     }
-    if (verbose_ > 1 && ApplicationTools::message) ApplicationTools::message->endLine();
+    if (verbose_ > 1 && ApplicationTools::message)
+      ApplicationTools::message->endLine();
   }
 }
 
 /******************************************************************************/
-

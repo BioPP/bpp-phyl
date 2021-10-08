@@ -119,4 +119,4 @@ public:
 };
 }
 
-#endif // _GBGC_H
+#endif// _GBGC_H

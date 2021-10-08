@@ -46,7 +46,7 @@ OneProcessSequenceEvolution::OneProcessSequenceEvolution(SubstitutionProcess& pr
   AbstractParameterAliasable(""),
   subsProc_(&process),
   nProc_(nProc),
-  vProc_(std::vector<size_t>(1,nProc_))
+  vProc_(std::vector<size_t>(1, nProc_))
 {
   includeParameters_(process.getSubstitutionModelParameters(true));
   includeParameters_(process.getRateDistributionParameters(true));
@@ -59,17 +59,14 @@ OneProcessSequenceEvolution::OneProcessSequenceEvolution(const OneProcessSequenc
   subsProc_(evol.subsProc_),
   nProc_(evol.nProc_),
   vProc_(evol.vProc_)
-{
-}
+{}
 
 OneProcessSequenceEvolution& OneProcessSequenceEvolution::operator=(const OneProcessSequenceEvolution& evol)
 {
   AbstractParameterAliasable::operator=(evol);
-  subsProc_=evol.subsProc_;
-  nProc_=evol.nProc_; 
-  vProc_=evol.vProc_;
-  
+  subsProc_ = evol.subsProc_;
+  nProc_ = evol.nProc_;
+  vProc_ = evol.vProc_;
+
   return *this;
 }
-
-

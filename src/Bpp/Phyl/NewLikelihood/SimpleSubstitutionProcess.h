@@ -42,22 +42,22 @@
 
 #include "AbstractSubstitutionProcess.h"
 
-//From the stl:
+// From the stl:
 #include <memory>
 
 namespace bpp
 {
-
 /**
  * @brief Space and time homogeneous substitution process, without mixture.
  */
 class SimpleSubstitutionProcess :
-    public AbstractSubstitutionProcess
+  public AbstractSubstitutionProcess
 {
 protected:
   std::shared_ptr<BranchModel> model_;
 
 private:
+
 public:
   SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree);
 
@@ -74,16 +74,17 @@ public:
   {
     return model_->getStateMap();
   }
-  
+
   size_t getNumberOfModels() const { return 1; }
 
-  bool isCompatibleWith(const AlignedValuesContainer& data) const {
+  bool isCompatibleWith(const AlignedValuesContainer& data) const
+  {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
 
   std::vector<size_t> getModelNumbers() const
   {
-    return(std::vector<size_t>(1,1));
+    return std::vector<size_t>(1, 1);
   }
 
   const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const
@@ -106,7 +107,7 @@ public:
   {
     return 1;
   }
-  
+
   const BranchModel* getModelForNode(unsigned int nodeId) const
   {
     return model_.get();
@@ -116,7 +117,7 @@ public:
   {
     return 0;
   }
-  
+
   // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const {
   //   return model_->getGenerator();
   // }
@@ -125,25 +126,29 @@ public:
   {
     return std::shared_ptr<const FrequencySet>(0);
   }
-  
+
   ParameterList getSubstitutionModelParameters(bool independent) const
   {
-    return (independent?model_->getIndependentParameters():model_->getParameters());
+    return independent ? model_->getIndependentParameters() : model_->getParameters();
   }
 
-  ParameterList getRateDistributionParameters(bool independent) const {
+  ParameterList getRateDistributionParameters(bool independent) const
+  {
     return ParameterList();
   }
 
-  ParameterList getRootFrequenciesParameters(bool independent) const {
+  ParameterList getRootFrequenciesParameters(bool independent) const
+  {
     return ParameterList();
   }
 
-  ParameterList getBranchLengthParameters(bool independent) const {
+  ParameterList getBranchLengthParameters(bool independent) const
+  {
     return getParametrizablePhyloTree().getParameters();
   }
-  
-  const std::vector<double>& getRootFrequencies() const {
+
+  const std::vector<double>& getRootFrequencies() const
+  {
     if (std::dynamic_pointer_cast<const TransitionModel>(model_))
       return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
     else
@@ -155,14 +160,16 @@ public:
    * (ie modelpath has only the model of the process).
    *
    */
-   
+
   void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
 
-  double getInitValue(size_t i, int state) const {
+  double getInitValue(size_t i, int state) const
+  {
     return model_->getInitValue(i, state);
   }
-  
-  double getProbabilityForModel(size_t classIndex) const {
+
+  double getProbabilityForModel(size_t classIndex) const
+  {
     if (classIndex != 0)
       throw IndexOutOfBoundsException("SimpleSubstitutionProcess::getProbabilityForModel.", classIndex, 0, 1);
     return 1;
@@ -170,31 +177,31 @@ public:
 
   Vdouble getClassProbabilities() const
   {
-    return Vdouble(1,1);
+    return Vdouble(1, 1);
   }
 
-  double getRateForModel(size_t classIndex) const {
+  double getRateForModel(size_t classIndex) const
+  {
     if (classIndex != 0)
       throw IndexOutOfBoundsException("SimpleSubstitutionProcess::getRateForModel.", classIndex, 0, 1);
     return 1;
   }
 
-  //bool transitionProbabilitiesHaveChanged() const { return true; }
-protected:
-  void fireParameterChanged(const ParameterList& pl); //Forward parameters and updates probabilities if needed.
+  // bool transitionProbabilitiesHaveChanged() const { return true; }
 
-  bool modelChangesWithParameter_(size_t i, const ParameterList& pl) const {
+protected:
+  void fireParameterChanged(const ParameterList& pl); // Forward parameters and updates probabilities if needed.
+
+  bool modelChangesWithParameter_(size_t i, const ParameterList& pl) const
+  {
     if (pl.getCommonParametersWith(model_->getParameters()).size() > 0)
-      return true; 
+      return true;
     ParameterList plbl = pTree_->getBranchLengthParameters(i);
     if (plbl.getCommonParametersWith(pl).size() > 0)
       return true;
     return false;
   }
-
 };
-
 } // end namespace bpp
 
-#endif // _SUBSTITUTIONPROCESS_H_
-
+#endif// _SUBSTITUTIONPROCESS_H_

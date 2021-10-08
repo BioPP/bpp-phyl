@@ -70,4 +70,3 @@ DiscreteDistribution* RASTools::getPosteriorRateDistribution(
   // Build a new distribution and return it:
   return new SimpleDiscreteDistribution(distribution);
 }
-

@@ -68,7 +68,7 @@ using namespace bpp;
 using namespace std;
 
 
-double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNode> node) 
+double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNode> node)
 {
   double d = 0;
 
@@ -125,8 +125,8 @@ void PhyloTreeTools::computeBranchLengthsGrafen(
   height = 0;
   for (size_t i = 0; i < sons.size(); i++)
   {
-    shared_ptr<PhyloBranch> branch=tree.getEdgeToFather(sons[i]);
-    
+    shared_ptr<PhyloBranch> branch = tree.getEdgeToFather(sons[i]);
+
     if (branch->hasLength())
     {
       double h;
@@ -169,7 +169,7 @@ double PhyloTreeTools::convertToClockTree(PhyloTree& tree, shared_ptr<PhyloNode>
   double maxh = -1.;
   for (size_t i = 0; i < sons.size(); i++)
   {
-    shared_ptr<PhyloBranch> branch=tree.getEdgeToFather(sons[i]);
+    shared_ptr<PhyloBranch> branch = tree.getEdgeToFather(sons[i]);
 
     if (branch->hasLength())
     {
@@ -193,8 +193,6 @@ double PhyloTreeTools::convertToClockTree(PhyloTree& tree, shared_ptr<PhyloNode>
 }
 
 
-
-
 double PhyloTreeTools::convertToClockTree2(PhyloTree& tree, shared_ptr<PhyloNode> node)
 {
   vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
@@ -204,7 +202,7 @@ double PhyloTreeTools::convertToClockTree2(PhyloTree& tree, shared_ptr<PhyloNode
   double maxh = -1.;
   for (size_t i = 0; i < sons.size(); i++)
   {
-    shared_ptr<PhyloBranch> branch=tree.getEdgeToFather(sons[i]);
+    shared_ptr<PhyloBranch> branch = tree.getEdgeToFather(sons[i]);
 
     if (branch->hasLength())
     {
@@ -234,24 +232,23 @@ void PhyloTreeTools::constrainedMidPointRooting(PhyloTree& tree)
 
   vector<shared_ptr<PhyloNode> > sons = tree.getSons(tree.getRoot());
 
-  if (sons.size()>2)
+  if (sons.size() > 2)
     throw Exception("The tree is multifurcated at the root, which is not allowed.");
 
   double length = 0.;
 
   // Length of the branch containing the root:
-  shared_ptr<PhyloBranch> branch0=tree.getEdgeToFather(sons[0]);
-  shared_ptr<PhyloBranch> branch1=tree.getEdgeToFather(sons[1]);
+  shared_ptr<PhyloBranch> branch0 = tree.getEdgeToFather(sons[0]);
+  shared_ptr<PhyloBranch> branch1 = tree.getEdgeToFather(sons[1]);
 
   length = branch0->getLength() + branch1->getLength();
-  
+
   // The fraction of the original branch allowing to split its length and to place the root:
   double x = bestRootPosition_(tree, sons[0], sons[1], length);
   // The new branch lengths are then computed:
   branch0->setLength(length * x);
   branch1->setLength(length * (1 - x));
 }
-
 
 
 double PhyloTreeTools::bestRootPosition_(const PhyloTree& tree, const shared_ptr<PhyloNode>  node1, const shared_ptr<PhyloNode> node2, double length)
@@ -282,7 +279,6 @@ double PhyloTreeTools::bestRootPosition_(const PhyloTree& tree, const shared_ptr
 }
 
 
-
 PhyloTreeTools::Moments_ PhyloTreeTools::statFromNode_(const PhyloTree& tree, const shared_ptr<PhyloNode> root)
 {
   // This function recursively calculates both the sum of the branch lengths and the sum of the squared branch lengths down the node whose ID is rootId.
@@ -302,7 +298,7 @@ PhyloTreeTools::Moments_ PhyloTreeTools::statFromNode_(const PhyloTree& tree, co
     for (size_t i = 0; i < sons.size(); i++)
     {
       mtmp = statFromNode_(tree, sons[i]);
-      shared_ptr<PhyloBranch> branch=tree.getEdgeToFather(sons[i]);
+      shared_ptr<PhyloBranch> branch = tree.getEdgeToFather(sons[i]);
 
       double bLength = branch->getLength();
       m.N += mtmp.N;
@@ -312,6 +308,4 @@ PhyloTreeTools::Moments_ PhyloTreeTools::statFromNode_(const PhyloTree& tree, co
   }
 
   return m;
-
 }
-

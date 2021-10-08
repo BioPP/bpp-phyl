@@ -167,7 +167,7 @@ double HierarchicalClustering::computeDistancesFromPair(const vector<size_t>& pa
   double d1 = matrix_(pair[0], pos);
   double d2 = matrix_(pair[1], pos);
   double d3 = matrix_(pair[0], pair[1]);
-  return w1 * d1 + w2 * d2 + w3 * d3 + w4* std::abs(d1 - d2);
+  return w1 * d1 + w2 * d2 + w3 * d3 + w4 * std::abs(d1 - d2);
 }
 
 void HierarchicalClustering::finalStep(int idRoot)
@@ -210,4 +210,3 @@ Node* HierarchicalClustering::getParentNode(int id, Node* son1, Node* son2)
   parent->addSon(son2);
   return parent;
 }
-

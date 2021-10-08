@@ -313,5 +313,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif // _DRTREEPARSIMONYDATA_H_
-
+#endif// _DRTREEPARSIMONYDATA_H_

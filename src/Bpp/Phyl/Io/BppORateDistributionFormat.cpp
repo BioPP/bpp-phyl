@@ -43,7 +43,7 @@
 #include "../Model/RateDistribution/GaussianDiscreteRateDistribution.h"
 #include "../Model/RateDistribution/ExponentialDiscreteRateDistribution.h"
 
-//From bpp-core:
+// From bpp-core:
 #include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/Numeric/Prob/InvariantMixedDiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
@@ -59,8 +59,8 @@ using namespace std;
 
 
 DiscreteDistribution* BppORateDistributionFormat::readDiscreteDistribution(
-    const std::string& distDescription,
-    bool parseArguments)
+  const std::string& distDescription,
+  bool parseArguments)
 {
   unparsedArguments_.clear();
   string distName;
@@ -243,10 +243,10 @@ DiscreteDistribution* BppORateDistributionFormat::readDiscreteDistribution(
 
 
 void BppORateDistributionFormat::writeDiscreteDistribution(
-    const DiscreteDistribution& dist,
-    OutputStream& out,
-    std::map<std::string, std::string>& globalAliases,
-    std::vector<std::string>& writtenNames) const
+  const DiscreteDistribution& dist,
+  OutputStream& out,
+  std::map<std::string, std::string>& globalAliases,
+  std::vector<std::string>& writtenNames) const
 {
   bool comma = false;
 
@@ -357,5 +357,3 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
   bOP.write(dynamic_cast<const ParameterAliasable*>(&dist), out, globalAliases, dist.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
   out << ")";
 }
-
-

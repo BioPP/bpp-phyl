@@ -2067,8 +2067,8 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     string p2 = alias.substr(index + 2);
     try
     {
-      auto v2= TextTools::toDouble(p2);
-      SPC->setParameterValue(p1,v2);
+      auto v2 = TextTools::toDouble(p2);
+      SPC->setParameterValue(p1, v2);
     }
     catch (Exception& e)
     {

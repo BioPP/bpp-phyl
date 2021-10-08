@@ -102,4 +102,4 @@ protected:
   void updateMatrices();
 };
 } // end of namespace bpp.
-#endif  // _COALA_H_
+#endif// _COALA_H_

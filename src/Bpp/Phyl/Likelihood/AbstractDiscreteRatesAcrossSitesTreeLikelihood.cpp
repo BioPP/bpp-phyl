@@ -328,4 +328,3 @@ VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getTransitionProbabilit
 }
 
 /******************************************************************************/
-

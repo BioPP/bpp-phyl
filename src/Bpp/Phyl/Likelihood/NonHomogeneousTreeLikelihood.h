@@ -6,37 +6,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use, 
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or 
-  data to be ensured and,  more generally, to use and operate it in the 
-  same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _NONHOMOGENEOUSTREELIKELIHOOD_H_
 #define _NONHOMOGENEOUSTREELIKELIHOOD_H_
@@ -46,7 +46,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Specialization of the TreeLikelihood interface for the branch non-homogeneous and non-stationary models.
  *
@@ -57,67 +56,63 @@ namespace bpp
  *
  * @see SubstitutionModelSet.
  */
-  
-  class NonHomogeneousTreeLikelihood :
-    public virtual TreeLikelihood
+
+class NonHomogeneousTreeLikelihood :
+  public virtual TreeLikelihood
+{
+public:
+  NonHomogeneousTreeLikelihood* clone() const = 0;
+
+public:
+  const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const
   {
-  public:
+    return getModelForNode(nodeId);
+  }
 
-    NonHomogeneousTreeLikelihood* clone() const = 0;
+  TransitionModel* getModelForSite(int nodeId, size_t siteIndex)
+  {
+    return getModelForNode(nodeId);
+  }
 
-  public:
-    const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const
-    {
-      return getModelForNode(nodeId);
-    }
+  /**
+   * @brief Get the model associated to a given node.
+   *
+   * @param nodeId The id of the request node.
+   * @return A pointer toward the corresponding model.
+   * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
+   */
+  virtual const TransitionModel* getModelForNode(int nodeId) const = 0;
 
-    TransitionModel* getModelForSite(int nodeId, size_t siteIndex)
-    {
-      return getModelForNode(nodeId);
-    }
+  /**
+   * @brief Get the substitution model associated to a given node.
+   *
+   * @param nodeId The id of the request node.
+   * @return A pointer toward the corresponding model.
+   * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
+   */
+  virtual TransitionModel* getModelForNode(int nodeId) = 0;
 
-    /**
-     * @brief Get the model associated to a given node.
-     *
-     * @param nodeId The id of the request node.
-     * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
-     */
-    virtual const TransitionModel* getModelForNode(int nodeId) const = 0;
+  /**
+   * @return The set of substitution models associated to this instance.
+   */
+  virtual const SubstitutionModelSet* getSubstitutionModelSet() const = 0;
 
-    /**
-     * @brief Get the substitution model associated to a given node.
-     *
-     * @param nodeId The id of the request node.
-     * @return A pointer toward the corresponding model.
-     * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
-     */
-    virtual TransitionModel* getModelForNode(int nodeId) = 0;
+  /**
+   * @return The set of substitution models associated to this instance.
+   */
+  virtual SubstitutionModelSet* getSubstitutionModelSet() = 0;
 
-    /**
-     * @return The set of substitution models associated to this instance.
-     */
-    virtual const SubstitutionModelSet* getSubstitutionModelSet() const = 0;
+  /**
+   * @return Set the substitution models for this instance.
+   * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
+   */
+  virtual void setSubstitutionModelSet(SubstitutionModelSet* model) = 0;
 
-    /**
-     * @return The set of substitution models associated to this instance.
-     */
-    virtual SubstitutionModelSet* getSubstitutionModelSet() = 0;
-    
-    /**
-     * @return Set the substitution models for this instance.
-     * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
-     */
-    virtual void setSubstitutionModelSet(SubstitutionModelSet* model) = 0;
+  /**
+   * @return The parameters on which the root frequencies depend.
+   */
+  virtual ParameterList getRootFrequenciesParameters() const = 0;
+};
+} // end of namespace bpp.
 
-    /**
-     * @return The parameters on which the root frequencies depend.
-     */
-    virtual ParameterList getRootFrequenciesParameters() const = 0;
-
-  };
-
-} //end of namespace bpp.
-
-#endif	//_NONHOMOGENEOUSTREELIKELIHOOD_H_
-
+#endif//_NONHOMOGENEOUSTREELIKELIHOOD_H_

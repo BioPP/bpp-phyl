@@ -50,8 +50,8 @@ namespace bpp
 {
 /**
  *@ brief A class to compute the average of several
- *RHomogeneousTreeLikelihood defined from a Mixed Substitution
- *Model.
+ * RHomogeneousTreeLikelihood defined from a Mixed Substitution
+ * Model.
  *
  * In all the calculs, the average of the likelihoods, probabilities
  * are computed.
@@ -63,7 +63,7 @@ class RHomogeneousMixedTreeLikelihood :
 private:
   std::vector<RHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
   std::vector<double> probas_;
-  
+
 public:
   /**
    * @brief Build a new RHomogeneousMixedTreeLikelihood object without
@@ -191,9 +191,7 @@ protected:
    * @param node The node at which likelihood values must be displayed.
    */
   virtual void displayLikelihood(const Node* node);
-
 };
 } // end of namespace bpp.
 
-#endif  // _RHOMOGENEOUSMIXEDTREELIKELIHOOD_H_
-
+#endif// _RHOMOGENEOUSMIXEDTREELIKELIHOOD_H_

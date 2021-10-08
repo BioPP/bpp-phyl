@@ -55,8 +55,7 @@ using namespace std;
 EvolutionSequenceSimulator::EvolutionSequenceSimulator(const SequenceEvolution& evol) :
   SubstitutionProcessSequenceSimulator(evol),
   seqEvol_(&evol)
-{
-}
+{}
 
 /******************************************************************************/
 
@@ -64,60 +63,63 @@ void EvolutionSequenceSimulator::resetSiteSimulators(size_t numberOfSites) const
 {
   vMap_.resize(numberOfSites);
 
-  const OneProcessSequenceEvolution* opse=dynamic_cast<const OneProcessSequenceEvolution*>(seqEvol_);
+  const OneProcessSequenceEvolution* opse = dynamic_cast<const OneProcessSequenceEvolution*>(seqEvol_);
 
   if (opse)
   {
-    size_t nProc=opse->getSubstitutionProcessNumbers()[0];
-    for (size_t i=0; i<numberOfSites;i++)
-      vMap_[i]=nProc;    
+    size_t nProc = opse->getSubstitutionProcessNumbers()[0];
+    for (size_t i = 0; i < numberOfSites; i++)
+    {
+      vMap_[i] = nProc;
+    }
   }
   else
   {
-    const PartitionSequenceEvolution* pse=dynamic_cast<const PartitionSequenceEvolution*>(seqEvol_);
+    const PartitionSequenceEvolution* pse = dynamic_cast<const PartitionSequenceEvolution*>(seqEvol_);
 
     if (pse)
     {
-      if (numberOfSites>pse->getNumberOfSites())
-        throw IndexOutOfBoundsException("EvolutionSequenceSimulator::resetSiteSimulators",numberOfSites,0,pse->getNumberOfSites());
+      if (numberOfSites > pse->getNumberOfSites())
+        throw IndexOutOfBoundsException("EvolutionSequenceSimulator::resetSiteSimulators", numberOfSites, 0, pse->getNumberOfSites());
 
-      for (size_t i=0; i<numberOfSites;i++)
-        vMap_[i]=pse->getSubstitutionProcessNumber(i);
+      for (size_t i = 0; i < numberOfSites; i++)
+      {
+        vMap_[i] = pse->getSubstitutionProcessNumber(i);
+      }
     }
-    
+
     else
     {
-      const vector<size_t> nProc=seqEvol_->getSubstitutionProcessNumbers();
-      
-      const MixtureSequenceEvolution* mse=dynamic_cast<const MixtureSequenceEvolution*>(seqEvol_);
+      const vector<size_t> nProc = seqEvol_->getSubstitutionProcessNumbers();
+
+      const MixtureSequenceEvolution* mse = dynamic_cast<const MixtureSequenceEvolution*>(seqEvol_);
 
       if (mse)
       {
-        const vector<double>& vprob=mse->getSubProcessProbabilities();
-        
+        const vector<double>& vprob = mse->getSubProcessProbabilities();
+
         RandomTools::getSample(nProc, vprob, vMap_, true);
       }
       else
       {
-        const AbstractHmmTransitionMatrix* htm=0;
-        
-        const AutoCorrelationSequenceEvolution* ase=dynamic_cast<const AutoCorrelationSequenceEvolution*>(seqEvol_);
-        
-        if (ase)
-          htm=&ase->getHmmTransitionMatrix();
+        const AbstractHmmTransitionMatrix* htm = 0;
 
-        const HmmSequenceEvolution* hse=dynamic_cast<const HmmSequenceEvolution*>(seqEvol_);
-        
+        const AutoCorrelationSequenceEvolution* ase = dynamic_cast<const AutoCorrelationSequenceEvolution*>(seqEvol_);
+
+        if (ase)
+          htm = &ase->getHmmTransitionMatrix();
+
+        const HmmSequenceEvolution* hse = dynamic_cast<const HmmSequenceEvolution*>(seqEvol_);
+
         if (hse)
-          htm=&hse->getHmmTransitionMatrix();
+          htm = &hse->getHmmTransitionMatrix();
         if (htm)
         {
-          vector<size_t> vInd=htm->sample(numberOfSites);
-          for (size_t i=0;i<numberOfSites;i++)
+          vector<size_t> vInd = htm->sample(numberOfSites);
+          for (size_t i = 0; i < numberOfSites; i++)
           {
-            vMap_[i]=nProc[vInd[i]];
+            vMap_[i] = nProc[vInd[i]];
           }
-          
         }
         else
           throw Exception("EvolutionSequenceSimulator::resetSiteSimulators : unknow Sequence Evolution.");
@@ -125,6 +127,3 @@ void EvolutionSequenceSimulator::resetSiteSimulators(size_t numberOfSites) const
     }
   }
 }
-
-
-

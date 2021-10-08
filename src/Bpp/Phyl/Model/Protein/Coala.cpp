@@ -64,7 +64,7 @@ using namespace std;
 
 Coala::Coala(
   const ProteicAlphabet* alpha,
-  const ProteinSubstitutionModel& model,  
+  const ProteinSubstitutionModel& model,
   unsigned int nbAxes,
   bool param) :
   AbstractParameterAliasable("Coala."),

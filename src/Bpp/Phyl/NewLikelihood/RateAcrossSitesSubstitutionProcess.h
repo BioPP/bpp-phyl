@@ -42,15 +42,14 @@
 
 #include "AbstractSubstitutionProcess.h"
 
-//From bpp-core:
+// From bpp-core:
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
-//From the stl:
+// From the stl:
 #include <memory>
 
 namespace bpp
 {
-
 class RateAcrossSitesSubstitutionProcess :
   public AbstractSubstitutionProcess
 {
@@ -63,7 +62,7 @@ public:
     std::shared_ptr<BranchModel> model,
     DiscreteDistribution* rdist,
     ParametrizablePhyloTree* tree);
-    
+
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp);
 
   RateAcrossSitesSubstitutionProcess& operator=(const RateAcrossSitesSubstitutionProcess& rassp);
@@ -77,10 +76,11 @@ public:
 
   std::vector<size_t> getModelNumbers() const
   {
-    return(std::vector<size_t>(1,1));
+    return std::vector<size_t>(1, 1);
   }
 
-  bool isCompatibleWith(const AlignedValuesContainer& data) const {
+  bool isCompatibleWith(const AlignedValuesContainer& data) const
+  {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
 
@@ -88,7 +88,7 @@ public:
   {
     return model_->getStateMap();
   }
-  
+
   const BranchModel* getModel(size_t n) const
   {
     return model_.get();
@@ -122,12 +122,12 @@ public:
 
   ParameterList getSubstitutionModelParameters(bool independent) const
   {
-    return (independent?model_->getIndependentParameters():model_->getParameters());
+    return independent ? model_->getIndependentParameters() : model_->getParameters();
   }
 
   ParameterList getRateDistributionParameters(bool independent) const
   {
-    return (independent?rDist_->getIndependentParameters():rDist_->getParameters());
+    return independent ? rDist_->getIndependentParameters() : rDist_->getParameters();
   }
 
   ParameterList getRootFrequenciesParameters(bool independent) const
@@ -139,12 +139,12 @@ public:
   {
     return getParametrizablePhyloTree().getParameters();
   }
-  
+
   std::shared_ptr<const FrequencySet> getRootFrequencySet() const
   {
     return std::shared_ptr<const FrequencySet>(0);
   }
-  
+
   const std::vector<double>& getRootFrequencies() const
   {
     if (std::dynamic_pointer_cast<const TransitionModel>(model_))
@@ -152,20 +152,22 @@ public:
     else
       throw Exception("RateAcrossSitesSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
   }
-  
+
   /**
    * @brief Set the modelPath, after checking  it is valid
    * (ie modelpath has only the model of the process).
    *
    */
-   
+
   void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
 
-  double getInitValue(size_t i, int state) const {
+  double getInitValue(size_t i, int state) const
+  {
     return model_->getInitValue(i, state);
   }
- 
-  double getProbabilityForModel(size_t classIndex) const {
+
+  double getProbabilityForModel(size_t classIndex) const
+  {
     if (classIndex >= rDist_->getNumberOfCategories())
       throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
     return rDist_->getProbability(classIndex);
@@ -175,24 +177,24 @@ public:
   {
     Vdouble vProb;
 
-    for (size_t i=0;i<rDist_->getNumberOfCategories(); i++)
+    for (size_t i = 0; i < rDist_->getNumberOfCategories(); i++)
+    {
       vProb.push_back(rDist_->getProbability(i));
+    }
 
     return vProb;
   }
 
-  double getRateForModel(size_t classIndex) const {
+  double getRateForModel(size_t classIndex) const
+  {
     if (classIndex >= rDist_->getNumberOfCategories())
       throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getRateForModel.", classIndex, 0, rDist_->getNumberOfCategories());
     return rDist_->getCategory(classIndex);
   }
 
 protected:
-    void fireParameterChanged(const ParameterList& pl); //Forward parameters and updates probabilities if needed.
-
+  void fireParameterChanged(const ParameterList& pl); // Forward parameters and updates probabilities if needed.
 };
-
 } // end namespace bpp
 
-#endif // _RATEACROSSSITESSUBSTITUTIONPROCESS_H_
-
+#endif// _RATEACROSSSITESSUBSTITUTIONPROCESS_H_

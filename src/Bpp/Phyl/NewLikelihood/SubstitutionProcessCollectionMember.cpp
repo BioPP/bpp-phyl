@@ -124,7 +124,9 @@ std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
 {
   vector<size_t> vMN;
   for (const auto& it : modelToNodes_)
+  {
     vMN.push_back(it.first);
+  }
 
   return vMN;
 }
@@ -168,7 +170,7 @@ void SubstitutionProcessCollectionMember::updateParameters()
 
 ParameterList SubstitutionProcessCollectionMember::getNonDerivableParameters() const
 {
-  ParameterList pl=getSubstitutionModelParameters(false);
+  ParameterList pl = getSubstitutionModelParameters(false);
   pl.includeParameters(getRootFrequenciesParameters(false));
   pl.includeParameters(getRateDistributionParameters(false));
 
@@ -204,8 +206,8 @@ inline std::shared_ptr<const FrequencySet> SubstitutionProcessCollectionMember::
 
 inline const std::vector<double>& SubstitutionProcessCollectionMember::getRootFrequencies() const
 {
-  auto model=dynamic_pointer_cast<const TransitionModel>(getCollection()->getModel(modelToNodes_.begin()->first));
-  
+  auto model = dynamic_pointer_cast<const TransitionModel>(getCollection()->getModel(modelToNodes_.begin()->first));
+
   if (stationarity_ && model)
     return model->getFrequencies();
   else
@@ -217,24 +219,24 @@ void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
   if (!getCollection()->hasModelScenario(numPath))
     throw BadIntException((int)numPath, "SubstitutionProcessCollectionMember::setModelScenario: Collection does not have ModelScenario number");
 
-  auto modelScenario=getCollection()->getModelScenario(numPath);
+  auto modelScenario = getCollection()->getModelScenario(numPath);
 
   // Now check all the models of the path are included in the process.
 
-  auto models=modelScenario.getModels();
+  auto models = modelScenario.getModels();
 
   auto modnum = getModelNumbers();
-  
+
   for (const auto& model:models)
   {
-    auto sm=model.get();
-    
-    bool ok=false;
+    auto sm = model.get();
+
+    bool ok = false;
     for (auto num:modnum)
     {
-      if (getModel(num)==sm)
+      if (getModel(num) == sm)
       {
-        ok=true;
+        ok = true;
         break;
       }
     }
@@ -242,15 +244,15 @@ void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
     if (!ok)
       throw Exception("SubstitutionProcessCollectionMember::setModelScenario: Unknown model " + sm->getName());
   }
-  
-  hasModelScenario_=true;
-  nPath_=numPath;
+
+  hasModelScenario_ = true;
+  nPath_ = numPath;
 }
 
-const ModelScenario& SubstitutionProcessCollectionMember::getModelScenario() const 
-{  
+const ModelScenario& SubstitutionProcessCollectionMember::getModelScenario() const
+{
   return getCollection()->getModelScenario(nPath_);
-} 
+}
 
 
 inline const ParametrizablePhyloTree& SubstitutionProcessCollectionMember::getParametrizablePhyloTree() const
@@ -337,7 +339,7 @@ bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
 
   unsigned int id;
   unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
-  
+
   std::map<size_t, std::vector<unsigned int> >::const_iterator it;
 
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
@@ -379,7 +381,7 @@ bool SubstitutionProcessCollectionMember::isCompatibleWith(const AlignedValuesCo
 }
 
 
-inline const BranchModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const 
+inline const BranchModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const
 {
   std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
   if (i == nodeToModel_.end())
@@ -400,7 +402,7 @@ inline const BranchModel* SubstitutionProcessCollectionMember::getModel(unsigned
   return getModel(nodeToModel_.at(nodeId));
 }
 
-inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const 
+inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const
 {
   if (modelToNodes_.size() == 0)
     throw Exception("SubstitutionProcessCollectionMember::getInitValue : no model associated");

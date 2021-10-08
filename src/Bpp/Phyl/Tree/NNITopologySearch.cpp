@@ -107,9 +107,9 @@ void NNITopologySearch::searchFast()
     {
       // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -161,9 +161,9 @@ void NNITopologySearch::searchBetter()
     for (size_t i = nodesSub.size(); i > 0; i--)
     { // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -225,9 +225,9 @@ void NNITopologySearch::searchPhyML()
     {
       // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -364,4 +364,3 @@ void NNITopologySearch::searchPhyML()
   }
   while (test);
 }
-

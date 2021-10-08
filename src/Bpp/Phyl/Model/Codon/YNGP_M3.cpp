@@ -77,7 +77,7 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
-  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
+  pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
 
   vector<int> supportedChars = yn98->getAlphabetStates();
 
@@ -153,20 +153,21 @@ void YNGP_M3::updateMatrices()
   {
     if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end())
     {
-      const string& np=lParPmodel_[i].getName();
-      if (np.size()>19 && np[18] == 'V')
+      const string& np = lParPmodel_[i].getName();
+      if (np.size() > 19 && np[18] == 'V')
       {
         size_t ind = TextTools::to<size_t>(np.substr(19));
         double x = getParameterValue("omega0");
         for (unsigned j = 1; j < ind; j++)
+        {
           x += getParameterValue("delta" + TextTools::toString(j));
+        }
 
-        const auto parConst = lParPmodel_[i].getConstraint();      
-        lParPmodel_[i].setValue(parConst?(parConst->isCorrect(x)?x:parConst->getAcceptedLimit(x)):x);
+        const auto parConst = lParPmodel_[i].getConstraint();
+        lParPmodel_[i].setValue(parConst ? (parConst->isCorrect(x) ? x : parConst->getAcceptedLimit(x)) : x);
       }
       else
         lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
-
     }
   }
 
@@ -177,9 +178,9 @@ void YNGP_M3::updateMatrices()
   Vdouble vd;
 
   for (unsigned int i = 0; i < pmixmodel_->getNumberOfModels(); i++)
+  {
     vd.push_back(1 / pmixsubmodel_->getSubNModel(i)->Qij(synfrom_, synto_));
+  }
 
   pmixmodel_->setVRates(vd);
 }
-
-

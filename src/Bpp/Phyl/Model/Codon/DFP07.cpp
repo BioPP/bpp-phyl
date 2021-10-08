@@ -50,7 +50,7 @@ using namespace std;
 
 /******************************************************************************/
 
-DFP07::DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel> pAAmodel, std::shared_ptr<CodonFrequencySet> codonFreqs):
+DFP07::DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel> pAAmodel, std::shared_ptr<CodonFrequencySet> codonFreqs) :
   AbstractBiblioMixedTransitionModel("DFP07."),
   pmixsubmodel_(),
   synfrom_(),
@@ -65,13 +65,13 @@ DFP07::DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel>
   std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(v1, v2));
 
   auto codmodel = std::make_shared<DFPDistanceFrequenciesSubstitutionModel>(gCode, codonFreqs);
-  auto submodel = std::make_shared<CodonSameAARateSubstitutionModel> (pAAmodel, codmodel,  shared_ptr<CodonFrequencySet>(0), gCode);
+  auto submodel = std::make_shared<CodonSameAARateSubstitutionModel>(pAAmodel, codmodel,  shared_ptr<CodonFrequencySet>(0), gCode);
 
   map<string, DiscreteDistribution*> mpdd;
   mpdd["DFPDistFreq.beta"] = psdd.get();
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gCode->getSourceAlphabet(), submodel.get(), mpdd));
-  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
+  pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
 
   vector<int> supportedChars = submodel->getAlphabetStates();
   // map the parameters
@@ -82,8 +82,8 @@ DFP07::DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel>
 
   for (size_t i = 0; i < v.size(); i++)
   {
-    if (v[i]!="SameAARate.DFPDistFreq.beta")
-      mapParNamesFromPmodel_[v[i]] = v[i].substr(23) ;
+    if (v[i] != "SameAARate.DFPDistFreq.beta")
+      mapParNamesFromPmodel_[v[i]] = v[i].substr(23);
   }
 
   mapParNamesFromPmodel_["SameAARate.DFPDistFreq.beta_Simple.V1"] = "omega";
@@ -102,7 +102,7 @@ DFP07::DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel>
     }
   }
 
-  addParameter_(new Parameter("DFP07.omega", 0.5, std::make_shared<IntervalConstraint>(0.002 , 1, true, false, 0.002)));
+  addParameter_(new Parameter("DFP07.omega", 0.5, std::make_shared<IntervalConstraint>(0.002, 1, true, false, 0.002)));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)
@@ -110,8 +110,8 @@ DFP07::DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel>
     for (synto_ = 0; synto_ < synfrom_; ++synto_)
     {
       if (gCode->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
-        && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
-        && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
+          && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
+          && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
@@ -140,4 +140,3 @@ void DFP07::updateMatrices()
 
   pmixmodel_->setVRates(vd);
 }
-

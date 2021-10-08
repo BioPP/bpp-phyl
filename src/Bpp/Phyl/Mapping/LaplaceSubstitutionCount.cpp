@@ -100,7 +100,7 @@ double LaplaceSubstitutionCount::getNumberOfSubstitutions(size_t initialState, s
   if (length == currentLength_)
     return m_(initialState, finalState);
   if (length < 0.000001)
-    return initialState == finalState ? 0. : 1.;  // Limit case!
+    return initialState == finalState ? 0. : 1.;                                                    // Limit case!
   // Else we need to recompute M:
   computeCounts(length);
 
@@ -149,10 +149,9 @@ void LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions(double length, siz
   auto s = Eigen::Index(model_->getAlphabet()->getSize());
   if (length == currentLength_)
     mat = Eigen::MatrixXd::Zero(s, s);
-  
+
   if (length < 0.000001) // Limit case!
   {
-
     for (auto i = 0; i < s; i++)
     {
       for (auto j = 0; j < s; j++)
@@ -171,10 +170,13 @@ void LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions(double length, siz
 
   mat.resize(s, s);
 
-  for (auto i=0; i<s; i++)
-    for (auto j=0; j<s; j++)
-      mat(i,j) = std::isnan(m_(size_t(i),size_t(j)))?0:m_(size_t(i),size_t(j));
-
+  for (auto i = 0; i < s; i++)
+  {
+    for (auto j = 0; j < s; j++)
+    {
+      mat(i, j) = std::isnan(m_(size_t(i), size_t(j))) ? 0 : m_(size_t(i), size_t(j));
+    }
+  }
 }
 
 /******************************************************************************/
@@ -184,13 +186,12 @@ void LaplaceSubstitutionCount::setSubstitutionModel(const SubstitutionModel* mod
   model_ = model;
   if (!model)
     return;
-  
+
   size_t n = model->getAlphabet()->getSize();
   m_.resize(n, n);
   // Recompute counts:
-  if (currentLength_>0)
+  if (currentLength_ > 0)
     computeCounts(currentLength_);
 }
 
 /******************************************************************************/
-

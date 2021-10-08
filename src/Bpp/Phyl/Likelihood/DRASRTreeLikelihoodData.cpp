@@ -80,7 +80,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
   else
   {
     patterns.reset(new SitePatterns(&sites));
-    
+
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_.resize(size_t(patterns->getIndices().size()));
@@ -136,7 +136,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedVal
     size_t posSeq;
     try
     {
-      posSeq=sequences.getSequencePosition(node->getName());
+      posSeq = sequences.getSequencePosition(node->getName());
     }
     catch (SequenceNotFoundException& snfe)
     {
@@ -190,7 +190,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedVal
 
 SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model)
 {
-  vector<const Node *> leaves = TreeTemplateTools::getLeaves(*node);
+  vector<const Node*> leaves = TreeTemplateTools::getLeaves(*node);
 
   AlignedValuesContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
 
@@ -238,10 +238,10 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
 
   if (node->isLeaf())
   {
-    size_t posSeq;    
+    size_t posSeq;
     try
     {
-      posSeq=subSequences->getSequencePosition(node->getName());
+      posSeq = subSequences->getSequencePosition(node->getName());
     }
     catch (SequenceNotFoundException& snfe)
     {
@@ -251,7 +251,7 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
     for (size_t i = 0; i < nbSites; i++)
     {
       VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
-      
+
       for (size_t c = 0; c < nbClasses_; c++)
       {
         Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
@@ -296,4 +296,3 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
 }
 
 /******************************************************************************/
-

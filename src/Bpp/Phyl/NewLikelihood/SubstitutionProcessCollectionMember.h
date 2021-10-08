@@ -92,14 +92,14 @@ private:
   std::map<size_t, std::vector<unsigned int> > modelToNodes_;
 
   /**
-     *@brief The number of the tree
+   *@brief The number of the tree
    *
    */
 
   size_t nTree_;
 
   /**
-     *@brief The number of the rate distribution
+   *@brief The number of the rate distribution
    *
    */
 
@@ -172,7 +172,7 @@ public:
   {
     return getModel(modelToNodes_.begin()->first)->getStateMap();
   }
-  
+
   const Alphabet* getAlphabet() const;
 
   /**
@@ -220,7 +220,6 @@ public:
    * @return The number of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-  
   size_t getModelNumberForNode(unsigned int nodeId) const
   {
     std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
@@ -246,7 +245,6 @@ public:
    * @return A vector with the ids of the node associated to this model.
    * @throw IndexOutOfBoundsException If the index is not valid.
    */
-
   const std::vector<unsigned int> getNodesWithModel(size_t i) const
   {
     const auto it = modelToNodes_.find(i);
@@ -316,8 +314,7 @@ public:
   bool matchParametersValues(const ParameterList& parameters);
 
   void fireParameterChanged(const ParameterList& parameters)
-  {
-  }
+  {}
 
   /**
    * @brief Check if the model set is fully specified for a given tree.
@@ -497,4 +494,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif // _SUBSTITUTIONPROCESSCOLLECTIONMEMBER_H_
+#endif// _SUBSTITUTIONPROCESSCOLLECTIONMEMBER_H_

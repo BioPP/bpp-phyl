@@ -42,34 +42,37 @@
 using namespace bpp;
 using namespace std;
 
-CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, bool includeGaps):
+CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, bool includeGaps) :
   AbstractStateMap(alphabet)
 {
-  for (int i = 0; i < static_cast<int>(alphabet->getSize()); ++i) {
+  for (int i = 0; i < static_cast<int>(alphabet->getSize()); ++i)
+  {
     states_.push_back(i);
   }
   if (includeGaps)
     states_.push_back(alphabet->getGapCharacterCode());
 }
 
-CanonicalStateMap::CanonicalStateMap(const StateMap& sm, bool includeGaps):
+CanonicalStateMap::CanonicalStateMap(const StateMap& sm, bool includeGaps) :
   AbstractStateMap(sm.getAlphabet())
 {
-  for (size_t i = 0; i < sm.getNumberOfModelStates(); ++i) {
+  for (size_t i = 0; i < sm.getNumberOfModelStates(); ++i)
+  {
     states_.push_back(sm.getAlphabetStateAsInt(i));
   }
   if (includeGaps)
     states_.push_back(sm.getAlphabet()->getGapCharacterCode());
 }
 
-MarkovModulatedStateMap::MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses):
+MarkovModulatedStateMap::MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses) :
   AbstractStateMap(unitMap.getAlphabet()),
   nbClasses_(nbClasses)
 {
-  for (unsigned int j = 0; j < nbClasses; ++j) {
-    for (size_t i = 0; i < unitMap.getNumberOfModelStates(); ++i) {
+  for (unsigned int j = 0; j < nbClasses; ++j)
+  {
+    for (size_t i = 0; i < unitMap.getNumberOfModelStates(); ++i)
+    {
       states_.push_back(unitMap.getAlphabetStateAsInt(i));
     }
   }
 }
-

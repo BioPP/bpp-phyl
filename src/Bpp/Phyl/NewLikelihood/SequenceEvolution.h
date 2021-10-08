@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _SEQUENCE_EVOLUTION_H_
 #define _SEQUENCE_EVOLUTION_H_
@@ -43,20 +43,19 @@
 
 #include "SubstitutionProcess.h"
 
-//From bpp-core:
+// From bpp-core:
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
-//From bpp-seq:
+// From bpp-seq:
 
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
-//From the STL:
+// From the STL:
 #include <memory>
 
 namespace bpp
 {
-
 /**
  * @brief This interface describes the evolution process of a sequence.
  *
@@ -64,83 +63,80 @@ namespace bpp
  * management of site specific substitution process, such as partition
  * models and HMM.
  *
- * This object has the INDEPENDENT parameters of the processes. 
- * 
+ * This object has the INDEPENDENT parameters of the processes.
+ *
  */
-  
-  class SequenceEvolution :
-    public virtual ParameterAliasable
+
+class SequenceEvolution :
+  public virtual ParameterAliasable
+{
+public:
+  virtual SequenceEvolution* clone() const = 0;
+
+public:
+  virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
+
+  virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
+
+  virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
+
+  const StateMap& getStateMap() const
   {
-  public:
-    virtual SequenceEvolution* clone() const = 0;
+    return getSubstitutionProcess(getSubstitutionProcessNumbers()[0]).getStateMap();
+  }
 
-  public:
-    virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
+  /**
+   * @brief Get the branch lengths parameters.
+   *
+   * @return A ParameterList with all branch lengths.
+   */
 
-    virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
-    
-    virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
+  virtual ParameterList getBranchLengthParameters(bool independent) const = 0;
 
-    const StateMap& getStateMap() const
-    {
-      return getSubstitutionProcess(getSubstitutionProcessNumbers()[0]).getStateMap();
-    }
+  /**
+   * @brief Get the parameters associated to substitution model(s).
+   *
+   * @return A ParameterList.
+   */
 
-    /**
-     * @brief Get the branch lengths parameters.
-     *
-     * @return A ParameterList with all branch lengths.
-     */
+  virtual ParameterList getSubstitutionModelParameters(bool independent) const = 0;
 
-    virtual ParameterList getBranchLengthParameters(bool independent) const = 0;
-    
-    /**
-     * @brief Get the parameters associated to substitution model(s).
-     *
-     * @return A ParameterList.
-     */
+  /**
+   * @brief Get the parameters associated to substitution processes(s).
+   *
+   * @return A ParameterList.
+   */
 
-    virtual ParameterList getSubstitutionModelParameters(bool independent) const = 0;
+  virtual ParameterList getSubstitutionProcessParameters(bool independent) const = 0;
 
-    /**
-     * @brief Get the parameters associated to substitution processes(s).
-     *
-     * @return A ParameterList.
-     */
+  /**
+   * @brief Get the parameters associated to the rate distribution(s).
+   *
+   * @return A ParameterList.
+   */
 
-    virtual ParameterList getSubstitutionProcessParameters(bool independent) const = 0;
+  virtual ParameterList getRateDistributionParameters(bool independent) const = 0;
 
-    /**
-     * @brief Get the parameters associated to the rate distribution(s).
-     *
-     * @return A ParameterList.
-     */
+  /**
+   * @brief Get the parameters associated to the root frequencies(s).
+   *
+   * @return A ParameterList.
+   */
 
-    virtual ParameterList getRateDistributionParameters(bool independent) const = 0;
-
-    /**
-     * @brief Get the parameters associated to the root frequencies(s).
-     *
-     * @return A ParameterList.
-     */
-
-    virtual ParameterList getRootFrequenciesParameters(bool independent) const = 0;
+  virtual ParameterList getRootFrequenciesParameters(bool independent) const = 0;
 
 
-    /**
-     * @brief All non derivable parameters.
-     *
-     * Usually, this contains all substitution model parameters and
-     * rate distribution, and alias.
-     *
-     * @return A ParameterList.
-     */
+  /**
+   * @brief All non derivable parameters.
+   *
+   * Usually, this contains all substitution model parameters and
+   * rate distribution, and alias.
+   *
+   * @return A ParameterList.
+   */
 
-    virtual ParameterList getNonDerivableParameters() const = 0;
-
-  };
-
+  virtual ParameterList getNonDerivableParameters() const = 0;
+};
 } // end namespace bpp
 
-#endif // _SEQUENCE_EVOLUTION_H_
-
+#endif// _SEQUENCE_EVOLUTION_H_

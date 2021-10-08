@@ -328,89 +328,88 @@ VectorSiteContainer* BipartitionTools::MRPEncode(
 /******************************************************************************/
 
 VectorSiteContainer* BipartitionTools::MRPEncodeMultilabel(
-                                                 const vector<BipartitionList*>& vecBipartL)
+  const vector<BipartitionList*>& vecBipartL)
 {
-    vector<string> all_elements;
-    map<string, bool> bip;
-    vector<string> bip_elements;
-    const DNA* alpha = &AlphabetTools::DNA_ALPHABET;
-    vector<string> sequences;
-    
-    if (vecBipartL.size() == 0)
-        throw Exception("Empty vector passed");
-    
-    vector< vector<string> > vecElementLists;
-    for (size_t i = 0; i < vecBipartL.size(); i++)
+  vector<string> all_elements;
+  map<string, bool> bip;
+  vector<string> bip_elements;
+  const DNA* alpha = &AlphabetTools::DNA_ALPHABET;
+  vector<string> sequences;
+
+  if (vecBipartL.size() == 0)
+    throw Exception("Empty vector passed");
+
+  vector< vector<string> > vecElementLists;
+  for (size_t i = 0; i < vecBipartL.size(); i++)
+  {
+    vecElementLists.push_back(vecBipartL[i]->getElementNames());
+  }
+
+  all_elements = VectorTools::vectorUnion(vecElementLists);
+
+  sequences.resize(all_elements.size());
+
+  for (size_t i = 0; i < vecBipartL.size(); i++)
+  {
+    for (size_t j = 0; j < vecBipartL[i]->getNumberOfBipartitions(); j++)
     {
-        vecElementLists.push_back(vecBipartL[i]->getElementNames());
-    }
-    
-    all_elements = VectorTools::vectorUnion(vecElementLists);
-    
-    sequences.resize(all_elements.size());
-    
-    for (size_t i = 0; i < vecBipartL.size(); i++)
-    {
-        for (size_t j = 0; j < vecBipartL[i]->getNumberOfBipartitions(); j++)
+      bip = vecBipartL[i]->getBipartition(j);
+      bip_elements = MapTools::getKeys(bip);
+      // Check for multilabel trees: if a taxa found on both sides, do not consider the entire bipartition
+      vector< string > zeroes;
+      vector< string > ones;
+      for (size_t k = 0; k < all_elements.size(); k++)
+      {
+        if (VectorTools::contains(bip_elements, all_elements[k]))
         {
-            bip = vecBipartL[i]->getBipartition(j);
-            bip_elements = MapTools::getKeys(bip);
-            //Check for multilabel trees: if a taxa found on both sides, do not consider the entire bipartition
-            vector< string > zeroes;
-            vector< string > ones;
-            for (size_t k = 0; k < all_elements.size(); k++)
-            {
-                if (VectorTools::contains(bip_elements, all_elements[k]))
-                {
-                    if (bip[all_elements[k]])
-                        ones.push_back(all_elements[k]);
-                    else
-                        zeroes.push_back(all_elements[k]);
-                }
-            }
-            vector<string> inter = VectorTools::vectorIntersection(ones, zeroes);
-            if (inter.size() != 0) { //some taxa found on both sides of the bipartition
-                for (size_t k = 0; k < all_elements.size(); k++)
-                {
-                    sequences[k].push_back('N');
-                }
-            }
-            else
-            {
-                for (size_t k = 0; k < all_elements.size(); k++)
-                {
-                    if (VectorTools::contains(bip_elements, all_elements[k]))
-                    {
-                        if (bip[all_elements[k]])
-                            sequences[k].push_back('C');
-                        else
-                            sequences[k].push_back('A');
-                    }
-                    else
-                        sequences[k].push_back('N');
-                }
-            }
+          if (bip[all_elements[k]])
+            ones.push_back(all_elements[k]);
+          else
+            zeroes.push_back(all_elements[k]);
         }
+      }
+      vector<string> inter = VectorTools::vectorIntersection(ones, zeroes);
+      if (inter.size() != 0)  // some taxa found on both sides of the bipartition
+      {
+        for (size_t k = 0; k < all_elements.size(); k++)
+        {
+          sequences[k].push_back('N');
+        }
+      }
+      else
+      {
+        for (size_t k = 0; k < all_elements.size(); k++)
+        {
+          if (VectorTools::contains(bip_elements, all_elements[k]))
+          {
+            if (bip[all_elements[k]])
+              sequences[k].push_back('C');
+            else
+              sequences[k].push_back('A');
+          }
+          else
+            sequences[k].push_back('N');
+        }
+      }
     }
-    
-    vector<const Sequence*> vec_sequences;
-    for (size_t i = 0; i < all_elements.size(); i++)
-    {
-        const Sequence* seq = new BasicSequence(all_elements[i], sequences[i], alpha);
-        vec_sequences.push_back(seq);
-    }
-    
-    VectorSequenceContainer vec_seq_cont(vec_sequences, alpha);
-    for (size_t i = 0; i < all_elements.size(); i++)
-    {
-        delete vec_sequences[i];
-    }
-    
-    VectorSiteContainer* vec_site_cont = new VectorSiteContainer(vec_seq_cont);
-    
-    return vec_site_cont;
+  }
+
+  vector<const Sequence*> vec_sequences;
+  for (size_t i = 0; i < all_elements.size(); i++)
+  {
+    const Sequence* seq = new BasicSequence(all_elements[i], sequences[i], alpha);
+    vec_sequences.push_back(seq);
+  }
+
+  VectorSequenceContainer vec_seq_cont(vec_sequences, alpha);
+  for (size_t i = 0; i < all_elements.size(); i++)
+  {
+    delete vec_sequences[i];
+  }
+
+  VectorSiteContainer* vec_site_cont = new VectorSiteContainer(vec_seq_cont);
+
+  return vec_site_cont;
 }
 
 /******************************************************************************/
-
-

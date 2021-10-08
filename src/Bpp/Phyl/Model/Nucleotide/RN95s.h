@@ -151,5 +151,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif  // _RN95s_H_
-
+#endif// _RN95s_H_

@@ -51,124 +51,121 @@ namespace bpp
  * It has the same parameters as the SubModel.
  */
 
-  class AbstractFromSubstitutionModelTransitionModel :
-    public virtual AbstractWrappedTransitionModel,
-    virtual public AbstractParameterAliasable
+class AbstractFromSubstitutionModelTransitionModel :
+  public virtual AbstractWrappedTransitionModel,
+  virtual public AbstractParameterAliasable
+{
+protected:
+  /*
+   * @brief The related model.
+   *
+   */
+
+  std::unique_ptr<SubstitutionModel> subModel_;
+
+  /*
+   * The number of states
+   *
+   */
+
+  size_t size_;
+
+  /**
+   * @brief These ones are for bookkeeping:
+   */
+  mutable RowMatrix<double> pij_t;
+  mutable RowMatrix<double> dpij_t;
+  mutable RowMatrix<double> d2pij_t;
+
+  std::string nestedPrefix_;
+
+public:
+  AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel, const std::string& prefix);
+
+  AbstractFromSubstitutionModelTransitionModel(const AbstractFromSubstitutionModelTransitionModel& fmsm);
+
+  AbstractFromSubstitutionModelTransitionModel& operator=(const AbstractFromSubstitutionModelTransitionModel& fmsm);
+
+  virtual ~AbstractFromSubstitutionModelTransitionModel() {}
+
+  virtual AbstractFromSubstitutionModelTransitionModel* clone() const = 0;
+
+public:
+  const SubstitutionModel& getSubstitutionModel() const
   {
-  protected:
-    /*
-     * @brief The related model.
-     *
-     */
-    
-    std::unique_ptr<SubstitutionModel> subModel_;
+    return *subModel_.get();
+  }
 
-    /*
-     * The number of states
-     *
-     */
-    
-     size_t size_;
+  const TransitionModel& getTransitionModel() const
+  {
+    return *subModel_.get();
+  }
 
-    /**
-     * @brief These ones are for bookkeeping:
-     */
-    mutable RowMatrix<double> pij_t;
-    mutable RowMatrix<double> dpij_t;
-    mutable RowMatrix<double> d2pij_t;
+  const BranchModel& getModel() const
+  {
+    return *subModel_.get();
+  }
 
-    std::string nestedPrefix_;
+  bool computeFrequencies() const
+  {
+    return subModel_->computeFrequencies();
+  }
 
-  public:
-    AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel, const std::string& prefix);
+  /**
+   * @return Set if equilibrium frequencies should be computed from
+   * the generator
+   */
+  void computeFrequencies(bool yn)
+  {
+    subModel_->computeFrequencies(yn);
+  }
 
-    AbstractFromSubstitutionModelTransitionModel(const AbstractFromSubstitutionModelTransitionModel& fmsm);
+  /*
+   * @}
+   *
+   */
 
-    AbstractFromSubstitutionModelTransitionModel& operator=(const AbstractFromSubstitutionModelTransitionModel& fmsm);
-    
-    virtual ~AbstractFromSubstitutionModelTransitionModel() {};
-    
-    virtual AbstractFromSubstitutionModelTransitionModel* clone() const = 0;
-    
-  public:
-    const SubstitutionModel& getSubstitutionModel() const
-    {
-      return *subModel_.get();
-    }
+protected:
+  Vdouble& getFrequencies_()
+  {
+    return subModel_->getFrequencies_();
+  }
 
-    const TransitionModel& getTransitionModel() const
-    {
-      return *subModel_.get();
-    }
+  SubstitutionModel& getSubstitutionModel()
+  {
+    return *subModel_.get();
+  }
 
-    const BranchModel& getModel() const
-    {
-      return *subModel_.get();
-    }
 
-    bool computeFrequencies() const
-    {
-      return subModel_->computeFrequencies();
-    }
+  TransitionModel& getTransitionModel()
+  {
+    return *subModel_.get();
+  }
 
-    /**
-     * @return Set if equilibrium frequencies should be computed from
-     * the generator
-     */
-    
-    void computeFrequencies(bool yn)
-    {
-      subModel_->computeFrequencies(yn);
-    }
+  BranchModel& getModel()
+  {
+    return *subModel_.get();
+  }
 
-    /*
-     * @}
-     *
-     */
+public:
+  virtual void addRateParameter()
+  {
+    getModel().addRateParameter();
+    addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
+  }
 
-  protected:
+  virtual void fireParameterChanged(const ParameterList& parameters)
+  {
+    AbstractParameterAliasable::fireParameterChanged(parameters);
+    getModel().matchParametersValues(parameters);
+  }
 
-    Vdouble& getFrequencies_()
-    {
-      return subModel_->getFrequencies_();
-    }
-
-    SubstitutionModel& getSubstitutionModel()
-    {
-      return *subModel_.get();
-    }
-
-    
-    TransitionModel& getTransitionModel()
-    {
-      return *subModel_.get();
-    }
-
-    BranchModel& getModel()
-    {
-      return *subModel_.get();
-    }
-
-  public:
-    virtual void addRateParameter()
-    {
-      getModel().addRateParameter();
-      addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
-    }
-
-    virtual void fireParameterChanged(const ParameterList& parameters)
-    {
-      AbstractParameterAliasable::fireParameterChanged(parameters);
-      getModel().matchParametersValues(parameters);
-    }
-
-    virtual void setNamespace(const std::string& prefix)
-    {
-      AbstractParameterAliasable::setNamespace(prefix + nestedPrefix_);
-      getModel().setNamespace(prefix + nestedPrefix_);
-    }
-
-  };
+  virtual void setNamespace(const std::string& prefix)
+  {
+    AbstractParameterAliasable::setNamespace(prefix + nestedPrefix_);
+    getModel().setNamespace(prefix + nestedPrefix_);
+  }
+};
 } // end of namespace bpp.
 
-#endif  // _ABSTRACT_FROM_SUBSTITUTION_MODEL_TRANSITION_MODEL_H_
+#endif// _ABSTRACT_FROM_SUBSTITUTION_MODEL_TRANSITION_MODEL_H_

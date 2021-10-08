@@ -62,6 +62,3 @@ std::shared_ptr<SiteContainer> GivenDataSubstitutionProcessSequenceSimulator::si
   }
   return sites;
 }
-
-
-

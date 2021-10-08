@@ -75,9 +75,9 @@ namespace bpp
  * parameter \c "beta".
  */
 class CodonDistancePhaseFrequenciesSubstitutionModel :
-    public AbstractCodonSubstitutionModel,
-    public AbstractCodonDistanceSubstitutionModel,
-    public AbstractCodonPhaseFrequenciesSubstitutionModel
+  public AbstractCodonSubstitutionModel,
+  public AbstractCodonDistanceSubstitutionModel,
+  public AbstractCodonPhaseFrequenciesSubstitutionModel
 {
 public:
   /**
@@ -92,10 +92,10 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(
-      const GeneticCode* gCode,
-      NucleotideSubstitutionModel* pmod,
-      std::shared_ptr<FrequencySet> pfreq,
-      const AlphabetIndex2* pdist = 0);
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    std::shared_ptr<FrequencySet> pfreq,
+    const AlphabetIndex2* pdist = 0);
 
   /**
    * @brief Build a new CodonDistancePhaseFrequenciesSubstitutionModel object
@@ -111,12 +111,12 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(
-      const GeneticCode* gCode,
-      NucleotideSubstitutionModel* pmod1,
-      NucleotideSubstitutionModel* pmod2,
-      NucleotideSubstitutionModel* pmod3,
-      std::shared_ptr<FrequencySet> pfreq,
-      const AlphabetIndex2* pdist = 0);
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    std::shared_ptr<FrequencySet> pfreq,
+    const AlphabetIndex2* pdist = 0);
 
   virtual ~CodonDistancePhaseFrequenciesSubstitutionModel() {}
 
@@ -134,17 +134,13 @@ public:
 
   void setNamespace(const std::string&);
 
-  void setFreq(std::map<int,double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies);
 
   const std::shared_ptr<FrequencySet> getFrequencySet() const
   {
     return AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequencySet();
   }
-  
-  
 };
-
 } // end of namespace bpp.
 
 #endif
-

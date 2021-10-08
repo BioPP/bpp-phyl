@@ -344,7 +344,7 @@ void YpR::updateMatrices(double CgT, double cGA,
       iEigenValues_[i] /= x;
     }
   }
-  
+
   if (!isNonSingular_)
     MatrixTools::Taylor(generator_, 30, vPowGen_);
 

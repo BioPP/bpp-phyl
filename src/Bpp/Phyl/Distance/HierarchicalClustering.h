@@ -111,5 +111,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif // _HIERARCHICALCLUSTERING_H_
-
+#endif// _HIERARCHICALCLUSTERING_H_

@@ -54,8 +54,10 @@ LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
   // build the submodel
 
   vector<TransitionModel*> vpSM;
-  for(unsigned int i = 1; i < nbCat + 1; i++)
-  vpSM.push_back(new LGL08_CAT::EmbeddedModel(alpha, "C" + TextTools::toString(i), nbCat));
+  for (unsigned int i = 1; i < nbCat + 1; i++)
+  {
+    vpSM.push_back(new LGL08_CAT::EmbeddedModel(alpha, "C" + TextTools::toString(i), nbCat));
+  }
 
   Vdouble vrate, vproba;
 
@@ -91,53 +93,51 @@ LGL08_CAT::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string nam
   proportion_(1),
   name_(name)
 {
-  //Exchangeabilities:
-  for(unsigned int i = 0; i < 20; i++)
+  // Exchangeabilities:
+  for (unsigned int i = 0; i < 20; i++)
   {
-    for(unsigned int j = 0; j < 20; j++)
+    for (unsigned int j = 0; j < 20; j++)
     {
-      if(i == j)
-        exchangeability_(i,i) = -19.;
+      if (i == j)
+        exchangeability_(i, i) = -19.;
       else
-        exchangeability_(i,j) = 1.;
+        exchangeability_(i, j) = 1.;
     }
   }
-  
-  //Equilibrium frequencies, rates and proportions:
-  if(nbCat == 10)
+
+  // Equilibrium frequencies, rates and proportions:
+  if (nbCat == 10)
   {
 #include "__CATC10FrequenciesCode"
 #include "__CATC10RatesProps"
   }
-  else if(nbCat == 20)
+  else if (nbCat == 20)
   {
 #include "__CATC20FrequenciesCode"
-#include "__CATC20RatesProps"  
+#include "__CATC20RatesProps"
   }
-  else if(nbCat == 30)
+  else if (nbCat == 30)
   {
 #include "__CATC30FrequenciesCode"
-#include "__CATC30RatesProps"  
+#include "__CATC30RatesProps"
   }
-  else if(nbCat == 40)
+  else if (nbCat == 40)
   {
 #include "__CATC40FrequenciesCode"
-#include "__CATC40RatesProps"  
+#include "__CATC40RatesProps"
   }
-  else if(nbCat == 50)
+  else if (nbCat == 50)
   {
 #include "__CATC50FrequenciesCode"
-#include "__CATC50RatesProps"  
+#include "__CATC50RatesProps"
   }
-  else if(nbCat == 60)
+  else if (nbCat == 60)
   {
 #include "__CATC60FrequenciesCode"
-#include "__CATC60RatesProps"  
+#include "__CATC60RatesProps"
   }
   else
-  throw Exception("LGL08_CAT.cpp: incorrect number of profiles. This number has to be 10, 20, 30, 40, 50 or 60.");
-  
+    throw Exception("LGL08_CAT.cpp: incorrect number of profiles. This number has to be 10, 20, 30, 40, 50 or 60.");
+
   updateMatrices();
 }
-
-

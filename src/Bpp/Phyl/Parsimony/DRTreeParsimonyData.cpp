@@ -90,11 +90,11 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
 {
   nbStates_         = stateMap.getNumberOfModelStates();
   nbSites_          = sites.getNumberOfSites();
-  
+
   SitePatterns pattern(&sites);
 
   shrunkData_       = dynamic_pointer_cast<SiteContainer>(pattern.getSites());
-  if (shrunkData_==nullptr)
+  if (shrunkData_ == nullptr)
     throw Exception("DRTreeParsimonyData::init : Data must be plain alignments.");
 
   rootWeights_      = pattern.getWeights();
@@ -102,7 +102,7 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
   rootPatternLinks_.resize(size_t(pattern.getIndices().size()));
   SitePatterns::IndicesType::Map(&rootPatternLinks_[0], pattern.getIndices().size()) = pattern.getIndices();
   nbDistinctSites_  = shrunkData_->getNumberOfSites();
-  
+
   // Init data:
   // Clone data for more efficiency on sequences access:
   const SiteContainer* sequences = new AlignedSequenceContainer(*shrunkData_);
@@ -222,4 +222,3 @@ void DRTreeParsimonyData::reInit(const Node* node)
 }
 
 /******************************************************************************/
-

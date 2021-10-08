@@ -78,8 +78,10 @@ void GlobalClockTreeLikelihoodFunctionWrapper::initParameters_()
 {
   // Check if the tree is rooted:
   TreeTemplate<Node> tree(tl_->getTree());
-  if (!tree.isRooted()) throw Exception("GlobalClockTreeLikelihoodFunctionWrapper::initParameters_(). Tree is unrooted!");
-  if (TreeTemplateTools::isMultifurcating(*(tree.getRootNode()))) throw Exception("GlobalClockTreeLikelihoodFunctionWrapper::initParameters_(). Tree is multifurcating.");
+  if (!tree.isRooted())
+    throw Exception("GlobalClockTreeLikelihoodFunctionWrapper::initParameters_(). Tree is unrooted!");
+  if (TreeTemplateTools::isMultifurcating(*(tree.getRootNode())))
+    throw Exception("GlobalClockTreeLikelihoodFunctionWrapper::initParameters_(). Tree is multifurcating.");
   std::map<const Node*, double> heights;
   TreeTemplateTools::getHeights(*(tree.getRootNode()), heights);
   double totalHeight = heights[tree.getRootNode()];
@@ -121,4 +123,3 @@ void GlobalClockTreeLikelihoodFunctionWrapper::computeBranchLengthsFromHeights_(
     }
   }
 }
-

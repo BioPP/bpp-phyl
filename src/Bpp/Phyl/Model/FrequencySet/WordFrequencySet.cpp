@@ -45,7 +45,7 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet>>& freqVector)
+size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet> >& freqVector)
 {
   size_t s = 1;
   size_t l = freqVector.size();
@@ -75,9 +75,9 @@ AbstractWordFrequencySet::~AbstractWordFrequencySet()
 
 
 WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
-    const WordAlphabet* pWA,
-    const std::vector<std::shared_ptr<FrequencySet>>& freqVector,
-    const string& prefix, const string& name) :
+  const WordAlphabet* pWA,
+  const std::vector<std::shared_ptr<FrequencySet> >& freqVector,
+  const string& prefix, const string& name) :
   AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   vFreq_(),
   vNestedPrefix_()
@@ -101,7 +101,7 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
 
 WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
   const CodonAlphabet* pWA,
-  const std::vector<std::shared_ptr<FrequencySet>>& freqVector,
+  const std::vector<std::shared_ptr<FrequencySet> >& freqVector,
   const string& prefix, const string& name) :
   AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   vFreq_(),
@@ -137,15 +137,14 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(const WordFromI
 }
 
 WordFromIndependentFrequencySet::~WordFromIndependentFrequencySet()
-{
-}
+{}
 
 WordFromIndependentFrequencySet& WordFromIndependentFrequencySet::operator=(const WordFromIndependentFrequencySet& iwfs)
 {
   AbstractWordFrequencySet::operator=(iwfs);
   vNestedPrefix_ = iwfs.vNestedPrefix_;
 
-  //Clean current frequencies first:
+  // Clean current frequencies first:
   vFreq_.resize(iwfs.vFreq_.size());
   for (unsigned i = 0; i < vFreq_.size(); i++)
   {
@@ -174,7 +173,7 @@ void WordFromIndependentFrequencySet::updateFrequencies()
 {
   size_t l = vFreq_.size();
   size_t s = getWordAlphabet()->getSize();
-  vector< vector<double> >f(l);
+  vector< vector<double> > f(l);
 
   size_t i, p, t, i2;
 
@@ -196,7 +195,7 @@ void WordFromIndependentFrequencySet::updateFrequencies()
   }
 }
 
-void WordFromIndependentFrequencySet::setFrequencies(const vector<double>& frequencies) 
+void WordFromIndependentFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getWordAlphabet()->getSize())
     throw DimensionException("WordFromIndependentFrequencySet::setFrequencies", frequencies.size(), getWordAlphabet()->getSize());
@@ -254,7 +253,7 @@ void WordFromIndependentFrequencySet::setNamespace(const std::string& prefix)
 
 std::string WordFromIndependentFrequencySet::getDescription() const
 {
-  string s = getName() +" : " + vFreq_[0]->getName();
+  string s = getName() + " : " + vFreq_[0]->getName();
   for (size_t i = 1; i < vFreq_.size(); i++)
   {
     s += " * " + vFreq_[i]->getName();
@@ -267,10 +266,10 @@ std::string WordFromIndependentFrequencySet::getDescription() const
 
 
 WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
-    const WordAlphabet* pWA,
-    std::shared_ptr<FrequencySet> pabsfreq,
-    const string& prefix,
-    const string& name) :
+  const WordAlphabet* pWA,
+  std::shared_ptr<FrequencySet> pabsfreq,
+  const string& prefix,
+  const string& name) :
   AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   pFreq_(pabsfreq),
   NestedPrefix_(pabsfreq->getNamespace()),
@@ -284,7 +283,7 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     st += TextTools::toString(i + 1);
   }
 
-  pFreq_->setNamespace(prefix+ st + "_" + NestedPrefix_);
+  pFreq_->setNamespace(prefix + st + "_" + NestedPrefix_);
   addParameters_(pFreq_->getParameters());
 
   updateFrequencies();
@@ -308,7 +307,7 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     st += TextTools::toString(i + 1);
   }
 
-  pFreq_->setNamespace(prefix+ st + "_" + NestedPrefix_);
+  pFreq_->setNamespace(prefix + st + "_" + NestedPrefix_);
   addParameters_(pFreq_->getParameters());
 
   updateFrequencies();
@@ -368,7 +367,7 @@ void WordFromUniqueFrequencySet::updateFrequencies()
   }
 }
 
-void WordFromUniqueFrequencySet::setFrequencies(const vector<double>& frequencies) 
+void WordFromUniqueFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getWordAlphabet()->getSize())
     throw DimensionException("WordFromUniqueFrequencySet::setFrequencies", frequencies.size(), getWordAlphabet()->getSize());
@@ -428,5 +427,3 @@ string WordFromUniqueFrequencySet::getDescription() const
 {
   return getName() + " : " + pFreq_->getName() + " * " + TextTools::toString(length_);
 }
-
-

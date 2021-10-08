@@ -42,7 +42,7 @@
 
 #include "AbstractWordSubstitutionModel.h"
 
-//From bpp-core
+// From bpp-core
 #include <Bpp/Numeric/Matrix/Matrix.h>
 #include <Bpp/BppVector.h>
 
@@ -108,7 +108,6 @@ public:
   WordSubstitutionModel* clone() const { return new WordSubstitutionModel(*this); }
 
 protected:
-  
   /**
    * @brief Constructor for the derived classes only
    */
@@ -128,5 +127,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif  // _WORDSUBSTITUTIONMODEL
-
+#endif// _WORDSUBSTITUTIONMODEL

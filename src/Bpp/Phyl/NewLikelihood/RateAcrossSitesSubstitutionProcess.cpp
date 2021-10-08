@@ -51,7 +51,7 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
   AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0, model ? model->getNamespace() : ""),
   model_(model),
-  rDist_(rdist?rdist->clone():0)
+  rDist_(rdist ? rdist->clone() : 0)
 {
   if (!model)
     throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
@@ -59,14 +59,14 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
     throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
 
   // Add parameters:
-  addParameters_(tree->getParameters());  //Branch lengths
+  addParameters_(tree->getParameters());  // Branch lengths
 
-  addParameters_(model->getIndependentParameters()); //Substitution model
+  addParameters_(model->getIndependentParameters()); // Substitution model
 
-  addParameters_(rdist->getIndependentParameters()); //Rate
-                                                     //distribution
+  addParameters_(rdist->getIndependentParameters()); // Rate
+                                                     // distribution
 }
-    
+
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :
   AbstractParameterAliasable(rassp),
   AbstractSubstitutionProcess(rassp),
@@ -74,7 +74,7 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const Rat
   rDist_(rassp.rDist_->clone())
 {
   if (modelScenario_)
-    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_), std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 }
 
 
@@ -86,34 +86,33 @@ RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator
   rDist_.reset(rassp.rDist_->clone());
 
   if (modelScenario_)
-    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_), std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 
   return *this;
 }
 
 void RateAcrossSitesSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
 {
-  auto vmod=modelpath->getModels();
+  auto vmod = modelpath->getModels();
 
-  if (vmod.size()==0) // as if no scenario
-    return; 
-  
-  if (vmod.size()!=1)
+  if (vmod.size() == 0) // as if no scenario
+    return;
+
+  if (vmod.size() != 1)
     throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
-  
-  if (vmod[0]!=model_)
+
+  if (vmod[0] != model_)
     throw Exception("SimpleSubstitutionProcess::setModelPath: models are different " + vmod[0]->getName() + " != " + model_->getName());
-  
-  modelScenario_=modelpath;
+
+  modelScenario_ = modelpath;
 }
 
 void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-  //Update rate distribution:
-  rDist_->matchParametersValues(pl);  
+  // Update rate distribution:
+  rDist_->matchParametersValues(pl);
   model_->matchParametersValues(pl);
 
-  //Transition probabilities have changed and need to be recomputed:
+  // Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
 }
-

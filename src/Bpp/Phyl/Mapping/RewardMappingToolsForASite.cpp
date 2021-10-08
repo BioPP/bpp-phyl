@@ -64,77 +64,77 @@ ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
 {
   // Preamble:
   /*
-    if (!rltc.isInitialized())
-    throw Exception("RewardMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
-  rltc.computeTreeLikelihood();
+     if (!rltc.isInitialized())
+     throw Exception("RewardMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
+     rltc.computeTreeLikelihood();
 
-  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
-  const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-  
-  // A few variables we'll need:
+     const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
 
-  const RecursiveLikelihoodTree& rlt=dynamic_cast<const RecursiveLikelihoodTree&>(rltc.getLikelihoodData());
+     // A few variables we'll need:
 
-  size_t nbStates        = sp.getNumberOfStates();
-  size_t nbClasses       = sp.getNumberOfClasses();
-  size_t nbNodes         = nodeIds.size();
-  
-  // We create a new ProbabilisticRewardMapping object:
-  unique_ptr<ProbabilisticRewardMapping> rewards(new ProbabilisticRewardMapping(ppt, 1));
-  
-  // Store likelihood for each site (here rootPatterns are managed):
+     const RecursiveLikelihoodTree& rlt=dynamic_cast<const RecursiveLikelihoodTree&>(rltc.getLikelihoodData());
 
-  size_t siteIndex=rltc.getLikelihoodData().getRootArrayPosition(site);
+     size_t nbStates        = sp.getNumberOfStates();
+     size_t nbClasses       = sp.getNumberOfClasses();
+     size_t nbNodes         = nodeIds.size();
 
-  double Lr=rltc.getLogLikelihoodForASiteIndex(siteIndex);
+     // We create a new ProbabilisticRewardMapping object:
+     unique_ptr<ProbabilisticRewardMapping> rewards(new ProbabilisticRewardMapping(ppt, 1));
 
-  // Compute the reward for each class and each branch in the tree:
-  if (verbose)
-    ApplicationTools::displayTask("Compute rewards", true);
+     // Store likelihood for each site (here rootPatterns are managed):
 
-  unique_ptr<ProbabilisticRewardMapping::mapTree::EdgeIterator> brIt=rewards->allEdgesIterator();
+     size_t siteIndex=rltc.getLikelihoodData().getRootArrayPosition(site);
 
-  size_t nn=0;
-  
-  Vdouble likelihoodsFatherConstantPart(nbStates);
+     double Lr=rltc.getLogLikelihoodForASiteIndex(siteIndex);
 
-  for (;!brIt->end();brIt->next())
-  {
-    if (verbose)
+     // Compute the reward for each class and each branch in the tree:
+     if (verbose)
+     ApplicationTools::displayTask("Compute rewards", true);
+
+     unique_ptr<ProbabilisticRewardMapping::mapTree::EdgeIterator> brIt=rewards->allEdgesIterator();
+
+     size_t nn=0;
+
+     Vdouble likelihoodsFatherConstantPart(nbStates);
+
+     for (;!brIt->end();brIt->next())
+     {
+     if (verbose)
       ApplicationTools::displayGauge(nn++, nbNodes - 1);
-    
-    shared_ptr<PhyloBranchReward> br=**brIt;
-    
-    // For each branch
-    uint edid=rewards->getEdgeIndex(br);
 
-    if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
+     shared_ptr<PhyloBranchReward> br=**brIt;
+
+     // For each branch
+     uint edid=rewards->getEdgeIndex(br);
+
+     if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
       continue;
 
-    uint fathid=rewards->getFatherOfEdge(edid);
-    uint icid=rewards->getSon(edid);
+     uint fathid=rewards->getFatherOfEdge(edid);
+     uint icid=rewards->getSon(edid);
 
-    double d=br->getLength();
+     double d=br->getLength();
 
-    double rewardsForCurrentNode(0);
+     double rewardsForCurrentNode(0);
 
-    bool usesLog=false;
+     bool usesLog=false;
 
-    for (size_t ncl=0; ncl<nbClasses; ncl++)
-    {
+     for (size_t ncl=0; ncl<nbClasses; ncl++)
+     {
       const RecursiveLikelihoodTree::LikTree& rlt_c=rlt[ncl];
-      
+
       shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
 
-      // reinit substitutionsForCurrentNode for log 
+      // reinit substitutionsForCurrentNode for log
       if (!usesLog && ici->usesLog())
         rewardsForCurrentNode=NumConstants::MINF();
-      
+
       usesLog=ici->usesLog();
-      
+
       double pr=sp.getProbabilityForModel(ncl);
       double rate=sp.getRateForModel(ncl);
-      
+
       VectorTools::fill(likelihoodsFatherConstantPart,usesLog?log(pr):pr);
 
       rltc.computeLikelihoodsAtNode(fathid);
@@ -167,7 +167,7 @@ ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
           }
         }
       }
-      
+
       bool flog=father->usesLog();
 
       if (!usesLog)
@@ -183,7 +183,7 @@ ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
         else
           likelihoodsFatherConstantPart += VectorTools::log(father->getAboveLikelihoodArray()[siteIndex]);
       }
-      
+
       // Then, we deal with the node of interest.
       // We first average upon 'y' to save computations, and then upon 'x'.
       // ('y' is the state at 'node' and 'x' the state at 'father'.)
@@ -193,16 +193,16 @@ ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
       const SubstitutionModel* sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(icid,ncl));
       if (!sm)
         throw Exception("RewardMappingToolsForASite:: non substitution model in node " + TextTools::toString(icid));
-      
+
       reward.setSubstitutionModel(sm);
-      
+
       // compute all nxy * pxy first:
-      
+
       const Matrix<double>& pxy = sp.getTransitionProbabilities(icid,ncl);
       Matrix<double>* nij = reward.getAllRewards(d * rate);
       MatrixTools::hadamardMult((*nij),pxy,(*nij));
 
-      
+
       for (size_t x = 0; x < nbStates; ++x)
       {
         double likelihoodsFatherConstantPart_x = likelihoodsFatherConstantPart[x];
@@ -211,7 +211,7 @@ ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
           double likelihood_xy = usesLog
             ?likelihoodsFatherConstantPart_x + likelihoodsFather_node[y]
             :likelihoodsFatherConstantPart_x * likelihoodsFather_node[y];
-          
+
           if (!usesLog)
           {
             if (likelihood_xy!=0) // to avoid multiplication per nan
@@ -248,23 +248,22 @@ ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
           }
         }
       }
-    
-    delete nij;
-    }
-    
-    // Now we just have to copy the substitutions into the result vector:
-    (*br)(0) = usesLog?exp(rewardsForCurrentNode - Lr):
+
+     delete nij;
+     }
+
+     // Now we just have to copy the substitutions into the result vector:
+     (*br)(0) = usesLog?exp(rewardsForCurrentNode - Lr):
       rewardsForCurrentNode / exp(Lr);
 
-  }
-  if (verbose)
-  {
-    if (ApplicationTools::message)
-      *ApplicationTools::message << " ";
-    ApplicationTools::displayTaskDone();
-  }
-  return rewards.release();
-  */
+     }
+     if (verbose)
+     {
+     if (ApplicationTools::message)
+   * ApplicationTools::message << " ";
+     ApplicationTools::displayTaskDone();
+     }
+     return rewards.release();
+   */
   return 0;
 }
-

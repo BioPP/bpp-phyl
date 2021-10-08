@@ -66,15 +66,17 @@ AbstractTransitionModel::AbstractTransitionModel(const Alphabet* alpha, std::sha
 {
   if (computeFrequencies())
     for (auto& fr : freq_)
+    {
       fr = 1.0 / static_cast<double>(size_);
+    }
 }
 
 /******************************************************************************/
 
-  double AbstractTransitionModel::getRate() const
-  {
-    return rate_;
-  }
+double AbstractTransitionModel::getRate() const
+{
+  return rate_;
+}
 
 /******************************************************************************/
 
@@ -82,7 +84,7 @@ void AbstractTransitionModel::setRate(double rate)
 {
   if (rate <= 0)
     throw Exception("Bad value for rate: " + TextTools::toString(rate));
-  
+
   if (hasParameter("rate"))
     setParameterValue("rate", rate);
   else
@@ -105,7 +107,7 @@ double AbstractTransitionModel::getInitValue(size_t i, int state) const
 
   for (size_t j = 0; j < states.size(); j++)
   {
-     if (getAlphabetStateAsInt(i) == states[j])
+    if (getAlphabetStateAsInt(i) == states[j])
       return 1.;
   }
   return 0.;
@@ -126,12 +128,13 @@ void AbstractTransitionModel::setFreqFromData(const SequencedValuesContainer& da
 void AbstractTransitionModel::setFreq(map<int, double>& freqs)
 {
   for (auto i : freqs)
-    freq_[(size_t)i.first]=i.second;
+  {
+    freq_[(size_t)i.first] = i.second;
+  }
 
   // Re-compute generator and eigen values:
   updateMatrices();
 }
-
 
 
 /******************************************************************************/
@@ -152,51 +155,51 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, std:
   leftEigenVectors_(size_, size_),
   vPowGen_(),
   tmpMat_(size_, size_)
-{
-}
+{}
 
 
 /******************************************************************************/
 
 void AbstractSubstitutionModel::updateMatrices()
 {
-
   // Compute eigen values and vectors:
   if (enableEigenDecomposition())
   {
     // Look for null lines (such as stop lines)
     // ie null diagonal elements
 
-    size_t nbStop=0;
+    size_t nbStop = 0;
     size_t salph = getNumberOfStates();
     vector<bool> vnull(salph); // vector of the indices of lines with
                                // only zeros
 
     for (size_t i = 0; i < salph; i++)
     {
-      bool flag=(abs(generator_(i, i)) < NumConstants::TINY());
+      bool flag = (abs(generator_(i, i)) < NumConstants::TINY());
 
       if (flag)
         for (size_t j = 0; j < salph; j++)
+        {
           if (abs(generator_(j, i)) >= NumConstants::TINY())
           {
-            flag=false;
+            flag = false;
             break;
           }
+        }
 
       if (flag)
       {
         nbStop++;
-        vnull[i]=true;
+        vnull[i] = true;
       }
       else
-        vnull[i]=false;
+        vnull[i] = false;
     }
-        
+
     if (nbStop != 0)
     {
-      size_t salphok=salph - nbStop;
-      
+      size_t salphok = salph - nbStop;
+
       RowMatrix<double> gk(salphok, salphok);
       size_t gi = 0, gj = 0;
 
@@ -286,61 +289,63 @@ void AbstractSubstitutionModel::updateMatrices()
           }
         }
       }
-      
+
       // looking for the vector of 0 eigenvalues
 
       vector<size_t> vNullEv;
-      double fact=0.1;
-      while (vNullEv.size()==0 && fact<1000)
+      double fact = 0.1;
+      while (vNullEv.size() == 0 && fact < 1000)
       {
-        fact*=10;
-        
-        for (size_t i = 0; i< salph - nbStop; i++)
-          if ((abs(eigenValues_[i]) < fact*NumConstants::SMALL()) && (abs(iEigenValues_[i]) < NumConstants::SMALL()))
-            vNullEv.push_back(i);
-      }
-      
+        fact *= 10;
 
-      // pb to find unique null eigenvalue      
-      isNonSingular_=(vNullEv.size()==1);
-      
+        for (size_t i = 0; i < salph - nbStop; i++)
+        {
+          if ((abs(eigenValues_[i]) < fact * NumConstants::SMALL()) && (abs(iEigenValues_[i]) < NumConstants::SMALL()))
+            vNullEv.push_back(i);
+        }
+      }
+
+
+      // pb to find unique null eigenvalue
+      isNonSingular_ = (vNullEv.size() == 1);
+
       size_t nulleigen;
-      
+
       double val;
       if (!isNonSingular_)
       {
-        //look or check which non-stop right eigen vector elements are
-        //equal.
+        // look or check which non-stop right eigen vector elements are
+        // equal.
         for (auto cnull : vNullEv)
         {
           size_t i = 0;
           while (vnull[i])
             i++;
-          
+
           val = rightEigenVectors_(i, cnull);
           i++;
-          
+
           while (i < salph)
           {
             if (!vnull[i])
             {
-              if (abs((rightEigenVectors_(i, cnull) - val)/val) > NumConstants::SMALL())
+              if (abs((rightEigenVectors_(i, cnull) - val) / val) > NumConstants::SMALL())
                 break;
             }
             i++;
           }
-          
+
           if (i >= salph)
           {
             isNonSingular_ = true;
-            nulleigen=cnull;
+            nulleigen = cnull;
             break;
           }
         }
       }
       else
-        nulleigen=vNullEv[0];
-      
+        nulleigen = vNullEv[0];
+
       if (isNonSingular_)
       {
         eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
@@ -349,9 +354,11 @@ void AbstractSubstitutionModel::updateMatrices()
         if (computeFrequencies())
         {
           for (size_t i = 0; i < salph; i++)
+          {
             freq_[i] = leftEigenVectors_(nulleigen, i);
-        
-          double x = VectorTools::sum(freq_);        
+          }
+
+          double x = VectorTools::sum(freq_);
           freq_ /= x;
         }
       }
@@ -383,7 +390,7 @@ void AbstractSubstitutionModel::updateMatrices()
       if (vPowGen_.size() == 0)
         vPowGen_.resize(30);
 
-      
+
       if (computeFrequencies())
       {
         MatrixTools::getId(salph, tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
@@ -391,7 +398,9 @@ void AbstractSubstitutionModel::updateMatrices()
         MatrixTools::pow(tmpMat_, 256, vPowGen_[0]);
 
         for (size_t i = 0; i < salph; i++)
+        {
           freq_[i] = vPowGen_[0](0, i);
+        }
       }
 
       MatrixTools::getId(salph, vPowGen_[0]);
@@ -399,11 +408,10 @@ void AbstractSubstitutionModel::updateMatrices()
 
     // normalization
     normalize();
-    
+
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_, 30, vPowGen_);
   }
-
 }
 
 
@@ -411,7 +419,7 @@ void AbstractSubstitutionModel::updateMatrices()
 
 const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
 {
-  if (t ==0)
+  if (t == 0)
   {
     MatrixTools::getId(size_, pijt_);
   }
@@ -480,17 +488,20 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
 
   // Check to avoid numerical issues
   // if (t<= NumConstants::SMALL())
-    for (size_t i = 0; i < size_; i++)
-      for (size_t j = 0; j < size_; j++)
-        if (pijt_(i,j)<0.)
+  for (size_t i = 0; i < size_; i++)
+  {
+    for (size_t j = 0; j < size_; j++)
+    {
+      if (pijt_(i, j) < 0.)
+      {
+        if (std::abs(pijt_(i, j)) > NumConstants::SMALL())
         {
-          if (std::abs(pijt_(i,j))>NumConstants::SMALL())
-          {
-            throw Exception("There is an issue in the computation of transition matrix of " + getName() + " : pijt_(" + to_string(i) + "," + to_string(j) + ", " + to_string(t) + ")=" + to_string(pijt_(i,j)));
-          }
-          pijt_(i,j)=0.;
-          
+          throw Exception("There is an issue in the computation of transition matrix of " + getName() + " : pijt_(" + to_string(i) + "," + to_string(j) + ", " + to_string(t) + ")=" + to_string(pijt_(i, j)));
         }
+        pijt_(i, j) = 0.;
+      }
+    }
+  }
   return pijt_;
 }
 
@@ -668,9 +679,9 @@ void AbstractSubstitutionModel::setDiagonal()
 {
   for (size_t i = 0; i < size_; i++)
   {
-    double lambda=0;
-    Vdouble& row=generator_.getRow(i);
-    
+    double lambda = 0;
+    Vdouble& row = generator_.getRow(i);
+
     for (size_t j = 0; j < size_; j++)
     {
       if (j != i)
@@ -683,10 +694,10 @@ void AbstractSubstitutionModel::setDiagonal()
 
 /******************************************************************************/
 
-void AbstractSubstitutionModel::normalize() 
+void AbstractSubstitutionModel::normalize()
 {
   if (isScalable_)
-    setScale(1/getScale());
+    setScale(1 / getScale());
 }
 
 /******************************************************************************/
@@ -698,9 +709,8 @@ void AbstractReversibleSubstitutionModel::updateMatrices()
   // Normalization:
   setDiagonal();
   normalize();
-  
+
   AbstractSubstitutionModel::updateMatrices();
 }
 
 /******************************************************************************/
-

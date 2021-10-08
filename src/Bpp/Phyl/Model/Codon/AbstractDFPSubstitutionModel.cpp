@@ -81,13 +81,13 @@ void AbstractDFPSubstitutionModel::updateMatrices()
   {
     for (j = 0; j < 64; j++)
     {
-      if (i==j || gCode_->isStop(static_cast<int>(i)) || gCode_->isStop(static_cast<int>(j)))
+      if (i == j || gCode_->isStop(static_cast<int>(i)) || gCode_->isStop(static_cast<int>(j)))
       {
         generator_(i, j) = 0;
       }
       else
       {
-        generator_(i, j) = getCodonsMulRate(i,j);
+        generator_(i, j) = getCodonsMulRate(i, j);
       }
     }
   }
@@ -96,27 +96,27 @@ void AbstractDFPSubstitutionModel::updateMatrices()
   AbstractSubstitutionModel::updateMatrices();
 }
 
-      
+
 double AbstractDFPSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   int nts(0);
   // sum nb of transitions & transversions between codons
   // ts = 4 * ntv + ntr
-   
-  for (size_t pos = 0; pos<3;pos++)
+
+  for (size_t pos = 0; pos < 3; pos++)
   {
-    int pi = (int) (pos==0 ? i/16:
-                    (pos==1? (i/4)%4
-                     : i%4));
-    int pj = (int) (pos==0 ? j/16:
-                    (pos==1? (j/4)%4
-                     : j%4));
-     
-    nts+=(pi==pj?0:(abs(pi-pj)==2?1:4));
-     
+    int pi = (int) (pos == 0 ? i / 16 :
+                    (pos == 1 ? (i / 4) % 4
+                     : i % 4));
+    int pj = (int) (pos == 0 ? j / 16 :
+                    (pos == 1 ? (j / 4) % 4
+                     : j % 4));
+
+    nts += (pi == pj ? 0 : (abs(pi - pj) == 2 ? 1 : 4));
   }
 
-  switch(nts) {
+  switch (nts)
+  {
   case 0:
     break;
   case 1:
@@ -141,5 +141,3 @@ double AbstractDFPSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 
   return 1.;
 }
-
-

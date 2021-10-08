@@ -272,5 +272,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif  // _NNIHOMOGENEOUSTREELIKELIHOOD_H_
-
+#endif// _NNIHOMOGENEOUSTREELIKELIHOOD_H_

@@ -173,7 +173,7 @@ public:
   //  virtual std::string getName() const;
 
   const SubstitutionModel* getNestedModel() const {return pmodel_;}
-  
+
   size_t getNumberOfStates() const { return 36; }
 
   virtual void updateMatrices();
@@ -284,6 +284,4 @@ public:
 }
 
 
-#endif // _YpR_H_
-
-
+#endif// _YpR_H_

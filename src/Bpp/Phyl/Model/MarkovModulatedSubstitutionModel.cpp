@@ -180,9 +180,9 @@ void MarkovModulatedSubstitutionModel::setDiagonal()
 {
   for (size_t i = 0; i < getNumberOfStates(); i++)
   {
-    double lambda=0;
-    Vdouble& row=generator_.getRow(i);
-    
+    double lambda = 0;
+    Vdouble& row = generator_.getRow(i);
+
     for (size_t j = 0; j < getNumberOfStates(); j++)
     {
       if (j != i)
@@ -242,4 +242,3 @@ void MarkovModulatedSubstitutionModel::setNamespace(const string& prefix)
 }
 
 /******************************************************************************/
-

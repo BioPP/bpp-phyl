@@ -189,5 +189,3 @@ void AbstractCodonSubstitutionModel::completeMatrices()
     }
   }
 }
-
-

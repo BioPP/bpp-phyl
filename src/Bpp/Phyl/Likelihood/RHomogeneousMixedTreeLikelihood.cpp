@@ -145,7 +145,7 @@ void RHomogeneousMixedTreeLikelihood::initialize()
   {
     treeLikelihoodsContainer_[i]->initialize();
   }
-  
+
   RHomogeneousTreeLikelihood::initialize();
 }
 
@@ -163,7 +163,7 @@ void RHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& site
 void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
   // checks in the model will change
-  bool modelC=model_->getParameters().testParametersValues(params);
+  bool modelC = model_->getParameters().testParametersValues(params);
 
   applyParameters();
   MixedTransitionModel* mixedmodel = dynamic_cast<MixedTransitionModel*>(model_);
@@ -177,13 +177,14 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
     pl.addParameters(pm->getParameters());
     pl.includeParameters(getParameters());
 
-    if (modelC){
+    if (modelC)
+    {
       treeLikelihoodsContainer_[i]->setParameters(pl);
     }
     else
       treeLikelihoodsContainer_[i]->matchParametersValues(pl);
   }
-  
+
   probas_ = mixedmodel->getProbabilities();
   minusLogLik_ = -getLogLikelihood();
 }
@@ -197,8 +198,8 @@ void RHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
 }
 
 /******************************************************************************
- *                                   Likelihoods                              *
- ******************************************************************************/
+*                                   Likelihoods                              *
+******************************************************************************/
 double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   double res = 0;

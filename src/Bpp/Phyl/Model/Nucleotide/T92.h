@@ -191,5 +191,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif  // _T92_H_
-
+#endif// _T92_H_

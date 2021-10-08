@@ -54,26 +54,25 @@ PartitionSequenceEvolution::PartitionSequenceEvolution(
   vSize_(0),
   mProcPos_()
 {
-  for (size_t i=0;i<posProc.size();i++){
-    size_t nproc=posProc[i];
-    
+  for (size_t i = 0; i < posProc.size(); i++)
+  {
+    size_t nproc = posProc[i];
+
     if (!processColl_->hasSubstitutionProcessNumber(nproc))
       throw BadIntegerException("PartitionSequenceEvolution::PartitionSequenceEvolution : unknown process number ", int(nproc));
     else
     {
       vProc_.push_back(nproc);
-      if (mProcPos_.find(nproc)==mProcPos_.end())
-        mProcPos_[nproc]=vector<size_t>();
+      if (mProcPos_.find(nproc) == mProcPos_.end())
+        mProcPos_[nproc] = vector<size_t>();
       mProcPos_[nproc].push_back(i);
     }
   }
-  
-  vSize_=posProc.size();
-  
-  for (std::map<size_t, std::vector<size_t> >::const_iterator it=mProcPos_.begin(); it!=mProcPos_.end(); it++)
+
+  vSize_ = posProc.size();
+
+  for (std::map<size_t, std::vector<size_t> >::const_iterator it = mProcPos_.begin(); it != mProcPos_.end(); it++)
+  {
     nProc_.push_back(it->first);
-  
+  }
 }
-
-
-

@@ -61,10 +61,10 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
   vLikCal_()
 {
   resetParameters_(); // Do not keep the original parameters to get ConfiguredParameters
- // initialize parameters:
+  // initialize parameters:
 
   const vector<size_t>& nProc = processSeqEvol.getSubstitutionProcessNumbers();
-  
+
   for (auto n:nProc)
   {
     auto liksing = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes,
@@ -74,7 +74,6 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
     vLikCal_.push_back(liksing);
     shareParameters_(liksing->getParameters());
   }
-
 }
 
 /******************************************************************************/
@@ -82,9 +81,11 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
 void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& sites, size_t nData)
 {
   AbstractSequencePhyloLikelihood::setData(sites, nData);
-  
+
   for (auto& lik : vLikCal_)
+  {
     lik->setData(sites);
+  }
 }
 
 /******************************************************************************/
@@ -97,10 +98,9 @@ VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodPerSitePerProcess() c
     Vdouble* l_i = &l[i];
     l_i->resize(getNumberOfSubstitutionProcess());
     for (size_t c = 0; c < l_i->size(); ++c)
-      {
-        (*l_i)[c] = convert(getLikelihoodForASiteForAProcess(i, c));
-      }
+    {
+      (*l_i)[c] = convert(getLikelihoodForASiteForAProcess(i, c));
+    }
   }
   return l;
 }
-

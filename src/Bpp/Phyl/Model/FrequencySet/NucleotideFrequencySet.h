@@ -53,11 +53,9 @@ class NucleotideFrequencySet :
   public virtual FrequencySet
 {
 public:
-  
   NucleotideFrequencySet* clone() const = 0;
 
   const NucleicAlphabet* getAlphabet() const = 0;
-
 };
 
 /**
@@ -83,16 +81,16 @@ public:
     getFreq_(1) = getFreq_(2) = theta / 2.;
   }
 
-  GCFrequencySet* clone() const {
-    return new GCFrequencySet(*this); }
+  GCFrequencySet* clone() const
+  {
+    return new GCFrequencySet(*this);
+  }
 
   GCFrequencySet(const GCFrequencySet& gcf) :
     AbstractFrequencySet(gcf)
-  {
-  }
+  {}
 
 public:
-  
   const NucleicAlphabet* getAlphabet() const
   {
     return dynamic_cast<const NucleicAlphabet*>(AbstractFrequencySet::getAlphabet());
@@ -137,7 +135,6 @@ public:
   FullNucleotideFrequencySet* clone() const { return new FullNucleotideFrequencySet(*this); }
 
 public:
-  
   const NucleicAlphabet* getAlphabet() const
   {
     return dynamic_cast<const NucleicAlphabet*>(AbstractFrequencySet::getAlphabet());
@@ -178,29 +175,26 @@ public:
   }
 };
 
-  /**
-   * @brief FrequencySet useful for homogeneous and stationary models, nucleotide implementation
-   *
-   * This set contains no parameter.
-   */
-  class UserNucleotideFrequencySet :
-    public virtual NucleotideFrequencySet,
-    public UserFrequencySet
+/**
+ * @brief FrequencySet useful for homogeneous and stationary models, nucleotide implementation
+ *
+ * This set contains no parameter.
+ */
+class UserNucleotideFrequencySet :
+  public virtual NucleotideFrequencySet,
+  public UserFrequencySet
+{
+public:
+  UserNucleotideFrequencySet(const NucleicAlphabet* alphabet, const std::string& path, size_t nCol = 1) :
+    UserFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), path, nCol) {}
+
+  UserNucleotideFrequencySet* clone() const { return new UserNucleotideFrequencySet(*this); }
+
+  const NucleicAlphabet* getAlphabet() const
   {
-  public:
-    UserNucleotideFrequencySet(const NucleicAlphabet* alphabet, const std::string& path, size_t nCol=1):
-      UserFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), path, nCol) {}
-    
-    UserNucleotideFrequencySet* clone() const { return new UserNucleotideFrequencySet(*this); }
-
-    const NucleicAlphabet* getAlphabet() const
-    {
-      return dynamic_cast<const NucleicAlphabet*>(AbstractFrequencySet::getAlphabet());
-    }
-  };
-
+    return dynamic_cast<const NucleicAlphabet*>(AbstractFrequencySet::getAlphabet());
+  }
+};
 } // end of namespace bpp.
 
-#endif // _NUCLEOTIDEFREQUENCYSET_H_
-
-
+#endif// _NUCLEOTIDEFREQUENCYSET_H_

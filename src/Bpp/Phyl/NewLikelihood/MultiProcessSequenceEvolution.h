@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _MULTI_PROCESS_SEQUENCE_EVOLUTION_H_
 #define _MULTI_PROCESS_SEQUENCE_EVOLUTION_H_
@@ -57,104 +57,96 @@ namespace bpp
  * @brief Partial implementation of multiple processes of sequences.
  *
  */
-  
-  class MultiProcessSequenceEvolution :
-    virtual public SequenceEvolution,
-    public AbstractParameterAliasable
+
+class MultiProcessSequenceEvolution :
+  virtual public SequenceEvolution,
+  public AbstractParameterAliasable
+{
+protected:
+  SubstitutionProcessCollection* processColl_;
+
+  /*
+   * @brief the vector of the substitution process numbers, as
+   * they are used in this order.
+   *
+   */
+
+  std::vector<size_t> nProc_;
+
+public:
+  MultiProcessSequenceEvolution(
+    SubstitutionProcessCollection* processColl,
+    std::vector<size_t> nProc,
+    const std::string& prefix = "");
+
+  MultiProcessSequenceEvolution(const MultiProcessSequenceEvolution& lik) :
+    AbstractParameterAliasable(lik),
+    processColl_(lik.processColl_),
+    nProc_(lik.nProc_)
+  {}
+
+  MultiProcessSequenceEvolution& operator=(const MultiProcessSequenceEvolution& lik)
   {
-    protected:
-      SubstitutionProcessCollection* processColl_;
+    AbstractParameterAliasable::operator=(lik);
 
-      /*
-       * @brief the vector of the substitution process numbers, as
-       * they are used in this order.
-       *
-       */
-    
-      std::vector<size_t> nProc_;
+    processColl_ = lik.processColl_;
+    nProc_ = lik.nProc_;
 
-    public:
-      MultiProcessSequenceEvolution(
-        SubstitutionProcessCollection* processColl,
-        std::vector<size_t> nProc,
-        const std::string& prefix = "");
+    return *this;
+  }
 
-      MultiProcessSequenceEvolution(const MultiProcessSequenceEvolution& lik) :
-        AbstractParameterAliasable(lik),
-        processColl_(lik.processColl_),
-        nProc_(lik.nProc_)
-      {
-      }
+public:
+  /**
+   * @brief The collection
+   *
+   */
+  const SubstitutionProcessCollection& getCollection() const { return *processColl_; }
 
-      MultiProcessSequenceEvolution& operator=(const MultiProcessSequenceEvolution& lik)
-      {
-        AbstractParameterAliasable::operator=(lik);
-        
-        processColl_=lik.processColl_;
-        nProc_=lik.nProc_;
-        
-        return *this;
-      }
+  SubstitutionProcessCollection& getCollection() { return *processColl_; }
 
-    public:
-      
-      /**
-       * @brief The collection
-       *
-       */
+  /**
+   * @brief Return the number of process used for computation.
+   */
+  size_t getNumberOfSubstitutionProcess() const { return nProc_.size(); }
 
-      const SubstitutionProcessCollection& getCollection() const { return *processColl_; }
+  /**
+   * @brief Return the SubstitutionProcess of a given index
+   * position (in nProc_ vector).
+   *
+   */
+  const SubstitutionProcess& getSubstitutionProcess(size_t number) const
+  {
+    return processColl_->getSubstitutionProcess(number);
+  }
 
-      SubstitutionProcessCollection& getCollection() { return *processColl_; }
+  const std::vector<size_t>& getSubstitutionProcessNumbers() const
+  {
+    return nProc_;
+  }
 
-      /**
-       * @brief Return the number of process used for computation.
-       */
-  
+  ParameterList getSubstitutionProcessParameters(bool independent) const;
 
-      size_t getNumberOfSubstitutionProcess() const { return nProc_.size(); }
+  ParameterList getSubstitutionModelParameters(bool independent) const;
 
-      /**
-       * @brief Return the SubstitutionProcess of a given index
-       * position (in nProc_ vector).
-       *
-       */
-            
-      const SubstitutionProcess& getSubstitutionProcess(size_t number) const
-      {
-        return processColl_->getSubstitutionProcess(number);
-      }
+  ParameterList getRateDistributionParameters(bool independent) const;
 
-      const std::vector<size_t>& getSubstitutionProcessNumbers() const
-      {
-        return nProc_;
-      }  
+  ParameterList getRootFrequenciesParameters(bool independent) const;
 
-      ParameterList getSubstitutionProcessParameters(bool independent) const;
+  ParameterList getBranchLengthParameters(bool independent) const;
 
-      ParameterList getSubstitutionModelParameters(bool independent) const;
+  virtual ParameterList getNonDerivableParameters() const;
 
-      ParameterList getRateDistributionParameters(bool independent) const;
+  virtual void fireParameterChanged(const ParameterList& parameters);
 
-      ParameterList getRootFrequenciesParameters(bool independent) const;
+  void setParameters(const ParameterList& parameters);
 
-      ParameterList getBranchLengthParameters(bool independent) const;
+  /**
+   * @brief test if data fits this model
+   *
+   */
 
-      virtual ParameterList getNonDerivableParameters() const;
-
-      virtual void fireParameterChanged(const ParameterList& parameters);
-
-      void setParameters(const ParameterList& parameters);
-
-      /**
-       * @brief test if data fits this model
-       *
-       */
-      
-      virtual bool isCompatibleWith(const AlignedValuesContainer& data) const;
-
-    };
+  virtual bool isCompatibleWith(const AlignedValuesContainer& data) const;
+};
 } // end of namespace bpp.
 
-#endif  // _MULTI_PROCESS_SEQUENCE_EVOLUTION_H_
-
+#endif// _MULTI_PROCESS_SEQUENCE_EVOLUTION_H_

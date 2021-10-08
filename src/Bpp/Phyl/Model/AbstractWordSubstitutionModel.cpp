@@ -64,9 +64,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(
-      modelList.getWordAlphabet(),
-      std::shared_ptr<const StateMap>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
-      prefix),
+    modelList.getWordAlphabet(),
+    std::shared_ptr<const StateMap>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
+    prefix),
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
@@ -122,7 +122,6 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   {
     Vrate_[i] = 1.0 / static_cast<double>(n);
   }
-
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
@@ -135,8 +134,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VSubMod_      (),
   VnestedPrefix_(),
   Vrate_        (0)
-{
-}
+{}
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   SubstitutionModel* pmodel,
@@ -147,9 +145,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_        (num,1.0/num)
+  Vrate_        (num, 1.0 / num)
 {
-  stateMap_=std::shared_ptr<const StateMap>(new CanonicalStateMap(getAlphabet(), false));
+  stateMap_ = std::shared_ptr<const StateMap>(new CanonicalStateMap(getAlphabet(), false));
 
   size_t i;
 
@@ -293,7 +291,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
   RowMatrix<double> gk, exch;
 
   // First fill of the generator from simple position generators
-  
+
   this->fillBasicGenerator();
 
   // modification of generator_
@@ -308,7 +306,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
   // without enableEigenDecomposition
 
   // Eigen values:
-  
+
   if (enableEigenDecomposition())
   {
     AbstractSubstitutionModel::updateMatrices();
@@ -319,8 +317,10 @@ void AbstractWordSubstitutionModel::updateMatrices()
     {
       size_t salph = getNumberOfStates();
       for (auto& fr : freq_)
+      {
         fr = 1;
-  
+      }
+
       m = 1;
       for (k = nbmod; k > 0; k--)
       {
@@ -346,10 +346,13 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   // compute the exchangeability_
   for (i = 0; i < size_; i++)
+  {
     for (j = 0; j < size_; j++)
+    {
       exchangeability_(i, j) = generator_(i, j) / freq_[j];
+    }
+  }
 }
-
 
 
 void AbstractWordSubstitutionModel::fillBasicGenerator()
@@ -360,23 +363,23 @@ void AbstractWordSubstitutionModel::fillBasicGenerator()
 // Generator
 
   RowMatrix<double> gk;
-  
+
   vector<size_t> vsize;
 
   for (size_t k = 0; k < nbmod; k++)
   {
     vsize.push_back(VSubMod_[k]->getNumberOfStates());
   }
-  
+
   size_t m = 1;
-  
+
   for (size_t k = nbmod; k > 0; k--)
   {
     gk = VSubMod_[k - 1]->getGenerator();
     for (size_t i = 0; i < vsize[k - 1]; i++)
     {
-      const vector<double>& row_gi=gk.getRow(i);
-      
+      const vector<double>& row_gi = gk.getRow(i);
+
       for (size_t j = 0; j < vsize[k - 1]; j++)
       {
         if (i != j)

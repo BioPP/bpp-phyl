@@ -56,8 +56,8 @@ using namespace numeric;
 void GivenDataSubstitutionProcessSiteSimulator::init()
 {
   calcul_->makeLikelihoods();
-  
-  // Initialize sons & fathers of tree_ Nodes    
+
+  // Initialize sons & fathers of tree_ Nodes
   // set sequence names
 
   outputInternalSites(outputInternalSites_);
@@ -67,33 +67,37 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
   const auto& dRate = process_->getRateDistribution();
 
   std::vector<DataLik> qR(nbClasses_);
-  for (size_t i=0; i<nbClasses_; i++)
-    qR[i]=calcul_->getSiteLikelihoodsForAClass(i)(pos_, true);
+  for (size_t i = 0; i < nbClasses_; i++)
+  {
+    qR[i] = calcul_->getSiteLikelihoodsForAClass(i)(pos_, true);
+  }
 
-  auto sQ=VectorTools::sum(qR);
+  auto sQ = VectorTools::sum(qR);
 
   qRates_.clear();
-  for (size_t i=0;i<nbClasses_;i++)
-    qRates_.push_back(convert(qR[i]/sQ));
+  for (size_t i = 0; i < nbClasses_; i++)
+  {
+    qRates_.push_back(convert(qR[i] / sQ));
+  }
 
   // Initialize root frequencies
 
-  const  auto dRoot = process_->getRootFrequencies();
+  const auto dRoot = process_->getRootFrequencies();
   qRoots_.resize(nbClasses_);
   RowLik temp((int)nbStates_);
 
-  for (size_t c=0;c<nbClasses_;c++)
+  for (size_t c = 0; c < nbClasses_; c++)
   {
     temp = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getNodeIndex(tree_.getRoot()), c)->getTargetValue().col(pos_);
-    
+
     temp /= temp.sum();
 
     Vdouble temp2;
-    copyEigenToBpp(temp,temp2);
-    
+    copyEigenToBpp(temp, temp2);
+
     qRoots_[c] = VectorTools::cumSum(temp2);
   }
-  
+
   // Initialize cumulative pxy for edges that have models
 
   auto edges = tree_.getAllEdges();
@@ -111,18 +115,18 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
     const auto transmodel = dynamic_cast<const TransitionModel*>(model);
     if (!transmodel)
       throw Exception("SubstitutionProcessSiteSimulator::init : model "  + model->getName() + " on branch " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a TransitionModel.");
-    
+
     VVVdouble* cumpxy_node_ = &edge->cumpxy_;
     cumpxy_node_->resize(nbClasses_);
-    
+
     for (size_t c = 0; c < nbClasses_; c++)
     {
       double brlen = dRate->getCategory(c) * phyloTree_->getEdge(edge->getSpeciesIndex())->getLength();
 
       VVdouble* cumpxy_node_c_ = &(*cumpxy_node_)[c];
-    
+
       cumpxy_node_c_->resize(nbStates_);
-    
+
       // process transition probabilities already consider rates &
       // branch length
 
@@ -130,17 +134,17 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
 
       const auto& vSub(edge->subModelNumbers());
 
-      if (vSub.size()==0)
+      if (vSub.size() == 0)
         P = &transmodel->getPij_t(brlen);
       else
       {
-        if (vSub.size()>1)
+        if (vSub.size() > 1)
           throw Exception("SubstitutionProcessSiteSimulator::init : only 1 submodel can be used.");
-        
+
         const auto* mmodel = dynamic_cast<const MixedTransitionModel*>(transmodel);
-        
+
         const auto* model2 = mmodel->getNModel(vSub[0]);
-        
+
         P = &model2->getPij_t(brlen);
       }
 
@@ -151,19 +155,22 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
       for (size_t x = 0; x < size_t(nbStates_); x++)
       {
         for (size_t y = 0; y < size_t(nbStates_); y++)
+        {
           postTrans[y] = std::max((*P)(x, y), NumConstants::PICO()) * siteForwLik(Eigen::Index(y)); // to avoid null trans prob on short branches, and then null sum of the postTrans
-
+        }
         postTrans /= VectorTools::sum(postTrans);
 
         Vdouble pT2(postTrans.size());
-        for (size_t i=0; i<postTrans.size(); i++)
-          pT2[i]=convert(postTrans[i]);
-        
+        for (size_t i = 0; i < postTrans.size(); i++)
+        {
+          pT2[i] = convert(postTrans[i]);
+        }
+
         (*cumpxy_node_c_)[x] = VectorTools::cumSum(pT2);
       }
     }
   }
-  
+
   // Initialize cumulative prob for mixture nodes
   auto nodes = tree_.getAllNodes();
 
@@ -172,13 +179,13 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
     if (node->isMixture()) // set probas to chose
     {
       auto outEdges = tree_.getOutgoingEdges(node);
-      std::vector<std::vector<DataLik>> vprob;
+      std::vector<std::vector<DataLik> > vprob;
       vprob.resize(nbClasses_);
 
       for (auto edge : outEdges)
       {
         auto outid = tree_.getEdgeIndex(edge);
-        
+
         auto model = dynamic_cast<const MixedTransitionModel*>(edge->getModel());
         if (!model)
           throw Exception("SubstitutionProcessSiteSimulator::init : model in edge " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a mixture.");
@@ -186,9 +193,11 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
         // a priori probabilities of the edges
         const auto& vNb(edge->subModelNumbers());
 
-        double x=0.;
+        double x = 0.;
         for (auto nb:vNb)
+        {
           x += model->getNProbability(nb);
+        }
 
         // forward lik
         for (size_t c = 0; c < nbClasses_; c++)
@@ -207,17 +216,15 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
         Vdouble pT2(vprob.size());
 
         // convert to double
-        for (size_t i=0; i<vprob.size(); i++)
-          pT2[i]=convert(vprob[c][i]);
+        for (size_t i = 0; i < vprob.size(); i++)
+        {
+          pT2[i] = convert(vprob[c][i]);
+        }
 
         node->cumProb_[c] = VectorTools::cumSum(pT2);
       }
     }
   }
-
 }
 
 /******************************************************************************/
-
-
-

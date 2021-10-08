@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 
 #ifndef _CATEGORY_SUBSTITUTIONREGISTER_H_
@@ -51,194 +51,195 @@ namespace bpp
  * @author Julien Dutheil
  */
 
-  
+
 /**
  * @brief Gather states into defined categories, and count the changes between categories.
  *
  * Optionally allows for within categories substitutions.
  */
-  class CategorySubstitutionRegister :
-    public AbstractSubstitutionRegister
+class CategorySubstitutionRegister :
+  public AbstractSubstitutionRegister
+{
+protected:
+  bool within_;
+  size_t nbCategories_;
+  mutable std::map<size_t, size_t> categories_;
+  std::vector<std::string> categoryNames_;
+  std::vector< std::vector<size_t> > index_;
+  std::vector< std::vector<size_t> > revIndex_;
+
+  bool stationarity_;
+
+public:
+  /**
+   * @brief Build a new substitution register with categories. This class is meant to be inherited.
+   *
+   * @param stateMap The stateMap defining the states.
+   * @param within Specifies if within categories substitutions should be counted as well.
+   */
+  CategorySubstitutionRegister(const StateMap& stateMap, bool within = false) :
+    AbstractSubstitutionRegister(stateMap, "Category"),
+    within_(within),
+    nbCategories_(0),
+    categories_(),
+    categoryNames_(),
+    index_(),
+    revIndex_(),
+    stationarity_()
+  {}
+
+protected:
+  template<class T>
+  void setAlphabetCategories(const std::map<int, T>& categories)
   {
-  protected:
-    bool within_;
-    size_t nbCategories_;
-    mutable std::map<size_t, size_t> categories_;
-    std::vector<std::string> categoryNames_;
-    std::vector< std::vector<size_t> > index_;
-    std::vector< std::vector<size_t> > revIndex_;
-
-    bool stationarity_;
-    
-  public:
-    /**
-     * @brief Build a new substitution register with categories. This class is meant to be inherited.
-     *
-     * @param stateMap The stateMap defining the states.
-     * @param within Specifies if within categories substitutions should be counted as well.
-     */
-    CategorySubstitutionRegister(const StateMap& stateMap, bool within = false) :
-      AbstractSubstitutionRegister(stateMap,"Category"),
-      within_(within),
-      nbCategories_(0),
-      categories_(),
-      categoryNames_(),
-      index_(),
-      revIndex_(),
-      stationarity_()
-    {}
-
-  protected:
-    template<class T>
-    void setAlphabetCategories(const std::map<int, T>& categories)
+    // We need to convert alphabet states into model states.
+    std::map<size_t, T> modelCategories;
+    for (typename std::map<int, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
     {
-      //We need to convert alphabet states into model states.
-      std::map<size_t, T> modelCategories;
-      for (typename std::map<int, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
-      {  
-        std::vector<size_t> states = getStateMap().getModelStates(it->first);
-        for (size_t i = 0; i < states.size(); ++i) {
-          modelCategories[states[i]] = it->second;
-        }
+      std::vector<size_t> states = getStateMap().getModelStates(it->first);
+      for (size_t i = 0; i < states.size(); ++i)
+      {
+        modelCategories[states[i]] = it->second;
       }
-      //Then we forward the model categories:
-      setModelCategories<T>(modelCategories);
+    }
+    // Then we forward the model categories:
+    setModelCategories<T>(modelCategories);
+  }
+
+  template<class T>
+  void setModelCategories(const std::map<size_t, T>& categories)
+  {
+    // First index categories:
+    nbCategories_ = 0;
+    std::map<T, size_t> cats;
+    for (typename std::map<size_t, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
+    {
+      if (cats.find(it->second) == cats.end())
+      {
+        ++nbCategories_;
+        cats[it->second] = nbCategories_;
+      }
     }
 
-    template<class T>
-    void setModelCategories(const std::map<size_t, T>& categories)
+    // Now creates categories:
+    categories_.clear();
+    categoryNames_.resize(nbCategories_);
+    for (size_t i = 0; i < getStateMap().getNumberOfModelStates(); ++i)
     {
-      // First index categories:
-      nbCategories_ = 0;
-      std::map<T, size_t> cats;
-      for (typename std::map<size_t, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
+      typename std::map<size_t, T>::const_iterator it = categories.find(i);
+      if (it != categories.end())
       {
-        if (cats.find(it->second) == cats.end())
-        {
-          ++nbCategories_;
-          cats[it->second] = nbCategories_;
-        }
+        categories_[i] = cats[it->second];
+        categoryNames_[cats[it->second] - 1] += getStateMap().getStateDescription(i);
       }
+      else
+      {
+        categories_[i] = 0;
+      }
+    }
 
-      // Now creates categories:
-      categories_.clear();
-      categoryNames_.resize(nbCategories_);
-      for (size_t i = 0; i < getStateMap().getNumberOfModelStates(); ++i)
+    size_t count = 1;
+    index_.resize(nbCategories_);
+    for (size_t i = 0; i < index_.size(); ++i)
+    {
+      index_[i].resize(nbCategories_);
+      for (size_t j = 0; j < index_.size(); ++j)
       {
-        typename std::map<size_t, T>::const_iterator it = categories.find(i);
-        if (it != categories.end())
+        if (j != i)
         {
-          categories_[i] = cats[it->second];
-          categoryNames_[cats[it->second] - 1] += getStateMap().getStateDescription(i);
-        }
-        else
-        {
-          categories_[i] = 0;
-        }
-      }
-
-      size_t count = 1;
-      index_.resize(nbCategories_);
-      for (size_t i = 0; i < index_.size(); ++i)
-      {
-        index_[i].resize(nbCategories_);
-        for (size_t j = 0; j < index_.size(); ++j)
-        {
-          if (j != i)
-          {
-            index_[i][j] = count++;
-            std::vector<size_t> pos(2);
-            pos[0] = i;
-            pos[1] = j;
-            revIndex_.push_back(pos);
-          }
-        }
-      }
-      if (within_)
-      {
-        for (size_t i = 0; i < index_.size(); ++i)
-        {
-          index_[i][i] = count++;
+          index_[i][j] = count++;
           std::vector<size_t> pos(2);
           pos[0] = i;
-          pos[1] = i;
+          pos[1] = j;
           revIndex_.push_back(pos);
         }
       }
     }
-
-  public:
-    virtual size_t getCategory(size_t state) const
+    if (within_)
     {
-      return categories_[state];
-    }
-
-    virtual size_t getCategoryFrom(size_t type) const
-    {
-      if (type <= nbCategories_ * (nbCategories_ - 1))
+      for (size_t i = 0; i < index_.size(); ++i)
       {
+        index_[i][i] = count++;
+        std::vector<size_t> pos(2);
+        pos[0] = i;
+        pos[1] = i;
+        revIndex_.push_back(pos);
+      }
+    }
+  }
+
+public:
+  virtual size_t getCategory(size_t state) const
+  {
+    return categories_[state];
+  }
+
+  virtual size_t getCategoryFrom(size_t type) const
+  {
+    if (type <= nbCategories_ * (nbCategories_ - 1))
+    {
+      return revIndex_[type - 1][0] + 1;
+    }
+    else
+    {
+      if (within_)
         return revIndex_[type - 1][0] + 1;
-      }
       else
-      {
-        if (within_)
-          return revIndex_[type - 1][0] + 1;
-        else
-          throw Exception("CategorySubstitutionRegister::getCategoryFrom. Bad substitution type.");
-      }
+        throw Exception("CategorySubstitutionRegister::getCategoryFrom. Bad substitution type.");
     }
+  }
 
-    virtual size_t getCategoryTo(size_t type) const
+  virtual size_t getCategoryTo(size_t type) const
+  {
+    if (type <= nbCategories_ * (nbCategories_ - 1))
     {
-      if (type <= nbCategories_ * (nbCategories_ - 1))
-      {
+      return revIndex_[type - 1][1] + 1;
+    }
+    else
+    {
+      if (within_)
         return revIndex_[type - 1][1] + 1;
-      }
       else
-      {
-        if (within_)
-          return revIndex_[type - 1][1] + 1;
-        else
-          throw Exception("CategorySubstitutionRegister::getCategoryTo. Bad substitution type.");
-      }
+        throw Exception("CategorySubstitutionRegister::getCategoryTo. Bad substitution type.");
     }
+  }
 
-    virtual std::string getCategoryName(size_t category) const
-    {
-      return categoryNames_[category - 1];
-    }
+  virtual std::string getCategoryName(size_t category) const
+  {
+    return categoryNames_[category - 1];
+  }
 
-    virtual bool allowWithin() const { return within_; }
+  virtual bool allowWithin() const { return within_; }
 
-    bool isStationary() const
-    {
-      return stationarity_;
-    }
+  bool isStationary() const
+  {
+    return stationarity_;
+  }
 
-    void setStationarity(bool stat)
-    {
-      stationarity_=stat;
-    }
-    
-    size_t getNumberOfCategories() const { return nbCategories_; }
+  void setStationarity(bool stat)
+  {
+    stationarity_ = stat;
+  }
 
-    size_t getNumberOfSubstitutionTypes() const { return nbCategories_ * (nbCategories_ - 1) + (within_ ? nbCategories_ : 0); }
+  size_t getNumberOfCategories() const { return nbCategories_; }
 
-    virtual size_t getType(size_t fromState, size_t toState) const
-    {
-      size_t fromCat = categories_[fromState];
-      size_t toCat   = categories_[toState];
-      if (fromCat > 0 && toCat > 0)
-        return index_[fromCat - 1][toCat - 1];
-      else
-        return 0;
-    }
+  size_t getNumberOfSubstitutionTypes() const { return nbCategories_ * (nbCategories_ - 1) + (within_ ? nbCategories_ : 0); }
 
-    std::string getTypeName(size_t type) const
-    {
-      return getCategoryName(getCategoryFrom(type)) + "->" +  getCategoryName(getCategoryTo(type));
-    }
-  };
+  virtual size_t getType(size_t fromState, size_t toState) const
+  {
+    size_t fromCat = categories_[fromState];
+    size_t toCat   = categories_[toState];
+    if (fromCat > 0 && toCat > 0)
+      return index_[fromCat - 1][toCat - 1];
+    else
+      return 0;
+  }
+
+  std::string getTypeName(size_t type) const
+  {
+    return getCategoryName(getCategoryFrom(type)) + "->" +  getCategoryName(getCategoryTo(type));
+  }
+};
 
 
 /**
@@ -248,23 +249,23 @@ namespace bpp
  * - 0 not a substitution
  * - x in [1, n(n-1)] a substitution
  */
-  class ComprehensiveSubstitutionRegister :
-    public CategorySubstitutionRegister
+class ComprehensiveSubstitutionRegister :
+  public CategorySubstitutionRegister
+{
+public:
+  ComprehensiveSubstitutionRegister(const StateMap& stateMap, bool within = false) :
+    CategorySubstitutionRegister(stateMap, within)
   {
-  public:
-    ComprehensiveSubstitutionRegister(const StateMap& stateMap, bool within = false) :
-      CategorySubstitutionRegister(stateMap, within)
+    std::map<int, int> categories;
+    for (int i = 0; i < static_cast<int>(getStateMap().getNumberOfModelStates()); ++i)
     {
-      std::map<int, int> categories;
-      for (int i = 0; i < static_cast<int>(getStateMap().getNumberOfModelStates()); ++i)
-      {
-        categories[i] = i;
-      }
-      setAlphabetCategories<int>(categories);
+      categories[i] = i;
     }
+    setAlphabetCategories<int>(categories);
+  }
 
-    ComprehensiveSubstitutionRegister* clone() const { return new ComprehensiveSubstitutionRegister(*this); }
-  };
+  ComprehensiveSubstitutionRegister* clone() const { return new ComprehensiveSubstitutionRegister(*this); }
+};
 
 /**
  * @brief Distinguishes AT<->GC from GC<->AT.
@@ -274,23 +275,23 @@ namespace bpp
  * - 1 a AT->GC substitution
  * - 2 a GC->AT substitution
  */
-  class GCSubstitutionRegister :
-    public CategorySubstitutionRegister
+class GCSubstitutionRegister :
+  public CategorySubstitutionRegister
+{
+public:
+  GCSubstitutionRegister(const StateMap& stateMap, bool within = false) :
+    CategorySubstitutionRegister(stateMap, within)
   {
-  public:
-    GCSubstitutionRegister(const StateMap& stateMap, bool within = false) :
-      CategorySubstitutionRegister(stateMap, within)
-    {
-      std::map<int, int> categories;
-      categories[0] = 1;
-      categories[1] = 2;
-      categories[2] = 2;
-      categories[3] = 1;
-      setAlphabetCategories<int>(categories);
-    }
+    std::map<int, int> categories;
+    categories[0] = 1;
+    categories[1] = 2;
+    categories[2] = 2;
+    categories[3] = 1;
+    setAlphabetCategories<int>(categories);
+  }
 
-    GCSubstitutionRegister* clone() const { return new GCSubstitutionRegister(*this); }
-  };
+  GCSubstitutionRegister* clone() const { return new GCSubstitutionRegister(*this); }
+};
 
 
 /**
@@ -306,208 +307,211 @@ namespace bpp
  *
  */
 
-  class GCSynonymousSubstitutionRegister :
-    public CategorySubstitutionRegister
+class GCSynonymousSubstitutionRegister :
+  public CategorySubstitutionRegister
+{
+private:
+  const GeneticCode* genCode_;
+
+public:
+  GCSynonymousSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, bool within = false) :
+    CategorySubstitutionRegister(stateMap, within),
+    genCode_(&gencod)
   {
-  private:
-    const GeneticCode* genCode_;
+    const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
 
-  public:
-    GCSynonymousSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, bool within = false) :
-      CategorySubstitutionRegister(stateMap, within),
-      genCode_(&gencod)
+    std::map<int, int> categories;
+    for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
     {
-      const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
-
-      std::map<int, int> categories;
-      for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
+      int n = pCA->getThirdPosition(i);
+      switch (n)
       {
-        int n = pCA->getThirdPosition(i);
-        switch (n)
-        {
-        case 0:
-        case 3:
-          categories[i] = 1;
-          break;
-        case 1:
-        case 2:
-          categories[i] = 2;
-          break;
-        }
-      }
-      setAlphabetCategories<int>(categories);
-    }
-
-    GCSynonymousSubstitutionRegister(const GCSynonymousSubstitutionRegister& reg) :
-      CategorySubstitutionRegister(reg),
-      genCode_(reg.genCode_)
-    {}
-
-    GCSynonymousSubstitutionRegister& operator=(const GCSynonymousSubstitutionRegister& reg)
-    {
-      CategorySubstitutionRegister::operator=(reg);
-      genCode_ = reg.genCode_;
-      return *this;
-    }
-
-    GCSynonymousSubstitutionRegister* clone() const { return new GCSynonymousSubstitutionRegister(*this); }
-
-  public:
-    size_t getType(size_t fromState, size_t toState) const
-    {
-      int x = getStateMap().getAlphabetStateAsInt(fromState);
-      int y = getStateMap().getAlphabetStateAsInt(toState);
-      
-      const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
-
-      if (genCode_->isStop(x) || genCode_->isStop( y) || !genCode_->areSynonymous(x, y))
-        return 0;
-
-      // only substitutions between 3rd positions
-
-      if ((pCA->getFirstPosition(x) != pCA->getFirstPosition(y)) ||
-          (pCA->getSecondPosition(x) != pCA->getSecondPosition(y)))
-        return 0;
-
-      size_t fromCat = categories_[fromState];
-      size_t toCat   = categories_[toState];
-
-      if (fromCat > 0 && toCat > 0)
-        return index_[fromCat - 1][toCat - 1];
-      else
-        return 0;
-    }
-
-    std::string getTypeName (size_t type) const
-    {
-      switch(type){
       case 0:
-        return "no AT<->GC substitution or non-synonymous substitution";
-      case 1:
-        return "AT->GC synonymous";
-      case 2:
-        return "GC->AT synonymous";
       case 3:
-        return "AT->AT synonymous";
-      case 4:
-        return "GC->GC synonymous";
-      default:
-        throw Exception("GCSynonymousSubstitutionRegister::getTypeName. Bad substitution type.");
+        categories[i] = 1;
+        break;
+      case 1:
+      case 2:
+        categories[i] = 2;
+        break;
       }
     }
-  };
+    setAlphabetCategories<int>(categories);
+  }
 
+  GCSynonymousSubstitutionRegister(const GCSynonymousSubstitutionRegister& reg) :
+    CategorySubstitutionRegister(reg),
+    genCode_(reg.genCode_)
+  {}
 
-  /**
-   * @brief Distinguishes AT->GC vs GC->AT on given codon position (0, 1, or 2)
-   *
-   * This register has two substitution types, mapped as:
-   * - 0 not a counted substitution
-   * - 1 a AT->GC substitution
-   * - 2 a GC->AT substitution
-   *
-   * Multiple substitutions are forbidden.
-   *
-   */
-
-  class GCPositionSubstitutionRegister :
-    public CategorySubstitutionRegister
+  GCSynonymousSubstitutionRegister& operator=(const GCSynonymousSubstitutionRegister& reg)
   {
-  private:
-    const GeneticCode* genCode_;
-    size_t pos_;
-    
-  public:
-    GCPositionSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, size_t pos, bool within = false) :
-      CategorySubstitutionRegister(stateMap, within),
-      genCode_(&gencod),
-      pos_(pos)
-    {
-      const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+    CategorySubstitutionRegister::operator=(reg);
+    genCode_ = reg.genCode_;
+    return *this;
+  }
 
-      std::map<int, int> categories;
-      for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
+  GCSynonymousSubstitutionRegister* clone() const { return new GCSynonymousSubstitutionRegister(*this); }
+
+public:
+  size_t getType(size_t fromState, size_t toState) const
+  {
+    int x = getStateMap().getAlphabetStateAsInt(fromState);
+    int y = getStateMap().getAlphabetStateAsInt(toState);
+
+    const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+
+    if (genCode_->isStop(x) || genCode_->isStop( y) || !genCode_->areSynonymous(x, y))
+      return 0;
+
+    // only substitutions between 3rd positions
+
+    if ((pCA->getFirstPosition(x) != pCA->getFirstPosition(y)) ||
+        (pCA->getSecondPosition(x) != pCA->getSecondPosition(y)))
+      return 0;
+
+    size_t fromCat = categories_[fromState];
+    size_t toCat   = categories_[toState];
+
+    if (fromCat > 0 && toCat > 0)
+      return index_[fromCat - 1][toCat - 1];
+    else
+      return 0;
+  }
+
+  std::string getTypeName (size_t type) const
+  {
+    switch (type)
+    {
+    case 0:
+      return "no AT<->GC substitution or non-synonymous substitution";
+    case 1:
+      return "AT->GC synonymous";
+    case 2:
+      return "GC->AT synonymous";
+    case 3:
+      return "AT->AT synonymous";
+    case 4:
+      return "GC->GC synonymous";
+    default:
+      throw Exception("GCSynonymousSubstitutionRegister::getTypeName. Bad substitution type.");
+    }
+  }
+};
+
+
+/**
+ * @brief Distinguishes AT->GC vs GC->AT on given codon position (0, 1, or 2)
+ *
+ * This register has two substitution types, mapped as:
+ * - 0 not a counted substitution
+ * - 1 a AT->GC substitution
+ * - 2 a GC->AT substitution
+ *
+ * Multiple substitutions are forbidden.
+ *
+ */
+
+class GCPositionSubstitutionRegister :
+  public CategorySubstitutionRegister
+{
+private:
+  const GeneticCode* genCode_;
+  size_t pos_;
+
+public:
+  GCPositionSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, size_t pos, bool within = false) :
+    CategorySubstitutionRegister(stateMap, within),
+    genCode_(&gencod),
+    pos_(pos)
+  {
+    const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+
+    std::map<int, int> categories;
+    for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
+    {
+      int n = pCA->getNPosition(i, pos_);
+      switch (n)
       {
-        int n = pCA->getNPosition(i, pos_);
-        switch (n)
-        {
-        case 0:
-        case 3:
-          categories[i] = 1;
-          break;
-        case 1:
-        case 2:
-          categories[i] = 2;
-          break;
-        }
-      }
-      setAlphabetCategories<int>(categories);
-    }
-
-    GCPositionSubstitutionRegister(const GCPositionSubstitutionRegister& reg) :
-      CategorySubstitutionRegister(reg),
-      genCode_(reg.genCode_),
-      pos_(reg.pos_)
-    {}
-
-    GCPositionSubstitutionRegister& operator=(const GCPositionSubstitutionRegister& reg)
-    {
-      CategorySubstitutionRegister::operator=(reg);
-      genCode_ = reg.genCode_;
-      pos_ = reg.pos_;
-      return *this;
-    }
-
-    GCPositionSubstitutionRegister* clone() const { return new GCPositionSubstitutionRegister(*this); }
-
-  public:
-    size_t getType(size_t fromState, size_t toState) const
-    {
-      int x = getStateMap().getAlphabetStateAsInt(fromState);
-      int y = getStateMap().getAlphabetStateAsInt(toState);
-      
-      const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
-
-      if (genCode_->isStop(x) || genCode_->isStop(y))
-        return 0;
-
-      // only substitutions between Nth positions
-
-      for (size_t pos=0; pos<3; pos++)
-        if (pos!=pos_)
-          if (pCA->getNPosition(x, pos) != pCA->getNPosition(y, pos))
-            return 0;
-
-      size_t fromCat = categories_[fromState];
-      size_t toCat   = categories_[toState];
-
-      if (fromCat > 0 && toCat > 0)
-        return index_[fromCat - 1][toCat - 1];
-      else
-        return 0;
-    }
-
-    std::string getTypeName (size_t type) const
-    {
-      auto p(TextTools::toString(pos_+1));
-      
-      switch(type){
       case 0:
-        return "no AT"+p+"<->GC"+p+" substitution";
-      case 1:
-        return "AT"+p+"->GC"+p;
-      case 2:
-        return "GC"+p+"->AT"+p;
       case 3:
-        return "AT"+p+"->AT"+p;
-      case 4:
-        return "GC"+p+"->GC"+p;
-      default:
-        throw Exception("GCPositionSubstitutionRegister::getTypeName. Bad substitution type.");
+        categories[i] = 1;
+        break;
+      case 1:
+      case 2:
+        categories[i] = 2;
+        break;
       }
     }
-  };
+    setAlphabetCategories<int>(categories);
+  }
 
+  GCPositionSubstitutionRegister(const GCPositionSubstitutionRegister& reg) :
+    CategorySubstitutionRegister(reg),
+    genCode_(reg.genCode_),
+    pos_(reg.pos_)
+  {}
+
+  GCPositionSubstitutionRegister& operator=(const GCPositionSubstitutionRegister& reg)
+  {
+    CategorySubstitutionRegister::operator=(reg);
+    genCode_ = reg.genCode_;
+    pos_ = reg.pos_;
+    return *this;
+  }
+
+  GCPositionSubstitutionRegister* clone() const { return new GCPositionSubstitutionRegister(*this); }
+
+public:
+  size_t getType(size_t fromState, size_t toState) const
+  {
+    int x = getStateMap().getAlphabetStateAsInt(fromState);
+    int y = getStateMap().getAlphabetStateAsInt(toState);
+
+    const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+
+    if (genCode_->isStop(x) || genCode_->isStop(y))
+      return 0;
+
+    // only substitutions between Nth positions
+
+    for (size_t pos = 0; pos < 3; pos++)
+    {
+      if (pos != pos_)
+        if (pCA->getNPosition(x, pos) != pCA->getNPosition(y, pos))
+          return 0;
+    }
+
+    size_t fromCat = categories_[fromState];
+    size_t toCat   = categories_[toState];
+
+    if (fromCat > 0 && toCat > 0)
+      return index_[fromCat - 1][toCat - 1];
+    else
+      return 0;
+  }
+
+  std::string getTypeName (size_t type) const
+  {
+    auto p(TextTools::toString(pos_ + 1));
+
+    switch (type)
+    {
+    case 0:
+      return "no AT" + p + "<->GC" + p + " substitution";
+    case 1:
+      return "AT" + p + "->GC" + p;
+    case 2:
+      return "GC" + p + "->AT" + p;
+    case 3:
+      return "AT" + p + "->AT" + p;
+    case 4:
+      return "GC" + p + "->GC" + p;
+    default:
+      throw Exception("GCPositionSubstitutionRegister::getTypeName. Bad substitution type.");
+    }
+  }
+};
 } // end of namespace bpp.
 
-#endif // _CATEGORY_SUBSTITUTIONREGISTER_H_
+#endif// _CATEGORY_SUBSTITUTIONREGISTER_H_

@@ -91,10 +91,13 @@ void AbstractTreeParsimonyScore::init_(const SiteContainer& data, bool verbose)
   data_ = dynamic_cast<const SiteContainer*>(PatternTools::getSequenceSubset(data, *tree_->getRootNode()));
   if (!data_)
     throw Exception("AbstractTreeParsimonyScore::init_ : Data must be plain alignments.");
-  
-  if (data_->getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
-  if (data_->getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
-  if (data_->getAlphabet()->getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
+
+  if (data_->getNumberOfSequences() == 1)
+    throw Exception("Error, only 1 sequence!");
+  if (data_->getNumberOfSequences() == 0)
+    throw Exception("Error, no sequence!");
+  if (data_->getAlphabet()->getSize() > 20)
+    throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
 }
 
 std::vector<unsigned int> AbstractTreeParsimonyScore::getScorePerSite() const
@@ -106,4 +109,3 @@ std::vector<unsigned int> AbstractTreeParsimonyScore::getScorePerSite() const
   }
   return scores;
 }
-

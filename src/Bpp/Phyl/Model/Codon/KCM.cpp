@@ -49,34 +49,36 @@ using namespace std;
 /******************************************************************************/
 
 KCM::KCM(const GeneticCode* gc, bool oneModel) :
-  AbstractBiblioTransitionModel("KCM"+string(oneModel?"7":"19")+"."),
-  AbstractBiblioSubstitutionModel("KCM"+string(oneModel?"7":"19")+"."),
+  AbstractBiblioTransitionModel("KCM" + string(oneModel ? "7" : "19") + "."),
+  AbstractBiblioSubstitutionModel("KCM" + string(oneModel ? "7" : "19") + "."),
   pmodel_(),
   oneModel_(oneModel)
 {
-  const NucleicAlphabet* nalph=dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet();
-  
+  const NucleicAlphabet* nalph = dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet();
+
   if (oneModel)
     pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(gc, new GTR(nalph)));
   else
     pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(gc, new GTR(nalph), new GTR(nalph), new GTR(nalph)));
 
-  string name="KCM"+string(oneModel?"7":"19")+".";
+  string name = "KCM" + string(oneModel ? "7" : "19") + ".";
 
   pmodel_->setNamespace(name);
 
   addParameters_(pmodel_->getParameters());
 
-  getParameter_("beta").setName(name+"omega"),
-  
+  getParameter_("beta").setName(name + "omega"),
+
   lParPmodel_.addParameters(pmodel_->getParameters());
 
   vector<std::string> v = lParPmodel_.getParameterNames();
 
   for (size_t i = 0; i < v.size(); i++)
+  {
     mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
+  }
 
-  mapParNamesFromPmodel_[name+"beta"] = "omega";
+  mapParNamesFromPmodel_[name + "beta"] = "omega";
 
   updateMatrices();
 }
@@ -93,8 +95,7 @@ KCM& KCM::operator=(const KCM& kcm)
 {
   AbstractBiblioSubstitutionModel::operator=(kcm);
 
-  oneModel_=kcm.oneModel_;
+  oneModel_ = kcm.oneModel_;
   pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(*kcm.pmodel_));
   return *this;
 }
-

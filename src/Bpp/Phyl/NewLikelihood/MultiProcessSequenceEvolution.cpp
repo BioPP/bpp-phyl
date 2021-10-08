@@ -54,9 +54,9 @@ MultiProcessSequenceEvolution::MultiProcessSequenceEvolution(
 {
   // initialize parameters:
 
-  for (size_t i=0; i<nProc_.size(); i++)
+  for (size_t i = 0; i < nProc_.size(); i++)
   {
-    includeParameters_(processColl_->getSubstitutionProcessParameters(nProc_[i],true));
+    includeParameters_(processColl_->getSubstitutionProcessParameters(nProc_[i], true));
   }
 }
 
@@ -72,19 +72,23 @@ void MultiProcessSequenceEvolution::fireParameterChanged(const ParameterList& pa
 ParameterList MultiProcessSequenceEvolution::getSubstitutionProcessParameters(bool independent) const
 {
   ParameterList pl;
-  
-  for (size_t i=0; i<nProc_.size(); i++)
+
+  for (size_t i = 0; i < nProc_.size(); i++)
+  {
     pl.includeParameters(processColl_->getSubstitutionProcessParameters(nProc_[i], independent));
+  }
 
   return pl;
 }
 
 ParameterList MultiProcessSequenceEvolution::getSubstitutionModelParameters(bool independent) const
-{ 
+{
   ParameterList pl;
-  
-  for (size_t i=0; i<nProc_.size(); i++)
+
+  for (size_t i = 0; i < nProc_.size(); i++)
+  {
     pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i]).getSubstitutionModelParameters(independent));
+  }
 
   return pl;
 }
@@ -92,9 +96,11 @@ ParameterList MultiProcessSequenceEvolution::getSubstitutionModelParameters(bool
 ParameterList MultiProcessSequenceEvolution::getRateDistributionParameters(bool independent) const
 {
   ParameterList pl;
-  
-  for (size_t i=0; i<nProc_.size(); i++)
+
+  for (size_t i = 0; i < nProc_.size(); i++)
+  {
     pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i]).getRateDistributionParameters(independent));
+  }
 
   return pl;
 }
@@ -102,19 +108,23 @@ ParameterList MultiProcessSequenceEvolution::getRateDistributionParameters(bool 
 ParameterList MultiProcessSequenceEvolution::getRootFrequenciesParameters(bool independent) const
 {
   ParameterList pl;
-  
-  for (size_t i=0; i<nProc_.size(); i++)
+
+  for (size_t i = 0; i < nProc_.size(); i++)
+  {
     pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i]).getRootFrequenciesParameters(independent));
+  }
 
   return pl;
 }
 
 ParameterList MultiProcessSequenceEvolution::getBranchLengthParameters(bool independent) const
-{ 
+{
   ParameterList pl;
-  
-  for (size_t i=0; i<nProc_.size(); i++)
+
+  for (size_t i = 0; i < nProc_.size(); i++)
+  {
     pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i]).getBranchLengthParameters(independent));
+  }
 
   return pl;
 }
@@ -122,12 +132,14 @@ ParameterList MultiProcessSequenceEvolution::getBranchLengthParameters(bool inde
 ParameterList MultiProcessSequenceEvolution::getNonDerivableParameters() const
 {
   ParameterList pl;
-  
-  for (size_t i=0; i<nProc_.size(); i++)
+
+  for (size_t i = 0; i < nProc_.size(); i++)
+  {
     pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i]).getNonDerivableParameters());
+  }
 
   pl.includeParameters(getAliasedParameters(pl));
-  
+
   return pl;
 }
 
@@ -144,11 +156,11 @@ void MultiProcessSequenceEvolution::setParameters(const ParameterList& parameter
 
 bool MultiProcessSequenceEvolution::isCompatibleWith(const AlignedValuesContainer& data) const
 {
-  for (size_t i=0; i<nProc_.size(); i++)
-    if ( !processColl_->getSubstitutionProcess(nProc_[i]).isCompatibleWith(data))
+  for (size_t i = 0; i < nProc_.size(); i++)
+  {
+    if (!processColl_->getSubstitutionProcess(nProc_[i]).isCompatibleWith(data))
       return false;
-  
+  }
+
   return true;
 }
-
-

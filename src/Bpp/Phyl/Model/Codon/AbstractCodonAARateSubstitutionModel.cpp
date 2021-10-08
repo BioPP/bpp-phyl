@@ -63,7 +63,7 @@ AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
   addParameter_(new Parameter(prefix + "beta", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 
   pAAmodel_->enableEigenDecomposition(false);
-  
+
   pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
   addParameters_(pAAmodel_->getParameters());
 }
@@ -81,9 +81,8 @@ void AbstractCodonAARateSubstitutionModel::fireParameterChanged(const ParameterL
 double AbstractCodonAARateSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
-  
-  return pgencode_->areSynonymous(si,sj) ? gamma_ :
-    beta_ * pAAmodel_->Qij(pAAmodel_->getModelStates(pgencode_->translate(si))[0],
-                           pAAmodel_->getModelStates(pgencode_->translate(sj))[0]);
-}
 
+  return pgencode_->areSynonymous(si, sj) ? gamma_ :
+         beta_* pAAmodel_->Qij(pAAmodel_->getModelStates(pgencode_->translate(si))[0],
+                               pAAmodel_->getModelStates(pgencode_->translate(sj))[0]);
+}

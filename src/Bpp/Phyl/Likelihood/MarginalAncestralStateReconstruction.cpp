@@ -143,18 +143,18 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
   const Node* node,
   map<uint, vector<size_t> >& ancestors,
   AlignedValuesContainer& data) const
-{  
+{
   if (node->isLeaf())
   {
-    const SiteContainer* sc=dynamic_cast<const SiteContainer*>(&data);
+    const SiteContainer* sc = dynamic_cast<const SiteContainer*>(&data);
     if (sc)
     {
       const Sequence& seq = sc->getSequence(node->getName());
       vector<size_t>* v = &ancestors[(uint)node->getId()];
       v->resize(seq.size());
-    // This is a tricky way to store the real sequence as an ancestral one...
-    // In case of Markov Modulated models, we consider that the real sequences
-    // Are all in the first category.
+      // This is a tricky way to store the real sequence as an ancestral one...
+      // In case of Markov Modulated models, we consider that the real sequences
+      // Are all in the first category.
       const TransitionModel* model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
       for (size_t i = 0; i < seq.size(); i++)
       {
@@ -188,4 +188,3 @@ AlignedSequenceContainer* MarginalAncestralStateReconstruction::getAncestralSequ
   }
   return asc;
 }
-

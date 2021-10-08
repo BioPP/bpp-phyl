@@ -57,25 +57,28 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
   if (dynamic_cast<CodonFromUniqueFrequencySet*>(pCFS)
-   || dynamic_cast<CodonFromIndependentFrequencySet*>(pCFS))
+      || dynamic_cast<CodonFromIndependentFrequencySet*>(pCFS))
     posfreqset_.reset(dynamic_cast<WordFrequencySet*>(pfreq->clone()));
   else
   {
-    vector<std::shared_ptr<FrequencySet>> vFS;
-    if (dynamic_cast<FixedCodonFrequencySet*>(pCFS)) {
+    vector<std::shared_ptr<FrequencySet> > vFS;
+    if (dynamic_cast<FixedCodonFrequencySet*>(pCFS))
+    {
       for (unsigned int i = 0; i < 3; i++)
       {
         vFS.push_back(std::make_shared<FixedNucleotideFrequencySet>(pCFS->getCodonAlphabet()->getNucleicAlphabet()));
       }
-    } else {
+    }
+    else
+    {
       for (unsigned int i = 0; i < 3; i++)
       {
         vFS.push_back(std::make_shared<FullNucleotideFrequencySet>(pCFS->getCodonAlphabet()->getNucleicAlphabet()));
       }
     }
     posfreqset_.reset(new CodonFromIndependentFrequencySet(
-        pCFS->getGeneticCode(),
-        vFS, ""));
+                        pCFS->getGeneticCode(),
+                        vFS, ""));
 
     posfreqset_->setFrequencies(pfreq->getFrequencies());
   }
@@ -87,8 +90,7 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
 }
 
 AbstractCodonPhaseFrequenciesSubstitutionModel::~AbstractCodonPhaseFrequenciesSubstitutionModel()
-{
-}
+{}
 
 void AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
@@ -116,4 +118,3 @@ double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(size_t i
   }
   return x;
 }
-

@@ -48,7 +48,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief A class to compute the average of several
  * DRHomogeneousTreeLikelihood defined from a Mixed Substitution
@@ -66,9 +65,9 @@ private:
 
   // true if the root Array should be computed (for ancestral
   // reconstruction)
-  
+
   bool rootArray_;
-  
+
 public:
   /**
    * @brief Build a new DRHomogeneousMixedTreeLikelihood object without
@@ -139,7 +138,7 @@ public:
    */
   double getLikelihood() const;
   double getLogLikelihood() const;
-  
+
   void setData(const AlignedValuesContainer& sites);
   double getLikelihoodForASite (size_t site) const;
   double getLogLikelihoodForASite(size_t site) const;
@@ -212,5 +211,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif  // _DRHOMOGENEOUSMIXEDTREELIKELIHOOD_H_
-
+#endif// _DRHOMOGENEOUSMIXEDTREELIKELIHOOD_H_

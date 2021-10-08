@@ -50,7 +50,7 @@ using namespace bpp;
 /******************************************************************************/
 
 NodePException::NodePException(const std::string& text, const Node* node) :
-    NodeException(text, node->getId()), node_(node)
+  NodeException(text, node->getId()), node_(node)
 {}
 
 /******************************************************************************/
@@ -75,4 +75,3 @@ UnrootedTreeException::UnrootedTreeException(const std::string& text, const Tree
   TreeException("UnrootedTreeException: " + text, tree) {}
 
 /******************************************************************************/
-

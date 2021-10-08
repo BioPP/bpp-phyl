@@ -51,19 +51,18 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizablePhyloTree
   if (!tree)
     throw Exception("AbstractSubstitutionProcess. A tree instance must be provided.");
 }
- 
+
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
   pTree_(asp.pTree_->clone()),
   nbClasses_(asp.nbClasses_),
   modelScenario_(asp.modelScenario_) // this has to be specified by inheriting class to follow model links
-{
-}
+{}
 
 AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const AbstractSubstitutionProcess& asp)
 {
   AbstractParameterAliasable::operator=(*this);
-  
+
   pTree_.reset(pTree_->clone());
   nbClasses_ = asp.nbClasses_;
   modelScenario_ = asp.modelScenario_; // this has to be specified by inheriting class to follow model links
@@ -72,7 +71,7 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
 
 ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
 {
-  ParameterList pl=getSubstitutionModelParameters(true);
+  ParameterList pl = getSubstitutionModelParameters(true);
   pl.includeParameters(getRootFrequenciesParameters(true));
   pl.includeParameters(getRateDistributionParameters(true));
 
@@ -84,9 +83,8 @@ ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
 
 void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-  ParameterList gAP=getAliasedParameters(pl);
+  ParameterList gAP = getAliasedParameters(pl);
   gAP.addParameters(pl);
 
   pTree_->matchParametersValues(gAP);
 }
-

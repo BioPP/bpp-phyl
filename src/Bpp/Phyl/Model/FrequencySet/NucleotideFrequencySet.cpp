@@ -57,19 +57,19 @@ FullNucleotideFrequencySet::FullNucleotideFrequencySet(
   AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
 {
   addParameter_(new Parameter(
-    "Full.theta", 0.5,
-    allowNullFreqs ?
-    Parameter::PROP_CONSTRAINT_IN :
-    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+                  "Full.theta", 0.5,
+                  allowNullFreqs ?
+                  Parameter::PROP_CONSTRAINT_IN :
+                  FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter(
-    "Full.theta1", 0.5,
-    allowNullFreqs ?
-    Parameter::PROP_CONSTRAINT_IN :
-    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+                  "Full.theta1", 0.5,
+                  allowNullFreqs ?
+                  Parameter::PROP_CONSTRAINT_IN :
+                  FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter("Full.theta2", 0.5,
-                    allowNullFreqs ?
-                    Parameter::PROP_CONSTRAINT_IN :
-                    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+                              allowNullFreqs ?
+                              Parameter::PROP_CONSTRAINT_IN :
+                              FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
 
@@ -79,32 +79,33 @@ FullNucleotideFrequencySet::FullNucleotideFrequencySet(
   AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
 {
   addParameter_(new Parameter(
-    "Full.theta",
-    theta,
-    allowNullFreqs ?
-    Parameter::PROP_CONSTRAINT_IN :
-    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+                  "Full.theta",
+                  theta,
+                  allowNullFreqs ?
+                  Parameter::PROP_CONSTRAINT_IN :
+                  FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter(
-    "Full.theta1",
-    theta1,
-    allowNullFreqs ?
-    Parameter::PROP_CONSTRAINT_IN :
-    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+                  "Full.theta1",
+                  theta1,
+                  allowNullFreqs ?
+                  Parameter::PROP_CONSTRAINT_IN :
+                  FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter(
-    "Full.theta2",
-    theta2,
-    allowNullFreqs ?
-    Parameter::PROP_CONSTRAINT_IN :
-    Parameter::PROP_CONSTRAINT_EX));
+                  "Full.theta2",
+                  theta2,
+                  allowNullFreqs ?
+                  Parameter::PROP_CONSTRAINT_IN :
+                  Parameter::PROP_CONSTRAINT_EX));
   getFreq_(0) = theta1 * (1. - theta);
   getFreq_(1) = (1 - theta2) * theta;
   getFreq_(2) = theta2 * theta;
   getFreq_(3) = (1 - theta1) * (1. - theta);
 }
 
-void FullNucleotideFrequencySet::setFrequencies(const vector<double>& frequencies) 
+void FullNucleotideFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
-  if (frequencies.size() != 4) throw DimensionException(" FullNucleotideFrequencySet::setFrequencies", frequencies.size(), 4);
+  if (frequencies.size() != 4)
+    throw DimensionException(" FullNucleotideFrequencySet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;
   for (unsigned int i = 0; i < 4; i++)
   {
@@ -134,9 +135,10 @@ void FullNucleotideFrequencySet::fireParameterChanged(const ParameterList& param
 // /////////////////////////////////////////
 // GCFrequencySet
 
-void GCFrequencySet::setFrequencies(const vector<double>& frequencies) 
+void GCFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
-  if (frequencies.size() != 4) throw DimensionException("GCFrequencySet::setFrequencies", frequencies.size(), 4);
+  if (frequencies.size() != 4)
+    throw DimensionException("GCFrequencySet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;
   for (unsigned int i = 0; i < 4; i++)
   {
@@ -157,5 +159,3 @@ void GCFrequencySet::fireParameterChanged(const ParameterList& parameters)
   getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
   getFreq_(1) = getFreq_(2) = theta / 2.;
 }
-
-

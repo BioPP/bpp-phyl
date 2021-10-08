@@ -6,37 +6,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use, 
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or 
-  data to be ensured and,  more generally, to use and operate it in the 
-  same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _NODETEMPLATE_H_
 #define _NODETEMPLATE_H_
@@ -45,7 +45,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief The NodeTemplate class.
  *
@@ -69,130 +68,128 @@ namespace bpp
  *
  * @see Node, TreeTemplate
  */
-  template<class NodeInfos>
-  class NodeTemplate :
-    public Node
+template<class NodeInfos>
+class NodeTemplate :
+  public Node
+{
+  friend class TreeTemplateTools;
+
+private:
+  NodeInfos infos_;
+
+public:
+  /**
+   * @brief Build a new void NodeTemplate object.
+   */
+  NodeTemplate() : Node(), infos_() {}
+
+  /**
+   * @brief Build a new NodeTemplate with specified id.
+   */
+  NodeTemplate(int id) : Node(id), infos_() {}
+
+  /**
+   * @brief Build a new NodeTemplate with specified name.
+   */
+  NodeTemplate(const std::string& name) : Node(name), infos_() {}
+
+  /**
+   * @brief Build a new NodeTemplate with specified id and name.
+   */
+  NodeTemplate(int id, const std::string& name) : Node(id, name), infos_() {}
+
+protected:
+  /**
+   * @brief Copy constructor.
+   *
+   * @param node The node to copy.
+   */
+  NodeTemplate(const Node& node) : Node(node), infos_() {}
+
+  /**
+   * @brief Copy constructor.
+   *
+   * @param node The node to copy.
+   */
+  NodeTemplate(const NodeTemplate<NodeInfos>& node) :
+    Node(node), infos_(node.infos_)
+  {}
+
+  /**
+   * @brief Assignation operator.
+   *
+   * @param node the node to copy.
+   * @return A reference toward this node.
+   */
+  NodeTemplate<NodeInfos>& operator=(const NodeTemplate<NodeInfos>& node)
   {
-    friend class TreeTemplateTools;
+    Node::operator=(node);
+    infos_ = node.infos_;
+    return *this;
+  }
 
-  private:
+  NodeTemplate<NodeInfos>* clone() const { return new NodeTemplate<NodeInfos>(*this); }
 
-    NodeInfos infos_;
+public:
+  virtual ~NodeTemplate() {}
 
-  public:
-		
-    /**	
-     * @brief Build a new void NodeTemplate object.
-     */
-    NodeTemplate() : Node(), infos_() {}
-			
-    /**
-     * @brief Build a new NodeTemplate with specified id.
-     */
-    NodeTemplate(int id) : Node(id), infos_() {}
+public:
+  const NodeTemplate<NodeInfos>* getFather() const { return dynamic_cast<const NodeTemplate<NodeInfos>*>(father_); }
 
-    /**
-     * @brief Build a new NodeTemplate with specified name.
-     */
-    NodeTemplate(const std::string& name) : Node(name), infos_() {}
+  NodeTemplate<NodeInfos>* getFather() { return dynamic_cast<NodeTemplate<NodeInfos>*>(father_); }
 
-    /**
-     * @brief Build a new NodeTemplate with specified id and name.
-     */
-    NodeTemplate(int id, const std::string& name) : Node(id, name), infos_() {}
+  NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos>* f = dynamic_cast<NodeTemplate<NodeInfos>*>(father_); father_ = 0; return f; }
 
-  protected:
-    /**
-     * @brief Copy constructor.
-     * 
-     * @param node The node to copy.
-     */
-    NodeTemplate(const Node& node) : Node(node), infos_() {}
+  const NodeTemplate<NodeInfos>* getSon(size_t i) const { return dynamic_cast<NodeTemplate<NodeInfos>*>(sons_[i]); }
 
-    /**
-     * @brief Copy constructor.
-     * 
-     * @param node The node to copy.
-     */
-    NodeTemplate(const NodeTemplate<NodeInfos>& node):
-      Node(node), infos_(node.infos_)
-    {}
+  NodeTemplate<NodeInfos>* getSon(size_t i) { return dynamic_cast<NodeTemplate<NodeInfos>*>(sons_[i]); }
 
-    /**
-     * @brief Assignation operator.
-     *
-     * @param node the node to copy.
-     * @return A reference toward this node.
-     */
-    NodeTemplate<NodeInfos>& operator=(const NodeTemplate<NodeInfos>& node)
+  std::vector<const NodeTemplate<NodeInfos>*> getNeighbors() const
+  {
+    std::vector<const Node*> neighbors = Node::getNeighbors();
+    std::vector<const NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
+    for (size_t i = 0; i < neighbors.size(); i++)
     {
-      Node::operator=(node);
-      infos_ = node.infos_;
-      return *this;
+      neighbors2[i] = dynamic_cast<const NodeTemplate<NodeInfos>*>(neighbors[i]);
     }
+    return neighbors2;
+  }
 
-    NodeTemplate<NodeInfos>* clone() const { return new NodeTemplate<NodeInfos>(*this); }
-
-  public:
-    virtual ~NodeTemplate() {}
-
-  public:
-
-    const NodeTemplate<NodeInfos>* getFather() const { return dynamic_cast<const NodeTemplate<NodeInfos> *>(father_); }
- 
-    NodeTemplate<NodeInfos>* getFather() { return dynamic_cast<NodeTemplate<NodeInfos> *>(father_); }
-				
-    NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos>* f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = 0; return f; }
-
-    const NodeTemplate<NodeInfos>* getSon(size_t i) const { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
-				
-    NodeTemplate<NodeInfos>* getSon(size_t i) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
-				
-    std::vector<const NodeTemplate<NodeInfos>*> getNeighbors() const
+  std::vector<NodeTemplate<NodeInfos>*> getNeighbors()
+  {
+    std::vector<Node*> neighbors = Node::getNeighbors();
+    std::vector<NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
+    for (size_t i = 0; i < neighbors.size(); i++)
     {
-      std::vector<const Node*> neighbors = Node::getNeighbors();
-      std::vector<const NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
-      for (size_t i = 0; i < neighbors.size(); i++)
-        neighbors2[i] = dynamic_cast<const NodeTemplate<NodeInfos>*>(neighbors[i]);
-      return neighbors2;
+      neighbors2[i] = dynamic_cast<NodeTemplate<NodeInfos>*>(neighbors[i]);
     }
-		
-    std::vector<NodeTemplate<NodeInfos>*> getNeighbors()
-    {
-      std::vector<Node*> neighbors = Node::getNeighbors();
-      std::vector<NodeTemplate<NodeInfos>*> neighbors2(neighbors.size());
-      for (size_t i = 0; i < neighbors.size(); i++)
-        neighbors2[i] = dynamic_cast<NodeTemplate<NodeInfos>*>(neighbors[i]);
-      return neighbors2;
-    }
-		
-    NodeTemplate<NodeInfos>* operator[](int i) { return dynamic_cast<NodeTemplate<NodeInfos>*>((i < 0) ? father_ : sons_[i]); }
-				
-    const NodeTemplate<NodeInfos>* operator[](int i) const { return dynamic_cast<const NodeTemplate<NodeInfos> *>((i < 0) ? father_ : sons_[i]); }
+    return neighbors2;
+  }
+
+  NodeTemplate<NodeInfos>* operator[](int i) { return dynamic_cast<NodeTemplate<NodeInfos>*>((i < 0) ? father_ : sons_[i]); }
+
+  const NodeTemplate<NodeInfos>* operator[](int i) const { return dynamic_cast<const NodeTemplate<NodeInfos>*>((i < 0) ? father_ : sons_[i]); }
 
 
-    // Specific methods:
+  // Specific methods:
 
-    /**
-     * @return A reference toward the information object associated to this node.
-     */
-    virtual const NodeInfos& getInfos() const { return infos_; }
-		
-    /**
-     * @return A reference toward the information object associated to this node.
-     */
-    virtual NodeInfos& getInfos() { return infos_; }
+  /**
+   * @return A reference toward the information object associated to this node.
+   */
+  virtual const NodeInfos& getInfos() const { return infos_; }
 
-    /**
-     * @brief Set the information to be associated to this node.
-     * 
-     * @param infos An information object.
-     */
-    virtual void setInfos(const NodeInfos& infos) { infos_ = infos; }
+  /**
+   * @return A reference toward the information object associated to this node.
+   */
+  virtual NodeInfos& getInfos() { return infos_; }
 
-  };
+  /**
+   * @brief Set the information to be associated to this node.
+   *
+   * @param infos An information object.
+   */
+  virtual void setInfos(const NodeInfos& infos) { infos_ = infos; }
+};
+} // end of namespace bpp.
 
-} //end of namespace bpp.
-
-#endif	//_NODETEMPLATE_H_
-
+#endif//_NODETEMPLATE_H_

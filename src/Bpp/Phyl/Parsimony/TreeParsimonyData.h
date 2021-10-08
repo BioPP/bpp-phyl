@@ -107,5 +107,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif // _TREEPARSIMONYDATA_H_
-
+#endif// _TREEPARSIMONYDATA_H_

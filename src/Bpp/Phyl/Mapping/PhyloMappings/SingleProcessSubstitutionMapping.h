@@ -43,7 +43,7 @@
 #include "../../NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
 #include "../ProbabilisticSubstitutionMapping.h"
 #include "../SubstitutionMappingTools.h"
-//#include "../SubstitutionMappingToolsForASite.h"
+// #include "../SubstitutionMappingToolsForASite.h"
 
 #include "AbstractSinglePhyloSubstitutionMapping.h"
 
@@ -57,101 +57,96 @@ namespace bpp
  *
  */
 
-  class SingleProcessSubstitutionMapping :
-    public AbstractSinglePhyloSubstitutionMapping
+class SingleProcessSubstitutionMapping :
+  public AbstractSinglePhyloSubstitutionMapping
+{
+private:
+  SingleProcessPhyloLikelihood* pSPP_;
+
+  /*
+   * @brief Set the models of the BranchedModelSet to the adhoc
+   * branches, for normalization.
+   *
+   */
+
+  void setBranchedModelSet_();
+
+public:
+  SingleProcessSubstitutionMapping(SingleProcessPhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1, bool verbose = true);
+
+  SingleProcessSubstitutionMapping(const SingleProcessSubstitutionMapping& sppm) :
+    AbstractSinglePhyloSubstitutionMapping(sppm),
+    pSPP_(sppm.pSPP_)
+  {}
+
+  SingleProcessSubstitutionMapping& operator=(const SingleProcessSubstitutionMapping& sppm)
   {
-  private:
-    SingleProcessPhyloLikelihood* pSPP_;
+    AbstractSinglePhyloSubstitutionMapping::operator=(sppm);
+    pSPP_ = sppm.pSPP_;
+    return *this;
+  }
 
-    /*
-     * @brief Set the models of the BranchedModelSet to the adhoc
-     * branches, for normalization.
-     *
-     */
-    
-    void setBranchedModelSet_();
-    
-  public:
-    SingleProcessSubstitutionMapping(SingleProcessPhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1, bool verbose = true);
+  virtual ~SingleProcessSubstitutionMapping() {}
 
-    SingleProcessSubstitutionMapping(const SingleProcessSubstitutionMapping& sppm) :
-      AbstractSinglePhyloSubstitutionMapping(sppm),
-      pSPP_(sppm.pSPP_)
-    {
-    }
+  SingleProcessSubstitutionMapping* clone() const { return new SingleProcessSubstitutionMapping(*this); }
 
-    SingleProcessSubstitutionMapping& operator=(const SingleProcessSubstitutionMapping& sppm)
-    {
-      AbstractSinglePhyloSubstitutionMapping::operator=(sppm);
-      pSPP_ = sppm.pSPP_;
-      return *this;
-    }
+  /*
+   * @brief ComputeCounts
+   *
+   */
+  void computeCounts(double threshold = -1, bool verbose = true)
+  {
+    counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculationSingleProcess(),
+                                                          getRegister(),
+                                                          getWeights(),
+                                                          getDistances(),
+                                                          threshold,
+                                                          verbose));
+  }
 
-    virtual ~SingleProcessSubstitutionMapping() {}
-    
-    SingleProcessSubstitutionMapping* clone() const { return new SingleProcessSubstitutionMapping(*this); }
+  // void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
+  // {
+  //   counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
+  //                   site,
+  //                   getLikelihoodCalculationSingleProcess(),
+  //                   getRegister(),
+  //                   getWeights(),
+  //                   getDistances(),
+  //                   threshold,
+  //                   verbose));
+  // }
 
-    /*
-     * @brief ComputeCounts
-     *
-     */
+  void computeNormalizations(const ParameterList& nullParams,
+                             bool verbose = true);
 
-    void computeCounts(double threshold = -1, bool verbose = true)
-    {
-      counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculationSingleProcess(),
-                                                            getRegister(),
-                                                            getWeights(),
-                                                            getDistances(),
-                                                            threshold,
-                                                            verbose));
-    }
-    
-    // void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
-    // {
-    //   counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
-    //                   site,
-    //                   getLikelihoodCalculationSingleProcess(),
-    //                   getRegister(),
-    //                   getWeights(),
-    //                   getDistances(),
-    //                   threshold,
-    //                   verbose));
-    // }
+  // void computeNormalizationsForASite(size_t site,
+  //                                    const ParameterList& nullParams,
+  //                                    bool verbose = true);
 
-    void computeNormalizations(const ParameterList& nullParams,
-                               bool verbose = true);
+  /*
+   * @brief Return the tree of counts
+   *
+   */
+  size_t getNumberOfModels() const
+  {
+    return pSPP_->getSubstitutionProcess().getNumberOfModels();
+  }
 
-    // void computeNormalizationsForASite(size_t site,
-    //                                    const ParameterList& nullParams,
-    //                                    bool verbose = true);
+  std::vector<size_t> getModelNumbers() const
+  {
+    return pSPP_->getSubstitutionProcess().getModelNumbers();
+  }
 
-    /*
-     * @brief Return the tree of counts
-     *
-     */
+  LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess()
+  {
+    return *pSPP_->getLikelihoodCalculationSingleProcess();
+  }
 
-    size_t getNumberOfModels() const
-    {
-      return pSPP_->getSubstitutionProcess().getNumberOfModels();
-    }
-
-    std::vector<size_t> getModelNumbers() const
-    {
-      return pSPP_->getSubstitutionProcess().getModelNumbers();
-    }
-        
-    LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess()
-    {
-      return *pSPP_->getLikelihoodCalculationSingleProcess();
-    }
-
-    const LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess() const
-    {
-      return *pSPP_->getLikelihoodCalculationSingleProcess();
-    }
-
-  };
-  
+  const LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess() const
+  {
+    return *pSPP_->getLikelihoodCalculationSingleProcess();
+  }
+};
 } // end of namespace bpp.
 
-#endif  // _SINGLE_PROCESS_SUBSTITUTION_MAPPING_H_
+#endif// _SINGLE_PROCESS_SUBSTITUTION_MAPPING_H_

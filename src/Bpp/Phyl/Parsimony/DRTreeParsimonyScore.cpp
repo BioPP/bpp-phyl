@@ -128,7 +128,8 @@ void DRTreeParsimonyScore::computeScores()
 
 void DRTreeParsimonyScore::computeScoresPostorder(const Node* node)
 {
-  if (node->isLeaf()) return;
+  if (node->isLeaf())
+    return;
   DRTreeParsimonyNodeData* pData = &parsimonyData_->getNodeData(node->getId());
   for (unsigned int k = 0; k < node->getNumberOfSons(); k++)
   {
@@ -180,7 +181,8 @@ void DRTreeParsimonyScore::computeScoresPostorderForNode(const DRTreeParsimonyNo
 
 void DRTreeParsimonyScore::computeScoresPreorder(const Node* node)
 {
-  if (node->getNumberOfSons() == 0) return;
+  if (node->getNumberOfSons() == 0)
+    return;
   DRTreeParsimonyNodeData* pData = &parsimonyData_->getNodeData(node->getId());
   if (node->hasFather())
   {
@@ -311,9 +313,11 @@ void DRTreeParsimonyScore::computeScoresFromArrays(
 double DRTreeParsimonyScore::testNNI(int nodeId) const
 {
   const Node* son = getTreeP_()->getNode(nodeId);
-  if (!son->hasFather()) throw NodePException("DRTreeParsimonyScore::testNNI(). Node 'son' must not be the root node.", son);
+  if (!son->hasFather())
+    throw NodePException("DRTreeParsimonyScore::testNNI(). Node 'son' must not be the root node.", son);
   const Node* parent = son->getFather();
-  if (!parent->hasFather()) throw NodePException("DRTreeParsimonyScore::testNNI(). Node 'parent' must not be the root node.", parent);
+  if (!parent->hasFather())
+    throw NodePException("DRTreeParsimonyScore::testNNI(). Node 'parent' must not be the root node.", parent);
   const Node* grandFather = parent->getFather();
   // From here: Bifurcation assumed.
   // In case of multifurcation, an arbitrary uncle is chosen.
@@ -383,9 +387,11 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const
 void DRTreeParsimonyScore::doNNI(int nodeId)
 {
   Node* son = getTreeP_()->getNode(nodeId);
-  if (!son->hasFather()) throw NodePException("DRTreeParsimonyScore::doNNI(). Node 'son' must not be the root node.", son);
+  if (!son->hasFather())
+    throw NodePException("DRTreeParsimonyScore::doNNI(). Node 'son' must not be the root node.", son);
   Node* parent = son->getFather();
-  if (!parent->hasFather()) throw NodePException("DRTreeParsimonyScore::doNNI(). Node 'parent' must not be the root node.", parent);
+  if (!parent->hasFather())
+    throw NodePException("DRTreeParsimonyScore::doNNI(). Node 'parent' must not be the root node.", parent);
   Node* grandFather = parent->getFather();
   // From here: Bifurcation assumed.
   // In case of multifurcation, an arbitrary uncle is chosen.
@@ -402,24 +408,24 @@ void DRTreeParsimonyScore::doNNI(int nodeId)
 /******************************************************************************/
 
 // /******************************************************************************/
-// 
+//
 // void DRTreeParsimonyScore::setNodeState(Node* node, size_t state)
 // {
 //     Number<size_t>* stateProperty = new Number<size_t>(state);
 //     node->setNodeProperty(STATE, *stateProperty);
-//     delete stateProperty; 
+//     delete stateProperty;
 // }
-// 
+//
 // /******************************************************************************/
-// 
+//
 // size_t DRTreeParsimonyScore::getNodeState(const Node* node)
 // {
 //   return (dynamic_cast<const Number<size_t>*>(node->getNodeProperty(STATE)))->getValue(); // exception on root on the true history - why didn't the root recieve a state?
 // }
-// 
+//
 // /******************************************************************************/
-// 
-// void DRTreeParsimonyScore::computeSolution() 
+//
+// void DRTreeParsimonyScore::computeSolution()
 // {
 //   map< int, vector<size_t> > nodeToPossibleStates;
 //   TreeTemplate<Node>* tree = getTreeP_();
@@ -461,12 +467,12 @@ void DRTreeParsimonyScore::doNNI(int nodeId)
 //     }
 //     nodeToPossibleStates[nodes[n]->getId()] = possibleStates;
 //   }
-// 
+//
 //   // set states for the nodes according to their possible assignments and parent state
 //   TreeIterator* treeIt = new PreOrderTreeIterator(*tree);
 //   for (const Node* node = treeIt->begin(); node != treeIt->end(); node = treeIt->next())
 //   {
-//     size_t nodeState; 
+//     size_t nodeState;
 //     vector<size_t> possibleStates = nodeToPossibleStates[node->getId()];
 //     if (possibleStates.size() == 1)
 //     {
@@ -474,7 +480,7 @@ void DRTreeParsimonyScore::doNNI(int nodeId)
 //     }
 //     else if (node->hasFather()) // if the node has a father -> set its state according to its father's state
 //     {
-//       nodeState = getNodeState(node->getFather()); 
+//       nodeState = getNodeState(node->getFather());
 //     }
 //     else                       // if there is no restriction from the father -> set the state randomely
 //     {
@@ -484,4 +490,3 @@ void DRTreeParsimonyScore::doNNI(int nodeId)
 //   }
 //   delete treeIt;
 // }
-

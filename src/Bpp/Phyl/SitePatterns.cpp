@@ -63,8 +63,8 @@ SitePatterns::SitePatterns(const AlignedValuesContainer* sequences, bool own) :
   vector<SortableSite> ss(nbSites);
   for (size_t i = 0; i < nbSites; i++)
   {
-    const CruxSymbolListSite* currentSite = own?sequences->getSymbolListSite(i).clone():&sequences->getSymbolListSite(i);
-    
+    const CruxSymbolListSite* currentSite = own ? sequences->getSymbolListSite(i).clone() : &sequences->getSymbolListSite(i);
+
     SortableSite* ssi = &ss[i];
     ssi->siteS = currentSite->toString();
     ssi->siteP = currentSite;
@@ -112,19 +112,18 @@ SitePatterns::SitePatterns(const AlignedValuesContainer* sequences, bool own) :
 
 std::shared_ptr<AlignedValuesContainer> SitePatterns::getSites() const
 {
-  if (sites_.size()==0)
+  if (sites_.size() == 0)
     throw Exception("SitePatterns::getSites : empty set.");
 
   AlignedValuesContainer* sites;
-  
+
   if (dynamic_cast<const Site*>(sites_[0]))
     sites = new VectorSiteContainer(sites_, alpha_);
   else
     sites = new VectorProbabilisticSiteContainer(sites_, alpha_);
-  
+
   sites->setSequencesNames(names_, false);
   return std::shared_ptr<AlignedValuesContainer>(sites);
 }
 
 /******************************************************************************/
-

@@ -114,5 +114,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif // _ABSTRACTTREEPARSIMONYDATA_H_
-
+#endif// _ABSTRACTTREEPARSIMONYDATA_H_

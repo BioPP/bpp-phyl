@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
 #define _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
@@ -67,104 +67,101 @@ namespace bpp
  *
  */
 
-  class AbstractCodonAARateSubstitutionModel :
-    public virtual CoreCodonSubstitutionModel,
-    public virtual AbstractParameterAliasable
+class AbstractCodonAARateSubstitutionModel :
+  public virtual CoreCodonSubstitutionModel,
+  public virtual AbstractParameterAliasable
+{
+private:
+  std::shared_ptr<ProteinSubstitutionModel> pAAmodel_;
+
+  const GeneticCode* pgencode_;
+
+  double beta_;
+
+  double gamma_;
+
+  std::shared_ptr<const StateMap> stateMap_;
+
+public:
+  /**
+   * @brief Build a new AbstractCodonAARateSubstitutionModel object from
+   *  a pointer to NucleotideSubstitutionModel.
+   *
+   * @param pmodel shared_ptr to an amino_acid generator
+   * @param pgencode the genetic code
+   * @param prefix the Namespace
+   * @param paramSynRate is true iff synonymous rate is parameterised
+   *       (default=false).
+   */
+
+  AbstractCodonAARateSubstitutionModel(
+    std::shared_ptr<ProteinSubstitutionModel> pmodel,
+    const GeneticCode* pgencode,
+    const std::string& prefix,
+    bool paramSynRate = false);
+
+
+  AbstractCodonAARateSubstitutionModel(const AbstractCodonAARateSubstitutionModel& model) :
+    AbstractParameterAliasable(model),
+    pAAmodel_(model.pAAmodel_),
+    pgencode_(model.pgencode_),
+    beta_(model.beta_),
+    gamma_(model.gamma_),
+    stateMap_(model.stateMap_)
+  {}
+
+  AbstractCodonAARateSubstitutionModel& operator=(
+    const AbstractCodonAARateSubstitutionModel& model)
   {
-  private:
-    std::shared_ptr<ProteinSubstitutionModel> pAAmodel_;
+    AbstractParameterAliasable::operator=(model);
+    pAAmodel_ = model.pAAmodel_;
+    pgencode_ = model.pgencode_;
+    beta_ = model.beta_;
+    gamma_ = model.gamma_;
+    stateMap_ = model.stateMap_;
 
-    const GeneticCode* pgencode_;
-    
-    double beta_;
+    return *this;
+  }
 
-    double gamma_;
+  AbstractCodonAARateSubstitutionModel* clone() const
+  {
+    return new AbstractCodonAARateSubstitutionModel(*this);
+  }
 
-    std::shared_ptr<const StateMap> stateMap_;
-    
-  public:
-    /**
-     * @brief Build a new AbstractCodonAARateSubstitutionModel object from
-     *  a pointer to NucleotideSubstitutionModel.
-     *
-     * @param pmodel shared_ptr to an amino_acid generator
-     * @param pgencode the genetic code
-     * @param prefix the Namespace
-     * @param paramSynRate is true iff synonymous rate is parameterised
-     *       (default=false).
-     */
-    
-    AbstractCodonAARateSubstitutionModel(
-      std::shared_ptr<ProteinSubstitutionModel> pmodel,
-      const GeneticCode* pgencode,
-      const std::string& prefix,
-      bool paramSynRate = false);
-  
+  virtual ~AbstractCodonAARateSubstitutionModel() {}
 
-    AbstractCodonAARateSubstitutionModel(const AbstractCodonAARateSubstitutionModel& model) :
-      AbstractParameterAliasable(model),
-      pAAmodel_(model.pAAmodel_),
-      pgencode_(model.pgencode_),
-      beta_(model.beta_),
-      gamma_(model.gamma_),
-      stateMap_(model.stateMap_)
-    {}
+public:
+  void fireParameterChanged(const ParameterList& parameters);
 
-    AbstractCodonAARateSubstitutionModel& operator=(
-      const AbstractCodonAARateSubstitutionModel& model)
-    {
-      AbstractParameterAliasable::operator=(model);
-      pAAmodel_ = model.pAAmodel_;
-      pgencode_ = model.pgencode_;
-      beta_ = model.beta_;
-      gamma_ = model.gamma_;
-      stateMap_ = model.stateMap_;
-      
-      return *this;
-    }
+  double getCodonsMulRate(size_t i, size_t j) const;
 
-    AbstractCodonAARateSubstitutionModel* clone() const
-    {
-      return new AbstractCodonAARateSubstitutionModel(*this);
-    }
+  void setNamespace(const std::string& prefix)
+  {
+    AbstractParameterAliasable::setNamespace(prefix);
+    pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
+  }
 
-    virtual ~AbstractCodonAARateSubstitutionModel() {}
+  /*
+   * @brief links to a new AA model
+   *
+   */
+  void setAAModel(std::shared_ptr<ProteinSubstitutionModel> model)
+  {
+    pAAmodel_ = model;
+  }
 
-  public:
-    void fireParameterChanged(const ParameterList& parameters);
+  const std::shared_ptr<ProteinSubstitutionModel>  getAAModel() const
+  {
+    return pAAmodel_;
+  }
 
-    double getCodonsMulRate(size_t i, size_t j) const;
+  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  {
+    return 0;
+  }
 
-    void setNamespace(const std::string& prefix)
-    {
-      AbstractParameterAliasable::setNamespace(prefix);
-      pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
-    }
-
-    /*
-     * @brief links to a new AA model
-     *
-     */
-    
-    void setAAModel(std::shared_ptr<ProteinSubstitutionModel> model)
-    {
-      pAAmodel_=model;
-    }
-
-    const std::shared_ptr<ProteinSubstitutionModel>  getAAModel() const
-    {
-      return pAAmodel_;
-    }
-
-    const std::shared_ptr<FrequencySet> getFrequencySet() const 
-    {
-      return 0;
-    }
-
-    void setFreq(std::map<int, double>& frequencies){};
-  };
-
+  void setFreq(std::map<int, double>& frequencies){}
+};
 } // end of namespace bpp.
 
-#endif // _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
-
+#endif// _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_

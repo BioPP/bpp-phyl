@@ -122,7 +122,6 @@ public:
    */
   static std::vector<double> readPairedSiteLikelihoods(const std::string& path);
 };
-
 } // namespace bpp
 
 #endif

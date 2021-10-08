@@ -46,8 +46,7 @@
 
 namespace bpp
 {
-
-  /*********************************************************************/
+/*********************************************************************/
 /****   Frequencies Set in Words *****/
 /*********************************************************************/
 
@@ -65,9 +64,8 @@ class WordFrequencySet :
   public virtual FrequencySet
 {
 protected:
-  
-  virtual size_t getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet>>& freqVector) = 0;
-  
+  virtual size_t getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet> >& freqVector) = 0;
+
 public:
   WordFrequencySet* clone() const = 0;
 
@@ -90,17 +88,17 @@ class AbstractWordFrequencySet :
   public AbstractFrequencySet
 {
 protected:
-  size_t getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet>>& freqVector);
-  
+  size_t getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet> >& freqVector);
+
 public:
-  AbstractWordFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "", const std::string& name="");
+  AbstractWordFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "", const std::string& name = "");
 
   AbstractWordFrequencySet* clone() const = 0;
 
   AbstractWordFrequencySet(const AbstractWordFrequencySet& af) :
     AbstractFrequencySet(af) {}
 
-  AbstractWordFrequencySet & operator=(const AbstractWordFrequencySet& af)
+  AbstractWordFrequencySet& operator=(const AbstractWordFrequencySet& af)
   {
     AbstractFrequencySet::operator=(af);
     return *this;
@@ -112,7 +110,7 @@ public:
   }
 
   virtual ~AbstractWordFrequencySet();
-  
+
   /**
    *@ brief Return the length of the words
    */
@@ -126,10 +124,10 @@ public:
  * @author Laurent Guéguen
  */
 class WordFromIndependentFrequencySet :
-    public AbstractWordFrequencySet
+  public AbstractWordFrequencySet
 {
 protected:
-  std::vector<std::shared_ptr<FrequencySet>> vFreq_;
+  std::vector<std::shared_ptr<FrequencySet> > vFreq_;
   std::vector<std::string> vNestedPrefix_;
 
 public:
@@ -137,9 +135,9 @@ public:
    * @brief Constructor from a WordAlphabet* and a vector of different std::shared_ptr<FrequencySet>.
    * Throws an Exception if their lengths do not match.
    */
-  WordFromIndependentFrequencySet(const WordAlphabet* pWA, const std::vector<std::shared_ptr<FrequencySet>>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
+  WordFromIndependentFrequencySet(const WordAlphabet* pWA, const std::vector<std::shared_ptr<FrequencySet> >& freqVector, const std::string& prefix = "", const std::string& name = "WordFromIndependent");
 
-  WordFromIndependentFrequencySet(const CodonAlphabet* pWA, const std::vector<std::shared_ptr<FrequencySet>>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
+  WordFromIndependentFrequencySet(const CodonAlphabet* pWA, const std::vector<std::shared_ptr<FrequencySet> >& freqVector, const std::string& prefix = "", const std::string& name = "WordFromIndependent");
 
   WordFromIndependentFrequencySet(const WordFromIndependentFrequencySet& iwfs);
 
@@ -228,9 +226,6 @@ public:
 
   std::string getDescription() const;
 };
-
 } // end of namespace bpp.
 
-#endif // _WORDFREQUENCYSET_H_
-
-
+#endif// _WORDFREQUENCYSET_H_

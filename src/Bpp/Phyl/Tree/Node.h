@@ -90,7 +90,6 @@ namespace bpp
  */
 class Node
 {
-
 protected:
   int id_;
   std::string* name_;
@@ -163,7 +162,7 @@ public:
   Node(const Node& node);
 
   Node(const PhyloNode& pn);
-  
+
   /**
    * @brief Assignation operator.
    *
@@ -694,10 +693,8 @@ public:
 
   virtual bool isLeaf() const { return degree() <= 1; }
 
-  virtual bool hasNoSon() const { return getNumberOfSons() ==0; }
-
+  virtual bool hasNoSon() const { return getNumberOfSons() == 0; }
 };
 } // end of namespace bpp.
 
-#endif  // _NODE_H_
-
+#endif// _NODE_H_

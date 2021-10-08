@@ -276,7 +276,7 @@ void DRNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& p
         }
       }
       else
-        tmpv.push_back(nodes_[TextTools::to < size_t > (tmp[i].substr(5))]);
+        tmpv.push_back(nodes_[TextTools::to< size_t >(tmp[i].substr(5))]);
     }
     nodes = VectorTools::vectorUnion(nodes, tmpv);
 
@@ -966,7 +966,7 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node* 
       {
         const Node* son = father->getSon(n);
         if (son->getId() != node->getId())
-          nodes.push_back(son);  // This is a real brother, not current node!
+          nodes.push_back(son);                                   // This is a real brother, not current node!
       }
       // Now the real stuff... We've got to compute the likelihoods for the
       // subtree defined by node 'father'.
@@ -1327,4 +1327,3 @@ void DRNonHomogeneousTreeLikelihood::displayLikelihood(const Node* node)
 }
 
 /*******************************************************************************/
-

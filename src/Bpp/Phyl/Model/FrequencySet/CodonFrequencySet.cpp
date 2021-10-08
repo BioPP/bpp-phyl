@@ -379,8 +379,7 @@ UserCodonFrequencySet::UserCodonFrequencySet(
   size_t nCol) :
   UserFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), path, nCol),
   pgc_(gCode)
-{
-}
+{}
 
 void UserCodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
@@ -408,7 +407,7 @@ void UserCodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 
 CodonFromIndependentFrequencySet::CodonFromIndependentFrequencySet(
   const GeneticCode* gCode,
-  const std::vector<std::shared_ptr<FrequencySet>>& freqvector,
+  const std::vector<std::shared_ptr<FrequencySet> >& freqvector,
   const string& name,
   const string& mgmtStopCodon) :
   WordFromIndependentFrequencySet(gCode->getSourceAlphabet(), freqvector, "", name),
@@ -602,7 +601,7 @@ void CodonFromUniqueFrequencySet::updateFrequencies()
     // The frequencies of the stop codons are distributed to all
     // neighbour non-stop codons
     double f[64] = {0};
-    
+
     for (const auto& mStopNeigh_it : mStopNeigh_)
     {
       int stNb = mStopNeigh_it.first;
@@ -621,7 +620,9 @@ void CodonFromUniqueFrequencySet::updateFrequencies()
     }
 
     for (size_t i = 0; i < s; i++)
+    {
       getFreq_(i) += f[i];
+    }
   }
   else
   {
@@ -654,7 +655,7 @@ std::shared_ptr<FrequencySet> CodonFrequencySet::getFrequencySetForCodons(short 
     codonFreqs.reset(new CodonFromUniqueFrequencySet(gCode, std::make_shared<FullNucleotideFrequencySet>(gCode->getSourceAlphabet()->getNucleicAlphabet()), "F1X4", mgmtStopCodon));
   else if (option == F3X4)
   {
-    vector<std::shared_ptr<FrequencySet>> v_AFS(3);
+    vector<std::shared_ptr<FrequencySet> > v_AFS(3);
     v_AFS[0] = std::make_shared<FullNucleotideFrequencySet>(gCode->getSourceAlphabet()->getNucleicAlphabet());
     v_AFS[1] = std::make_shared<FullNucleotideFrequencySet>(gCode->getSourceAlphabet()->getNucleicAlphabet());
     v_AFS[2] = std::make_shared<FullNucleotideFrequencySet>(gCode->getSourceAlphabet()->getNucleicAlphabet());

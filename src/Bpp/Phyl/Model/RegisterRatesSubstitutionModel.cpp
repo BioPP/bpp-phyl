@@ -43,7 +43,7 @@
 using namespace bpp;
 using namespace std;
 
-RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, bool  isNormalized) :
+RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, bool isNormalized) :
   AbstractParameterAliasable("FromRegister."),
   AbstractSubstitutionModel(originalModel.getAlphabet(), originalModel.shareStateMap(), "FromRegister."),
   originalModel_(originalModel.clone()),
@@ -53,31 +53,39 @@ RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(const Substitutio
   vRates_(reg.getNumberOfSubstitutionTypes())
 {
 //  getSubstitutionModel().enableEigenDecomposition(false);
-  
+
   // record register types
-  isScalable_=isNormalized;
-  
+  isScalable_ = isNormalized;
+
 
   vRegStates_.resize(nbTypes_);
   for (auto& vreg : vRegStates_)
+  {
     vreg.resize(getNumberOfStates());
+  }
 
   for (size_t i = 0; i < getNumberOfStates(); i++)
+  {
     for (size_t j = 0; j < getNumberOfStates(); j++)
-      if (i!=j)
+    {
+      if (i != j)
       {
-        size_t nR=reg.getType(i,j);
-        if (nR!=0)
-          vRegStates_[nR-1][i].push_back((unsigned int)j);
+        size_t nR = reg.getType(i, j);
+        if (nR != 0)
+          vRegStates_[nR - 1][i].push_back((unsigned int)j);
       }
+    }
+  }
 
   /// !!! The order of the inclusion of parameters should not be
   // changed (see updateMatrices for vRates_ update).
   // rates for all register types
-  for (size_t i=1;i<=nbTypes_;i++)
-    addParameter_(new Parameter("FromRegister.rho_"+reg.getTypeName(i), 1, Parameter::R_PLUS));
+  for (size_t i = 1; i <= nbTypes_; i++)
+  {
+    addParameter_(new Parameter("FromRegister.rho_" + reg.getTypeName(i), 1, Parameter::R_PLUS));
+  }
 
-  getModel().setNamespace(getNamespace()+getModel().getNamespace());
+  getModel().setNamespace(getNamespace() + getModel().getNamespace());
   addParameters_(getModel().getParameters());
   updateMatrices();
 }
@@ -87,27 +95,30 @@ RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(const Substitutio
 void RegisterRatesSubstitutionModel::updateMatrices()
 {
   for (size_t i = 0; i < vRates_.size(); i++)
-    vRates_[i]=getParameter_(i).getValue();
-  
-  RowMatrix<double>& gen=generator_;
+  {
+    vRates_[i] = getParameter_(i).getValue();
+  }
 
-  gen=getSubstitutionModel().getGenerator();
+  RowMatrix<double>& gen = generator_;
+
+  gen = getSubstitutionModel().getGenerator();
 
   for (size_t t = 0; t < nbTypes_; t++)
   {
     double rate = vRates_[t];
-    const VVuint& v=vRegStates_[t];
-    
+    const VVuint& v = vRegStates_[t];
+
     for (size_t i = 0; i < getNumberOfStates(); i++)
     {
-      const Vuint& v2=v[i];
+      const Vuint& v2 = v[i];
       for (const auto& j : v2)
-        gen(i,j)*=rate;
+      {
+        gen(i, j) *= rate;
+      }
     }
   }
 
   setDiagonal();
-  
+
   AbstractSubstitutionModel::updateMatrices();
 }
-

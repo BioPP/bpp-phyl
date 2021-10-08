@@ -40,26 +40,23 @@
 #ifndef _CONSTANTRATEDISTRIBUTION_H_
 #define _CONSTANTRATEDISTRIBUTION_H_
 
-//From bpp-core
+// From bpp-core
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 
-namespace bpp {
-
-class ConstantRateDistribution:
+namespace bpp
+{
+class ConstantRateDistribution :
   public ConstantDistribution
 {
-  public:
-    ConstantRateDistribution():
-      ConstantDistribution(1.)
-    {
-      deleteParameter_(0);
-    }
+public:
+  ConstantRateDistribution() :
+    ConstantDistribution(1.)
+  {
+    deleteParameter_(0);
+  }
 
-    ConstantRateDistribution* clone() const { return new ConstantRateDistribution(*this); }
-    
+  ConstantRateDistribution* clone() const { return new ConstantRateDistribution(*this); }
 };
+} // end of namespace bpp;
 
-} //end of namespace bpp;
-
-#endif //_CONSTANTRATEDISTRIBUTION_H_
-
+#endif//_CONSTANTRATEDISTRIBUTION_H_

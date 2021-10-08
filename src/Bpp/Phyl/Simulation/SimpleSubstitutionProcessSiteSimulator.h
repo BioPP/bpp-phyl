@@ -5,38 +5,38 @@
 //
 
 
-/*  
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+/*
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _SIMPLE_SUBSTITUTION_PROCESS_SITE_SIMULATOR_H_
 #define _SIMPLE_SUBSTITUTION_PROCESS_SITE_SIMULATOR_H_
@@ -61,278 +61,264 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
+class SimProcessNode :
+  public ProcessComputationNode
+{
+private:
+  // states during simulation
+  size_t state_;
 
-  class SimProcessNode:
-    public ProcessComputationNode
-  {
-  private:
-    
-    // states during simulation
-    size_t state_;
+  // probabilities to choose, in case of mixture node or root, for all rates
+  VVdouble cumProb_;
 
-    // probabilities to choose, in case of mixture node or root, for all rates
-    VVdouble cumProb_;
+  // Sons in case of mixture node
+  std::vector<std::shared_ptr<SimProcessNode> > sons_;
 
-    // Sons in case of mixture node
-    std::vector<std::shared_ptr<SimProcessNode>> sons_;
-    
-  public:
-    SimProcessNode(const ProcessComputationNode& pcn):
-      ProcessComputationNode(pcn), state_() {}
+public:
+  SimProcessNode(const ProcessComputationNode& pcn) :
+    ProcessComputationNode(pcn), state_() {}
 
-    friend class SimpleSubstitutionProcessSiteSimulator;
-    friend class GivenDataSubstitutionProcessSiteSimulator;
-  };
-    
-  class SimProcessEdge :
-    public ProcessComputationEdge
-  {
-  private:
-    // Cumulative pxy for all rates
-    VVVdouble cumpxy_;
-    
-  public:
-    SimProcessEdge(const ProcessComputationEdge& pce):
-      ProcessComputationEdge(pce), cumpxy_() {}
+  friend class SimpleSubstitutionProcessSiteSimulator;
+  friend class GivenDataSubstitutionProcessSiteSimulator;
+};
 
-    friend class SimpleSubstitutionProcessSiteSimulator;
-    friend class GivenDataSubstitutionProcessSiteSimulator;
-  };
+class SimProcessEdge :
+  public ProcessComputationEdge
+{
+private:
+  // Cumulative pxy for all rates
+  VVVdouble cumpxy_;
 
-  typedef AssociationTreeGlobalGraphObserver<SimProcessNode, SimProcessEdge>  SPTree;
+public:
+  SimProcessEdge(const ProcessComputationEdge& pce) :
+    ProcessComputationEdge(pce), cumpxy_() {}
+
+  friend class SimpleSubstitutionProcessSiteSimulator;
+  friend class GivenDataSubstitutionProcessSiteSimulator;
+};
+
+typedef AssociationTreeGlobalGraphObserver<SimProcessNode, SimProcessEdge>  SPTree;
 
 /**
  * @brief Site simulation under a unique substitution process.
  *
  */
 
-  class SimpleSubstitutionProcessSiteSimulator:
-    public DetailedSiteSimulator
+class SimpleSubstitutionProcessSiteSimulator :
+  public DetailedSiteSimulator
+{
+protected:
+  const SubstitutionProcess*     process_;
+  const ParametrizablePhyloTree* phyloTree_;
+
+
+  /*
+   * @brief To store states & transition probabilities of the simulator
+   *
+   */
+
+  SPTree tree_;
+
+  /*
+   *@brief cumsum probas of the substitution rates
+   *
+   */
+
+  Vdouble qRates_;
+
+  /*
+   *@brief cumsum probas of the root frequencies, one per rate class
+   *(this "per class" is useful for
+   * GivenDataSubstitutionProcessSiteSimulator)
+   *
+   */
+
+  VVdouble qRoots_;
+
+  /**
+   * @brief Vector of indexes of sequenced output species
+   *
+   */
+
+  std::vector<size_t> seqIndexes_;
+
+  /**
+   * @brief Vector of names of sequenced output species
+   *
+   */
+
+  std::vector<std::string> seqNames_;
+
+  /**
+   * @brief Map between species Indexes & used nodes, may change at
+   * each simulation.
+   *
+   */
+
+  mutable std::map<size_t, std::shared_ptr<SimProcessNode> > speciesNodes_;
+
+  size_t nbNodes_;
+  size_t nbClasses_;
+  size_t nbStates_;
+
+  bool continuousRates_;
+
+  // Should we ouptut internal sequences as well?
+  bool outputInternalSites_;
+
+  /**
+   * @name Stores intermediate results.
+   *
+   * @{
+   */
+
+public:
+  SimpleSubstitutionProcessSiteSimulator(
+    const SubstitutionProcess& process);
+
+  virtual ~SimpleSubstitutionProcessSiteSimulator()
+  {}
+
+  SimpleSubstitutionProcessSiteSimulator(const SimpleSubstitutionProcessSiteSimulator& nhss) :
+    process_        (nhss.process_),
+    phyloTree_      (nhss.phyloTree_),
+    tree_           (nhss.tree_),
+    qRates_         (nhss.qRates_),
+    qRoots_         (nhss.qRoots_),
+    seqIndexes_     (nhss.seqIndexes_),
+    seqNames_       (nhss.seqNames_),
+    speciesNodes_  (nhss.speciesNodes_),
+    nbNodes_        (nhss.nbNodes_),
+    nbClasses_      (nhss.nbClasses_),
+    nbStates_       (nhss.nbStates_),
+    continuousRates_(nhss.continuousRates_),
+    outputInternalSites_(nhss.outputInternalSites_)
+  {}
+
+  SimpleSubstitutionProcessSiteSimulator& operator=(const SimpleSubstitutionProcessSiteSimulator& nhss)
   {
-  protected:
+    process_        = nhss.process_;
+    phyloTree_       = nhss.phyloTree_;
+    tree_            = nhss.tree_;
+    qRates_          = nhss.qRates_;
+    qRoots_          = nhss.qRoots_;
+    seqIndexes_      = nhss.seqIndexes_;
+    seqNames_        = nhss.seqNames_;
+    speciesNodes_   = nhss.speciesNodes_;
+    nbNodes_         = nhss.nbNodes_;
+    nbClasses_       = nhss.nbClasses_;
+    nbStates_        = nhss.nbStates_;
+    continuousRates_ = nhss.continuousRates_;
+    outputInternalSites_ = nhss.outputInternalSites_;
 
-    const SubstitutionProcess*     process_;
-    const ParametrizablePhyloTree* phyloTree_;
+    return *this;
+  }
 
+  SimpleSubstitutionProcessSiteSimulator* clone() const { return new SimpleSubstitutionProcessSiteSimulator(*this); }
 
-    /*
-     * @brief To store states & transition probabilities of the simulator
-     *
-     */
-    
-    SPTree tree_;
+private:
+  /**
+   * @brief Init all probabilities.
+   *
+   * Method called by constructors.
+   */
+  virtual void init();
 
-    /*
-     *@brief cumsum probas of the substitution rates
-     *
-     */
+public:
+  /**
+   * @name The SiteSimulator interface
+   *
+   * @{
+   */
+  Site* simulateSite() const;
 
-    Vdouble qRates_;
-    
-    /*
-     *@brief cumsum probas of the root frequencies, one per rate class
-     *(this "per class" is useful for
-     *GivenDataSubstitutionProcessSiteSimulator)
-     *
-     */
+  Site* simulateSite(size_t rateClass) const;
 
-    VVdouble qRoots_;
-    
-    /**
-     * @brief Vector of indexes of sequenced output species
-     *
-     */
+  Site* simulateSite(double rate) const;
 
-    std::vector<size_t> seqIndexes_;
-    
-    /**
-     * @brief Vector of names of sequenced output species
-     *
-     */
-    
-    std::vector<std::string> seqNames_; 
+  Site* simulateSite(size_t ancestralStateIndex, double rate) const;
 
-    /**
-     * @brief Map between species Indexes & used nodes, may change at
-     * each simulation.
-     *
-     */
+  std::vector<std::string> getSequencesNames() const { return seqNames_; }
+  /** @} */
 
-    mutable std::map<size_t, std::shared_ptr<SimProcessNode>> speciesNodes_;
-    
-    size_t nbNodes_;
-    size_t nbClasses_;
-    size_t nbStates_;
+  /**
+   * @name SiteSimulator interface
+   *
+   * @{
+   */
+  const Alphabet* getAlphabet() const { return process_->getStateMap().getAlphabet(); }
+  /** @} */
 
-    bool continuousRates_;
+  /**
+   * @name The DetailedSiteSimulator interface.
+   *
+   * @{
+   */
 
-    // Should we ouptut internal sequences as well?
-    bool outputInternalSites_;
-    
-    /**
-     * @name Stores intermediate results.
-     *
-     * @{
-     */
+  SiteSimulationResult* dSimulateSite() const;
 
-  public:    
-    SimpleSubstitutionProcessSiteSimulator(
-      const SubstitutionProcess& process);
+  SiteSimulationResult* dSimulateSite(size_t rateClass) const;
 
-    virtual ~SimpleSubstitutionProcessSiteSimulator()
-    {
-    }
+  SiteSimulationResult* dSimulateSite(double rate) const;
 
-    SimpleSubstitutionProcessSiteSimulator(const SimpleSubstitutionProcessSiteSimulator& nhss) :
-      process_        (nhss.process_),
-      phyloTree_      (nhss.phyloTree_),
-      tree_           (nhss.tree_),
-      qRates_         (nhss.qRates_),
-      qRoots_         (nhss.qRoots_),
-      seqIndexes_     (nhss.seqIndexes_),
-      seqNames_       (nhss.seqNames_),
-      speciesNodes_  (nhss.speciesNodes_),
-      nbNodes_        (nhss.nbNodes_),
-      nbClasses_      (nhss.nbClasses_),
-      nbStates_       (nhss.nbStates_),
-      continuousRates_(nhss.continuousRates_),
-      outputInternalSites_(nhss.outputInternalSites_)
-    {
-    }
+  SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
 
-    SimpleSubstitutionProcessSiteSimulator& operator=(const SimpleSubstitutionProcessSiteSimulator& nhss)
-    {
-      process_        = nhss.process_;
-      phyloTree_       = nhss.phyloTree_;
-      tree_            = nhss.tree_;
-      qRates_          = nhss.qRates_;
-      qRoots_          = nhss.qRoots_;
-      seqIndexes_      = nhss.seqIndexes_;
-      seqNames_        = nhss.seqNames_;
-      speciesNodes_   = nhss.speciesNodes_;
-      nbNodes_         = nhss.nbNodes_;
-      nbClasses_       = nhss.nbClasses_;
-      nbStates_        = nhss.nbStates_;
-      continuousRates_ = nhss.continuousRates_;
-      outputInternalSites_ = nhss.outputInternalSites_;
+  /** @} */
 
-      return *this;
-    }
+  /**
+   * @brief Get the substitution process associated to this instance.
+   *
+   * @return The substitution process associated to this instance.
+   */
+  const SubstitutionProcess* getSubstitutionProcess() const { return process_; }
 
-    SimpleSubstitutionProcessSiteSimulator* clone() const { return new SimpleSubstitutionProcessSiteSimulator(*this); }
+  /**
+   * @brief Get the tree associated to this instance.
+   *
+   * @return The Tree object associated to this instance.
+   */
+  const ParametrizablePhyloTree* getTree() const { return phyloTree_; }
 
-  private:
-    /**
-     * @brief Init all probabilities.
-     *
-     * Method called by constructors.
-     */
-    virtual void init();
+  /**
+   * @brief Enable the use of continuous rates instead of discrete rates.
+   *
+   * To work, the DiscreteDistribution object used should implement
+   * the randC method.
+   *
+   * In this case, sampling is done jointly on the process classes
+   * and on the continuous rate.
+   *
+   * @param yn Tell if we should use continuous rates.
+   */
+  void enableContinuousRates(bool yn) { continuousRates_ = yn; }
 
-    
-  public:
-  
-    /**
-     * @name The SiteSimulator interface
-     *
-     * @{
-     */
-    Site* simulateSite() const;
+  /**
+   * @brief Sets whether we will output the internal sequences or not.
+   *
+   *
+   * @param yn Tell if we should output internal sequences.
+   */
+  void outputInternalSites(bool yn);
 
-    Site* simulateSite(size_t rateClass) const;
+protected:
+  /**
+   * @name The 'Internal' methods.
+   *
+   * @{
+   */
 
-    Site* simulateSite(double rate) const;
-    
-    Site* simulateSite(size_t ancestralStateIndex, double rate) const;
+  /**
+   * This method uses the states_ variable for saving ancestral states.
+   */
+  void evolveInternal(std::shared_ptr<SimProcessNode> node, size_t rateClass, SiteSimulationResult* ssr = 0) const;
 
-    std::vector<std::string> getSequencesNames() const { return seqNames_; }
-    /** @} */
-    
-    /**
-     * @name SiteSimulator interface
-     *
-     * @{
-     */
-    const Alphabet* getAlphabet() const { return process_->getStateMap().getAlphabet(); }
-    /** @} */
+  /**
+   * This method uses the states_ variable for saving ancestral states.
+   */
+  void evolveInternal(std::shared_ptr<SimProcessNode> node, double rate, SiteSimulationResult* ssr = 0) const;
 
-    /**
-     * @name The DetailedSiteSimulator interface.
-     *
-     * @{
-     */
+  /** @} */
+};
+} // end of namespace bpp.
 
-    SiteSimulationResult* dSimulateSite() const;
-
-    SiteSimulationResult* dSimulateSite(size_t rateClass) const;
-
-    SiteSimulationResult* dSimulateSite(double rate) const;
-    
-    SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
-
-    /** @} */
-
-    /**
-     * @brief Get the substitution process associated to this instance.
-     *
-     * @return The substitution process associated to this instance.
-     */
-    const SubstitutionProcess* getSubstitutionProcess() const { return process_; }
-    
-    /**
-     * @brief Get the tree associated to this instance.
-     *
-     * @return The Tree object associated to this instance.
-     */
-    const ParametrizablePhyloTree* getTree() const { return phyloTree_; }
-
-    /**
-     * @brief Enable the use of continuous rates instead of discrete rates.
-     *
-     * To work, the DiscreteDistribution object used should implement
-     * the randC method.
-     *
-     * In this case, sampling is done jointly on the process classes
-     * and on the continuous rate.
-     *
-     * @param yn Tell if we should use continuous rates.
-     */
-    void enableContinuousRates(bool yn) { continuousRates_ = yn; }
-
-    /**
-     * @brief Sets whether we will output the internal sequences or not.
-     *
-     *
-     * @param yn Tell if we should output internal sequences.
-     */
-    void outputInternalSites(bool yn) ;
-    
-  protected:
-
-    /**
-     * @name The 'Internal' methods.
-     *
-     * @{
-     */
-
-    /**
-     * This method uses the states_ variable for saving ancestral states.
-     */
-    void evolveInternal(std::shared_ptr<SimProcessNode> node, size_t rateClass, SiteSimulationResult * ssr = 0) const;
-
-    /**
-     * This method uses the states_ variable for saving ancestral states.
-     */
-    void evolveInternal(std::shared_ptr<SimProcessNode> node, double rate, SiteSimulationResult * ssr = 0) const;
-
-     /** @} */
-
-  };
-
-
-  
-
-} //end of namespace bpp.
-
-#endif //_SIMPLE_SUBSTITUTION_PROCESS_SITE_SIMULATOR_H_
-
+#endif//_SIMPLE_SUBSTITUTION_PROCESS_SITE_SIMULATOR_H_

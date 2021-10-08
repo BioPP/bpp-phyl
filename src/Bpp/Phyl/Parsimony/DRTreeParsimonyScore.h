@@ -184,5 +184,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif // _DRTREEPARSIMONYSCORE_H_
-
+#endif// _DRTREEPARSIMONYSCORE_H_

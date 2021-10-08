@@ -87,13 +87,13 @@ ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool p
   // Each map is filled with the corresponding frequencies, which are then normalized.
   for (size_t i = 0; i < names.size(); ++i)
   {
-    const SequenceContainer* sc=dynamic_cast<const SequenceContainer*>(&data);
-    const ProbabilisticSequenceContainer* psc=dynamic_cast<const ProbabilisticSequenceContainer*>(&data);
-    
-    shared_ptr<CruxSymbolList> seq(sc?
-                                   dynamic_cast<CruxSymbolList*>(new BasicSequence(sc->getSequence(names[i]))):
+    const SequenceContainer* sc = dynamic_cast<const SequenceContainer*>(&data);
+    const ProbabilisticSequenceContainer* psc = dynamic_cast<const ProbabilisticSequenceContainer*>(&data);
+
+    shared_ptr<CruxSymbolList> seq(sc ?
+                                   dynamic_cast<CruxSymbolList*>(new BasicSequence(sc->getSequence(names[i]))) :
                                    dynamic_cast<CruxSymbolList*>(new BasicProbabilisticSequence(*psc->getSequence(names[i]))));
-    
+
     SymbolListTools::changeGapsToUnknownCharacters(*seq);
     SequenceTools::getFrequencies(*seq, freqs.at(i));
     // Unknown characters are now ignored:

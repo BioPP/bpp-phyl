@@ -82,8 +82,7 @@ double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(size_t i, size_t
   int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
 
   return pgencode_->areSynonymous(si, sj) ? gamma_ :
-    beta_ * (pdistance_ ? exp(-pdistance_->getIndex(
-                                pgencode_->translate(si),
-                                pgencode_->translate(sj)) / alpha_) : 1);
+         beta_* (pdistance_ ? exp(-pdistance_->getIndex(
+                                    pgencode_->translate(si),
+                                    pgencode_->translate(sj)) / alpha_) : 1);
 }
-

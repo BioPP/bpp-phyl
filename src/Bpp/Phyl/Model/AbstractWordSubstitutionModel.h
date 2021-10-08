@@ -50,7 +50,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief A list of models, for building a WordSubstitutionModel
  *
@@ -60,61 +59,64 @@ namespace bpp
  */
 class ModelList
 {
-  protected:
-    std::vector<SubstitutionModel *> models_;
-    std::unique_ptr<WordAlphabet> wordAlphabet_;
-    WordAlphabet* pWordAlphabet_;
+protected:
+  std::vector<SubstitutionModel*> models_;
+  std::unique_ptr<WordAlphabet> wordAlphabet_;
+  WordAlphabet* pWordAlphabet_;
 
-  public:
-    /**
-     * @brief Create a ModelList from one template substitution model.
-     *
-     * @param models A vector of pointers toward substitution model objects.
-     */
-    ModelList(const std::vector<SubstitutionModel *>& models):
-      models_(models), wordAlphabet_(), pWordAlphabet_(0)
+public:
+  /**
+   * @brief Create a ModelList from one template substitution model.
+   *
+   * @param models A vector of pointers toward substitution model objects.
+   */
+  ModelList(const std::vector<SubstitutionModel*>& models) :
+    models_(models), wordAlphabet_(), pWordAlphabet_(0)
+  {
+    std::vector<const Alphabet*> alphabets(models.size());
+    for (size_t i = 0; i < models.size(); ++i)
     {
-      std::vector<const Alphabet *> alphabets(models.size());
-      for (size_t i = 0; i < models.size(); ++i) {
-        alphabets[i] = models[i]->getAlphabet();
-      }
-      wordAlphabet_.reset(new WordAlphabet(alphabets));
-      pWordAlphabet_ = wordAlphabet_.get();
+      alphabets[i] = models[i]->getAlphabet();
     }
+    wordAlphabet_.reset(new WordAlphabet(alphabets));
+    pWordAlphabet_ = wordAlphabet_.get();
+  }
 
-    ModelList(const ModelList& ml):
-      models_(ml.models_),
-      wordAlphabet_(ml.wordAlphabet_.get() ? ml.wordAlphabet_.get()->clone() : 0),
-      pWordAlphabet_(wordAlphabet_.get())
-    {}
- 
-    ModelList& operator=(const ModelList& ml)
-    {
-      models_ = ml.models_;
-      wordAlphabet_.reset(ml.wordAlphabet_.get() ? ml.wordAlphabet_.get()->clone() : 0);
-      pWordAlphabet_ = wordAlphabet_.get();
-      return *this;
-    }
+  ModelList(const ModelList& ml) :
+    models_(ml.models_),
+    wordAlphabet_(ml.wordAlphabet_.get() ? ml.wordAlphabet_.get()->clone() : 0),
+    pWordAlphabet_(wordAlphabet_.get())
+  {}
 
-  public:
-    size_t size() const { return models_.size(); }
+  ModelList& operator=(const ModelList& ml)
+  {
+    models_ = ml.models_;
+    wordAlphabet_.reset(ml.wordAlphabet_.get() ? ml.wordAlphabet_.get()->clone() : 0);
+    pWordAlphabet_ = wordAlphabet_.get();
+    return *this;
+  }
 
-    const SubstitutionModel* getModel(size_t i) const {
-      return models_[i];
-    }
+public:
+  size_t size() const { return models_.size(); }
 
-    SubstitutionModel* getModel(size_t i) {
-      return models_[i];
-    }
+  const SubstitutionModel* getModel(size_t i) const
+  {
+    return models_[i];
+  }
 
-    const WordAlphabet* getWordAlphabet() {
-      if (wordAlphabet_.get()) //First call
-        return wordAlphabet_.release();
-      else //Other calls, this class does not own the pointer anymore.
-        return pWordAlphabet_; 
-    }    
+  SubstitutionModel* getModel(size_t i)
+  {
+    return models_[i];
+  }
+
+  const WordAlphabet* getWordAlphabet()
+  {
+    if (wordAlphabet_.get()) // First call
+      return wordAlphabet_.release();
+    else // Other calls, this class does not own the pointer anymore.
+      return pWordAlphabet_;
+  }
 };
-
 
 
 /**
@@ -146,9 +148,9 @@ class ModelList
  * enumerated.
  *
  */
-  
+
 class AbstractWordSubstitutionModel :
-    public AbstractSubstitutionModel
+  public AbstractSubstitutionModel
 {
 private:
   /**
@@ -175,9 +177,9 @@ protected:
    * @brief First fill of the generator, from the position model
    *
    */
-  
+
   virtual void fillBasicGenerator();
-  
+
 public:
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a
@@ -230,21 +232,22 @@ public:
    * @brief returns the ith model, or Null if i is not a valid number.
    *
    */
-  
-  const SubstitutionModel* getNModel(size_t i) const {
+  const SubstitutionModel* getNModel(size_t i) const
+  {
     if (i < VSubMod_.size())
       return dynamic_cast<const SubstitutionModel*>(VSubMod_[i]);
     else
       return 0;
   }
 
-  size_t getNumberOfModels() const {
+  size_t getNumberOfModels() const
+  {
     return VSubMod_.size();
   }
-  
+
   /**
    *@brief Estimation of the parameters of the models so that the
-   *equilibrium frequencies match the given ones.
+   * equilibrium frequencies match the given ones.
    *
    *@param freqs  map of the frequencies
    *
@@ -254,10 +257,9 @@ public:
    * corresponding position in the word.
    *
    **/
-  
+
   virtual void setFreq(std::map<int, double>& freqs);
 };
 } // end of namespace bpp.
 
-#endif  // ABSTRACTWORDSUBSTITUTIONMODEL_
-
+#endif// ABSTRACTWORDSUBSTITUTIONMODEL_

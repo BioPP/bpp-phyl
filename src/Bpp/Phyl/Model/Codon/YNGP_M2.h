@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. CNRS, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use, 
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or 
-  data to be ensured and,  more generally, to use and operate it in the 
-  same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _YNGP_M2_H_
 #define _YNGP_M2_H_
@@ -46,7 +46,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief The Yang et al (2000) M2 substitution model for codons, with
  * the more realistic modification in Wong & al (2004).
@@ -66,38 +65,34 @@ namespace bpp
  *
  * Yang, Z., R. Nielsen, N. Goldman, and A.-M. K. Pedersen (2000)
  * Genetics 155:431-449.
- * 
+ *
  * Wong, W. S. W., Z. Yang, N. Goldman, and R. Nielsen. (2004)
  * Genetics 168:1041--1051.
  */
-  class YNGP_M2:
-    public YNGP_M
+class YNGP_M2 :
+  public YNGP_M
+{
+public:
+  YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
+
+  YNGP_M2* clone() const { return new YNGP_M2(*this); }
+
+  YNGP_M2(const YNGP_M2& mod2) :
+    YNGP_M(mod2)
+  {}
+
+  YNGP_M2& operator=(const YNGP_M2& mod2)
   {
-  public:
-    YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
+    YNGP_M::operator=(mod2);
+    return *this;
+  }
 
-    YNGP_M2* clone() const { return new YNGP_M2(*this); }
+protected:
+  void updateMatrices();
 
-    YNGP_M2(const YNGP_M2& mod2) :
-      YNGP_M(mod2)
-    {
-    }
+public:
+  std::string getName() const { return "YNGP_M2"; }
+};
+} // end of namespace bpp.
 
-    YNGP_M2& operator=(const YNGP_M2& mod2)
-    {
-      YNGP_M::operator=(mod2);
-      return *this;
-    }
-
-  protected:
-    void updateMatrices();
-
-  public:
-    std::string getName() const { return "YNGP_M2"; }
-
-  };
-
-} //end of namespace bpp.
-
-#endif	//_YNGP_M2_H_
-
+#endif//_YNGP_M2_H_

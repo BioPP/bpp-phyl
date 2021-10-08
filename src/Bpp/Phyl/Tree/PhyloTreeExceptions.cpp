@@ -107,4 +107,3 @@ UnrootedPhyloTreeException::UnrootedPhyloTreeException(const std::string& text, 
   PhyloTreeException("UnrootedPhyloTreeException: " + text, tree) {}
 
 /******************************************************************************/
-

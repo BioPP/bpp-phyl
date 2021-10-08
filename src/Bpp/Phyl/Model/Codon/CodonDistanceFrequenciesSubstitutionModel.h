@@ -83,11 +83,11 @@ namespace bpp
  *  "gamma"), else it is multiplied with 1.
  *
  */
-  
+
 class CodonDistanceFrequenciesSubstitutionModel :
-    public AbstractCodonSubstitutionModel,
-    public AbstractCodonDistanceSubstitutionModel,
-    public AbstractCodonFrequenciesSubstitutionModel
+  public AbstractCodonSubstitutionModel,
+  public AbstractCodonDistanceSubstitutionModel,
+  public AbstractCodonFrequenciesSubstitutionModel
 {
 public:
   /**
@@ -105,11 +105,11 @@ public:
    *        (default=false).
    */
   CodonDistanceFrequenciesSubstitutionModel(
-      const GeneticCode* gCode,
-      NucleotideSubstitutionModel* pmod,
-      std::shared_ptr<FrequencySet> pfreq,
-      const AlphabetIndex2* pdist = 0,
-      bool paramSynRate = false);
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    std::shared_ptr<FrequencySet> pfreq,
+    const AlphabetIndex2* pdist = 0,
+    bool paramSynRate = false);
 
   /**
    * @brief Build a new CodonDistanceFrequenciesSubstitutionModel object
@@ -128,13 +128,13 @@ public:
    *   (default=false).
    */
   CodonDistanceFrequenciesSubstitutionModel(
-      const GeneticCode* gCode,
-      NucleotideSubstitutionModel* pmod1,
-      NucleotideSubstitutionModel* pmod2,
-      NucleotideSubstitutionModel* pmod3,
-      std::shared_ptr<FrequencySet> pfreq,
-      const AlphabetIndex2* pdist = 0,
-      bool paramSynRate = false);
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    std::shared_ptr<FrequencySet> pfreq,
+    const AlphabetIndex2* pdist = 0,
+    bool paramSynRate = false);
 
   virtual ~CodonDistanceFrequenciesSubstitutionModel() {}
 
@@ -152,15 +152,13 @@ public:
 
   void setNamespace(const std::string&);
 
-  void setFreq(std::map<int,double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies);
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { 
+  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  {
     return AbstractCodonFrequenciesSubstitutionModel::getFrequencySet();
   }
-  
 };
-
 } // end of namespace bpp.
 
 #endif
-

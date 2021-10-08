@@ -334,7 +334,8 @@ TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& descripti
   {
     tree->resetNodesId();
   }
-  if (verbose) {
+  if (verbose)
+  {
     (*ApplicationTools::message) << " nodes loaded.";
     ApplicationTools::message->endLine();
   }
@@ -575,7 +576,7 @@ void TreeTemplateTools::scaleTree(Node& node, double factor)
 TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames, bool rooted)
 {
   if (leavesNames.size() == 0)
-    return 0;                                // No taxa.
+    return 0;                                               // No taxa.
   // This vector will contain all nodes.
   // Start with all leaves, and then group nodes randomly 2 by 2.
   // Att the end, contains only the root node of the tree.
@@ -642,18 +643,27 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
   if (pathMatrix1[pos1] != pathMatrix2[pos2])
     throw Exception("TreeTemplateTools::getPathBetweenAnyTwoNodes(). The two nodes do not have any ancestor in common / do not belong to the same tree.");
 
-  if (pos1 == 0 && pos2 == 0) {
-    //Node 1 and 2 are the root node!
+  if (pos1 == 0 && pos2 == 0)
+  {
+    // Node 1 and 2 are the root node!
     path.push_back(pathMatrix1[0]);
-  } else if (pos1 == 0) {
-    //Node 1 is the root node
-    //Note: we need to use push_back here as the insert method does not work with reverse iterators.
-    for (size_t i = (includeAncestorAtEndOfPath ? pathMatrix2.size(): pathMatrix2.size() - 1); i > 0; --i)
-      path.push_back(pathMatrix2[i-1]);
-  } else if (pos2 == 0) {
-    //Node 2 is the root node
+  }
+  else if (pos1 == 0)
+  {
+    // Node 1 is the root node
+    // Note: we need to use push_back here as the insert method does not work with reverse iterators.
+    for (size_t i = (includeAncestorAtEndOfPath ? pathMatrix2.size() : pathMatrix2.size() - 1); i > 0; --i)
+    {
+      path.push_back(pathMatrix2[i - 1]);
+    }
+  }
+  else if (pos2 == 0)
+  {
+    // Node 2 is the root node
     path.insert(path.end(), pathMatrix1.begin(), (includeAncestorAtEndOfPath ? pathMatrix1.end() : --pathMatrix1.end()));
-  } else {
+  }
+  else
+  {
     Node* commonAnc = 0;
     while (pathMatrix1[pos1] == pathMatrix2[pos2] && pos1 > 0 && pos2 > 0)
     {
@@ -666,9 +676,11 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
       path.push_back(commonAnc); // pushing once the Node that was common to both.
     // If node1 or node2 is the common ancestor, then commonAnc is null
     // and was added as node1 or node2, respectively, if includeAncestorAtEndOfPath was set to true.
-    //Note: we need to use push_back here as the insert method does not work with reverse iterators.
+    // Note: we need to use push_back here as the insert method does not work with reverse iterators.
     for (size_t i = pos2 + 1; i > 0; --i)
-      path.push_back(pathMatrix2[i-1]);
+    {
+      path.push_back(pathMatrix2[i - 1]);
+    }
   }
   return path;
 }
@@ -703,18 +715,27 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
   if (pathMatrix1[pos1] != pathMatrix2[pos2])
     throw Exception("TreeTemplateTools::getPathBetweenAnyTwoNodes(). The two nodes do not have any ancestor in common / do not belong to the same tree.");
 
-  if (pos1 == 0 && pos2 == 0) {
-    //Node 1 and 2 are the root node!
+  if (pos1 == 0 && pos2 == 0)
+  {
+    // Node 1 and 2 are the root node!
     path.push_back(pathMatrix1[0]);
-  } else if (pos1 == 0) {
-    //Node 1 is the root node
-    //Note: we need to use push_back here as the insert method does not work with reverse iterators.
-    for (size_t i = (includeAncestorAtEndOfPath ? pathMatrix2.size(): pathMatrix2.size() - 1); i > 0; --i)
-      path.push_back(pathMatrix2[i-1]);
-  } else if (pos2 == 0) {
-    //Node 2 is the root node
+  }
+  else if (pos1 == 0)
+  {
+    // Node 1 is the root node
+    // Note: we need to use push_back here as the insert method does not work with reverse iterators.
+    for (size_t i = (includeAncestorAtEndOfPath ? pathMatrix2.size() : pathMatrix2.size() - 1); i > 0; --i)
+    {
+      path.push_back(pathMatrix2[i - 1]);
+    }
+  }
+  else if (pos2 == 0)
+  {
+    // Node 2 is the root node
     path.insert(path.end(), pathMatrix1.begin(), (includeAncestorAtEndOfPath ? pathMatrix1.end() : --pathMatrix1.end()));
-  } else {
+  }
+  else
+  {
     const Node* commonAnc = 0;
     while (pathMatrix1[pos1] == pathMatrix2[pos2] && pos1 > 0 && pos2 > 0)
     {
@@ -723,14 +744,16 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
     }
 
     path.insert(path.end(), pathMatrix1.begin(), pathMatrix1.begin() + static_cast<ptrdiff_t>(pos1 + 1));
-    if (commonAnc &&includeAncestor)
-        path.push_back(commonAnc); // pushing once the Node that was common to both.
+    if (commonAnc && includeAncestor)
+      path.push_back(commonAnc); // pushing once the Node that was common to both.
     // If node1 or node2 is the common ancestor, then commonAnc is null
     // and was added as node1 or node2, respectively, if includeAncestorAtEndOfPath was set to true.
-    
-    //Note: we need to use push_back here as the insert method does not work with reverse iterators.
+
+    // Note: we need to use push_back here as the insert method does not work with reverse iterators.
     for (size_t i = pos2 + 1; i > 0; --i)
-      path.push_back(pathMatrix2[i-1]);
+    {
+      path.push_back(pathMatrix2[i - 1]);
+    }
   }
   return path;
 }
@@ -898,10 +921,11 @@ void TreeTemplateTools::deleteNodeProperties(Node& node, const std::vector<std::
     {
       node.deleteNodeProperty(property);
     }
-    catch(exception& e) {}
+    catch (exception& e)
+    {}
   }
   for (size_t i = 0; i < node.getNumberOfSons(); i++)
-  {  
+  {
     deleteNodeProperties(*node.getSon(i), propertyNames);
   }
 }
@@ -945,10 +969,11 @@ void TreeTemplateTools::deleteBranchProperties(Node& node, const std::vector<std
     {
       node.deleteBranchProperty(property);
     }
-    catch(exception& e) {}
+    catch (exception& e)
+    {}
   }
   for (size_t i = 0; i < node.getNumberOfSons(); i++)
-  {  
+  {
     deleteBranchProperties(*node.getSon(i), propertyNames);
   }
 }

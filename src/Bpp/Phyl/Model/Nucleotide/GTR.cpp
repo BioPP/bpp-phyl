@@ -5,37 +5,37 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "GTR.h"
 #include "../FrequencySet/NucleotideFrequencySet.h"
@@ -51,16 +51,16 @@ using namespace std;
 /******************************************************************************/
 
 GTR::GTR(
-    const NucleicAlphabet* alpha,
-    double a,
-    double b,
-    double c,
-    double d,
-    double e,
-    double piA,
-    double piC,
-    double piG,
-    double piT) :
+  const NucleicAlphabet* alpha,
+  double a,
+  double b,
+  double c,
+  double d,
+  double e,
+  double piA,
+  double piC,
+  double piG,
+  double piT) :
   AbstractParameterAliasable("GTR."),
   AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "GTR."),
   a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()
@@ -77,9 +77,9 @@ GTR::GTR(
 }
 
 /******************************************************************************/
-  
+
 void GTR::updateMatrices()
-{  
+{
   a_ = getParameterValue("a");
   b_ = getParameterValue("b");
   c_ = getParameterValue("c");
@@ -92,30 +92,30 @@ void GTR::updateMatrices()
   piC_ = (1. - theta2_) * theta_;
   piG_ = theta2_ * theta_;
   piT_ = (1. - theta1_) * (1. - theta_);
-  p_ = 2*(a_*piC_*piT_+b_*piA_*piT_+c_*piG_*piT_+d_*piA_*piC_+e_*piC_*piG_+piA_*piG_);
+  p_ = 2 * (a_ * piC_ * piT_ + b_ * piA_ * piT_ + c_ * piG_ * piT_ + d_ * piA_ * piC_ + e_ * piC_ * piG_ + piA_ * piG_);
 
   freq_[0] = piA_;
   freq_[1] = piC_;
   freq_[2] = piG_;
   freq_[3] = piT_;
-  
+
   // Exchangeability matrix:
-  exchangeability_(0,0) = (-b_*piT_-piG_-d_*piC_)/(piA_ * p_);
-  exchangeability_(1,0) = d_/p_;
-  exchangeability_(0,1) = d_/p_;
-  exchangeability_(2,0) = 1/p_;
-  exchangeability_(0,2) = 1/p_;
-  exchangeability_(3,0) = b_/p_;
-  exchangeability_(0,3) = b_/p_;
-  exchangeability_(1,1) = (-a_*piT_-e_*piG_-d_*piA_)/(piC_ * p_);
-  exchangeability_(1,2) = e_/p_;
-  exchangeability_(2,1) = e_/p_;
-  exchangeability_(1,3) = a_/p_;
-  exchangeability_(3,1) = a_/p_;
-  exchangeability_(2,2) = (-c_*piT_-e_*piC_-piA_)/(piG_ * p_);
-  exchangeability_(2,3) = c_/p_;
-  exchangeability_(3,2) = c_/p_;
-  exchangeability_(3,3) = (-c_*piG_-a_*piC_-b_*piA_)/(piT_ * p_);
+  exchangeability_(0, 0) = (-b_ * piT_ - piG_ - d_ * piC_) / (piA_ * p_);
+  exchangeability_(1, 0) = d_ / p_;
+  exchangeability_(0, 1) = d_ / p_;
+  exchangeability_(2, 0) = 1 / p_;
+  exchangeability_(0, 2) = 1 / p_;
+  exchangeability_(3, 0) = b_ / p_;
+  exchangeability_(0, 3) = b_ / p_;
+  exchangeability_(1, 1) = (-a_ * piT_ - e_ * piG_ - d_ * piA_) / (piC_ * p_);
+  exchangeability_(1, 2) = e_ / p_;
+  exchangeability_(2, 1) = e_ / p_;
+  exchangeability_(1, 3) = a_ / p_;
+  exchangeability_(3, 1) = a_ / p_;
+  exchangeability_(2, 2) = (-c_ * piT_ - e_ * piC_ - piA_) / (piG_ * p_);
+  exchangeability_(2, 3) = c_ / p_;
+  exchangeability_(3, 2) = c_ / p_;
+  exchangeability_(3, 3) = (-c_ * piG_ - a_ * piC_ - b_ * piA_) / (piT_ * p_);
 
   AbstractReversibleSubstitutionModel::updateMatrices();
 }
@@ -140,4 +140,3 @@ void GTR::setFreq(map<int, double>& freqs)
 }
 
 /******************************************************************************/
-

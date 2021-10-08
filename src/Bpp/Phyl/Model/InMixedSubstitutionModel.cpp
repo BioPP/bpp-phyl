@@ -60,8 +60,8 @@ InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedTransitionModel& m
   if (sm == 0)
     throw Exception("InMixedSubstitutionModel::InMixedSubstitutionModel : model " + subModelName + " is not a substitution model.");
 
-  Vuint vn=mixedModel_->getSubmodelNumbers(subModelName);
-  subModelNumber_=(size_t)vn[0];
+  Vuint vn = mixedModel_->getSubmodelNumbers(subModelName);
+  subModelNumber_ = (size_t)vn[0];
 
   addParameters_(mixedModel_->getParameters());
 }
@@ -73,7 +73,7 @@ InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedTransitionModel& m
   subModelNumber_(subModelNumber),
   mixtName_(mixtDesc)
 {
-  if (subModelNumber>=mixedModel.getNumberOfModels())
+  if (subModelNumber >= mixedModel.getNumberOfModels())
     throw ParameterNotFoundException("InMixedSubstitutionModel::InMixedSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
 
   const SubstitutionModel* sm = dynamic_cast<const SubstitutionModel*>(mixedModel.getNModel(subModelNumber));
@@ -104,9 +104,8 @@ InMixedSubstitutionModel& InMixedSubstitutionModel::operator=(const InMixedSubst
   mixedModel_ = std::unique_ptr<MixedTransitionModel>(fmsm.mixedModel_->clone());
 
   subModelNumber_ = fmsm.subModelNumber_;
-  
+
   mixtName_ = fmsm.mixtName_;
 
   return *this;
 }
-

@@ -273,4 +273,3 @@ vector<double> IOPhymlPairedSiteLikelihoods::readPairedSiteLikelihoods(const std
   vector<double> loglikelihoods(IOPhymlPairedSiteLikelihoods::readPairedSiteLikelihoods(iF));
   return loglikelihoods;
 }
-

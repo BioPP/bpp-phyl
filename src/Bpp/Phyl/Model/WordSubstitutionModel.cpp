@@ -73,7 +73,7 @@ WordSubstitutionModel::WordSubstitutionModel(
 
   enableEigenDecomposition(false); // the product of the position
                                    // specific transition probabilities
-  
+
   computeFrequencies(false); // it is done in AbstractWordSubstitutionModel
   WordSubstitutionModel::updateMatrices();
 }

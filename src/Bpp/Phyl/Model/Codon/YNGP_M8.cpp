@@ -61,8 +61,8 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
 
   std::unique_ptr<DiscreteDistribution> pbdd(new BetaDiscreteDistribution(nclass, 2, 2));
 
-  vector<double> val={2.};
-  vector<double> prob={1.};
+  vector<double> val = {2.};
+  vector<double> prob = {1.};
   std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(val, prob));
 
   vector<DiscreteDistribution*> v_distr;
@@ -77,10 +77,10 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
-  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
+  pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
 
   vector<int> supportedChars = yn98->getAlphabetStates();
-  
+
   // mapping the parameters
 
   ParameterList pl = pmixmodel_->getParameters();
@@ -152,4 +152,3 @@ void YNGP_M8::updateMatrices()
 
   pmixmodel_->setVRates(vd);
 }
-

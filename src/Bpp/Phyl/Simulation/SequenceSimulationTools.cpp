@@ -116,4 +116,3 @@ std::shared_ptr<SiteContainer> SequenceSimulationTools::simulateSites(const Sequ
 
   return sites;
 }
-

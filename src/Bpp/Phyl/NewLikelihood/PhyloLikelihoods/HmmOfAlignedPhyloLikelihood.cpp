@@ -82,4 +82,3 @@ void HmmOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& para
   // hpep_->update();
   hmm_->matchParametersValues(parameters);
 }
-

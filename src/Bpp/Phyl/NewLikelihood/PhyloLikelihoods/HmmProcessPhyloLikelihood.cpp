@@ -62,7 +62,7 @@ HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
   hmm_()
 {
   auto alphyl = make_shared<HmmPhyloAlphabet>(*this);
-  
+
   Hpep_ = make_shared<HmmPhyloEmissionProbabilities>(alphyl);
 
   hmm_ = make_shared<HmmLikelihood_DF>(getContext(), processSeqEvol.shareHmmProcessAlphabet(), processSeqEvol.shareHmmTransitionMatrix(), Hpep_);

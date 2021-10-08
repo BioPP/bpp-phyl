@@ -127,7 +127,7 @@ public:
    *
    * @return A pointer toward the faulty node.
    */
-  virtual const Node* getNode() const { return node_; };
+  virtual const Node* getNode() const { return node_; }
   /**
    * @brief Get the id of node that threw the exception.
    *
@@ -274,8 +274,6 @@ public:
 
   virtual ~UnrootedTreeException() {}
 };
-
 } // end of namespace bpp.
 
-#endif  // _TREEEXCEPTIONS_H_
-
+#endif// _TREEEXCEPTIONS_H_

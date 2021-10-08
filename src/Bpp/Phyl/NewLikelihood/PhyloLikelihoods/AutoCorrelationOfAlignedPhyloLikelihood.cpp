@@ -83,4 +83,3 @@ void AutoCorrelationOfAlignedPhyloLikelihood::fireParameterChanged(const Paramet
   htm_->matchParametersValues(parameters);
   hpep_->matchParametersValues(parameters);
 }
-

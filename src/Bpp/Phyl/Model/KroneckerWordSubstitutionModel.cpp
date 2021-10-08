@@ -82,8 +82,8 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
   const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(pmodel,
-                                num,
-                                (prefix == "") ? "Kron." : prefix)
+                                         num,
+                                         (prefix == "") ? "Kron." : prefix)
 {
   enableEigenDecomposition(true);
   updateMatrices();
@@ -121,5 +121,3 @@ string KroneckerWordSubstitutionModel::getName() const
 {
   return "Kron";
 }
-
-

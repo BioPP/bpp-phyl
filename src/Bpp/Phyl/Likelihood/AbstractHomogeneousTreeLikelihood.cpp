@@ -162,7 +162,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
 
   minimumBrLen_ = 0.000001;
   maximumBrLen_ = 10000;
-  brLenConstraint_=std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
+  brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
 }
 
 /******************************************************************************/
@@ -181,7 +181,7 @@ void AbstractHomogeneousTreeLikelihood::setModel(TransitionModel* model)
   if (data_)
   {
     if (model->getNumberOfStates() != model_->getNumberOfStates())
-      setData(*data_);                          // Have to reinitialize the whole data structure.
+      setData(*data_);                                                  // Have to reinitialize the whole data structure.
   }
 
   nbStates_ = model->getNumberOfStates();

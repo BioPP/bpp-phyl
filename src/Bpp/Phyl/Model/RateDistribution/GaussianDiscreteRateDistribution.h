@@ -40,26 +40,23 @@
 #ifndef _GAUSSIANDISCRETERATEDISTRIBUTION_H_
 #define _GAUSSIANDISCRETERATEDISTRIBUTION_H_
 
-//From bpp-core
+// From bpp-core
 #include <Bpp/Numeric/Prob/GaussianDiscreteDistribution.h>
 
-namespace bpp {
-
-class GaussianDiscreteRateDistribution:
+namespace bpp
+{
+class GaussianDiscreteRateDistribution :
   public GaussianDiscreteDistribution
 {
-  public:
-    GaussianDiscreteRateDistribution(size_t nbClasses, double sigma):
-      GaussianDiscreteDistribution(nbClasses, 1., sigma)
-    {
-      deleteParameter_(0);
-    }
+public:
+  GaussianDiscreteRateDistribution(size_t nbClasses, double sigma) :
+    GaussianDiscreteDistribution(nbClasses, 1., sigma)
+  {
+    deleteParameter_(0);
+  }
 
-    GaussianDiscreteRateDistribution* clone() const { return new GaussianDiscreteRateDistribution(*this); }
-    
+  GaussianDiscreteRateDistribution* clone() const { return new GaussianDiscreteRateDistribution(*this); }
 };
+} // end of namespace bpp;
 
-} //end of namespace bpp;
-
-#endif //_GAUSSIANDISCRETERATEDISTRIBUTION_H_
-
+#endif//_GAUSSIANDISCRETERATEDISTRIBUTION_H_

@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef _IN_MIXED_SUBSTITUTIONMODEL_H_
 #define _IN_MIXED_SUBSTITUTIONMODEL_H_
@@ -58,257 +58,244 @@ namespace bpp
  *
  * It has the same parameters as the MixedTransitionModel.
  */
-  
-  class InMixedSubstitutionModel :
-    public virtual AbstractWrappedSubstitutionModel,
-    public AbstractParameterAliasable
+
+class InMixedSubstitutionModel :
+  public virtual AbstractWrappedSubstitutionModel,
+  public AbstractParameterAliasable
+{
+private:
+  /*
+   * @brief The MixedOfTransitionModels.
+   *
+   */
+
+  std::unique_ptr<MixedTransitionModel> mixedModel_;
+
+  /*
+   * @brief the number of the submodel
+   *
+   */
+
+  size_t subModelNumber_;
+
+  /*
+   * @brief The name of the mixture model (for io purpose).
+   */
+
+  std::string mixtName_;
+
+public:
+  InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
+
+  InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
+
+  InMixedSubstitutionModel(const InMixedSubstitutionModel& fmsm);
+
+  InMixedSubstitutionModel& operator=(const InMixedSubstitutionModel& fmsm);
+
+  InMixedSubstitutionModel* clone() const { return new InMixedSubstitutionModel(*this); }
+
+public:
+  const MixedTransitionModel& getMixedModel() const
   {
-  private:
-    /*
-     * @brief The MixedOfTransitionModels.
-     *
-     */
+    return *mixedModel_.get();
+  }
 
-    std::unique_ptr<MixedTransitionModel> mixedModel_;
+  const SubstitutionModel& getSubstitutionModel() const
+  {
+    return dynamic_cast<const SubstitutionModel&>(*mixedModel_->getNModel(subModelNumber_));
+  }
 
-    /*
-     * @brief the number of the submodel
-     *
-     */
+  size_t getSubModelNumber() const
+  {
+    return subModelNumber_;
+  }
 
-    size_t subModelNumber_;
-  
-    /*
-     * @brief The name of the mixture model (for io purpose).
-     */
+  bool computeFrequencies() const
+  {
+    return getMixedModel().computeFrequencies();
+  }
 
-    std::string mixtName_;
+  /**
+   * @return Set if equilibrium frequencies should be computed from
+   * the generator
+   */
+  void computeFrequencies(bool yn)
+  {
+    getMixedModel().computeFrequencies(yn);
+  }
 
-  public:
-    InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
+protected:
+  Vdouble& getFrequencies_()
+  {
+    return getMixedModel().getFrequencies_();
+  }
 
-    InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
+  /*
+   * @}
+   *
+   */
+  MixedTransitionModel& getMixedModel()
+  {
+    return *mixedModel_.get();
+  }
 
-    InMixedSubstitutionModel(const InMixedSubstitutionModel& fmsm);
+  SubstitutionModel& getSubstitutionModel()
+  {
+    return dynamic_cast<SubstitutionModel&>(*mixedModel_->getNModel(subModelNumber_));
+  }
 
-    InMixedSubstitutionModel& operator=(const InMixedSubstitutionModel& fmsm);
+public:
+  /*
+   *@ brief Methods to supersede WrappedSubstitutionModel methods.
+   *
+   * @{
+   */
+  double freq(size_t i) const { return getTransitionModel().freq(i); }
 
-    InMixedSubstitutionModel* clone() const { return new InMixedSubstitutionModel(*this); }
+  double Pij_t    (size_t i, size_t j, double t) const { return getTransitionModel().Pij_t(i, j, t); }
+  double dPij_dt  (size_t i, size_t j, double t) const { return getTransitionModel().dPij_dt (i, j, t); }
+  double d2Pij_dt2(size_t i, size_t j, double t) const { return getTransitionModel().d2Pij_dt2(i, j, t); }
 
-  public:
-    
-    const MixedTransitionModel& getMixedModel() const
-    {
-      return *mixedModel_.get();
-    }
+  const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
 
-    const SubstitutionModel& getSubstitutionModel() const
-    {
-      return dynamic_cast<const SubstitutionModel&>(*mixedModel_->getNModel(subModelNumber_));
-    }
+  const Matrix<double>& getPij_t(double t) const { return getTransitionModel().getPij_t(t); }
 
-    size_t getSubModelNumber() const
-    {
-      return subModelNumber_;
-    }
+  const Matrix<double>& getdPij_dt(double t) const { return getTransitionModel().getdPij_dt(t); }
 
-    bool computeFrequencies() const
-    {
-      return getMixedModel().computeFrequencies();
-    }
+  const Matrix<double>& getd2Pij_dt2(double t) const { return getTransitionModel().getd2Pij_dt2(t); }
 
-    /**
-     * @return Set if equilibrium frequencies should be computed from
-     * the generator
-     */
-    
-    void computeFrequencies(bool yn)
-    {
-      getMixedModel().computeFrequencies(yn);
-    }
+  double getInitValue(size_t i, int state) const
+  {
+    return getModel().getInitValue(i, state);
+  }
 
-  protected:
+  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
+  {
+    getMixedModel().setFreqFromData(data, pseudoCount);
+  }
 
-    Vdouble& getFrequencies_()
-    {
-      return getMixedModel().getFrequencies_();
-    }
+  void setFreq(std::map<int, double>& frequencies)
+  {
+    getMixedModel().setFreq(frequencies);
+  }
 
-    /*
-     * @}
-     *
-     */
+  /*
+   *@ brief Methods to supersede SubstitutionModel methods.
+   *
+   * @{
+   */
+  double Qij(size_t i, size_t j) const { return getSubstitutionModel().Qij(i, j); }
 
-    MixedTransitionModel& getMixedModel()
-    {
-      return *mixedModel_.get();
-    }
+  const Matrix<double>& getGenerator() const { return getSubstitutionModel().getGenerator(); }
 
-    SubstitutionModel& getSubstitutionModel()
-    {
-      return dynamic_cast<SubstitutionModel&>(*mixedModel_->getNModel(subModelNumber_));
-    }
+  const Matrix<double>& getExchangeabilityMatrix() const { return getSubstitutionModel().getExchangeabilityMatrix(); }
 
-  public:
+  double Sij(size_t i, size_t j) const { return getSubstitutionModel().Sij(i, j); }
 
-    
-    /*
-     *@ brief Methods to supersede WrappedSubstitutionModel methods.
-     *
-     * @{
-     */
+  void enableEigenDecomposition(bool yn) { getSubstitutionModel().enableEigenDecomposition(yn); }
 
-    double freq(size_t i) const { return getTransitionModel().freq(i); }
+  bool enableEigenDecomposition() { return getSubstitutionModel().enableEigenDecomposition(); }
 
-    double Pij_t    (size_t i, size_t j, double t) const { return getTransitionModel().Pij_t(i, j, t); }
-    double dPij_dt  (size_t i, size_t j, double t) const { return getTransitionModel().dPij_dt (i, j, t); }
-    double d2Pij_dt2(size_t i, size_t j, double t) const { return getTransitionModel().d2Pij_dt2(i, j, t); }
+  bool isDiagonalizable() const { return getSubstitutionModel().isDiagonalizable(); }
 
-    const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
+  bool isNonSingular() const { return getSubstitutionModel().isNonSingular(); }
 
-    const Matrix<double>& getPij_t(double t) const { return getTransitionModel().getPij_t(t); }
+  const Vdouble& getEigenValues() const { return getSubstitutionModel().getEigenValues(); }
 
-    const Matrix<double>& getdPij_dt(double t) const { return getTransitionModel().getdPij_dt(t); }
+  const Vdouble& getIEigenValues() const { return getSubstitutionModel().getIEigenValues(); }
 
-    const Matrix<double>& getd2Pij_dt2(double t) const { return getTransitionModel().getd2Pij_dt2(t); }
+  const Matrix<double>& getRowLeftEigenVectors() const { return getSubstitutionModel().getRowLeftEigenVectors(); }
 
-    double getInitValue(size_t i, int state) const
-    {
-      return getModel().getInitValue(i,state);
-    }
-    
-    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
-    {
-      getMixedModel().setFreqFromData(data, pseudoCount);
-    }
-    
-    void setFreq(std::map<int, double>& frequencies)
-    {
-      getMixedModel().setFreq(frequencies);
-    }
-
-    /*
-     *@ brief Methods to supersede SubstitutionModel methods.
-     *
-     * @{
-     */
-
-    double Qij(size_t i, size_t j) const { return getSubstitutionModel().Qij(i, j); }
-
-    const Matrix<double>& getGenerator() const { return getSubstitutionModel().getGenerator(); }
-
-    const Matrix<double>& getExchangeabilityMatrix() const { return getSubstitutionModel().getExchangeabilityMatrix(); }
-
-    double Sij(size_t i, size_t j) const { return getSubstitutionModel().Sij(i, j); }
-
-    void enableEigenDecomposition(bool yn) { getSubstitutionModel().enableEigenDecomposition(yn); }
-
-    bool enableEigenDecomposition() { return getSubstitutionModel().enableEigenDecomposition(); }
-
-    bool isDiagonalizable() const { return getSubstitutionModel().isDiagonalizable(); }
-
-    bool isNonSingular() const { return getSubstitutionModel().isNonSingular(); }
-
-    const Vdouble& getEigenValues() const { return getSubstitutionModel().getEigenValues(); }
-
-    const Vdouble& getIEigenValues() const { return getSubstitutionModel().getIEigenValues(); }
-
-    const Matrix<double>& getRowLeftEigenVectors() const { return getSubstitutionModel().getRowLeftEigenVectors(); }
-
-    const Matrix<double>& getColumnRightEigenVectors() const { return getSubstitutionModel().getColumnRightEigenVectors(); }
+  const Matrix<double>& getColumnRightEigenVectors() const { return getSubstitutionModel().getColumnRightEigenVectors(); }
 
 
-    /*
-     * @}
-     *
-     */
+  /*
+   * @}
+   *
+   */
+  bool isScalable() const
+  {
+    return getSubstitutionModel().isScalable();
+  }
 
-    bool isScalable() const 
-    {
-      return getSubstitutionModel().isScalable();
-    }
-
-    void setScalable(bool scalable)
-    {
-      getSubstitutionModel().setScalable(scalable);
-    }
-
- 
-    double getScale() const { return getSubstitutionModel().getScale(); }
-
-    void setScale(double scale) { getSubstitutionModel().setScale(scale); }
+  void setScalable(bool scalable)
+  {
+    getSubstitutionModel().setScalable(scalable);
+  }
 
 
-    void normalize()
-    {
-      getSubstitutionModel().normalize();
-    }
+  double getScale() const { return getSubstitutionModel().getScale(); }
 
-    void setDiagonal()
-    {
-      getSubstitutionModel().setDiagonal();
-    }
-
-    double getRate() const
-    {
-      return getTransitionModel().getRate();
-    }
-
-    void setRate(double rate)
-    {
-      return getMixedModel().setRate(rate);
-    }
-    
-    void addRateParameter()
-    {
-      getMixedModel().addRateParameter();
-      addParameter_(new Parameter(getNamespace() + "rate", getMixedModel().getRate(), Parameter::R_PLUS_STAR));
-    }
-
-    /*
-     * @}
-     *
-     */
-
-    /*
-     *@ brief Methods to supersede AbstractSubstitutionnModel methods.
-     *
-     * @{
-     */
-
-    /**
-     * @brief Tells the model that a parameter value has changed.
-     *
-     * This updates the matrices consequently.
-     */
-    void fireParameterChanged(const ParameterList& parameters)
-    {
-      getMixedModel().matchParametersValues(parameters);
-    }
-
-    void setNamespace(const std::string& name)
-    {
-      AbstractParameterAliasable::setNamespace(name);
-      getMixedModel().setNamespace(name);
-    }
+  void setScale(double scale) { getSubstitutionModel().setScale(scale); }
 
 
-    /*
-     * @}
-     */
+  void normalize()
+  {
+    getSubstitutionModel().normalize();
+  }
 
-    std::string getName() const
-    {
-      return mixedModel_->getName();
-    }
+  void setDiagonal()
+  {
+    getSubstitutionModel().setDiagonal();
+  }
 
-  protected:
+  double getRate() const
+  {
+    return getTransitionModel().getRate();
+  }
 
-    void updateMatrices() 
-    {
-    }
-  };
-  
+  void setRate(double rate)
+  {
+    return getMixedModel().setRate(rate);
+  }
+
+  void addRateParameter()
+  {
+    getMixedModel().addRateParameter();
+    addParameter_(new Parameter(getNamespace() + "rate", getMixedModel().getRate(), Parameter::R_PLUS_STAR));
+  }
+
+  /*
+   * @}
+   *
+   */
+
+  /*
+   *@ brief Methods to supersede AbstractSubstitutionnModel methods.
+   *
+   * @{
+   */
+
+  /**
+   * @brief Tells the model that a parameter value has changed.
+   *
+   * This updates the matrices consequently.
+   */
+  void fireParameterChanged(const ParameterList& parameters)
+  {
+    getMixedModel().matchParametersValues(parameters);
+  }
+
+  void setNamespace(const std::string& name)
+  {
+    AbstractParameterAliasable::setNamespace(name);
+    getMixedModel().setNamespace(name);
+  }
+
+
+  /*
+   * @}
+   */
+  std::string getName() const
+  {
+    return mixedModel_->getName();
+  }
+
+protected:
+  void updateMatrices()
+  {}
+};
 } // end of namespace bpp.
 
-#endif  // _IN_MIXED_SUBSTITUTIONMODEL_H_
+#endif// _IN_MIXED_SUBSTITUTIONMODEL_H_

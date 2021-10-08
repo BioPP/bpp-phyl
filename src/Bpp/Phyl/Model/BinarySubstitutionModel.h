@@ -128,7 +128,6 @@ public:
 
   BinarySubstitutionModel* clone() const { return new BinarySubstitutionModel(*this); }
 
-  
 public:
   double Pij_t    (size_t i, size_t j, double d) const;
   double dPij_dt  (size_t i, size_t j, double d) const;
@@ -148,5 +147,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif  // _BINARYSUBSTITUTIONMODEL_H_
-
+#endif// _BINARYSUBSTITUTIONMODEL_H_

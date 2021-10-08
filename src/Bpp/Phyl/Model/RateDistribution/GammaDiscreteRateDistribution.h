@@ -40,26 +40,23 @@
 #ifndef _GAMMADISCRETERATEDISTRIBUTION_H_
 #define _GAMMADISCRETERATEDISTRIBUTION_H_
 
-//From bpp-core
+// From bpp-core
 #include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
 
-namespace bpp {
-
-class GammaDiscreteRateDistribution:
+namespace bpp
+{
+class GammaDiscreteRateDistribution :
   public GammaDiscreteDistribution
 {
-  public:
-    GammaDiscreteRateDistribution(size_t nbClasses, double alpha = 1.):
-      GammaDiscreteDistribution(nbClasses, alpha, alpha)
-    {
-      aliasParameters("alpha", "beta");
-    }
+public:
+  GammaDiscreteRateDistribution(size_t nbClasses, double alpha = 1.) :
+    GammaDiscreteDistribution(nbClasses, alpha, alpha)
+  {
+    aliasParameters("alpha", "beta");
+  }
 
-    GammaDiscreteRateDistribution* clone() const { return new GammaDiscreteRateDistribution(*this); }
-    
+  GammaDiscreteRateDistribution* clone() const { return new GammaDiscreteRateDistribution(*this); }
 };
+} // end of namespace bpp;
 
-} //end of namespace bpp;
-
-#endif //_GAMMADISCRETERATEDISTRIBUTION_H_
-
+#endif//_GAMMADISCRETERATEDISTRIBUTION_H_

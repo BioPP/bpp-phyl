@@ -165,5 +165,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif // _G2001_H_
-
+#endif// _G2001_H_

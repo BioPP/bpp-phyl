@@ -129,7 +129,6 @@ public:
 
   TwoParameterBinarySubstitutionModel* clone() const { return new TwoParameterBinarySubstitutionModel(*this); }
 
-  
 public:
   // the inherited functions don't do the work - need to override them with the correct computation
   double Pij_t    (size_t i, size_t j, double d) const;
@@ -140,7 +139,7 @@ public:
   const Matrix<double>& getd2Pij_dt2(double d) const;
 
   std::string getName() const { return "TwoParameterBinary"; }
-  
+
   size_t getNumberOfStates() const { return 2; }
 
   void setMuBounds(double lb, double ub);
@@ -150,5 +149,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif  // _TWOPARAMETERBINARYSUBSTITUTIONMODEL_H_
-
+#endif// _TWOPARAMETERBINARYSUBSTITUTIONMODEL_H_

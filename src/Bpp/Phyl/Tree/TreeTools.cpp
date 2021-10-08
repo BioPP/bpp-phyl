@@ -321,7 +321,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap
   }
   if (tree.hasDistanceToFather(nodeId))
     s << ":" << tree.getDistanceToFather(nodeId);
-  
+
   return s.str();
 }
 
@@ -365,7 +365,7 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool bootstrap, const stri
   s << "(";
   int rootId = tree.getRootId();
   vector<int> sonsId = tree.getSonsId(rootId);
-  
+
   if (tree.hasNoSon(rootId))
   {
     s << tree.getNodeName(rootId);
@@ -394,7 +394,7 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool bootstrap, const stri
       s << dynamic_cast<const BppString*>(tree.getBranchProperty(rootId, propertyName))->toSTL();
   }
   s << ";" << endl;
-  
+
   return s.str();
 }
 
@@ -443,7 +443,7 @@ vector<int> TreeTools::getPathBetweenAnyTwoNodes(const Tree& tree, int nodeId1, 
     path.push_back(pathMatrix1[y]);
   }
   if (includeAncestor)
-    path.push_back(pathMatrix1[tmp1]);  // pushing once, the Node that was common to both.
+    path.push_back(pathMatrix1[tmp1]);                                          // pushing once, the Node that was common to both.
   for (size_t j = tmp2; j > 0; --j)
   {
     path.push_back(pathMatrix2[j - 1]);
@@ -819,20 +819,20 @@ VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*>& vecTr)
 
 VectorSiteContainer* TreeTools::MRPEncodeMultilabel(const vector<Tree*>& vecTr)
 {
-    vector<BipartitionList*> vecBipL;
-    for (size_t i = 0; i < vecTr.size(); i++)
-    {
-        vecBipL.push_back(new BipartitionList(*vecTr[i]));
-    }
-    
-    VectorSiteContainer* cont = BipartitionTools::MRPEncodeMultilabel(vecBipL);
-    
-    for (size_t i = 0; i < vecTr.size(); i++)
-    {
-        delete vecBipL[i];
-    }
-    
-    return cont;
+  vector<BipartitionList*> vecBipL;
+  for (size_t i = 0; i < vecTr.size(); i++)
+  {
+    vecBipL.push_back(new BipartitionList(*vecTr[i]));
+  }
+
+  VectorSiteContainer* cont = BipartitionTools::MRPEncodeMultilabel(vecBipL);
+
+  for (size_t i = 0; i < vecTr.size(); i++)
+  {
+    delete vecBipL[i];
+  }
+
+  return cont;
 }
 
 /******************************************************************************/
@@ -1180,7 +1180,7 @@ int TreeTools::getLastCommonAncestor(const Tree& tree, const vector<int>& nodeId
   }
   int lca = tree.getRootId();
   size_t count = 1;
-  for ( ; ; )
+  for ( ; ;)
   {
     if (ancestors[0].size() <= count)
       return lca;
@@ -1285,29 +1285,27 @@ TreeTools::Moments_ TreeTools::statFromNode_(Tree& tree, int rootId)
 
 Tree* TreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
 {
-    // matrix representation
-    VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
-    
-    // starting bioNJ tree
-    const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
-    JCnuc* jc = new JCnuc(alphabet);
-    ConstantDistribution* constRate = new ConstantDistribution(1.);
-    DistanceEstimation distFunc(jc, constRate, sites, 0, true);
-    BioNJ bionjTreeBuilder(false, false);
-    bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
-    bionjTreeBuilder.computeTree();
-    if (ApplicationTools::message)
-        ApplicationTools::message->endLine();
-    TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
-    
-    // MP optimization
-    DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
-    MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
-    delete startTree;
-    Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
-    delete MPScore;
-    
-    return retTree;
+  // matrix representation
+  VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
+
+  // starting bioNJ tree
+  const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
+  JCnuc* jc = new JCnuc(alphabet);
+  ConstantDistribution* constRate = new ConstantDistribution(1.);
+  DistanceEstimation distFunc(jc, constRate, sites, 0, true);
+  BioNJ bionjTreeBuilder(false, false);
+  bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
+  bionjTreeBuilder.computeTree();
+  if (ApplicationTools::message)
+    ApplicationTools::message->endLine();
+  TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
+
+  // MP optimization
+  DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
+  MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
+  delete startTree;
+  Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
+  delete MPScore;
+
+  return retTree;
 }
-
-

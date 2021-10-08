@@ -83,11 +83,11 @@ namespace bpp
  * and synonymous substitutions rates is @f$\beta@f$ with positive
  * parameter \c "beta".
  */
-  
+
 class KroneckerCodonDistanceFrequenciesSubstitutionModel :
-    public AbstractKroneckerCodonSubstitutionModel,
-    public AbstractCodonDistanceSubstitutionModel,
-    public AbstractCodonFrequenciesSubstitutionModel
+  public AbstractKroneckerCodonSubstitutionModel,
+  public AbstractCodonDistanceSubstitutionModel,
+  public AbstractCodonFrequenciesSubstitutionModel
 {
 public:
   /**
@@ -106,10 +106,10 @@ public:
    */
 
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
-      const GeneticCode* gCode,
-      NucleotideSubstitutionModel* pmod,
-      std::shared_ptr<FrequencySet> pfreq,
-      const AlphabetIndex2* pdist = 0);
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    std::shared_ptr<FrequencySet> pfreq,
+    const AlphabetIndex2* pdist = 0);
 
   /**
    * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
@@ -151,12 +151,12 @@ public:
    */
 
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
-      const GeneticCode* gCode,
-      NucleotideSubstitutionModel* pmod1,
-      NucleotideSubstitutionModel* pmod2,
-      NucleotideSubstitutionModel* pmod3,
-      std::shared_ptr<FrequencySet> pfreq,
-      const AlphabetIndex2* pdist = 0);
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    std::shared_ptr<FrequencySet> pfreq,
+    const AlphabetIndex2* pdist = 0);
 
   /**
    * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
@@ -200,16 +200,13 @@ public:
 
   void setNamespace(const std::string&);
 
-  void setFreq(std::map<int,double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies);
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const {
+  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  {
     return AbstractCodonFrequenciesSubstitutionModel::getFrequencySet();
   }
-
-
 };
-
 } // end of namespace bpp.
 
-#endif // _KRONECKER_CODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H_
-
+#endif// _KRONECKER_CODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H_

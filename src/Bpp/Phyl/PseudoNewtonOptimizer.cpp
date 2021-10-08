@@ -5,37 +5,37 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 /**************************************************************************/
 
@@ -53,23 +53,23 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 
 /**************************************************************************/
-           
+
 double PseudoNewtonOptimizer::PNStopCondition::getCurrentTolerance() const
 {
   return NumTools::abs<double>(
-      dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
-      dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_); 
+    dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
+    dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_);
 }
- 
+
 /**************************************************************************/
-           
+
 bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
 {
-  return getCurrentTolerance() < tolerance_; 
+  return getCurrentTolerance() < tolerance_;
 }
-   
+
 /**************************************************************************/
-  
+
 PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder* function) :
   AbstractOptimizer(function),
   previousPoint_(),
@@ -98,7 +98,8 @@ void PseudoNewtonOptimizer::doInit(const ParameterList& params)
 double PseudoNewtonOptimizer::doStep()
 {
   ParameterList* bckPoint = 0;
-  if (updateParameters()) bckPoint = new ParameterList(getFunction()->getParameters());
+  if (updateParameters())
+    bckPoint = new ParameterList(getFunction()->getParameters());
   double newValue = 0;
   // Compute derivative at current point:
   std::vector<double> movements(n_);
@@ -115,40 +116,46 @@ double PseudoNewtonOptimizer::doStep()
     else if (secondOrderDerivative < 0)
     {
       printMessage("!!! Second order derivative is negative for parameter " + params_[i] + "(" + TextTools::toString(getParameters()[i].getValue()) + "). Moving in the other direction.");
-      //movements[i] = 0;  // We want to reach a minimum, not a maximum!
+      // movements[i] = 0;  // We want to reach a minimum, not a maximum!
       // My personnal improvement:
       movements[i] = -firstOrderDerivative / secondOrderDerivative;
     }
-    else movements[i] = firstOrderDerivative / secondOrderDerivative;
+    else
+      movements[i] = firstOrderDerivative / secondOrderDerivative;
     if (std::isnan(movements[i]))
     {
       printMessage("!!! Non derivable point at " + params_[i] + ". No move performed. (f=" + TextTools::toString(currentValue_) + ", d1=" + TextTools::toString(firstOrderDerivative) + ", d2=" + TextTools::toString(secondOrderDerivative) + ").");
       movements[i] = 0; // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
     }
-    //DEBUG:
-    //cerr << "PN[" << params_[i] << "]=" << getParameters().getParameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
+    // DEBUG:
+    // cerr << "PN[" << params_[i] << "]=" << getParameters().getParameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
     newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
-    //Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
-      movements[i] = getParameters()[i].getValue() - newPoint[i].getValue(); 
+    // Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
+    movements[i] = getParameters()[i].getValue() - newPoint[i].getValue();
   }
   newValue = getFunction()->f(newPoint);
 
   // Check newValue:
   unsigned int count = 0;
-  while ((count < maxCorrection_) && ((newValue > currentValue_ + getStopCondition()->getTolerance()) || std::isnan(newValue))) {
-    //Restore previous point (all parameters in case of global constraint):
-    if ((count==0) && updateParameters()) getFunction()->setParameters(*bckPoint);
-    
-    if (!(useCG_ && (count==3))){
+  while ((count < maxCorrection_) && ((newValue > currentValue_ + getStopCondition()->getTolerance()) || std::isnan(newValue)))
+  {
+    // Restore previous point (all parameters in case of global constraint):
+    if ((count == 0) && updateParameters())
+      getFunction()->setParameters(*bckPoint);
+
+    if (!(useCG_ && (count == 3)))
+    {
       printMessage("!!! Function at new point is greater than at current point: " + TextTools::toString(newValue) + ">" + TextTools::toString(currentValue_) + ". Applying Felsenstein-Churchill correction: " + TextTools::toString(count));
-        
-      for (size_t i = 0; i < movements.size(); i++) {
+
+      for (size_t i = 0; i < movements.size(); i++)
+      {
         movements[i] = movements[i] / 2;
         newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
       }
       newValue = getFunction()->f(newPoint);
     }
-    else {
+    else
+    {
       printMessage("!!! Felsenstein-Churchill correction applied too many times.");
       printMessage("Use conjugate gradients optimization.");
       getFunction()->enableSecondOrderDerivatives(false);
@@ -165,33 +172,35 @@ double PseudoNewtonOptimizer::doStep()
       opt.optimize();
       newPoint = opt.getParameters();
       newValue = opt.getFunctionValue();
-      
-      if (newValue > currentValue_ + tol) {
+
+      if (newValue > currentValue_ + tol)
+      {
         printMessage("!!! Conjugate gradient method failed to improve likelihood.");
         printMessage("Back to Felsenstein-Churchill method.");
       }
     }
     count++;
   }
-  
-  if (newValue > currentValue_ + getStopCondition()->getTolerance()){
+
+  if (newValue > currentValue_ + getStopCondition()->getTolerance())
+  {
     printMessage("PseudoNewtonOptimizer::doStep. Value could not be ameliorated!");
     newValue = currentValue_;
   }
-  else  {
-    //getFunction()->enableFirstOrderDerivatives(true);
+  else
+  {
+    // getFunction()->enableFirstOrderDerivatives(true);
     getFunction()->enableSecondOrderDerivatives(true);
-    getFunction()->setParameters(newPoint); //Compute derivatives for this point
-    
+    getFunction()->setParameters(newPoint); // Compute derivatives for this point
+
     previousPoint_ = getParameters();
     previousValue_ = currentValue_;
     getParameters_() = newPoint;
   }
 
-  if (updateParameters()) delete bckPoint;
+  if (updateParameters())
+    delete bckPoint;
   return newValue;
-  
 }
 
 /**************************************************************************/
-

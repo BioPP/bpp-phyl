@@ -64,6 +64,5 @@ double AbstractCodonCpGSubstitutionModel::getCodonsMulRate(size_t i, size_t j) c
 {
   int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
 
-  return ((si%16==7  && (si-sj==2 || sj-si==8)) || ((si-1)/4==6 && (si-sj==8 || (sj-si==32))))?rho_:1;
+  return ((si % 16 == 7  && (si - sj == 2 || sj - si == 8)) || ((si - 1) / 4 == 6 && (si - sj == 8 || (sj - si == 32)))) ? rho_ : 1;
 }
-

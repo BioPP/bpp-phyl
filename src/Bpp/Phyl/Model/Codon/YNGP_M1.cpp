@@ -67,7 +67,7 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
-  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
+  pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
 
   vector<int> supportedChars = yn98->getAlphabetStates();
   // map the parameters
@@ -106,8 +106,8 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
     for (synto_ = 0; synto_ < synfrom_; ++synto_)
     {
       if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
-        && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
-        && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
+          && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
+          && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
@@ -136,4 +136,3 @@ void YNGP_M1::updateMatrices()
 
   pmixmodel_->setVRates(vd);
 }
-

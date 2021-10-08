@@ -51,23 +51,23 @@ OneProcessSequenceSubstitutionMapping::OneProcessSequenceSubstitutionMapping(One
   // assigns edge indexes
   const auto& tree = spp.getTree();
 
-  unique_ptr<modelTree::EdgeIterator> eIT=allEdgesIterator();
+  unique_ptr<modelTree::EdgeIterator> eIT = allEdgesIterator();
 
-  for (;!eIT->end(); eIT->next())
+  for ( ; !eIT->end(); eIT->next())
   {
     auto edge1 = tree.getEdgeFromGraphid(getEdgeGraphid(**eIT));
     if (tree.hasEdgeIndex(edge1))
-      setEdgeIndex(**eIT,tree.getEdgeIndex(edge1));
+      setEdgeIndex(**eIT, tree.getEdgeIndex(edge1));
   }
-  
-  // assigns node indexes
-  unique_ptr<modelTree::NodeIterator> nIT=allNodesIterator();
 
-  for (;!nIT->end(); nIT->next())
+  // assigns node indexes
+  unique_ptr<modelTree::NodeIterator> nIT = allNodesIterator();
+
+  for ( ; !nIT->end(); nIT->next())
   {
     auto node1 = tree.getNodeFromGraphid(getNodeGraphid(**nIT));
     if (tree.hasNodeIndex(node1))
-      setNodeIndex(**nIT,tree.getNodeIndex(node1));
+      setNodeIndex(**nIT, tree.getNodeIndex(node1));
   }
 }
 
@@ -75,7 +75,7 @@ void OneProcessSequenceSubstitutionMapping::computeNormalizations(const Paramete
                                                                   bool verbose)
 {
   matchParametersValues(nullParams);
-  
+
   factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculationSingleProcess(),
                                                                  this,
                                                                  getRegister(),
@@ -101,10 +101,12 @@ void OneProcessSequenceSubstitutionMapping::computeNormalizations(const Paramete
 
 void OneProcessSequenceSubstitutionMapping::setBranchedModelSet_()
 {
-  const SubstitutionProcess& sp=pOPSP_->getSubstitutionProcess();
+  const SubstitutionProcess& sp = pOPSP_->getSubstitutionProcess();
 
-  vector<size_t> vId=sp.getModelNumbers();
+  vector<size_t> vId = sp.getModelNumbers();
 
   for (auto id:vId)
-    addModel(id, dynamic_cast<const TransitionModel&>(*sp.getModel(id)),sp.getNodesWithModel(id));
+  {
+    addModel(id, dynamic_cast<const TransitionModel&>(*sp.getModel(id)), sp.getNodesWithModel(id));
+  }
 }

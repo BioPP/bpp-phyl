@@ -680,7 +680,7 @@ public:
    * @param verbose Tell if a progress bar should be displayed.
    * @param format The output format of the tree.
    */
-  
+
   static void computeBootstrapValues(Tree& tree, const std::vector<Tree*>& vecTr, bool verbose = true, int format = 0);
 
   /**
@@ -706,7 +706,7 @@ public:
    */
   static Tree* MRPMultilabel(const std::vector<Tree*>& vecTr);
 
-	
+
   /**
    * @name Some properties.
    *
@@ -736,5 +736,4 @@ private:
 };
 } // end of namespace bpp.
 
-#endif  // _TREETOOLS_H_
-
+#endif// _TREETOOLS_H_

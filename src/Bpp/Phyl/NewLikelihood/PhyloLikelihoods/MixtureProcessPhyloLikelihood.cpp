@@ -61,18 +61,20 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   mSeqEvol_(processSeqEvol),
   likCal_(new AlignedLikelihoodCalculation(collNodes.getContext()))
 {
-  if (vLikCal_.size()==0)
+  if (vLikCal_.size() == 0)
     throw Exception("MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood : empty singleprocesslikelihoods set.");
 
   auto& simplex = mSeqEvol_.getSimplex();
-  
-  //parameters of the simplex
-  const auto& param=simplex.getParameters();
+
+  // parameters of the simplex
+  const auto& param = simplex.getParameters();
   ParameterList paramList;
 
-  for (size_t i=0;i<param.size();i++)
+  for (size_t i = 0; i < param.size(); i++)
+  {
     paramList.shareParameter(ConfiguredParameter::create(getContext(), param[i]));
-  
+  }
+
   shareParameters_(paramList);
 
   // make Simplex DF & Frequencies from it
@@ -88,10 +90,12 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex, Eigen::RowVectorXd>(getContext(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
 
   // get RowVectorXd for each single Calculation
-  std::vector<std::shared_ptr<Node_DF>> vSL;
-  
+  std::vector<std::shared_ptr<Node_DF> > vSL;
+
   for (auto& lik: vLikCal_)
+  {
     vSL.push_back(lik->getSiteLikelihoods(true));
+  }
 
   // put probabilities of the simplex
   vSL.push_back(fsf);
@@ -122,7 +126,7 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProce
   auto l = getLikelihoodPerSite();
 
   const auto& freq = simplex_->getTargetValue()->getFrequencies();
-  
+
   for (size_t i = 0; i < nbSites_; ++i)
   {
     for (size_t j = 0; j < nbProcess; ++j)
@@ -132,5 +136,3 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProce
   }
   return pb;
 }
-
-

@@ -51,107 +51,103 @@ namespace bpp
  * This interface defines the common methods needed to compute a likelihood
  * from a sequence alignement, usually involving one or more phylogenetic trees.
  */
-  class PhyloLikelihood:
-    public virtual DerivableSecondOrder
+class PhyloLikelihood :
+  public virtual DerivableSecondOrder
+{
+public:
+  PhyloLikelihood() {}
+  virtual ~PhyloLikelihood() {}
+
+  PhyloLikelihood* clone() const = 0;
+
+public:
+  /**
+   *
+   * @name The data functions
+   *
+   * @{
+   */
+
+  /**
+   * @return 'true' is the likelihood function has been initialized.
+   */
+  virtual bool isInitialized() const = 0;
+
+  /**
+   * @}
+   */
+
+  /**
+   * @name The likelihood functions.
+   *
+   * @{
+   */
+
+  /**
+   * @brief Get the logarithm of the likelihood for the whole dataset.
+   *
+   * @return The logarithm of the likelihood of the dataset.
+   */
+  double getLogLikelihood() const
   {
-  public:
-    PhyloLikelihood() {}
-    virtual ~PhyloLikelihood() {}
+    return -getValue();
+  }
 
-    PhyloLikelihood* clone() const = 0;
+  /**
+   * @brief Get the derivates of the LogLikelihood.
+   *
+   */
 
-  public:
+  // virtual double getDLogLikelihood(const std::string& variable) const = 0;
 
-    /**
-     *
-     * @name The data functions
-     *
-     * @{
-     */
-      
-    /**
-     * @return 'true' is the likelihood function has been initialized.
-     */
-    virtual bool isInitialized() const = 0;
-      
-    /**
-     * @}
-     */
+  // virtual double getD2LogLikelihood(const std::string& variable) const = 0;
 
-    /**
-     * @name The likelihood functions.
-     *
-     * @{
-     */
-      
-    /**
-     * @brief Get the logarithm of the likelihood for the whole dataset.
-     *
-     * @return The logarithm of the likelihood of the dataset.
-     */
-    
-    double getLogLikelihood() const
-    {
-      return -getValue();
-    }
-      
-    /**
-     * @brief Get the derivates of the LogLikelihood.
-     *
-     */
+  /** @} */
 
-    // virtual double getDLogLikelihood(const std::string& variable) const = 0;
+  /**
+   * @name Retrieve some particular independent parameters subsets.
+   *
+   * @{
+   */
 
-    // virtual double getD2LogLikelihood(const std::string& variable) const = 0;
+  virtual ParameterList getNonDerivableParameters() const = 0;
 
-    /** @} */
+  virtual ParameterList getDerivableParameters() const = 0;
 
-    /**
-     * @name Retrieve some particular independent parameters subsets.
-     *
-     * @{
-     */
+  /**
+   * @brief Get the independent branch lengths parameters.
+   *
+   * @return A ParameterList with all branch lengths.
+   */
 
-    virtual ParameterList getNonDerivableParameters() const = 0;
-    
-    virtual ParameterList getDerivableParameters() const = 0;
-    
-    /**
-     * @brief Get the independent branch lengths parameters.
-     *
-     * @return A ParameterList with all branch lengths.
-     */
+  virtual ParameterList getBranchLengthParameters() const = 0;
 
-    virtual ParameterList getBranchLengthParameters() const = 0;
-    
-    /**
-     * @brief Get the independent parameters associated to substitution model(s).
-     *
-     * @return A ParameterList.
-     */
+  /**
+   * @brief Get the independent parameters associated to substitution model(s).
+   *
+   * @return A ParameterList.
+   */
 
-    virtual ParameterList getSubstitutionModelParameters() const = 0;
+  virtual ParameterList getSubstitutionModelParameters() const = 0;
 
-    /**
-     * @brief Get the independent parameters associated to the rate distribution(s).
-     *
-     * @return A ParameterList.
-     */
+  /**
+   * @brief Get the independent parameters associated to the rate distribution(s).
+   *
+   * @return A ParameterList.
+   */
 
-    virtual ParameterList getRateDistributionParameters() const = 0;
+  virtual ParameterList getRateDistributionParameters() const = 0;
 
-    /**
-     * @brief Get the independent parameters associated to the root frequencies(s).
-     *
-     * @return A ParameterList.
-     */
+  /**
+   * @brief Get the independent parameters associated to the root frequencies(s).
+   *
+   * @return A ParameterList.
+   */
 
-    virtual ParameterList getRootFrequenciesParameters() const = 0;
+  virtual ParameterList getRootFrequenciesParameters() const = 0;
 
-    /** @} */
+  /** @} */
+};
+} // end of namespace bpp.
 
-  };
-
-} //end of namespace bpp.
-
-#endif  // _PHYLOLIKELIHOOD_H_
+#endif// _PHYLOLIKELIHOOD_H_

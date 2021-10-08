@@ -55,7 +55,7 @@ ModelPath::ModelPath(const ModelPath& hn) :
 
 ModelPath& ModelPath::operator=(const ModelPath& hn)
 {
-  mModPath_=hn.mModPath_;
+  mModPath_ = hn.mModPath_;
   proba_ = hn.proba_;
 
   return *this;
@@ -63,47 +63,47 @@ ModelPath& ModelPath::operator=(const ModelPath& hn)
 
 void ModelPath::setModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint& vnS)
 {
-  if (vnS.size()==0)
+  if (vnS.size() == 0)
     return;
   mModPath_[mMod] = PathNode();
   mModPath_[mMod].insertN(vnS);
-  
+
   if (mModPath_[mMod].back() >= mMod->getNumberOfModels())
-    throw IndexOutOfBoundsException("ModelPath::setModel. Bad submodel number in mixed model", mModPath_[mMod].back(), 0, mMod->getNumberOfModels()-1);
+    throw IndexOutOfBoundsException("ModelPath::setModel. Bad submodel number in mixed model", mModPath_[mMod].back(), 0, mMod->getNumberOfModels() - 1);
 }
 
 void ModelPath::changeModel(std::shared_ptr<MixedTransitionModel> mMod1,
                             std::shared_ptr<MixedTransitionModel> mMod2)
 {
-  if (mModPath_.find(mMod1)==mModPath_.end())
+  if (mModPath_.find(mMod1) == mModPath_.end())
     throw Exception("ModelPath::changeModel : Unknown model " + mMod1->getName());
 
-  if (leadMod_==mMod1)
-    leadMod_=mMod2;
-  
-  const auto& np=mModPath_[mMod1];
+  if (leadMod_ == mMod1)
+    leadMod_ = mMod2;
+
+  const auto& np = mModPath_[mMod1];
   setModel(mMod2, np);
   mModPath_.erase(mMod1);
 }
-    
+
 void ModelPath::addToModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint& vnS)
 {
-  if (mModPath_.find(mMod)==mModPath_.end())
+  if (mModPath_.find(mMod) == mModPath_.end())
     mModPath_[mMod] = PathNode();
-  
+
   mModPath_[mMod].insertN(vnS);
-  
-  if (mModPath_.size()>0 && mModPath_[mMod].back() >= mMod->getNumberOfModels())
-    throw IndexOutOfBoundsException("ModelPath::addToModel. Bad submodel number in mixed model", mModPath_[mMod].back(), 0, mMod->getNumberOfModels()-1);
+
+  if (mModPath_.size() > 0 && mModPath_[mMod].back() >= mMod->getNumberOfModels())
+    throw IndexOutOfBoundsException("ModelPath::addToModel. Bad submodel number in mixed model", mModPath_[mMod].back(), 0, mMod->getNumberOfModels() - 1);
 }
 
 bool ModelPath::operator<=(const ModelPath& hn) const
 {
-  const auto& mpath2=hn.mModPath_;
-  
+  const auto& mpath2 = hn.mModPath_;
+
   for (const auto& ipath : mModPath_)
   {
-    if (mpath2.find(ipath.first)!=mpath2.end() &&
+    if (mpath2.find(ipath.first) != mpath2.end() &&
         !(ipath.second <= mpath2.at(ipath.first)))
       return false;
   }
@@ -118,18 +118,18 @@ bool ModelPath::operator>=(const ModelPath& hn) const
 
 bool ModelPath::intersects(const ModelPath& hn) const
 {
-  const auto& mpath2=hn.mModPath_;
+  const auto& mpath2 = hn.mModPath_;
 
   for (const auto& ipath : mModPath_)
   {
-    if (mpath2.find(ipath.first)==mpath2.end() ||
+    if (mpath2.find(ipath.first) == mpath2.end() ||
         ipath.second.intersects(mpath2.at(ipath.first)))
       return true;
   }
 
   for (const auto& ipath : mpath2)
   {
-    if (mModPath_.find(ipath.first)==mModPath_.end())
+    if (mModPath_.find(ipath.first) == mModPath_.end())
       return true;
   }
 
@@ -138,66 +138,70 @@ bool ModelPath::intersects(const ModelPath& hn) const
 
 ModelPath& ModelPath::operator+=(const ModelPath& hn)
 {
-  const auto& mpath2=hn.mModPath_;
-  
+  const auto& mpath2 = hn.mModPath_;
+
   for (const auto& ipath : mpath2)
-    addToModel(ipath.first,ipath.second);
-  
+  {
+    addToModel(ipath.first, ipath.second);
+  }
+
   return *this;
 }
 
 ModelPath& ModelPath::operator-=(const ModelPath& hn)
 {
-  const auto& mpath2=hn.mModPath_;
-  
+  const auto& mpath2 = hn.mModPath_;
+
   for (const auto& ipath : mpath2)
   {
-    if (mModPath_.find(ipath.first)!=mModPath_.end())
+    if (mModPath_.find(ipath.first) != mModPath_.end())
     {
-      mModPath_[ipath.first]-=ipath.second;
-      if (mModPath_[ipath.first].size()==0)
+      mModPath_[ipath.first] -= ipath.second;
+      if (mModPath_[ipath.first].size() == 0)
         mModPath_.erase(ipath.first);
     }
   }
-  
+
   return *this;
 }
 
-std::vector<std::shared_ptr<MixedTransitionModel>> ModelPath::getModels() const
+std::vector<std::shared_ptr<MixedTransitionModel> > ModelPath::getModels() const
 {
-  std::vector<std::shared_ptr<MixedTransitionModel>> models;
-  
+  std::vector<std::shared_ptr<MixedTransitionModel> > models;
+
   std::transform(
     mModPath_.begin(),
     mModPath_.end(),
     std::back_inserter(models),
-    [](const std::map<std::shared_ptr<MixedTransitionModel>, PathNode>::value_type &pair){return pair.first;});
-  
+    [](const std::map<std::shared_ptr<MixedTransitionModel>, PathNode>::value_type& pair){
+    return pair.first;
+  });
+
   return models;
-};
+}
 
 std::string ModelPath::to_string() const
 {
   std::string output;
-  bool deb=true;
+  bool deb = true;
   for (const auto& mod:mModPath_)
   {
     if (!deb)
       output += "&";
 
-    auto model=mod.first;
+    auto model = mod.first;
 
     if (dynamic_cast<const AbstractBiblioMixedTransitionModel*>(model.get()) == NULL)
     {
-      std::string name="";
+      std::string name = "";
       auto pMS = dynamic_cast<const MixtureOfTransitionModels*>(model.get());
       if (pMS)
       {
-        name= "Mixture[";
-        bool com=false;
+        name = "Mixture[";
+        bool com = false;
         for (auto nb:mod.second)
         {
-          name = name + (com?", ":"") + pMS->AbstractMixedTransitionModel::getNModel(nb-1)->getName();
+          name = name + (com ? ", " : "") + pMS->AbstractMixedTransitionModel::getNModel(nb - 1)->getName();
         }
         name += "]";
       }
@@ -205,7 +209,7 @@ std::string ModelPath::to_string() const
       {
         auto pMT = dynamic_cast<const MixtureOfATransitionModel*>(model.get());
         name = "MixedModel";
-        
+
         const TransitionModel* eM = pMT->getModel(0);
 
         name += "." + eM->getName() + "[" + mod.second.to_string() + "]";
@@ -214,8 +218,8 @@ std::string ModelPath::to_string() const
     }
     else
       output += model->getName() + "[" + mod.second.to_string() + "]";
-    
-    deb=false;
+
+    deb = false;
   }
   return output;
 }
@@ -229,8 +233,8 @@ void ModelPath::PathNode::insertN(const Vuint& vn)
   for (const auto& it2 : vn)
   {
     vector<uint>::const_iterator it(begin());
-    
-    for (; it != end(); it++)
+
+    for ( ; it != end(); it++)
     {
       if (*it >= it2)
         break;
@@ -245,7 +249,9 @@ void ModelPath::PathNode::insertN(const Vuint& vn)
 void ModelPath::PathNode::removeN(const Vuint& vn)
 {
   erase(std::remove_if(begin(), end(),
-                       [vn](const uint x) -> bool {return std::find(vn.begin(), vn.end(), x)!=vn.end();}),end());
+                       [vn](const uint x) -> bool {
+    return std::find(vn.begin(), vn.end(), x) != vn.end();
+  }), end());
 }
 
 bool ModelPath::PathNode::operator<=(const PathNode& n) const
@@ -287,13 +293,13 @@ bool ModelPath::PathNode::intersects(const PathNode& n) const
 std::string ModelPath::PathNode::to_string() const
 {
   std::string output;
-  bool deb=true;
+  bool deb = true;
   for (auto ind:*this)
   {
     if (!deb)
       output += ",";
-    output += std::to_string(ind+1);
-    deb=false;
+    output += std::to_string(ind + 1);
+    deb = false;
   }
   return output;
 }

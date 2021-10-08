@@ -90,11 +90,9 @@ public:
 
 protected:
   ParameterList computeCOA(const SequencedValuesContainer& data, bool param = true);
-  
+
   std::vector<double> prodMatrixVector(RowMatrix<double>& P, std::vector<double>& V);
 };
-
 } // end of namespace bpp.
 
-#endif  // _COALACORE_H_
-
+#endif// _COALACORE_H_

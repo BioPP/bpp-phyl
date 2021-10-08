@@ -164,7 +164,7 @@ public:
   size_t getNumberOfLeaves() const { return TreeTemplateTools::getNumberOfLeaves(*root_); }
 
   size_t getNumberOfNodes() const { return TreeTemplateTools::getNumberOfNodes(*root_); }
-  
+
   size_t getNumberOfBranches() const { return TreeTemplateTools::getNumberOfBranches(*root_); }
 
   int getLeafId(const std::string& name) const { return TreeTemplateTools::getLeafId(*root_, name); }
@@ -178,17 +178,17 @@ public:
   std::vector<int> getBranchesId() const
   {
     Vint vRes = TreeTemplateTools::getNodesId(*root_);
-    int rId=getRootId();
+    int rId = getRootId();
     std::vector<int>::iterator rit(vRes.begin());
-    while(rit<vRes.end())
-      if (*rit==rId)
+    while (rit < vRes.end())
+      if (*rit == rId)
       {
-        vRes.erase(rit, rit+1);
+        vRes.erase(rit, rit + 1);
         return vRes;
       }
       else
         rit++;
-    
+
     return vRes;
   }
 
@@ -196,7 +196,7 @@ public:
 
   std::vector<std::string> getLeavesNames() const { return TreeTemplateTools::getLeavesNames(*const_cast<const N*>( root_)); }
 
-  std::vector<int> getSonsId(int parentId) const  { return getNode(parentId)->getSonsId(); }
+  std::vector<int> getSonsId(int parentId) const { return getNode(parentId)->getSonsId(); }
 
   std::vector<int> getAncestorsId(int nodeId) const { return TreeTemplateTools::getAncestorsId(*getNode(nodeId)); }
 
@@ -265,7 +265,7 @@ public:
     {
       N* son1 = dynamic_cast<N*>(root_->getSon(0));
       N* son2 = dynamic_cast<N*>(root_->getSon(1));
-      if (son1->isLeaf() && son2->isLeaf()) return false;  // We can't unroot a single branch!
+      if (son1->isLeaf() && son2->isLeaf()) return false;                                                             // We can't unroot a single branch!
 
       // We manage to have a subtree in position 0:
       if (son1->isLeaf())
@@ -313,8 +313,10 @@ public:
   {
     if (root_->getNumberOfSons() > 3) return true;
     for (size_t i = 0; i < root_->getNumberOfSons(); i++)
+    {
       if (TreeTemplateTools::isMultifurcating(*root_->getSon(i)))
         return true;
+    }
     return false;
   }
 
@@ -437,13 +439,16 @@ public:
 
   virtual N* getNode(int id, bool checkId = false)
   {
-    if (checkId) {
+    if (checkId)
+    {
       std::vector<N*> nodes;
       TreeTemplateTools::searchNodeWithId<N>(*dynamic_cast<N*>(root_), id, nodes);
       if (nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
       if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
       return nodes[0];
-    } else {
+    }
+    else
+    {
       N* node = dynamic_cast<N*>(TreeTemplateTools::searchFirstNodeWithId(*root_, id));
       if (node)
         return node;
@@ -454,13 +459,16 @@ public:
 
   virtual const N* getNode(int id, bool checkId = false) const
   {
-    if (checkId) {
+    if (checkId)
+    {
       std::vector<const N*> nodes;
       TreeTemplateTools::searchNodeWithId<const N>(*root_, id, nodes);
       if (nodes.size() > 1) throw Exception("TreeTemplate::getNode(): Non-unique id! (" + TextTools::toString(id) + ").");
       if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate::getNode(): Node with id not found.", TextTools::toString(id));
       return nodes[0];
-    } else {
+    }
+    else
+    {
       const N* node = dynamic_cast<const N*>(TreeTemplateTools::searchFirstNodeWithId(*root_, id));
       if (node)
         return node;
@@ -494,9 +502,10 @@ public:
     std::vector<Node*> path = TreeTemplateTools::getPathBetweenAnyTwoNodes(*root_, *newRoot);
     for (size_t i = 0; i < path.size() - 1; i++)
     {
-      if (path[i + 1]->hasDistanceToFather())  { 
-	      path[i]->setDistanceToFather(path[i + 1]->getDistanceToFather());
-	    }
+      if (path[i + 1]->hasDistanceToFather())
+      {
+        path[i]->setDistanceToFather(path[i + 1]->getDistanceToFather());
+      }
       else path[i]->deleteDistanceToFather();
       path[i]->removeSon(path[i + 1]);
       path[i + 1]->addSon(path[i]);
@@ -522,7 +531,7 @@ public:
     {
       for (size_t i = 0; i < root_->getNumberOfSons(); i++)
       {
-        if (root_->getSon(i) == outGroup) return;  // This tree is already rooted appropriately.
+        if (root_->getSon(i) == outGroup) return;                                                     // This tree is already rooted appropriately.
       }
       rootId = getRootId();
       unroot();
@@ -551,5 +560,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif  // _TREETEMPLATE_H_
-
+#endif// _TREETEMPLATE_H_

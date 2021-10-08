@@ -17,17 +17,19 @@ CollectionNodes::CollectionNodes(Context& context,
   collection_(collection), context_(context)
 {
   // add Independent Parameters
-  const auto& paramProc=collection_.getIndependentParameters();
-  
-  for (size_t i=0;i<paramProc.size();i++)
+  const auto& paramProc = collection_.getIndependentParameters();
+
+  for (size_t i = 0; i < paramProc.size(); i++)
+  {
     shareParameter_(ConfiguredParameter::create(getContext(), paramProc[i]));
-  
+  }
+
   // Share dependencies with aliased parameters
 
-  for (size_t i=0;i<paramProc.size();i++)
+  for (size_t i = 0; i < paramProc.size(); i++)
   {
-    auto vs=collection_.getAlias(paramProc[i].getName());
-    auto dep=dynamic_cast<const ConfiguredParameter*>(&getParameter(paramProc[i].getName()))->dependency(0);
+    auto vs = collection_.getAlias(paramProc[i].getName());
+    auto dep = dynamic_cast<const ConfiguredParameter*>(&getParameter(paramProc[i].getName()))->dependency(0);
     for (const auto& s:vs)
     {
       auto newacp = ConfiguredParameter::create(getContext(), {dep}, collection_.getParameter(s));
@@ -35,17 +37,17 @@ CollectionNodes::CollectionNodes(Context& context,
     }
   }
 
-  
+
   // rates nodes
   auto rN = collection_.getRateDistributionNumbers();
 
   for (auto num : rN)
   {
-    std::string suff="_"+TextTools::toString(num);
-  
+    std::string suff = "_" + TextTools::toString(num);
+
     const auto& obj = collection_.getRateDistribution(num);
-    
-    if (dynamic_cast<const ConstantRateDistribution*>(&obj)==nullptr)
+
+    if (dynamic_cast<const ConstantRateDistribution*>(&obj) == nullptr)
       distColl_.addObject(ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext(), obj, getParameters_(), suff), num);
   }
 
@@ -54,10 +56,10 @@ CollectionNodes::CollectionNodes(Context& context,
 
   for (auto num : mN)
   {
-    std::string suff="_"+TextTools::toString(num);
-  
+    std::string suff = "_" + TextTools::toString(num);
+
     const auto& obj = collection_.getModel(num);
-    
+
     modelColl_.addObject(ConfiguredParametrizable::createConfigured<BranchModel, ConfiguredModel>(context_, *obj, getParameters_(), suff), num);
   }
 
@@ -66,10 +68,10 @@ CollectionNodes::CollectionNodes(Context& context,
 
   for (auto num : fN)
   {
-    std::string suff="_"+TextTools::toString(num);
-  
+    std::string suff = "_" + TextTools::toString(num);
+
     const auto& obj = collection_.getFrequencies(num);
-    
+
     freqColl_.addObject(ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(context_, obj, getParameters_(), suff), num);
   }
 
@@ -79,19 +81,15 @@ CollectionNodes::CollectionNodes(Context& context,
 
   for (auto num : tN)
   {
-    std::string suff="_"+TextTools::toString(num);
-  
+    std::string suff = "_" + TextTools::toString(num);
+
     const auto& obj = collection_.getTree(num);
 
     treeColl_.addObject(make_shared<ProcessTree>(context_, obj, getParameters_(), suff), num);
   }
-  
 }
 
 std::shared_ptr<ProcessTree> CollectionNodes::getProcessTree(size_t treeIndex)
 {
   return std::dynamic_pointer_cast<ProcessTree>(treeColl_[treeIndex]);
 }
-
-
-

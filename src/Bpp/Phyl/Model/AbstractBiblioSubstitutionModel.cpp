@@ -71,7 +71,7 @@ AbstractBiblioTransitionModel& AbstractBiblioTransitionModel::operator=(const Ab
 std::string AbstractBiblioTransitionModel::getParNameFromPmodel(const std::string& name) const
 {
   auto it = mapParNamesFromPmodel_.find(name);
-  if (it==mapParNamesFromPmodel_.end())
+  if (it == mapParNamesFromPmodel_.end())
     throw Exception("AbstractBiblioTransitionModel::getParNameFromPmodel : unknown parameter " + name);
   return it->second;
 }
@@ -81,8 +81,10 @@ std::string AbstractBiblioTransitionModel::getParNameFromPmodel(const std::strin
 std::string AbstractBiblioTransitionModel::getPmodelParName(const std::string& name) const
 {
   for (auto it : mapParNamesFromPmodel_)
+  {
     if (it.second == name)
       return it.first;
+  }
 
   throw Exception("AbstractBiblioTransitionModel::getPmodelParName: unknown parameter name " + name);
 }
@@ -94,11 +96,12 @@ void AbstractBiblioTransitionModel::updateMatrices()
 {
   for (size_t i = 0; i < lParPmodel_.size(); i++)
   {
-    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end()) {
+    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end())
+    {
       lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
     }
   }
-  
+
   getModel().matchParametersValues(lParPmodel_);
 }
 
@@ -108,7 +111,7 @@ void AbstractBiblioTransitionModel::addRateParameter()
 {
   getModel().addRateParameter();
   addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
-  
+
   mapParNamesFromPmodel_[getNamespace() + "rate"] = "rate";
   lParPmodel_.reset();
   lParPmodel_.addParameters(getModel().getParameters());
@@ -123,10 +126,12 @@ void AbstractBiblioTransitionModel::setNamespace(const std::string& name)
   std::map<std::string, std::string> mapParNamesFromPmodel_new;
 
   for (const auto& it : mapParNamesFromPmodel_)
-    mapParNamesFromPmodel_new[name+getModel().getParameterNameWithoutNamespace(it.first)]=it.second;
-  
+  {
+    mapParNamesFromPmodel_new[name + getModel().getParameterNameWithoutNamespace(it.first)] = it.second;
+  }
+
   mapParNamesFromPmodel_.clear();
-  mapParNamesFromPmodel_=mapParNamesFromPmodel_new;
+  mapParNamesFromPmodel_ = mapParNamesFromPmodel_new;
 
   getModel().setNamespace(name);
 
@@ -157,4 +162,3 @@ void AbstractBiblioTransitionModel::setFreqFromData(const SequencedValuesContain
   SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
   setFreq(freqs);
 }
-

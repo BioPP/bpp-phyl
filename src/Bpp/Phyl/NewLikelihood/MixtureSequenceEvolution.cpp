@@ -80,7 +80,6 @@ ParameterList MixtureSequenceEvolution::getNonDerivableParameters() const
 {
   ParameterList pl = MultiProcessSequenceEvolution::getNonDerivableParameters();
   pl.includeParameters(simplex_.getParameters());
-  
+
   return pl;
 }
-

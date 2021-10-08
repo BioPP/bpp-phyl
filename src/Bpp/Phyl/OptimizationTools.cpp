@@ -274,7 +274,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     // Reset parameters to remove constraints:
     pl = f->getParameters().createSubList(parameters.getParameterNames());
   }
-  
+
   // ///////////////
   // Build optimizer:
 
@@ -536,7 +536,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   optimizer->optimize();
   delete nanListener;
-  
+
   if (verbose > 0)
     ApplicationTools::displayMessage("\n");
 
@@ -564,7 +564,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   {
     throw Exception("OptimizationTools::optimizeNumericalParameters2 reparametrization not checked for dataflow likelihood calculation");
   }
-  
+
   // Build optimizer:
   unique_ptr<AbstractNumericalDerivative> fnum;
   unique_ptr<Optimizer> optimizer;
@@ -597,7 +597,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   // Variables not derivatived in Likelihood DF but in numerical way
   ParameterList tmp = lik.getParameters();
-  
+
   fnum->setParametersToDerivate(tmp.getParameterNames());
 
   optimizer->setVerbose(verbose);
@@ -617,7 +617,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   optimizer->optimize();
 
   delete nanListener;
-  
+
   if (verbose > 0)
     ApplicationTools::displayMessage("\n");
 
@@ -987,13 +987,14 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       ApplicationTools::displayTaskDone();
 
     // Compute tree:
-    if (matrix->size() == 2) {
-      //Special case, there is only one possible tree:
+    if (matrix->size() == 2)
+    {
+      // Special case, there is only one possible tree:
       Node* n1 = new Node(0);
       Node* n2 = new Node(1, matrix->getName(0));
-      n2->setDistanceToFather((*matrix)(0,0) / 2.);
+      n2->setDistanceToFather((*matrix)(0, 0) / 2.);
       Node* n3 = new Node(2, matrix->getName(1));
-      n3->setDistanceToFather((*matrix)(0,0) / 2.);
+      n3->setDistanceToFather((*matrix)(0, 0) / 2.);
       n1->addSon(n2);
       n1->addSon(n3);
       tree = new TreeTemplate<Node>(n1);
@@ -1016,7 +1017,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       delete previousTree;
     }
     if (param != DISTANCEMETHOD_ITERATIONS)
-      break;                // Ends here.
+      break;                              // Ends here.
 
     // Now, re-estimate parameters:
     unique_ptr<TransitionModel> model(estimationMethod.getModel().clone());
@@ -1053,4 +1054,3 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
 }
 
 /******************************************************************************/
-

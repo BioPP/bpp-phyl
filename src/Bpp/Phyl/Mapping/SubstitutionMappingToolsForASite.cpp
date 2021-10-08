@@ -70,23 +70,22 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
   double threshold,
   bool verbose)
 {
-  
   // Preamble:
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
 
-  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
+  const SubstitutionProcess& sp = rltc.getSubstitutionProcess();
 
-  if (edgeIds.size()==0)
+  if (edgeIds.size() == 0)
   {
     return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), reg.getNumberOfSubstitutionTypes(), 0);
   }
-  
+
   // Map from models to counts
-  if (m_Sr_Sm_Sc.find(&reg)==m_Sr_Sm_Sc.end())
-    m_Sr_Sm_Sc[&reg]=t_Sm_Sc();
-  t_Sm_Sc& m_Sm_Sc=m_Sr_Sm_Sc[&reg];
-  
+  if (m_Sr_Sm_Sc.find(&reg) == m_Sr_Sm_Sc.end())
+    m_Sr_Sm_Sc[&reg] = t_Sm_Sc();
+  t_Sm_Sc& m_Sm_Sc = m_Sr_Sm_Sc[&reg];
+
   auto processTree = rltc.getTreeNode(0);
 
   for (auto speciesId :edgeIds)
@@ -101,15 +100,15 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
         auto model = edge->getModel();
 
         auto nMod = edge->getNMod();
-        
+
         auto tm = dynamic_cast<const TransitionModel*>(model->getTargetValue());
 
         const SubstitutionModel* sm(0);
-        
-        if (nMod==0)
+
+        if (nMod == 0)
         {
           sm = dynamic_cast<const SubstitutionModel*>(tm);
-          
+
           if (sm == NULL)
             throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
         }
@@ -122,12 +121,12 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
             throw Exception("SubstitutionMappingTools::computeCounts : Expecting Mixed model in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
 
           sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
-          
-          if (sm==NULL)
+
+          if (sm == NULL)
             throw Exception("SubstitutionMappingTools::computeCounts : Expecting Substitution model for submodel " + TextTools::toString(nmod) + " of mixed model " + tm->getName() + " in branch " + TextTools::toString(speciesId));
         }
-            
-        if (m_Sm_Sc.find(sm)==m_Sm_Sc.end())
+
+        if (m_Sm_Sc.find(sm) == m_Sm_Sc.end())
         {
           m_Sm_Sc[sm] = std::make_shared<DecompositionSubstitutionCount>(sm, reg.clone(), weights, distances);
         }
@@ -137,7 +136,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
   // We create a Mapping objects
 
-  if (m_Sm_Sc.size()==0)
+  if (m_Sm_Sc.size() == 0)
     throw Exception("SubstitutionMappingToolsForASite::computeSubstitutionVectors not possible with null model.");
 
   return computeCounts(site, rltc, m_Sm_Sc, edgeIds, threshold, verbose);
@@ -154,65 +153,65 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 {
   return 0;
   /*
-  if (!rltc.isInitialized())
-    throw Exception("SubstitutionMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
-  
-  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
+     if (!rltc.isInitialized())
+     throw Exception("SubstitutionMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
 
-  if (edgeIds.size()==0)
-  {
-    return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree();, m_Sm_Sc.begin()->second->getNumberOfSubstitutionTypes(), 0);
-  }
+     const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
-  ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-  
-  // A few variables we'll need:
+     if (edgeIds.size()==0)
+     {
+     return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree();, m_Sm_Sc.begin()->second->getNumberOfSubstitutionTypes(), 0);
+     }
 
-  size_t nbStates        = sp.getNumberOfStates();
-  size_t nbClasses       = sp.getNumberOfClasses();
+     ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
 
-  size_t nbTypes         = m_Sm_Sc.begin()->second->getNumberOfSubstitutionTypes();
-  size_t nbNodes         = edgeIds.size();
-  
-  // We create a Mapping objects
-  
-  unique_ptr<ProbabilisticSubstitutionMapping> substitutions(new ProbabilisticSubstitutionMapping(ppt, nbTypes, 1));
+     // A few variables we'll need:
 
-  // Find the corresponding index in the compressed array :
+     size_t nbStates        = sp.getNumberOfStates();
+     size_t nbClasses       = sp.getNumberOfClasses();
 
-  size_t siteIndex=rltc.getRootArrayPosition(site);
-  
-  double Lr=rltc.getLikelihoodForASite(site);
+     size_t nbTypes         = m_Sm_Sc.begin()->second->getNumberOfSubstitutionTypes();
+     size_t nbNodes         = edgeIds.size();
 
-  // Compute the number of substitutions for each class and each branch in the tree:
-  if (verbose)
-    ApplicationTools::displayTask("Compute counts", true);
+     // We create a Mapping objects
 
-  unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=substitutions->allEdgesIterator();
+     unique_ptr<ProbabilisticSubstitutionMapping> substitutions(new ProbabilisticSubstitutionMapping(ppt, nbTypes, 1));
 
-  size_t nn=0;
-  for (;!brIt->end();brIt->next())
-  {
-    if (verbose)
+     // Find the corresponding index in the compressed array :
+
+     size_t siteIndex=rltc.getRootArrayPosition(site);
+
+     double Lr=rltc.getLikelihoodForASite(site);
+
+     // Compute the number of substitutions for each class and each branch in the tree:
+     if (verbose)
+     ApplicationTools::displayTask("Compute counts", true);
+
+     unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=substitutions->allEdgesIterator();
+
+     size_t nn=0;
+     for (;!brIt->end();brIt->next())
+     {
+     if (verbose)
       ApplicationTools::displayGauge(nn++, nbNodes - 1);
-    
-    shared_ptr<PhyloBranchMapping> br=**brIt;
-    
-    // For each branch
-    uint speciesId = substitutions->getEdgeIndex(br);
 
-    if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
+     shared_ptr<PhyloBranchMapping> br=**brIt;
+
+     // For each branch
+     uint speciesId = substitutions->getEdgeIndex(br);
+
+     if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
       continue;
 
-    vector<double> substitutionsForCurrentNode(nbTypes);
+     vector<double> substitutionsForCurrentNode(nbTypes);
 
-    for (size_t ncl=0; ncl<nbClasses; ncl++)
-    {
+     for (size_t ncl=0; ncl<nbClasses; ncl++)
+     {
       processTree = rltc.getTreeNode(ncl);
       double pr = sp.getProbabilityForModel(ncl);
 
       vector<double> substitutionsForCurrentClass(nbTypes);
-      
+
       const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
 
       Eigen::MatrixXd npxy;
@@ -225,9 +224,9 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
         auto tm = dynamic_cast<const TransitionModel*>(edge->getModel()->getTargetValue());
 
         auto nMod = edge->getNMod();
-        
+
         const SubstitutionModel* sm(0);
-        
+
         if (nMod==0)
           sm = dynamic_cast<const SubstitutionModel*>(tm);
         else
@@ -253,9 +252,9 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
           // compute all nxy * pxy first:
 
           subCount->storeAllNumbersOfSubstitutions(edge->getBrLen()->getValue(), t + 1, npxy);
-          
+
           npxy.array() *= pxy.array();
-          
+
           // Now loop over sites:
 
           auto counts = npxy * likelihoodsSon;
@@ -265,23 +264,23 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
           substitutionsForCurrentClass[t] += bb;
         }
       }
-      
+
       for (size_t t = 0; t < nbTypes; ++t)
         substitutionsForCurrentNode[t] += substitutionsForCurrentClass[t] * pr;
-    }
-    if (verbose)
+     }
+     if (verbose)
       ApplicationTools::displayGauge(nn++, nbNodes - 1);
-    
-    shared_ptr<PhyloBranchMapping> br=**brIt;
-    
-    // For each branch
-    uint speciesId = substitutions->getEdgeIndex(br);
 
-    if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)edid))
+     shared_ptr<PhyloBranchMapping> br=**brIt;
+
+     // For each branch
+     uint speciesId = substitutions->getEdgeIndex(br);
+
+     if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)edid))
       continue;
 
-    for (size_t ncl=0; ncl<nbClasses; ncl++)
-    {
+     for (size_t ncl=0; ncl<nbClasses; ncl++)
+     {
       processTree = rltc.getTreeNode(ncl);
       double pr = sp.getProbabilityForModel(ncl);
 
@@ -298,22 +297,22 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
       if (m_Sm_Sc.find(sm)==m_Sm_Sc.end())
         throw Exception("SubstitutionMappingToolsForASite::computeCounts : Unknown model for substitution count. Should not happen.");
-        
+
       SubstitutionCount& psc=*m_Sm_Sc.find(sm)->second;
-      
+
       // compute all nxy * pxy first:
-      
+
       const Matrix<double>& pxy = sp.getTransitionProbabilities(icid,ncl);
-      
+
       for (size_t t = 0; t < nbTypes; ++t)
       {
         Matrix<double>* nijt = psc.getAllNumbersOfSubstitutions(d * rate, t + 1);
-        MatrixTools::hadamardMult((*nijt),pxy,npxy[t]);        
+        MatrixTools::hadamardMult((*nijt),pxy,npxy[t]);
         delete nijt;
       }
-      
+
       // Now compute:
-      
+
       for (size_t x = 0; x < nbStates; ++x)
       {
         double likelihoodsFatherConstantPart_x = likelihoodsFatherConstantPart[x];
@@ -322,7 +321,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
           double likelihood_xy = usesLog
             ?likelihoodsFatherConstantPart_x + likelihoodsFather_node[y]
             :likelihoodsFatherConstantPart_x * likelihoodsFather_node[y];
-          
+
           if (!usesLog)
           {
             if (likelihood_xy!=0) // to avoid multiplication per nan
@@ -357,18 +356,18 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
                     else
                       substitutionsForCurrentNode[t] += log(1 + exp(ll - substitutionsForCurrentNode[t]));
                   }
-                } 
+                }
               }
           }
         }
       }
-    }
+     }
 
-    // Now we just have to copy the substitutions into the result vector:
-    for (size_t t = 0; t < nbTypes; ++t)
-    {
+     // Now we just have to copy the substitutions into the result vector:
+     for (size_t t = 0; t < nbTypes; ++t)
+     {
       double x = usesLog?exp(substitutionsForCurrentNode[t] - Lr):substitutionsForCurrentNode[t]/exp(Lr);
-      
+
       if (std::isnan(x) || std::isinf(x))
       {
         if (verbose)
@@ -383,21 +382,21 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
             ApplicationTools::displayWarning("On branch " + TextTools::toString(edid) + ", site " + TextTools::toString(site) + ", and type " + TextTools::toString(t) + " count has been ignored because it is presumably saturated.");
           (*br)(0,t)=0;
         }
-        else     
+        else
           (*br)(0,t)=x;;
       }
-    }
-  }
-  
-  if (verbose)
-  {
-    if (ApplicationTools::message)
-      *ApplicationTools::message << " ";
-    ApplicationTools::displayTaskDone();
-  }
-    
-  return substitutions.release();
-  */
+     }
+     }
+
+     if (verbose)
+     {
+     if (ApplicationTools::message)
+   * ApplicationTools::message << " ";
+     ApplicationTools::displayTaskDone();
+     }
+
+     return substitutions.release();
+   */
 }
 
 /**************************************************************************************************/
@@ -413,52 +412,52 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
 {
   return 0;
   /*
-  // Preamble:
-  if (!rltc.isInitialized())
-    throw Exception("SubstitutionMappingToolsForASite::computeNormalizations(). Likelihood object is not initialized.");
+     // Preamble:
+     if (!rltc.isInitialized())
+     throw Exception("SubstitutionMappingToolsForASite::computeNormalizations(). Likelihood object is not initialized.");
 
-  const SubstitutionModel* sm(0);
-  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
+     const SubstitutionModel* sm(0);
+     const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
-  if (edgeIds.size()==0)
-  {
-    const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-    return new ProbabilisticSubstitutionMapping(ppt, reg.getNumberOfSubstitutionTypes(), 0);    
-  }
-  
-  for (auto id :edgeIds)
-  {
-    if (dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0))==NULL)
+     if (edgeIds.size()==0)
+     {
+     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
+     return new ProbabilisticSubstitutionMapping(ppt, reg.getNumberOfSubstitutionTypes(), 0);
+     }
+
+     for (auto id :edgeIds)
+     {
+     if (dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0))==NULL)
       throw Exception("SubstitutionMappingToolsForASite::computeNormalizations possible only for SubstitutionModels, not in branch " + TextTools::toString(id));
-    else
+     else
       if (!sm)
         sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0));
-  }
-  
-  size_t nbTypes = reg.getNumberOfSubstitutionTypes();
-  size_t nbStates = sm->getAlphabet()->getSize();
-  vector<int> supportedStates = sm->getAlphabetStates();
-  
-  const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
+     }
 
-  unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(ppt, nbTypes, 1));
-  
-  vector<size_t> vMod=nullModels->getModelNumbers();
-  vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(sm->getAlphabet()));
+     size_t nbTypes = reg.getNumberOfSubstitutionTypes();
+     size_t nbStates = sm->getAlphabet()->getSize();
+     vector<int> supportedStates = sm->getAlphabetStates();
 
-  for (auto& nbm : vMod)
-  {
-    const SubstitutionModel* modn = dynamic_cast<const SubstitutionModel*>(nullModels->getModel(nbm));
-    if (!modn)
+     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
+
+     unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(ppt, nbTypes, 1));
+
+     vector<size_t> vMod=nullModels->getModelNumbers();
+     vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(sm->getAlphabet()));
+
+     for (auto& nbm : vMod)
+     {
+     const SubstitutionModel* modn = dynamic_cast<const SubstitutionModel*>(nullModels->getModel(nbm));
+     if (!modn)
       throw Exception("SubstitutionMappingToolsForASite::computeNormalizations possible only for SubstitutionModels, not for model " + nullModels->getModel(nbm)->getName());
-  }
+     }
 
-  for (auto& nbm : vMod)
-  {
-    vector<uint> mids = VectorTools::vectorIntersection(edgeIds, nullModels->getBranchesWithModel(nbm));
-    
-    if (mids.size()>0)
-    {
+     for (auto& nbm : vMod)
+     {
+     vector<uint> mids = VectorTools::vectorIntersection(edgeIds, nullModels->getBranchesWithModel(nbm));
+
+     if (mids.size()>0)
+     {
       const SubstitutionModel* modn = dynamic_cast<const SubstitutionModel*>(nullModels->getModel(nbm));
 
       for (size_t nbt = 0; nbt < nbTypes; nbt++)
@@ -477,11 +476,11 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
           }
         }
       }
-      
+
       for (size_t nbt = 0; nbt < nbTypes; nbt++)
       {
         unique_ptr<Reward> reward(new DecompositionReward(modn, &usai[nbt]));
-        
+
         unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingToolsForASite::computeRewardVectors(site, rltc, mids, *reward, verbose));
 
         for (size_t k = 0; k < mids.size(); k++)
@@ -492,11 +491,11 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
           (*brn)(0,nbt)=(*brr).getSiteReward(0);
         }
       }
-    }
-  }
+     }
+     }
 
-  return normalizations.release();
-  */
+     return normalizations.release();
+   */
 }
 
 /************************************************************/
@@ -514,13 +513,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
   double threshold,
   bool verbose)
 {
-  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(site,rltc,edgeIds,reg,weights,distances,threshold,verbose));
-  
-  unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(site,rltc,edgeIds,nullModels,reg,distances,verbose));
-  
-  return computeNormalizedCounts(counts.get(), factors.get(), edgeIds, perTimeUnit, siteSize);  
+  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(site, rltc, edgeIds, reg, weights, distances, threshold, verbose));
+
+  unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(site, rltc, edgeIds, nullModels, reg, distances, verbose));
+
+  return computeNormalizedCounts(counts.get(), factors.get(), edgeIds, perTimeUnit, siteSize);
 }
-    
+
 /************************************************************/
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNormalizedCounts(
@@ -531,44 +530,45 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
   uint siteSize)
 {
   unique_ptr<ProbabilisticSubstitutionMapping> normCounts(counts->clone());
-  
+
   size_t nbTypes = counts->getNumberOfSubstitutionTypes();
 
   // Iterate on branches
-  
-  unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=normCounts->allEdgesIterator();
 
-  for (;!brIt->end();brIt->next())
+  unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt = normCounts->allEdgesIterator();
+
+  for ( ; !brIt->end(); brIt->next())
   {
-    shared_ptr<PhyloBranchMapping> brNormCount=**brIt;
+    shared_ptr<PhyloBranchMapping> brNormCount = **brIt;
 
-    Vdouble& ncou=brNormCount->getCounts()[0];
+    Vdouble& ncou = brNormCount->getCounts()[0];
 
     // For each branch
-    uint edid=normCounts->getEdgeIndex(brNormCount);
+    uint edid = normCounts->getEdgeIndex(brNormCount);
 
     if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)edid))
     {
-      VectorTools::fill(ncou,0.);
+      VectorTools::fill(ncou, 0.);
       continue;
     }
-        
-    shared_ptr<PhyloBranchMapping> brFactor=factors->getEdge(edid);
-    shared_ptr<PhyloBranchMapping> brCount=counts->getEdge(edid);
 
-    const Vdouble& cou=brCount->getCounts()[0];
-    const Vdouble& fac=brFactor->getCounts()[0];
+    shared_ptr<PhyloBranchMapping> brFactor = factors->getEdge(edid);
+    shared_ptr<PhyloBranchMapping> brCount = counts->getEdge(edid);
+
+    const Vdouble& cou = brCount->getCounts()[0];
+    const Vdouble& fac = brFactor->getCounts()[0];
 
 
     // if not per time, multiply by the lengths of the branches of
     // the input tree
-    
-    double slg=(!perTimeUnit?brCount->getLength():1)/siteSize;
-    
+
+    double slg = (!perTimeUnit ? brCount->getLength() : 1) / siteSize;
+
     for (size_t t = 0; t < nbTypes; ++t)
-      ncou[t]=(fac[t]!=0? cou[t]/fac[t]*slg : 0);
+    {
+      ncou[t] = (fac[t] != 0 ? cou[t] / fac[t] * slg : 0);
+    }
   }
 
   return normCounts.release();
 }
-

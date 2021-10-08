@@ -114,5 +114,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif // _PGMA_H_
-
+#endif// _PGMA_H_

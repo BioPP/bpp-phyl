@@ -51,8 +51,8 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel
     throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
 
   // Add parameters:
-  addParameters_(tree->getParameters());  //Branch lengths
-  addParameters_(model->getIndependentParameters()); //Substitution model
+  addParameters_(tree->getParameters());  // Branch lengths
+  addParameters_(model->getIndependentParameters()); // Substitution model
 }
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :
@@ -61,7 +61,7 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionPro
   model_(ssp.model_->clone())
 {
   if (modelScenario_)
-    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_), std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 }
 
 SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubstitutionProcess& ssp)
@@ -71,33 +71,31 @@ SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubs
   model_.reset(ssp.model_->clone());
 
   if (modelScenario_)
-    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_), std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 
   return *this;
 }
 
 void SimpleSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
 {
-  auto vmod=modelpath->getModels();
+  auto vmod = modelpath->getModels();
 
-  if (vmod.size()==0) // as if no scenario
-    return; 
+  if (vmod.size() == 0) // as if no scenario
+    return;
 
-  if (vmod.size()!=1)
+  if (vmod.size() != 1)
     throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
-  
-  if (vmod[0]!=model_)
+
+  if (vmod[0] != model_)
     throw Exception("SimpleSubstitutionProcess::setModelPath: models are different " + vmod[0]->getName() + " != " + model_->getName());
-  
-  modelScenario_=modelpath;
+
+  modelScenario_ = modelpath;
 }
 
 void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-  //Transition probabilities have changed and need to be recomputed:
+  // Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
 
   model_->matchParametersValues(pl);
 }
-
-

@@ -50,8 +50,8 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
   const Alphabet* alpha,
   vector<TransitionModel*> vpModel) :
   AbstractParameterAliasable("Mixture."),
-  AbstractTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture."),
-  AbstractMixedTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture.")
+  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
+  AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
 
@@ -97,13 +97,13 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 }
 
 MixtureOfTransitionModels::MixtureOfTransitionModels(
-    const Alphabet* alpha,
-    vector<TransitionModel*> vpModel,
-    Vdouble& vproba,
-    Vdouble& vrate) :
+  const Alphabet* alpha,
+  vector<TransitionModel*> vpModel,
+  Vdouble& vproba,
+  Vdouble& vrate) :
   AbstractParameterAliasable("Mixture."),
-  AbstractTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture."),
-  AbstractMixedTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture.")
+  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
+  AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
 
@@ -139,7 +139,9 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
   // Initialization of modelsContainer_.
 
   for (i = 0; i < nbmod; i++)
+  {
     modelsContainer_.push_back(vpModel[i]);
+  }
 
   // rates & probas
 
@@ -190,11 +192,13 @@ MixtureOfTransitionModels::~MixtureOfTransitionModels()
 
 const TransitionModel* MixtureOfTransitionModels::getModel(const std::string& name) const
 {
-  size_t nbmod=getNumberOfModels();
+  size_t nbmod = getNumberOfModels();
 
-  for (size_t i=0; i<nbmod; i++)
-    if (getNModel(i)->getName()==name)
+  for (size_t i = 0; i < nbmod; i++)
+  {
+    if (getNModel(i)->getName() == name)
       return getNModel(i);
+  }
 
   return NULL;
 }
@@ -221,14 +225,16 @@ void MixtureOfTransitionModels::updateMatrices()
     y = getParameterValue("relrate" + TextTools::toString(i + 1));
     vRates_[i] = x * y;
     x *= 1 - y;
-    s+=vProbas_[i]*vRates_[i];
+    s += vProbas_[i] * vRates_[i];
   }
 
   vRates_[nbmod - 1] = x;
-  s+=vProbas_[nbmod-1]*vRates_[nbmod-1];
+  s += vProbas_[nbmod - 1] * vRates_[nbmod - 1];
 
   for (i = 0; i < nbmod; i++)
+  {
     vRates_[i] /= s;
+  }
 
   // models
 
@@ -269,7 +275,9 @@ void MixtureOfTransitionModels::setVRates(const Vdouble& vd)
   size_t i, nbmod = modelsContainer_.size();
   double sP = 0;
   for (const auto& rate:vRates_)
+  {
     sP += rate;
+  }
 
   for (i = 0; i < nbmod - 1; i++)
   {
@@ -289,7 +297,7 @@ Vuint MixtureOfTransitionModels::getSubmodelNumbers(const string& desc) const
   if (i == getNumberOfModels())
     throw Exception("MixtureOfTransitionModels::getSubmodelNumbers model description do not match " + desc);
 
-  Vuint submodnb(1,uint(i));
+  Vuint submodnb(1, uint(i));
 
   return submodnb;
 }

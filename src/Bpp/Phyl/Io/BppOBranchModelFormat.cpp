@@ -58,7 +58,7 @@
 #include <Bpp/Io/BppOParametrizableFormat.h>
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
 
-//From Numeric
+// From Numeric
 
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/AutoParameter.h>
@@ -76,9 +76,9 @@ using namespace std;
 
 BranchModel* BppOBranchModelFormat::readBranchModel(
   const Alphabet* alphabet,
-    const std::string& modelDescription,
-    const AlignedValuesContainer* data,
-    bool parseArguments)
+  const std::string& modelDescription,
+  const AlignedValuesContainer* data,
+  bool parseArguments)
 {
   unparsedArguments_.clear();
   unique_ptr<BranchModel> model;
@@ -93,31 +93,31 @@ BranchModel* BppOBranchModelFormat::readBranchModel(
   if (modelName == "Multinomial")
   {
     // We have to parse the nested model first:
-    if (args.find("model")==args.end())
+    if (args.find("model") == args.end())
       throw Exception("BppOBranchModelFormat::read. Missing argument 'model' for model " + modelName);
     string nestedModelDescription = args["model"];
     BppOTransitionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
-    
-    TransitionModel* nestedModel=nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false);
+
+    TransitionModel* nestedModel = nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     model.reset(new MultinomialFromTransitionModel(*nestedModel));
   }
-  
+
   if (!model)
     model.reset(readTransitionModel(alphabet, modelDescription, data, parseArguments));
   else
   {
     if (verbose_)
       ApplicationTools::displayResult("Branch model", modelName);
-  
+
     updateParameters_(model.get(), args);
-  
+
     if (parseArguments)
       initialize_(*model, data);
   }
-  
+
   return model.release();
 }

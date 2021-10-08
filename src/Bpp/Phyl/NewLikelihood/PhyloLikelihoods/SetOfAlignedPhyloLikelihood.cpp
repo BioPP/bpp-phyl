@@ -43,43 +43,41 @@ using namespace std;
 using namespace bpp;
 
 
-SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection, const std::string& prefix):
+SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection, const std::string& prefix) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SetOfAbstractPhyloLikelihood(context, pC, inCollection, prefix)
 {
   for (auto np:nPhylo_)
   {
-    const AlignedPhyloLikelihood* aPL=getPhyloLikelihood(np);
+    const AlignedPhyloLikelihood* aPL = getPhyloLikelihood(np);
 
-    if (aPL==NULL)
+    if (aPL == NULL)
       throw Exception("SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood  :non aligned PhyloLikelihood: " + TextTools::toString(np));
-    if (getNumberOfSites()==0)
+    if (getNumberOfSites() == 0)
       setNumberOfSites(aPL->getNumberOfSites());
-    else
-      if (aPL->getNumberOfSites()!=getNumberOfSites())
-        throw BadSizeException("SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood: mismatch lengths between aligned PhyloLikelihood: " , aPL->getNumberOfSites(), getNumberOfSites());
+    else if (aPL->getNumberOfSites() != getNumberOfSites())
+      throw BadSizeException("SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood: mismatch lengths between aligned PhyloLikelihood: ", aPL->getNumberOfSites(), getNumberOfSites());
   }
 }
 
 /*************************************************************/
 
-SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix):
+SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SetOfAbstractPhyloLikelihood(context, pC, nPhylo, inCollection, prefix)
 {
   for (auto np:nPhylo)
   {
-    const AlignedPhyloLikelihood* aPL=getPhyloLikelihood(np);
+    const AlignedPhyloLikelihood* aPL = getPhyloLikelihood(np);
 
-    if (aPL==NULL)
+    if (aPL == NULL)
       throw Exception("SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood  :non aligned PhyloLikelihood: " + TextTools::toString(np));
-    if (getNumberOfSites()==0)
+    if (getNumberOfSites() == 0)
       setNumberOfSites(aPL->getNumberOfSites());
-    else
-      if (aPL->getNumberOfSites()!=getNumberOfSites())
-        throw BadSizeException("SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood: mismatch lengths between aligned PhyloLikelihood: " , aPL->getNumberOfSites(), getNumberOfSites());
+    else if (aPL->getNumberOfSites() != getNumberOfSites())
+      throw BadSizeException("SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood: mismatch lengths between aligned PhyloLikelihood: ", aPL->getNumberOfSites(), getNumberOfSites());
   }
 }
 
@@ -87,19 +85,19 @@ SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::
 
 bool SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::string& suff)
 {
-  const AlignedPhyloLikelihood* aPL=getPhyloLikelihood(nPhyl);
+  const AlignedPhyloLikelihood* aPL = getPhyloLikelihood(nPhyl);
 
-  if (aPL!=NULL && (getNumberOfSites()==0 || aPL->getNumberOfSites()==getNumberOfSites()))
+  if (aPL != NULL && (getNumberOfSites() == 0 || aPL->getNumberOfSites() == getNumberOfSites()))
   {
     if (SetOfAbstractPhyloLikelihood::addPhyloLikelihood(nPhyl, suff))
     {
-      if (getNumberOfSites()==0)
+      if (getNumberOfSites() == 0)
         setNumberOfSites(aPL->getNumberOfSites());
       return true;
     }
     else
       return false;
   }
-  
+
   return false;
 }

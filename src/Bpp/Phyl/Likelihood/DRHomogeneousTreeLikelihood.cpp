@@ -256,7 +256,7 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& para
       if (s.substr(0, 5) == "BrLen")
       {
         // Branch length parameter:
-        computeTransitionProbabilitiesForNode(nodes_[TextTools::to < size_t > (s.substr(5))]);
+        computeTransitionProbabilitiesForNode(nodes_[TextTools::to< size_t >(s.substr(5))]);
       }
     }
   }
@@ -599,7 +599,7 @@ void DRHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node* nod
       {
         const Node* son = father->getSon(n);
         if (son->getId() != node->getId())
-          nodes.push_back(son);  // This is a real brother, not current node!
+          nodes.push_back(son);                                   // This is a real brother, not current node!
       }
       // Now the real stuff... We've got to compute the likelihoods for the
       // subtree defined by node 'father'.
@@ -780,14 +780,18 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodAtNode_(const Node* node, VVV
   for (size_t n = 0; n < nbNodes; n++)
   {
     const Node* son = node->getSon(n);
-    if (son != sonNode) {
+    if (son != sonNode)
+    {
       tProb.push_back(&pxy_[son->getId()]);
       iLik.push_back(&(*likelihoods_node)[son->getId()]);
-    } else {
+    }
+    else
+    {
       test = true;
     }
   }
-  if (sonNode) {
+  if (sonNode)
+  {
     if (test)
       nbNodes--;
     else
@@ -971,4 +975,3 @@ void DRHomogeneousTreeLikelihood::displayLikelihood(const Node* node)
 }
 
 /*******************************************************************************/
-

@@ -209,5 +209,3 @@ void AbstractKroneckerCodonSubstitutionModel::completeMatrices()
     }
   }
 }
-
-

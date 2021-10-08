@@ -170,5 +170,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif  // _JCNUC_H_
-
+#endif// _JCNUC_H_

@@ -40,26 +40,23 @@
 #ifndef _EXPONENTIALDISCRETERATEDISTRIBUTION_H_
 #define _EXPONENTIALDISCRETERATEDISTRIBUTION_H_
 
-//From bpp-core
+// From bpp-core
 #include <Bpp/Numeric/Prob/ExponentialDiscreteDistribution.h>
 
-namespace bpp {
-
-class ExponentialDiscreteRateDistribution:
+namespace bpp
+{
+class ExponentialDiscreteRateDistribution :
   public ExponentialDiscreteDistribution
 {
-  public:
-    ExponentialDiscreteRateDistribution(size_t nbClasses):
-      ExponentialDiscreteDistribution(nbClasses, 1.)
-    {
-      deleteParameter_(0);
-    }
+public:
+  ExponentialDiscreteRateDistribution(size_t nbClasses) :
+    ExponentialDiscreteDistribution(nbClasses, 1.)
+  {
+    deleteParameter_(0);
+  }
 
-    ExponentialDiscreteRateDistribution* clone() const { return new ExponentialDiscreteRateDistribution(*this); }
-    
+  ExponentialDiscreteRateDistribution* clone() const { return new ExponentialDiscreteRateDistribution(*this); }
 };
+} // end of namespace bpp;
 
-} //end of namespace bpp;
-
-#endif //_EXPONENTIALDISCRETERATEDISTRIBUTION_H_
-
+#endif//_EXPONENTIALDISCRETERATEDISTRIBUTION_H_

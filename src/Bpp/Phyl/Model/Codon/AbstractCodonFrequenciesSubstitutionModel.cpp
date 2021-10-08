@@ -62,12 +62,11 @@ AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionM
 }
 
 AbstractCodonFrequenciesSubstitutionModel::~AbstractCodonFrequenciesSubstitutionModel()
-{
-}
+{}
 
 void AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  pfreqset_->matchParametersValues(parameters);  
+  pfreqset_->matchParametersValues(parameters);
 }
 
 
@@ -81,4 +80,3 @@ double AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, siz
 {
   return pfreqset_->getFrequencies()[j];
 }
-

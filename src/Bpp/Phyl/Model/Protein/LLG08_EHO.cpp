@@ -97,5 +97,3 @@ LLG08_EHO::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string nam
 #include "__LLG08_EHORatesProps"
   updateMatrices();
 }
-
-

@@ -215,7 +215,7 @@ public:
    * @return A SubstitutionModel pointer toward the model associated to this instance.
    */
   virtual const SubstitutionModel* getSubstitutionModel() const { return dynamic_cast<const SubstitutionModel*>(model_); }
-  
+
   /**
    * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
    *
@@ -278,4 +278,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif // _ABSTRACTHOMOGENEOUSTREELIKELIHOOD_H_
+#endif// _ABSTRACTHOMOGENEOUSTREELIKELIHOOD_H_

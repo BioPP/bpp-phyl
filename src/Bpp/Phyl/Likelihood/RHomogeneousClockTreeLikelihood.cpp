@@ -6,37 +6,37 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "RHomogeneousClockTreeLikelihood.h"
 #include "../Tree/TreeTemplateTools.h"
@@ -52,11 +52,11 @@ using namespace bpp;
 /******************************************************************************/
 
 RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
-  const Tree & tree,
-  TransitionModel * model,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  TransitionModel* model,
+  DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose):
+  bool verbose) :
   RHomogeneousTreeLikelihood(tree, model, rDist, false, verbose, true)
 {
   init_();
@@ -65,12 +65,12 @@ RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
 /******************************************************************************/
 
 RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
-  const Tree & tree,
-  const AlignedValuesContainer & data,
-  TransitionModel * model,
-  DiscreteDistribution * rDist,
+  const Tree& tree,
+  const AlignedValuesContainer& data,
+  TransitionModel* model,
+  DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose):
+  bool verbose) :
   RHomogeneousTreeLikelihood(tree, data, model, rDist, false, verbose, true)
 {
   init_();
@@ -80,9 +80,11 @@ RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
 
 void RHomogeneousClockTreeLikelihood::init_()
 {
-  //Check if the tree is rooted:
-  if (!tree_->isRooted()) throw Exception("RHomogeneousClockTreeLikelihood::init_(). Tree is unrooted!");
-  if (TreeTemplateTools::isMultifurcating(*tree_->getRootNode())) throw Exception("HomogeneousClockTreeLikelihood::init_(). Tree is multifurcating.");
+  // Check if the tree is rooted:
+  if (!tree_->isRooted())
+    throw Exception("RHomogeneousClockTreeLikelihood::init_(). Tree is unrooted!");
+  if (TreeTemplateTools::isMultifurcating(*tree_->getRootNode()))
+    throw Exception("HomogeneousClockTreeLikelihood::init_(). Tree is multifurcating.");
   setMinimumBranchLength(0.);
 }
 
@@ -90,14 +92,15 @@ void RHomogeneousClockTreeLikelihood::init_()
 
 void RHomogeneousClockTreeLikelihood::applyParameters()
 {
-  if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::applyParameters(). Object not initialized.");
-   //Apply branch lengths:
+  if (!initialized_)
+    throw Exception("RHomogeneousClockTreeLikelihood::applyParameters(). Object not initialized.");
+  // Apply branch lengths:
   brLenParameters_.matchParametersValues(getParameters());
   computeBranchLengthsFromHeights(tree_->getRootNode(), brLenParameters_.getParameter("TotalHeight").getValue());
 
-  //Apply substitution model parameters:
+  // Apply substitution model parameters:
   model_->matchParametersValues(getParameters());
-  //Apply rate distribution parameters:
+  // Apply rate distribution parameters:
   rateDistribution_->matchParametersValues(getParameters());
 }
 
@@ -110,19 +113,19 @@ void RHomogeneousClockTreeLikelihood::fireParameterChanged(const ParameterList& 
   computeAllTransitionProbabilities();
 
   computeTreeLikelihood();
-  
-  minusLogLik_ = - getLogLikelihood();
+
+  minusLogLik_ = -getLogLikelihood();
 }
 
 /******************************************************************************/
 
 void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters(bool verbose)
 {
-  //Check branch lengths first:
-  for(unsigned int i = 0; i < nbNodes_; i++)
+  // Check branch lengths first:
+  for (unsigned int i = 0; i < nbNodes_; i++)
   {
     double d = minimumBrLen_;
-    if(!nodes_[i]->hasDistanceToFather())
+    if (!nodes_[i]->hasDistanceToFather())
     {
       if (verbose)
         ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
@@ -145,8 +148,8 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters(bool verbose)
   map<const Node*, double> heights;
   TreeTemplateTools::getHeights(*tree_->getRootNode(), heights);
   double totalHeight = heights[tree_->getRootNode()];
-  brLenParameters_.addParameter(Parameter("TotalHeight", totalHeight, brLenConstraint_)); 
-  for (map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
+  brLenParameters_.addParameter(Parameter("TotalHeight", totalHeight, brLenConstraint_));
+  for (map<const Node*, double>::iterator it = heights.begin(); it != heights.end(); it++)
   {
     if (!it->first->isLeaf() && it->first->hasFather())
     {
@@ -182,7 +185,8 @@ void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node* node
 
 ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const
 {
-  if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::getDerivableParameters(). Object is not initialized.");
+  if (!initialized_)
+    throw Exception("RHomogeneousClockTreeLikelihood::getDerivableParameters(). Object is not initialized.");
   return ParameterList();
 }
 
@@ -190,27 +194,25 @@ ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const
 
 ParameterList RHomogeneousClockTreeLikelihood::getNonDerivableParameters() const
 {
-  if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
+  if (!initialized_)
+    throw Exception("RHomogeneousClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
   return getParameters();
 }
 
 /******************************************************************************
- *                           First Order Derivatives                          *
- ******************************************************************************/  
-
+*                           First Order Derivatives                          *
+******************************************************************************/
 double RHomogeneousClockTreeLikelihood::getFirstOrderDerivative(const std::string& variable) const
-{ 
+{
   throw Exception("No first order derivative is implemented for this function.");
 }
 
 /******************************************************************************
- *                           Second Order Derivatives                         *
- ******************************************************************************/  
-
+*                           Second Order Derivatives                         *
+******************************************************************************/
 double RHomogeneousClockTreeLikelihood::getSecondOrderDerivative(const std::string& variable) const
 {
   throw Exception("No second order derivative is implemented for this function.");
 }
 
 /******************************************************************************/
-

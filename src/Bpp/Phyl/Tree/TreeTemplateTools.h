@@ -418,7 +418,7 @@ public:
       getInnerNodes<N>(*dynamic_cast<N*>(node.getSon(i)), nodes);
     }
     if (!node.isLeaf())
-      nodes.push_back(&node);  // Do not add leaves!
+      nodes.push_back(&node);                                 // Do not add leaves!
   }
 
   /**
@@ -449,7 +449,7 @@ public:
       getInnerNodesId(*node.getSon(i), ids);
     }
     if (!node.isLeaf())
-      ids.push_back(node.getId());  // Do not add leaves!
+      ids.push_back(node.getId());                                      // Do not add leaves!
   }
 
   /**
@@ -603,13 +603,12 @@ public:
    * @param node The node defining the subtree to check.
    * @return The number of branches.
    */
-    
   static size_t getNumberOfBranches(const Node& node)
   {
-    size_t nbBranches = 0; //Basal node has no branch
+    size_t nbBranches = 0; // Basal node has no branch
     for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
     {
-      nbBranches += getNumberOfNodes(*node[i]); //All son nodes define one branch each
+      nbBranches += getNumberOfNodes(*node[i]); // All son nodes define one branch each
     }
     return nbBranches;
   }
@@ -628,7 +627,6 @@ public:
    * @param node The node defining the subtree to check.
    * @return The number of nodes.
    */
-  
   static size_t getNumberOfNodes(const Node& node)
   {
     size_t nbNodes = 1;
@@ -1109,7 +1107,7 @@ public:
    * Property objects are not cloned when added to the map, but passed as pointers.
    */
   static void getNodeProperties(Node& node, const std::string& propertyName, std::map<int, Clonable*>& properties);
-  
+
   /**
    * @brief Delete the given properties in the tree.
    *
@@ -1157,7 +1155,7 @@ public:
    * @param propertyNames [int] a vector of property names to be deleted.
    */
   static void deleteBranchProperties(Node& node, const std::vector<std::string>& propertyNames);
-  
+
 /** @} */
 
 
@@ -1210,7 +1208,7 @@ public:
    * @param criterion The criterion upon which to reroot. Legal values : TreeTemplateTools::MIDROOT_VARIANCE
    *   to minimize root-leaf distance variance (molecular clock assumption) or
    *   TreeTemplateTools::MIDROOT_SUM_OF_SQUARES to minimize the sum of root-leaf distance squares.
-   * @param forceBranchRoot If true, the root must be placed on a branch, otherwise it may also be placed on a node. 
+   * @param forceBranchRoot If true, the root must be placed on a branch, otherwise it may also be placed on a node.
    *
    * @author Nicolas Rochette
    */
@@ -1299,5 +1297,4 @@ public:
 };
 } // end of namespace bpp.
 
-#endif // _TREETEMPLATETOOLS_H_
-
+#endif// _TREETEMPLATETOOLS_H_

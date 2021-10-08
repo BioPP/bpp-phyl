@@ -184,9 +184,11 @@ NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(const NNIHomogeneousT
 NNIHomogeneousTreeLikelihood& NNIHomogeneousTreeLikelihood::operator=(const NNIHomogeneousTreeLikelihood& lik)
 {
   DRHomogeneousTreeLikelihood::operator=(lik);
-  if (brLikFunction_) delete brLikFunction_;
+  if (brLikFunction_)
+    delete brLikFunction_;
   brLikFunction_  = dynamic_cast<BranchLikelihood*>(lik.brLikFunction_->clone());
-  if (brentOptimizer_) delete brentOptimizer_;
+  if (brentOptimizer_)
+    delete brentOptimizer_;
   brentOptimizer_ = dynamic_cast<BrentOneDimension*>(lik.brentOptimizer_->clone());
   brLenNNIValues_ = lik.brLenNNIValues_;
   brLenNNIParams_ = lik.brLenNNIParams_;
@@ -197,7 +199,8 @@ NNIHomogeneousTreeLikelihood& NNIHomogeneousTreeLikelihood::operator=(const NNIH
 
 NNIHomogeneousTreeLikelihood::~NNIHomogeneousTreeLikelihood()
 {
-  if (brLikFunction_) delete brLikFunction_;
+  if (brLikFunction_)
+    delete brLikFunction_;
   delete brentOptimizer_;
 }
 
@@ -205,9 +208,11 @@ NNIHomogeneousTreeLikelihood::~NNIHomogeneousTreeLikelihood()
 double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const
 {
   const Node* son    = tree_->getNode(nodeId);
-  if (!son->hasFather()) throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
+  if (!son->hasFather())
+    throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
   const Node* parent = son->getFather();
-  if (!parent->hasFather()) throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
+  if (!parent->hasFather())
+    throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
   const Node* grandFather = parent->getFather();
   // From here: Bifurcation assumed.
   // In case of multifurcation, an arbitrary uncle is chosen.
@@ -286,8 +291,10 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const
   brLikFunction_->initLikelihoods(&array1, &array2);
   ParameterList parameters;
   size_t pos = 0;
-  while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
-  if (pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
+  while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId())
+    pos++;
+  if (pos == nodes_.size())
+    throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
   Parameter brLen = getParameter("BrLen" + TextTools::toString(pos));
   brLen.setName("BrLen");
   parameters.addParameter(brLen);
@@ -313,9 +320,11 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId)
 {
   // Perform the topological move, the likelihood array will have to be recomputed...
   Node* son    = tree_->getNode(nodeId);
-  if (!son->hasFather()) throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
+  if (!son->hasFather())
+    throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
   Node* parent = son->getFather();
-  if (!parent->hasFather()) throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
+  if (!parent->hasFather())
+    throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'parent' must not be the root node.", parent);
   Node* grandFather = parent->getFather();
   // From here: Bifurcation assumed.
   // In case of multifurcation, an arbitrary uncle is chosen.
@@ -328,8 +337,10 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId)
   parent->addSon(uncle);
   grandFather->addSon(son);
   size_t pos = 0;
-  while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId()) pos++;
-  if (pos == nodes_.size()) throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");
+  while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId())
+    pos++;
+  if (pos == nodes_.size())
+    throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");
 
   string name = "BrLen" + TextTools::toString(pos);
   if (brLenNNIValues_.find(nodeId) != brLenNNIValues_.end())
@@ -339,7 +350,8 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId)
     getParameter_(name).setValue(length);
     parent->setDistanceToFather(length);
   }
-  else cerr << "ERROR, branch not found: " << nodeId << endl;
+  else
+    cerr << "ERROR, branch not found: " << nodeId << endl;
   try
   {
     brLenNNIParams_.addParameter(brLenParameters_.getParameter(name));
@@ -358,4 +370,3 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId)
 }
 
 /*******************************************************************************/
-

@@ -188,8 +188,7 @@ public:
    * of each element in the pseudoreplicate.
    */
   static std::vector<int> bootstrap(std::size_t length, double scaling = 1);
-  
 };
 } // namespace bpp.
 
-#endif  //_PAIREDSITELLIKELIHOODS_H_
+#endif//_PAIREDSITELLIKELIHOODS_H_

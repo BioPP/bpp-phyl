@@ -110,14 +110,14 @@ void PairedSiteLikelihoods::appendModels(const PairedSiteLikelihoods& psl)
     throw Exception("PairedSiteLikelihoods::appendModels: The two PairedSiteLikelihood objects have different number of sites.");
 
   logLikelihoods_.insert(logLikelihoods_.end(),
-                        psl.logLikelihoods_.begin(),
-                        psl.logLikelihoods_.end()
-                        );
+                         psl.logLikelihoods_.begin(),
+                         psl.logLikelihoods_.end()
+                         );
 
   modelNames_.insert(modelNames_.end(),
-                    psl.modelNames_.begin(),
-                    psl.modelNames_.end()
-                    );
+                     psl.modelNames_.begin(),
+                     psl.modelNames_.end()
+                     );
 }
 
 
@@ -164,7 +164,7 @@ pair<vector<string>, vector<double> > PairedSiteLikelihoods::computeExpectedLike
       double w = exp_logliks_diffs.at(m) / sumELLD;
       weights.at(m) += w;
     }
-  } //for replicates
+  } // for replicates
 
   // Divide all weights by the number of replicates.
   for (vector<double>::iterator w = weights.begin(); w != weights.end(); ++w)
@@ -186,4 +186,3 @@ std::vector<int> PairedSiteLikelihoods::bootstrap(std::size_t length, double sca
 
   return v;
 }
-

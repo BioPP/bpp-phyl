@@ -148,7 +148,7 @@ public:
    *
    * @param alpha The alphabet to use for this set.
    */
-  SubstitutionModelSet(const Alphabet* alpha):
+  SubstitutionModelSet(const Alphabet* alpha) :
     AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(0),
@@ -158,8 +158,7 @@ public:
     modelToNodes_(),
     modelParameters_(),
     stationarity_(true)
-  {
-  }
+  {}
 
   /**
    * @brief Create a model set according to the specified alphabet and root frequencies.
@@ -168,7 +167,7 @@ public:
    * @param alpha The alphabet to use for this set.
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance.
    */
-  SubstitutionModelSet(const Alphabet* alpha, std::shared_ptr<FrequencySet> rootFreqs):
+  SubstitutionModelSet(const Alphabet* alpha, std::shared_ptr<FrequencySet> rootFreqs) :
     AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(0),
@@ -192,7 +191,7 @@ public:
   {
     return stationarity_;
   }
-  
+
   /**
    * @brief Sets a given FrequencySet for root frequencies.
    *
@@ -276,7 +275,7 @@ public:
       throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
     }
   }
-  
+
 
   SubstitutionModel* getSubstitutionModel(size_t i)
   {
@@ -294,16 +293,17 @@ public:
    * @brief check if has only markovian substitution models
    *
    */
- 
   bool hasOnlySubstitutionModels() const
   {
     for (const auto& mod : modelSet_)
-      if (dynamic_cast<const SubstitutionModel*>(mod)==0)
+    {
+      if (dynamic_cast<const SubstitutionModel*>(mod) == 0)
         return false;
+    }
 
     return true;
   }
-  
+
   /**
    * @brief Get the index in the set of the model associated to a particular node id.
    *
@@ -313,7 +313,7 @@ public:
    */
   size_t getModelIndexForNode(int nodeId) const
   {
-   std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
+    std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return i->second;
@@ -328,14 +328,14 @@ public:
    */
   const TransitionModel* getModelForNode(int nodeId) const
   {
-   std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
+    std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
   }
   TransitionModel* getModelForNode(int nodeId)
   {
-   std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
+    std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
@@ -388,7 +388,7 @@ public:
    * <li>etc.</li>
    * </ul>
    */
-  void addModel(TransitionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams);
+  void addModel(TransitionModel* model, const std::vector<int>& nodesId);// , const std::vector<std::string>& newParams);
 
   /**
    * @brief Sets an assignment of a given modle index to a given onde id
@@ -399,7 +399,7 @@ public:
    * @throw Exception if the modle index doesn't correspond to an existing modle in the modelSet
    */
   void setNodeToModel(size_t modelIndex, int nodeId); // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
-  
+
   /**
    * @brief Reset model indices to node ids assignment
    */
@@ -458,7 +458,7 @@ public:
   {
     ParameterList pl;
     for (size_t i = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
-        i < getNumberOfParameters(); i++)
+         i < getNumberOfParameters(); i++)
     {
       pl.addParameter(getParameter_(i));
     }
@@ -482,23 +482,28 @@ public:
    *
    * @see Alphabet
    */
-  const std::vector<int>& getAlphabetStates() const {
+  const std::vector<int>& getAlphabetStates() const
+  {
     return getModel(0)->getAlphabetStates();
   }
 
-  const StateMap& getStateMap() const {
+  const StateMap& getStateMap() const
+  {
     return getModel(0)->getStateMap();
   }
 
-  std::shared_ptr<const StateMap> shareStateMap() const {
+  std::shared_ptr<const StateMap> shareStateMap() const
+  {
     return getModel(0)->shareStateMap();
   }
 
-  std::vector<size_t> getModelStates(int code) const {
+  std::vector<size_t> getModelStates(int code) const
+  {
     return getModel(0)->getModelStates(code);
   }
 
-  std::vector<size_t> getModelStates(const std::string& code) const {
+  std::vector<size_t> getModelStates(const std::string& code) const
+  {
     return getModel(0)->getModelStates(code);
   }
 
@@ -506,17 +511,17 @@ public:
    * @param index The model state.
    * @return The corresponding alphabet state as character code.
    */
-
-  int getAlphabetStateAsInt(size_t index) const {
+  int getAlphabetStateAsInt(size_t index) const
+  {
     return getModel(0)->getAlphabetStateAsInt(index);
   }
-  
+
   /**
    * @param index The model state.
    * @return The corresponding alphabet state as character code.
    */
-
-  std::string getAlphabetStateAsChar(size_t index) const {
+  std::string getAlphabetStateAsChar(size_t index) const
+  {
     return getModel(0)->getAlphabetStateAsChar(index);
   }
 
@@ -535,7 +540,7 @@ public:
   bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const
   {
     return checkOrphanModels(throwEx)
-      //           && checkOrphanParameters(throwEx)
+           //           && checkOrphanParameters(throwEx)
            && checkOrphanNodes(tree, throwEx)
            && checkUnknownNodes(tree, throwEx);
   }
@@ -564,5 +569,4 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif // _SUBSTITUTIONMODELSET_H_
-
+#endif// _SUBSTITUTIONMODELSET_H_

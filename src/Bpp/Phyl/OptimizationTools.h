@@ -61,41 +61,40 @@ namespace bpp
 /**
  * @brief A listener which capture NaN function values and throw an exception in case this happens.
  */
-class NaNListener: public OptimizationListener
+class NaNListener : public OptimizationListener
 {
-  private:
-    Optimizer* optimizer_;
-    Function* function_;
+private:
+  Optimizer* optimizer_;
+  Function* function_;
 
-  public:
-    NaNListener(Optimizer* optimizer, Function* function): optimizer_(optimizer), function_(function) {}
+public:
+  NaNListener(Optimizer* optimizer, Function* function) : optimizer_(optimizer), function_(function) {}
 
-    NaNListener(const NaNListener& lr):
-      optimizer_(lr.optimizer_),
-      function_(lr.function_)
-    {}
-  
-    NaNListener& operator=(const NaNListener& lr)
+  NaNListener(const NaNListener& lr) :
+    optimizer_(lr.optimizer_),
+    function_(lr.function_)
+  {}
+
+  NaNListener& operator=(const NaNListener& lr)
+  {
+    optimizer_ = lr.optimizer_;
+    function_  = lr.function_;
+    return *this;
+  }
+
+public:
+  void optimizationInitializationPerformed(const OptimizationEvent& event) {}
+  void optimizationStepPerformed(const OptimizationEvent& event)
+  {
+    if (std::isnan(optimizer_->getFunction()->getValue()))
     {
-      optimizer_ = lr.optimizer_;
-      function_  = lr.function_;
-      return *this;
+      cerr << "Oups... something abnormal happened!" << endl;
+      function_->getParameters().printParameters(cerr);
+      throw Exception("Optimization failed because likelihood function returned NaN.");
     }
-  
-  public:
-    void optimizationInitializationPerformed(const OptimizationEvent &event) {}
-    void optimizationStepPerformed(const OptimizationEvent &event)
-    {
-      if (std::isnan(optimizer_->getFunction()->getValue()))
-      {
-         cerr << "Oups... something abnormal happened!" << endl;
-         function_->getParameters().printParameters(cerr);
-         throw Exception("Optimization failed because likelihood function returned NaN.");
-      }
-    }
-    bool listenerModifiesParameters () const { return false; }
+  }
+  bool listenerModifiesParameters () const { return false; }
 };
-
 
 
 /**
@@ -352,18 +351,18 @@ public:
     const std::string& optMethodModel = OPTIMIZATION_BRENT);
 
   static unsigned int optimizeNumericalParameters(
-      PhyloLikelihood* lik,
-      const ParameterList& parameters,
-      OptimizationListener* listener    = 0,
-      unsigned int nstep                = 1,
-      double tolerance                  = 0.000001,
-      unsigned int tlEvalMax            = 1000000,
-      OutputStream* messageHandler      = ApplicationTools::message.get(),
-      OutputStream* profiler            = ApplicationTools::message.get(),
-      bool reparametrization            = false,
-      unsigned int verbose              = 1,
-      const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
-      const std::string& optMethodModel = OPTIMIZATION_BRENT);
+    PhyloLikelihood* lik,
+    const ParameterList& parameters,
+    OptimizationListener* listener    = 0,
+    unsigned int nstep                = 1,
+    double tolerance                  = 0.000001,
+    unsigned int tlEvalMax            = 1000000,
+    OutputStream* messageHandler      = ApplicationTools::message.get(),
+    OutputStream* profiler            = ApplicationTools::message.get(),
+    bool reparametrization            = false,
+    unsigned int verbose              = 1,
+    const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
+    const std::string& optMethodModel = OPTIMIZATION_BRENT);
 
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -401,17 +400,17 @@ public:
     const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   static unsigned int optimizeNumericalParameters2(
-      PhyloLikelihood* lik,
-      const ParameterList& parameters,
-      OptimizationListener* listener     = 0,
-      double tolerance                   = 0.000001,
-      unsigned int tlEvalMax             = 1000000,
-      OutputStream* messageHandler       = ApplicationTools::message.get(),
-      OutputStream* profiler             = ApplicationTools::message.get(),
-      bool reparametrization             = false,
-      bool useClock                      = false,
-      unsigned int verbose               = 1,
-      const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
+    PhyloLikelihood* lik,
+    const ParameterList& parameters,
+    OptimizationListener* listener     = 0,
+    double tolerance                   = 0.000001,
+    unsigned int tlEvalMax             = 1000000,
+    OutputStream* messageHandler       = ApplicationTools::message.get(),
+    OutputStream* profiler             = ApplicationTools::message.get(),
+    bool reparametrization             = false,
+    bool useClock                      = false,
+    unsigned int verbose               = 1,
+    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   static unsigned int optimizeNumericalParameters2(
     SingleProcessPhyloLikelihood& lik,
@@ -571,9 +570,9 @@ public:
     }
     size_t getNumberOfParameters() const { return 1; }
     size_t getNumberOfIndependentParameters() const { return 1; }
-  protected:
-    ParameterList& getParameters_() { return lambda_; }
 
+protected:
+    ParameterList& getParameters_() { return lambda_; }
   };
 
 public:
@@ -796,8 +795,6 @@ public:
   static std::string DISTANCEMETHOD_PAIRWISE;
   static std::string DISTANCEMETHOD_ITERATIONS;
 };
-
 } // end of namespace bpp.
 
-#endif  // _OPTIMIZATIONTOOLS_H_
-
+#endif// _OPTIMIZATIONTOOLS_H_

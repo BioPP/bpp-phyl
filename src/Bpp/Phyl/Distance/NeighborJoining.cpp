@@ -156,4 +156,3 @@ void NeighborJoining::finalStep(int idRoot)
   }
   tree_ = new TreeTemplate<Node>(root);
 }
-

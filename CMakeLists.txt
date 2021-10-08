@@ -5,8 +5,8 @@
 #   Francois Gindraud (2017)
 # Created: 20/08/2009
 
-cmake_minimum_required (VERSION 2.8.12)
-project (bpp-phyl CXX)
+cmake_minimum_required (VERSION 3.0) #3.0 needed for Eigen inclusion to work
+project (bpp-phyl3 CXX)
 
 # Compile options
 set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wshadow -Wconversion")
@@ -44,7 +44,7 @@ ENDIF()
 #           library implements.
 # In other words, the library implements all the interface numbers in the
 # range from number current - age to current.
-SET(${PROJECT_NAME}_VERSION_CURRENT "13")
+SET(${PROJECT_NAME}_VERSION_CURRENT "1")
 SET(${PROJECT_NAME}_VERSION_REVISION "0")
 SET(${PROJECT_NAME}_VERSION_AGE "0")
 
@@ -72,8 +72,8 @@ if (CMAKE_INSTALL_PREFIX)
 endif (CMAKE_INSTALL_PREFIX)
 
 include (GNUInstallDirs)
-find_package (bpp-core 5.0.0 REQUIRED)
-find_package (bpp-seq 13.0.0 REQUIRED)
+find_package (bpp-core3 1.0.0 REQUIRED)
+find_package (bpp-seq3 1.0.0 REQUIRED)
 
 # CMake package
 set (cmake-package-location ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
@@ -93,9 +93,8 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package.cmake DESTINATION ${cmake-pac
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake DESTINATION ${cmake-package-location}
   RENAME ${PROJECT_NAME}-config-version.cmake)
 
-# Use eigen (TODO inclusion method ?)
-
-find_package (Eigen3 3.3 REQUIRED PATHS /usr/lib)
+# Use eigen
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 # Define the libraries
 add_subdirectory (src)
@@ -117,7 +116,7 @@ ENDIF (DOXYGEN_FOUND)
 ENDIF(NO_DEP_CHECK)
 
 # Packager
-SET(CPACK_PACKAGE_NAME "libbpp-phyl")
+SET(CPACK_PACKAGE_NAME "libbpp-phyl3")
 SET(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
 SET(CPACK_PACKAGE_VERSION "3.0.0")
 SET(CPACK_PACKAGE_VERSION_MAJOR "3")

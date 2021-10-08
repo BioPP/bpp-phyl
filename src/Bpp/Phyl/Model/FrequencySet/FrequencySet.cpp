@@ -75,12 +75,16 @@ void AbstractFrequencySet::setFrequenciesFromAlphabetStatesFrequencies(const map
     x += freq[i];
   }
 
-  if (x!=0)
+  if (x != 0)
     for (size_t i = 0; i < s; ++i)
+    {
       freq[i] /= x;
+    }
   else
     for (size_t i = 0; i < s; ++i)
-      freq[i] = 1.0/(double)s;
+    {
+      freq[i] = 1.0 / (double)s;
+    }
 
   setFrequencies(freq);
 }
@@ -88,7 +92,8 @@ void AbstractFrequencySet::setFrequenciesFromAlphabetStatesFrequencies(const map
 const std::map<int, double> AbstractFrequencySet::getAlphabetStatesFrequencies() const
 {
   map<int, double> fmap;
-  for (size_t i = 0; i < stateMap_->getNumberOfModelStates(); ++i) {
+  for (size_t i = 0; i < stateMap_->getNumberOfModelStates(); ++i)
+  {
     fmap[stateMap_->getAlphabetStateAsInt(i)] += freq_[i];
   }
   return fmap;
@@ -105,7 +110,9 @@ FullFrequencySet::FullFrequencySet(std::shared_ptr<const StateMap> stateMap, boo
   double r = 1. / static_cast<double>(stateMap->getNumberOfModelStates());
 
   for (size_t i = 0; i < stateMap->getNumberOfModelStates(); i++)
+  {
     vd.push_back(r);
+  }
 
   sFreq_.setFrequencies(vd);
   addParameters_(sFreq_.getParameters());
@@ -121,10 +128,10 @@ FullFrequencySet::FullFrequencySet(std::shared_ptr<const StateMap> stateMap, con
   updateFreq_();
 }
 
-void FullFrequencySet::setFrequencies(const vector<double>& frequencies) 
+void FullFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   sFreq_.setFrequencies(frequencies);
-  setParametersValues(sFreq_.getParameters()); 
+  setParametersValues(sFreq_.getParameters());
 
   updateFreq_();
 }
@@ -144,7 +151,9 @@ void FullFrequencySet::fireParameterChanged(const ParameterList& parameters)
 void FullFrequencySet::updateFreq_()
 {
   for (size_t i = 0; i < getAlphabet()->getSize(); i++)
-    getFreq_(i)=sFreq_.prob(i);
+  {
+    getFreq_(i) = sFreq_.prob(i);
+  }
 }
 
 // ///////////////////////////////////////////
@@ -168,7 +177,7 @@ FixedFrequencySet::FixedFrequencySet(std::shared_ptr<const StateMap> stateMap, c
   }
 }
 
-void FixedFrequencySet::setFrequencies(const vector<double>& frequencies) 
+void FixedFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getNumberOfFrequencies())
     throw DimensionException("FixedFrequencySet::setFrequencies", frequencies.size(), getNumberOfFrequencies());
@@ -196,12 +205,12 @@ MarkovModulatedFrequencySet::MarkovModulatedFrequencySet(std::shared_ptr<Frequen
 /// From Model
 
 
-FromModelFrequencySet::FromModelFrequencySet(const FromModelFrequencySet& fmfs):
+FromModelFrequencySet::FromModelFrequencySet(const FromModelFrequencySet& fmfs) :
   AbstractFrequencySet(fmfs),
   model_(fmfs.model_->clone())
 {}
 
-FromModelFrequencySet& FromModelFrequencySet::operator=(const FromModelFrequencySet& fmfs) 
+FromModelFrequencySet& FromModelFrequencySet::operator=(const FromModelFrequencySet& fmfs)
 {
   AbstractFrequencySet::operator=(fmfs);
   model_ = fmfs.model_->clone();
@@ -214,7 +223,7 @@ FromModelFrequencySet::~FromModelFrequencySet()
 }
 
 FromModelFrequencySet::FromModelFrequencySet(TransitionModel* model) :
-  AbstractFrequencySet(model->shareStateMap(), "FromModel."+(model?model->getNamespace():""), "FromModel"),
+  AbstractFrequencySet(model->shareStateMap(), "FromModel." + (model ? model->getNamespace() : ""), "FromModel"),
   model_(model)
 {
   model_->setNamespace(getNamespace());
@@ -233,7 +242,8 @@ void FromModelFrequencySet::setNamespace(const std::string& name)
 void FromModelFrequencySet::setFrequencies(const std::vector<double>& frequencies)
 {
   std::map<int, double> freq;
-  for (size_t i = 0; i < getNumberOfFrequencies(); ++i) {
+  for (size_t i = 0; i < getNumberOfFrequencies(); ++i)
+  {
     freq[getStateMap().getAlphabetStateAsInt(i)] += frequencies[i];
   }
   model_->setFreq(freq);
@@ -250,7 +260,7 @@ void FromModelFrequencySet::fireParameterChanged(const ParameterList& pl)
 //////////////////////////////////
 /// User
 
-UserFrequencySet::UserFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol):
+UserFrequencySet::UserFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol) :
   AbstractFrequencySet(stateMap, "Empirical.", "Empirical"),
   path_(path),
   nCol_(nCol)
@@ -258,14 +268,13 @@ UserFrequencySet::UserFrequencySet(std::shared_ptr<const StateMap> stateMap, con
   readFromFile_();
 }
 
-UserFrequencySet::UserFrequencySet(const UserFrequencySet& fmfs):
+UserFrequencySet::UserFrequencySet(const UserFrequencySet& fmfs) :
   AbstractFrequencySet(fmfs),
   path_(fmfs.path_),
   nCol_(fmfs.nCol_)
-{
-}
+{}
 
-UserFrequencySet& UserFrequencySet::operator=(const UserFrequencySet& fmfs) 
+UserFrequencySet& UserFrequencySet::operator=(const UserFrequencySet& fmfs)
 {
   AbstractFrequencySet::operator=(fmfs);
   path_ = fmfs.path_;
@@ -280,13 +289,13 @@ void UserFrequencySet::readFromFile_()
 
   ifstream in(path_.c_str(), ios::in);
 
-  //Read profile:
+  // Read profile:
 
   for (unsigned int i = 0; i < getAlphabet()->getSize(); i++)
   {
     if (!in)
       throw Exception("UserFrequencySet::readFromFile. Missing frequencies in file : " +  path_);
-    
+
     string line = FileTools::getNextLine(in);
     StringTokenizer st(line);
     double s(0);
@@ -296,21 +305,21 @@ void UserFrequencySet::readFromFile_()
         throw Exception("UserFrequencySet::readFromFile. Missing frequencies for column " + TextTools::toString(nCol_) + " in line " + TextTools::toString(i));
       s = TextTools::toDouble(st.nextToken());
     }
-    getFreq_(i)=s;
+    getFreq_(i) = s;
   }
 
   double sf = VectorTools::sum(getFrequencies_());
   if (fabs(sf - 1) > 0.000001)
   {
     ApplicationTools::displayMessage("WARNING!!! Frequencies sum to " + TextTools::toString(sf) + ", frequencies have been scaled.");
-    sf *= 1./sf;
+    sf *= 1. / sf;
   }
 
-  //Closing stream:
+  // Closing stream:
   in.close();
 }
 
-void UserFrequencySet::setFrequencies(const vector<double>& frequencies) 
+void UserFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getNumberOfFrequencies())
     throw DimensionException("UserFrequencySet::setFrequencies", frequencies.size(), getNumberOfFrequencies());

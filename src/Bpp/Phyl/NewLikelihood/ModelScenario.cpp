@@ -48,20 +48,22 @@ bool ModelScenario::complete()
 {
   ModelPath nhn;
   for (const auto& mp : vModelPaths_)
+  {
     nhn += *mp;
+  }
 
-  auto rest=std::make_shared<ModelPath> ();
-  auto models=nhn.getModels();
+  auto rest = std::make_shared<ModelPath> ();
+  auto models = nhn.getModels();
   for (const auto& model:models)
   {
     Vuint v((uint)model->getNumberOfModels());
-    std::iota(v.begin(),v.end(),0);
-    rest->setModel(model,v);
+    std::iota(v.begin(), v.end(), 0);
+    rest->setModel(model, v);
   }
 
-  (*rest)-=nhn;
+  (*rest) -= nhn;
 
-  if (rest->size()!=0)
+  if (rest->size() != 0)
   {
     addModelPath(rest);
     return true;
@@ -71,10 +73,12 @@ bool ModelScenario::complete()
 }
 
 void ModelScenario::changeModel(std::shared_ptr<MixedTransitionModel> m1,
-                                 std::shared_ptr<MixedTransitionModel> m2)
+                                std::shared_ptr<MixedTransitionModel> m2)
 {
   for (auto& mp: vModelPaths_)
+  {
     mp->changeModel(m1, m2);
+  }
 }
 
 bool ModelScenario::hasExclusivePaths() const
@@ -108,16 +112,16 @@ void ModelScenario::computeModelPathsProbabilities()
 
   size_t nbh = getNumberOfModelPaths();
 
-  if (nbh==0)
+  if (nbh == 0)
     return;
-  
+
   // Compute the probabilities of the hypernodes from the lead mixed
   // model of the first ModelPath
 
   std::shared_ptr<MixedTransitionModel> pfSM(vModelPaths_[0]->getLeadModel());
 
-  if (pfSM==0)
-    throw Exception("ModelScenario::computeModelPathsProbabilities: missing lead Model."); 
+  if (pfSM == 0)
+    throw Exception("ModelScenario::computeModelPathsProbabilities: missing lead Model.");
 
   for (size_t nh = 0; nh < nbh; nh++)
   {
@@ -128,8 +132,10 @@ void ModelScenario::computeModelPathsProbabilities()
 
       double fprob = 0;
       for (const auto& fn:fnd)
+      {
         fprob += pfSM->getNProbability(static_cast<size_t>(fn));
-      
+      }
+
       h.setProbability(fprob);
     }
     else
@@ -138,22 +144,24 @@ void ModelScenario::computeModelPathsProbabilities()
 
   // Sets the new probabilities & rates of the mixmodels
 
-  auto models=getModels();
-  
+  auto models = getModels();
+
   for (auto model:getModels())
   {
-    if (model!=pfSM)
+    if (model != pfSM)
     {
       for (size_t nh = 0; nh < nbh; nh++)
       {
         ModelPath& h = *getModelPath(nh);
         if (!h.hasModel(model))
           throw Exception("ModelScenario::computeModelPathsProbabilities : reference model " + model->getName() + " is missing in ModelPath " + TextTools::toString(nh));
-        
+
         const ModelPath::PathNode& fnd = h.getPathNode(model);
         double prob = 0;
         for (auto& fn:fnd)
+        {
           prob += model->getNProbability(static_cast<size_t>(fn));
+        }
 
         // sets the real probabilities
         for (auto& fn:fnd)
@@ -163,13 +171,12 @@ void ModelScenario::computeModelPathsProbabilities()
       }
 
       // normalizes Vrates with the real probabilities
-    
-      model->normalizeVRates();
 
+      model->normalizeVRates();
     }
-    
+
     // sets the conditional probabilities
-    
+
     for (size_t nh = 0; nh < nbh; nh++)
     {
       ModelPath& h = *getModelPath(nh);
@@ -186,7 +193,7 @@ void ModelScenario::computeModelPathsProbabilities()
 std::string ModelScenario::to_string() const
 {
   string output;
-   
+
   for (const auto& mp:vModelPaths_)
   {
     output += "<" + mp->to_string() + ">";
@@ -195,19 +202,20 @@ std::string ModelScenario::to_string() const
   return output;
 }
 
-std::vector<std::shared_ptr<MixedTransitionModel>> ModelScenario::getModels() const
+std::vector<std::shared_ptr<MixedTransitionModel> > ModelScenario::getModels() const
 {
-  std::vector<std::shared_ptr<MixedTransitionModel>> models, models2;
+  std::vector<std::shared_ptr<MixedTransitionModel> > models, models2;
 
   for (const auto& mp:vModelPaths_)
   {
-    auto vmodel=mp->getModels();
+    auto vmodel = mp->getModels();
     for (auto& model:vmodel)
-      if (std::find(models.begin(),models.end(),model)==models.end())
+    {
+      if (std::find(models.begin(), models.end(), model) == models.end())
         models.push_back(model);
-      else  
-        if (std::find(models2.begin(),models2.end(),model)==models2.end())
-          models2.push_back(model);
+      else if (std::find(models2.begin(), models2.end(), model) == models2.end())
+        models2.push_back(model);
+    }
   }
 
   return models2; // return only models found in several paths

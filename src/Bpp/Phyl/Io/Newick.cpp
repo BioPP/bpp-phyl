@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use, 
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or 
-  data to be ensured and,  more generally, to use and operate it in the 
-  same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "Newick.h"
 #include "../Tree/Tree.h"
@@ -70,33 +70,38 @@ const string Newick::getFormatName() const { return "Newick"; }
 const string Newick::getFormatDescription() const
 {
   return string("New hampshire parenthesis format. ") +
-    "See http://evolution.genetics.washington.edu/phylip/newicktree.html for more info.";
+         "See http://evolution.genetics.washington.edu/phylip/newicktree.html for more info.";
 }
 
 /**********************************************************/
 /*  INPUT */
 /**********************************************************/
 
-TreeTemplate<Node> * Newick::readTree(istream& in) const
+TreeTemplate<Node>* Newick::readTree(istream& in) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
-  
-  //We concatenate all line in file till we reach the ending semi colon:
+  if (!in)
+  {
+    throw IOException ("Newick::read: failed to read from stream");
+  }
+
+  // We concatenate all line in file till we reach the ending semi colon:
   string temp, description;// Initialization
   // Main loop : for all file lines
   while (getline(in, temp, '\n'))
   {
     string::size_type index = temp.find(";");
-    if(index != string::npos)
+    if (index != string::npos)
     {
       description += temp.substr(0, index + 1);
       break;
     }
-    else description += temp;
+    else
+      description += temp;
   }
 
-  if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
+  if (allowComments_)
+    description = TextTools::removeSubstrings(description, '[', ']');
   if (TextTools::isEmpty(description))
     throw IOException("Newick::read: no tree was found!");
   return TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_, false, verbose_);
@@ -107,23 +112,28 @@ TreeTemplate<Node> * Newick::readTree(istream& in) const
 PhyloTree* Newick::readPTree(istream& in) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("Newick::readPTree: failed to read from stream"); }
-  
-  //We concatenate all line in file till we reach the ending semi colon:
+  if (!in)
+  {
+    throw IOException ("Newick::readPTree: failed to read from stream");
+  }
+
+  // We concatenate all line in file till we reach the ending semi colon:
   string temp, description;// Initialization
   // Main loop : for all file lines
   while (getline(in, temp, '\n'))
   {
     string::size_type index = temp.find(";");
-    if(index != string::npos)
+    if (index != string::npos)
     {
       description += temp.substr(0, index + 1);
       break;
     }
-    else description += temp;
+    else
+      description += temp;
   }
 
-  if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
+  if (allowComments_)
+    description = TextTools::removeSubstrings(description, '[', ']');
   if (TextTools::isEmpty(description))
     throw IOException("Newick::read: no tree was found!");
   return parenthesisToPhyloTree(description, useBootstrap_, bootstrapPropertyName_, false, verbose_);
@@ -134,25 +144,30 @@ PhyloTree* Newick::readPTree(istream& in) const
 void Newick::readTrees(istream& in, vector<Tree*>& trees) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("Newick::readTrees(vector): failed to read from stream"); }
-  
+  if (!in)
+  {
+    throw IOException ("Newick::readTrees(vector): failed to read from stream");
+  }
+
   // Main loop : for all file lines
   string temp, description;// Initialization
   string::size_type index;
-  //We concatenate all line in file till we reach the ending semi colon:
+  // We concatenate all line in file till we reach the ending semi colon:
   while (getline(in, temp, '\n'))
   {
     index = temp.find(";");
     if (index != string::npos)
     {
       description += temp.substr(0, index + 1);
-      if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
+      if (allowComments_)
+        description = TextTools::removeSubstrings(description, '[', ']');
       trees.push_back(TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_, false, verbose_));
       description = temp.substr(index + 1);
     }
-    else description += temp;
+    else
+      description += temp;
   }
-  //In case the file is empty, the method will not add any neww tree to the vector.
+  // In case the file is empty, the method will not add any neww tree to the vector.
 }
 
 /******************************************************************************/
@@ -160,25 +175,30 @@ void Newick::readTrees(istream& in, vector<Tree*>& trees) const
 void Newick::readTrees(istream& in, vector<PhyloTree*>& trees) const
 {
   // Checking the existence of specified file
-  if (! in) { throw IOException ("Newick::readTrees(vector): failed to read from stream"); }
-  
+  if (!in)
+  {
+    throw IOException ("Newick::readTrees(vector): failed to read from stream");
+  }
+
   // Main loop : for all file lines
   string temp, description;// Initialization
   string::size_type index;
-  //We concatenate all line in file till we reach the ending semi colon:
+  // We concatenate all line in file till we reach the ending semi colon:
   while (getline(in, temp, '\n'))
   {
     index = temp.find(";");
     if (index != string::npos)
     {
       description += temp.substr(0, index + 1);
-      if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
+      if (allowComments_)
+        description = TextTools::removeSubstrings(description, '[', ']');
       trees.push_back(parenthesisToPhyloTree(description, useBootstrap_, bootstrapPropertyName_, false, verbose_));
       description = temp.substr(index + 1);
     }
-    else description += temp;
+    else
+      description += temp;
   }
-  //In case the file is empty, the method will not add any neww tree to the vector.
+  // In case the file is empty, the method will not add any neww tree to the vector.
 }
 
 /***************************************/
@@ -254,7 +274,7 @@ shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<Phy
   // New node:
   std::shared_ptr<PhyloNode> node(new PhyloNode());
 
-  shared_ptr<PhyloBranch> branch(father?new PhyloBranch():0);
+  shared_ptr<PhyloBranch> branch(father ? new PhyloBranch() : 0);
 
   if (father)
   {
@@ -270,7 +290,7 @@ shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<Phy
   {
     if (withId)
     {
-      auto id = static_cast<PhyloTree::NodeIndex> (TextTools::toInt(elt.annotation));
+      auto id = static_cast<PhyloTree::NodeIndex>(TextTools::toInt(elt.annotation));
       tree.setNodeIndex(node, id);
       if (branch)
         tree.setEdgeIndex(branch, id);
@@ -315,11 +335,11 @@ shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<Phy
         realName << st.getToken(i);
       }
       node->setName(realName.str());
-      tree.setNodeIndex(node, static_cast<PhyloTree::NodeIndex> (
-            TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
+      tree.setNodeIndex(node, static_cast<PhyloTree::NodeIndex>(
+                          TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
       if (branch)
-        tree.setEdgeIndex(branch, static_cast<PhyloTree::NodeIndex> (
-              TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
+        tree.setEdgeIndex(branch, static_cast<PhyloTree::NodeIndex>(
+                            TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
     }
     else
       node->setName(name);
@@ -333,12 +353,12 @@ shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<Phy
       parenthesisToNode(tree, node, elements[i], nodeCounter, bootstrap, propertyName, withId, verbose);
     }
   }
-  
+
   if (!withId)
   {
-    tree.setNodeIndex(node,nodeCounter);
+    tree.setNodeIndex(node, nodeCounter);
     if (branch)
-      tree.setEdgeIndex(branch,nodeCounter);
+      tree.setEdgeIndex(branch, nodeCounter);
   }
 
   nodeCounter++;
@@ -361,7 +381,8 @@ PhyloTree* Newick::parenthesisToPhyloTree(const string& description, bool bootst
 
   tree->rootAt(root);
 
-  if (verbose) {
+  if (verbose)
+  {
     (*ApplicationTools::message) << " nodes loaded.";
     ApplicationTools::message->endLine();
   }
@@ -376,8 +397,11 @@ PhyloTree* Newick::parenthesisToPhyloTree(const string& description, bool bootst
 void Newick::write_(const Tree& tree, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
-  if(useBootstrap_)
+  if (!out)
+  {
+    throw IOException ("Newick::writeTree: failed to write to stream");
+  }
+  if (useBootstrap_)
   {
     out << TreeTools::treeToParenthesis(tree, writeId_);
   }
@@ -390,8 +414,11 @@ void Newick::write_(const Tree& tree, ostream& out) const
 void Newick::write_(const PhyloTree& tree, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
-  if(useBootstrap_)
+  if (!out)
+  {
+    throw IOException ("Newick::writeTree: failed to write to stream");
+  }
+  if (useBootstrap_)
   {
     out << treeToParenthesis(tree, writeId_);
   }
@@ -407,8 +434,11 @@ template<class N>
 void Newick::write_(const TreeTemplate<N>& tree, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
-  if(useBootstrap_)
+  if (!out)
+  {
+    throw IOException ("Newick::writeTree: failed to write to stream");
+  }
+  if (useBootstrap_)
   {
     out << TreeTemplateTools::treeToParenthesis(tree, writeId_);
   }
@@ -424,10 +454,13 @@ void Newick::write_(const TreeTemplate<N>& tree, ostream& out) const
 void Newick::write_(const vector<const Tree*>& trees, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("Newick::write: failed to write to stream"); }
-  for(unsigned int i = 0; i < trees.size(); i++)
+  if (!out)
   {
-    if(useBootstrap_)
+    throw IOException ("Newick::write: failed to write to stream");
+  }
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    if (useBootstrap_)
     {
       out << TreeTools::treeToParenthesis(*trees[i], writeId_);
     }
@@ -444,10 +477,13 @@ template<class N>
 void Newick::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("Newick::write: failed to write to stream"); }
-  for(unsigned int i = 0; i < trees.size(); i++)
+  if (!out)
   {
-    if(useBootstrap_)
+    throw IOException ("Newick::write: failed to write to stream");
+  }
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    if (useBootstrap_)
     {
       out << TreeTemplateTools::treeToParenthesis(*trees[i], writeId_);
     }
@@ -463,10 +499,13 @@ void Newick::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const
 void Newick::write_(const vector<const PhyloTree*>& trees, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
-  if (! out) { throw IOException ("Newick::write: failed to write to stream"); }
-  for(unsigned int i = 0; i < trees.size(); i++)
+  if (!out)
   {
-    if(useBootstrap_)
+    throw IOException ("Newick::write: failed to write to stream");
+  }
+  for (unsigned int i = 0; i < trees.size(); i++)
+  {
+    if (useBootstrap_)
     {
       out << treeToParenthesis(*trees[i], writeId_);
     }
@@ -482,9 +521,9 @@ void Newick::write_(const vector<const PhyloTree*>& trees, ostream& out) const
 string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<PhyloNode> node, bool writeId) const
 {
   ostringstream s;
-  shared_ptr<PhyloBranch> branch=tree.hasFather(node)?tree.getEdgeToFather(node):0;
+  shared_ptr<PhyloBranch> branch = tree.hasFather(node) ? tree.getEdgeToFather(node) : 0;
 
-  if (tree.getNumberOfSons(node)==0)
+  if (tree.getNumberOfSons(node) == 0)
   {
     s << node->getName();
   }
@@ -492,13 +531,13 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
   {
     s << "(";
 
-    vector<shared_ptr<PhyloNode> > vSons=tree.getSons(node);
+    vector<shared_ptr<PhyloNode> > vSons = tree.getSons(node);
 
-    for (vector<shared_ptr<PhyloNode> >::const_iterator it=vSons.begin(); it!=vSons.end(); it++)
+    for (vector<shared_ptr<PhyloNode> >::const_iterator it = vSons.begin(); it != vSons.end(); it++)
     {
-      if (it!=vSons.begin())
+      if (it != vSons.begin())
         s << ",";
-      
+
       s << nodeToParenthesis(tree, *it);
     }
 
@@ -519,7 +558,7 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
 
   if (branch && branch->hasLength())
     s << ":" << branch->getLength();
-  return s.str();  
+  return s.str();
 }
 
 /******************************************************************************/
@@ -527,9 +566,9 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
 string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<PhyloNode> node, bool bootstrap, const string& propertyName) const
 {
   ostringstream s;
-  shared_ptr<PhyloBranch> branch=tree.hasFather(node)?tree.getEdgeToFather(node):0;
+  shared_ptr<PhyloBranch> branch = tree.hasFather(node) ? tree.getEdgeToFather(node) : 0;
 
-  if (tree.getNumberOfSons(node)==0)
+  if (tree.getNumberOfSons(node) == 0)
   {
     s << node->getName();
   }
@@ -537,11 +576,11 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
   {
     s << "(";
 
-    vector<shared_ptr<PhyloNode> > vSons=tree.getSons(node);
+    vector<shared_ptr<PhyloNode> > vSons = tree.getSons(node);
 
-    for (vector<shared_ptr<PhyloNode> >::const_iterator it=vSons.begin(); it!=vSons.end(); it++)
+    for (vector<shared_ptr<PhyloNode> >::const_iterator it = vSons.begin(); it != vSons.end(); it++)
     {
-      if (it!=vSons.begin())
+      if (it != vSons.begin())
         s << ",";
 
       s << nodeToParenthesis(tree, *it, bootstrap, propertyName);
@@ -567,7 +606,7 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
   if (branch && branch->hasLength())
     s << ":" << branch->getLength();
 
-  return s.str();  
+  return s.str();
 }
 
 /******************************************************************************/
@@ -585,7 +624,7 @@ string Newick::treeToParenthesis(const PhyloTree& tree, bool writeId) const
   {
     for (size_t i = 0; i < rSons.size(); ++i)
     {
-      if (i!=0)
+      if (i != 0)
         s << ",";
       s << nodeToParenthesis(tree, rSons[i], writeId);
     }
@@ -596,21 +635,21 @@ string Newick::treeToParenthesis(const PhyloTree& tree, bool writeId) const
 
     for (size_t i = 0; i < rSons.size(); ++i)
     {
-      if (i!=0)
+      if (i != 0)
         s << ",";
       s << nodeToParenthesis(tree, rSons[i], writeId);
     }
   }
 
-  s << ")" ;
+  s << ")";
 
-  const shared_ptr<PhyloBranch> branch=tree.hasFather(root)?tree.getEdgeToFather(root):0;
+  const shared_ptr<PhyloBranch> branch = tree.hasFather(root) ? tree.getEdgeToFather(root) : 0;
 
   if (branch && branch->hasLength())
     s << ":" << branch->getLength();
   s << ";" << endl;
 
-  return s.str();  
+  return s.str();
 }
 
 /******************************************************************************/
@@ -621,14 +660,14 @@ string Newick::treeToParenthesis(const PhyloTree& tree, bool bootstrap, const st
   s << "(";
 
   shared_ptr<PhyloNode>  root = tree.getRoot();
-  
+
   std::vector<shared_ptr<PhyloNode> > rSons = tree.getSons(root);
 
   if (tree.isRooted())
   {
     for (size_t i = 0; i < rSons.size(); ++i)
     {
-      if (i!=0)
+      if (i != 0)
         s << ",";
       s << nodeToParenthesis(tree, rSons[i], bootstrap, propertyName);
     }
@@ -639,15 +678,15 @@ string Newick::treeToParenthesis(const PhyloTree& tree, bool bootstrap, const st
 
     for (size_t i = 0; i < rSons.size(); ++i)
     {
-      if (i!=0)
+      if (i != 0)
         s << ",";
       s << nodeToParenthesis(tree, rSons[i], bootstrap, propertyName);
     }
   }
 
-  s << ")" ;
+  s << ")";
 
-  shared_ptr<PhyloBranch> branch=tree.hasFather(root)?tree.getEdgeToFather(root):0;
+  shared_ptr<PhyloBranch> branch = tree.hasFather(root) ? tree.getEdgeToFather(root) : 0;
 
   if (branch)
   {
@@ -662,8 +701,7 @@ string Newick::treeToParenthesis(const PhyloTree& tree, bool bootstrap, const st
         s << *(dynamic_cast<const BppString*>(branch->getProperty(propertyName)));
     }
   }
-  
-  s << ";" << endl;
-  return s.str();  
-}
 
+  s << ";" << endl;
+  return s.str();
+}

@@ -113,7 +113,7 @@ namespace bpp
  *
  */
 
-class ModelScenario 
+class ModelScenario
 {
 private:
   std::vector<std::shared_ptr<ModelPath> > vModelPaths_;
@@ -122,7 +122,7 @@ public:
   ModelScenario() :
     vModelPaths_() {}
 
-  ~ModelScenario(){};
+  ~ModelScenario(){}
 
   ModelScenario(std::vector<std::shared_ptr<ModelPath> > vModelPaths) :
     vModelPaths_(vModelPaths)
@@ -134,7 +134,7 @@ public:
 
   ModelScenario& operator=(const ModelScenario& set)
   {
-    vModelPaths_=set.vModelPaths_;
+    vModelPaths_ = set.vModelPaths_;
     return *this;
   }
 
@@ -143,7 +143,6 @@ public:
   /**
    * @brief Resets the list of the ModelPaths
    */
-
   void clear()
   {
     vModelPaths_.clear();
@@ -153,7 +152,6 @@ public:
    *@brief adds the copy of an ModelPath to the end of the
    * ModelPaths list.
    */
-
   void addModelPath(std::shared_ptr<ModelPath> hn)
   {
     vModelPaths_.push_back(hn);
@@ -202,9 +200,9 @@ public:
    * @brief return models found in several paths
    *
    */
- 
-  std::vector<std::shared_ptr<MixedTransitionModel>> getModels() const;
- 
+
+  std::vector<std::shared_ptr<MixedTransitionModel> > getModels() const;
+
   /*
    *@brief Checks if all the path (ie hypernodes) are exclusive.
    *
@@ -243,11 +241,9 @@ public:
    * @brief string description
    *
    */
-    
-  std::string to_string() const;
 
+  std::string to_string() const;
 };
 } // end of namespace bpp.
 
-#endif // _MIXEDSUBSTITUTIONMODELSET_H_
-
+#endif// _MIXEDSUBSTITUTIONMODELSET_H_

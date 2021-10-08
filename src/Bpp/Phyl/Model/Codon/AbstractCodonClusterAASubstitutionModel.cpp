@@ -56,9 +56,9 @@ AbstractCodonClusterAASubstitutionModel::AbstractCodonClusterAASubstitutionModel
   assign_(assign),
   stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false))
 {
-  if (assign_.size()!=20)
+  if (assign_.size() != 20)
     throw BadSizeException("AbstractCodonClusterAASubstitutionModel::AbstractCodonClusterAASubstitutionModel: assign_", assign_.size(), 20);
-  
+
   addParameter_(new Parameter(prefix + "omegaR", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
   addParameter_(new Parameter(prefix + "omegaC", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 }
@@ -74,7 +74,6 @@ double AbstractCodonClusterAASubstitutionModel::getCodonsMulRate(size_t i, size_
   int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
 
   return pgencode_->areSynonymous(si, sj) ? 1 :
-    (assign_[static_cast<size_t>(pgencode_->translate(si))] == assign_[static_cast<size_t>(pgencode_->translate(sj))] ? omegaC_ :
-     omegaR_);
+         (assign_[static_cast<size_t>(pgencode_->translate(si))] == assign_[static_cast<size_t>(pgencode_->translate(sj))] ? omegaC_ :
+          omegaR_);
 }
-

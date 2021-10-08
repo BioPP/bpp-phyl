@@ -79,7 +79,7 @@ YNGP_M10::YNGP_M10(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFre
   YN98* yn98 = new YN98(gc, codonFreqs);
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
-  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
+  pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
 
   vector<int> supportedChars = yn98->getAlphabetStates();
 
@@ -140,7 +140,7 @@ YNGP_M10::YNGP_M10(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFre
 void YNGP_M10::updateMatrices()
 {
   AbstractBiblioTransitionModel::updateMatrices();
- 
+
   // homogeneization of the synonymous substittion rates
 
   Vdouble vd;
@@ -152,4 +152,3 @@ void YNGP_M10::updateMatrices()
 
   pmixmodel_->setVRates(vd);
 }
-

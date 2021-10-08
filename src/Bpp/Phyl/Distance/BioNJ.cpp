@@ -54,7 +54,7 @@ double BioNJ::computeDistancesFromPair(const vector<size_t>& pair, const vector<
 {
   return positiveLengths_ ?
          std::max(lambda_ * (matrix_(pair[0], pos) - branchLengths[0]) + (1 - lambda_) * (matrix_(pair[1], pos) - branchLengths[1]), 0.)
-         :          lambda_ * (matrix_(pair[0], pos) - branchLengths[0]) + (1 - lambda_) * (matrix_(pair[1], pos) - branchLengths[1]);
+         :          lambda_* (matrix_(pair[0], pos) - branchLengths[0]) + (1 - lambda_) * (matrix_(pair[1], pos) - branchLengths[1]);
 }
 
 void BioNJ::computeTree()
@@ -127,4 +127,3 @@ void BioNJ::computeTree()
   }
   finalStep(idNextNode);
 }
-

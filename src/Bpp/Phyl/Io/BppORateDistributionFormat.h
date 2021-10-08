@@ -57,7 +57,7 @@ namespace bpp
  *
  */
 
-class BppORateDistributionFormat:
+class BppORateDistributionFormat :
   public BppODiscreteDistributionFormat
 {
 private:
@@ -69,7 +69,7 @@ public:
    *
    * @param allowConstant Is contant distribution allowed.
    */
-  BppORateDistributionFormat(bool allowConstant):
+  BppORateDistributionFormat(bool allowConstant) :
     BppODiscreteDistributionFormat(),
     allowConstant_(allowConstant)
   {}
@@ -77,16 +77,13 @@ public:
   virtual ~BppORateDistributionFormat() {}
 
 public:
-
   DiscreteDistribution* readDiscreteDistribution(const std::string& distDescription, bool parseArguments);
 
   void writeDiscreteDistribution(const DiscreteDistribution& dist,
-             OutputStream& out,
-             std::map<std::string, std::string>& globalAliases,
-             std::vector<std::string>& writtenNames) const;
+                                 OutputStream& out,
+                                 std::map<std::string, std::string>& globalAliases,
+                                 std::vector<std::string>& writtenNames) const;
 };
-
 } // end of namespace bpp.
 
-#endif // _BPPORATEDISTRIBUTIONFORMAT_H_
-
+#endif// _BPPORATEDISTRIBUTIONFORMAT_H_

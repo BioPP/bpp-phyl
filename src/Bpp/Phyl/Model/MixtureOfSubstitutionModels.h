@@ -50,7 +50,6 @@
 
 namespace bpp
 {
-
 class MixtureOfSubstitutionModels :
   public MixtureOfTransitionModels
 {
@@ -66,7 +65,7 @@ public:
    */
   MixtureOfSubstitutionModels(const Alphabet* alpha, std::vector<TransitionModel*> vpModel) :
     AbstractParameterAliasable("Mixture."),
-    AbstractTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture."),
+    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
     MixtureOfTransitionModels(alpha, vpModel)
   {
     /*
@@ -74,10 +73,12 @@ public:
      */
 
     for (const auto& model:vpModel)
+    {
       if (!dynamic_cast<const SubstitutionModel*>(model))
         throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
+    }
   }
-  
+
   /**
    * @brief Constructor of a MixtureOfSubstitutionModels.
    *
@@ -93,37 +94,38 @@ public:
    */
 
   MixtureOfSubstitutionModels(
-      const Alphabet* alpha,
-      std::vector<TransitionModel*> vpModel,
-      Vdouble& vproba, Vdouble& vrate) :
+    const Alphabet* alpha,
+    std::vector<TransitionModel*> vpModel,
+    Vdouble& vproba, Vdouble& vrate) :
     AbstractParameterAliasable("Mixture."),
-    AbstractTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture."),
-    MixtureOfTransitionModels(alpha, vpModel, vproba, vrate) 
+    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
+    MixtureOfTransitionModels(alpha, vpModel, vproba, vrate)
   {
     /*
      * Check that all models are substitutionmodels
      */
 
     for (const auto& model:vpModel)
+    {
       if (!dynamic_cast<const SubstitutionModel*>(model))
         throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
+    }
   }
-  
+
 
   MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& model) :
     AbstractParameterAliasable(model),
     AbstractTransitionModel(model),
     MixtureOfTransitionModels(model)
-  {
-  }
-  
+  {}
+
 
   MixtureOfSubstitutionModels& operator=(const MixtureOfSubstitutionModels& model)
   {
     MixtureOfTransitionModels::operator=(model);
     return *this;
   }
-  
+
   MixtureOfSubstitutionModels* clone() const { return new MixtureOfSubstitutionModels(*this); }
 
 public:
@@ -133,14 +135,11 @@ public:
    * Return Null if not found.
    *
    */
-  
   const SubstitutionModel* getSubModel(const std::string& name) const
   {
     return dynamic_cast<const SubstitutionModel*>(getModel(name));
   }
-  
 };
 } // end of namespace bpp.
 
-#endif  // _MIXTUREOFSUBSTITUTIONMODELS_H_
-
+#endif// _MIXTUREOFSUBSTITUTIONMODELS_H_

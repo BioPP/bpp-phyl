@@ -51,8 +51,8 @@ namespace bpp
 {
 /**
  *@ brief A class to compute the average of several
- *RNonHomogeneousTreeLikelihood defined from a Mixed Substitution
- *Model.
+ * RNonHomogeneousTreeLikelihood defined from a Mixed Substitution
+ * Model.
  *
  * This class is made recursively. At each node, we test if an
  * expansion of a mixed model is necessary. This is the case when this
@@ -70,7 +70,6 @@ class RNonHomogeneousMixedTreeLikelihood :
   public RNonHomogeneousTreeLikelihood
 {
 private:
-
   /**
    * @brief the map of the branch numbers to the vectors of the
    * TreeLikelihoods for the expanded model on this branch.
@@ -88,7 +87,7 @@ private:
    * This object owns the HyperNode pointers of the owned
    * RNonHomogeneousMixedTreeLikelihood.
    */
-  
+
   MixedSubstitutionModelSet::HyperNode hyperNode_;
 
   /**
@@ -96,7 +95,7 @@ private:
    * is computed.
    *
    */
-  
+
   int upperNode_;
 
   /**
@@ -105,7 +104,7 @@ private:
    **/
 
   bool main_;
-  
+
   /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
    * without data.
@@ -171,10 +170,9 @@ private:
    * brief method where the recursive structure is built.
    *
    */
-  
+
   void init(bool usePatterns);
 
-  
 public:
   /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
@@ -251,25 +249,23 @@ public:
    * @brief returns the probability of this object in the hierarchy
    *
    */
-  
+
   double getProbability() const;
 
   /**
    * @brief sets the probability of this object in the hierarchy
    *
    */
-  
+
   void setProbability(double x);
 
   /**
    * @brief returns the HyperNode describing the owned submodels.
    *
    */
-
   const MixedSubstitutionModelSet::HyperNode& getHyperNode() { return hyperNode_;}
+
 protected:
-
-
   /**
    * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
    *
@@ -284,9 +280,7 @@ protected:
   void fireParameterChanged(const ParameterList& params);
 
   void computeTransitionProbabilitiesForNode(const Node* node);
-
 };
 } // end of namespace bpp.
 
-#endif  // _RNONHOMOGENEOUSMIXEDTREELIKELIHOOD_H_
-
+#endif// _RNONHOMOGENEOUSMIXEDTREELIKELIHOOD_H_
