@@ -1,71 +1,70 @@
 //
 // File: PhylogeneticsApplicationTools.h
-// Created by: Julien Dutheil
-// Created on: Fri Oct 21 16:49 2005
-// from old file ApplicationTools.h created on Sun Dec 14 09:36:26 2003
+// Authors:
+//   Julien Dutheil
+// Created: 2005-10-21 16:49:00
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
+  
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
+  
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty and the software's author, the holder of the
+  economic rights, and the successive licensors have only limited
+  liability.
+  
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and, more generally, to use and operate it in the
+  same conditions as regards security.
+  
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
+#ifndef BPP_PHYL_APP_PHYLOGENETICSAPPLICATIONTOOLS_H
+#define BPP_PHYL_APP_PHYLOGENETICSAPPLICATIONTOOLS_H
 
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
-
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
-
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
-
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
-
-#ifndef _PHYLOGENETICSAPPLICATIONTOOLS_H_
-#define _PHYLOGENETICSAPPLICATIONTOOLS_H_
-
-#include "../Tree/Tree.h"
-#include "../Tree/PhyloTree.h"
-#include "../Model/SubstitutionModel.h"
-#include "../Model/SubstitutionModelSet.h"
-#include "../Model/MixedSubstitutionModelSet.h"
-#include "../Model/MarkovModulatedSubstitutionModel.h"
-#include "../Likelihood/HomogeneousTreeLikelihood.h"
-#include "../Likelihood/ClockTreeLikelihood.h"
-#include "../Mapping/SubstitutionCount.h"
-#include <Bpp/Text/TextTools.h>
 #include <Bpp/Io/OutputStream.h>
+#include <Bpp/Numeric/Function/Optimizer.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/MultipleDiscreteDistribution.h>
-#include <Bpp/Numeric/Function/Optimizer.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
+#include <Bpp/Text/TextTools.h>
 
-#include "../NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h"
+#include "../Likelihood/ClockTreeLikelihood.h"
+#include "../Likelihood/HomogeneousTreeLikelihood.h"
+#include "../Mapping/SubstitutionCount.h"
+#include "../Model/MarkovModulatedSubstitutionModel.h"
+#include "../Model/MixedSubstitutionModelSet.h"
+#include "../Model/SubstitutionModel.h"
+#include "../Model/SubstitutionModelSet.h"
+#include "../NewLikelihood/ModelScenario.h"
 #include "../NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h"
+#include "../NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
+#include "../NewLikelihood/SequenceEvolution.h"
+#include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
-#include "../NewLikelihood/SubstitutionProcess.h"
-#include "../NewLikelihood/SequenceEvolution.h"
-#include "../NewLikelihood/ModelScenario.h"
-
-#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
+#include "../Tree/PhyloTree.h"
+#include "../Tree/Tree.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -322,7 +321,7 @@ public:
    * @param params           The attribute map where options may be
    * found.
    * @param sharedparams     The attribute map of aliases (out).
-   * @param rateFreqs        A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
+   * @param rateFreqs        A vector of rate catÃ©gories frequencies in case of a Markov Modulated Markov Model.
    *                         Ignored if a vector with size 0 is passed.
    * @param suffix           A suffix to be applied to each attribute name.
    * @param suffixIsOptional Tell if the suffix is absolutely required.
@@ -371,7 +370,7 @@ public:
    *                         The alphabet associated to the data must be of the same type as the one specified for the model.
    *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
    * @param sharedParams     (out) remote parameters will be recorded here.
-   * @param rateFreqs        A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
+   * @param rateFreqs        A vector of rate catÃ©gories frequencies in case of a Markov Modulated Markov Model.
    *                         Ignored if a vector with size 0 is passed.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
@@ -399,7 +398,7 @@ public:
    * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
    *                         The alphabet associated to the data must be of the same type as the one specified for the model.
    *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
-   * @param rateFreqs        A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
+   * @param rateFreqs        A vector of rate catÃ©gories frequencies in case of a Markov Modulated Markov Model.
    *                         Ignored if a vector with size 0 is passed.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
@@ -1133,5 +1132,4 @@ public:
   static void printAnalysisInformation(const SetOfAlignedPhyloLikelihood& sOAP, const std::string& infosFile, int warn = 1);
 };
 } // end of namespace bpp.
-
-#endif//_PHYLOGENETICSAPPLICATIONTOOLS_H_
+#endif // BPP_PHYL_APP_PHYLOGENETICSAPPLICATIONTOOLS_H

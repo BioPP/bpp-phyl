@@ -1,3 +1,9 @@
+//
+// File: JointLikelihoodFunction.cpp
+// Authors:
+//
+
+
 #include "JointLikelihoodFunction.h"
 
 // for bpp-core
@@ -14,7 +20,7 @@
 #include <Bpp/Text/KeyvalTools.h>
 
 // From bpp-phyl:
-#include <Bpp/Phyl/TreeTools.h>
+#include <Bpp/Phyl/Tree/TreeTools.h>
 #include <Bpp/Phyl/Likelihood/RASTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>

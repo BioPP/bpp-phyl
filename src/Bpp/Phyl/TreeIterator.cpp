@@ -1,3 +1,9 @@
+//
+// File: TreeIterator.cpp
+// Authors:
+//
+
+
 #include "TreeIterator.h"
 
 // imports from bpp-core

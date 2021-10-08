@@ -1,62 +1,62 @@
 //
 // File: BppOSubstitutionModelFormat.cpp
-// Created by: Laurent Guéguen
-// Created on: mercredi 4 juillet 2012, à 13h 58
+// Authors:
+//   Laurent GuÃ©guen
+// Created: mercredi 4 juillet 2012, Ã  13h 58
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
+  
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
+  
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty and the software's author, the holder of the
+  economic rights, and the successive licensors have only limited
+  liability.
+  
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and, more generally, to use and operate it in the
+  same conditions as regards security.
+  
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
-
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
-
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
-
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
-
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
-
-#include "BppOSubstitutionModelFormat.h"
-#include "BppORateDistributionFormat.h"
-
+#include <Bpp/Io/BppODiscreteDistributionFormat.h>
+#include <Bpp/Io/BppOParametrizableFormat.h>
 #include <Bpp/Io/FileTools.h>
-#include <Bpp/Text/TextTools.h>
-#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/Io/OutputStream.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Text/KeyvalTools.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/Text/TextTools.h>
 
-#include "../Model/WordSubstitutionModel.h"
-#include "../Model/KroneckerWordSubstitutionModel.h"
-#include "../Model/Codon/MG94.h"
-#include "../Model/Codon/GY94.h"
-#include "../Model/Codon/YN98.h"
-#include "../Model/Codon/TripletSubstitutionModel.h"
-#include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
-#include "../Model/Codon/AbstractCodonAARateSubstitutionModel.h"
+#include "../App/PhylogeneticsApplicationTools.h"
+#include "../Model/AbstractBiblioMixedTransitionModel.h"
+#include "../Model/BinarySubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAAFitnessSubstitutionModel.h"
+#include "../Model/Codon/AbstractCodonAARateSubstitutionModel.h"
+#include "../Model/Codon/AbstractCodonBGCSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonClusterAASubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonCpGSubstitutionModel.h"
-#include "../Model/Codon/AbstractCodonBGCSubstitutionModel.h"
+#include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonFitnessSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonFrequenciesSubstitutionModel.h"
@@ -64,66 +64,61 @@
 #include "../Model/Codon/CodonAdHocSubstitutionModel.h"
 #include "../Model/Codon/CodonSameAARateSubstitutionModel.h"
 #include "../Model/Codon/DFP07.h"
+#include "../Model/Codon/GY94.h"
+#include "../Model/Codon/KCM.h"
 #include "../Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/KroneckerCodonDistanceSubstitutionModel.h"
-#include "../Model/Codon/KCM.h"
+#include "../Model/Codon/MG94.h"
 #include "../Model/Codon/SENCA.h"
-#include "../Model/RE08.h"
-#include "../Model/TS98.h"
-#include "../Model/G2001.h"
-#include "../Model/Nucleotide/F84.h"
-#include "../Model/Nucleotide/NucleotideSubstitutionModel.h"
-#include "../Model/Nucleotide/gBGC.h"
-#include "../Model/Nucleotide/RN95.h"
-#include "../Model/Nucleotide/GTR.h"
-#include "../Model/Nucleotide/RN95s.h"
-#include "../Model/Nucleotide/HKY85.h"
-#include "../Model/Nucleotide/F81.h"
-#include "../Model/Nucleotide/SSR.h"
-#include "../Model/Nucleotide/JCnuc.h"
-#include "../Model/Nucleotide/T92.h"
-#include "../Model/Nucleotide/K80.h"
-#include "../Model/Nucleotide/TN93.h"
-#include "../Model/Nucleotide/L95.h"
-#include "../Model/Nucleotide/YpR.h"
-#include "../Model/Protein/CoalaCore.h"
-#include "../Model/Protein/Coala.h"
-#include "../Model/Protein/DSO78.h"
-#include "../Model/Protein/JCprot.h"
-#include "../Model/Protein/JTT92.h"
-#include "../Model/Protein/ProteinSubstitutionModel.h"
-#include "../Model/Protein/LGL08_CAT.h"
-#include "../Model/Protein/LG08.h"
-#include "../Model/Protein/UserProteinSubstitutionModel.h"
-#include "../Model/Protein/WAG01.h"
-#include "../Model/BinarySubstitutionModel.h"
-#include "../Model/TwoParameterBinarySubstitutionModel.h"
-#include "../Model/EquiprobableSubstitutionModel.h"
-#include "../Model/FromMixtureSubstitutionModel.h"
-#include "../Model/AbstractBiblioMixedTransitionModel.h"
-#include "../Model/InMixedSubstitutionModel.h"
-#include "../Model/MixtureOfTransitionModels.h"
-#include "../Model/MixtureOfATransitionModel.h"
-#include "../Model/OneChangeTransitionModel.h"
-#include "../Model/OneChangeRegisterTransitionModel.h"
-#include "../Model/RegisterRatesSubstitutionModel.h"
+#include "../Model/Codon/TripletSubstitutionModel.h"
+#include "../Model/Codon/YN98.h"
+#include "../Model/Codon/YNGP_M10.h"
 #include "../Model/Codon/YNGP_M7.h"
 #include "../Model/Codon/YNGP_M8.h"
 #include "../Model/Codon/YNGP_M9.h"
-#include "../Model/Codon/YNGP_M10.h"
-
-#include "../App/PhylogeneticsApplicationTools.h"
-
+#include "../Model/EquiprobableSubstitutionModel.h"
+#include "../Model/FromMixtureSubstitutionModel.h"
+#include "../Model/G2001.h"
+#include "../Model/InMixedSubstitutionModel.h"
+#include "../Model/KroneckerWordSubstitutionModel.h"
+#include "../Model/MixtureOfATransitionModel.h"
+#include "../Model/MixtureOfTransitionModels.h"
+#include "../Model/Nucleotide/F81.h"
+#include "../Model/Nucleotide/F84.h"
+#include "../Model/Nucleotide/GTR.h"
+#include "../Model/Nucleotide/HKY85.h"
+#include "../Model/Nucleotide/JCnuc.h"
+#include "../Model/Nucleotide/K80.h"
+#include "../Model/Nucleotide/L95.h"
+#include "../Model/Nucleotide/NucleotideSubstitutionModel.h"
+#include "../Model/Nucleotide/RN95.h"
+#include "../Model/Nucleotide/RN95s.h"
+#include "../Model/Nucleotide/SSR.h"
+#include "../Model/Nucleotide/T92.h"
+#include "../Model/Nucleotide/TN93.h"
+#include "../Model/Nucleotide/YpR.h"
+#include "../Model/Nucleotide/gBGC.h"
+#include "../Model/OneChangeRegisterTransitionModel.h"
+#include "../Model/OneChangeTransitionModel.h"
+#include "../Model/Protein/Coala.h"
+#include "../Model/Protein/CoalaCore.h"
+#include "../Model/Protein/DSO78.h"
+#include "../Model/Protein/JCprot.h"
+#include "../Model/Protein/JTT92.h"
+#include "../Model/Protein/LG08.h"
+#include "../Model/Protein/LGL08_CAT.h"
+#include "../Model/Protein/ProteinSubstitutionModel.h"
+#include "../Model/Protein/UserProteinSubstitutionModel.h"
+#include "../Model/Protein/WAG01.h"
+#include "../Model/RE08.h"
+#include "../Model/RegisterRatesSubstitutionModel.h"
+#include "../Model/TS98.h"
+#include "../Model/TwoParameterBinarySubstitutionModel.h"
+#include "../Model/WordSubstitutionModel.h"
 #include "BppOFrequencySetFormat.h"
+#include "BppORateDistributionFormat.h"
+#include "BppOSubstitutionModelFormat.h"
 #include "BppOTransitionModelFormat.h"
-
-#include <Bpp/Seq/App/SequenceApplicationTools.h>
-#include <Bpp/Seq/Alphabet/AlphabetTools.h>
-
-
-#include <Bpp/Io/OutputStream.h>
-#include <Bpp/Io/BppOParametrizableFormat.h>
-#include <Bpp/Io/BppODiscreteDistributionFormat.h>
 
 // From Numeric
 

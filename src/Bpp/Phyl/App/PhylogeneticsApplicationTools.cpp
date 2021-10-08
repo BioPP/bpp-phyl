@@ -1,97 +1,93 @@
 //
 // File: PhylogeneticsApplicationTools.cpp
-// Created by: Julien Dutheil
-// Created on: Fri Oct 21 16:49 2005
-// from old file ApplicationTools.cpp created on Sun Dec 14 09:36:26 2003
+// Authors:
+//   Julien Dutheil
+// Created: 2005-10-21 16:49:00
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
+  
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
+  
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty and the software's author, the holder of the
+  economic rights, and the successive licensors have only limited
+  liability.
+  
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and, more generally, to use and operate it in the
+  same conditions as regards security.
+  
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
 
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
-
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
-
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
-
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
-
-#include "PhylogeneticsApplicationTools.h"
-#include "../Model/SubstitutionModel.h"
-#include "../Model/MixedTransitionModel.h"
-#include "../Model/WrappedModel.h"
-#include "../Model/Protein/Coala.h"
-#include "../Model/FrequencySet/MvaFrequencySet.h"
-#include "../Likelihood/TreeLikelihood.h"
-#include "../Mapping/LaplaceSubstitutionCount.h"
-#include "../Mapping/UniformizationSubstitutionCount.h"
-#include "../Mapping/DecompositionSubstitutionCount.h"
-#include "../Mapping/NaiveSubstitutionCount.h"
-#include "../Mapping/OneJumpSubstitutionCount.h"
-#include "../OptimizationTools.h"
-
-#include "../Tree/Tree.h"
-#include "../Tree/PhyloTreeTools.h"
-#include "../Tree/TreeTools.h"
-
-#include "../Tree/PhyloTree.h"
+#include "../Io/BppOBranchModelFormat.h"
+#include "../Io/BppOFrequencySetFormat.h"
+#include "../Io/BppOMultiTreeReaderFormat.h"
+#include "../Io/BppOMultiTreeWriterFormat.h"
+#include "../Io/BppORateDistributionFormat.h"
+#include "../Io/BppOTreeReaderFormat.h"
+#include "../Io/BppOTreeWriterFormat.h"
 #include "../Io/Newick.h"
 #include "../Io/NexusIoTree.h"
 #include "../Io/Nhx.h"
-#include "../Io/BppOTreeReaderFormat.h"
-#include "../Io/BppOMultiTreeReaderFormat.h"
-#include "../Io/BppOTreeWriterFormat.h"
-#include "../Io/BppOMultiTreeWriterFormat.h"
-#include "../Io/BppOBranchModelFormat.h"
-#include "../Io/BppOFrequencySetFormat.h"
-#include "../Io/BppORateDistributionFormat.h"
-
-#include "../NewLikelihood/OneProcessSequenceEvolution.h"
-#include "../NewLikelihood/MixtureSequenceEvolution.h"
-#include "../NewLikelihood/PartitionSequenceEvolution.h"
+#include "../Likelihood/TreeLikelihood.h"
+#include "../Mapping/DecompositionSubstitutionCount.h"
+#include "../Mapping/LaplaceSubstitutionCount.h"
+#include "../Mapping/NaiveSubstitutionCount.h"
+#include "../Mapping/OneJumpSubstitutionCount.h"
+#include "../Mapping/UniformizationSubstitutionCount.h"
+#include "../Model/FrequencySet/MvaFrequencySet.h"
+#include "../Model/MixedTransitionModel.h"
+#include "../Model/Protein/Coala.h"
+#include "../Model/SubstitutionModel.h"
+#include "../Model/WrappedModel.h"
 #include "../NewLikelihood/AutoCorrelationSequenceEvolution.h"
 #include "../NewLikelihood/HmmSequenceEvolution.h"
-
-#include "../NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h"
+#include "../NewLikelihood/MixtureSequenceEvolution.h"
+#include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
+#include "../NewLikelihood/OneProcessSequenceEvolution.h"
+#include "../NewLikelihood/ParametrizablePhyloTree.h"
+#include "../NewLikelihood/PartitionSequenceEvolution.h"
+#include "../NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h"
-#include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
+#include "../NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
+#include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
-#include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
-
-#include "../NewLikelihood/ParametrizablePhyloTree.h"
+#include "../OptimizationTools.h"
+#include "../Tree/PhyloTree.h"
+#include "../Tree/PhyloTreeTools.h"
+#include "../Tree/Tree.h"
+#include "../Tree/TreeTools.h"
+#include "PhylogeneticsApplicationTools.h"
 
 // From bpp-core
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>

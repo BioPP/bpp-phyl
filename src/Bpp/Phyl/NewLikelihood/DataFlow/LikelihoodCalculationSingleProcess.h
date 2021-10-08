@@ -1,59 +1,58 @@
 //
 // File: LikelihoodCalculationSingleProcess.h
-// Authors: François Gindraud, Laurent Guéguen (2018)
-// Created: jeudi 28 février 2019, à 07h 22
+// Authors:
+//   FranÃ§ois Gindraud, Laurent GuÃ©guen (2018)
+// Created: jeudi 28 fÃ©vrier 2019, Ã  07h 22
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
+  
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
+  
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty and the software's author, the holder of the
+  economic rights, and the successive licensors have only limited
+  liability.
+  
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and, more generally, to use and operate it in the
+  same conditions as regards security.
+  
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
+#ifndef BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_LIKELIHOODCALCULATIONSINGLEPROCESS_H
+#define BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_LIKELIHOODCALCULATIONSINGLEPROCESS_H
 
-   This software is governed by the CeCILL license under French law and
-   abiding by the rules of distribution of free software. You can use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
-
-   As a counterpart to the access to the source code and rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty and the software's author, the holder of the
-   economic rights, and the successive licensors have only limited
-   liability.
-
-   In this respect, the user's attention is drawn to the risks associated
-   with loading, using, modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean that it is complicated to manipulate, and that also
-   therefore means that it is reserved for developers and experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and, more generally, to use and operate it in the
-   same conditions as regards security.
-
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
-
-#ifndef LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
-#define LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
-
-#include "Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculation.h"
-
-#include "Bpp/Phyl/NewLikelihood/DataFlow/CollectionNodes.h"
-#include "Bpp/Phyl/NewLikelihood/DataFlow/Model.h"
-#include "Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h"
-#include "Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.h"
+#include <Bpp/Graph/AssociationDAGraphImplObserver.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
-#include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
-
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 #include <Bpp/Phyl/SitePatterns.h>
-#include <Bpp/Graph/AssociationDAGraphImplObserver.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
+#include "Bpp/Phyl/NewLikelihood/DataFlow/CollectionNodes.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/FrequencySet.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculation.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/Model.h"
+#include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 
 namespace bpp
 {
@@ -667,5 +666,4 @@ private:
   std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);
 };
 } // namespace bpp
-
-#endif// LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
+#endif // BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_LIKELIHOODCALCULATIONSINGLEPROCESS_H

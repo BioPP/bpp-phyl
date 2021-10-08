@@ -1,12 +1,14 @@
 //
 // File: CollectionNodes.cpp
-// Authors: Laurent Guéguen (2018)
-// Created: mercredi 8 avril 2020, à 00h 31
+// Authors:
+//   Laurent GuÃ©guen (2018)
+// Created: mercredi 8 avril 2020, Ã  00h 31
 //
 
-#include "CollectionNodes.h"
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+
 #include "Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.h"
+#include "CollectionNodes.h"
 
 using namespace std;
 using namespace bpp;

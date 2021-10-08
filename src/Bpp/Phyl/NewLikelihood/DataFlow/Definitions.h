@@ -1,7 +1,13 @@
-#ifndef DEFINITIONS_H
-#define DEFINITIONS_H
+//
+// File: Definitions.h
+// Authors:
+//
+
+#ifndef BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_DEFINITIONS_H
+#define BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_DEFINITIONS_H
 
 #include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloatEigen.h>
+
 
 namespace bpp
 {
@@ -18,6 +24,4 @@ typedef ExtendedFloat DataLik;
 typedef std::vector<DataLik> VDataLik;
 typedef std::vector<VDataLik> VVDataLik;
 }
-
-
-#endif// DEFINITIONS_H
+#endif // BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_DEFINITIONS_H

@@ -1,23 +1,27 @@
-#include "StochasticMapping.h"
-#include "../Simulation/MutationProcess.h"
-#include "RewardMappingTools.h"
-#include "Reward.h"
-#include "DecompositionReward.h"
-#include "ProbabilisticRewardMapping.h"
+//
+// File: StochasticMapping.cpp
+// Authors:
+//
 
-#include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/Number.h>
-#include <Bpp/Numeric/Random/RandomTools.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
-#include <Bpp/Seq/AlphabetIndex/UserAlphabetIndex1.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Seq/Alphabet/NumericAlphabet.h>
-
-#include <iostream>
-#include <fstream>
+#include <Bpp/Seq/AlphabetIndex/UserAlphabetIndex1.h>
+#include <Bpp/Text/TextTools.h>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <numeric> // to sum over items in a vector
+
+#include "../Simulation/MutationProcess.h"
+#include "DecompositionReward.h"
+#include "ProbabilisticRewardMapping.h"
+#include "Reward.h"
+#include "RewardMappingTools.h"
+#include "StochasticMapping.h"
 
 using namespace bpp;
 using namespace std;

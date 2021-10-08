@@ -1,56 +1,56 @@
 //
 // File: ProcessTree.h
-// Created by: Laurent Guéguen
-// Created on: jeudi 15 septembre 2016, à 06h 40
+// Authors:
+//   Laurent GuÃ©guen
+// Created: jeudi 15 septembre 2016, Ã  06h 40
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
+  
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
+  
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty and the software's author, the holder of the
+  economic rights, and the successive licensors have only limited
+  liability.
+  
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and, more generally, to use and operate it in the
+  same conditions as regards security.
+  
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
-
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
-
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
-
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
-
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
-
-#ifndef _PROCESS_TREE_H_
-#define _PROCESS_TREE_H_
-
-#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
-#include <Bpp/Phyl/NewLikelihood/ProcessComputationTree.h>
-#include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
+#ifndef BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_PROCESSTREE_H
+#define BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_PROCESSTREE_H
 
 #include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
 #include <Bpp/Numeric/ParametrizableCollection.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
+#include <Bpp/Phyl/NewLikelihood/ProcessComputationTree.h>
+#include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
 
+#include "Definitions.h"
 #include "Model.h"
 #include "Parameter.h"
-#include "Definitions.h"
 
 // From the stl:
 #include <string>
@@ -318,6 +318,4 @@ inline ParametrizableCollection<ConfiguredModel> makeConfiguredModelCollection(
   return modelColl;
 }
 } // end of namespace bpp
-
-
-#endif//_PHYLO_TREE_BRREF_H_
+#endif // BPP_PHYL_NEWLIKELIHOOD_DATAFLOW_PROCESSTREE_H

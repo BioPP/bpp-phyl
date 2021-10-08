@@ -1,20 +1,20 @@
 //
 // File: LikelihoodCalculationSingleProcess.cpp
-// Authors: François Gindraud, Laurent Guéguen (2018)
-// Created: jeudi 28 février 2019, à 07h 22
+// Authors:
+//   FranÃ§ois Gindraud, Laurent GuÃ©guen (2018)
+// Created: jeudi 28 fÃ©vrier 2019, Ã  07h 22
 //
 
-#include "Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
-#include "Bpp/Phyl/NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
-#include "Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.h"
-
-#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
-#include "Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h"
-
-#include <unordered_map>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <list>
 #include <numeric>
+#include <unordered_map>
+
+#include "Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
+#include "Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h"
 
 using namespace std;
 using namespace bpp;

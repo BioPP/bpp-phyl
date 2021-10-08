@@ -1,52 +1,52 @@
 //
 // File: RegisterRatesSubstitutionModel.h
-// Created by: Laurent Gueguen
-// Created on: lundi 16 octobre 2017, à 16h 38
+// Authors:
+//   Laurent Gueguen
+// Created: lundi 16 octobre 2017, Ã  16h 38
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
+  
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
+  
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty and the software's author, the holder of the
+  economic rights, and the successive licensors have only limited
+  liability.
+  
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and, more generally, to use and operate it in the
+  same conditions as regards security.
+  
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
-
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
-
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
-
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
-
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
-
-#ifndef _REGISTER_RATES_TRANSITION_MODEL_H_
-#define _REGISTER_RATES_TRANSITION_MODEL_H_
+#ifndef BPP_PHYL_MODEL_REGISTERRATESSUBSTITUTIONMODEL_H
+#define BPP_PHYL_MODEL_REGISTERRATESSUBSTITUTIONMODEL_H
 
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
+#include "../Mapping/SubstitutionRegister.h"
+#include "AbstractSubstitutionModel.h"
 #include "AbstractWrappedModel.h"
 #include "AnonymousSubstitutionModel.h"
-#include "AbstractSubstitutionModel.h"
-
-#include "../Mapping/SubstitutionRegister.h"
 
 namespace bpp
 {
@@ -260,5 +260,4 @@ private:
   void setRegStates_();
 };
 } // end of namespace bpp.
-
-#endif// _REGISTER_RATES_TRANSITION_MODEL_H_
+#endif // BPP_PHYL_MODEL_REGISTERRATESSUBSTITUTIONMODEL_H
