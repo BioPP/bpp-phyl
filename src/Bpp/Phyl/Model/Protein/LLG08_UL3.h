@@ -2,11 +2,11 @@
 // File: LLG08_UL3.h
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 21 octobre 2010, Ã  13h 50
+// Created: jeudi 21 octobre 2010, ÃÂ  13h 50
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -53,7 +53,7 @@ namespace bpp
 {
 /**
  * @brief The Le et al  (2008) UL3 substitution model for proteins.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This model is a mixture of three models built by an unsupervised
  * method (see ref). The submodels are called Q1, Q2 & Q3.

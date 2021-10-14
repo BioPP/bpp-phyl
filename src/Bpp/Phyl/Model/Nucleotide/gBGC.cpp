@@ -2,11 +2,11 @@
 // File: gBGC.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 13 février 2012, à 09h 42
+// Created: lundi 13 fÃ©vrier 2012, Ã  09h 42
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide
   classes for phylogenetic data analysis.
   

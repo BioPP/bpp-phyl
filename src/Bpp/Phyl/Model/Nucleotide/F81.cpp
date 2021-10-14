@@ -1,12 +1,12 @@
 //
 // File: F81.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mardi 21 avril 2015, Ã  23h 40
+//   Laurent GuÃÂ©guen
+// Created: mardi 21 avril 2015, ÃÂ  23h 40
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

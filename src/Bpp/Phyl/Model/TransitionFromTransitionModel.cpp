@@ -2,11 +2,11 @@
 // File: TransitionFromTransitionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: dimanche 26 janvier 2020, à 07h 55
+// Created: dimanche 26 janvier 2020, Ã  07h 55
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

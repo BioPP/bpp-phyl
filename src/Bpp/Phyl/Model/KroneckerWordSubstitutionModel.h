@@ -2,11 +2,11 @@
 // File: KroneckerWordSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: mercredi 27 juillet 2016, Ã  00h 12
+// Created: mercredi 27 juillet 2016, ÃÂ  00h 12
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -53,7 +53,7 @@ namespace bpp
 /**
  * @brief Basal class for words of  substitution models with multiple
  * substitutions.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * The equilibrium frequency of each word is due to the combination of
  * the multiple substitutions.

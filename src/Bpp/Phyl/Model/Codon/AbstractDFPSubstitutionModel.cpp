@@ -2,11 +2,11 @@
 // File: AbstractDFPSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 29 octobre 2020, Ã  16h 22
+// Created: jeudi 29 octobre 2020, ÃÂ  16h 22
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

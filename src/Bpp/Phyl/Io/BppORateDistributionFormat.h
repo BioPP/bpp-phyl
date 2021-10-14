@@ -1,13 +1,13 @@
 //
 // File: BppORateDistributionFormat.h
 // Authors:
-//   Laurent GuÃ©guen
+//   Laurent GuÃÂ©guen
 //   Julien Dutheil
 // Created: 2012-11-16 13:44:00
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

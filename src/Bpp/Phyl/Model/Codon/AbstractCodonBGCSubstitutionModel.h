@@ -2,11 +2,11 @@
 // File: AbstractCodonBGCSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 15 septembre 2011, Ã  21h 11
+// Created: jeudi 15 septembre 2011, ÃÂ  21h 11
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -55,7 +55,7 @@ namespace bpp
  * @brief Abstract class for modelling of non-synonymous and
  * synonymous substitution rates in codon models, with gBGC.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * The non-synonymous substitution rate is multiplied with
  * @f$\frac{\epsilon B+S}{1-e^{-(\epsilon B+S)}}@f$.
@@ -71,7 +71,7 @@ namespace bpp
  *
  *
  * References:
- * - Galtier N, Duret L, GlÃ©min S, Ranwez V (2009) GC-biased gene
+ * - Galtier N, Duret L, GlÃÂ©min S, Ranwez V (2009) GC-biased gene
  * conversion promotes the fixation of deleterious amino acid changes
  * in primates, Trends in Genetics, vol. 25(1) pp.1-5.
  *

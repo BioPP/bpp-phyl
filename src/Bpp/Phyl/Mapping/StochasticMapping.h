@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -42,8 +42,8 @@
 #define BPP_PHYL_MAPPING_STOCHASTICMAPPING_H
 
 
-#include "../NewLikelihood/DataFlow/DataFlowCWise.h"
-#include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
+#include "../Likelihood/DataFlow/DataFlowCWise.h"
+#include "../Likelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
 #include "../Simulation/MutationProcess.h"
 #include "../Simulation/SubstitutionProcessSequenceSimulator.h"
 
@@ -67,7 +67,7 @@ typedef vector<double> VDouble;
  *   state transitions along a tree, given a substitution model and the
  *   states at the tip taxa. For more information, see: Nielsen, Rasmus.
  *   "Mapping mutations on phylogenies." Systematic biology 51.5 (2002):
- *   729-739.â
+ *   729-739.Ã¢ÂÂ
  */
 
 namespace bpp
@@ -146,7 +146,7 @@ public:
    *@brief Creates a single expected (i.e, average) history based on
    * a given set of mappings steps. Correspond to Nielsen, Rasmus.
    * "Mapping mutations on phylogenies." Systematic biology 51.5
-   * (2002): 729-739.â
+   * (2002): 729-739.Ã¢ÂÂ
    *
    * the function assumes that there is only one site to simulate history
    *

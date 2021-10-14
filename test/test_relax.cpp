@@ -41,14 +41,14 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Function/ReparametrizationFunctionWrapper.h>
 #include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/RASTools.h>
-#include <Bpp/Phyl/PatternTools.h>
-#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RHomogeneousMixedTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/DRHomogeneousMixedTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/DRNonHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RASTools.h>
+#include <Bpp/Phyl/Legacy/PatternTools.h>
+#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Legacy/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <iostream>
 

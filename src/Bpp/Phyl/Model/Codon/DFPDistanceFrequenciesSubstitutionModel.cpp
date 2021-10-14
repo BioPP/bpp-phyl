@@ -2,11 +2,11 @@
 // File: DFPDistanceFrequenciesSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: mercredi 4 novembre 2020, Ã  13h 19
+// Created: mercredi 4 novembre 2020, ÃÂ  13h 19
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

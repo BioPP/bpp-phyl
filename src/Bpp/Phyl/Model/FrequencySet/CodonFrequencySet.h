@@ -2,7 +2,7 @@
 // File: CodonFrequencySet.h
 // Authors:
 //   laurent Gueguen
-// Created: lundi 2 avril 2012, Ã  14h 03
+// Created: lundi 2 avril 2012, ÃÂ  14h 03
 //
 
 /*
@@ -352,7 +352,7 @@ protected:
  * Frequencies in letters with the frequencies of stop codons set to
  * zero.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  */
 class CodonFromIndependentFrequencySet :
   public virtual CodonFrequencySet,
@@ -429,7 +429,7 @@ public:
  * for a unique FrequencySet in letters, with the frequencies of
  * stop codons set to zero.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  */
 
 class CodonFromUniqueFrequencySet :

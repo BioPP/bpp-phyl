@@ -2,11 +2,11 @@
 // File: LG08.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 13 septembre 2010, Ã  13h 28
+// Created: lundi 13 septembre 2010, ÃÂ  13h 28
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

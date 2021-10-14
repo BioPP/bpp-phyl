@@ -1,12 +1,12 @@
 //
 // File: IoFrequencySetFactory.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: lundi 9 juillet 2012, Ã  12h 59
+//   Laurent GuÃÂ©guen
+// Created: lundi 9 juillet 2012, ÃÂ  12h 59
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 17, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 17, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for sequences analysis.

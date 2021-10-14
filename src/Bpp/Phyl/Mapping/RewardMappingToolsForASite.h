@@ -1,12 +1,12 @@
 //
 // File: RewardMappingToolsForASite.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 26 septembre 2018, Ã  17h 44
+//   Laurent GuÃÂ©guen
+// Created: mercredi 26 septembre 2018, ÃÂ  17h 44
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -42,7 +42,7 @@
 #define BPP_PHYL_MAPPING_REWARDMAPPINGTOOLSFORASITE_H
 
 
-#include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
+#include "../Likelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
 #include "ProbabilisticRewardMapping.h"
 #include "Reward.h"
 
@@ -56,7 +56,7 @@ namespace bpp
  * Fast, accurate and simulation-free stochastic mapping
  * Philosophical Transactions of the Royal Society B 2008 363:3985-95.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  */
 class RewardMappingToolsForASite
 {

@@ -1,12 +1,12 @@
 //
 // File: PhyloBranchParam.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 14 septembre 2016, Ã  23h 29
+//   Laurent GuÃÂ©guen
+// Created: mercredi 14 septembre 2016, ÃÂ  23h 29
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

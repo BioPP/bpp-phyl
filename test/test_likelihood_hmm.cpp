@@ -48,18 +48,18 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 
-#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
+#include <Bpp/Phyl/Likelihood/ParametrizablePhyloTree.h>
 
-#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
-#include <Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.h>
+#include <Bpp/Phyl/Likelihood/NonHomogeneousSubstitutionProcess.h>
+#include <Bpp/Phyl/Likelihood/SubstitutionProcessCollection.h>
+#include <Bpp/Phyl/Likelihood/MixtureSequenceEvolution.h>
 
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h>
 
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 #include <iostream>
 

@@ -2,7 +2,7 @@
 // File: WordFrequencySet.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 2 avril 2012, Ã  14h 02
+// Created: lundi 2 avril 2012, ÃÂ  14h 02
 //
 
 /*

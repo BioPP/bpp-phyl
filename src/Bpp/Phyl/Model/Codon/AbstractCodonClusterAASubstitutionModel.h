@@ -2,11 +2,11 @@
 // File: AbstractCodonClusterAASubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: mercredi 22 aoÃ»t 2018, Ã  14h 11
+// Created: mercredi 22 aoÃÂ»t 2018, ÃÂ  14h 11
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -55,7 +55,7 @@ namespace bpp
  * @brief Abstract class for modelling of non-synonymous and
  *  synonymous substitution rates in codon models, with AA clustered.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * Non-synonymous rates between amino-acids in the same cluster are
  *  multiplied with @f$\omega_C@f$, and non-synonymous rates between
@@ -82,7 +82,7 @@ namespace bpp
  * Claudia C Weber, Simon Whelan, 2019, Physicochemical Amino Acid
  *    Properties Better Describe Substitution Rates in Large
  *    Populations, Molecular Biology and Evolution, Volume 36, Issue
- *    4, April 2019, Pages 679â690,
+ *    4, April 2019, Pages 679Ã¢ÂÂ690,
  *    https://doi.org/10.1093/molbev/msz003
  *
  */

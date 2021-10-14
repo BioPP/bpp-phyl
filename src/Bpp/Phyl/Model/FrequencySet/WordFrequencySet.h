@@ -2,7 +2,7 @@
 // File: WordFrequencySet.h
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 2 avril 2012, Ã  13h 59
+// Created: lundi 2 avril 2012, ÃÂ  13h 59
 //
 
 /*
@@ -59,7 +59,7 @@ namespace bpp
  * letters.
  * The WordFrequencySet owns the std::shared_ptr<FrequencySet> it is built on.
  * Interface class.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  */
 
 class WordFrequencySet :
@@ -123,7 +123,7 @@ public:
 /**
  * @brief the Frequencies in words are the product of Independent Frequencies in letters
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  */
 class WordFromIndependentFrequencySet :
   public AbstractWordFrequencySet

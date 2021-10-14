@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -50,7 +50,7 @@ namespace bpp
 {
 /**
  * @brief The Goldman and Yang (1994) substitution model for codons.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This model has one rate of transitions and one rate of
  * transversion. It also allows distinct equilibrium frequencies

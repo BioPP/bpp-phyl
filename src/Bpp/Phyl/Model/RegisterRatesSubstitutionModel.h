@@ -2,11 +2,11 @@
 // File: RegisterRatesSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 16 octobre 2017, Ã  16h 38
+// Created: lundi 16 octobre 2017, ÃÂ  16h 38
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

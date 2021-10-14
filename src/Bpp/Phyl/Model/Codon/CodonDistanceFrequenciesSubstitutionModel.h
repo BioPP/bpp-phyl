@@ -2,11 +2,11 @@
 // File: CodonDistanceFrequenciesSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 19 septembre 2011, Ã  11h 47
+// Created: lundi 19 septembre 2011, ÃÂ  11h 47
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -51,7 +51,7 @@ namespace bpp
 /**
  * @brief Class for asynonymous substitution models on codons with
  * parameterized equilibrium frequencies and nucleotidic models.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This class should be used with models which equilibrium
  * distribution is fixed, ans does not depend on the parameters.

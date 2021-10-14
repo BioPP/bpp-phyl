@@ -1,12 +1,12 @@
 //
 // File: DecompositionReward.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 27 mars 2013, Ã  12h 29
+//   Laurent GuÃÂ©guen
+// Created: mercredi 27 mars 2013, ÃÂ  12h 29
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -59,7 +59,7 @@ namespace bpp
  *
  * Only reversible models are supported for now.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  */
 
 class DecompositionReward :

@@ -2,11 +2,11 @@
 // File: CodonAdHocSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 30 octobre 2017, Ã  06h 31
+// Created: lundi 30 octobre 2017, ÃÂ  06h 31
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -50,7 +50,7 @@ namespace bpp
  * @brief Class for substitution models of codons with
  * several layers of codon models
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * Objects of this class are built from three substitution models of
  * NucleicAlphabets. No model is directly accessible. </p>

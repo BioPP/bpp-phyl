@@ -1,12 +1,12 @@
 //
 // File: OneProcessSequenceSubstitutionMapping.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: dimanche 3 dÃ©cembre 2017, Ã  13h 56
+//   Laurent GuÃÂ©guen
+// Created: dimanche 3 dÃÂ©cembre 2017, ÃÂ  13h 56
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -42,7 +42,7 @@
 #define BPP_PHYL_MAPPING_PHYLOMAPPINGS_ONEPROCESSSEQUENCESUBSTITUTIONMAPPING_H
 
 
-#include "../../NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
+#include "../../Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
 #include "../SubstitutionMappingTools.h"
 
 // #include "../SubstitutionMappingToolsForASite.h"

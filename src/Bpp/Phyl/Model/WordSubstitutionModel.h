@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -52,7 +52,7 @@ namespace bpp
 {
 /**
  * @brief Basal class for words of substitution models.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * Only substitutions with one letter changed are accepted. Hence the
  * equilibrium frequency of each word is the product of the

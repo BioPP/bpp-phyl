@@ -2,11 +2,11 @@
 // File: AbstractCodonFrequenciesSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 15 septembre 2011, Ã  15h 02
+// Created: jeudi 15 septembre 2011, ÃÂ  15h 02
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

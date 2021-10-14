@@ -1,12 +1,12 @@
 //
 // File: RN95.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: jeudi 24 fÃ©vrier 2011, Ã  20h 43
+//   Laurent GuÃÂ©guen
+// Created: jeudi 24 fÃÂ©vrier 2011, ÃÂ  20h 43
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

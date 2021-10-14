@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -46,7 +46,6 @@
 #include <Bpp/Numeric/Number.h>
 #include <Bpp/Utils/MapTools.h>
 
-#include "PhyloNode.h"
 #include "TreeExceptions.h"
 
 // From the STL:
@@ -161,8 +160,6 @@ public:
    * @param node The node to copy.
    */
   Node(const Node& node);
-
-  Node(const PhyloNode& pn);
 
   /**
    * @brief Assignation operator.

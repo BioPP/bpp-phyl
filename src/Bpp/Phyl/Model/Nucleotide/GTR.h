@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -132,7 +132,7 @@ namespace bpp
  * Reference:
  * - Yang Z (1994), Journal_ Of Molecular Evolution_ 39(1) 105-11.
  * - Lanave C, Preparata G, Saccone C and Serio G (1984), Journal_ Of Molecular Evolution_ 20 86-93.
- * - TavarÃ© S (1986), Lect_. Math. Life Sci._ 17 57-86.
+ * - TavarÃÂ© S (1986), Lect_. Math. Life Sci._ 17 57-86.
  * - Rodriguez F (1990, Journal_ Of Theoretical Biology_ 142(4) 485-501.
  */
 class GTR :

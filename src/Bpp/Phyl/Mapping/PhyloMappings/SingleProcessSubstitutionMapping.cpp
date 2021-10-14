@@ -1,12 +1,12 @@
 //
 // File: SingleProcessSubstitutionMapping.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: jeudi 7 dÃ©cembre 2017, Ã  22h 59
+//   Laurent GuÃÂ©guen
+// Created: jeudi 7 dÃÂ©cembre 2017, ÃÂ  22h 59
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

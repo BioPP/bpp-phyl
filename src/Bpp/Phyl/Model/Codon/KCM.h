@@ -2,11 +2,11 @@
 // File: KCM.h
 // Authors:
 //   Laurent Gueguen
-// Created: mardi 26 juillet 2016, Ã  16h 46
+// Created: mardi 26 juillet 2016, ÃÂ  16h 46
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -51,7 +51,7 @@ namespace bpp
  * @brief The general multiple substitution model for codons, from
  * Zaheri & al, 2014.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This model is built from one or several nucleotide substitution
  * models. It also allows distinct equilibrium frequencies between

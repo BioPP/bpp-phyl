@@ -2,11 +2,11 @@
 // File: KroneckerCodonDistanceFrequenciesSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: mardi 26 juillet 2016, Ã  23h 43
+// Created: mardi 26 juillet 2016, ÃÂ  23h 43
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -57,7 +57,7 @@ namespace bpp
  * substitutions involved, before mgmt of selection and removing stop
  * codons.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This class should be used with models which equilibrium
  * distribution is fixed, ans does not depend on the parameters.

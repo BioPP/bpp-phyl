@@ -2,11 +2,11 @@
 // File: AbstractFromSubstitutionModelTransitionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 24 avril 2017, à 22h 55
+// Created: lundi 24 avril 2017, Ã  22h 55
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

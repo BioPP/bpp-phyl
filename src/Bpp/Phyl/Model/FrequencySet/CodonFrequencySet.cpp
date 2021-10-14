@@ -2,7 +2,7 @@
 // File: CodonFrequencySet.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 2 avril 2012, Ã  14h 15
+// Created: lundi 2 avril 2012, ÃÂ  14h 15
 //
 
 /*

@@ -2,11 +2,11 @@
 // File: MixtureOfTransitionModels.h
 // Authors:
 //   Laurent Gueguen
-//   Date: lundi 13 septembre 2010, Ã 21h 31
+//   Date: lundi 13 septembre 2010, Ã 21h 31
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -54,7 +54,7 @@ namespace bpp
 /**
  * @brief Transition models defined as a mixture of several
  * substitution models.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * All the models can be of different types (for example T92 or
  * GY94), and each model has a specific probability and rate.

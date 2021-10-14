@@ -2,11 +2,11 @@
 // File: KroneckerWordSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: mercredi 27 juillet 2016, Ã  00h 12
+// Created: mercredi 27 juillet 2016, ÃÂ  00h 12
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

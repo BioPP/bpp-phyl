@@ -2,11 +2,11 @@
 // File: AbstractCodonClusterAASubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: samedi 25 aoÃ»t 2018, Ã  09h 06
+// Created: samedi 25 aoÃÂ»t 2018, ÃÂ  09h 06
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

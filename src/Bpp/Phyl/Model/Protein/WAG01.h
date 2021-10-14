@@ -2,11 +2,11 @@
 // File: WAG01.h
 // Authors:
 //   Laurent Gueguen
-// Created: mardi 28 septembre 2010, Ã  14h 43
+// Created: mardi 28 septembre 2010, ÃÂ  14h 43
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

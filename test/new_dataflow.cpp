@@ -45,7 +45,7 @@
 #include <algorithm>
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWiseComputing.h>
+#include <Bpp/Phyl/Likelihood/DataFlow/DataFlowCWiseComputing.h>
 
 static bool enableDotOutput = false;
 using namespace bpp;

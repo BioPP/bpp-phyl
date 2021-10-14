@@ -1,12 +1,12 @@
 //
 // File: SimpleSubstitutionProcessSiteSimulator.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: dimanche 24 mai 2020, Ã  07h 30
+//   Laurent GuÃÂ©guen
+// Created: dimanche 24 mai 2020, ÃÂ  07h 30
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -43,10 +43,10 @@
 
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Random/RandomTools.h>
-#include <Bpp/Phyl/NewLikelihood/ProcessComputationTree.h>
+#include <Bpp/Phyl/Likelihood/ProcessComputationTree.h>
 
+#include "../Likelihood/ParametrizablePhyloTree.h"
 #include "../Model/SubstitutionModel.h"
-#include "../NewLikelihood/ParametrizablePhyloTree.h"
 #include "DetailedSiteSimulator.h"
 
 // From SeqLib:
@@ -56,7 +56,7 @@
 #include <map>
 #include <vector>
 
-#include "../NewLikelihood/SubstitutionProcess.h"
+#include "../Likelihood/SubstitutionProcess.h"
 
 namespace bpp
 {

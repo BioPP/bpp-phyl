@@ -2,11 +2,11 @@
 // File: AbstractMixedTransitionModel.h
 // Authors:
 //   Laurent Gueguen
-//   On: vendredi 19 novembre 2010, Ã 15h 48
+//   On: vendredi 19 novembre 2010, Ã 15h 48
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -61,7 +61,7 @@ namespace bpp
  *
  * In this kind of model, there is no generator.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  */
 

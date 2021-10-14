@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (2016)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (2016)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

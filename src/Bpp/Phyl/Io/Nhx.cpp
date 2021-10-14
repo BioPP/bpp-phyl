@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -136,7 +136,7 @@ TreeTemplate<Node>* Nhx::readTree(istream& in) const
 
 /******************************************************************************/
 
-PhyloTree* Nhx::readPTree(istream& in) const
+PhyloTree* Nhx::readPhyloTree(istream& in) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -202,7 +202,7 @@ void Nhx::readTrees(istream& in, vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-void Nhx::readTrees(istream& in, vector<PhyloTree*>& trees) const
+void Nhx::readPhyloTrees(istream& in, vector<PhyloTree*>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -237,9 +237,9 @@ void Nhx::readTrees(istream& in, vector<PhyloTree*>& trees) const
 
 /******************************************************************************/
 
-AbstractITree::Element Nhx::getElement(const string& elt) const
+IOTree::Element Nhx::getElement(const string& elt) const
 {
-  AbstractITree::Element element;
+  IOTree::Element element;
   element.length     = ""; // default
   element.annotation = ""; // default
   element.isLeaf     = false; // default
@@ -389,7 +389,7 @@ TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const
 
 shared_ptr<PhyloNode>  Nhx::parenthesisToNode(PhyloTree& tree, shared_ptr<PhyloNode>  father, const string& description) const
 {
-  AbstractITree::Element elt = getElement(description);
+  IOTree::Element elt = getElement(description);
 
   // New node:
   shared_ptr<PhyloNode>  node(new PhyloNode());

@@ -2,11 +2,11 @@
 // File: AbstractCodonDistanceSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 15 septembre 2011, Ã  21h 11
+// Created: jeudi 15 septembre 2011, ÃÂ  21h 11
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -55,7 +55,7 @@ namespace bpp
  * @brief Abstract class for modelling of non-synonymous and
  *  synonymous substitution rates in codon models.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * If a distance @f$d@f$ between amino-acids is defined, the
  *  non-synonymous rate is multiplied with, if the coded amino-acids

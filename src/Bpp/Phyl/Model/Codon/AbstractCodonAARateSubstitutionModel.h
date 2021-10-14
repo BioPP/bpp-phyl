@@ -2,11 +2,11 @@
 // File: AbstractCodonAARateSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 15 septembre 2011, Ã  21h 11
+// Created: jeudi 15 septembre 2011, ÃÂ  21h 11
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -56,7 +56,7 @@ namespace bpp
  *  synonymous substitution rates in codon models, given an amino acid
  *  rate matrix (from a shared_ptr model).
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * From the generator @f$g@f$ between amino-acids, the non-synonymous
  *  rate is multiplied with, if the coded amino-acids are @f$x@f$ and

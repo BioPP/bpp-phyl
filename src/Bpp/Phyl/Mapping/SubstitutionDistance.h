@@ -1,12 +1,12 @@
 //
 // File: SubstitutionDistance.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: lundi 26 mars 2018, Ã  15h 08
+//   Laurent GuÃÂ©guen
+// Created: lundi 26 mars 2018, ÃÂ  15h 08
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

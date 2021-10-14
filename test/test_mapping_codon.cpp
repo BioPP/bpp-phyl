@@ -57,10 +57,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Mapping/SubstitutionMappingTools.h>
 #include <Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h>
 #include <Bpp/Phyl/Mapping/SubstitutionMappingTools.h>
-#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
-#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/ParametrizablePhyloTree.h>
+#include <Bpp/Phyl/Likelihood/SimpleSubstitutionProcess.h>
+#include <Bpp/Phyl/Likelihood/RateAcrossSitesSubstitutionProcess.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <iostream>
 
 using namespace bpp;

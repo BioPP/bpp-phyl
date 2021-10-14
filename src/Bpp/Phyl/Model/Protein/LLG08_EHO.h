@@ -2,11 +2,11 @@
 // File: LLG08_EHO.h
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 7 octobre 2010, Ã  21h 47
+// Created: jeudi 7 octobre 2010, ÃÂ  21h 47
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -53,7 +53,7 @@ namespace bpp
 {
 /**
  * @brief The Le et al  (2008) EH0 substitution model for proteins.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This model is a mixture of three models corresponding to
  * extended/helix/other sites in proteins. The models are considered

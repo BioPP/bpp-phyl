@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -68,7 +68,7 @@ namespace bpp
  *
  * Reference:
  *
- * Le S.Q., Gascuel O. & Lartillot N. (2008) Bioinformatics 24:2317â2323.
+ * Le S.Q., Gascuel O. & Lartillot N. (2008) Bioinformatics 24:2317Ã¢ÂÂ2323.
  */
 
 class LGL08_CAT :

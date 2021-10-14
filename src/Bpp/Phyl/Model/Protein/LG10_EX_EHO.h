@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -70,7 +70,7 @@ namespace bpp
  *
  * Reference:
  *
- * Le S.Q., Gascuel O. (2010) Syst. Biol. 59(3):277â287
+ * Le S.Q., Gascuel O. (2010) Syst. Biol. 59(3):277Ã¢ÂÂ287
  */
 class LG10_EX_EHO :
   public AbstractBiblioMixedTransitionModel

@@ -1,12 +1,12 @@
 //
 // File: WrappedModel.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mardi 26 septembre 2017, Ã  16h 18
+//   Laurent GuÃÂ©guen
+// Created: mardi 26 septembre 2017, ÃÂ  16h 18
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

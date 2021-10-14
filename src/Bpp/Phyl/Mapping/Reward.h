@@ -1,12 +1,12 @@
 //
 // File: Reward.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 27 mars 2013, Ã  09h 58
+//   Laurent GuÃÂ©guen
+// Created: mercredi 27 mars 2013, ÃÂ  09h 58
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -60,7 +60,7 @@ namespace bpp
  * @f$t_s@f$ is the time spent in each state @f$s@f$, the reward of
  * @f$f@f$ is @f$\sum_{s} f(s).E(t_s) @f$.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * See:
  * Minin, V.N. and Suchard, M.A.,

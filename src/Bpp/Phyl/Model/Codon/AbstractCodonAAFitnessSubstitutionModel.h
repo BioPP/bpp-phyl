@@ -1,12 +1,12 @@
 //
 // File: AbstractCodonAAFitnessSubstitutionModel.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 8 novembre 2017, Ã  21h 11
+//   Laurent GuÃÂ©guen
+// Created: mercredi 8 novembre 2017, ÃÂ  21h 11
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   
@@ -55,7 +55,7 @@ namespace bpp
  * @brief Abstract class for modelling of ratios of substitution
  * rates between codons, whatever they are synonymous or not.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * The fitness of an amino acid is a value between 0 and 1 defining
  * the relative advantage of an amino acid, compared to others. If

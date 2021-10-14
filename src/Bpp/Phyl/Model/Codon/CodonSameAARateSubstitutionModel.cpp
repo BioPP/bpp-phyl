@@ -2,11 +2,11 @@
 // File: CodonSameAARateSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: vendredi 30 octobre 2020, Ã  17h 43
+// Created: vendredi 30 octobre 2020, ÃÂ  17h 43
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

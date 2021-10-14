@@ -2,11 +2,11 @@
 // File: InMixedSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: vendredi 22 septembre 2017, à 09h 57
+// Created: vendredi 22 septembre 2017, Ã  09h 57
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

@@ -43,19 +43,20 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
-#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Legacy/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Simulation/SimpleSubstitutionProcessSequenceSimulator.h>
 
-#include <Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/DRNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
+#include <Bpp/Phyl/Legacy/OptimizationTools.h>
 
-#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
-#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
+#include <Bpp/Phyl/Likelihood/ParametrizablePhyloTree.h>
+#include <Bpp/Phyl/Likelihood/NonHomogeneousSubstitutionProcess.h>
+#include <Bpp/Phyl/Likelihood/RateAcrossSitesSubstitutionProcess.h>
 
-#include <Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
+#include <Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
 
 #include <iostream>
 
@@ -138,7 +139,7 @@ int main() {
     cout << setprecision(10) << "OldTL init: "  << tl.getValue()  << endl;
     cout << setprecision(10) << "NewTL init: "  << ntl.getValue()  << endl;
 
-    unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
+    unsigned int c1 = OptimizationToolsOld::optimizeNumericalParameters2(
       &tl, tl.getParameters(), 0,
       0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
     

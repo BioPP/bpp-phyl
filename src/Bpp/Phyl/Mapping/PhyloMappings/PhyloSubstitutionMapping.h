@@ -1,12 +1,12 @@
 //
 // File: PhyloSubstitutionMapping.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 29 novembre 2017, Ã  22h 42
+//   Laurent GuÃÂ©guen
+// Created: mercredi 29 novembre 2017, ÃÂ  22h 42
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

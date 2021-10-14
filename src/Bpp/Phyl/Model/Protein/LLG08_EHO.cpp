@@ -2,11 +2,11 @@
 // File: LLG08_EHO.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 7 octobre 2010, Ã  21h 47
+// Created: jeudi 7 octobre 2010, ÃÂ  21h 47
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

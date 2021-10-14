@@ -2,11 +2,11 @@
 // File: AbstractKroneckerCodonSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: mardi 26 juillet 2016, Ã  21h 15
+// Created: mardi 26 juillet 2016, ÃÂ  21h 15
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -62,7 +62,7 @@ namespace bpp
  * Rates of multiple substitutions equal the product of single
  * substitutions involved, before removing stop codons.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * Objects of this class are built from either one (repeated three
  * times) or three different substitution models of NucleicAlphabets.

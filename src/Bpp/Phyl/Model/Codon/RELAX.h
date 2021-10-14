@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -71,7 +71,7 @@ namespace bpp
  * References:
  *
  * Joel O., et al. "RELAX: detecting relaxed selection in a phylogenetic framework."
- * Molecular biology and evolution 32.3 (2014): 820-832.â
+ * Molecular biology and evolution 32.3 (2014): 820-832.Ã¢ÂÂ
  */
 class RELAX :
   public YNGP_M

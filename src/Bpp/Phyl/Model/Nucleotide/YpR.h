@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -54,7 +54,7 @@ namespace bpp
 {
 /**
  * @brief YpR  model.
- * @author Laurent Guéguen
+ * @author Laurent GuÃ©guen
  *
  * Model YpR, on RNY triplets, with independent positions.
  *

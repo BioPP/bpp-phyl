@@ -1,12 +1,12 @@
 //
 // File: AbstractKroneckerWordSubstitutionModel.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: lundi 25 juillet 2016, Ã  17h 00
+//   Laurent GuÃÂ©guen
+// Created: lundi 25 juillet 2016, ÃÂ  17h 00
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

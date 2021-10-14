@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -44,7 +44,6 @@
 #include <Bpp/Numeric/VectorTools.h>
 
 #include "Tree/PhyloTree.h"
-#include "Tree/Tree.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -76,8 +75,6 @@ public:
    * @return A new site container with corresponding sequences.
    * @throw Exception if an error occured.
    */
-
-  static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node);
 
   template<class N, class E, class I>
   static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N, E, I>& tree);

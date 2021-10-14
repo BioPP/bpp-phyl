@@ -1,11 +1,11 @@
 //
 // File: AbstractCodonPhaseFrequenciesSubstitutionModel.h
 // Authors:
-//   vendredi 23 septembre 2011, Ã 16h 29
+//   vendredi 23 septembre 2011, Ã 16h 29
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -50,7 +50,7 @@ namespace bpp
  * @brief Abstract Class for substitution models on codons
  *  parametrized by a frequency.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This class should be used with models which equilibrium
  * distribution is fixed, ans does not depend on the parameters.

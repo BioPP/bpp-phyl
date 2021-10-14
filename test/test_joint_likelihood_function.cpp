@@ -31,15 +31,14 @@
 // From bpp-phyl:
 #include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <Bpp/Phyl/Tree/PhyloNode.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/RASTools.h>
-#include <Bpp/Phyl/PatternTools.h>
-#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/OptimizationTools.h>
-#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RHomogeneousMixedTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/DRHomogeneousMixedTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/DRNonHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RASTools.h>
+#include <Bpp/Phyl/Legacy/PatternTools.h>
+#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Legacy/OptimizationTools.h>
 #include <Bpp/Phyl/Model/TwoParameterBinarySubstitutionModel.h>
 #include <Bpp/Phyl/Model/Protein/CoalaCore.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
@@ -48,7 +47,7 @@
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Io/BppOFrequencySetFormat.h>
 #include <Bpp/Phyl/Mapping/StochasticMapping.h>
-#include <Bpp/Phyl/Likelihood/JointLikelihoodFunction.h>
+#include <Bpp/Phyl/Legacy/Likelihood/JointLikelihoodFunction.h>
 
 // From the STL:
 #include <iostream>
@@ -185,7 +184,7 @@ MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorS
 //     // set initial partition, based on maximum parsimony
 //     setMpPartition(bppml, mpData, characterData, characterModel, tree); // the partition is set on tree
 //     // create the set of models
-    SubstitutionModelSet* initialModelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(codonAlphabet, gCode, codon_data, bppml->getParams());
+    SubstitutionModelSet* initialModelSet = PhylogeneticsApplicationToolsOld::getSubstitutionModelSet(codonAlphabet, gCode, codon_data, bppml->getParams());
     MixedSubstitutionModelSet* modelSet = dynamic_cast<MixedSubstitutionModelSet*>(initialModelSet);
     return modelSet;
 }

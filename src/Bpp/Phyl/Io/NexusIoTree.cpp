@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -176,12 +176,12 @@ void NexusIOTree::readTrees(std::istream& in, std::vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-PhyloTree* NexusIOTree::readPTree(istream& in) const
+PhyloTree* NexusIOTree::readPhyloTree(istream& in) const
 {
   vector<PhyloTree*> trees;
-  readTrees(in, trees);
+  readPhyloTrees(in, trees);
   if (trees.size() == 0)
-    throw IOException("NexusIOTree::readPTree(). No tree found in file.");
+    throw IOException("NexusIOTree::readPhyloTree(). No tree found in file.");
   for (size_t i = trees.size() - 1; i > 0; i--)
   {
     delete trees[i];
@@ -191,12 +191,12 @@ PhyloTree* NexusIOTree::readPTree(istream& in) const
 
 /******************************************************************************/
 
-void NexusIOTree::readTrees(std::istream& in, std::vector<PhyloTree*>& trees) const
+void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
   {
-    throw IOException ("NexusIOTree::readTrees(). Failed to read from stream");
+    throw IOException ("NexusIOTree::readPhyloTrees(). Failed to read from stream");
   }
 
   // Look for the TREES block:
@@ -204,14 +204,14 @@ void NexusIOTree::readTrees(std::istream& in, std::vector<PhyloTree*>& trees) co
   while (TextTools::toUpper(line) != "BEGIN TREES;")
   {
     if (in.eof())
-      throw Exception("NexusIOTree::readTrees(). No trees block was found.");
+      throw Exception("NexusIOTree::readPhyloTrees(). No trees block was found.");
     line = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(in));
   }
 
   string cmdName = "", cmdArgs = "";
   bool cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
   if (!cmdFound)
-    throw Exception("NexusIOTree::readTrees(). Missing tree command.");
+    throw Exception("NexusIOTree::readPhyloTrees(). Missing tree command.");
   cmdName = TextTools::toUpper(cmdName);
 
   // Look for the TRANSLATE command:
@@ -234,7 +234,7 @@ void NexusIOTree::readTrees(std::istream& in, std::vector<PhyloTree*>& trees) co
     hasTranslation = true;
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (!cmdFound)
-      throw Exception("NexusIOTree::readTrees(). Missing tree command.");
+      throw Exception("NexusIOTree::readPhyloTrees(). Missing tree command.");
     else
       cmdName = TextTools::toUpper(cmdName);
   }
@@ -252,7 +252,7 @@ void NexusIOTree::readTrees(std::istream& in, std::vector<PhyloTree*>& trees) co
     Newick treeReader;
 
     istringstream ss(description + ";");
-    PhyloTree* tree = treeReader.readPTree(ss);
+    PhyloTree* tree = treeReader.readPhyloTree(ss);
 
     // Now translate leaf names if there is a translation:
     // (we assume that all trees share the same translation! ===> check!)
@@ -293,7 +293,7 @@ void NexusIOTree::write_(const PhyloTree& tree, ostream& out) const
 {
   vector<const PhyloTree*> trees;
   trees.push_back(&const_cast<PhyloTree&>(tree));
-  writeTrees(trees, out);
+  writePhyloTrees(trees, out);
 }
 
 /******************************************************************************/
@@ -435,7 +435,7 @@ void NexusIOTree::write_(const vector<const PhyloTree*>& trees, ostream& out) co
   for (size_t i = 0; i < trees.size(); i++)
   {
     out << endl << "  TREE tree" << (i + 1) << " = ";
-    treeWriter.writeTree(*translatedTrees[i], out);
+    treeWriter.writePhyloTree(*translatedTrees[i], out);
   }
   out << "END;" << endl;
 

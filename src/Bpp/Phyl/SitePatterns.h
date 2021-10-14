@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -44,7 +44,6 @@
 #include <Bpp/Clonable.h>
 #include <Bpp/Numeric/VectorTools.h>
 
-#include "Tree/Tree.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Site.h>

@@ -1,12 +1,12 @@
 //
 // File: SubstitutionMappingTools.cpp
 // Authors:
-//   Julien Dutheil, Laurent GuÃ©guen
+//   Julien Dutheil, Laurent GuÃÂ©guen
 // Created: 2006-04-05 13:04:00
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -44,7 +44,7 @@
 #include <Bpp/Seq/AlphabetIndex/UserAlphabetIndex1.h>
 #include <Bpp/Text/TextTools.h>
 
-#include "../NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
+#include "../Likelihood/DataFlow/ForwardLikelihoodTree.h"
 #include "DecompositionReward.h"
 #include "DecompositionSubstitutionCount.h"
 #include "ProbabilisticRewardMapping.h"

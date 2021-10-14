@@ -37,22 +37,22 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Numeric/Matrix/MatrixTools.h>
-#include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RHomogeneousTreeLikelihood.h>
+
+#include <Bpp/Phyl/Legacy/OptimizationTools.h>
 
 #include <Bpp/Phyl/OptimizationTools.h>
-#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
-#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
+#include <Bpp/Phyl/Likelihood/ParametrizablePhyloTree.h>
+#include <Bpp/Phyl/Likelihood/SimpleSubstitutionProcess.h>
+#include <Bpp/Phyl/Likelihood/RateAcrossSitesSubstitutionProcess.h>
 
-#include <Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
+#include <Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
 
 #include <iostream>
 
@@ -179,7 +179,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   RHomogeneousTreeLikelihood tlop(tree, sites, model->clone(), rdist->clone(), false, false);
   tlop.initialize();
 
-  OptimizationTools::optimizeNumericalParameters2(&tlop, tlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
+  OptimizationToolsOld::optimizeNumericalParameters2(&tlop, tlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
   cout << setprecision(20) << tlop.getValue() << endl;
   ApplicationTools::displayResult("* lnL after full optimization (old)", tlop.getValue());
   if (abs(tlop.getValue() - finalValue) > 0.001)

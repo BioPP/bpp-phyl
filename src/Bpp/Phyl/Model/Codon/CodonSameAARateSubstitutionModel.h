@@ -2,11 +2,11 @@
 // File: CodonSameAARateSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: vendredi 30 octobre 2020, Ã  17h 44
+// Created: vendredi 30 octobre 2020, ÃÂ  17h 44
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -58,7 +58,7 @@ namespace bpp
  *   acids are similar to the ones in an amino acid rate matrix (from
  *   a shared_ptr model).
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * From the generator @f$A@f$ between amino-acids, the generator
  *  @f$Q@f$ between codons, and the codon frequencies @f$\pi@f$, the

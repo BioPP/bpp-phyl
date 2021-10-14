@@ -1,12 +1,12 @@
 //
 // File: RewardMappingToolsForASite.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 26 septembre 2018, Ã  16h 01
+//   Laurent GuÃÂ©guen
+// Created: mercredi 26 septembre 2018, ÃÂ  16h 01
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -43,7 +43,6 @@
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Text/TextTools.h>
 
-#include "../Likelihood/DRTreeLikelihoodTools.h"
 #include "RewardMappingToolsForASite.h"
 
 using namespace bpp;

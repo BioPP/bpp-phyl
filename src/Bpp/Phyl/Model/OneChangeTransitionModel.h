@@ -2,11 +2,11 @@
 // File: OneChangeTransitionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: samedi 24 octobre 2015, à 18h 28
+// Created: samedi 24 octobre 2015, Ã  18h 28
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

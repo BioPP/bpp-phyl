@@ -1,12 +1,12 @@
 //
 // File: EvolutionSequenceSimulator.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: vendredi 22 mai 2015, Ã  23h 20
+//   Laurent GuÃÂ©guen
+// Created: vendredi 22 mai 2015, ÃÂ  23h 20
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -40,11 +40,11 @@
 
 #include <Bpp/Numeric/Random/RandomTools.h>
 
-#include "../NewLikelihood/AutoCorrelationSequenceEvolution.h"
-#include "../NewLikelihood/HmmSequenceEvolution.h"
-#include "../NewLikelihood/MixtureSequenceEvolution.h"
-#include "../NewLikelihood/OneProcessSequenceEvolution.h"
-#include "../NewLikelihood/PartitionSequenceEvolution.h"
+#include "../Likelihood/AutoCorrelationSequenceEvolution.h"
+#include "../Likelihood/HmmSequenceEvolution.h"
+#include "../Likelihood/MixtureSequenceEvolution.h"
+#include "../Likelihood/OneProcessSequenceEvolution.h"
+#include "../Likelihood/PartitionSequenceEvolution.h"
 #include "EvolutionSequenceSimulator.h"
 
 using namespace bpp;

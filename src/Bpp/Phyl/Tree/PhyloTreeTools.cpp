@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -47,12 +47,6 @@
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/TextTools.h>
 
-#include "../Distance/BioNJ.h"
-#include "../Distance/DistanceEstimation.h"
-#include "../Model/Nucleotide/JCnuc.h"
-#include "../OptimizationTools.h"
-#include "../Parsimony/DRTreeParsimonyScore.h"
-#include "BipartitionTools.h"
 #include "PhyloTreeTools.h"
 
 // From bpp-seq:
@@ -67,6 +61,11 @@ using namespace bpp;
 
 using namespace std;
 
+/******************************************************************************/
+
+const string PhyloTreeTools::BOOTSTRAP = "bootstrap";
+
+/******************************************************************************/
 
 double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNode> node)
 {

@@ -1,12 +1,12 @@
 //
 // File: SubstitutionRegister.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: lundi 15 avril 2013, Ã  14h 05
+//   Laurent GuÃÂ©guen
+// Created: lundi 15 avril 2013, ÃÂ  14h 05
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

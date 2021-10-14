@@ -2,11 +2,11 @@
 // File: YNGP_M10.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 15 dÃ©cembre 2014, Ã  15h 21
+// Created: lundi 15 dÃÂ©cembre 2014, ÃÂ  15h 21
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

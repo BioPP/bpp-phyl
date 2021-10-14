@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -52,7 +52,7 @@ namespace bpp
  * non-synonymous/synonymous ratios of substitution rates defined
  * through a distance between amino-acids.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * Objects of this class are built from three substitution models of
  * NucleicAlphabets. No model is directly accessible. </p>

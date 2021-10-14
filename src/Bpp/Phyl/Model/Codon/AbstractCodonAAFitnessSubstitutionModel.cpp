@@ -1,12 +1,12 @@
 //
 // File: AbstractCodonAAFitnessSubstitutionModel.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 8 novembre 2017, Ã  21h 10
+//   Laurent GuÃÂ©guen
+// Created: mercredi 8 novembre 2017, ÃÂ  21h 10
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

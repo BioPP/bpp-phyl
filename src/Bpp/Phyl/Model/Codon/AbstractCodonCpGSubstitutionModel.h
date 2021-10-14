@@ -2,11 +2,11 @@
 // File: AbstractCodonCpGSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 15 septembre 2011, Ã  21h 11
+// Created: jeudi 15 septembre 2011, ÃÂ  21h 11
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -52,7 +52,7 @@ namespace bpp
  *  hypermutability substitution rate inside codons. Note that the
  *  neihbouring effects between codons are not considered.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * Substitution rate from C to T (resp. from G to A) is multiplied by
  *  a factor @f$\rho@f$ if C is followed by a G (resp. if G is

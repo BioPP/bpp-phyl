@@ -26,13 +26,14 @@
 
 // From bpp-phyl
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
-#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Legacy/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/G2001.h>
 #include <Bpp/Phyl/Model/TwoParameterBinarySubstitutionModel.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Mapping/StochasticMapping.h>
 #include <Bpp/Phyl/OptimizationTools.h>
+#include <Bpp/Phyl/Legacy/OptimizationTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Simulation/DetailedSiteSimulator.h>
 //#include <Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h>

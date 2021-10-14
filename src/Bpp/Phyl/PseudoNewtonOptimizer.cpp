@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -49,8 +49,8 @@
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
 
-#include "NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h"
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include "Likelihood/PhyloLikelihoods/PhyloLikelihood.h"
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Numeric/Function/ThreePointsNumericalDerivative.h>
 
 using namespace bpp;

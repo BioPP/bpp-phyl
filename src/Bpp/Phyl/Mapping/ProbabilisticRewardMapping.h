@@ -1,12 +1,12 @@
 //
 // File: ProbabilisticRewardMapping.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: lundi 20 novembre 2017, Ã  16h 55
+//   Laurent GuÃÂ©guen
+// Created: lundi 20 novembre 2017, ÃÂ  16h 55
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -43,8 +43,8 @@
 
 #include <Bpp/Text/TextTools.h>
 
-#include "../NewLikelihood/DataFlow/DataFlowCWise.h"
-#include "../Tree/TreeExceptions.h"
+#include "../Likelihood/DataFlow/DataFlowCWise.h"
+#include "../Tree/PhyloTreeExceptions.h"
 #include "PhyloBranchReward.h"
 #include "Reward.h"
 #include "RewardMapping.h"

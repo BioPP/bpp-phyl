@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -48,10 +48,11 @@
 #include <Bpp/Text/TextTools.h>
 
 #include "../Distance/BioNJ.h"
-#include "../Distance/DistanceEstimation.h"
-#include "../Model/Nucleotide/JCnuc.h"
-#include "../OptimizationTools.h"
+
+// #include "../Distance/DistanceEstimation.h"
+// #include "../OptimizationTools.h"
 #include "../Parsimony/DRTreeParsimonyScore.h"
+#include "../Model/Nucleotide/JCnuc.h"
 #include "BipartitionTools.h"
 #include "Tree.h"
 #include "TreeTools.h"
@@ -1094,29 +1095,32 @@ TreeTemplate<Node>* TreeTools::strictConsensus(const vector<Tree*>& vecTr, bool 
 
 Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
 {
-  // matrix representation
-  VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
+  throw Exception("TreeTools::MRP not updated.");
+  
+  // // matrix representation
+  // VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
 
-  // starting bioNJ tree
-  const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
-  JCnuc* jc = new JCnuc(alphabet);
-  ConstantDistribution* constRate = new ConstantDistribution(1.);
-  DistanceEstimation distFunc(jc, constRate, sites, 0, true);
-  BioNJ bionjTreeBuilder(false, false);
-  bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
-  bionjTreeBuilder.computeTree();
-  if (ApplicationTools::message)
-    ApplicationTools::message->endLine();
-  TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
+  // // starting bioNJ tree
+  // const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
+  // JCnuc* jc = new JCnuc(alphabet);
+  // ConstantDistribution* constRate = new ConstantDistribution(1.);
+  // DistanceEstimation distFunc(jc, constRate, sites, 0, true);
+  // BioNJ bionjTreeBuilder(false, false);
+  // bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
+  // bionjTreeBuilder.computeTree();
+  // if (ApplicationTools::message)
+  //   ApplicationTools::message->endLine();
+  // TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
 
-  // MP optimization
-  DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
-  MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
-  delete startTree;
-  Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
-  delete MPScore;
+  // // MP optimization
+  // DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
+  // MPScore = OptimizationToolsOld::optimizeTreeNNI(MPScore, 0);
+  // delete startTree;
+  // Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
+  // delete MPScore;
 
-  return retTree;
+  // return retTree;
+  return 0;
 }
 
 /******************************************************************************/
@@ -1286,27 +1290,30 @@ TreeTools::Moments_ TreeTools::statFromNode_(Tree& tree, int rootId)
 
 Tree* TreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
 {
-  // matrix representation
-  VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
+  throw Exception("TreeTools::MRPMultilabel not updated.");
+  
+  // // matrix representation
+  // VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
 
-  // starting bioNJ tree
-  const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
-  JCnuc* jc = new JCnuc(alphabet);
-  ConstantDistribution* constRate = new ConstantDistribution(1.);
-  DistanceEstimation distFunc(jc, constRate, sites, 0, true);
-  BioNJ bionjTreeBuilder(false, false);
-  bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
-  bionjTreeBuilder.computeTree();
-  if (ApplicationTools::message)
-    ApplicationTools::message->endLine();
-  TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
+  // // starting bioNJ tree
+  // const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
+  // JCnuc* jc = new JCnuc(alphabet);
+  // ConstantDistribution* constRate = new ConstantDistribution(1.);
+  // DistanceEstimation distFunc(jc, constRate, sites, 0, true);
+  // BioNJ bionjTreeBuilder(false, false);
+  // bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
+  // bionjTreeBuilder.computeTree();
+  // if (ApplicationTools::message)
+  //   ApplicationTools::message->endLine();
+  // TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
 
-  // MP optimization
-  DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
-  MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
-  delete startTree;
-  Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
-  delete MPScore;
+  // // MP optimization
+  // DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
+  // MPScore = OptimizationToolsOld::optimizeTreeNNI(MPScore, 0);
+  // delete startTree;
+  // Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
+  // delete MPScore;
 
-  return retTree;
+  // return retTree;
+  return 0;
 }

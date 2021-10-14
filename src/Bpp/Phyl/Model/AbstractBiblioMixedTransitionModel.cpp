@@ -2,11 +2,11 @@
 // File: AbstractBiblioMixedTransitionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: lundi 18 juillet 2011, Ã  15h 27
+// Created: lundi 18 juillet 2011, ÃÂ  15h 27
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

@@ -2,11 +2,11 @@
 // File: AbstractDFPSubstitutionModel.h
 // Authors:
 //   Laurent Gueguen
-// Created: jeudi 29 octobre 2020, Ã  15h 59
+// Created: jeudi 29 octobre 2020, ÃÂ  15h 59
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -69,7 +69,7 @@ namespace bpp
  *
  * Reference: Adi Doron-Faigenboim, Tal Pupko, 2007, A Combined
  * Empirical and Mechanistic Codon Model, Molecular Biology and
- * Evolution, Volume 24, Issue 2, Pages 388â397,
+ * Evolution, Volume 24, Issue 2, Pages 388Ã¢ÂÂ397,
  * https://doi.org/10.1093/molbev/msl175
  *
  */

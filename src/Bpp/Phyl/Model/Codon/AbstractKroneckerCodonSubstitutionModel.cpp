@@ -2,11 +2,11 @@
 // File: AbstractKroneckerCodonSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: mardi 26 juillet 2016, Ã  19h 00
+// Created: mardi 26 juillet 2016, ÃÂ  19h 00
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

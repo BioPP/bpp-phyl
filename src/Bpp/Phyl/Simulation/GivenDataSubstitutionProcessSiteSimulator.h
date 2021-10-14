@@ -1,12 +1,12 @@
 //
 // File: GivenDataSubstitutionProcessSiteSimulator.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: lundi 12 octobre 2020, Ã  06h 04
+//   Laurent GuÃÂ©guen
+// Created: lundi 12 octobre 2020, ÃÂ  06h 04
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -41,7 +41,7 @@
 #ifndef BPP_PHYL_SIMULATION_GIVENDATASUBSTITUTIONPROCESSSITESIMULATOR_H
 #define BPP_PHYL_SIMULATION_GIVENDATASUBSTITUTIONPROCESSSITESIMULATOR_H
 
-#include <Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
+#include <Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
 
 #include "SimpleSubstitutionProcessSiteSimulator.h"
 

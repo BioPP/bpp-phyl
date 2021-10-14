@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   
@@ -53,7 +53,7 @@ namespace bpp
  * @brief Abstract class for modelling of ratios of substitution
  * rates between codons, whatever they are synonymous or not.
  *
- * @author Fanny Pouyet, Laurent GuÃ©guen
+ * @author Fanny Pouyet, Laurent GuÃÂ©guen
  *
  * The fitness of a codon is a value between 0 and 1 defining the
  * relative advantage of a codon, compared to others. If a codon

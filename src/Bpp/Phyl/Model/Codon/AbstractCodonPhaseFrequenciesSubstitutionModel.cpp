@@ -2,11 +2,11 @@
 // File: AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: vendredi 23 septembre 2011, Ã  16h 29
+// Created: vendredi 23 septembre 2011, ÃÂ  16h 29
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

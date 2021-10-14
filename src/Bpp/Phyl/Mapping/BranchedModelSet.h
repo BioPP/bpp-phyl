@@ -1,8 +1,8 @@
 //
 // File: BranchedModelSet.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: jeudi 7 dÃ©cembre 2017, Ã  17h 41
+//   Laurent GuÃÂ©guen
+// Created: jeudi 7 dÃÂ©cembre 2017, ÃÂ  17h 41
 //
 
 /*

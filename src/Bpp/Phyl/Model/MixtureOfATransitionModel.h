@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -54,7 +54,7 @@ namespace bpp
 /**
  * @brief Transition models defined as a mixture of nested
  * substitution models.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * All the nested models are of the same type (for example T92 or
  * GY94), and their parameter values can follow discrete

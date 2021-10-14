@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -90,7 +90,11 @@ class Nhx :
   public AbstractITree,
   public AbstractOTree,
   public AbstractIMultiTree,
-  public AbstractOMultiTree
+  public AbstractOMultiTree,
+  public AbstractIPhyloTree,
+  public AbstractOPhyloTree,
+  public AbstractIMultiPhyloTree,
+  public AbstractOMultiPhyloTree
 {
 public:
   struct Property
@@ -161,12 +165,12 @@ public:
 
   TreeTemplate<Node>* readTree(std::istream& in) const;
 
-  PhyloTree* readPTree(const std::string& path) const
+  PhyloTree* readPhyloTree(const std::string& path) const
   {
-    return AbstractITree::readPTree(path);
+    return AbstractIPhyloTree::readPhyloTree(path);
   }
 
-  PhyloTree* readPTree(std::istream& in) const;
+  PhyloTree* readPhyloTree(std::istream& in) const;
 
   /** @} */
 
@@ -185,12 +189,12 @@ public:
     write_(tree, out);
   }
 
-  void writeTree(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
+  void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
   {
-    AbstractOTree::writeTree(tree, path, overwrite);
+    AbstractOPhyloTree::writePhyloTree(tree, path, overwrite);
   }
 
-  void writeTree(const PhyloTree& tree, std::ostream& out) const
+  void writePhyloTree(const PhyloTree& tree, std::ostream& out) const
   {
     write_(tree, out);
   }
@@ -207,12 +211,12 @@ public:
   }
   void readTrees(std::istream& in, std::vector<Tree*>& trees) const;
 
-  void readTrees(const std::string& path, std::vector<PhyloTree*>& trees) const
+  void readPhyloTrees(const std::string& path, std::vector<PhyloTree*>& trees) const
   {
-    AbstractIMultiTree::readTrees(path, trees);
+    AbstractIMultiPhyloTree::readPhyloTrees(path, trees);
   }
 
-  void readTrees(std::istream& in, std::vector<PhyloTree*>& trees) const;
+  void readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& trees) const;
 
   /**@}*/
 
@@ -229,11 +233,11 @@ public:
   {
     write_(trees, out);
   }
-  void writeTrees(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
+  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
   {
-    AbstractOMultiTree::writeTrees(trees, path, overwrite);
+    AbstractOMultiPhyloTree::writePhyloTrees(trees, path, overwrite);
   }
-  void writeTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
+  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
   {
     write_(trees, out);
   }
@@ -294,7 +298,7 @@ protected:
   template<class N>
   void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const;
 
-  AbstractITree::Element getElement(const std::string& elt) const;
+  IOTree::Element getElement(const std::string& elt) const;
 
 private:
   Node* parenthesisToNode(const std::string& description) const;

@@ -2,11 +2,11 @@
 // File: LLG08_EX2.h
 // Authors:
 //   Laurent Gueguen
-// Created: mardi 12 octobre 2010, Ã  09h 42
+// Created: mardi 12 octobre 2010, ÃÂ  09h 42
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -53,7 +53,7 @@ namespace bpp
 {
 /**
  * @brief The Le et al  (2008) EX2 substitution model for proteins.
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This model is a mixture of three models corresponding to
  * buried/exposed sites in proteins.

@@ -1,12 +1,12 @@
 //
 // File: SubstitutionProcessSequenceSimulator.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: jeudi 9 avril 2015, Ã  17h 17
+//   Laurent GuÃÂ©guen
+// Created: jeudi 9 avril 2015, ÃÂ  17h 17
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -41,7 +41,7 @@
 #ifndef BPP_PHYL_SIMULATION_SUBSTITUTIONPROCESSSEQUENCESIMULATOR_H
 #define BPP_PHYL_SIMULATION_SUBSTITUTIONPROCESSSEQUENCESIMULATOR_H
 
-#include <Bpp/Phyl/NewLikelihood/SequenceEvolution.h>
+#include <Bpp/Phyl/Likelihood/SequenceEvolution.h>
 
 #include "SequenceSimulator.h"
 #include "SiteSimulator.h"

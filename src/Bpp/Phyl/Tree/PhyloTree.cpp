@@ -4,7 +4,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (September 19, 2014)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (September 19, 2014)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -37,7 +37,7 @@
 */
 
 
-#include "../NewLikelihood/ParametrizablePhyloTree.h"
+#include "../Likelihood/ParametrizablePhyloTree.h"
 #include "PhyloTree.h"
 
 using namespace bpp;

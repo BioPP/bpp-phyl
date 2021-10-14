@@ -2,11 +2,11 @@
 // File: PhyloTreeTools.h
 // Authors:
 //   Julien Dutheil
-// Created: mercredi 31 aoÃ»t 2016, Ã  13h 13
+// Created: mercredi 31 aoÃÂ»t 2016, ÃÂ  13h 13
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -44,7 +44,6 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/VectorTools.h>
 
-#include "BipartitionList.h"
 #include "PhyloBranch.h"
 #include "PhyloNode.h"
 #include "PhyloTree.h"
@@ -177,6 +176,12 @@ public:
    *
    * @{
    */
+
+  /**
+   * @brief Bootstrap tag.
+   */
+  static const std::string BOOTSTRAP;
+
 
 private:
   struct Moments_

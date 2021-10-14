@@ -1,12 +1,12 @@
 //
 // File: BppOBranchModelFormat.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 11 mars 2020, Ã  14h 21
+//   Laurent GuÃÂ©guen
+// Created: mercredi 11 mars 2020, ÃÂ  14h 21
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

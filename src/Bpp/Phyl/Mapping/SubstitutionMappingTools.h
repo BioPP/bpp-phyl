@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -43,7 +43,7 @@
 
 #include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
-#include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
+#include "../Likelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
 #include "BranchedModelSet.h"
 #include "OneJumpSubstitutionCount.h"
 #include "ProbabilisticSubstitutionMapping.h"

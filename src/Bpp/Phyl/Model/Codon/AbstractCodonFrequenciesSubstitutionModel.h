@@ -1,11 +1,11 @@
 //
 // File: AbstractCodonFrequenciesSubstitutionModel.h
 // Authors:
-//   jeudi 15 septembre 2011, Ã 15h 02
+//   jeudi 15 septembre 2011, Ã 15h 02
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -55,7 +55,7 @@ namespace bpp
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * If we denote @f$F@f$ the equilibrium frequency, the generator term
  * defined from inherited and inheriting classes, @f$Q_{ij})@f$, is

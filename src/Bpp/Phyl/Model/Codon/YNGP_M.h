@@ -2,11 +2,11 @@
 // File: YNGP_M.h
 // Authors:
 //   Laurent Gueguen
-// Created: mardi 26 septembre 2017, Ã  23h 06
+// Created: mardi 26 septembre 2017, ÃÂ  23h 06
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -52,7 +52,7 @@ namespace bpp
 /**
  * @brief Abstract generic class for The Yang et al (2000) M
  * substitution models for codons. al (2004).
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * References:
  *

@@ -1,12 +1,12 @@
 //
 // File: EvolutionSequenceSimulator.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: vendredi 22 mai 2015, Ã  23h 03
+//   Laurent GuÃÂ©guen
+// Created: vendredi 22 mai 2015, ÃÂ  23h 03
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -42,7 +42,7 @@
 #define BPP_PHYL_SIMULATION_EVOLUTIONSEQUENCESIMULATOR_H
 
 
-#include "../NewLikelihood/SequenceEvolution.h"
+#include "../Likelihood/SequenceEvolution.h"
 #include "SubstitutionProcessSequenceSimulator.h"
 
 namespace bpp

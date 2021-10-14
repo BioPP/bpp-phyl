@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -49,7 +49,7 @@ namespace bpp
 /**
  * @brief The Yang et al (2000) M1 substitution model for codons, with
  * the more realistic modification in Wong & al (2004).
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  * This model is a mixture of models as described in YN98 class, the
  * mixture being defined on the selection parameter to allow it to

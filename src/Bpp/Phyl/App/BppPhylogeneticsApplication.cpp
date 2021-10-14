@@ -1,12 +1,12 @@
 //
 // File: BppPhylogeneticsApplication.cpp
 // Authors:
-//   Laurent GuÃ©guen, Julien Dutheil
+//   Laurent GuÃÂ©guen, Julien Dutheil
 // Created: 2021-06-15 15:14:00
 //
 
 /*
-  Copyright or Â© or Copr. Development Team, (November 17, 2021)
+  Copyright or ÃÂ© or Copr. Development Team, (November 17, 2021)
   
   This software is a computer program whose purpose is to provide basal and
   utilitary classes. This file belongs to the Bio++ Project.

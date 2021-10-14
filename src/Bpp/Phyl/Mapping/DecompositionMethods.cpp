@@ -1,12 +1,12 @@
 //
 // File: DecompositionMethods.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mardi 18 juillet 2017, Ã  22h 44
+//   Laurent GuÃÂ©guen
+// Created: mardi 18 juillet 2017, ÃÂ  22h 44
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

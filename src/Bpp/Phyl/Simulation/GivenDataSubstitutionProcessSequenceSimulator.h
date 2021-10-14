@@ -1,12 +1,12 @@
 //
 // File: GivenDataSubstitutionProcessSequenceSimulator.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 21 octobre 2020, Ã  09h 45
+//   Laurent GuÃÂ©guen
+// Created: mercredi 21 octobre 2020, ÃÂ  09h 45
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

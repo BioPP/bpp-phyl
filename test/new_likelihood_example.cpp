@@ -60,12 +60,12 @@
 #include <chrono>
 
 
-#include <Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.h>
+#include <Bpp/Phyl/Likelihood/DataFlow/BackwardLikelihoodTree.h>
 #include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/NonHomogeneousSubstitutionProcess.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include "Bpp/Phyl/Likelihood/SubstitutionProcess.h"
 #include <Bpp/Text/TextTools.h>
 
 static bool enableDotOutput = true;

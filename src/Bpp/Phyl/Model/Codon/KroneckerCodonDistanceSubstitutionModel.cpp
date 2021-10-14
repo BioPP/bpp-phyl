@@ -2,11 +2,11 @@
 // File: KroneckerCodonDistanceSubstitutionModel.cpp
 // Authors:
 //   Laurent Gueguen
-// Created: vendredi 23 septembre 2016, Ã  12h 18
+// Created: vendredi 23 septembre 2016, ÃÂ  12h 18
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   

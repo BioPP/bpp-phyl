@@ -1,12 +1,12 @@
 //
 // File: GivenDataSubstitutionProcessSiteSimulator.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mardi 13 octobre 2020, Ã  22h 15
+//   Laurent GuÃÂ©guen
+// Created: mardi 13 octobre 2020, ÃÂ  22h 15
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -42,7 +42,7 @@
 #include <Bpp/Numeric/VectorTools.h>
 #include <algorithm>
 
-#include "../NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
+#include "../Likelihood/DataFlow/ForwardLikelihoodTree.h"
 #include "GivenDataSubstitutionProcessSiteSimulator.h"
 
 // From SeqLib:

@@ -1,12 +1,12 @@
 //
 // File: ProbabilisticRewardMapping.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: vendredi 29 mars 2013, Ã  11h 37
+//   Laurent GuÃÂ©guen
+// Created: vendredi 29 mars 2013, ÃÂ  11h 37
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

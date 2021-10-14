@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -300,7 +300,7 @@ public:
  * @brief Sets a Register based on a vector of Registers. The
  * categories are intersection of categories of those Registers.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  *
  */
 
@@ -442,7 +442,7 @@ public:
  *  matrix, M[i,j] is the number of the substitution type from i to j,
  *  or 0 if there is no substitution type from i to j.
  *
- * @author Laurent GuÃ©guen
+ * @author Laurent GuÃÂ©guen
  */
 class GeneralSubstitutionRegister :
   public AbstractSubstitutionRegister

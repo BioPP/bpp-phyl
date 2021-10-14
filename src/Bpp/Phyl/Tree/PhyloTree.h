@@ -1,12 +1,12 @@
 //
 // File: PhyloTree.h
 // Authors:
-//   Laurent GuÃ©guen
-// Created: dimanche 24 juillet 2016, Ã  19h 58
+//   Laurent GuÃÂ©guen
+// Created: dimanche 24 juillet 2016, ÃÂ  19h 58
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

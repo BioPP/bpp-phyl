@@ -2,11 +2,11 @@
 // File: MixtureOfTransitionModels.cpp
 // Authors:
 //   Laurent Gueguen
-//   Date: mardi 14 septembre 2010, Ã 20h 43
+//   Date: mardi 14 septembre 2010, Ã 20h 43
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

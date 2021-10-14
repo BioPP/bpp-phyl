@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -40,7 +40,6 @@
 
 
 #include "PatternTools.h"
-#include "Tree/TreeTemplateTools.h"
 
 using namespace bpp;
 
@@ -49,86 +48,6 @@ using namespace bpp;
 #include <algorithm>
 
 using namespace std;
-
-/******************************************************************************/
-
-AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node)
-{
-  size_t nbSites = sequenceSet.getNumberOfSites();
-  AlignedValuesContainer* result;
-
-  if (dynamic_cast<const SiteContainer*>(&sequenceSet))
-  {
-    const SiteContainer& sitecontainer = dynamic_cast<const SiteContainer&>(sequenceSet);
-
-    VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
-    result = sequenceSubset;
-
-    vector<const Node*> leaves = TreeTemplateTools::getLeaves(node);
-
-    for (auto i : leaves)
-    {
-      const Sequence* newSeq = 0;
-
-      if (i->hasName())
-      {
-        try
-        {
-          newSeq = &sitecontainer.getSequence(i->getName());
-          sequenceSubset->addSequence(*newSeq);
-        }
-        catch (std::exception const& e)
-        {
-          ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
-
-          BasicSequence seq(i->getName(), "", sequenceSet.getAlphabet());
-          seq.setToSizeR(nbSites);
-          SymbolListTools::changeGapsToUnknownCharacters(seq);
-          sequenceSubset->addSequence(seq);
-        }
-      }
-    }
-  }
-  else if (dynamic_cast<const VectorProbabilisticSiteContainer*>(&sequenceSet))
-  {
-    const VectorProbabilisticSiteContainer& sitecontainer = dynamic_cast<const VectorProbabilisticSiteContainer&>(sequenceSet);
-
-    VectorProbabilisticSiteContainer* sequenceSubset = new VectorProbabilisticSiteContainer(sequenceSet.getAlphabet());
-    result = sequenceSubset;
-
-    vector<const Node*> leaves = TreeTemplateTools::getLeaves(node);
-
-    for (auto i : leaves)
-    {
-      std::shared_ptr<BasicProbabilisticSequence> newSeq(0);
-
-      if (i->hasName())
-      {
-        try
-        {
-          newSeq = sitecontainer.getSequence(i->getName());
-          sequenceSubset->addSequence(newSeq);
-        }
-        catch (std::exception const& e)
-        {
-          ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
-
-          newSeq = shared_ptr<BasicProbabilisticSequence>(new BasicProbabilisticSequence(i->getName(), Table<double>(sequenceSet.getAlphabet()->getSize(), 0), sequenceSet.getAlphabet()));
-
-          newSeq->setToSizeR(nbSites);
-          SymbolListTools::changeGapsToUnknownCharacters(*newSeq);
-          sequenceSubset->addSequence(newSeq);
-        }
-      }
-    }
-  }
-  else
-    throw Exception("PatternTools::getSequenceSubset : this should not happen.");
-
-  result->setSitePositions(sequenceSet.getSitePositions());
-
-  return result;
-}
 
 /******************************************************************************/
 

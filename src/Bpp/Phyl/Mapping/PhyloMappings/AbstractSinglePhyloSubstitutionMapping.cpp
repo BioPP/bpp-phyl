@@ -1,12 +1,12 @@
 //
 // File: AbstractSinglePhyloSubstitutionMapping.cpp
 // Authors:
-//   Laurent GuÃ©guen
-// Created: mercredi 6 dÃ©cembre 2017, Ã  22h 34
+//   Laurent GuÃÂ©guen
+// Created: mercredi 6 dÃÂ©cembre 2017, ÃÂ  22h 34
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.

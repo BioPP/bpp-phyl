@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -109,12 +109,12 @@ TreeTemplate<Node>* Newick::readTree(istream& in) const
 
 /*********************************************************************************/
 
-PhyloTree* Newick::readPTree(istream& in) const
+PhyloTree* Newick::readPhyloTree(istream& in) const
 {
   // Checking the existence of specified file
   if (!in)
   {
-    throw IOException ("Newick::readPTree: failed to read from stream");
+    throw IOException ("Newick::readPhyloTree: failed to read from stream");
   }
 
   // We concatenate all line in file till we reach the ending semi colon:
@@ -172,7 +172,7 @@ void Newick::readTrees(istream& in, vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-void Newick::readTrees(istream& in, vector<PhyloTree*>& trees) const
+void Newick::readPhyloTrees(istream& in, vector<PhyloTree*>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -203,9 +203,9 @@ void Newick::readTrees(istream& in, vector<PhyloTree*>& trees) const
 
 /***************************************/
 
-AbstractITree::Element Newick::getElement(const string& elt) const
+IOTree::Element Newick::getElement(const string& elt) const
 {
-  AbstractITree::Element element;
+  IOTree::Element element;
   element.length    = ""; // default
   element.annotation = ""; // default
   element.isLeaf    = false; // default
@@ -247,7 +247,7 @@ AbstractITree::Element Newick::getElement(const string& elt) const
     {
       // This is a node:
       if (lastP < firstP)
-        throw IOException("TreeTemplateTools::getElement(). Invalid format: bad closing parenthesis in " + elt2);
+        throw IOException("Newick::getElement(). Invalid format: bad closing parenthesis in " + elt2);
       element.content = TextTools::removeSurroundingWhiteSpaces(elt2.substr(firstP + 1, lastP - firstP - 1));
       string bootstrap = TextTools::removeSurroundingWhiteSpaces(elt2.substr(lastP + 1));
       // cout << "ELEMENT: BOOTSTRAP: " << bootstrap << endl;
@@ -269,7 +269,7 @@ AbstractITree::Element Newick::getElement(const string& elt) const
 shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<PhyloNode>  father, const string& description, unsigned int& nodeCounter, bool bootstrap, const string& propertyName, bool withId, bool verbose) const
 {
 //  cout << "NODE: " << description << endl;
-  AbstractITree::Element elt = getElement(description);
+  IOTree::Element elt = getElement(description);
 
   // New node:
   std::shared_ptr<PhyloNode> node(new PhyloNode());
