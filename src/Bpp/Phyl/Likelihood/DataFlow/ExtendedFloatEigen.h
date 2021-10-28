@@ -811,16 +811,16 @@ public:
    * @brief Access to elements of the matrix
    *
    */
-  const ExtendedFloat& operator()(Eigen::Index col) const
+  const ExtendedFloat& operator()(Eigen::Index c) const
   {
-    EFtmp_.set_float_part(float_part()(col));
+    EFtmp_.set_float_part(float_part()(c));
     EFtmp_.set_exponent_part(exponent_part());
     return EFtmp_;
   }
 
-  const ExtendedFloat& operator()(Eigen::Index row, Eigen::Index col) const
+  const ExtendedFloat& operator()(Eigen::Index r, Eigen::Index c) const
   {
-    EFtmp_.set_float_part(float_part()(row, col));
+    EFtmp_.set_float_part(float_part()(r, c));
     EFtmp_.set_exponent_part(exponent_part());
     return EFtmp_;
   }

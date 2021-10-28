@@ -128,7 +128,7 @@ public:
   constexpr ExtendedFloat (FloatType f = 0.0, ExtType e = 0) noexcept : f_ (f), exp_ (e)
   {}
 
-  constexpr ExtendedFloat (const ExtendedFloat& ef) noexcept : f_ (ef.float_part()), exp_ (ef.exponent_part())
+  ExtendedFloat (const ExtendedFloat& ef) noexcept : f_ (ef.f_), exp_ (ef.exp_)
   {}
 
   const FloatType& float_part () const noexcept { return f_; }
