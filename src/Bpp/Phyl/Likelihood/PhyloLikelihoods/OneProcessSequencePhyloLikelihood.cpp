@@ -50,9 +50,7 @@ using namespace numeric;
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   Context& context,
   OneProcessSequenceEvolution& evol,
-  size_t nSeqEvol,
-  bool verbose,
-  bool patterns) :
+  size_t nSeqEvol) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   AbstractSequencePhyloLikelihood(context, evol, nSeqEvol),
@@ -73,9 +71,7 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   const AlignedValuesContainer& data,
   OneProcessSequenceEvolution& evol,
   size_t nSeqEvol,
-  size_t nData,
-  bool verbose,
-  bool patterns) :
+  size_t nData) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
   AbstractSequencePhyloLikelihood(context, evol, nData),
@@ -96,9 +92,7 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   OneProcessSequenceEvolution& evol,
   CollectionNodes& collNodes,
   size_t nSeqEvol,
-  size_t nData,
-  bool verbose,
-  bool patterns) :
+  size_t nData) :
   AbstractPhyloLikelihood(collNodes.getContext()),
   AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
   AbstractSequencePhyloLikelihood(collNodes.getContext(), evol, nData),
@@ -232,16 +226,16 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorStateFrequencies(uint nod
   VVdouble pp;
   pp.resize(nbSites);
 
-  for (auto i = 0; i < nbSites; i++)
+  for (auto i = 0; i < (uint)nbSites; i++)
   {
     copyEigenToBpp(vv.col(i) / vv.col(i).sum(), pp[size_t(i)]);
   }
 
   Vdouble v(nbStates_);
-  for (auto st = 0; st < nbStates_; st++)
+  for (auto st = 0; st < (uint)nbStates_; st++)
   {
     auto s = 0.0;
-    for (auto i = 0; i < (size_t)nbSites; i++)
+    for (auto i = 0; i < (uint)nbSites; i++)
     {
       s += pp[(size_t)i][size_t(st)];
     }

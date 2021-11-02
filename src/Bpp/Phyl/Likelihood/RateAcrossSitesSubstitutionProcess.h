@@ -57,12 +57,12 @@ class RateAcrossSitesSubstitutionProcess :
 {
 private:
   std::shared_ptr<BranchModel> model_;
-  std::unique_ptr<DiscreteDistribution> rDist_;
+  std::shared_ptr<DiscreteDistribution> rDist_;
 
 public:
   RateAcrossSitesSubstitutionProcess(
     std::shared_ptr<BranchModel> model,
-    DiscreteDistribution* rdist,
+    std::shared_ptr<DiscreteDistribution> rdist,
     ParametrizablePhyloTree* tree);
 
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp);

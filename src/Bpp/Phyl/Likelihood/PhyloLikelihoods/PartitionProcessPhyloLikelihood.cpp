@@ -52,9 +52,7 @@ using namespace bpp;
 PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   Context& context,
   PartitionSequenceEvolution& processSeqEvol,
-  size_t nSeqEvol,
-  bool verbose,
-  bool patterns) :
+  size_t nSeqEvol) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   SequencePhyloLikelihood(context, processSeqEvol, nSeqEvol),
@@ -104,9 +102,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   const AlignedValuesContainer& data,
   PartitionSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
-  size_t nData,
-  bool verbose,
-  bool patterns) :
+  size_t nData) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
   SequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
@@ -160,9 +156,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   PartitionSequenceEvolution& processSeqEvol,
   std::shared_ptr<CollectionNodes> collNodes,
   size_t nSeqEvol,
-  size_t nData,
-  bool verbose,
-  bool patterns) :
+  size_t nData) :
   AbstractPhyloLikelihood(collNodes->getContext()),
   AbstractAlignedPhyloLikelihood(collNodes->getContext(), data.getNumberOfSites()),
   SequencePhyloLikelihood(collNodes->getContext(), processSeqEvol, nSeqEvol, nData),

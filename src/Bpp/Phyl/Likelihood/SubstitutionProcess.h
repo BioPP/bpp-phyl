@@ -93,8 +93,6 @@ public:
 
   virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
 
-  // virtual const TreeTemplate<Node>& getTree() const = 0;
-
   virtual const ParametrizablePhyloTree& getParametrizablePhyloTree() const = 0;
 
   virtual size_t getNumberOfClasses() const = 0;
@@ -229,15 +227,6 @@ public:
    * @param classIndex The model class index.
    */
   virtual const Matrix<double>& getTransitionProbabilitiesD2(unsigned int nodeId, size_t classIndex) const = 0;
-
-  /**
-   * @brief Get the generator corresponding to a certain branch, and
-   * model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
-  // virtual const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const = 0;
 
   /**
    * @brief Get the values of the frequencies for each state in the

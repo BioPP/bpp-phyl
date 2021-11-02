@@ -53,12 +53,10 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   MixtureSequenceEvolution& processSeqEvol,
   CollectionNodes& collNodes,
   size_t nSeqEvol,
-  size_t nData,
-  bool verbose,
-  bool patterns) :
+  size_t nData) :
   AbstractPhyloLikelihood(collNodes.getContext()),
   AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
-  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData, verbose, patterns),
+  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData),
   mSeqEvol_(processSeqEvol),
   likCal_(new AlignedLikelihoodCalculation(collNodes.getContext()))
 {

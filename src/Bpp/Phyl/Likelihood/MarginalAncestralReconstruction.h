@@ -82,7 +82,6 @@ public:
     alphabet_        (drl->getStateMap().getAlphabet()),
     nbSites_         (drl->getNumberOfSites()),
     nbDistinctSites_ (drl->getNumberOfDistinctSites()),
-  // nbClasses_       (drl->getNumberOfClasses()),
   nbStates_        (drl->getStateMap().getNumberOfModelStates()),
   rootPatternLinks_(drl->getRootArrayPositions())
   {}
@@ -93,7 +92,6 @@ public:
     alphabet_        (masr.alphabet_),
     nbSites_         (masr.nbSites_),
     nbDistinctSites_ (masr.nbDistinctSites_),
-  // nbClasses_       (masr.nbClasses_),
   nbStates_        (masr.nbStates_),
   rootPatternLinks_(masr.rootPatternLinks_)
   {}
@@ -105,7 +103,6 @@ public:
     alphabet_         = masr.alphabet_;
     nbSites_          = masr.nbSites_;
     nbDistinctSites_  = masr.nbDistinctSites_;
-    // nbClasses_        = masr.nbClasses_;
     nbStates_         = masr.nbStates_;
     rootPatternLinks_ = masr.rootPatternLinks_;
     return *this;

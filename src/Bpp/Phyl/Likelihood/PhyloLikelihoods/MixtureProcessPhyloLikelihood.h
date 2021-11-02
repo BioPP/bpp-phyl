@@ -92,9 +92,7 @@ public:
     MixtureSequenceEvolution& processSeqEvol,
     CollectionNodes& collNodes,
     size_t nSeqEvol = 0,
-    size_t nData = 0,
-    bool verbose = true,
-    bool patterns = true);
+    size_t nData = 0);
 
   MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),

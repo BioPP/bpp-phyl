@@ -78,6 +78,8 @@ public:
   ParametrizablePhyloTree* clone() const { return new ParametrizablePhyloTree(*this); }
 
 public:
+  std::vector<std::string> getAllLeavesNames() const;
+
   const ParameterList getBranchLengthParameters(size_t nodeIndex) const
   {
     // !!!!!!!!!!!!!!!!!! TODO : not stable

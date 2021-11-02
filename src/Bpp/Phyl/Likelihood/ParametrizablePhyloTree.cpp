@@ -85,6 +85,20 @@ ParametrizablePhyloTree& ParametrizablePhyloTree::operator=(const Parametrizable
   return *this;
 }
 
+std::vector<std::string> ParametrizablePhyloTree::getAllLeavesNames() const
+{
+  vector<string> vn;
+
+  vector<shared_ptr<PhyloNode> > vpn = getAllLeaves();
+
+  for (vector<shared_ptr<PhyloNode> >::const_iterator it = vpn.begin(); it != vpn.end(); it++)
+  {
+    vn.push_back((*it)->getName());
+  }
+
+  return vn;
+}
+
 Vdouble ParametrizablePhyloTree::getBranchLengths() const
 {
   Vdouble vl;

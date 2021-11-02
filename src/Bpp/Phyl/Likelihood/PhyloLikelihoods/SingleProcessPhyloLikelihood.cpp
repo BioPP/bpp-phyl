@@ -161,13 +161,13 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
   VVdouble pp;
   pp.resize(nbSites);
 
-  for (auto i = 0; i < nbSites; i++)
+  for (auto i = 0; i < (uint)nbSites; i++)
   {
     copyEigenToBpp(vv.col(i) / vv.col(i).sum(), pp[size_t(i)]);
   }
 
   Vdouble v(nbStates_);
-  for (auto st = 0; st < nbStates_; st++)
+  for (auto st = 0; st < (uint)nbStates_; st++)
   {
     auto s = 0.0;
     for (size_t i = 0; i < (size_t)nbSites; i++)

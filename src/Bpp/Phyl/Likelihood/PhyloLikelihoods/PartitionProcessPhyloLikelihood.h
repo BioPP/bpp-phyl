@@ -103,27 +103,21 @@ public:
   PartitionProcessPhyloLikelihood(
     Context& context,
     PartitionSequenceEvolution& processSeqEvol,
-    size_t nSeqEvol = 0,
-    bool verbose = true,
-    bool patterns = true);
+    size_t nSeqEvol = 0);
 
   PartitionProcessPhyloLikelihood(
     Context& context,
     const AlignedValuesContainer& data,
     PartitionSequenceEvolution& processSeqEvol,
     size_t nSeqEvol = 0,
-    size_t nData = 0,
-    bool verbose = true,
-    bool patterns = true);
+    size_t nData = 0);
 
   PartitionProcessPhyloLikelihood(
     const AlignedValuesContainer& data,
     PartitionSequenceEvolution& processSeqEvol,
     std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol = 0,
-    size_t nData = 0,
-    bool verbose = true,
-    bool patterns = true);
+    size_t nData = 0);
 
   PartitionProcessPhyloLikelihood(const PartitionProcessPhyloLikelihood& lik) :
     AbstractPhyloLikelihood(lik),

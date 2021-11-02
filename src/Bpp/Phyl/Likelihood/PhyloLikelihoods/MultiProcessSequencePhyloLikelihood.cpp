@@ -52,9 +52,7 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
   MultiProcessSequenceEvolution& processSeqEvol,
   CollectionNodes& collNodes,
   size_t nSeqEvol,
-  size_t nData,
-  bool verbose,
-  bool patterns) :
+  size_t nData) :
   AbstractPhyloLikelihood(collNodes.getContext()),
   AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
   AbstractSequencePhyloLikelihood(collNodes.getContext(), processSeqEvol, nSeqEvol, nData),

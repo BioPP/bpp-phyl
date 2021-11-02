@@ -344,7 +344,7 @@ bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const AlignedValuesCont
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
   std::shared_ptr<BranchModel> model,
-  DiscreteDistribution* rdist,
+  std::shared_ptr<DiscreteDistribution> rdist,
   ParametrizablePhyloTree* tree,
   std::shared_ptr<FrequencySet> rootFreqs,
   shared_ptr<ModelScenario> scenario)
@@ -380,7 +380,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
   std::shared_ptr<BranchModel> model,
-  DiscreteDistribution* rdist,
+  std::shared_ptr<DiscreteDistribution> rdist,
   ParametrizablePhyloTree* tree,
   std::shared_ptr<FrequencySet> rootFreqs,
   const vector<string>& globalParameterNames,
