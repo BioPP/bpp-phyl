@@ -126,6 +126,62 @@ using namespace std;
 /*************************************************************/
 
 
+/******************************************************************************/
+
+Tree* PhylogeneticsApplicationTools::getTree(
+  const map<string, string>& params,
+  const string& prefix,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn)
+{
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
+  string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
+
+  BppOTreeReaderFormat bppoReader(warn);
+  unique_ptr<ITree> iTree(bppoReader.readITree(format));
+  if (verbose)
+  {
+    ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
+    ApplicationTools::displayResult("Input tree format " + suffix, iTree->getFormatName());
+  }
+  Tree* tree = iTree->readTree(treeFilePath);
+  return tree;
+}
+
+/******************************************************************************/
+
+vector<Tree*> PhylogeneticsApplicationTools::getTrees(
+  const map<string, string>& params,
+  const string& prefix,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn)
+{
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
+  string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
+
+  BppOMultiTreeReaderFormat bppoReader(warn);
+  unique_ptr<IMultiTree> iTrees(bppoReader.readIMultiTree(format));
+  if (verbose)
+  {
+    ApplicationTools::displayResult("Input trees file " + suffix, treeFilePath);
+    ApplicationTools::displayResult("Input trees format " + suffix, iTrees->getFormatName());
+  }
+  vector<Tree*> trees;
+  iTrees->readTrees(treeFilePath, trees);
+
+  if (verbose)
+  {
+    ApplicationTools::displayResult("Number of trees in file", trees.size());
+  }
+  return trees;
+}
+
+/******************************************************************************/
+
 map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhyloTrees(
   const map<string, string>& params,
   const map<size_t, AlignedValuesContainer*>& mSeq,
@@ -1163,7 +1219,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   // ////////////////////////
   // Rates
 
-  unique_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
+  shared_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
 
   BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
   bIO.setGeneticCode(gCode);
@@ -1183,7 +1239,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName() == "Constant")) // first test is for Markov-modulated Markov model!
       SP = new SimpleSubstitutionProcess(tmp, pTree.release());
     else
-      SP = new RateAcrossSitesSubstitutionProcess(tmp, rDist.release(), pTree.release());
+      SP = new RateAcrossSitesSubstitutionProcess(tmp, rDist, pTree.release());
   }
 
   // Non-homogeneous models
@@ -1245,7 +1301,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 
       SP = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
         tmp,
-        rDist.release(),
+        rDist,
         pTree.release(),
         rootFrequencies,
         globalParameters);
@@ -1268,7 +1324,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 
       bIO.setVerbose(true);
 
-      SP = new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release(), rootFrequencies->clone());
+      SP = new NonHomogeneousSubstitutionProcess(rDist, pTree.release(), rootFrequencies->clone());
 
       NonHomogeneousSubstitutionProcess* nhSP = dynamic_cast<NonHomogeneousSubstitutionProcess*>(SP);
 
@@ -2076,12 +2132,6 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
       ApplicationTools::displayResult(" Process ", TextTools::toString(nProcess));
 
 
-    // Compression
-
-    char compression = (args.find("compression") != args.end() && args["compression"] == "recursive") ? 'R' : 'S';
-    if (verbhere)
-      ApplicationTools::displayResult(" Compression ", (compression == 'R') ? "recursive" : "simple");
-
     // Construction
 
     if (SPC.hasSubstitutionProcessNumber(nProcess))
@@ -2097,33 +2147,33 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
       OneProcessSequenceEvolution* opse = dynamic_cast<OneProcessSequenceEvolution*>(mSeqEvol[nProcess]);
 
       if (opse != NULL)
-        nPL = new OneProcessSequencePhyloLikelihood(*data, *opse, *collNodes, nProcess, nData, true, compression == 'R');
+        nPL = new OneProcessSequencePhyloLikelihood(*data, *opse, *collNodes, nProcess, nData);
       else
       {
         MixtureSequenceEvolution* mse = dynamic_cast<MixtureSequenceEvolution*>(mSeqEvol[nProcess]);
 
         if (mse != NULL)
-          nPL = new MixtureProcessPhyloLikelihood(*data, *mse, *collNodes, nProcess, nData, true, compression == 'R');
+          nPL = new MixtureProcessPhyloLikelihood(*data, *mse, *collNodes, nProcess, nData);
 
         else
         {
           HmmSequenceEvolution* hse = dynamic_cast<HmmSequenceEvolution*>(mSeqEvol[nProcess]);
 
           if (hse != NULL)
-            nPL = new HmmProcessPhyloLikelihood(*data, *hse, *collNodes, nProcess, nData, true, compression == 'R');
+            nPL = new HmmProcessPhyloLikelihood(*data, *hse, *collNodes, nProcess, nData);
 
           else
           {
             AutoCorrelationSequenceEvolution* ase = dynamic_cast<AutoCorrelationSequenceEvolution*>(mSeqEvol[nProcess]);
 
             if (ase != NULL)
-              nPL = new AutoCorrelationProcessPhyloLikelihood(*data, *ase, *collNodes, nProcess, nData, true, compression == 'R');
+              nPL = new AutoCorrelationProcessPhyloLikelihood(*data, *ase, *collNodes, nProcess, nData);
             else
             {
               PartitionSequenceEvolution* pse = dynamic_cast<PartitionSequenceEvolution*>(mSeqEvol[nProcess]);
 
               if (pse != NULL)
-                nPL = new PartitionProcessPhyloLikelihood(*data, *pse, collNodes, nProcess, nData, true, compression == 'R');
+                nPL = new PartitionProcessPhyloLikelihood(*data, *pse, collNodes, nProcess, nData);
 
               else
                 throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Sequence Evolution.");
@@ -2881,8 +2931,37 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
 /**************** Output ************************************/
 /******************************************************************************/
 
+void PhylogeneticsApplicationTools::writeTree(
+  const TreeTemplate<Node>& tree,
+  const map<string, string>& params,
+  const string& prefix,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  bool checkOnly,
+  int warn)
+{
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
+  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional, "none", warn);
+  OTree* treeWriter;
+  if (format == "Newick")
+    treeWriter = new Newick();
+  else if (format == "Nexus")
+    treeWriter = new NexusIOTree();
+  else if (format == "NHX")
+    treeWriter = new Nhx(false);
+  else
+    throw Exception("Unknown format for tree writing: " + format);
+  if (!checkOnly)
+    treeWriter->writeTree(tree, file, true);
+  delete treeWriter;
+  if (verbose)
+    ApplicationTools::displayResult("Wrote tree to file ", file);
+}
 
-void PhylogeneticsApplicationTools::writeTrees(
+/******************************************************************************/
+
+void PhylogeneticsApplicationTools::writePhyloTrees(
   const vector<const PhyloTree*>& trees,
   const map<string, string>& params,
   const string& prefix,
@@ -2915,7 +2994,9 @@ void PhylogeneticsApplicationTools::writeTrees(
   delete treeWriter;
 }
 
-void PhylogeneticsApplicationTools::writeTrees(
+/******************************************************************************/
+
+void PhylogeneticsApplicationTools::writePhyloTrees(
   const SubstitutionProcessCollection& spc,
   const map<string, string>& params,
   const string& prefix,
