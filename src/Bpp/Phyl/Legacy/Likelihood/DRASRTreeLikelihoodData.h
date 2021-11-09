@@ -294,7 +294,7 @@ protected:
    * @param model     The model to use.
    * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
    */
-  virtual SitePatterns* initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model);
+  virtual std::shared_ptr<SitePatterns> initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_DRASRTREELIKELIHOODDATA_H

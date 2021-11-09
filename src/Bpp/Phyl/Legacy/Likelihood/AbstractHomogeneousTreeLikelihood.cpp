@@ -41,7 +41,7 @@
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/TextTools.h>
 
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "AbstractHomogeneousTreeLikelihood.h"
 
 // From bpp-seq:

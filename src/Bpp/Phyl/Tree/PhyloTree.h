@@ -45,6 +45,7 @@
 
 #include "PhyloBranch.h"
 #include "PhyloNode.h"
+#include "TreeTemplate.h"
 
 namespace bpp
 {
@@ -165,6 +166,15 @@ public:
    */
 
   PhyloTree& operator*=(const PhyloTree& phylotree);
+
+  /**
+   * @brief Concatenate the subtree under a Node (in a
+   * TreeTemplate<Node>) to this PhyloTree, under the given phylonode.
+   *
+   */
+  
+  void addSubTree(std::shared_ptr<PhyloNode> phyloNode, const Node& node);
 };
 }
+
 #endif // BPP_PHYL_TREE_PHYLOTREE_H

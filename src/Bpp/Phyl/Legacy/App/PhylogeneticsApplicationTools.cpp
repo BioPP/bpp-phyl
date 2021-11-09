@@ -99,60 +99,6 @@ using namespace std;
 
 /******************************************************************************/
 
-Tree* PhylogeneticsApplicationToolsOld::getTree(
-  const map<string, string>& params,
-  const string& prefix,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
-{
-  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
-  string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
-
-  BppOTreeReaderFormat bppoReader(warn);
-  unique_ptr<ITree> iTree(bppoReader.readITree(format));
-  if (verbose)
-  {
-    ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
-    ApplicationTools::displayResult("Input tree format " + suffix, iTree->getFormatName());
-  }
-  Tree* tree = iTree->readTree(treeFilePath);
-  return tree;
-}
-
-/******************************************************************************/
-
-vector<Tree*> PhylogeneticsApplicationToolsOld::getTrees(
-  const map<string, string>& params,
-  const string& prefix,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
-{
-  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
-  string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
-
-  BppOMultiTreeReaderFormat bppoReader(warn);
-  unique_ptr<IMultiTree> iTrees(bppoReader.readIMultiTree(format));
-  if (verbose)
-  {
-    ApplicationTools::displayResult("Input trees file " + suffix, treeFilePath);
-    ApplicationTools::displayResult("Input trees format " + suffix, iTrees->getFormatName());
-  }
-  vector<Tree*> trees;
-  iTrees->readTrees(treeFilePath, trees);
-
-  if (verbose)
-  {
-    ApplicationTools::displayResult("Number of trees in file", trees.size());
-  }
-  return trees;
-}
-
-/******************************************************************************/
-
 
 map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
   const map<string, string>& params,
@@ -1381,36 +1327,6 @@ void PhylogeneticsApplicationToolsOld::optimizeParameters(
 
 /******************************************************************************/
 /**************** Output ************************************/
-/******************************************************************************/
-
-void PhylogeneticsApplicationToolsOld::writeTree(
-  const TreeTemplate<Node>& tree,
-  const map<string, string>& params,
-  const string& prefix,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  bool checkOnly,
-  int warn)
-{
-  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
-  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional, "none", warn);
-  OTree* treeWriter;
-  if (format == "Newick")
-    treeWriter = new Newick();
-  else if (format == "Nexus")
-    treeWriter = new NexusIOTree();
-  else if (format == "NHX")
-    treeWriter = new Nhx(false);
-  else
-    throw Exception("Unknown format for tree writing: " + format);
-  if (!checkOnly)
-    treeWriter->writeTree(tree, file, true);
-  delete treeWriter;
-  if (verbose)
-    ApplicationTools::displayResult("Wrote tree to file ", file);
-}
-
 /******************************************************************************/
 
 void PhylogeneticsApplicationToolsOld::writeTrees(

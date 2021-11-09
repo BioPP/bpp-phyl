@@ -44,6 +44,7 @@
 #include <Bpp/Numeric/VectorTools.h>
 
 #include "Tree/PhyloTree.h"
+#include "Tree/TreeTemplateTools.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -78,6 +79,17 @@ public:
 
   template<class N, class E, class I>
   static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N, E, I>& tree);
+
+  /**
+   * @brief Extract the sequences corresponding to a given subtree.
+   *
+   * @param sequenceSet The container to look in.
+   * @param node        The root node of the subtree to check.
+   * @return A new site container with corresponding sequences.
+   * @throw Exception if an error occured.
+   */
+
+  static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node);
 
   /**
    * @brief Extract the sequences corresponding to a given set of names.

@@ -52,7 +52,7 @@ using namespace std;
 
 /******************************************************************************/
 
-SitePatterns::SitePatterns(const AlignedValuesContainer* sequences, bool own) :
+SitePatterns::SitePatterns(const AlignedValuesContainer* sequences , bool own) :
   names_(sequences->getSequencesNames()),
   sites_(),
   weights_(),
@@ -60,11 +60,58 @@ SitePatterns::SitePatterns(const AlignedValuesContainer* sequences, bool own) :
   alpha_(sequences->getAlphabet()),
   own_(own)
 {
+  init_(sequences, names_);
+}
+  
+SitePatterns::SitePatterns(const AlignedValuesContainer* sequences , std::vector<std::string> names) :
+  names_(),
+  sites_(),
+  weights_(),
+  indices_(),
+  alpha_(sequences->getAlphabet()),
+  own_(false)
+{
+  names_=sequences->getSequencesNames();
+  if (names.size()!=0)
+    names_=VectorTools::vectorIntersection(names_, names);
+  init_(sequences, names_);
+}
+
+void SitePatterns::init_(const AlignedValuesContainer* sequences , std::vector<std::string> names)
+{
+  // positions of the names in sequences list
+  std::vector<size_t> posseq;
+  for (const auto& n:names)
+    posseq.push_back(sequences->getSequencePosition(n));
+
+  int nbSeq = (int)sequences->getNumberOfSequences();
+  std::vector<size_t> posnseq;
+
+  std::stable_sort(posseq.begin(), posseq.end());
+  for (int i = nbSeq-1; i >= 0; i--)
+  {
+    if (!std::binary_search(posseq.begin(), posseq.end(), i))
+      posnseq.push_back((size_t)i);
+  }
+
+  own_ = own_ || (posnseq.size()!=0); // New ownership only if different Sites, ie not all sequences
+
+  // Then build Sortable sites with correct sequences
   size_t nbSites = sequences->getNumberOfSites();
+
   vector<SortableSite> ss(nbSites);
   for (size_t i = 0; i < nbSites; i++)
   {
-    const CruxSymbolListSite* currentSite = own ? sequences->getSymbolListSite(i).clone() : &sequences->getSymbolListSite(i);
+    const CruxSymbolListSite* currentSite;
+    if (own_)
+    {      
+      CruxSymbolListSite* currentSitetmp = sequences->getSymbolListSite(i).clone();
+      for (auto pos:posnseq)
+        currentSitetmp->deleteElement(pos);
+      currentSite = currentSitetmp;
+    }
+    else
+      currentSite = &sequences->getSymbolListSite(i);
 
     SortableSite* ssi = &ss[i];
     ssi->siteS = currentSite->toString();
@@ -96,15 +143,17 @@ SitePatterns::SitePatterns(const AlignedValuesContainer* sequences, bool own) :
       if (siteExists)
       {
         weights_[currentPos]++;
+        if (own_)
+          delete currentSite;
       }
       else
       {
         sites_.push_back(currentSite);
         weights_.push_back(1);
         currentPos++;
+        previousSite = currentSite;
       }
       indices_[Eigen::Index(ssi->originalPosition)] = currentPos;
-      previousSite = currentSite;
     }
   }
 }
@@ -124,7 +173,9 @@ std::shared_ptr<AlignedValuesContainer> SitePatterns::getSites() const
     sites = new VectorProbabilisticSiteContainer(sites_, alpha_);
 
   sites->setSequencesNames(names_, false);
-  return std::shared_ptr<AlignedValuesContainer>(sites);
+
+  auto ret= std::shared_ptr<AlignedValuesContainer>(sites);
+  return ret;
 }
 
 /******************************************************************************/

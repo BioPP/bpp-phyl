@@ -52,6 +52,7 @@
 #include "Io/Newick.h"
 #include "OptimizationTools.h"
 #include "PseudoNewtonOptimizer.h"
+#include "Tree/PhyloTreeTools.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Io/Fasta.h>
@@ -362,3 +363,182 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
 
 
+/******************************************************************************/
+
+std::string OptimizationTools::DISTANCEMETHOD_INIT       = "init";
+std::string OptimizationTools::DISTANCEMETHOD_PAIRWISE   = "pairwise";
+std::string OptimizationTools::DISTANCEMETHOD_ITERATIONS = "iterations";
+
+/******************************************************************************/
+
+DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
+  DistanceEstimation& estimationMethod,
+  const ParameterList& parametersToIgnore,
+  const std::string& param,
+  unsigned int verbose)
+{
+  if (param != DISTANCEMETHOD_PAIRWISE && param != DISTANCEMETHOD_INIT)
+    throw Exception("OptimizationTools::estimateDistanceMatrix. Invalid option param=" + param + ".");
+  estimationMethod.resetAdditionalParameters();
+  estimationMethod.setVerbose(verbose);
+  if (param == DISTANCEMETHOD_PAIRWISE)
+  {
+    ParameterList tmp = estimationMethod.getModel().getIndependentParameters();
+    tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
+    tmp.deleteParameters(parametersToIgnore.getParameterNames());
+    estimationMethod.setAdditionalParameters(tmp);
+  }
+  // Compute matrice:
+  if (verbose > 0)
+    ApplicationTools::displayTask("Estimating distance matrix", true);
+  estimationMethod.computeMatrix();
+  unique_ptr<DistanceMatrix> matrix(estimationMethod.getMatrix());
+  if (verbose > 0)
+    ApplicationTools::displayTaskDone();
+
+  return matrix.release();
+}
+
+/******************************************************************************/
+
+TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
+  DistanceEstimation& estimationMethod,
+  AgglomerativeDistanceMethod& reconstructionMethod,
+  const ParameterList& parametersToIgnore,
+  bool optimizeBrLen,
+  const std::string& param,
+  double tolerance,
+  unsigned int tlEvalMax,
+  OutputStream* profiler,
+  OutputStream* messenger,
+  unsigned int verbose)
+{
+  estimationMethod.resetAdditionalParameters();
+  estimationMethod.setVerbose(verbose);
+  if (param == DISTANCEMETHOD_PAIRWISE)
+  {
+    ParameterList tmp = estimationMethod.getModel().getIndependentParameters();
+    tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
+    tmp.deleteParameters(parametersToIgnore.getParameterNames());
+    estimationMethod.setAdditionalParameters(tmp);
+  }
+  TreeTemplate<Node>* tree = NULL;
+  TreeTemplate<Node>* previousTree = NULL;
+  bool test = true;
+  while (test)
+  {
+    // Compute matrice:
+    if (verbose > 0)
+      ApplicationTools::displayTask("Estimating distance matrix", true);
+    estimationMethod.computeMatrix();
+    DistanceMatrix* matrix = estimationMethod.getMatrix();
+    if (verbose > 0)
+      ApplicationTools::displayTaskDone();
+
+    // Compute tree:
+    if (matrix->size() == 2)
+    {
+      // Special case, there is only one possible tree:
+      Node* n1 = new Node(0);
+      Node* n2 = new Node(1, matrix->getName(0));
+      n2->setDistanceToFather((*matrix)(0, 0) / 2.);
+      Node* n3 = new Node(2, matrix->getName(1));
+      n3->setDistanceToFather((*matrix)(0, 0) / 2.);
+      n1->addSon(n2);
+      n1->addSon(n3);
+      tree = new TreeTemplate<Node>(n1);
+      break;
+    }
+    /* For future integration
+       shared_ptr<PhyloTree> tree;
+       shared_ptr<PhyloTree> previousTree;
+       bool test = true;
+       while (test)
+       {
+       // Compute matrice:
+       if (verbose > 0) 
+       ApplicationTools::displayTask("Estimating distance matrix", true);
+       estimationMethod.computeMatrix();
+       DistanceMatrix* matrix = estimationMethod.getMatrix();
+       if (verbose > 0)
+       ApplicationTools::displayTaskDone();
+       
+       // Compute tree:
+       if (matrix->size() == 2)
+       {
+       // Special case, there is only one possible tree:
+       auto root=std::make_shared<PhyloNode>();
+       tree.createNode(root);
+       tree.setNodeIndex(root, 0);
+       auto n1=std::make_shared<PhyloNode>(matrix->getName(0));
+       auto n2=std::make_shared<PhyloNode>(matrix->getName(1));
+       auto branch1=shared_ptr<PhyloBranch> ((*matrix)(0, 0) / 2.);
+       auto branch2=shared_ptr<PhyloBranch> ((*matrix)(0, 0) / 2.);
+       tree.createNode(root, n1, branch1);
+       tree.createNode(root, n2, branch2);
+       tree.setNodeIndex(n1, 1);
+       tree.setNodeIndex(n2, 2);
+       break;
+       }
+    */
+    if (verbose > 0)
+      ApplicationTools::displayTask("Building tree");
+    reconstructionMethod.setDistanceMatrix(*matrix);
+    reconstructionMethod.computeTree();
+    previousTree = tree;
+    delete matrix;
+
+    tree = dynamic_cast<TreeTemplate<Node>*>(reconstructionMethod.getTree());
+    if (verbose > 0)
+      ApplicationTools::displayTaskDone();
+    if (previousTree && verbose > 0)
+    {
+      int rf = TreeTools::robinsonFouldsDistance(*previousTree, *tree, false);
+      ApplicationTools::displayResult("Topo. distance with previous iteration", TextTools::toString(rf));
+      test = (rf == 0);
+      delete previousTree;
+    }
+    if (param != DISTANCEMETHOD_ITERATIONS)
+      break;                              // Ends here.
+
+    // Now, re-estimate parameters:
+    Context context;
+  
+    std::shared_ptr<BranchModel> model(estimationMethod.getModel().clone());
+    std::shared_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
+    auto phyloT = PhyloTreeTools::buildFromTreeTemplate(*tree);
+    ParametrizablePhyloTree partree(phyloT.get());
+
+    auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, &partree);
+      
+    auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context,
+                                                                    *estimationMethod.getData(), *process);
+
+    SingleProcessPhyloLikelihood tl(context, lik);
+
+    ParameterList parameters = tl.getParameters();
+    if (!optimizeBrLen)
+    {
+      vector<string> vs = tl.getBranchLengthParameters().getParameterNames();
+      parameters.deleteParameters(vs);
+    }
+    parameters.deleteParameters(parametersToIgnore.getParameterNames());
+    optimizeNumericalParameters(&tl, parameters, NULL, 0, tolerance, tlEvalMax, messenger, profiler, verbose > 0 ? verbose - 1 : 0);
+    if (verbose > 0)
+    {
+      ParameterList tmp = tl.getSubstitutionModelParameters();
+      for (unsigned int i = 0; i < tmp.size(); i++)
+      {
+        ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
+      }
+      tmp = tl.getRateDistributionParameters();
+      for (unsigned int i = 0; i < tmp.size(); i++)
+      {
+        ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
+      }
+    }
+  }
+  return tree;
+}
+
+/******************************************************************************/

@@ -97,7 +97,7 @@ int main() {
   /////////////////////////////////////////
   // First Process
 
-  NonHomogeneousSubstitutionProcess* subPro1=new NonHomogeneousSubstitutionProcess(rdist1->clone(), parTree1->clone());
+  NonHomogeneousSubstitutionProcess* subPro1=new NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>(rdist1->clone()), parTree1->clone());
 
   Vuint vP1m1{0, 3, 4};
   Vuint vP1m2{1, 2, 5};
@@ -108,7 +108,7 @@ int main() {
   ///////////////////////////////////////////
   // Second Process
 
-  NonHomogeneousSubstitutionProcess* subPro2= new NonHomogeneousSubstitutionProcess(rdist2->clone(), parTree2->clone(), rootFreqs->clone());
+  NonHomogeneousSubstitutionProcess* subPro2= new NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>(rdist2->clone()), parTree2->clone(), rootFreqs->clone());
   
   Vuint vP2m1{0, 1, 3};
   Vuint vP2m2{2, 4, 5};

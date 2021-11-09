@@ -99,15 +99,6 @@ public:
     virtual ~SortableSite() {}
   };
 
-  ///**
-  // * @brief Class used for site pattern sorting.
-  // */
-  // struct SSComparator :
-  //  std::binary_function<SortableSite, SortableSite, bool>
-  // {
-  //  bool operator()(const SortableSite& ss1, const SortableSite& ss2) const { return ss1.siteS < ss2.siteS; }
-  // };
-
 private:
   std::vector<std::string> names_;
   std::vector<const CruxSymbolListSite* > sites_;
@@ -123,12 +114,34 @@ public:
    * Look for patterns (unique sites) within a site container.
    *
    * @param sequences The container to look in.
-   * @param own       Tel is the class own the sequence container.
-   * If yes, the sequences wll be deleted together with this instance.
+   * @param names The vector of the names of the sequences that are
+   * effectively used in the computation. If not empty, the sites are
+   * filtered with the sequences names and belong to the sequences will
+   * be deleted together with this instance.
    */
-  SitePatterns(const AlignedValuesContainer* sequences, bool own = false);
+  
+  SitePatterns(const AlignedValuesContainer* sequences, std::vector<std::string> names= {});
 
-  virtual ~SitePatterns()
+  /**
+   * @brief Build a new SitePattern object.
+   *
+   * Look for patterns (unique sites) within a site container.
+   *
+   * @param sequences The container to look in.   
+   * @param own if the SitePatterns will own the sites of the
+   * sequences. In which case the sites will be deleted together with
+   * this instance.
+   */
+  
+  SitePatterns(const AlignedValuesContainer* sequences, bool own);
+
+private:
+  void init_(const AlignedValuesContainer* sequences, std::vector<std::string> names= {});
+
+  
+public:
+  
+  ~SitePatterns()
   {
     if (own_)
       for (auto si : sites_)

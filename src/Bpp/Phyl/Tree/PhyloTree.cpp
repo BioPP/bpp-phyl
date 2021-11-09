@@ -195,3 +195,37 @@ PhyloTree& PhyloTree::operator*=(const PhyloTree& phylotree)
 
   return *this;
 }
+
+void PhyloTree::addSubTree(std::shared_ptr<PhyloNode> phyloNode, const Node& node)
+{
+  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
+  {
+    const Node& fils=*node[i];
+
+    // the son
+    auto soni=std::make_shared<PhyloNode>(fils.hasName()?fils.getName():"");
+    setNodeIndex(soni, (uint)fils.getId());
+
+    auto propi = fils.getNodePropertyNames();
+    for (const auto& prop:propi)
+      soni->setProperty(prop, *fils.getNodeProperty(prop));
+
+    auto branchi=std::make_shared<PhyloBranch> ();
+    if (fils.hasDistanceToFather())
+      branchi->setLength(fils.getDistanceToFather());
+    setEdgeIndex(branchi, (uint)fils.getId());
+
+    // the branch to the son
+    propi = fils.getBranchPropertyNames();
+    for (const auto& prop:propi)
+      branchi->setProperty(prop, *fils.getBranchProperty(prop));
+
+    // the link
+    createNode(phyloNode, soni, branchi);
+
+    // recrusion
+    addSubTree(soni, fils);
+  }
+}
+
+

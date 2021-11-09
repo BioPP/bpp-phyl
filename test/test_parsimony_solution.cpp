@@ -82,7 +82,7 @@ int main() {
         // make sure the score is 3
         if (mpData->getScore() != 3)
         {
-            cerr << "Error! The compated maximum parsminoy score is incorrect" << endl;
+            cerr << "Error! The compacted maximum parsimony score is incorrect" << endl;
             return 1;
         }
 

@@ -39,7 +39,7 @@
 */
 
 
-#include "../../Io/PhylipDistanceMatrixFormat.h"
+#include "PhylipDistanceMatrixFormat.h"
 #include "IoDistanceMatrixFactory.h"
 
 using namespace bpp;

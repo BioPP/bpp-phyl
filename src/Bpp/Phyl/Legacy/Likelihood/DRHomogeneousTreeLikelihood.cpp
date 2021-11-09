@@ -39,7 +39,7 @@
 */
 
 
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "DRHomogeneousTreeLikelihood.h"
 
 // From SeqLib:
@@ -136,7 +136,7 @@ void DRHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites)
 {
   if (data_)
     delete data_;
-  data_ = PatternToolsOld::getSequenceSubset(sites, *tree_->getRootNode());
+  data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(*data_, *model_);

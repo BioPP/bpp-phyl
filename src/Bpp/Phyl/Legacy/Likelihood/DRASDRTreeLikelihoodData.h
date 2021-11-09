@@ -44,7 +44,7 @@
 
 #include "../../Model/SubstitutionModel.h"
 #include "../../SitePatterns.h"
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "AbstractTreeLikelihoodData.h"
 
 // From SeqLib:

@@ -39,8 +39,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_PHYL_LEGACY_DISTANCE_DISTANCEESTIMATION_H
-#define BPP_PHYL_LEGACY_DISTANCE_DISTANCEESTIMATION_H
+#ifndef BPP_PHYL_DISTANCE_DISTANCEESTIMATION_H
+#define BPP_PHYL_DISTANCE_DISTANCEESTIMATION_H
 
 #include <Bpp/Clonable.h>
 #include <Bpp/Numeric/Function/MetaOptimizer.h>
@@ -49,10 +49,10 @@
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include "../../Model/SubstitutionModel.h"
-#include "../../PseudoNewtonOptimizer.h"
-#include "../Likelihood/AbstractTreeLikelihood.h"
-#include "../Likelihood/DRHomogeneousTreeLikelihood.h"
+#include "../Model/SubstitutionModel.h"
+#include "../PseudoNewtonOptimizer.h"
+#include "../Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
+#include "../Likelihood/RateAcrossSitesSubstitutionProcess.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
@@ -62,251 +62,14 @@
 
 namespace bpp
 {
-/**
- * @brief This class is a simplified version of DRHomogeneousTreeLikelihood for 2-Trees.
- */
-class TwoTreeLikelihood :
-  public AbstractDiscreteRatesAcrossSitesTreeLikelihood
-{
-private:
-  std::shared_ptr<AlignedValuesContainer> shrunkData_;
-  std::vector<std::string> seqnames_;
-  TransitionModel* model_;
-  ParameterList brLenParameters_;
-
-  mutable VVVdouble pxy_;
-
-  mutable VVVdouble dpxy_;
-
-  mutable VVVdouble d2pxy_;
-
-  /**
-   * @brief As previous, but for the global container.
-   *
-   * The size of this vector is equal to the number of sites in the container,
-   * each element corresponds to a site in the container and points to the
-   * corresponding column in the likelihood array of the root node.
-   * If the container contains no repeated site, there will be a strict
-   * equivalence between each site and the likelihood array of the root node.
-   * However, if this is not the case, some pointers may point toward the same
-   * element in the likelihood array.
-   */
-  std::vector<size_t> rootPatternLinks_;
-
-  /**
-   * @brief The frequency of each site.
-   */
-  std::vector<unsigned int> rootWeights_;
-
-  // some values we'll need:
-  size_t nbSites_,         // the number of sites in the container
-         nbClasses_,       // the number of rate classes
-         nbStates_,        // the number of states in the alphabet
-         nbDistinctSites_; // the number of distinct sites in the container
-
-  mutable VVVdouble rootLikelihoods_;
-  mutable VVdouble rootLikelihoodsS_;
-  mutable Vdouble rootLikelihoodsSR_;
-  mutable Vdouble dLikelihoods_;
-  mutable Vdouble d2Likelihoods_;
-  mutable VVdouble leafLikelihoods1_, leafLikelihoods2_;
-
-  double minimumBrLen_;
-  std::shared_ptr<Constraint> brLenConstraint_;
-  double brLen_;
-
-public:
-  TwoTreeLikelihood(
-    const std::string& seq1, const std::string& seq2,
-    const AlignedValuesContainer& data,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
-    bool verbose);
-
-  TwoTreeLikelihood(const TwoTreeLikelihood& lik);
-
-  TwoTreeLikelihood& operator=(const TwoTreeLikelihood& lik);
-
-  TwoTreeLikelihood* clone() const { return new TwoTreeLikelihood(*this); }
-
-  virtual ~TwoTreeLikelihood();
-
-public:
-  /**
-   * @name The TreeLikelihood interface.
-   *
-   * Other methods are implemented in the AbstractTreeLikelihood class.
-   *
-   * @{
-   */
-  size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
-
-  const std::vector<int>& getAlphabetStates() const { return model_->getAlphabetStates(); }
-
-  int getAlphabetStateAsInt(size_t i) const { return model_->getAlphabetStateAsInt(i); }
-
-  std::string getAlphabetStateAsChar(size_t i) const { return model_->getAlphabetStateAsChar(i); }
-
-  TreeLikelihoodData* getLikelihoodData()
-  {
-    throw NotImplementedException("TwoTreeLikelihood::getLikelihoodData.");
-  }
-  const TreeLikelihoodData* getLikelihoodData() const
-  {
-    throw NotImplementedException("TwoTreeLikelihood::getLikelihoodData.");
-  }
-  double getLikelihood() const;
-  double getLogLikelihood() const;
-  double getLikelihoodForASite (size_t site) const;
-  double getLogLikelihoodForASite(size_t site) const;
-  ParameterList getBranchLengthsParameters() const;
-  ParameterList getSubstitutionModelParameters() const;
-
-  TransitionModel* getModelForSite(int nodeId, size_t siteIndex) { return model_; }
-
-  const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const { return model_; }
-
-  const std::vector<double>& getRootFrequencies(size_t siteIndex) const { return model_->getFrequencies(); }
-  size_t getSiteIndex(size_t site) const { return rootPatternLinks_[site]; }
-  /**
-   * @brief This method is not applicable for this object.
-   */
-  VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const { return pxy_; }
-  void setData(const AlignedValuesContainer& sites) {}
-  void initialize();
-  /** @} */
-
-  /**
-   * @name The DiscreteRatesAcrossSites interface implementation:
-   *
-   * @{
-   */
-  double getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
-  double getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
-  double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
-  double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
-  /** @} */
-
-  const TransitionModel* getModel() const { return model_; }
-
-  /**
-   * @brief Get the substitution model used for the computation.
-   *
-   * @return A pointer toward the substitution model of this instance.
-   */
-  TransitionModel* getModel() { return model_; }
-
-  ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
-  {
-    throw NotImplementedException("TwoTreeLikelihood::getNewBranchSiteModelIterator. This class does not (yet) provide support for partition models.");
-  }
-
-  ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const
-  {
-    throw NotImplementedException("TwoTreeLikelihood::getNewSiteModelIterator. This class is for inner use only and does not provide site model iterators.");
-  }
-
-
-  /**
-   * @brief Implements the Function interface.
-   *
-   * Update the parameter list and call the applyParameters() method.
-   * Then compute the likelihoods at each node (computeLikelihood() method)
-   * and call the getLogLikelihood() method.
-   *
-   * If a subset of the whole parameter list is passed to the function,
-   * only these parameters are updated and the other remain constant (i.e.
-   * equal to their last value).
-   *
-   * @param parameters The parameter list to pass to the function.
-   */
-  void setParameters(const ParameterList& parameters);
-  double getValue() const;
-
-  /**
-   * @name DerivableFirstOrder interface.
-   *
-   * @{
-   */
-  double getFirstOrderDerivative(const std::string& variable) const;
-  /** @{ */
-
-  /**
-   * @name DerivableSecondOrder interface.
-   *
-   * @{
-   */
-  double getSecondOrderDerivative(const std::string& variable) const;
-  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return 0; } // Not implemented for now.
-  /** @} */
-
-  virtual void initBranchLengthsParameters();
-
-  virtual void setMinimumBranchLength(double minimum)
-  {
-    minimumBrLen_ = minimum;
-    brLenConstraint_ = std::make_shared<IntervalConstraint>(IntervalConstraint(1, minimumBrLen_, true));
-    initBranchLengthsParameters();
-  }
-
-  virtual double getMinimumBranchLength() const { return minimumBrLen_; }
-
-protected:
-  /**
-   * @brief This method initializes the leaves according to a sequence container.
-   *
-   * Here the container shrunkData_ is used.
-   * Likelihood is set to 1 for the state corresponding to the sequence site,
-   * otherwise it is set to 0.
-   *
-   * The two likelihood arrays are initialized according to alphabet
-   * size and sequences length, and filled with 1.
-   *
-   * NB: This method is recursive.
-   *
-   * @param sequences The sequence container to use.
-   */
-  virtual void initTreeLikelihoods(const SequencedValuesContainer& sequences);
-
-  void fireParameterChanged(const ParameterList& params);
-  virtual void computeTreeLikelihood();
-  virtual void computeTreeDLikelihood();
-  virtual void computeTreeD2Likelihood();
-  /**
-   * @brief This builds the <i>parameters</i> list from all parametrizable objects,
-   * <i>i.e.</i> substitution model, rate distribution and tree.
-   */
-  virtual void initParameters();
-
-  /**
-   * @brief All parameters are stores in a parameter list.
-   *
-   * This function apply these parameters to the substitution model,
-   * to the rate distribution and to the branch lengths.
-   */
-  virtual void applyParameters();
-};
-
-/**
- * @brief Estimate a distance matrix from sequence data, according to a given model.
- *
- * By default, the parameters of the model are fixed to there given values.
- * It is possible to estimate one or several parameters by setting them with the
- * setAdditionalParameters() method.
- * Parameters will be estimated separately for each pair of sequence.
- *
- * For now it is not possible to retrieve estimated values.
- * You'll have to specify a 'profiler' to the optimizer and then look at the file
- * if you want to do so.
- */
-class DistanceEstimation :
+  class DistanceEstimation :
   public virtual Clonable
 {
 private:
-  std::unique_ptr<TransitionModel> model_;
-  std::unique_ptr<DiscreteDistribution> rateDist_;
+  std::shared_ptr<BranchModel> model_;
+  std::shared_ptr<DiscreteDistribution> rateDist_;
   const AlignedValuesContainer* sites_;
-  DistanceMatrix* dist_;
+  std::shared_ptr<DistanceMatrix> dist_;
   Optimizer* optimizer_;
   MetaOptimizer* defaultOptimizer_;
   size_t verbose_;
@@ -397,7 +160,7 @@ public:
     parameters_(distanceEstimation.parameters_)
   {
     if (distanceEstimation.dist_ != 0)
-      dist_ = new DistanceMatrix(*distanceEstimation.dist_);
+      dist_ = std::make_shared<DistanceMatrix>(*distanceEstimation.dist_);
     else
       dist_ = 0;
   }
@@ -416,7 +179,7 @@ public:
     rateDist_.reset(distanceEstimation.rateDist_->clone());
     sites_      = distanceEstimation.sites_;
     if (distanceEstimation.dist_ != 0)
-      dist_     = new DistanceMatrix(*distanceEstimation.dist_);
+      dist_     = std::make_shared<DistanceMatrix>(*distanceEstimation.dist_);
     else
       dist_     = 0;
     optimizer_  = dynamic_cast<Optimizer*>(distanceEstimation.optimizer_->clone());
@@ -428,7 +191,6 @@ public:
 
   virtual ~DistanceEstimation()
   {
-    if (dist_) delete dist_;
     delete defaultOptimizer_;
     delete optimizer_;
   }
@@ -440,11 +202,13 @@ private:
   {
     MetaOptimizerInfos* desc = new MetaOptimizerInfos();
     std::vector<std::string> name;
-    name.push_back("BrLen");
+    name.push_back("BrLen0");
+    name.push_back("BrLen1");
     desc->addOptimizer("Branch length", new PseudoNewtonOptimizer(0), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
     ParameterList tmp = model_->getParameters();
     tmp.addParameters(rateDist_->getParameters());
     desc->addOptimizer("substitution model and rate distribution", new SimpleMultiDimensions(0), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+
     defaultOptimizer_ = new MetaOptimizer(0, desc);
     defaultOptimizer_->setMessageHandler(0);
     defaultOptimizer_->setProfiler(0);
@@ -468,11 +232,12 @@ public:
    *
    * @return A pointer toward the computed distance matrix.
    */
+  
   DistanceMatrix* getMatrix() const { return dist_ == 0 ? 0 : new DistanceMatrix(*dist_); }
 
   bool hasModel() const { return model_.get(); }
 
-  const TransitionModel& getModel() const
+  const BranchModel& getModel() const
   {
     if (hasModel())
       return *model_;
@@ -537,4 +302,4 @@ public:
   size_t getVerbose() const { return verbose_; }
 };
 } // end of namespace bpp.
-#endif // BPP_PHYL_LEGACY_DISTANCE_DISTANCEESTIMATION_H
+#endif // BPP_PHYL_DISTANCE_DISTANCEESTIMATION_H

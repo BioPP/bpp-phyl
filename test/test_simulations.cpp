@@ -68,7 +68,7 @@ int main() {
 
   NucleicAlphabet* alphabet = new DNA();
   auto model = std::make_shared<T92>(alphabet, 3.);
-  DiscreteDistribution* rdist = new ConstantRateDistribution();
+  auto rdist = std::make_shared<ConstantRateDistribution>();
   auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
   std::vector<std::string> globalParameterNames({"T92.kappa"});
 
@@ -183,7 +183,5 @@ int main() {
   
   delete partree;
   delete alphabet;
-  delete rdist;
-
   return 0;
 }

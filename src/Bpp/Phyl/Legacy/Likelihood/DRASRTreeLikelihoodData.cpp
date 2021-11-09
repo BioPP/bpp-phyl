@@ -39,7 +39,7 @@
 */
 
 
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "DRASRTreeLikelihoodData.h"
 
 // From SeqLib:
@@ -67,11 +67,11 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
   alphabet_ = sites.getAlphabet();
   nbStates_ = model.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
-  unique_ptr<SitePatterns> patterns;
+  shared_ptr<SitePatterns> patterns;
 
   if (usePatterns_)
   {
-    patterns.reset(initLikelihoodsWithPatterns(tree_->getRootNode(), sites, model));
+    patterns = initLikelihoodsWithPatterns(tree_->getRootNode(), sites, model);
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_.resize((size_t)patterns->getIndices().size());
@@ -80,8 +80,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
   }
   else
   {
-    patterns.reset(new SitePatterns(&sites));
-
+    patterns = std::make_shared<SitePatterns>(&sites);
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_.resize(size_t(patterns->getIndices().size()));
@@ -189,13 +188,13 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedVal
 
 /******************************************************************************/
 
-SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model)
+std::shared_ptr<SitePatterns> DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model)
 {
   vector<const Node*> leaves = TreeTemplateTools::getLeaves(*node);
 
-  AlignedValuesContainer* tmp = PatternToolsOld::getSequenceSubset(sequences, *node);
+  auto tmp = std::shared_ptr<AlignedValuesContainer>(PatternTools::getSequenceSubset(sequences, *node));
 
-  SitePatterns* patterns = new SitePatterns(tmp, true);
+  auto patterns = std::make_shared<SitePatterns>(tmp.get(), true);
 
   shared_ptr<AlignedValuesContainer> subSequences = patterns->getSites();
   size_t nbSites = subSequences->getNumberOfSites();
@@ -287,7 +286,7 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
       // Initialize subtree 'l' and retrieves corresponding
       // subSequences:
 
-      unique_ptr<SitePatterns> subPatterns(initLikelihoodsWithPatterns(son, *subSequences, model));
+      shared_ptr<SitePatterns> subPatterns(initLikelihoodsWithPatterns(son, *subSequences, model));
 
       patternLinks__node_son->resize(size_t(subPatterns->getIndices().size()));
       SitePatterns::IndicesType::Map(&((*patternLinks__node_son)[0]), subPatterns->getIndices().size()) = subPatterns->getIndices();

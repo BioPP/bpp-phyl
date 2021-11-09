@@ -58,6 +58,10 @@ ProcessTree::ProcessTree(Context& context,
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()),
   context_(context)
 {
+#ifdef DEBUG
+  cerr << "ProcessTree::ProcessTree(Context, ParametrizablePhyloTree){" << endl;
+#endif
+  
   // Set Nodes
   auto vNodes = tree.getAllNodes();
 
@@ -85,6 +89,10 @@ ProcessTree::ProcessTree(Context& context,
     associateEdge(brref, tree.getEdgeGraphid(branch));
     setEdgeIndex(brref, index);
   }
+#ifdef DEBUG
+  cerr << "processtree::processtree(context, parametrizablephylotree)}" << endl;
+#endif
+
 }
 
 ProcessTree::ProcessTree(const ProcessTree& tree,
@@ -115,6 +123,9 @@ ProcessTree::ProcessTree(Context& context,
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()),
   context_(context)
 {
+#ifdef DEBUG
+  cerr << "ProcessTree::ProcessTree(Context, ParametrizablePhyloTree, parList, suff){" << endl;
+#endif
   // Set Nodes
   auto vNodes = tree.getAllNodes();
 
@@ -145,7 +156,7 @@ ProcessTree::ProcessTree(Context& context,
 
     auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
     if (!confPar)
-      throw Exception("makeProcessTree: unknown ConfiguredParameter " + name);
+      throw Exception("ProcessTree::ProcessTree: unknown ConfiguredParameter " + name);
 
     // Share numeric dependency with this parameter
     auto parDF = ConfiguredParameter::create(context, {confPar->dependency(0)}, bp);
@@ -155,6 +166,9 @@ ProcessTree::ProcessTree(Context& context,
     associateEdge(brref, tree.getEdgeGraphid(branch));
     setEdgeIndex(brref, index);
   }
+#ifdef DEBUG
+  cerr << "processtree::processtree(context, parametrizablephylotree, parlist, suff)}" << endl;
+#endif
 }
 
 ProcessTree::ProcessTree(const ProcessComputationTree& tree,
@@ -162,6 +176,9 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
                          const ProcessTree& phyloTree) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()), context_(phyloTree.context_)
 {
+#ifdef DEBUG
+  cerr << "ProcessTree::ProcessTree(ProcessComputationTree, ConfiguredModel, ProcessTree){" << endl;
+#endif
   // Set Nodes
   auto vNodes = tree.getAllNodes();
 
@@ -232,6 +249,9 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
     associateEdge(brref, id);
     setEdgeIndex(brref, tree.getEdgeIndex(edge));
   }
+#ifdef DEBUG
+  cerr << "processtree::processtree(processcomputationtree, configuredmodel, processtree)}" << endl;
+#endif
 }
 
 

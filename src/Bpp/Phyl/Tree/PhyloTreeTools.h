@@ -48,6 +48,7 @@
 #include "PhyloNode.h"
 #include "PhyloTree.h"
 #include "PhyloTreeExceptions.h"
+#include "TreeTemplate.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -73,6 +74,9 @@ public:
   virtual ~PhyloTreeTools() {}
 
 public:
+
+  static std::shared_ptr<PhyloTree> buildFromTreeTemplate(const TreeTemplate<Node>& treetemp);
+  
   /**
    * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
    * distance between leaves and the root of the subtree.

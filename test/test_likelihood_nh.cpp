@@ -83,10 +83,11 @@ int main() {
   globalParameterVectors["T92.kappa"]=std::vector<Vint>();
   
   //Very difficult to optimize on small datasets:
-  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
+  auto rdist = std::make_shared<GammaDiscreteRateDistribution>(4, 1.0);
   
   auto rootFreqs2 = std::shared_ptr<FrequencySet>(dynamic_cast<FrequencySet*>(rootFreqs->clone()));
-  DiscreteDistribution* rdist2 = rdist->clone();
+
+  auto rdist2 = std::shared_ptr<DiscreteDistribution>(rdist->clone());
   std::shared_ptr<SubstitutionModel> model2(model->clone());
 
   map<string, string> alias;
@@ -128,7 +129,7 @@ int main() {
 
     //Now fit model:
 
-    RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist, true, true, false);
+    RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist.get(), true, true, false);
     tl.initialize();
 
     Context context;

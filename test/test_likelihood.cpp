@@ -60,7 +60,7 @@
 using namespace bpp;
 using namespace std;
 
-void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* rdist,
+void fitModelHSR(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<DiscreteDistribution> rdist,
                  const Tree& tree,
                  const ParametrizablePhyloTree& partree,
                  const SiteContainer& sites,
@@ -119,7 +119,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
 
   cout << "=============================" << endl;
 
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(std::shared_ptr<SubstitutionModel>(model->clone()), rdist->clone(), partree.clone()));
+  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), partree.clone()));
 
   Context context;                        
   auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
@@ -187,7 +187,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   tlop.getParameters().printParameters(cout);
 
   
-  process.reset(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), partree.clone()));
+  process.reset(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), partree.clone()));
 
   Context context2;
   
@@ -226,10 +226,10 @@ int main() {
   sites.addSequence(BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
 
   shared_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
-  unique_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
+  std::shared_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
-    fitModelHSR(model, rdist.get(), *tree, paramphyloTree, sites, 228.6333642493463, 198.47216106233);
+    fitModelHSR(model, rdist, *tree, paramphyloTree, sites, 228.6333642493463, 198.47216106233);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

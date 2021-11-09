@@ -39,7 +39,7 @@
 */
 
 
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "DRASDRTreeLikelihoodData.h"
 
 // From SeqLib:

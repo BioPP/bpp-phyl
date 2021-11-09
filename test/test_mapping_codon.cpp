@@ -79,9 +79,9 @@ int main() {
   auto gc = std::make_shared<StandardGeneticCode>(AlphabetTools::DNA_ALPHABET);
   
   auto model = std::make_shared<YN98>(gc.get(), CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F0, gc.get()));
-  DiscreteDistribution* rdist = new ConstantDistribution(1.0);
+  auto rdist = std::make_shared<ConstantDistribution>(1.0);
   std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), pTree->clone()));
+  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist, pTree->clone()));
 
   SimpleSubstitutionProcessSiteSimulator simulator(*process);
 
@@ -211,7 +211,6 @@ int main() {
   }
 
   //-------------
-  delete rdist;
   delete sCountTot;
   delete sCountDnDs;
   delete probMapAna;

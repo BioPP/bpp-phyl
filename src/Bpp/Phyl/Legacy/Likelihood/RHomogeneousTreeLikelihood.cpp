@@ -41,7 +41,7 @@
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/TextTools.h>
 
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "RHomogeneousTreeLikelihood.h"
 
 using namespace bpp;
@@ -134,7 +134,7 @@ void RHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites)
 {
   if (data_)
     delete data_;
-  data_ = PatternToolsOld::getSequenceSubset(sites, *tree_->getRootNode());
+  data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
 
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");

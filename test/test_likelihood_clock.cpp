@@ -52,7 +52,7 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
-void fitModelH(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* rdist,
+void fitModelH(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<DiscreteDistribution> rdist,
                ParametrizablePhyloTree* tree, const VectorSiteContainer& sites,
                double initialValue, double finalValue)
 {
@@ -84,7 +84,7 @@ void fitModelH(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* r
     throw Exception("Incorrect final value:" + TextTools::toString(llh.getValue()) + "<>" + TextTools::toString(finalValue));
 }
 
-void fitModelHClock(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* rdist,
+void fitModelHClock(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<DiscreteDistribution> rdist,
                     ParametrizablePhyloTree* tree, const VectorSiteContainer& sites,
 
                     double initialValue, double finalValue)
@@ -133,7 +133,7 @@ int main() {
   sites.addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTA", alphabet));
 
   try {
-    fitModelH(std::shared_ptr<SubstitutionModel>(model->clone()), rdist->clone(), paramphyloTree.clone(), sites, 94.3957, 71.0564);
+    fitModelH(std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), paramphyloTree.clone(), sites, 94.3957, 71.0564);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
@@ -142,7 +142,7 @@ int main() {
   cout << endl << endl;
   
   try {
-    fitModelHClock(model, rdist->clone(), paramphyloTree.clone(), sites, 94.395699, 72.7196);
+    fitModelHClock(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), paramphyloTree.clone(), sites, 94.395699, 72.7196);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

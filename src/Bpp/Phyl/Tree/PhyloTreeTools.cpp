@@ -67,6 +67,25 @@ const string PhyloTreeTools::BOOTSTRAP = "bootstrap";
 
 /******************************************************************************/
 
+std::shared_ptr<PhyloTree> PhyloTreeTools::buildFromTreeTemplate(const TreeTemplate<Node>& treetemp)
+{
+  auto phyloT=std::make_shared<PhyloTree>(true);
+  const Node& root = *treetemp.getRootNode();
+
+  auto rooti=std::make_shared<PhyloNode>(root.hasName()?root.getName():"");
+  phyloT->createNode(rooti);
+  phyloT->setRoot(rooti);
+  phyloT->setNodeIndex(rooti, (uint)root.getId());
+
+  auto propi = root.getNodePropertyNames();
+  for (const auto& prop:propi)
+    rooti->setProperty(prop, *root.getNodeProperty(prop));
+
+  phyloT->addSubTree(rooti, root);
+
+  return phyloT;
+}
+
 double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNode> node)
 {
   double d = 0;

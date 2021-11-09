@@ -110,6 +110,9 @@ void LikelihoodCalculationSingleProcess::setPatterns_()
 
 void LikelihoodCalculationSingleProcess::makeProcessNodes_()
 {
+#ifdef DEBUG
+  cerr << "LikelihoodCalculationSingleProcess::makeProcessNodes_(){" << endl;
+#endif
   // add Independent Parameters
   const auto& paramProc = process_.getIndependentParameters();
 
@@ -145,7 +148,6 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
   if (rates && dynamic_cast<const ConstantRateDistribution*>(rates) == nullptr)
     processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext_(), *rates, pl2, suff);
 
-
   ///////
   // tree node
   suff = spcm ? ("_" + TextTools::toString(spcm->getTreeNumber())) : "";
@@ -171,6 +173,12 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
       break;
     }
   }
+  if (!processNodes_.modelNode_)
+    throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes_: null modelNode_");
+
+#ifdef DEBUG
+  cerr << "likelihoodcalculationsingleprocess::makeprocessnodes_()}" << endl;
+#endif
 }
 
 void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& collection, size_t nProc)
@@ -235,6 +243,8 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& coll
       break;
     }
   }
+  if (!processNodes_.modelNode_)
+    throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes_: null modelNode_");
 }
 
 

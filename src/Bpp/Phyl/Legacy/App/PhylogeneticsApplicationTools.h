@@ -93,48 +93,6 @@ public:
   virtual ~PhylogeneticsApplicationToolsOld();
 
   /**
-   * @brief Build a Tree object according to options.
-   *
-   * See the Bio++ Program Suite manual for a description of available options.
-   *
-   * @param params           The attribute map where options may be found.
-   * @param prefix           A prefix to be applied to each attribute name.
-   * @param suffix           A suffix to be applied to each attribute name.
-   * @param suffixIsOptional Tell if the suffix is absolutely required.
-   * @param verbose          Print some info to the 'message' output stream.
-   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   * @return A new Tree object according to the specified options.
-   */
-  static Tree* getTree(
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "input.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
-
-  /**
-   * @brief Build a list ofTree objects according to options.
-   *
-   * See the Bio++ Program Suite manual for a description of available options.
-   *
-   * @param params           The attribute map where options may be found.
-   * @param prefix           A prefix to be applied to each attribute name.
-   * @param suffix           A suffix to be applied to each attribute name.
-   * @param suffixIsOptional Tell if the suffix is absolutely required.
-   * @param verbose          Print some info to the 'message' output stream.
-   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   * @return A new vector of Tree objects according to the specified options.
-   */
-  static std::vector<Tree*> getTrees(
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "input.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
-
-  /**
    * @brief Build a list ofTree objects according to options.
    *
    * See the Bio++ Program Suite manual for a description of available options.
@@ -368,32 +326,6 @@ public:
     const std::string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
-    int warn = 1);
-
-  /**
-   * @brief Write a tree according to options.
-   *
-   * See the Bio++ Program Suite manual for a descriptio of all available options.
-   *
-   * @param tree    The tree to write.
-   * @param params  The attribute map where options may be found.
-   * @param prefix  A prefix to be applied to each attribute name.
-   * @param suffix  A suffix to be applied to each attribute name.
-   * @param suffixIsOptional Tell if the suffix is absolutely required.
-   * @param verbose Print some info to the 'message' output stream.
-   * @param checkOnly If this parameter is set to true, then all options are
-   * checked and error messages sent, but no file is written.
-   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   */
-
-  static void writeTree(
-    const TreeTemplate<Node>& tree,
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "output.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    bool checkOnly = false,
     int warn = 1);
 
   /**

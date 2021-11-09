@@ -43,8 +43,7 @@
 
 #include <Bpp/Exceptions.h>
 
-#include "../../Io/IoDistanceMatrix.h"
-#include "../Distance/DistanceEstimation.h"
+#include "IoDistanceMatrix.h"
 
 // From the STL:
 #include <string>

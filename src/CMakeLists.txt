@@ -12,7 +12,7 @@ set (CPP_FILES
   Bpp/Phyl/App/BppPhylogeneticsApplication.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp
-  Bpp/Phyl/Legacy/Distance/DistanceEstimation.cpp
+  Bpp/Phyl/Distance/DistanceEstimation.cpp
   Bpp/Phyl/Distance/HierarchicalClustering.cpp
   Bpp/Phyl/Distance/NeighborJoining.cpp
   Bpp/Phyl/Distance/PGMA.cpp
@@ -31,7 +31,7 @@ set (CPP_FILES
   Bpp/Phyl/Io/BppOTransitionModelFormat.cpp
   Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
-  Bpp/Phyl/Legacy/Io/IoDistanceMatrixFactory.cpp
+  Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
   Bpp/Phyl/Io/IoFrequencySetFactory.cpp
   Bpp/Phyl/Legacy/Io/IoPairedSiteLikelihoods.cpp
   Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
@@ -239,7 +239,6 @@ set (CPP_FILES
   Bpp/Phyl/Parsimony/DRTreeParsimonyData.cpp
   Bpp/Phyl/Parsimony/DRTreeParsimonyScore.cpp
   Bpp/Phyl/PatternTools.cpp
-  Bpp/Phyl/Legacy/PatternTools.cpp
   Bpp/Phyl/PhyloStatistics.cpp
   Bpp/Phyl/Simulation/MutationProcess.cpp
   Bpp/Phyl/Simulation/EvolutionSequenceSimulator.cpp

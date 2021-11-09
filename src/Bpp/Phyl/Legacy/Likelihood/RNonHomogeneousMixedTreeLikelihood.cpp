@@ -44,7 +44,7 @@
 
 #include "../../Model/MixedTransitionModel.h"
 #include "../../Tree/TreeTools.h"
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "RNonHomogeneousMixedTreeLikelihood.h"
 
 using namespace bpp;

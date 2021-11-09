@@ -41,7 +41,7 @@
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/TextTools.h>
 
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "DRNonHomogeneousTreeLikelihood.h"
 
 // From bpp-seq:
@@ -138,7 +138,7 @@ void DRNonHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites
 {
   if (data_)
     delete data_;
-  data_ = PatternToolsOld::getSequenceSubset(sites, *tree_->getRootNode());
+  data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(*data_, *modelSet_->getModel(0)); // We assume here that all models have the same number of states, and that they have the same 'init' method,

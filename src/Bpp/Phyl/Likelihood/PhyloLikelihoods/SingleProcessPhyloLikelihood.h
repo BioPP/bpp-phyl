@@ -116,7 +116,13 @@ public:
     AbstractParametrizable(""),
     likCal_(likCal), nProc_(nProc)
   {
+#ifdef DEBUG
+    std::cerr << "SingleProcessPhyloLikelihood(context, LikelihoodCalculationSingleProcess)" << std::endl;
+#endif
     shareParameters_(likCal_->getIndependentParameters());
+#ifdef DEBUG
+    std::cerr << "singleprocessphylolikelihood(context, likelihoodcalculationsingleprocess)" << std::endl;
+#endif
   }
 
   // Legacy boilerplate

@@ -237,7 +237,7 @@ int main(int argc, char** argv)
 
   auto rootFreqs = std::make_shared<GCFrequencySet>(&c.alphabet, 0.1);
 
-  auto distribution = new ConstantRateDistribution();
+  auto distribution = std::make_shared<ConstantRateDistribution>();
   //auto distribution = new GammaDiscreteRateDistribution(3, 1);
 
   // Read tree structure

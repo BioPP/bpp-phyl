@@ -37,7 +37,7 @@
 */
 
 
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 #include "AbstractNonHomogeneousTreeLikelihood.h"
 
 // From SeqLib:

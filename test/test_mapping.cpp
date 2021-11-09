@@ -78,9 +78,9 @@ int main() {
   NucleicAlphabet* alphabet = new DNA();
   auto model = std::make_shared<GTR>(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
 //  DiscreteDistribution* rdist = new ConstantDistribution(1);
-  DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
+  auto rdist = std::make_shared<GammaDiscreteDistribution>(4, 0.4, 0.4);
   std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), pTree->clone()));
+  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), pTree->clone()));
 
   SimpleSubstitutionProcessSiteSimulator simulator(*process);
   
@@ -281,7 +281,6 @@ int main() {
   
   //-------------
   delete alphabet;
-  delete rdist;
   delete sCountTot;
   delete sCountDet;
   delete probNEWMapTot;

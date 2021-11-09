@@ -44,7 +44,7 @@
 #include <iostream>
 
 #include <cmath>
-#include "../PatternTools.h"
+#include "../../PatternTools.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/App/ApplicationTools.h>
