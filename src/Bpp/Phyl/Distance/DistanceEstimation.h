@@ -91,8 +91,8 @@ public:
    *  - 4=3 + likelihood object verbose enabled
    */
   DistanceEstimation(
-    TransitionModel* model,
-    DiscreteDistribution* rateDist,
+    std::shared_ptr<BranchModel> model,
+    std::shared_ptr<DiscreteDistribution> rateDist,
     size_t verbose = 1) :
     model_(model),
     rateDist_(rateDist),
@@ -124,8 +124,8 @@ public:
    *  @param computeMat if true the computeMatrix() method is called.
    */
   DistanceEstimation(
-    TransitionModel* model,
-    DiscreteDistribution* rateDist,
+    std::shared_ptr<BranchModel> model,
+    std::shared_ptr<DiscreteDistribution> rateDist,
     const AlignedValuesContainer* sites,
     size_t verbose = 1,
     bool computeMat = true) :
@@ -245,7 +245,7 @@ public:
       throw Exception("DistanceEstimation::getSubstitutionModel(). No model assciated to this instance.");
   }
 
-  void resetSubstitutionModel(TransitionModel* model = 0) { model_.reset(model); }
+  void resetSubstitutionModel(BranchModel* model = 0) { model_.reset(model); }
 
   bool hasRateDistribution() const { return rateDist_.get(); }
 
