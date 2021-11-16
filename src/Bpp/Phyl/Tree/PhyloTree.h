@@ -99,6 +99,14 @@ public:
 
   std::vector<std::string> getAllLeavesNames() const;
 
+  /*
+   *@brief Get PhyloNode with given name, or null shared_ptr if the
+   *name is not present in the PhyloTree.
+   *
+   */
+  
+  std::shared_ptr<PhyloNode> getPhyloNode(const std::string& name) const;
+  
   Vdouble getBranchLengths() const;
 
   void resetNodesId();

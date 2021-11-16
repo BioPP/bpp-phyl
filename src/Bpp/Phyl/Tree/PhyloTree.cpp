@@ -65,6 +65,19 @@ void PhyloTree::resetNodesId()
   }
 }
 
+std::shared_ptr<PhyloNode> PhyloTree::getPhyloNode(const std::string& name) const
+{
+  vector<shared_ptr<PhyloNode> > vpn = getAllNodes();
+
+  for (auto it:vpn)
+  {
+    if (it->hasName() && it->getName()==name)
+      return it;
+  }
+  
+  return std::make_shared<PhyloNode>();
+}
+
 std::vector<std::string> PhyloTree::getAllLeavesNames() const
 {
   vector<string> vn;
