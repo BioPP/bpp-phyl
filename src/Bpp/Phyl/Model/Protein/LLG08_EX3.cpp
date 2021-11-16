@@ -54,16 +54,16 @@ LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) :
 {
   // build the submodel
 
-  vector<TransitionModel*> vpSM;
-  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha, "Buried"));
-  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha, "Intermediate"));
-  vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha, "HExposed"));
+  vector<std::shared_ptr<TransitionModel>> vpSM;
+  vpSM.push_back(std::make_shared<LLG08_EX3::EmbeddedModel>(alpha, "Buried"));
+  vpSM.push_back(std::make_shared<LLG08_EX3::EmbeddedModel>(alpha, "Intermediate"));
+  vpSM.push_back(std::make_shared<LLG08_EX3::EmbeddedModel>(alpha, "HExposed"));
 
   Vdouble vrate, vproba;
 
   for (unsigned int i = 0; i < vpSM.size(); i++)
   {
-    vproba.push_back((dynamic_cast<LLG08_EX3::EmbeddedModel*>(vpSM[i]))->getProportion());
+    vproba.push_back((dynamic_pointer_cast<LLG08_EX3::EmbeddedModel>(vpSM[i]))->getProportion());
     vrate.push_back(vpSM[i]->getRate());
   }
 

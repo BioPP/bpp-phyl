@@ -64,7 +64,7 @@ AbstractMixedTransitionModel::AbstractMixedTransitionModel(const AbstractMixedTr
 {
   for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
   {
-    modelsContainer_.push_back(msm.modelsContainer_[i]->clone());
+    modelsContainer_.push_back(std::shared_ptr<TransitionModel>(msm.modelsContainer_[i]->clone()));
     vProbas_.push_back(msm.vProbas_[i]);
     vRates_.push_back(msm.vRates_[i]);
   }
@@ -81,20 +81,12 @@ AbstractMixedTransitionModel& AbstractMixedTransitionModel::operator=(const Abst
 
   for (unsigned int i = 0; i < model.modelsContainer_.size(); i++)
   {
-    modelsContainer_.push_back(model.modelsContainer_[i]->clone());
+    modelsContainer_.push_back(std::shared_ptr<TransitionModel>(model.modelsContainer_[i]->clone()));
     vProbas_.push_back(model.vProbas_[i]);
     vRates_.push_back(model.vRates_[i]);
   }
 
   return *this;
-}
-
-AbstractMixedTransitionModel::~AbstractMixedTransitionModel()
-{
-  for (unsigned int i = 0; i < modelsContainer_.size(); i++)
-  {
-    delete modelsContainer_[i];
-  }
 }
 
 size_t AbstractMixedTransitionModel::getNumberOfStates() const

@@ -54,17 +54,17 @@ LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
 {
   // build the submodel
 
-  vector<TransitionModel*> vpSM;
+  vector<shared_ptr<TransitionModel> > vpSM;
   for (unsigned int i = 1; i < nbCat + 1; i++)
   {
-    vpSM.push_back(new LGL08_CAT::EmbeddedModel(alpha, "C" + TextTools::toString(i), nbCat));
+    vpSM.push_back(std::make_shared<LGL08_CAT::EmbeddedModel>(alpha, "C" + TextTools::toString(i), nbCat));
   }
 
   Vdouble vrate, vproba;
 
   for (size_t i = 0; i < vpSM.size(); i++)
   {
-    vproba.push_back((dynamic_cast<LGL08_CAT::EmbeddedModel*>(vpSM[i]))->getProportion());
+    vproba.push_back((dynamic_pointer_cast<LGL08_CAT::EmbeddedModel>(vpSM[i]))->getProportion());
     vrate.push_back(vpSM[i]->getRate());
   }
 

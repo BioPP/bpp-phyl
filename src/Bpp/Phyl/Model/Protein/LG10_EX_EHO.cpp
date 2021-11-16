@@ -54,19 +54,19 @@ LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) :
 {
   // build the submodel
 
-  vector<TransitionModel*> vpSM;
-  vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha, "BUR_EXT"));
-  vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha, "BUR_HEL"));
-  vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha, "BUR_OTH"));
-  vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha, "EXP_EXT"));
-  vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha, "EXP_HEL"));
-  vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha, "EXP_OTH"));
+  vector<shared_ptr<TransitionModel>> vpSM;
+  vpSM.push_back(make_shared<LG10_EX_EHO::EmbeddedModel>(alpha, "BUR_EXT"));
+  vpSM.push_back(make_shared<LG10_EX_EHO::EmbeddedModel>(alpha, "BUR_HEL"));
+  vpSM.push_back(make_shared<LG10_EX_EHO::EmbeddedModel>(alpha, "BUR_OTH"));
+  vpSM.push_back(make_shared<LG10_EX_EHO::EmbeddedModel>(alpha, "EXP_EXT"));
+  vpSM.push_back(make_shared<LG10_EX_EHO::EmbeddedModel>(alpha, "EXP_HEL"));
+  vpSM.push_back(make_shared<LG10_EX_EHO::EmbeddedModel>(alpha, "EXP_OTH"));
 
   Vdouble vrate, vproba;
 
   for (unsigned int i = 0; i < vpSM.size(); i++)
   {
-    vproba.push_back((dynamic_cast<LG10_EX_EHO::EmbeddedModel*>(vpSM[i]))->getProportion());
+    vproba.push_back((dynamic_pointer_cast<LG10_EX_EHO::EmbeddedModel>(vpSM[i]))->getProportion());
     vrate.push_back(vpSM[i]->getRate());
   }
 

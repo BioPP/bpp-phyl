@@ -76,7 +76,7 @@ protected:
    * Beware: these TransitionModels are owned by the object, so
    * will be deleted at destruction
    */
-  std::vector<TransitionModel*> modelsContainer_;
+  std::vector<std::shared_ptr<TransitionModel> > modelsContainer_;
 
   /**
    * @brief vector of the probabilities of the models
@@ -104,8 +104,6 @@ public:
 
   AbstractMixedTransitionModel& operator=(const AbstractMixedTransitionModel&);
 
-  virtual ~AbstractMixedTransitionModel();
-
   virtual AbstractMixedTransitionModel* clone() const = 0;
 
 public:
@@ -122,12 +120,12 @@ public:
    */
   const TransitionModel* getNModel(size_t i) const
   {
-    return modelsContainer_[i];
+    return modelsContainer_[i].get();
   }
 
   TransitionModel* getNModel(size_t i)
   {
-    return modelsContainer_[i];
+    return modelsContainer_[i].get();
   }
 
   /**

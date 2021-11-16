@@ -54,16 +54,16 @@ LLG08_EHO::LLG08_EHO(const ProteicAlphabet* alpha) :
 {
   // build the submodel
 
-  vector<TransitionModel*> vpSM;
-  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha, "Extended"));
-  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha, "Helix"));
-  vpSM.push_back(new LLG08_EHO::EmbeddedModel(alpha, "Other"));
+  vector<shared_ptr<TransitionModel>> vpSM;
+  vpSM.push_back(make_shared<LLG08_EHO::EmbeddedModel>(alpha, "Extended"));
+  vpSM.push_back(make_shared<LLG08_EHO::EmbeddedModel>(alpha, "Helix"));
+  vpSM.push_back(make_shared<LLG08_EHO::EmbeddedModel>(alpha, "Other"));
 
   Vdouble vrate, vproba;
 
   for (unsigned int i = 0; i < 3; i++)
   {
-    vproba.push_back((dynamic_cast<LLG08_EHO::EmbeddedModel*>(vpSM[i]))->getProportion());
+    vproba.push_back((dynamic_pointer_cast<LLG08_EHO::EmbeddedModel>(vpSM[i]))->getProportion());
     vrate.push_back(vpSM[i]->getRate());
   }
 

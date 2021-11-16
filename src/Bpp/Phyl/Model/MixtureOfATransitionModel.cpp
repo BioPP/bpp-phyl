@@ -107,7 +107,7 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
 
   for (i = 0; i < c; i++)
   {
-    modelsContainer_.push_back(model->clone());
+    modelsContainer_.push_back(std::shared_ptr<TransitionModel>(model->clone()));
     vProbas_.push_back(1.0 / static_cast<double>(c));
     vRates_.push_back(1.0);
   }

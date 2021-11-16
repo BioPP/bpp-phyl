@@ -49,7 +49,7 @@ using namespace std;
 
 MixtureOfTransitionModels::MixtureOfTransitionModels(
   const Alphabet* alpha,
-  vector<TransitionModel*> vpModel) :
+  vector<std::shared_ptr<TransitionModel> > vpModel) :
   AbstractParameterAliasable("Mixture."),
   AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
   AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture.")
@@ -99,7 +99,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
 MixtureOfTransitionModels::MixtureOfTransitionModels(
   const Alphabet* alpha,
-  vector<TransitionModel*> vpModel,
+  vector<std::shared_ptr<TransitionModel> > vpModel,
   Vdouble& vproba,
   Vdouble& vrate) :
   AbstractParameterAliasable("Mixture."),

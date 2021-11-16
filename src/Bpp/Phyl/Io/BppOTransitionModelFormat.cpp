@@ -307,7 +307,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
   string modelName = "";
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
-  unique_ptr<TransitionModel> pSM;
+  shared_ptr<TransitionModel> pSM;
 
   if (modelName == "MixedModel")
   {
@@ -357,7 +357,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
       ti = alphabet->charToInt(args["to"]);
 
     string sModN = pSM->getName();
-    model.reset(new MixtureOfATransitionModel(alphabet, pSM.release(), mdist, fi, ti));
+    model.reset(new MixtureOfATransitionModel(alphabet, pSM.get(), mdist, fi, ti));
 
     vector<string> v = model->getParameters().getParameterNames();
 
@@ -375,7 +375,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
   else if (modelName == "Mixture")
   {
     vector<string> v_nestedModelDescription;
-    vector<TransitionModel*> v_pSM;
+    vector<std::shared_ptr<TransitionModel>> v_pSM;
 
     if (args.find("model1") == args.end())
     {
@@ -405,7 +405,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
         unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
       }
 
-      v_pSM.push_back(pSM.release());
+      v_pSM.push_back(pSM);
     }
 
     model.reset(new MixtureOfTransitionModels(alphabet, v_pSM));
