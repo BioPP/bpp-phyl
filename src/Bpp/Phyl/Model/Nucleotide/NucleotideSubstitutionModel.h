@@ -112,7 +112,7 @@ public:
  */
 class AbstractReversibleNucleotideSubstitutionModel :
   public AbstractReversibleSubstitutionModel,
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideReversibleSubstitutionModel
 {
 public:
   AbstractReversibleNucleotideSubstitutionModel(const NucleicAlphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
