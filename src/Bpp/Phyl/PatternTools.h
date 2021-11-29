@@ -73,6 +73,7 @@ public:
    *
    * @param sequenceSet The container to look in.
    * @param node        The root node of the subtree to check.
+   * @param tree        The tree owing the node.
    * @return A new site container with corresponding sequences.
    * @throw Exception if an error occured.
    */

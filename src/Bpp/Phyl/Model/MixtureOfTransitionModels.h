@@ -135,7 +135,7 @@ public:
    */
   MixtureOfTransitionModels(
     const Alphabet* alpha,
-    std::vector<std::shared_ptr<TransitionModel>> vpModel);
+    std::vector<std::shared_ptr<TransitionModel> > vpModel);
 
   /**
    * @brief Constructor of a MixtureOfTransitionModels.
@@ -153,7 +153,7 @@ public:
 
   MixtureOfTransitionModels(
     const Alphabet* alpha,
-    std::vector<std::shared_ptr<TransitionModel>> vpModel,
+    std::vector<std::shared_ptr<TransitionModel> > vpModel,
     Vdouble& vproba, Vdouble& vrate);
 
   MixtureOfTransitionModels(const MixtureOfTransitionModels&);

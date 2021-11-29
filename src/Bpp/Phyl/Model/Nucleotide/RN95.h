@@ -57,75 +57,108 @@ namespace bpp
  * the target nucleotide. This model is not reversible.
  *
  * This model has been thoroughly studied by Schadt & al, and we
- * follow their notations and formula. The parameters are defined to
- * allow allow the direct definition of the stationnary frequencies.
+ * follow their notations.
  *
- * After normalization this model has 7 parameters:
  * \f[
- * Q= \frac 1P
- * \begin{pmatrix}
+ * Q= \frac 1P  \begin{pmatrix}
  * . & \gamma & \alpha & \lambda \\
  * \delta & . &  \kappa & \beta \\
  * \epsilon & \gamma & . & \lambda \\
  * \delta & \sigma & \kappa & .\\
- * \end{pmatrix}\f]
- *
- * so in the parametrization process we set: \f[\gamma+\lambda+\delta+\kappa=1\f]
- *
- * The stationnary distribution
- * \f[
- * \pi = \left(\pi_A, \pi_C, \pi_G, \pi_T\right)
+ * \end{pmatrix}
  * \f]
- * can be computed analytically, so we define parameters for it (values between 0 and 1):
+ * with
+ *
+ * \f[ P = \frac 1{\lambda+\gamma+\kappa+\delta}.\left(
+ * \frac{\left(\kappa+\delta+\beta\right)\,\left(\sigma\,\lambda+\sigma
+ * \,\gamma+\kappa\,\gamma+\delta\,\gamma\right)+\left(\sigma+\kappa+
+ * \delta\right)\,\left(\kappa\,\lambda+\delta\,\lambda+\beta\,\lambda+
+ * \beta\,\gamma\right)}{\sigma+\kappa+\delta+\beta}+\frac{\left(
+ * \lambda+\gamma+\epsilon\right)\,\left(\kappa\,\lambda+\kappa\,
+ * \gamma+\alpha\,\kappa+\alpha\,\delta\right)+\left(\lambda+\gamma+
+ * \alpha\right)\,\left(\delta\,\lambda+\delta\,\gamma+\epsilon\,
+ * \kappa+\delta\,\epsilon\right)}{\lambda+\gamma+\epsilon+ \alpha}
+ * \right)\f]
+ *
+ * After normalization, this model has 7 free parameters so without
+ * loss of generality we set: \f[\gamma+\lambda+\delta+\kappa=1\f]
+ *
+ * We use
+ * \f[\begin{cases}
+ * \gamma + \lambda + \delta + \kappa=1\\
+ * c_1 = \kappa + \delta + \sigma + \beta\\
+ * c_2 = \lambda + \gamma - (\sigma + \beta)  = 1 - c_1\\
+ * c_3 = \lambda + \gamma + \alpha + \epsilon \\ 
+ * c_4 = \kappa + \delta - (\alpha + \epsilon) = 1 - c_3 \\
+ * \end{cases}
+ *\f]
+ 
+ * The stationnary distribution is then:
+ * \f[
+ * \pi = \frac{\delta\,(\lambda+\gamma)+\epsilon\,(\kappa+\delta)}{c_3} ,
+ * \frac{\sigma\,(\lambda+\gamma)+\gamma\,(\kappa+\delta)}{c_1} ,
+ * \frac{\kappa\,(\lambda+\gamma)+\alpha\,(\kappa+\delta)}{c_3} ,
+ * \frac{\beta\,(\lambda+\gamma)+\lambda\,(\kappa+\delta)}{c_1}
+ * \f]
+ *
+ * which means: \f[\pi_R = \delta + \kappa \f] and \f[\pi_Y = \gamma + \lambda \f].
+ *
+ * So we set as parameters with values in ]0;1[:
+ *
  *\f[
  * \begin{cases}
  * \theta_R = \pi_A + \pi_G\\
- * \theta_C = \frac{\pi_C}{1 - \theta_R} = \frac{\pi_C}{\pi_C + \pi_G}\\
- * \theta_G = \frac{\pi_G}{\theta_R} = \frac{\pi_G}{\pi_A + \pi_G}\\
- * \end{cases}
- * \f]
- *
- * with parameters with values in [0;1[:
- *
- *\f[
- * \begin{cases}
  * \kappa'=\frac{\kappa}{\theta_R}\\
  * \gamma'=\frac{\gamma}{1-\theta_R}\\
  * \end{cases}
  * \f]
  *
- * and parameters with values > 1:
+ * from which:
  *
- *\f[
- * \begin{cases}
- * \alpha'=\frac{\alpha(1-\theta_G)+min(\theta_G,\kappa')(1-\theta_R)}{\theta_G(1-\theta_R)}\\
- * \sigma'=\frac{\sigma(1-\theta_C)+min(\theta_C,\gamma')\theta_R}{\theta_C\theta_R}\\
- * \end{cases}
- * \f]
- *
- * The generator is then computed as:
- *
- *\f[
+ * \f[
  * \begin{cases}
  * \kappa=\kappa' \theta_R\\
+ * \delta=(1 - \kappa') \theta_R \\
  * \gamma=\gamma' (1-\theta_R)\\
- * \delta=\theta_R - \kappa\\
- * \lambda=1-\theta_R-\gamma\\
- * \alpha=\frac{\alpha'(1-\theta_R)\theta_G-min(\theta_G,\kappa')(1-\theta_R)}{1-\theta_G}\\
- * \sigma=\frac{\sigma'\theta_R\theta_C-min(\theta_C,\gamma')\theta_R}{1-\theta_C}\\
- * \beta=\frac{\gamma'*\theta_R+\sigma}{\theta_C}-\sigma-\theta_R\\
- * \epsilon=\frac{\kappa'*(1-\theta_R)+\alpha}{\theta_G}-\alpha-(1-\theta_R)\\
+ * \lambda=(1 -\gamma') (1-\theta_R)\\
  * \end{cases}
  * \f]
  *
- * and \f[P\f] is set for normalization.
  *
- * The parameters are named \c "thetaR", \c "thetaC", \c "thetaG",
- * \c "kappaP", \c "gammaP", \c "sigmaP", \c "alphaP".
+ * and 4 other positive parameters: \f[ \alpha, \beta, \epsilon, \sigma \f] 
+ *
+ * The eigen values are \f$\left(-\frac{1}{P}, - \frac{c_3}{P}, -\frac{c_1}{P}, 0\right)\f$,
+ *
+ * the right eigen vectors are, by column:
+ * \f[
+ * U^{-1} = \begin{pmatrix}
+ * \lambda + \gamma &  (\kappa - \alpha) (\lambda + \gamma) + \alpha c_4 & \sigma \lambda - \beta \gamma  &  1 \\
+ * -(\kappa + \delta) &  \alpha \delta - \epsilon \kappa &  (\kappa + \delta) (\beta - \lambda) - \beta  c_2 & 1 \\
+ * \lambda + \gamma &  (\epsilon - \delta) (\lambda + \gamma) - \epsilon c_4  & \sigma \lambda - \beta \gamma &  1 \\
+ * -(\kappa + \delta)& \alpha \delta - \epsilon \kappa & (\kappa + \delta) (\gamma - \sigma) + \sigma c_2 &1 \\
+ * \end{pmatrix}
+ * \f]
+ *
+ * 
+ * and the left eigen vectors are, by row:
+ * \f[
+ * U = \begin{pmatrix}
+ * \frac{\delta-\epsilon}{c_4} &  \frac{\sigma  - \gamma}{c_2} &  \frac{\kappa - \alpha}{c_4} &  \frac{\beta - \lambda}{c_2} \\
+ *  \frac 1{c_4 c_3}    &   0 &  -\frac{1}{c_4 c_3} &  0 \\
+ *  - \frac{1}{c_1 c_2} &   0 & \frac{1}{c_1 c_2}   &  0 \\
+ * \frac{\epsilon + (\delta - \epsilon ) (\lambda +  \gamma)}{c_3} & \frac{\gamma + (\sigma - \gamma) (\lambda + \gamma) }{c_1} &  \frac{\alpha + (\kappa - \alpha) (\lambda +  \gamma)}{c_3} & \frac{\lambda + (\beta - \lambda)(\lambda + \gamma)}{c_1} \\
+ * \end{pmatrix}
+ * \f]
+ *
+ *
+ *
+ * The parameters are named \c "thetaR", \c "kappaP", \c "gammaP", \c
+ * "alpha". \c "beta", \c "epsilon",\c "sigma".
  *
  * References:
  * - Rhetsky A. \& Nei M. (1995) MBE 12(1) 131-151.
  * - Schadt, Sinsheimer \& Lange (1998) Genome Research 8 222-233.
+ *
  */
 
 class RN95 :
@@ -133,24 +166,17 @@ class RN95 :
 {
 private:
   double alpha_, beta_, gamma_, delta_, epsilon_, kappa_, lambda_, sigma_;
-  double r_;
-  /**
-   * For calculation purposes as in Schadt & al. (with c1_=1)
-   */
-  double c1_, c2_, c3_, c4_, c5_, c6_, c7_, c8_, c9_;
-  mutable RowMatrix<double> p_;
-  mutable double exp1_, exp3_, exp6_, l_;
 
 public:
   RN95(
     const NucleicAlphabet* alphabet,
     double alpha = 1,
     double beta = 1,
-    double gamma = 1,
-    double delta = 1,
+    double gamma = 0.25,
+    double delta = 0.25,
     double epsilon = 1,
-    double kappa = 1,
-    double lambda = 1,
+    double kappa = 0.25,
+    double lambda = 0.25,
     double sigma = 1);
 
   virtual ~RN95() {}
@@ -158,12 +184,6 @@ public:
   RN95* clone() const { return new RN95(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double d) const;
-  double dPij_dt  (size_t i, size_t j, double d) const;
-  double d2Pij_dt2(size_t i, size_t j, double d) const;
-  const Matrix<double>& getPij_t    (double d) const;
-  const Matrix<double>& getdPij_dt  (double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
   std::string getName() const { return "RN95"; }
 
   void updateMatrices();

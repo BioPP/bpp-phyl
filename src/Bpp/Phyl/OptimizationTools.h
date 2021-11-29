@@ -121,7 +121,7 @@ public:
    *
    * @see BrentOneDimension, BFGSMultiDimensions
    *
-   * @param tl             A pointer toward the TreeLikelihood object to optimize.
+   * @param lik             A pointer toward the PhyloLikelihood object to optimize.
    * @param parameters     The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
    * @param listener       A pointer toward an optimization listener, if needed.
    * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
@@ -159,7 +159,7 @@ public:
    *
    * @see PseudoNewtonOptimizer
    *
-   * @param tl             A pointer toward the TreeLikelihood object to optimize.
+   * @param lik            A pointer toward the PhyloLikelihood object to optimize.
    * @param parameters     The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
    * @param listener       A pointer toward an optimization listener, if needed.
    * @param tolerance      The tolerance to use in the algorithm.

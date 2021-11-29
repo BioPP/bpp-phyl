@@ -60,28 +60,18 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
   alpha_(),
   beta_(),
   gamma_(),
-  delta_(),
-  r_(),
-  c3_(),
-  c4_(),
-  c8_(),
-  p_(size_, size_),
-  exp1_(),
-  exp3_(),
-  l_()
+  delta_()
 {
-  double f = 2 * (gamma + delta);
+  double f = alpha + beta + gamma + delta;
 
   alpha_ = alpha / f;
   beta_ = beta / f;
   gamma_ = gamma / f;
   delta_ = delta / f;
 
-  double piA = 0.5 * (beta_ + delta_) / (alpha_ + beta_ + 0.5);
-  double alphaP = (2 * alpha_ * piA + ((0.5 - piA < gamma_) ? 0.5 - piA : gamma_)) / (0.5 - piA);
-  addParameter_(new Parameter("RN95s.thetaA", piA, std::make_shared<IntervalConstraint>(0, 0.5, false, false)));
-  addParameter_(new Parameter("RN95s.gamma", gamma_, std::make_shared<IntervalConstraint>(0, 0.5, false, false)));
-  addParameter_(new Parameter("RN95s.alphaP", alphaP, std::make_shared<IntervalConstraint>(1, 1, false)));
+  addParameter_(new Parameter("RN95s.theta", alpha_+gamma_, std::make_shared<IntervalConstraint>(0.001, 0.999, true, true)));
+  addParameter_(new Parameter("RN95s.alphaP", alpha_/(alpha_+gamma_), Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(new Parameter("RN95s.betaP", beta_/(beta_+delta_), Parameter::PROP_CONSTRAINT_EX));
 
   computeFrequencies(false);
   updateMatrices();
@@ -90,18 +80,19 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
 /******************************************************************************/
 void RN95s::updateMatrices()
 {
-  freq_[0]  = getParameterValue("thetaA");
+  double theta  = getParameterValue("theta");
   double alphaP  = getParameterValue("alphaP");
-  gamma_  = getParameterValue("gamma");
-  alpha_  = (alphaP * (0.5 - freq_[0]) - ((0.5 - freq_[0] < gamma_) ? 0.5 - freq_[0] : gamma_)) / (2 * freq_[0]);
-  delta_  = 0.5 - gamma_;
-  beta_   = (2 * freq_[0] * (alpha_ + 0.5) - delta_) / (1 - 2 * freq_[0]);
+  double betaP  = getParameterValue("betaP");
 
+  alpha_  = alphaP * theta;
+  gamma_  = theta - alpha_;
+  beta_   = betaP * (1-theta);
+  delta_ = 1 - theta - beta_;
+  
   // stationnary frequencies
 
-  freq_[1] = 0.5 - freq_[0];
-  freq_[2] = freq_[1];
-  freq_[3] = freq_[0];
+  freq_[1] = freq_[2] = theta/2;
+  freq_[3] = freq_[0] = (1- theta)/2;
 
   // Generator matrix:
 
@@ -133,325 +124,95 @@ void RN95s::updateMatrices()
 
   double x = 0;
   for (unsigned int i = 0; i < 4; i++)
-  {
     x += generator_(i, i) * freq_[i];
-  }
 
-  r_ = isScalable() ? -1 / x : 1;
+  double r_ = isScalable() ? -1 / x : 1;
 
   setScale(r_);
 
   // variables for calculation purposes
 
-  c3_ = alpha_ + gamma_ + beta_ + delta_;
-  c4_ = gamma_ - alpha_;
-  c8_ = delta_ - beta_;
-
+  double c_1 = gamma_ + delta_ - beta_  - alpha_ ;
+  double c_2 = delta_ * gamma_ - alpha_ * beta_;
+  double c_3 = beta_ * gamma_ - alpha_ * delta_;
 
   // eigen vectors and values
 
-  eigenValues_[0] = 0;
+  eigenValues_[0] = - 2 * (gamma_ + delta_) * r_;
   eigenValues_[1] = -r_;
-  eigenValues_[2] = -c3_ * r_;
-  eigenValues_[3] = -c3_ * r_;
+  eigenValues_[2] = -r_;
+  eigenValues_[3] = 0;
 
   rightEigenVectors_(0, 0) = 1.;
-  rightEigenVectors_(1, 0) = 1.;
+  rightEigenVectors_(1, 0) = -1.;
   rightEigenVectors_(2, 0) = 1.;
-  rightEigenVectors_(3, 0) = 1.;
+  rightEigenVectors_(3, 0) = -1.;
 
-  rightEigenVectors_(0, 1) = 1.;
-  rightEigenVectors_(1, 1) = -1;
-  rightEigenVectors_(2, 1) = 1.;
-  rightEigenVectors_(3, 1) = -1;
+  rightEigenVectors_(0, 1) = c_2;
+  rightEigenVectors_(1, 1) = 0;
+  rightEigenVectors_(2, 1) = (beta_ - delta_) * (delta_ + beta_);
+  rightEigenVectors_(3, 1) = -c_3;
 
-  rightEigenVectors_(0, 2) = (alpha_ * (0.5 - c3_) + gamma_ * 0.5) / (delta_ * (c3_ - 0.5) - beta_ * 0.5);
-  rightEigenVectors_(1, 2) = 1.;
-  rightEigenVectors_(2, 2) = (-beta_ * (0.5 - c3_) - delta_ * 0.5) / (delta_ * (c3_ - 0.5) - beta_ * 0.5);
-  rightEigenVectors_(3, 2) = 1.;
+  rightEigenVectors_(0, 2) = 0;
+  rightEigenVectors_(1, 2) = c_2;
+  rightEigenVectors_(2, 2) = c_3;
+  rightEigenVectors_(3, 2) = (alpha_ - gamma_) * (alpha_ + gamma_);
 
-  rightEigenVectors_(0, 3) = 1.;
-  rightEigenVectors_(1, 3) = (beta_ * (0.5 - c3_) + delta_ * 0.5) / (gamma_ * (c3_ - 0.5) - alpha_ * 0.5);
+  rightEigenVectors_(0, 3) = 1;
+  rightEigenVectors_(1, 3) = 1;
   rightEigenVectors_(2, 3) = 1;
-  rightEigenVectors_(3, 3) = (-alpha_ * (0.5 - c3_) - gamma_ * 0.5) / (gamma_ * (c3_ - 0.5) - alpha_ * 0.5);
+  rightEigenVectors_(3, 3) = 1;
 
 // Need formula
 
-  if (enableEigenDecomposition())
+  if (abs(c_1) < NumConstants::TINY() ||  abs(c_2) < NumConstants::TINY())
   {
-    try
-    {
-      MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
-      isNonSingular_ = true;
-      isDiagonalizable_ = true;
-      for (unsigned int i = 0; i < size_ && isDiagonalizable_; i++)
-      {
-        if (abs(iEigenValues_[i]) > NumConstants::TINY())
-          isDiagonalizable_ = false;
-      }
-    }
-    catch (ZeroDivisionException& e)
-    {
-      ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
+    
+    ApplicationTools::displayMessage("Singularity during diagonalization of RN95s. Taylor series used instead.");
+    cerr << abs(c_1) << ":" << abs(c_2) << endl;
+    getParameters().printParameters(cerr);
+    
+    isNonSingular_ = false;
+    isDiagonalizable_ = false;
+    MatrixTools::Taylor(generator_, 30, vPowGen_);
+  }
+  else
+  {
+    isNonSingular_ = true;
+    isDiagonalizable_ = true;
 
-      isNonSingular_ = false;
-      isDiagonalizable_ = false;
-      MatrixTools::Taylor(generator_, 30, vPowGen_);
-    }
+    leftEigenVectors_(0, 0) = (delta_ - beta_)/(2 * c_1);
+    leftEigenVectors_(0, 1) = (alpha_ - gamma_)/(2 * c_1);
+    leftEigenVectors_(0, 2) = - leftEigenVectors_(0, 1);
+    leftEigenVectors_(0, 3) = - leftEigenVectors_(0, 0);
 
-    // and the exchangeability_
-    for (size_t i = 0; i < size_; i++)
+    leftEigenVectors_(1, 0) = (gamma_ * (gamma_ + delta_)  - alpha_ * (alpha_ + beta_))/(c_1 * c_2);
+    leftEigenVectors_(1, 1) = c_3 / (c_1 * c_2);
+    leftEigenVectors_(1, 2) = -leftEigenVectors_(1,0);
+    leftEigenVectors_(1, 3) = -leftEigenVectors_(1,1);
+
+    leftEigenVectors_(2, 0) = leftEigenVectors_(1,3);
+    leftEigenVectors_(2, 1) = (delta_ * (gamma_ + delta_) - beta_ * (alpha_ + beta_))/(c_1 * c_2);
+    leftEigenVectors_(2, 2) = leftEigenVectors_(1,1);
+    leftEigenVectors_(2, 3) = -leftEigenVectors_(2,1);
+
+    leftEigenVectors_(3, 0) = (1-theta)/2;
+    leftEigenVectors_(3, 1) = theta/2;
+    leftEigenVectors_(3, 2) = leftEigenVectors_(3,1);
+    leftEigenVectors_(3, 3) = leftEigenVectors_(3,0);
+  }
+
+  // and the exchangeability_
+  for (size_t i = 0; i < size_; i++)
+  {
+    for (size_t j = 0; j < size_; j++)
     {
-      for (size_t j = 0; j < size_; j++)
-      {
-        exchangeability_(i, j) = generator_(i, j) / freq_[j];
-      }
+      exchangeability_(i, j) = generator_(i, j) / freq_[j];
     }
   }
+
 }
 
-/******************************************************************************/
-double RN95s::Pij_t(size_t i, size_t j, double d) const
-{
-  l_ = rate_ * r_ * d;
-  exp1_ = exp(-l_);
-  exp3_ = exp(-c3_ * l_);
-
-  switch (i)
-  {
-  case 0: // A
-    switch (j)
-    {
-    case 0: return freq_[0] - 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return freq_[1] + 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return freq_[2] - 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return freq_[3] + 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-    default: return 0;
-    }
-  case 1: // C
-    switch (j)
-    {
-    case 0: return freq_[0] + 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return freq_[1] - 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return freq_[2] + 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return freq_[3] - 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // T
-    default: return 0;
-    }
-  case 2: // G
-    switch (j)
-    {
-    case 0: return freq_[0] - 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return freq_[1] + 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return freq_[2] - 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return freq_[3] + 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-    default: return 0;
-    }
-  case 3: // T, U
-    switch (j)
-    {
-    case 0: return freq_[0] + 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return freq_[1] - 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return freq_[2] + 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return freq_[3] - 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // T
-    default: return 0;
-    }
-  default: return 0;
-  }
-  return 0;
-}
-
-/******************************************************************************/
-double RN95s::dPij_dt(size_t i, size_t j, double d) const
-{
-  l_ = rate_ * r_ * d;
-  exp1_ = -1. * rate_ * r_ * exp(-1. * l_);
-  exp3_ = -c3_* rate_* r_* exp(-c3_ * l_);
-
-  switch (i)
-  {
-  case 0: // A
-    switch (j)
-    {
-    case 0: return -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-    default: return 0;
-    }
-  case 1: // C
-    switch (j)
-    {
-    case 0: return 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // T
-    default: return 0;
-    }
-  case 2: // G
-    switch (j)
-    {
-    case 0: return -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-    default: return 0;
-    }
-  case 3: // T, U
-    switch (j)
-    {
-    case 0: return 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // T
-    default: return 0;
-    }
-  default: return 0;
-  }
-}
-
-/******************************************************************************/
-double RN95s::d2Pij_dt2(size_t i, size_t j, double d) const
-{
-  l_ = rate_ * r_ * d;
-  exp1_ = 1. * rate_ * r_ * 1. * rate_ * r_ * exp(-1. * l_);
-  exp3_ = c3_ * rate_ * r_ * c3_ * rate_ * r_ * exp(-c3_ * l_);
-
-  switch (i)
-  {
-  case 0: // A
-    switch (j)
-    {
-    case 0: return -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-    default: return 0;
-    }
-  case 1: // C
-    switch (j)
-    {
-    case 0: return 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // T
-    default: return 0;
-    }
-  case 2: // G
-    switch (j)
-    {
-    case 0: return -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-    default: return 0;
-    }
-  case 3: // T, U
-    switch (j)
-    {
-    case 0: return 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-    case 1: return -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // C
-    case 2: return 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-    case 3: return -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // T
-    default: return 0;
-    }
-  default: return 0;
-  }
-}
-
-/******************************************************************************/
-
-const Matrix<double>& RN95s::getPij_t(double d) const
-{
-  l_ = rate_ * r_ * d;
-  exp1_ = exp(-1. * l_);
-  exp3_ = exp(-c3_ * l_);
-
-  // A
-  p_(0, 0) = freq_[0] - 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(0, 1) = freq_[1] + 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(0, 2) = freq_[2] - 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(0, 3) = freq_[3] + 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-  // C
-  p_(1, 0) = freq_[0] + 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(1, 1) = freq_[1] - 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(1, 2) = freq_[2] + 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(1, 3) = freq_[3] - 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // T
-  // G
-  p_(2, 0) = freq_[0] - 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(2, 1) = freq_[1] + 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(2, 2) = freq_[2] - 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(2, 3) = freq_[3] + 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-  // T, U
-  p_(3, 0) = freq_[0] + 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(3, 1) = freq_[1] - 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(3, 2) = freq_[2] + 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(3, 3) = freq_[3] - 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // T
-
-  return p_;
-}
-
-/******************************************************************************/
-
-const Matrix<double>&  RN95s::getdPij_dt(double d) const
-{
-  l_ = rate_ * r_ * d;
-  exp1_ = -1. * rate_ * r_ * exp(-1. * l_);
-  exp3_ = -c3_* rate_* r_* exp(-c3_ * l_);
-
-  // A
-  p_(0, 0) = -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(0, 1) =  0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(0, 2) =  -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(0, 3) = 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-  // C
-  p_(1, 0) = 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(1, 1) = -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(1, 2) = 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(1, 3) = -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // T
-  // G
-  p_(2, 0) = -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(2, 1) = 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(2, 2) = -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(2, 3) = 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-  // T, U
-  p_(3, 0) = 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(3, 1) = -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(3, 2) = 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(3, 3) = -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // T
-  return p_;
-}
-
-/******************************************************************************/
-
-const Matrix<double>&  RN95s::getd2Pij_dt2(double d) const
-{
-  l_ = rate_ * r_ * d;
-  exp1_ = 1. * rate_ * r_ * 1. * rate_ * r_ * exp(-1. * l_);
-  exp3_ = c3_ * rate_ * r_ * c3_ * rate_ * r_ * exp(-c3_ * l_);
-
-  // A
-  p_(0, 0) = -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(0, 1) =  0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(0, 2) =  -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (alpha_ * (c3_ - 1.) - 0.5 * c4_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(0, 3) = 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-  // C
-  p_(1, 0) = 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(1, 1) = -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(1, 2) = 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(1, 3) = -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * (c3_ - 1.) - 0.5 * c8_) / (c3_ * (c3_ - 1.)) * exp3_; // T
-  // G
-  p_(2, 0) = -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(2, 1) = 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(2, 2) = -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c8_ - beta_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(2, 3) = 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (delta_ * alpha_ - gamma_ * beta_) / (c3_ * (c3_ - 1.)) * exp3_; // T, U
-  // T, U
-  p_(3, 0) = 0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ + (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // A
-  p_(3, 1) = -0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ + (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_; // C
-  p_(3, 2) = 0.5 * c4_ / (1. * (c3_ - 1.)) * exp1_ - (beta_ * gamma_ - delta_ * alpha_) / (c3_ * (c3_ - 1.)) * exp3_; // G
-  p_(3, 3) = -0.5 * c8_ / (1. * (c3_ - 1.)) * exp1_ - (0.5 * c4_ - alpha_ * (c3_ - 1.)) / (c3_ * (c3_ - 1.)) * exp3_;
-
-  return p_;
-}
 
 /******************************************************************************/
 void RN95s::setFreq(map<int, double>& freqs)

@@ -669,7 +669,7 @@ public:
   /**
    * @brief Optimize parameters according to options.
    *
-   * @param tl               The TreeLikelihood function to optimize.
+   * @param lik              The PhyloLikelihood function to optimize.
    * @param parameters       The initial list of parameters to optimize.
    *                         Use tl->getIndependentParameters() in order to estimate all parameters.
    * @param params           The attribute map where options may be found.

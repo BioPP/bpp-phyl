@@ -55,7 +55,9 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
   AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
-
+  if (nbmod==0)
+    throw Exception("MixtureOfTransitionModels::MixtureOfTransitionModels : empty vector of models.");
+  
   for (i = 0; i < nbmod; i++)
   {
     if (!vpModel[i])
