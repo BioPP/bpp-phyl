@@ -80,7 +80,7 @@ public:
   using ExtType = int;
 
   // Parameter: decide how much product we can do safely before having to normalize (smaller -> less normalizations)
-  static constexpr int allowed_product_without_normalization = 30;
+  static constexpr int allowed_product_without_normalization = 2;
 
   // Radix is the float exponent base
   static constexpr int radix = std::numeric_limits<FloatType>::radix;
