@@ -1,12 +1,12 @@
 //
 // File: LikelihoodCalculationSingleProcess.h
 // Authors:
-//   FranÃÂ§ois Gindraud, Laurent GuÃÂ©guen (2018)
-// Created: jeudi 28 fÃÂ©vrier 2019, ÃÂ  07h 22
+//   François Gindraud, Laurent Guéguen (2018)
+// Created: jeudi 28 février 2019, à 07h 22
 //
 
 /*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -287,12 +287,15 @@ public:
 
   void setData(const AlignedValuesContainer& sites)
   {
-    if (psites_)
-      throw Exception("LikelihoodCalculationSingleProcess::setData : data already assigned.");
     psites_ = &sites;
     setPatterns_();
+    if (isInitialized())
+    {
+      vRateCatTrees_.clear();
+      makeLikelihoodsAtRoot_();
+    }
   }
-
+  
   /**
    * @brief Set derivation procedure (see DataFlowNumeric.h)
    *
@@ -392,11 +395,6 @@ public:
   const AlignedValuesContainer* getData() const
   {
     return psites_;
-  }
-
-  bool isInitialized() const
-  {
-    return getData();
   }
 
   const StateMap& getStateMap() const

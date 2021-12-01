@@ -106,7 +106,7 @@ public:
 
   virtual bool isInitialized() const
   {
-    return true;
+    return likelihood_!=0;
   }
 
   const Context& getContext() const

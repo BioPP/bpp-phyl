@@ -54,7 +54,7 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
 
   probs.resize(nbSites_);
 
-  for (auto i = 0; i < nbSites_; i++)
+  for (uint i = 0; i < (uint)nbSites_; i++)
   {
     copyEigenToBpp(vv.col(i) / vv.col(i).sum(), probs[size_t(i)]);
   }

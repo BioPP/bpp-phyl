@@ -142,7 +142,7 @@ public:
 
   bool isInitialized() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getData();
+    return getLikelihoodCalculationSingleProcess()->isInitialized();
   }
 
   /**

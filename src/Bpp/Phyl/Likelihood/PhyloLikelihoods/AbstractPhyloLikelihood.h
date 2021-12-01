@@ -176,9 +176,6 @@ public:
     if (!isInitialized())
       throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
 
-    if (!getLikelihoodNode())
-      throw Exception("AbstractPhyloLikelihood::getValue(). LikelihoodNode is not built.");
-
     minusLogLik_ = -getLikelihoodNode()->getTargetValue();
     return convert(minusLogLik_);
   }

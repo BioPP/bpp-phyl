@@ -208,9 +208,10 @@ public:
   /**
    * @return 'true' is the likelihood function has been initialized.
    */
+  
   bool isInitialized() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getData();
+    return getLikelihoodCalculationSingleProcess()->isInitialized();
   }
 
   /**

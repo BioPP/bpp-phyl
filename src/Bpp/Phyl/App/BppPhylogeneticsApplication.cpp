@@ -265,7 +265,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
             if (!std::isnormal(sDP->getLogLikelihoodForASite(i - 1)))
             {
               ApplicationTools::displayResult("Ignore saturated site", vData->getSymbolListSite(i - 1).getPosition());
-              vData->deleteSites(i - 1, i);
+              vData->deleteSites(i - 1, 1);
             }
           }
           ApplicationTools::displayResult("Number of sites retained", vData->getNumberOfSites());
@@ -273,10 +273,10 @@ void BppPhylogeneticsApplication::fixLikelihood(
           sDP->setData(*vData);
         }
 
+        logL = sDP->getValue();
+
         if (!std::isnormal(logL))
         {
-          ApplicationTools::displayError("!!! No possible factor to fix likelihood.");
-
           ApplicationTools::displayError("!!! Looking at each site:");
           for (unsigned int i = 0; i < vData->getNumberOfSites(); i++)
           {
