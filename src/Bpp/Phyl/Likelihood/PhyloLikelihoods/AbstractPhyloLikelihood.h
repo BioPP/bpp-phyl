@@ -171,11 +171,6 @@ public:
    */
   double getValue() const override
   {
-    using namespace std; // for isinf
-    using namespace numeric; // for isinf
-    if (!isInitialized())
-      throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
-
     minusLogLik_ = -getLikelihoodNode()->getTargetValue();
     return convert(minusLogLik_);
   }
