@@ -81,6 +81,7 @@
 #include "../Model/Protein/Coala.h"
 #include "../Model/SubstitutionModel.h"
 #include "../Model/WrappedModel.h"
+#include "../Model/RateDistribution/ConstantRateDistribution.h"
 #include "../OptimizationTools.h"
 #include "../Tree/PhyloTree.h"
 #include "../Tree/PhyloTreeTools.h"
@@ -1437,27 +1438,47 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   // /////
   // rate number
 
+  size_t numRate=0;
   if (args.find("rate") == args.end())
-    throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A rate number is compulsory.");
-
-  size_t numRate;
-
-  string sRate = ApplicationTools::getStringParameter("rate", args, "1", "", true, warn);
-
-  size_t pp = sRate.find(".");
-
-  numRate = static_cast<size_t>(TextTools::toInt(sRate.substr(0, pp)));
-  if (!SubProColl->hasDistributionNumber(numRate))
-    throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
-
-  if (pp != string::npos)
   {
-    size_t numSRate = static_cast<size_t>(TextTools::toInt(sRate.substr(pp + 1)));
-    SubProColl->addDistribution(std::make_shared<ConstantDistribution>(SubProColl->getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
-
-    numRate = 10000 * (numRate + 1) + numSRate;
+    const auto& vrdn = SubProColl->getRateDistributionNumbers();
+    numRate=0;
+    for (auto rdn:vrdn)
+      if (SubProColl->getRateDistribution(rdn).getName()=="Constant")
+      {
+        numRate=rdn;
+        break;
+      }
+    if (numRate==0)
+    {
+      for (uint i=1;i <= *std::max_element(vrdn.begin(), vrdn.end())+1;i++)
+        if (std::find(vrdn.begin(), vrdn.end(), i) == vrdn.end())
+        {
+          numRate=i;
+          break;
+        }
+      SubProColl->addDistribution(std::make_shared<ConstantRateDistribution>(),numRate);
+    }
   }
+  else
+  {
+    string sRate = ApplicationTools::getStringParameter("rate", args, "1", "", true, warn);
 
+    size_t pp = sRate.find(".");
+
+    numRate = static_cast<size_t>(TextTools::toInt(sRate.substr(0, pp)));
+  
+    if (!SubProColl->hasDistributionNumber(numRate))
+      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
+    
+    if (pp != string::npos)
+    {
+      size_t numSRate = static_cast<size_t>(TextTools::toInt(sRate.substr(pp + 1)));
+      SubProColl->addDistribution(std::make_shared<ConstantDistribution>(SubProColl->getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
+      
+      numRate = 10000 * (numRate + 1) + numSRate;
+    }
+  }
 
   // ////////
   // root freq number
