@@ -24,7 +24,7 @@ IF(NOT NO_DEP_CHECK)
 ENDIF(NOT NO_DEP_CHECK)
 
 IF(NO_DEP_CHECK)
-  MESSAGE("-- Dependencies checking disabled. Only distribution can be built.")
+	MESSAGE(STATUS "Dependencies checking disabled. Only distribution can be built.")
 ELSE(NO_DEP_CHECK)
 
 #### Optional Debug
