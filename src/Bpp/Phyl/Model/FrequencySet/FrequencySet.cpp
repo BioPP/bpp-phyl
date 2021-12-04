@@ -172,10 +172,7 @@ FixedFrequencySet::FixedFrequencySet(std::shared_ptr<const StateMap> stateMap, c
   AbstractFrequencySet(stateMap, "Fixed.", name)
 {
   size_t n = stateMap->getNumberOfModelStates();
-  for (size_t i = 0; i < n; ++i)
-  {
-    getFreq_(i) = 1. / static_cast<double>(n);
-  }
+  setFrequencies_(std::vector<double>(n , 1./(double)n));
 }
 
 void FixedFrequencySet::setFrequencies(const vector<double>& frequencies)
