@@ -169,9 +169,6 @@ void RN95s::updateMatrices()
   {
     
     ApplicationTools::displayMessage("Singularity during diagonalization of RN95s. Taylor series used instead.");
-    cerr << abs(c_1) << ":" << abs(c_2) << endl;
-    getParameters().printParameters(cerr);
-    
     isNonSingular_ = false;
     isDiagonalizable_ = false;
     MatrixTools::Taylor(generator_, 30, vPowGen_);
