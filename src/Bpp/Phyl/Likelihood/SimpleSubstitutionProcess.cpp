@@ -53,7 +53,6 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel
     throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
 
   // Add parameters:
-  addParameters_(tree->getParameters());  // Branch lengths
   addParameters_(model->getIndependentParameters()); // Substitution model
 }
 

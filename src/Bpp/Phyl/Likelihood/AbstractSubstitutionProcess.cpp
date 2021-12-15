@@ -52,6 +52,8 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizablePhyloTree
 {
   if (!tree)
     throw Exception("AbstractSubstitutionProcess. A tree instance must be provided.");
+  // Add parameters:
+  addParameters_(tree->getParameters());  // Branch lengths
 }
 
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
@@ -74,9 +76,15 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
 void AbstractSubstitutionProcess::setPhyloTree(const PhyloTree& phyloTree)
 {
   if (pTree_)
+  {
+    getParameters_().deleteParameters(pTree_->getParameters().getParameterNames(), false);
     pTree_.release();
+  }
+
   
   pTree_=std::unique_ptr<ParametrizablePhyloTree>(new ParametrizablePhyloTree(phyloTree));
+  addParameters_(pTree_->getParameters()); 
+
 }
   
 ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const

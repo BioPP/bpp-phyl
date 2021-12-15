@@ -59,9 +59,6 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
   if (!rdist)
     throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
 
-  // Add parameters:
-  addParameters_(tree->getParameters());  // Branch lengths
-
   addParameters_(model->getIndependentParameters()); // Substitution model
 
   addParameters_(rdist->getIndependentParameters()); // Rate

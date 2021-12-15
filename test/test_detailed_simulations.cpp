@@ -70,6 +70,8 @@ int main() {
 
   RateAcrossSitesSubstitutionProcess process(model, rdist, paramPhyloTree);
 
+  process.setPhyloTree(*phyloTree);
+  
   SimpleSubstitutionProcessSiteSimulator simulatorS(process);
 
   unsigned int n = 200000;

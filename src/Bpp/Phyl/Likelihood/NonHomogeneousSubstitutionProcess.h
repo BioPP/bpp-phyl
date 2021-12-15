@@ -164,7 +164,6 @@ public:
     modelParameters_(),
     stationarity_(rootFreqs == nullptr)
   {
-    addParameters_(tree->getParameters());  // Branch lengths
     if (rDist_)
       addParameters_(rDist_->getIndependentParameters());
     if (!stationarity_)
