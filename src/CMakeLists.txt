@@ -273,7 +273,7 @@ IF(BUILD_STATIC)
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     )
   set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
-  target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC})
+  target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC} Eigen3::Eigen)
 ENDIF()
 
 # Build the shared lib
