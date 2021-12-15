@@ -115,6 +115,15 @@ public:
   }
 
   /**
+   * @brief set the ParametrizablePhyloTree.
+   *
+   * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
+   *
+   **/
+
+  void setPhyloTree(const PhyloTree& phyloTree);
+
+  /**
    * @brief set the ModelScenario.
    *
    **/

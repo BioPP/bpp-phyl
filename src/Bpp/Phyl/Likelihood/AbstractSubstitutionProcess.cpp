@@ -71,6 +71,14 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
   return *this;
 }
 
+void AbstractSubstitutionProcess::setPhyloTree(const PhyloTree& phyloTree)
+{
+  if (pTree_)
+    pTree_.release();
+  
+  pTree_=std::unique_ptr<ParametrizablePhyloTree>(new ParametrizablePhyloTree(phyloTree));
+}
+  
 ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
 {
   ParameterList pl = getSubstitutionModelParameters(true);
