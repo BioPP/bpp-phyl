@@ -1,8 +1,7 @@
 //
-// File: AbstractSubstitutionProcess.h
-// Authors:
-//   Julien Dutheil
-// Created: Tue Marc 22 21:17 2013
+// File: AbstractSubstitutionProcessAutonomous.h
+// Authors: Laurent Guéguen
+// Created: jeudi 16 décembre 2021, à 21h 48
 //
 
 /*
@@ -38,17 +37,14 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESS_H
-#define BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESS_H
+#ifndef BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESSAUTONOMOUS_H
+#define BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESSAUTONOMOUS_H
 
-
-#include "SubstitutionProcess.h"
+#include "AbstractSubstitutionProcess.h"
+#include "SubstitutionProcessAutonomous.h"
 
 // From the STL:
 #include <memory>
-
-// From bpp-core:
-#include <Bpp/Numeric/AbstractParameterAliasable.h>
 
 namespace bpp
 {
@@ -58,42 +54,66 @@ namespace bpp
  * This class handles a pointer toward a ParametrizableTree object, as well
  * as convenient arrays for storing previously computed probabilities.
  */
-class AbstractSubstitutionProcess :
-  public virtual SubstitutionProcess,
-  public virtual AbstractParameterAliasable
+class AbstractSubstitutionProcessAutonomous :
+  public virtual SubstitutionProcessAutonomous,
+  public virtual AbstractSubstitutionProcess
 {
+protected:
+  std::unique_ptr<ParametrizablePhyloTree> pTree_;
+
+  std::shared_ptr<ModelScenario> modelScenario_;
+
+protected:
+  AbstractSubstitutionProcessAutonomous(ParametrizablePhyloTree* tree, const std::string& prefix = "");
+
+  AbstractSubstitutionProcessAutonomous(const AbstractSubstitutionProcessAutonomous& asp);
+
+  AbstractSubstitutionProcessAutonomous& operator=(const AbstractSubstitutionProcessAutonomous& asp);
+
 public:
-
-  size_t getNumberOfClasses() const
-  {
-    auto dist=getRateDistribution();
-    return dist?dist->getNumberOfCategories():1;
-  }
-
-  size_t getNumberOfStates() const
-  {
-    return getStateMap().getNumberOfModelStates();
-  }
-
-
-  const Alphabet* getAlphabet() const
-  {
-    return getStateMap().getAlphabet();
-  }
-
-
-  bool isCompatibleWith(const AlignedValuesContainer& data) const
-  {
-    return data.getAlphabet()->getAlphabetType() == getAlphabet()->getAlphabetType();
-  }
+  const ParametrizablePhyloTree& getParametrizablePhyloTree() const { return *pTree_; }
 
   /**
-   * @brief get NonDerivable parameters
+   * @brief AbsractParametrizable interface
    *
    **/
 
-  ParameterList getNonDerivableParameters() const;
+  void fireParameterChanged(const ParameterList& pl);
 
+  /**
+   * @brief Return if process has ModelScenario.
+   *
+   **/
+  bool hasModelScenario() const
+  {
+    return modelScenario_ != 0;
+  }
+
+  /**
+   * @brief get the ModelScenario.
+   *
+   **/
+  const ModelScenario& getModelScenario() const
+  {
+    return *modelScenario_;
+  }
+
+  /**
+   * @brief set the ParametrizablePhyloTree.
+   *
+   * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
+   *
+   **/
+
+  void setPhyloTree(const PhyloTree& phyloTree);
+
+  /**
+   * @brief set the ModelScenario.
+   *
+   **/
+
+  virtual void setModelScenario(std::shared_ptr<ModelScenario> modelscenario) = 0;
 };
 } // end namespace bpp
-#endif // BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESS_H
+
+#endif // BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESSAUTONOMOUS_Hx

@@ -120,6 +120,9 @@ void SubstitutionProcessCollection::clear()
 
 void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters)
 {
+  if (parametrizableIndex<=1)
+    throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.",(int)parametrizableIndex);
+  
   ParameterList pl;
   if (std::dynamic_pointer_cast<BranchModel>(parametrizable))
   {
@@ -171,31 +174,8 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
   modelColl_.clearChanged();
   modelColl_.matchParametersValues(gAP);
 
-
-//   const vector<size_t>& vM=modelColl_.hasChanged();
-//   for (size_t i=0; i<vM.size(); i++)
-//   {
-//     const vector<size_t>& vs=mModelToSubPro_[vM[i]];
-//     for (size_t j=0; j<vs.size(); j++){
-// //      mSubProcess_[vs[j]]->changedModel(vM[i]);
-//       if (mSubProcess_[vs[j]]->isStationary())
-//         mSubProcess_[vs[j]]->changedRoot();
-//     }
-//   }
-
   freqColl_.clearChanged();
   freqColl_.matchParametersValues(gAP);
-
-  // vector<size_t> keys=freqColl_.keys();
-
-  // const vector<size_t> vMf=freqColl_.hasChanged();
-  // for (size_t i=0; i<vMf.size(); i++)
-  // {
-  //   const vector<size_t>& vs=mFreqToSubPro_[vMf[i]];
-  //   for (size_t j=0; j<vs.size(); j++)
-  //     mSubProcess_[vs[j]]->changedRoot();
-  // }
-
 
   // map of the SubProcess to be fired
 
@@ -343,11 +323,6 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   mDistToSubPro_[nRate].push_back(nProc);
 
   mSubProcess_[nProc] = pSMS;
-}
-
-bool SubstitutionProcessCollection::hasBranchLengthParameter(const std::string& name) const
-{
-  return treeColl_.hasParameter(name);
 }
 
 ParameterList SubstitutionProcessCollection::getSubstitutionProcessParameters() const

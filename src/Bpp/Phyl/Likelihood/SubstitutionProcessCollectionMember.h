@@ -42,7 +42,7 @@
 #define BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSCOLLECTIONMEMBER_H
 
 
-#include "SubstitutionProcess.h"
+#include "AbstractSubstitutionProcess.h"
 
 namespace bpp
 {
@@ -56,8 +56,7 @@ namespace bpp
 class SubstitutionProcessCollection;
 
 class SubstitutionProcessCollectionMember :
-  public virtual SubstitutionProcess,
-  public virtual AbstractParameterAliasable
+  public AbstractSubstitutionProcess
 {
 private:
   /**
@@ -107,12 +106,9 @@ private:
   size_t nDist_;
 
   /**
-   * @brief A boolean if the model is stationary, and the number of
-   *  the root frequencies.
+   * @brief The number of the root frequencies (0 if the process is stationary).
    *
    */
-
-  bool stationarity_;
 
   size_t nRoot_;
 
@@ -174,8 +170,6 @@ public:
     return getModel(modelToNodes_.begin()->first)->getStateMap();
   }
 
-  const Alphabet* getAlphabet() const;
-
   /**
    * @return the number of the process in the collection
    */
@@ -200,7 +194,7 @@ public:
    **/
   bool isStationary() const
   {
-    return stationarity_;
+    return nRoot_==0;
   }
 
   /**
@@ -314,9 +308,6 @@ public:
 
   bool matchParametersValues(const ParameterList& parameters);
 
-  void fireParameterChanged(const ParameterList& parameters)
-  {}
-
   /**
    * @brief Check if the model set is fully specified for a given tree.
    *
@@ -345,21 +336,6 @@ protected:
   /** @} */
 
 public:
-  /*
-   * Inheriting from SubstitutionProcess
-   */
-
-  bool isCompatibleWith(const AlignedValuesContainer& data) const;
-
-  /**
-   * @brief Get the number of states associated to this model set.
-   *
-   * @return The number of states, or 0 if no model is associated to
-   * the set.
-   */
-
-  size_t getNumberOfStates() const;
-
   /**
    * @return The values of the root frequencies.
    */
@@ -373,8 +349,6 @@ public:
   const ParametrizablePhyloTree& getParametrizablePhyloTree() const;
 
   size_t getTreeNumber() const { return nTree_; }
-
-  size_t getNumberOfClasses() const;
 
   /**
    * @brief Get the substitution model corresponding to a certain branch, site pattern, and model class.
@@ -406,8 +380,6 @@ public:
 
   ParameterList getBranchLengthParameters(bool independent) const;
 
-  bool hasBranchLengthParameter(const std::string& name) const;
-
   /**
    * @brief Get the parameters of the root frequencies set.
    *
@@ -421,69 +393,6 @@ public:
    **/
 
   ParameterList getNonDerivableParameters() const;
-
-
-  /**
-   * @brief Get the transition probabilities corresponding to a
-   * certain branch, and model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
-  const Matrix<double>& getTransitionProbabilities(unsigned int nodeId, size_t classIndex) const
-  {
-    throw Exception("SubstitutionProcessCollectionMember::getTransitionProbabilities not finished. Ask developpers.");
-  }
-
-  /**
-   * @brief Get the first order derivatives of the transition
-   * probabilities according to time, corresponding to a certain
-   * branch, and model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
-  const Matrix<double>& getTransitionProbabilitiesD1(unsigned int nodeId, size_t classIndex) const
-  {
-    throw Exception("SubstitutionProcessCollectionMember::getTransitionProbabilitiesD1 not finished. Ask developpers.");
-  }
-
-  /**
-   * @brief Get the second order derivatives of the transition
-   * probabilities according to time, corresponding to a certain
-   * branch, and model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
-  const Matrix<double>& getTransitionProbabilitiesD2(unsigned int nodeId, size_t classIndex) const
-  {
-    throw Exception("SubstitutionProcessCollectionMember::getTransitionProbabilitiesD2 not finished. Ask developpers.");
-  }
-
-
-  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
-  // {
-  //   return getSubstitutionModel(nodeId, classIndex).getGenerator();
-  // }
-
-  /**
-   * This method is used to initialize likelihoods in reccursions.
-   * It typically sends 1 if i = state, 0 otherwise, where
-   * i is one of the possible states of the alphabet allowed in the model
-   * and state is the observed state in the considered sequence/site.
-   *
-   * The model used is the first one in the list of the models.
-   *
-   * @param i the index of the state in the model.
-   * @param state An observed state in the sequence/site.
-   * @return 1 or 0 depending if the two states are compatible.
-   * @throw BadIntException if states are not allowed in the associated alphabet.
-   * @see getStates();
-   * @see SubstitutionModel
-   */
-
-  double getInitValue(size_t i, int state) const;
 
   double getProbabilityForModel(size_t classIndex) const;
 

@@ -43,7 +43,7 @@
 
 
 #include "../Model/FrequencySet/FrequencySet.h"
-#include "AbstractSubstitutionProcess.h"
+#include "AbstractSubstitutionProcessAutonomous.h"
 
 // From bpp-core:
 #include <Bpp/Exceptions.h>
@@ -111,7 +111,7 @@ namespace bpp
 
 
 class NonHomogeneousSubstitutionProcess :
-  public AbstractSubstitutionProcess
+  public AbstractSubstitutionProcessAutonomous
 {
 private:
   /**
@@ -155,7 +155,7 @@ public:
 
   NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, ParametrizablePhyloTree* tree, FrequencySet* rootFreqs = nullptr) :
     AbstractParameterAliasable(""),
-    AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 1),
+    AbstractSubstitutionProcessAutonomous(tree),
     modelSet_(),
     rootFrequencies_(),
     rDist_(rdist),
@@ -196,19 +196,6 @@ public:
    * @param parameters The modified parameters.
    */
   void fireParameterChanged(const ParameterList& parameters);
-
-  /**
-   * @brief Get the alphabet
-   * @throw Exception if no model is associated to the set.
-   *
-   */
-  const Alphabet* getAlphabet() const
-  {
-    if (modelSet_.size() == 0)
-      throw Exception("NonHomogeneousSubstitutionProcess::getAlphabet : no model associated");
-    else
-      return modelSet_[0]->getAlphabet();
-  }
 
   const StateMap& getStateMap() const
   {
@@ -448,26 +435,6 @@ protected:
   bool checkUnknownNodes(bool throwEx) const;
 
 public:
-  /*
-   * Inheriting from SubstitutionProcess
-   */
-
-  bool isCompatibleWith(const AlignedValuesContainer& data) const;
-
-  /**
-   * @brief Get the number of states associated to this model set.
-   *
-   * @return The number of states, or 0 if no model is associated to
-   * the set.
-   */
-  size_t getNumberOfStates() const
-  {
-    if (modelSet_.size() == 0)
-      return 0;
-    else
-      return modelSet_[0]->getNumberOfStates();
-  }
-
   /**
    * @return The values of the root frequencies.
    */
@@ -488,34 +455,6 @@ public:
   const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const
   {
     return modelSet_[nodeToModel_[nodeId]].get();
-  }
-
-  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
-  // {
-  //   return getSubstitutionModel(nodeId, classIndex).getGenerator();
-  // }
-
-  /**
-   * This method is used to initialize likelihoods in reccursions.
-   * It typically sends 1 if i = state, 0 otherwise, where
-   * i is one of the possible states of the alphabet allowed in the model
-   * and state is the observed state in the considered sequence/site.
-   *
-   * The model used is the first one in the list of the models.
-   *
-   * @param i the index of the state in the model.
-   * @param state An observed state in the sequence/site.
-   * @return 1 or 0 depending if the two states are compatible.
-   * @throw BadIntException if states are not allowed in the associated alphabet.
-   * @see getStates();
-   * @see BranchModel
-   */
-  double getInitValue(size_t i, int state) const
-  {
-    if (modelSet_.size() == 0)
-      throw Exception("NonHomogeneousSubstitutionProcess::getInitValue : no model associated");
-    else
-      return modelSet_[0]->getInitValue(i, state);
   }
 
   double getProbabilityForModel(size_t classIndex) const

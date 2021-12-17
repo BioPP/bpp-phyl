@@ -212,14 +212,12 @@ public:
    * @throw Exception if the number is already used. See replace
    * function instead.
    *
-   * @param parametrizable A pointer toward a parametrizable, that will added to
+   * @param parametrizable A shared pointer toward a parametrizable, that will added to
    * the collection.
    *
-   * WARNING! The collection will now be the owner of the pointer, and will destroy it if needed!
-   * Copy the parametrizable first if you don't want it to be lost!
-
    * @param parametrizableIndex The number of the parametrizable in
-   * the Collection
+   * the Collection. Must be >= 1.
+   *
    * @param withParameters boolean if the parameters of the object
    *         should be added (default: true)
    *
@@ -602,8 +600,6 @@ public:
     else
       return pl;
   }
-
-  bool hasBranchLengthParameter(const std::string& name) const;
 
   /**
    * @brief Get the parameters associated to substitution process(es).

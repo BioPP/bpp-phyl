@@ -50,7 +50,7 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
   shared_ptr<DiscreteDistribution> rdist,
   ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),
-  AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0, model ? model->getNamespace() : ""),
+  AbstractSubstitutionProcessAutonomous(tree, model ? model->getNamespace() : ""),
   model_(model),
   rDist_(rdist)
 {
@@ -67,7 +67,7 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :
   AbstractParameterAliasable(rassp),
-  AbstractSubstitutionProcess(rassp),
+  AbstractSubstitutionProcessAutonomous(rassp),
   model_(rassp.model_->clone()),
   rDist_(rassp.rDist_->clone())
 {
@@ -79,7 +79,7 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const Rat
 RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator=(const RateAcrossSitesSubstitutionProcess& rassp)
 {
   AbstractParameterAliasable::operator=(rassp);
-  AbstractSubstitutionProcess::operator=(rassp);
+  AbstractSubstitutionProcessAutonomous::operator=(rassp);
   model_.reset(rassp.model_->clone());
   rDist_.reset(rassp.rDist_->clone());
 
@@ -112,5 +112,5 @@ void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterLis
   model_->matchParametersValues(pl);
 
   // Transition probabilities have changed and need to be recomputed:
-  AbstractSubstitutionProcess::fireParameterChanged(pl);
+  AbstractSubstitutionProcessAutonomous::fireParameterChanged(pl);
 }

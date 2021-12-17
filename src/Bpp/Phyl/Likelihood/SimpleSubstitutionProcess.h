@@ -42,7 +42,7 @@
 #define BPP_PHYL_LIKELIHOOD_SIMPLESUBSTITUTIONPROCESS_H
 
 
-#include "AbstractSubstitutionProcess.h"
+#include "AbstractSubstitutionProcessAutonomous.h"
 
 // From the stl:
 #include <memory>
@@ -53,7 +53,7 @@ namespace bpp
  * @brief Space and time homogeneous substitution process, without mixture.
  */
 class SimpleSubstitutionProcess :
-  public AbstractSubstitutionProcess
+  public AbstractSubstitutionProcessAutonomous
 {
 protected:
   std::shared_ptr<BranchModel> model_;
@@ -70,19 +70,12 @@ public:
 public:
   SimpleSubstitutionProcess* clone() const { return new SimpleSubstitutionProcess(*this); }
 
-  size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
-
   const StateMap& getStateMap() const
   {
     return model_->getStateMap();
   }
 
   size_t getNumberOfModels() const { return 1; }
-
-  bool isCompatibleWith(const AlignedValuesContainer& data) const
-  {
-    return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
-  }
 
   std::vector<size_t> getModelNumbers() const
   {
@@ -164,11 +157,6 @@ public:
    */
 
   void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
-
-  double getInitValue(size_t i, int state) const
-  {
-    return model_->getInitValue(i, state);
-  }
 
   double getProbabilityForModel(size_t classIndex) const
   {

@@ -42,7 +42,7 @@
 #define BPP_PHYL_LIKELIHOOD_RATEACROSSSITESSUBSTITUTIONPROCESS_H
 
 
-#include "AbstractSubstitutionProcess.h"
+#include "AbstractSubstitutionProcessAutonomous.h"
 
 // From bpp-core:
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
@@ -53,7 +53,7 @@
 namespace bpp
 {
 class RateAcrossSitesSubstitutionProcess :
-  public AbstractSubstitutionProcess
+  public AbstractSubstitutionProcessAutonomous
 {
 private:
   std::shared_ptr<BranchModel> model_;
@@ -72,18 +72,11 @@ public:
 public:
   RateAcrossSitesSubstitutionProcess* clone() const { return new RateAcrossSitesSubstitutionProcess(*this); }
 
-  size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
-
   size_t getNumberOfModels() const { return 1; }
 
   std::vector<size_t> getModelNumbers() const
   {
     return std::vector<size_t>(1, 1);
-  }
-
-  bool isCompatibleWith(const AlignedValuesContainer& data) const
-  {
-    return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
 
   const StateMap& getStateMap() const
@@ -162,11 +155,6 @@ public:
    */
 
   void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
-
-  double getInitValue(size_t i, int state) const
-  {
-    return model_->getInitValue(i, state);
-  }
 
   double getProbabilityForModel(size_t classIndex) const
   {

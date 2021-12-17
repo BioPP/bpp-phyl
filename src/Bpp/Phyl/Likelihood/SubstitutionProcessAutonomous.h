@@ -1,8 +1,7 @@
 //
-// File: AbstractSubstitutionProcess.h
-// Authors:
-//   Julien Dutheil
-// Created: Tue Marc 22 21:17 2013
+// File: SubstitutionProcessAutonomous.h
+// Authors: Laurent Guéguen
+// Created: jeudi 16 décembre 2021, à 21h 39
 //
 
 /*
@@ -38,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESS_H
-#define BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESS_H
+#ifndef BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSAUTONOMOUS_H
+#define BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSAUTONOMOUS_H
 
 
 #include "SubstitutionProcess.h"
@@ -47,53 +46,33 @@
 // From the STL:
 #include <memory>
 
-// From bpp-core:
-#include <Bpp/Numeric/AbstractParameterAliasable.h>
-
 namespace bpp
 {
 /**
- * @brief A partial implementation of the SubstitutionProcess interface.
+ * @brief Interface for SubstitutionProcesses that own their own
+ * ParametrizablePhyloTree & Scenario.
  *
- * This class handles a pointer toward a ParametrizableTree object, as well
- * as convenient arrays for storing previously computed probabilities.
  */
-class AbstractSubstitutionProcess :
-  public virtual SubstitutionProcess,
-  public virtual AbstractParameterAliasable
+class SubstitutionProcessAutonomous :
+  public virtual SubstitutionProcess
 {
-public:
-
-  size_t getNumberOfClasses() const
-  {
-    auto dist=getRateDistribution();
-    return dist?dist->getNumberOfCategories():1;
-  }
-
-  size_t getNumberOfStates() const
-  {
-    return getStateMap().getNumberOfModelStates();
-  }
-
-
-  const Alphabet* getAlphabet() const
-  {
-    return getStateMap().getAlphabet();
-  }
-
-
-  bool isCompatibleWith(const AlignedValuesContainer& data) const
-  {
-    return data.getAlphabet()->getAlphabetType() == getAlphabet()->getAlphabetType();
-  }
-
   /**
-   * @brief get NonDerivable parameters
+   * @brief set the ParametrizablePhyloTree.
+   *
+   * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
    *
    **/
 
-  ParameterList getNonDerivableParameters() const;
+  void setPhyloTree(const PhyloTree& phyloTree);
+
+  /**
+   * @brief set the ModelScenario.
+   *
+   **/
+
+  virtual void setModelScenario(std::shared_ptr<ModelScenario> modelscenario) = 0;
 
 };
 } // end namespace bpp
-#endif // BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESS_H
+
+#endif // BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSAUTONOMOUS_H

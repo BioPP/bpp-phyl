@@ -51,7 +51,7 @@ using namespace std;
 
 NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHomogeneousSubstitutionProcess& set) :
   AbstractParameterAliasable(set),
-  AbstractSubstitutionProcess(set),
+  AbstractSubstitutionProcessAutonomous(set),
   modelSet_(set.modelSet_.size()),
   rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone())),
   rDist_                (set.rDist_ ? dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()) : 0),
@@ -78,7 +78,7 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
   clear();
 
   AbstractParameterAliasable::operator=(set);
-  AbstractSubstitutionProcess::operator=(set);
+  AbstractSubstitutionProcessAutonomous::operator=(set);
   nodeToModel_         = set.nodeToModel_;
   modelToNodes_        = set.modelToNodes_;
   modelParameters_     = set.modelParameters_;
@@ -147,9 +147,9 @@ void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsign
 
 void NonHomogeneousSubstitutionProcess::addModel(std::shared_ptr<BranchModel> model, const std::vector<unsigned int>& nodesId)
 {
-  if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
+  if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
-  if (modelSet_.size() > 0 && model->getNumberOfStates() != modelSet_[0]->getNumberOfStates())
+  if (modelSet_.size() > 0 && model->getNumberOfStates() != getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
   modelSet_.push_back(model);
@@ -178,9 +178,9 @@ void NonHomogeneousSubstitutionProcess::addModel(std::shared_ptr<BranchModel> mo
 
 void NonHomogeneousSubstitutionProcess::setModel(std::shared_ptr<BranchModel> model, size_t modelIndex)
 {
-  if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
+  if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
-  if (modelSet_.size() > 0 && model->getNumberOfStates() != modelSet_[0]->getNumberOfStates())
+  if (modelSet_.size() > 0 && model->getNumberOfStates() != getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
   if (modelIndex >= modelSet_.size())
@@ -240,7 +240,7 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
     modelSet_[i]->matchParametersValues(modelParameters_[i]);
   }
 
-  AbstractSubstitutionProcess::fireParameterChanged(parameters);
+  AbstractSubstitutionProcessAutonomous::fireParameterChanged(parameters);
 }
 
 
@@ -327,18 +327,6 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelSc
   }
 
   modelScenario_ = modelscenario;
-}
-
-
-/*
- * Inheriting from SubstitutionProcess
- */
-bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const AlignedValuesContainer& data) const
-{
-  if (modelSet_.size() > 0)
-    return data.getAlphabet()->getAlphabetType() == modelSet_[0]->getAlphabet()->getAlphabetType();
-  else
-    return true;
 }
 
 

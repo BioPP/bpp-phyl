@@ -46,7 +46,7 @@ using namespace std;
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),
-  AbstractSubstitutionProcess(tree, 1, model ? model->getNamespace() : ""),
+  AbstractSubstitutionProcessAutonomous(tree, model ? model->getNamespace() : ""),
   model_(model)
 {
   if (!model)
@@ -58,7 +58,7 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :
   AbstractParameterAliasable(ssp),
-  AbstractSubstitutionProcess(ssp),
+  AbstractSubstitutionProcessAutonomous(ssp),
   model_(ssp.model_->clone())
 {
   if (modelScenario_)
@@ -68,7 +68,7 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionPro
 SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubstitutionProcess& ssp)
 {
   AbstractParameterAliasable::operator=(ssp);
-  AbstractSubstitutionProcess::operator=(ssp);
+  AbstractSubstitutionProcessAutonomous::operator=(ssp);
   model_.reset(ssp.model_->clone());
 
   if (modelScenario_)
@@ -96,7 +96,7 @@ void SimpleSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> 
 void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   // Transition probabilities have changed and need to be recomputed:
-  AbstractSubstitutionProcess::fireParameterChanged(pl);
+  AbstractSubstitutionProcessAutonomous::fireParameterChanged(pl);
 
   model_->matchParametersValues(pl);
 }

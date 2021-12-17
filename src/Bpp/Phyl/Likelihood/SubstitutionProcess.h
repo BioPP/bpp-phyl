@@ -199,36 +199,6 @@ public:
   virtual ParameterList getNonDerivableParameters() const = 0;
 
   /**
-   * @brief Get the transition probabilities corresponding to a
-   * certain branch, and model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
-
-  virtual const Matrix<double>& getTransitionProbabilities(unsigned int nodeId, size_t classIndex) const = 0;
-
-  /**
-   * @brief Get the first order derivatives of the transition
-   * probabilities according to time, corresponding to a certain
-   * branch, and model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
-  virtual const Matrix<double>& getTransitionProbabilitiesD1(unsigned int nodeId, size_t classIndex) const = 0;
-
-  /**
-   * @brief Get the second order derivatives of the transition
-   * probabilities according to time, corresponding to a certain
-   * branch, and model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
-  virtual const Matrix<double>& getTransitionProbabilitiesD2(unsigned int nodeId, size_t classIndex) const = 0;
-
-  /**
    * @brief Get the values of the frequencies for each state in the
    * alphabet at the root node.
    *
@@ -240,21 +210,6 @@ public:
   virtual const std::vector<double>& getRootFrequencies() const = 0;
 
   virtual std::shared_ptr<const FrequencySet> getRootFrequencySet() const = 0;
-
-  /**
-   * This method is used to initialize likelihoods in reccursions.
-   * It typically sends 1 if i = state, 0 otherwise, where
-   * i is one of the possible states of the alphabet allowed in the model
-   * and state is the observed state in the considered sequence/site.
-   *
-   * @param i the index of the state in the model.
-   * @param state An observed state in the sequence/site.
-   * @return 1 or 0 depending if the two states are compatible.
-   * @throw BadIntException if states are not allowed in the associated alphabet.
-   * @see getStates();
-   * @see SubstitutionModel
-   */
-  virtual double getInitValue(size_t i, int state) const = 0;
 
   /**
    * @return The probability associated to the given model class.

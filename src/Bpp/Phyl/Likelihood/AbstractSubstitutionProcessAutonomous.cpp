@@ -39,20 +39,56 @@
 */
 
 
-#include "AbstractSubstitutionProcess.h"
+#include "AbstractSubstitutionProcessAutonomous.h"
 
 using namespace bpp;
 using namespace std;
 
-ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
+AbstractSubstitutionProcessAutonomous::AbstractSubstitutionProcessAutonomous(ParametrizablePhyloTree* tree, const string& prefix) :
+  AbstractParameterAliasable(prefix),
+  pTree_(tree),
+  modelScenario_(0)
 {
-  ParameterList pl = getSubstitutionModelParameters(true);
-  pl.includeParameters(getRootFrequenciesParameters(true));
-  pl.includeParameters(getRateDistributionParameters(true));
-
-  pl.includeParameters(getAliasedParameters(pl));
-  pl.includeParameters(getFromParameters(pl));
-
-  return pl;
+  if (!tree)
+    throw Exception("AbstractSubstitutionProcessAutonomous. A tree instance must be provided.");
+  // Add parameters:
+  addParameters_(tree->getParameters());  // Branch lengths
 }
 
+AbstractSubstitutionProcessAutonomous::AbstractSubstitutionProcessAutonomous(const AbstractSubstitutionProcessAutonomous& asp) :
+  AbstractParameterAliasable(asp),
+  pTree_(asp.pTree_->clone()),
+  modelScenario_(asp.modelScenario_) // this has to be specified by inheriting class to follow model links
+{}
+
+AbstractSubstitutionProcessAutonomous& AbstractSubstitutionProcessAutonomous::operator=(const AbstractSubstitutionProcessAutonomous& asp)
+{
+  AbstractParameterAliasable::operator=(*this);
+
+  pTree_.reset(pTree_->clone());
+  modelScenario_ = asp.modelScenario_; // this has to be specified by inheriting class to follow model links
+  return *this;
+}
+
+void AbstractSubstitutionProcessAutonomous::fireParameterChanged(const ParameterList& pl)
+{
+  ParameterList gAP = getAliasedParameters(pl);
+  gAP.addParameters(pl);
+
+  pTree_->matchParametersValues(gAP);
+}
+
+void AbstractSubstitutionProcessAutonomous::setPhyloTree(const PhyloTree& phyloTree)
+{
+  if (pTree_)
+  {
+    getParameters_().deleteParameters(pTree_->getParameters().getParameterNames(), false);
+    pTree_.release();
+  }
+
+  
+  pTree_=std::unique_ptr<ParametrizablePhyloTree>(new ParametrizablePhyloTree(phyloTree));
+  addParameters_(pTree_->getParameters()); 
+
+}
+  

@@ -55,7 +55,6 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember( Substi
   modelToNodes_(),
   nTree_(nTree),
   nDist_(nDist),
-  stationarity_(true),
   nRoot_(0),
   hasModelScenario_(false),
   nPath_(0)
@@ -72,7 +71,6 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   modelToNodes_(set.modelToNodes_),
   nTree_(set.nTree_),
   nDist_(set.nDist_),
-  stationarity_(set.stationarity_),
   nRoot_(set.nRoot_),
   hasModelScenario_(set.hasModelScenario_),
   nPath_(set.nPath_)
@@ -88,7 +86,6 @@ SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operat
   modelToNodes_ = set.modelToNodes_;
   nTree_ = set.nTree_;
   nDist_ = set.nDist_;
-  stationarity_ = set.stationarity_;
   nRoot_ = set.nRoot_;
   hasModelScenario_ = set.hasModelScenario_;
   nPath_ = set.nPath_;
@@ -101,13 +98,7 @@ void SubstitutionProcessCollectionMember::clear()
   nodeToModel_.clear();
   modelToNodes_.clear();
 
-  stationarity_ = true;
-}
-
-
-inline const Alphabet* SubstitutionProcessCollectionMember::getAlphabet() const
-{
-  return (getCollection()->getModel(modelToNodes_.begin()->first))->getAlphabet();
+  nRoot_=0;
 }
 
 inline const BranchModel* SubstitutionProcessCollectionMember::getModel(size_t n) const
@@ -146,14 +137,9 @@ ParameterList SubstitutionProcessCollectionMember::getBranchLengthParameters(boo
   return getCollection()->getBranchLengthParameters(nTree_, independent);
 }
 
-inline bool SubstitutionProcessCollectionMember::hasBranchLengthParameter(const std::string& name) const
-{
-  return getCollection()->hasBranchLengthParameter(name);
-}
-
 ParameterList SubstitutionProcessCollectionMember::getRootFrequenciesParameters(bool independent) const
 {
-  if (!stationarity_)
+  if (!isStationary())
     return getCollection()->getRootFrequenciesParameters(nRoot_, independent);
   else
     return ParameterList();
@@ -198,7 +184,7 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
 
 inline std::shared_ptr<const FrequencySet> SubstitutionProcessCollectionMember::getRootFrequencySet() const
 {
-  if (stationarity_)
+  if (!isStationary())
     return std::shared_ptr<const FrequencySet>(0);
   else
     return getCollection()->shareFrequencies(nRoot_);
@@ -208,7 +194,7 @@ inline const std::vector<double>& SubstitutionProcessCollectionMember::getRootFr
 {
   auto model = dynamic_pointer_cast<const TransitionModel>(getCollection()->getModel(modelToNodes_.begin()->first));
 
-  if (stationarity_ && model)
+  if (isStationary() && model)
     return model->getFrequencies();
   else
     return (getCollection()->getFrequencies(nRoot_)).getFrequencies();
@@ -260,12 +246,6 @@ inline const ParametrizablePhyloTree& SubstitutionProcessCollectionMember::getPa
   return getCollection()->getTree(nTree_);
 }
 
-inline size_t SubstitutionProcessCollectionMember::getNumberOfClasses() const
-{
-  return getCollection()->getRateDistribution(nDist_).getNumberOfCategories();
-}
-
-
 void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<unsigned int>& nodesId)
 {
   const BranchModel& nmod = *getCollection()->getModel(numModel);
@@ -278,7 +258,7 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
     if (nmod.getNumberOfStates() != modi.getNumberOfStates())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
   }
-  else if (!stationarity_)
+  else if (!isStationary())
   {
     const FrequencySet& freq = getCollection()->getFrequencies(nRoot_);
     if (freq.getAlphabet()->getAlphabetType() != nmod.getAlphabet()->getAlphabetType())
@@ -311,7 +291,6 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
       throw Exception("SubstitutionProcessCollectionMember::setRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same number of states as the models.");
   }
 
-  stationarity_ = false;
   nRoot_ = numFreq;
 
   updateParameters();
@@ -372,14 +351,6 @@ bool SubstitutionProcessCollectionMember::hasMixedTransitionModel() const
 /*
  * Inheriting from SubstitutionProcess
  */
-bool SubstitutionProcessCollectionMember::isCompatibleWith(const AlignedValuesContainer& data) const
-{
-  if (modelToNodes_.size() > 0)
-    return data.getAlphabet()->getAlphabetType() == getCollection()->getModel(modelToNodes_.begin()->first)->getAlphabet()->getAlphabetType();
-  else
-    return true;
-}
-
 
 inline const BranchModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const
 {
@@ -389,25 +360,9 @@ inline const BranchModel* SubstitutionProcessCollectionMember::getModelForNode(u
   return getModel(i->second);
 }
 
-inline size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
-{
-  if (modelToNodes_.size() == 0)
-    return 0;
-  else
-    return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
-}
-
 inline const BranchModel* SubstitutionProcessCollectionMember::getModel(unsigned int nodeId, size_t classIndex) const
 {
   return getModel(nodeToModel_.at(nodeId));
-}
-
-inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const
-{
-  if (modelToNodes_.size() == 0)
-    throw Exception("SubstitutionProcessCollectionMember::getInitValue : no model associated");
-  else
-    return getModel(modelToNodes_.begin()->first)->getInitValue(i, state);
 }
 
 inline double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t classIndex) const
