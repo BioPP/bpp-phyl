@@ -39,7 +39,7 @@
 */
 
 
-#include "AbstractSubstitutionProcessAutonomous.h"
+#include "AbstractAutonomousSubstitutionProcess.h"
 
 using namespace bpp;
 using namespace std;

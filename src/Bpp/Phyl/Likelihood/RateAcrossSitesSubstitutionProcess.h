@@ -42,7 +42,7 @@
 #define BPP_PHYL_LIKELIHOOD_RATEACROSSSITESSUBSTITUTIONPROCESS_H
 
 
-#include "AbstractSubstitutionProcessAutonomous.h"
+#include "AbstractAutonomousSubstitutionProcess.h"
 
 // From bpp-core:
 #include <Bpp/Numeric/AbstractParameterAliasable.h>

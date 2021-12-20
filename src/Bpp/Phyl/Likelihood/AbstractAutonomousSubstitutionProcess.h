@@ -1,7 +1,7 @@
 //
-// File: SubstitutionProcessAutonomous.h
+// File: AbstractAutonomousSubstitutionProcess.h
 // Authors: Laurent Guéguen
-// Created: jeudi 16 décembre 2021, à 21h 39
+// Created: jeudi 16 décembre 2021, à 21h 48
 //
 
 /*
@@ -37,11 +37,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSAUTONOMOUS_H
-#define BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSAUTONOMOUS_H
+#ifndef BPP_PHYL_LIKELIHOOD_ABSTRACT_AUTONOMOUS_SUBSTITUTIONPROCESS_H
+#define BPP_PHYL_LIKELIHOOD_ABSTRACT_AUTONOMOUS_SUBSTITUTIONPROCESS_H
 
-
-#include "SubstitutionProcess.h"
+#include "AbstractSubstitutionProcess.h"
+#include "AutonomousSubstitutionProcess.h"
 
 // From the STL:
 #include <memory>
@@ -49,13 +49,55 @@
 namespace bpp
 {
 /**
- * @brief Interface for SubstitutionProcesses that own their own
- * ParametrizablePhyloTree & Scenario.
+ * @brief A partial implementation of the SubstitutionProcess interface.
  *
+ * This class handles a pointer toward a ParametrizableTree object, as well
+ * as convenient arrays for storing previously computed probabilities.
  */
-class SubstitutionProcessAutonomous :
-  public virtual SubstitutionProcess
+class AbstractSubstitutionProcessAutonomous :
+  public virtual AutonomousSubstitutionProcess,
+  public virtual AbstractSubstitutionProcess
 {
+protected:
+  std::unique_ptr<ParametrizablePhyloTree> pTree_;
+
+  std::shared_ptr<ModelScenario> modelScenario_;
+
+protected:
+  AbstractSubstitutionProcessAutonomous(ParametrizablePhyloTree* tree, const std::string& prefix = "");
+
+  AbstractSubstitutionProcessAutonomous(const AbstractSubstitutionProcessAutonomous& asp);
+
+  AbstractSubstitutionProcessAutonomous& operator=(const AbstractSubstitutionProcessAutonomous& asp);
+
+public:
+  const ParametrizablePhyloTree& getParametrizablePhyloTree() const { return *pTree_; }
+
+  /**
+   * @brief AbsractParametrizable interface
+   *
+   **/
+
+  void fireParameterChanged(const ParameterList& pl);
+
+  /**
+   * @brief Return if process has ModelScenario.
+   *
+   **/
+  bool hasModelScenario() const
+  {
+    return modelScenario_ != 0;
+  }
+
+  /**
+   * @brief get the ModelScenario.
+   *
+   **/
+  const ModelScenario& getModelScenario() const
+  {
+    return *modelScenario_;
+  }
+
   /**
    * @brief set the ParametrizablePhyloTree.
    *
@@ -70,9 +112,8 @@ class SubstitutionProcessAutonomous :
    *
    **/
 
-  virtual void setModelScenario(std::shared_ptr<ModelScenario> modelscenario) = 0;
-
+  virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
 };
 } // end namespace bpp
 
-#endif // BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSAUTONOMOUS_H
+#endif // BPP_PHYL_LIKELIHOOD_ABSTRACT_AUTONOMOUS_SUBSTITUTIONPROCESS

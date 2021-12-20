@@ -43,7 +43,7 @@
 
 
 #include "../Model/FrequencySet/FrequencySet.h"
-#include "AbstractSubstitutionProcessAutonomous.h"
+#include "AbstractAutonomousSubstitutionProcess.h"
 
 // From bpp-core:
 #include <Bpp/Exceptions.h>

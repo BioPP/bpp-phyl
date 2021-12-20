@@ -42,7 +42,7 @@
 #define BPP_PHYL_LIKELIHOOD_SIMPLESUBSTITUTIONPROCESS_H
 
 
-#include "AbstractSubstitutionProcessAutonomous.h"
+#include "AbstractAutonomousSubstitutionProcess.h"
 
 // From the stl:
 #include <memory>

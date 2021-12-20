@@ -87,7 +87,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/ModelScenario.cpp
   Bpp/Phyl/Likelihood/ProcessComputationTree.cpp
   Bpp/Phyl/Likelihood/AbstractSubstitutionProcess.cpp
-  Bpp/Phyl/Likelihood/AbstractSubstitutionProcessAutonomous.cpp
+  Bpp/Phyl/Likelihood/AbstractAutonomousSubstitutionProcess.cpp
   Bpp/Phyl/Likelihood/SimpleSubstitutionProcess.cpp
   Bpp/Phyl/Likelihood/NonHomogeneousSubstitutionProcess.cpp
   Bpp/Phyl/Likelihood/RateAcrossSitesSubstitutionProcess.cpp
