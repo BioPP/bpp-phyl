@@ -56,23 +56,23 @@ namespace bpp
 class AutonomousSubstitutionProcess :
   public virtual SubstitutionProcess
 {
-  /**
-   * @brief set the ParametrizablePhyloTree.
-   *
-   * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
-   *
-   * @param phyloTree Tree, in the form of PhyloTree, to be associated with this instance.
-   **/
+  public:
 
-  virtual void setPhyloTree(const PhyloTree& phyloTree) = 0;
+    /**
+     * @brief set the ParametrizablePhyloTree.
+     *
+     * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
+     *
+     * @param phyloTree Tree, in the form of PhyloTree, to be associated with this instance.
+     */
+    virtual void setPhyloTree(const PhyloTree& phyloTree) = 0;
 
-  /**
-   * @brief set the ModelScenario.
-   *
-   * @param modelScenario The scenario to be associated with this instance.
-   **/
-
-  virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
+    /**
+     * @brief set the ModelScenario.
+     *
+     * @param modelScenario The scenario to be associated with this instance.
+     */
+    virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
 
 };
 } // end namespace bpp
