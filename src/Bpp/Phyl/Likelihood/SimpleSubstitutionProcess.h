@@ -117,6 +117,8 @@ public:
   //   return model_->getGenerator();
   // }
 
+  bool hasRootFrequencySet() const { return false; }
+
   std::shared_ptr<const FrequencySet> getRootFrequencySet() const
   {
     return std::shared_ptr<const FrequencySet>(0);

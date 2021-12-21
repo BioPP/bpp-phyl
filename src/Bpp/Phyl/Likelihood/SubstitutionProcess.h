@@ -209,6 +209,14 @@ public:
    */
   virtual const std::vector<double>& getRootFrequencies() const = 0;
 
+  /**
+   * @return true if the process has parametrized root frequencies (non-stationary model)
+   */
+  virtual bool hasRootFrequencySet() const = 0;
+
+  /**
+   * @return The set of parametrized root frequencies.
+   */
   virtual std::shared_ptr<const FrequencySet> getRootFrequencySet() const = 0;
 
   /**

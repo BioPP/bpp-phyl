@@ -135,6 +135,8 @@ public:
     return getParametrizablePhyloTree().getParameters();
   }
 
+  bool hasRootFrequencySet() const { return false; }
+  
   std::shared_ptr<const FrequencySet> getRootFrequencySet() const
   {
     return std::shared_ptr<const FrequencySet>(0);

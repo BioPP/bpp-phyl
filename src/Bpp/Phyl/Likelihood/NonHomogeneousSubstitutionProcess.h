@@ -348,8 +348,9 @@ public:
    *
    * @param rootFreqs The FrequencySet for root frequencies.
    */
-
   void setRootFrequencies(FrequencySet* rootFreqs);
+
+  bool hasRootFrequencySet() const { return true; }
 
   /**
    * @return The set of root frequencies.

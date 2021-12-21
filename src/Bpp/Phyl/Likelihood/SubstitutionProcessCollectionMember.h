@@ -268,20 +268,16 @@ public:
 
   const size_t getRateDistributionNumber() const { return nDist_; }
 
-  /*
+  /**
    * @brief Set the root Frequencies Set
    * @param numFreq the index of the frequencies in the collection.
    *
    */
-
   void setRootFrequencies(size_t numFreq);
 
   const size_t getRootFrequenciesNumber() const { return nRoot_; }
 
-  /**
-   * @return The set of root frequencies.
-   *
-   */
+  bool hasRootFrequencySet() const { return !isStationary(); }
 
   std::shared_ptr<const FrequencySet> getRootFrequencySet() const;
 
