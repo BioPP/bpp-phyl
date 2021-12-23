@@ -1194,7 +1194,7 @@ map<size_t, std::shared_ptr<ModelScenario> > PhylogeneticsApplicationTools::getM
 /******************************************************/
 
 
-SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
+AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const AlignedValuesContainer* pData,
@@ -1205,7 +1205,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   bool verbose,
   int warn)
 {
-  SubstitutionProcess* SP = 0;
+  AutonomousSubstitutionProcess* SP = 0;
 
   map<string, string> unparsedParams;
 

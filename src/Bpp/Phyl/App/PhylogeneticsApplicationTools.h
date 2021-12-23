@@ -53,7 +53,7 @@
 #include "../Likelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h"
 #include "../Likelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
 #include "../Likelihood/SequenceEvolution.h"
-#include "../Likelihood/SubstitutionProcess.h"
+#include "../Likelihood/AutonomousSubstitutionProcess.h"
 #include "../Likelihood/SubstitutionProcessCollection.h"
 #include "../Likelihood/SubstitutionProcessCollectionMember.h"
 #include "../Mapping/SubstitutionCount.h"
@@ -222,41 +222,6 @@ public:
    */
 
   static std::map<size_t, std::shared_ptr<BranchModel> > getBranchModels(
-    const Alphabet* alphabet,
-    const GeneticCode* gCode,
-    const std::map<size_t, AlignedValuesContainer*>& mData,
-    const std::map<std::string, std::string>& params,
-    std::map<std::string, std::string>& unparsedparams,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
-
-  /**
-   * @brief Build a map of SubstitutionProcess objects according to options.
-   *
-   * Creates a new substitution model object according to model description syntax
-   * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
-   * function also parses the parameter values and set them accordingly.
-   *
-   * @param alphabet         The alphabet to use in the model.
-   * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
-   *                         If set to NULL and a codon model is requested, an Exception will be thrown.
-   * @param mData            A map of pointers toward the
-   * AlignedValuesContainers for which the substitution process wil be designed.
-   *                         The alphabet associated to the data
-   * must be of the same type as the one specified for the process.
-   * @param  params           The attribute map where options may be
-   * found.
-     $ @param unparsedparams   Unparsed params waiting for aliasing.
-   * @param suffix           A suffix to be applied to each attribute name.
-   * @param suffixIsOptional Tell if the suffix is absolutely required.
-   * @param verbose          Print some info to the 'message' output stream.
-   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   * @return A new BranchModel object according to options specified.
-   */
-
-  static std::map<size_t, SubstitutionProcess*> getSubstitutionProcesses(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const std::map<size_t, AlignedValuesContainer*>& mData,
@@ -545,7 +510,7 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
 
-  static SubstitutionProcess* getSubstitutionProcess(
+  static AutonomousSubstitutionProcess* getSubstitutionProcess(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const AlignedValuesContainer* pData,
