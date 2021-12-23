@@ -177,13 +177,21 @@ public:
    * function also parses the parameter values and set them accordingly.
    *
    * @param alphabet         The alphabet to use in the model.
-   * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
-   *                         If set to NULL and a codon model is requested, an Exception will be thrown.
-   * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
-   *                         The alphabet associated to the data must be of the same type as the one specified for the model.
-   *                         May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-   * @param params           The attribute map where options may be
-   * found.
+   *
+   * @param gCode The genetic code to use (only for codon models,
+   *              otherwise can be set to 0). If set to NULL and a
+   *              codon model is requested, an Exception will be
+   *              thrown.
+   *
+   * @param data A pointer toward an AlignedValuesContainer used for
+   *             the initialization of substitution model when this
+   *             data is needed (typically use_observed_freq option).
+   *             The alphabet associated to the data must be of the
+   *             same type as the one specified for the model. May be
+   *             equal to NULL, but in this case will be unavailable.
+   *
+   * @param params The attribute map where options may be found.
+   *
    * @param unparsedparams   the map of the aliases between
    * parameters names.
    * @param suffix           A suffix to be applied to each attribute name.
@@ -244,9 +252,12 @@ public:
    * @param unparsedParameterValues A map that contains all the model parameters
    *                                names and their corresponding unparsed value, if they were found.
    * @param modelNumber The number of this model in the SubstitutionModelSet.
-   * @param data   A pointer toward the AlignedValuesContainer for which the substitution model is designed.
-   *               The alphabet associated to the data must be of the same type as the one specified for the model.
-   *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
+   * @param data A pointer toward an AlignedValuesContainer used for
+   *             the initialization of substitution model when this
+   *             data is needed (typically use_observed_freq option).
+   *             The alphabet associated to the data must be of the
+   *             same type as the one specified for the model. May be
+   *             equal to NULL, but in this case will be unavailable.
    * @param sharedParams (out) remote parameters will be recorded here.
    * @param verbose Print some info to the 'message' output stream.
    */
@@ -265,9 +276,9 @@ public:
    * @param alphabet         The alpabet to use.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-   * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
-   *                         The alphabet associated to the data must be of the same type as the one specified for the model.
-   *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+   * @param data   A pointer toward the AlignedValuesContainer for which the root frequencies are designed.
+   *               The alphabet associated to the data must be of the same type as the one specified for the model.
+   *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
    * @param params           The attribute map where options may be
    * found.
    * @param sharedparams     The attribute map of aliases (out).
@@ -316,9 +327,12 @@ public:
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
    * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
    *
-   * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
-   *                         The alphabet associated to the data must be of the same type as the one specified for the model.
-   *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+   * @param data A pointer toward an AlignedValuesContainer used for
+   *             the initialization of the frequency set when this
+   *             data is needed (typically use_observed_freq option).
+   *             The alphabet associated to the data must be of the
+   *             same type as the one specified for the frequency set. May be
+   *             equal to NULL, but in this case will be unavailable.
    * @param sharedParams     (out) remote parameters will be recorded here.
    * @param rateFreqs        A vector of rate catÃÂ©gories frequencies in case of a Markov Modulated Markov Model.
    *                         Ignored if a vector with size 0 is passed.
@@ -345,6 +359,12 @@ public:
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
    * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
    *
+   * @param data A pointer toward an AlignedValuesContainer used for
+   *             the initialization of the frequency set when this
+   *             data is needed (typically use_observed_freq option).
+   *             The alphabet associated to the data must be of the
+   *             same type as the one specified for the frequency set. May be
+   *             equal to NULL, but in this case will be unavailable.
    * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
    *                         The alphabet associated to the data must be of the same type as the one specified for the model.
    *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -494,13 +514,12 @@ public:
    * @param alphabet The alpabet to use in all models.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-   * @param pData A pointer toward the AlignedValuesContainer for which the
-   *             substitution process is designed.
-   *
+   * @param data A pointer toward an AlignedValuesContainer used for
+   *             the initialization of process set when this
+   *             data is needed (typically use_observed_freq option).
    *             The alphabet associated to the data must be of the
-   *             same type as the one specified for the model. May
-   *             be equal to NULL, but in this cas use_observed_freq
-   *             option will be unavailable.
+   *             same type as the one specified for the process set. May be
+   *             equal to NULL, but in this case will be unavailable.
    *
    * @param vTree A vector of pointers of Trees, used to set processes.
    * @param params   The attribute map where options may be found.
