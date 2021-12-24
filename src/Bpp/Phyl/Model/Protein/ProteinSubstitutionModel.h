@@ -59,12 +59,11 @@ class ProteinSubstitutionModel :
 public:
   virtual ~ProteinSubstitutionModel() {}
 
-  ProteinSubstitutionModel* clone() const = 0;
+  virtual ProteinSubstitutionModel* clone() const override = 0;
 
-public:
-  size_t getNumberOfStates() const { return 20; }
+  size_t getNumberOfStates() const override { return 20; }
 
-  const ProteicAlphabet* getAlphabet() const = 0;
+  const ProteicAlphabet* getAlphabet() const override = 0;
 };
 
 
@@ -96,13 +95,20 @@ public:
 
   virtual ~AbstractProteinSubstitutionModel() {}
 
-  AbstractProteinSubstitutionModel* clone() const = 0;
+  AbstractProteinSubstitutionModel* clone() const override = 0;
 
 public:
-  const ProteicAlphabet* getAlphabet() const
+  const ProteicAlphabet* getAlphabet() const override
   {
     return dynamic_cast<const ProteicAlphabet*>(alphabet_);
   }
+
+  size_t getNumberOfStates() const override
+  {
+    return ProteinSubstitutionModel::getNumberOfStates();
+  }
+  
+
 };
 
 /**
@@ -119,13 +125,19 @@ public:
 
   virtual ~AbstractReversibleProteinSubstitutionModel() {}
 
-  AbstractReversibleProteinSubstitutionModel* clone() const = 0;
+  AbstractReversibleProteinSubstitutionModel* clone() const override = 0;
 
 public:
-  const ProteicAlphabet* getAlphabet() const
+  const ProteicAlphabet* getAlphabet() const override
   {
     return dynamic_cast<const ProteicAlphabet*>(alphabet_);
   }
+
+  size_t getNumberOfStates() const override
+  {
+    return ProteinSubstitutionModel::getNumberOfStates();
+  }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_PROTEINSUBSTITUTIONMODEL_H

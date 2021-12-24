@@ -44,24 +44,24 @@
 using namespace bpp;
 using namespace std;
 
-AbstractSubstitutionProcessAutonomous::AbstractSubstitutionProcessAutonomous(ParametrizablePhyloTree* tree, const string& prefix) :
+AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),
   modelScenario_(0)
 {
   if (!tree)
-    throw Exception("AbstractSubstitutionProcessAutonomous. A tree instance must be provided.");
+    throw Exception("AbstractAutonomousSubstitutionProcess. A tree instance must be provided.");
   // Add parameters:
   addParameters_(tree->getParameters());  // Branch lengths
 }
 
-AbstractSubstitutionProcessAutonomous::AbstractSubstitutionProcessAutonomous(const AbstractSubstitutionProcessAutonomous& asp) :
+AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
   pTree_(asp.pTree_->clone()),
   modelScenario_(asp.modelScenario_) // this has to be specified by inheriting class to follow model links
 {}
 
-AbstractSubstitutionProcessAutonomous& AbstractSubstitutionProcessAutonomous::operator=(const AbstractSubstitutionProcessAutonomous& asp)
+AbstractAutonomousSubstitutionProcess& AbstractAutonomousSubstitutionProcess::operator=(const AbstractAutonomousSubstitutionProcess& asp)
 {
   AbstractParameterAliasable::operator=(*this);
 
@@ -70,7 +70,7 @@ AbstractSubstitutionProcessAutonomous& AbstractSubstitutionProcessAutonomous::op
   return *this;
 }
 
-void AbstractSubstitutionProcessAutonomous::fireParameterChanged(const ParameterList& pl)
+void AbstractAutonomousSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   ParameterList gAP = getAliasedParameters(pl);
   gAP.addParameters(pl);
@@ -78,7 +78,7 @@ void AbstractSubstitutionProcessAutonomous::fireParameterChanged(const Parameter
   pTree_->matchParametersValues(gAP);
 }
 
-void AbstractSubstitutionProcessAutonomous::setPhyloTree(const PhyloTree& phyloTree)
+void AbstractAutonomousSubstitutionProcess::setPhyloTree(const PhyloTree& phyloTree)
 {
   if (pTree_)
   {

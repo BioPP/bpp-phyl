@@ -233,11 +233,6 @@ AbstractWordSubstitutionModel::~AbstractWordSubstitutionModel()
     delete alphabet_;
 }
 
-size_t AbstractWordSubstitutionModel::getNumberOfStates() const
-{
-  return getAlphabet()->getSize();
-}
-
 void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
 {
   AbstractSubstitutionModel::setNamespace(prefix);

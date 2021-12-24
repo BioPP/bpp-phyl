@@ -192,8 +192,6 @@ public:
     updateMatrices();
   }
 
-  size_t getNumberOfStates() const { return size_; }
-
   double getInitValue(size_t i, int state) const;
 
   void setNamespace(const std::string& prefix);

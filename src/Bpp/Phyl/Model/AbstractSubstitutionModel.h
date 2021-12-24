@@ -154,6 +154,8 @@ public:
 
   const StateMap& getStateMap() const { return *stateMap_; }
 
+  size_t getNumberOfStates() const { return getStateMap().getNumberOfModelStates();}
+  
   std::shared_ptr<const StateMap> shareStateMap() const { return stateMap_; }
 
   const std::vector<int>& getAlphabetStates() const { return stateMap_->getAlphabetStates(); }

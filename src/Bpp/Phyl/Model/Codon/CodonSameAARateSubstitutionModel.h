@@ -192,11 +192,6 @@ public:
     return "SameAARate";
   }
 
-  size_t getNumberOfStates() const
-  {
-    return getAlphabet()->getSize();
-  }
-
   std::shared_ptr<ProteinSubstitutionModel> getProtModel() const
   {
     return pAAmodel_;

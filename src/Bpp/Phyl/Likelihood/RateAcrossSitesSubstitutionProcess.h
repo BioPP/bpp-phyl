@@ -53,7 +53,7 @@
 namespace bpp
 {
 class RateAcrossSitesSubstitutionProcess :
-  public AbstractSubstitutionProcessAutonomous
+  public AbstractAutonomousSubstitutionProcess
 {
 private:
   std::shared_ptr<BranchModel> model_;

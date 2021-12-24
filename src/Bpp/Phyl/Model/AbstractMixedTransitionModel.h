@@ -206,8 +206,6 @@ public:
    *
    */
 
-  virtual size_t getNumberOfStates() const;
-
   virtual const Matrix<double>& getPij_t(double t) const;
   virtual const Matrix<double>& getdPij_dt(double t) const;
   virtual const Matrix<double>& getd2Pij_dt2(double t) const;

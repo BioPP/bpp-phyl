@@ -194,7 +194,7 @@ public:
 public:
   const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
 
-  size_t getNumberOfStates() const { return nbStates_ * nbRates_; }
+  size_t getNumberOfStates() const { return getStateMap().getNumberOfModelStates(); }
 
   const StateMap& getStateMap() const { return *stateMap_; }
 

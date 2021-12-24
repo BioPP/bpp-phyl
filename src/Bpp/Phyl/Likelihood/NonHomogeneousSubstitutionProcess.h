@@ -111,7 +111,7 @@ namespace bpp
 
 
 class NonHomogeneousSubstitutionProcess :
-  public AbstractSubstitutionProcessAutonomous
+  public AbstractAutonomousSubstitutionProcess
 {
 private:
   /**
@@ -155,7 +155,7 @@ public:
 
   NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, ParametrizablePhyloTree* tree, FrequencySet* rootFreqs = nullptr) :
     AbstractParameterAliasable(""),
-    AbstractSubstitutionProcessAutonomous(tree),
+    AbstractAutonomousSubstitutionProcess(tree),
     modelSet_(),
     rootFrequencies_(),
     rDist_(rdist),
@@ -441,8 +441,13 @@ public:
    */
   const std::vector<double>& getRootFrequencies() const
   {
-    if (stationarity_ && std::dynamic_pointer_cast<const TransitionModel>(modelSet_[0]))
-      return std::dynamic_pointer_cast<const TransitionModel>(modelSet_[0])->getFrequencies();
+    if (stationarity_)
+    {
+      if (std::dynamic_pointer_cast<const TransitionModel>(modelSet_[0]))
+        return std::dynamic_pointer_cast<const TransitionModel>(modelSet_[0])->getFrequencies();
+      else
+        throw Exception("NonHomogeneousSubstitutionProcess::getRootFrequencies not callable.");
+    }
     else
       return rootFrequencies_->getFrequencies();
   }

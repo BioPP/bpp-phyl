@@ -89,11 +89,6 @@ AbstractMixedTransitionModel& AbstractMixedTransitionModel::operator=(const Abst
   return *this;
 }
 
-size_t AbstractMixedTransitionModel::getNumberOfStates() const
-{
-  return modelsContainer_[0]->getNumberOfStates();
-}
-
 const Matrix<double>& AbstractMixedTransitionModel::getPij_t(double t) const
 {
   vector<const Matrix<double>* > vM;

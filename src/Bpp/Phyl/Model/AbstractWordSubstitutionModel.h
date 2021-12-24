@@ -228,7 +228,6 @@ protected:
   AbstractWordSubstitutionModel(const Alphabet* alph, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
 
 public:
-  virtual size_t getNumberOfStates() const;
 
   /**
    * @brief returns the ith model, or Null if i is not a valid number.

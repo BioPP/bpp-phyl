@@ -120,7 +120,7 @@ void SubstitutionProcessCollection::clear()
 
 void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters)
 {
-  if (parametrizableIndex<=1)
+  if (parametrizableIndex<1)
     throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.",(int)parametrizableIndex);
   
   ParameterList pl;

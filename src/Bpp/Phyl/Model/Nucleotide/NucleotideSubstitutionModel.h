@@ -59,12 +59,12 @@ class NucleotideSubstitutionModel :
 public:
   virtual ~NucleotideSubstitutionModel() {}
 
-  NucleotideSubstitutionModel* clone() const = 0;
+  NucleotideSubstitutionModel* clone() const override = 0;
 
 public:
-  size_t getNumberOfStates() const { return 4; }
+  size_t getNumberOfStates() const override { return 4; }
 
-  const NucleicAlphabet* getAlphabet() const = 0;
+  const NucleicAlphabet* getAlphabet() const override = 0;
 };
 
 
@@ -78,9 +78,12 @@ class NucleotideReversibleSubstitutionModel :
 public:
   virtual ~NucleotideReversibleSubstitutionModel() {}
 
-  NucleotideReversibleSubstitutionModel* clone() const = 0;
+  NucleotideReversibleSubstitutionModel* clone() const override = 0;
 
-  // size_t getNumberOfStates() const { return NucleotideSubstitutionModel::getNumberOfStates(); }
+  size_t getNumberOfStates() const override
+  {
+    return NucleotideSubstitutionModel::getNumberOfStates();
+  }
 };
 
 
@@ -98,12 +101,17 @@ public:
 
   virtual ~AbstractNucleotideSubstitutionModel() {}
 
-  AbstractNucleotideSubstitutionModel* clone() const = 0;
+  AbstractNucleotideSubstitutionModel* clone() const override = 0;
 
 public:
-  const NucleicAlphabet* getAlphabet() const
+  const NucleicAlphabet* getAlphabet() const override
   {
     return dynamic_cast<const NucleicAlphabet*>(alphabet_);
+  }
+
+  size_t getNumberOfStates() const override
+  {
+    return NucleotideSubstitutionModel::getNumberOfStates();
   }
 };
 
@@ -121,13 +129,19 @@ public:
 
   virtual ~AbstractReversibleNucleotideSubstitutionModel() {}
 
-  AbstractReversibleNucleotideSubstitutionModel* clone() const = 0;
+  AbstractReversibleNucleotideSubstitutionModel* clone() const override = 0;
 
 public:
-  const NucleicAlphabet* getAlphabet() const
+  const NucleicAlphabet* getAlphabet() const override
   {
     return dynamic_cast<const NucleicAlphabet*>(alphabet_);
   }
+
+  size_t getNumberOfStates() const override
+  {
+    return NucleotideSubstitutionModel::getNumberOfStates();
+  }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_NUCLEOTIDESUBSTITUTIONMODEL_H

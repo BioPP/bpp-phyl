@@ -227,7 +227,7 @@ public:
 
   size_t getNumberOfStates() const
   {
-    return getModel().getNumberOfStates();
+    return getStateMap().getNumberOfModelStates();
   }
 
 public:

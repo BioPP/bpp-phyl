@@ -63,7 +63,8 @@ class AbstractSubstitutionProcess :
   public virtual AbstractParameterAliasable
 {
 public:
-
+  AbstractSubstitutionProcess(){}
+  
   size_t getNumberOfClasses() const
   {
     auto dist=getRateDistribution();

@@ -74,8 +74,6 @@ public:
 public:
   std::string getName() const { return "Anonymous"; }
 
-  size_t getNumberOfStates() const { return size_;}
-
   Matrix<double>& setGenerator() { return generator_; }
 
   void updateMatrices()

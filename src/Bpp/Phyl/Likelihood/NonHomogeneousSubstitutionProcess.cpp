@@ -51,7 +51,7 @@ using namespace std;
 
 NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHomogeneousSubstitutionProcess& set) :
   AbstractParameterAliasable(set),
-  AbstractSubstitutionProcessAutonomous(set),
+  AbstractAutonomousSubstitutionProcess(set),
   modelSet_(set.modelSet_.size()),
   rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone())),
   rDist_                (set.rDist_ ? dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()) : 0),
@@ -78,7 +78,7 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
   clear();
 
   AbstractParameterAliasable::operator=(set);
-  AbstractSubstitutionProcessAutonomous::operator=(set);
+  AbstractAutonomousSubstitutionProcess::operator=(set);
   nodeToModel_         = set.nodeToModel_;
   modelToNodes_        = set.modelToNodes_;
   modelParameters_     = set.modelParameters_;
@@ -240,7 +240,7 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
     modelSet_[i]->matchParametersValues(modelParameters_[i]);
   }
 
-  AbstractSubstitutionProcessAutonomous::fireParameterChanged(parameters);
+  AbstractAutonomousSubstitutionProcess::fireParameterChanged(parameters);
 }
 
 

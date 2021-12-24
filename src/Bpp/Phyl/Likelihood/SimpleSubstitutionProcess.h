@@ -53,7 +53,7 @@ namespace bpp
  * @brief Space and time homogeneous substitution process, without mixture.
  */
 class SimpleSubstitutionProcess :
-  public AbstractSubstitutionProcessAutonomous
+  public AbstractAutonomousSubstitutionProcess
 {
 protected:
   std::shared_ptr<BranchModel> model_;

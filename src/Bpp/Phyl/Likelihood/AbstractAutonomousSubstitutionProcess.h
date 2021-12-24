@@ -54,7 +54,7 @@ namespace bpp
  * This class handles a pointer toward a ParametrizableTree object, as well
  * as convenient arrays for storing previously computed probabilities.
  */
-class AbstractSubstitutionProcessAutonomous :
+class AbstractAutonomousSubstitutionProcess :
   public virtual AutonomousSubstitutionProcess,
   public virtual AbstractSubstitutionProcess
 {
@@ -64,11 +64,11 @@ protected:
   std::shared_ptr<ModelScenario> modelScenario_;
 
 protected:
-  AbstractSubstitutionProcessAutonomous(ParametrizablePhyloTree* tree, const std::string& prefix = "");
+  AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, const std::string& prefix = "");
 
-  AbstractSubstitutionProcessAutonomous(const AbstractSubstitutionProcessAutonomous& asp);
+  AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp);
 
-  AbstractSubstitutionProcessAutonomous& operator=(const AbstractSubstitutionProcessAutonomous& asp);
+  AbstractAutonomousSubstitutionProcess& operator=(const AbstractAutonomousSubstitutionProcess& asp);
 
 public:
   const ParametrizablePhyloTree& getParametrizablePhyloTree() const { return *pTree_; }

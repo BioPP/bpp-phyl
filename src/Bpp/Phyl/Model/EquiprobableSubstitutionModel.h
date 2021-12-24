@@ -189,8 +189,6 @@ public:
   const Matrix<double>& getdPij_dt  (double d) const;
   const Matrix<double>& getd2Pij_dt2(double d) const;
 
-  size_t getNumberOfStates() const { return size_; }
-
   std::string getName() const
   {
     if (freqSet_->getNamespace().find("+F.") != std::string::npos)
