@@ -141,11 +141,11 @@ HmmLikelihood_DF::HmmLikelihood_DF(
 
   auto forwardNode = dynamic_pointer_cast<ForwardHmmLikelihood_DF>(forwardLik_);
 
-  hiddenPostProb_ = CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik> >::create(context_, {forwardNode->getForwardCondLikelihood(), backwardLik_}, MatrixDimension(nbStates_, nbSites_));
+  hiddenPostProb_ = CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd> >::create(context_, {forwardNode->getForwardCondLikelihood(), backwardLik_}, MatrixDimension(nbStates_, nbSites_));
 
   // and site likelihoods
 
-  auto statesLog = CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik> >::create(context_, {hiddenPostProb_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
+  auto statesLog = CWiseMul<MatrixLik, std::tuple<Eigen::MatrixXd, MatrixLik> >::create(context_, {hiddenPostProb_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
 
   setSiteLikelihoods(CWiseAdd<RowLik, MatrixLik>::create(context_, {statesLog}, RowVectorDimension(nbSites_)));
 }

@@ -128,7 +128,7 @@ protected:
    *
    */
 
-  ValueRef<MatrixLik> backwardLik_;
+  ValueRef<Eigen::MatrixXd> backwardLik_;
 
   /**
    * Hidden Posterior Probabilities
@@ -138,7 +138,7 @@ protected:
    *
    */
 
-  ValueRef<MatrixLik> hiddenPostProb_;
+  ValueRef<Eigen::MatrixXd> hiddenPostProb_;
 
   Eigen::Index nbStates_, nbSites_;
 
@@ -204,12 +204,12 @@ public:
 
   void setNamespace(const std::string& nameSpace);
 
-  const MatrixLik& getHiddenStatesPosteriorProbabilities() const
+  const Eigen::MatrixXd& getHiddenStatesPosteriorProbabilities() const
   {
     return hiddenPostProb_->getTargetValue();
   }
 
-  VectorLik getHiddenStatesPosteriorProbabilitiesForASite(size_t site) const
+  Eigen::VectorXd getHiddenStatesPosteriorProbabilitiesForASite(size_t site) const
   {
     auto& mat = hiddenPostProb_->getTargetValue();
     return mat.col(Eigen::Index(site));

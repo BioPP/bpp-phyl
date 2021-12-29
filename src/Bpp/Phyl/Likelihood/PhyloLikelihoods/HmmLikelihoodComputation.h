@@ -54,7 +54,7 @@
 
 namespace bpp
 {
-class CondLikelihood : public Value<MatrixLik>
+  class CondLikelihood : public Value<Eigen::MatrixXd>
 {
 private:
   /**
@@ -62,10 +62,10 @@ private:
    *
    */
 
-  Dimension<MatrixLik> targetDimension_;
+  Dimension<Eigen::MatrixXd> targetDimension_;
 
 public:
-  static ValueRef<MatrixLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
+  static ValueRef<Eigen::MatrixXd> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
   {
     // Check dependencies
     checkDependenciesNotNull (typeid (CondLikelihood), deps);
@@ -74,11 +74,11 @@ public:
     // dependency on the name, to make objects different
     checkNthDependencyIsValue<std::string>(typeid(CondLikelihood), deps, 1);
 
-    return cachedAs<Value<MatrixLik> >(c, std::make_shared<CondLikelihood>(std::move (deps), dim));
+    return cachedAs<Value<Eigen::MatrixXd> >(c, std::make_shared<CondLikelihood>(std::move (deps), dim));
   }
 
-  CondLikelihood (NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
-    : Value<MatrixLik>(std::move (deps)), targetDimension_ (dim)
+  CondLikelihood (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
+    : Value<Eigen::MatrixXd>(std::move (deps)), targetDimension_ (dim)
   {
     this->accessValueMutable().resize(dim.rows, dim.cols);
   }
@@ -109,12 +109,12 @@ public:
     return CondLikelihood::create (c, std::move (deps), targetDimension_);
   }
 
-  MatrixLik& getCondLikelihood()
+  Eigen::MatrixXd& getCondLikelihood()
   {
     return this->accessValueMutable();
   }
 
-  const MatrixLik& getCondLikelihood() const
+  const Eigen::MatrixXd& getCondLikelihood() const
   {
     return this->accessValueConst();
   }
@@ -150,38 +150,40 @@ private:
 class ForwardHmmLikelihood_DF : public Value<RowLik>
 {
 private:
-  /**
+  /*
    * @brief conditional forward likelihoods : Will be used by
    * backward likelihoods computation.
    *
-   * condLik_(i,j) corresponds to Pr(x_1...x_j, y_j=i)/Pr(x_1...x_j),
+   * condLik_(i,j) corresponds to @f$Pr(x_1...x_j, y_j=i)/Pr(x_1...x_j)@f$,
    * where the x are the observed states, and y the hidden states.
+   *
+   * @f$ \sum_i \text{condLik\_(i,j)} = 1 @f$
    */
 
-  typedef std::vector<VectorLik> vVectorLik;
-
-  ValueRef<MatrixLik> condLik_;
+  ValueRef<Eigen::MatrixXd> condLik_;
 
   /*
    * @brief Conditional partial likelihood, used for computation.
    *
    * parCondLik_(i,j) corresponds to Pr(x_1...x_j, y_{j+1}=i)/Pr(x_1...x_j),
    * where the x are the observed states, and y the hidden states.
+   *
+   * @f$ \sum_i \text{parCondLik\_(i,j)} = 1 @f$   
    */
 
-  std::vector<VectorLik> parCondLik_;
+  std::vector<Eigen::VectorXd> parCondLik_;
 
   /*
    * @brief Dimension of the data : states X sites
    *
    */
 
-  Dimension<MatrixLik> targetDimension_;
+  Dimension<Eigen::MatrixXd> targetDimension_;
 
 public:
   using Self = ForwardHmmLikelihood_DF;
 
-  static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
+  static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
   {
     // Check dependencies
     checkDependenciesNotNull (typeid (Self), deps);
@@ -197,7 +199,7 @@ public:
     return cachedAs<Value<RowLik> >(c, sself);
   }
 
-  ForwardHmmLikelihood_DF (NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
+  ForwardHmmLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
     : Value<RowLik>(std::move (deps)), condLik_(), parCondLik_((size_t)dim.cols), targetDimension_ (dim)
   {
     for (auto& v:parCondLik_)
@@ -254,12 +256,12 @@ public:
     return Self::create (c, std::move (deps), targetDimension_);
   }
 
-  ValueRef<MatrixLik> getForwardCondLikelihood() const
+  ValueRef<Eigen::MatrixXd> getForwardCondLikelihood() const
   {
     return condLik_;
   }
 
-  const std::vector<VectorLik>& getParCondLik() const
+  const std::vector<Eigen::VectorXd>& getParCondLik() const
   {
     return parCondLik_;
   }
@@ -306,7 +308,7 @@ private:
    *
    */
 
-  ValueRef<MatrixLik> dCondLik_;
+  ValueRef<Eigen::MatrixXd> dCondLik_;
 
   /*
    * @brief Conditional partial likelihood derivatives, used for
@@ -314,19 +316,19 @@ private:
    *
    */
 
-  std::vector<VectorLik> dParCondLik_;
+  std::vector<Eigen::VectorXd> dParCondLik_;
 
   /**
    * @brief Dimension of the data : states X sites
    *
    */
 
-  Dimension<MatrixLik> targetDimension_;
+  Dimension<Eigen::MatrixXd> targetDimension_;
 
 public:
   using Self = ForwardHmmDLikelihood_DF;
 
-  static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
+  static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
   {
     // Check dependencies
     checkDependenciesNotNull (typeid (Self), deps);
@@ -348,7 +350,7 @@ public:
     return cachedAs<Value<RowLik> >(c, sself);
   }
 
-  ForwardHmmDLikelihood_DF (NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
+  ForwardHmmDLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
     : Value<RowLik>(std::move (deps)), dCondLik_(), dParCondLik_((size_t)dim.cols), targetDimension_ (dim)
   {
     for (auto& v:dParCondLik_)
@@ -384,12 +386,12 @@ public:
     return Self::create (c, std::move (deps), targetDimension_);
   }
 
-  ValueRef<MatrixLik> getForwardDCondLikelihood() const
+  ValueRef<Eigen::MatrixXd> getForwardDCondLikelihood() const
   {
     return dCondLik_;
   }
 
-  const std::vector<VectorLik>& getParDCondLik() const
+  const std::vector<Eigen::VectorXd>& getParDCondLik() const
   {
     return dParCondLik_;
   }
@@ -441,19 +443,19 @@ private:
    * y the hidden states.
    */
 
-  ValueRef<MatrixLik> d2CondLik_;
+  ValueRef<Eigen::MatrixXd> d2CondLik_;
 
   /**
    * @brief Dimension of the data : states X sites
    *
    */
 
-  Dimension<MatrixLik> targetDimension_;
+  Dimension<Eigen::MatrixXd> targetDimension_;
 
 public:
   using Self = ForwardHmmD2Likelihood_DF;
 
-  static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
+  static ValueRef<RowLik> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
   {
     // Check dependencies
     checkDependenciesNotNull (typeid (Self), deps);
@@ -481,7 +483,7 @@ public:
     return cachedAs<Value<RowLik> >(c, sself);
   }
 
-  ForwardHmmD2Likelihood_DF (NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
+  ForwardHmmD2Likelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
     : Value<RowLik>(std::move (deps)), d2CondLik_(), targetDimension_ (dim)
   {
     this->accessValueMutable().resize(targetDimension_.cols);
@@ -537,16 +539,17 @@ private:
  * sites for all states.
  */
 
-class BackwardHmmLikelihood_DF : public Value<MatrixLik>
+class BackwardHmmLikelihood_DF : public Value<Eigen::MatrixXd>
 {
 private:
   /**
    * @brief backward likelihood
    *
-   * Its value stores the backward conditional likelihoods per
-   * hidden state Pr(x_{j+1}...x_n | y_j=i), where the x are the
-   * observed states, and y the hidden states, divided per
-   * conditional state likelihood: P(x_{j+1}...x_n |x_1,...,x_j).
+   * Its value stores the ratio @f$ \frac{Pr(x_{j+1}...x_n |
+   * y_j=i)}{P(x_{j+1}...x_n |x_1,...,x_j)}@f$ of the backward
+   * conditional likelihoods per hidden state divided per conditional
+   * state likelihood, where the x are the observed states, and y the
+   * hidden states,
    *
    */
 
@@ -555,12 +558,12 @@ private:
    *
    */
 
-  Dimension<MatrixLik> targetDimension_;
+  Dimension<Eigen::MatrixXd> targetDimension_;
 
 public:
   using Self = BackwardHmmLikelihood_DF;
 
-  static ValueRef<MatrixLik> create (Context& c, NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
+  static ValueRef<Eigen::MatrixXd> create (Context& c, NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
   {
     // Check dependencies
     checkDependenciesNotNull (typeid (Self), deps);
@@ -570,11 +573,11 @@ public:
     checkNthDependencyIsValue<Eigen::MatrixXd>(typeid (Self), deps, 1);
     checkNthDependencyIsValue<MatrixLik>(typeid (Self), deps, 2);
 
-    return cachedAs<Value<MatrixLik> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<Eigen::MatrixXd> >(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
-  BackwardHmmLikelihood_DF (NodeRefVec&& deps, const Dimension<MatrixLik>& dim)
-    : Value<MatrixLik>(std::move (deps)), targetDimension_ (dim)
+  BackwardHmmLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
+    : Value<Eigen::MatrixXd>(std::move (deps)), targetDimension_ (dim)
   {
     this->accessValueMutable().resize(dim.rows, dim.cols);
 

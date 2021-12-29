@@ -860,28 +860,6 @@ public:
     return ExtendedFloatEigen<R, 1, EigenType>(float_part().col(col), exponent_part());
   }
 
-  ExtendedFloatEigen<R, 1, EigenType> col(Eigen::Index col)
-  {
-    return ExtendedFloatEigen<R, 1, EigenType>(float_part().col(col), exponent_part());
-  }
-
-  /****
-   * @brief Access to elements of the matrix for modification
-   *
-   * !!! ONLY EIGEN ELEMENT IS REACHABLE LIKE THIS, AND CAN BE CHANGED
-   *
-   */
-
-  // double& operator()(Eigen::Index row, Eigen::Index col)
-  // {
-  //   return float_part()(row,col);
-  // }
-
-  // double& operator()(Eigen::Index row)
-  // {
-  //   return float_part()(row);
-  // }
-
   /*********************************************/
   /*** Modifications  ******/
 
@@ -975,7 +953,7 @@ inline ExtendedFloatArray<R, C> pow (const ExtendedFloatArray<R, C>& obj, int ex
 
 template<int R, int C, template< int R2 = R,  int C2 = C> class MatType, typename T>
 typename std::enable_if<std::is_same<T, ExtendedFloat>::value
-                        || std::is_floating_point<T>::value || std::is_integral<T>::value,
+  || std::is_floating_point<T>::value || std::is_integral<T>::value,
                         ExtendedFloatEigen<R, C, MatType> >::type
 inline operator+(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 {

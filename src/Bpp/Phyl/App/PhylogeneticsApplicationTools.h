@@ -365,9 +365,6 @@ public:
    *             The alphabet associated to the data must be of the
    *             same type as the one specified for the frequency set. May be
    *             equal to NULL, but in this case will be unavailable.
-   * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
-   *                         The alphabet associated to the data must be of the same type as the one specified for the model.
-   *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
    * @param rateFreqs        A vector of rate catÃÂ©gories frequencies in case of a Markov Modulated Markov Model.
    *                         Ignored if a vector with size 0 is passed.
    * @param verbose          Print some info to the 'message' output stream.
@@ -514,7 +511,7 @@ public:
    * @param alphabet The alpabet to use in all models.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-   * @param data A pointer toward an AlignedValuesContainer used for
+   * @param pData A pointer toward an AlignedValuesContainer used for
    *             the initialization of process set when this
    *             data is needed (typically use_observed_freq option).
    *             The alphabet associated to the data must be of the

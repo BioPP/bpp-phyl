@@ -161,10 +161,10 @@ int main() {
 
   hppl.getParameters().printParameters(std::cerr);
 
-
   using bpp::DotOptions;
   bpp::writeGraphToDot("hppl.dot", {hppl.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
   cerr << "Hppl: " << hppl.getValue() << endl;
+
 
   // Derivative Graph
 
@@ -186,7 +186,7 @@ int main() {
   }
 
   cout << endl;
-  
+
   cout << "==========================================" << endl;
   cout << "==========================================" << endl;
   cout << endl;
