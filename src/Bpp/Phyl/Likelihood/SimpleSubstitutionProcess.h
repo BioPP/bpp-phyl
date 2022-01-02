@@ -188,9 +188,12 @@ protected:
   {
     if (pl.getCommonParametersWith(model_->getParameters()).size() > 0)
       return true;
-    ParameterList plbl = pTree_->getBranchLengthParameters(i);
-    if (plbl.getCommonParametersWith(pl).size() > 0)
-      return true;
+    if (pTree_)
+    {
+      ParameterList plbl = pTree_->getBranchLengthParameters(i);
+      if (plbl.getCommonParametersWith(pl).size() > 0)
+        return true;
+    }
     return false;
   }
 };

@@ -267,6 +267,13 @@ ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters(
 
 bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(bool throwEx) const
 {
+  if (!hasParametrizablePhyloTree())
+  {
+    if (throwEx)
+      throw Exception("NonHomogeneousSubstitutionProcess::checkOrphanNodes(). No tree provided.");
+    return false;
+  }
+
   vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
   unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
   for (size_t i = 0; i < ids.size(); i++)
@@ -283,6 +290,12 @@ bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(bool throwEx) const
 
 bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
 {
+  if (!hasParametrizablePhyloTree())
+  {
+    if (throwEx)
+      throw Exception("NonHomogeneousSubstitutionProcess::checkUnknownNodes(). No tree provided.");
+    return false;
+  }
   vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
   unsigned int id;
   unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
@@ -337,6 +350,9 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
   std::shared_ptr<FrequencySet> rootFreqs,
   shared_ptr<ModelScenario> scenario)
 {
+  if (!tree)
+    throw Exception("NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess: missing tree.");
+  
   // Check alphabet:
   if  (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
@@ -374,6 +390,9 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   const vector<string>& globalParameterNames,
   shared_ptr<ModelScenario> scenario)
 {
+  if (!tree)
+    throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess: missing tree.");
+
   // Check alphabet:
   if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());

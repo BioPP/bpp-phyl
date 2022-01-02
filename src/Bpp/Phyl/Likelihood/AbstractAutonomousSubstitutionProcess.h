@@ -71,8 +71,15 @@ protected:
   AbstractAutonomousSubstitutionProcess& operator=(const AbstractAutonomousSubstitutionProcess& asp);
 
 public:
-  const ParametrizablePhyloTree& getParametrizablePhyloTree() const { return *pTree_; }
+  bool hasParametrizablePhyloTree() const { return pTree_!=0; }
 
+  const ParametrizablePhyloTree& getParametrizablePhyloTree() const
+  {
+    if (!pTree_)
+      throw Exception("AbstractAutonomousSubstitutionProcess::getParametrizablePhyloTree has not ParametrizablePhyloTree.");
+    return *pTree_;
+  }
+  
   /**
    * @brief AbsractParametrizable interface
    *

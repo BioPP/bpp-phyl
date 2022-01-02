@@ -93,6 +93,8 @@ public:
 
   virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
 
+  virtual bool hasParametrizablePhyloTree() const = 0;
+  
   virtual const ParametrizablePhyloTree& getParametrizablePhyloTree() const = 0;
 
   virtual size_t getNumberOfClasses() const = 0;

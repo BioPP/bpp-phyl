@@ -49,15 +49,13 @@ AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(Par
   pTree_(tree),
   modelScenario_(0)
 {
-  if (!tree)
-    throw Exception("AbstractAutonomousSubstitutionProcess. A tree instance must be provided.");
-  // Add parameters:
-  addParameters_(tree->getParameters());  // Branch lengths
+  if (tree)
+    addParameters_(tree->getParameters());  // Branch lengths
 }
 
 AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
-  pTree_(asp.pTree_->clone()),
+  pTree_(asp.pTree_?asp.pTree_->clone():0),
   modelScenario_(asp.modelScenario_) // this has to be specified by inheriting class to follow model links
 {}
 
@@ -65,7 +63,7 @@ AbstractAutonomousSubstitutionProcess& AbstractAutonomousSubstitutionProcess::op
 {
   AbstractParameterAliasable::operator=(*this);
 
-  pTree_.reset(pTree_->clone());
+  pTree_.reset(asp.pTree_?asp.pTree_->clone():0);
   modelScenario_ = asp.modelScenario_; // this has to be specified by inheriting class to follow model links
   return *this;
 }
@@ -75,7 +73,8 @@ void AbstractAutonomousSubstitutionProcess::fireParameterChanged(const Parameter
   ParameterList gAP = getAliasedParameters(pl);
   gAP.addParameters(pl);
 
-  pTree_->matchParametersValues(gAP);
+  if (pTree_)
+    pTree_->matchParametersValues(gAP);
 }
 
 void AbstractAutonomousSubstitutionProcess::setPhyloTree(const PhyloTree& phyloTree)
@@ -85,10 +84,8 @@ void AbstractAutonomousSubstitutionProcess::setPhyloTree(const PhyloTree& phyloT
     getParameters_().deleteParameters(pTree_->getParameters().getParameterNames(), false);
     pTree_.release();
   }
-
   
   pTree_=std::unique_ptr<ParametrizablePhyloTree>(new ParametrizablePhyloTree(phyloTree));
   addParameters_(pTree_->getParameters()); 
-
 }
   

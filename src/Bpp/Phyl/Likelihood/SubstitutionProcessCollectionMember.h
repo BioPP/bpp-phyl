@@ -92,7 +92,7 @@ private:
   std::map<size_t, std::vector<unsigned int> > modelToNodes_;
 
   /**
-   *@brief The number of the tree
+   *@brief The number of the tree: 0 means no assigned tree
    *
    */
 
@@ -342,6 +342,11 @@ public:
    * @return the Tree
    */
 
+  bool hasParametrizablePhyloTree() const
+  {
+    return nTree_>0;
+  }
+  
   const ParametrizablePhyloTree& getParametrizablePhyloTree() const;
 
   size_t getTreeNumber() const { return nTree_; }
