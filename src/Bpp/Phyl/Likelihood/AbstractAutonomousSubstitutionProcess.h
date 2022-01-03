@@ -51,9 +51,12 @@ namespace bpp
 /**
  * @brief A partial implementation of the SubstitutionProcess interface.
  *
- * This class handles a pointer toward a ParametrizableTree object, as well
- * as convenient arrays for storing previously computed probabilities.
+ * This class OWNS a pointer toward a ParametrizableTree object, as
+ * well as convenient arrays for storing previously computed
+ * probabilities.
+ *
  */
+  
 class AbstractAutonomousSubstitutionProcess :
   public virtual AutonomousSubstitutionProcess,
   public virtual AbstractSubstitutionProcess
@@ -64,6 +67,23 @@ protected:
   std::shared_ptr<ModelScenario> modelScenario_;
 
 protected:
+  /*
+   * @brief Builds using an optional pointer towards a PhyloTree.
+   *
+   * If the pointer is non-null, a ParametrizablePhyloTree will be
+   * built from this PhyloTree, and owned by the
+   * AbstractAutonomousSubstitutionProcess.
+   *
+   */
+  AbstractAutonomousSubstitutionProcess(const PhyloTree* tree = nullptr, const std::string& prefix = "");
+
+  /*
+   * @brief Builds using a pointer towards a ParametrizablePhyloTree.
+   * This pointer will be owned by the
+   * AbstractAutonomousSubstitutionProcess.
+   *
+   */
+  
   AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, const std::string& prefix = "");
 
   AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp);
@@ -106,7 +126,7 @@ public:
   }
 
   /**
-   * @brief set the ParametrizablePhyloTree.
+   * @brief sets the ParametrizablePhyloTree.
    *
    * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
    *

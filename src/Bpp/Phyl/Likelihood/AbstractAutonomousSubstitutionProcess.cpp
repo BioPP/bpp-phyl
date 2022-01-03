@@ -44,6 +44,15 @@
 using namespace bpp;
 using namespace std;
 
+AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const PhyloTree* tree, const string& prefix) :
+  AbstractParameterAliasable(prefix),
+  pTree_(nullptr),
+  modelScenario_(0)
+{
+  if (tree)
+    setPhyloTree(*tree);
+}
+
 AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),

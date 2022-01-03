@@ -346,7 +346,7 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelSc
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
   std::shared_ptr<BranchModel> model,
   std::shared_ptr<DiscreteDistribution> rdist,
-  ParametrizablePhyloTree* tree,
+  PhyloTree* tree,
   std::shared_ptr<FrequencySet> rootFreqs,
   shared_ptr<ModelScenario> scenario)
 {
@@ -385,7 +385,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
   std::shared_ptr<BranchModel> model,
   std::shared_ptr<DiscreteDistribution> rdist,
-  ParametrizablePhyloTree* tree,
+  PhyloTree* tree,
   std::shared_ptr<FrequencySet> rootFreqs,
   const vector<string>& globalParameterNames,
   shared_ptr<ModelScenario> scenario)

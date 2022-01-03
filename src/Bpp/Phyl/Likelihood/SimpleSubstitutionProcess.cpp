@@ -56,6 +56,18 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel
   addParameters_(model->getIndependentParameters()); // Substitution model
 }
 
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, const PhyloTree* tree) :
+  AbstractParameterAliasable(""),
+  AbstractAutonomousSubstitutionProcess(tree, model ? model->getNamespace() : ""),
+  model_(model)
+{
+  if (!model)
+    throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
+
+  // Add parameters:
+  addParameters_(model->getIndependentParameters()); // Substitution model
+}
+
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :
   AbstractParameterAliasable(ssp),
   AbstractAutonomousSubstitutionProcess(ssp),

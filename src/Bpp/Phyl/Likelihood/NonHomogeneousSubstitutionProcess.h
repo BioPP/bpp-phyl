@@ -149,11 +149,37 @@ public:
    * Stationarity is not assumed.
    *
    * @param rdist  The DiscreteDistribution for the rates
+   * @param tree the phylo tree tree
+   * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
+   */
+
+  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, const PhyloTree* tree = nullptr, FrequencySet* rootFreqs = nullptr) :
+    AbstractParameterAliasable(""),
+    AbstractAutonomousSubstitutionProcess(tree),
+    modelSet_(),
+    rootFrequencies_(),
+    rDist_(rdist),
+    nodeToModel_(),
+    modelToNodes_(),
+    modelParameters_(),
+    stationarity_(rootFreqs == nullptr)
+  {
+    if (rDist_)
+      addParameters_(rDist_->getIndependentParameters());
+    if (!stationarity_)
+      setRootFrequencies(rootFreqs);
+  }
+  
+  /**
+   * @brief Create a model set according to the specified alphabet and root frequencies.
+   * Stationarity is not assumed.
+   *
+   * @param rdist  The DiscreteDistribution for the rates
    * @param tree the parametrizable tree
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
 
-  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, ParametrizablePhyloTree* tree = nullptr, FrequencySet* rootFreqs = nullptr) :
+  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, ParametrizablePhyloTree* tree, FrequencySet* rootFreqs = nullptr) :
     AbstractParameterAliasable(""),
     AbstractAutonomousSubstitutionProcess(tree),
     modelSet_(),
@@ -514,7 +540,7 @@ public:
   static NonHomogeneousSubstitutionProcess* createHomogeneousSubstitutionProcess(
     std::shared_ptr<BranchModel> model,
     std::shared_ptr<DiscreteDistribution> rdist,
-    ParametrizablePhyloTree* tree,
+    PhyloTree* tree,
     std::shared_ptr<FrequencySet> rootFreqs = 0,
     std::shared_ptr<ModelScenario> scenario = 0
     );
@@ -538,7 +564,7 @@ public:
   static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
     std::shared_ptr<BranchModel> model,
     std::shared_ptr<DiscreteDistribution> rdist,
-    ParametrizablePhyloTree* tree,
+    PhyloTree* tree,
     std::shared_ptr<FrequencySet> rootFreqs,
     const std::vector<std::string>& globalParameterNames,
     std::shared_ptr<ModelScenario> scenario = 0

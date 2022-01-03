@@ -61,6 +61,8 @@ protected:
 private:
 
 public:
+  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, const PhyloTree* tree = nullptr);
+
   SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree = nullptr);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);

@@ -63,6 +63,11 @@ public:
   RateAcrossSitesSubstitutionProcess(
     std::shared_ptr<BranchModel> model,
     std::shared_ptr<DiscreteDistribution> rdist,
+    const PhyloTree* tree = nullptr);
+
+  RateAcrossSitesSubstitutionProcess(
+    std::shared_ptr<BranchModel> model,
+    std::shared_ptr<DiscreteDistribution> rdist,
     ParametrizablePhyloTree* tree = nullptr);
 
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp);

@@ -1212,11 +1212,6 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, warn);
   ApplicationTools::displayResult("Heterogeneous process", nhOpt);
 
-  // ///////////////////////
-  // Tree
-
-  unique_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*vTree[0]));
-
   // ////////////////////////
   // Rates
 
@@ -1238,9 +1233,9 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
     shared_ptr<BranchModel> tmp(getBranchModel(alphabet, gCode, pData, params, unparsedParams));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName() == "Constant")) // first test is for Markov-modulated Markov model!
-      SP = new SimpleSubstitutionProcess(tmp, pTree.release());
+      SP = new SimpleSubstitutionProcess(tmp, vTree[0]);
     else
-      SP = new RateAcrossSitesSubstitutionProcess(tmp, rDist, pTree.release());
+      SP = new RateAcrossSitesSubstitutionProcess(tmp, rDist, vTree[0]);
   }
 
   // Non-homogeneous models
@@ -1303,7 +1298,7 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
       SP = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
         tmp,
         rDist,
-        pTree.release(),
+        vTree[0],
         rootFrequencies,
         globalParameters);
     }
@@ -1325,16 +1320,19 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
 
       bIO.setVerbose(true);
 
-      SP = new NonHomogeneousSubstitutionProcess(rDist, pTree.release(), rootFrequencies->clone());
+      SP = new NonHomogeneousSubstitutionProcess(rDist, vTree[0], rootFrequencies->clone());
 
       NonHomogeneousSubstitutionProcess* nhSP = dynamic_cast<NonHomogeneousSubstitutionProcess*>(SP);
 
+      if (SP->hasParametrizablePhyloTree())
+      {
       for (size_t i = 0; i < nbModels; i++)
       {
         string prefix = "model" + TextTools::toString(i + 1);
         string modelDesc;
         modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
 
+        
         shared_ptr<BranchModel> model(bIO.readBranchModel(alphabet, modelDesc, pData, true));
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
@@ -1351,16 +1349,16 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
         const auto& tree = SP->getParametrizablePhyloTree();
         if (descnodes == "All")
         {
-          nodesId = pTree->getEdgeIndexes(pTree->getSubtreeEdges(tree.getRoot()));
+          nodesId = tree.getSubtreeEdges(tree.getRootIndex());
         }
         else if (descnodes == "Leaves")
         {
-          nodesId = pTree->getNodeIndexes(pTree->getLeavesUnderNode(tree.getRoot()));
+          nodesId = tree.getLeavesUnderNode(tree.getRootIndex());
         }
         else if (descnodes == "NoLeaves")
         {
-          auto allIds = pTree->getEdgeIndexes(pTree->getSubtreeEdges(tree.getRoot()));
-          auto leavesId = pTree->getNodeIndexes(pTree->getLeavesUnderNode(tree.getRoot()));
+          auto allIds = tree.getSubtreeEdges(tree.getRootIndex());
+          auto leavesId = tree.getLeavesUnderNode(tree.getRootIndex());
           VectorTools::diff(allIds, leavesId, nodesId);
         }
         else
@@ -1373,6 +1371,7 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
       }
 
       nhSP->isFullySetUp();
+      }
     }
   }
 

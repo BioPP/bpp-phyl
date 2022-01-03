@@ -243,7 +243,7 @@ int main(int argc, char** argv)
   // Read tree structure
   Newick reader;
   auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
-  auto paramPhyloTree = new ParametrizablePhyloTree(*phyloTree);
+
 //  std::vector<std::string> globalParameterNames({"T92.kappa"});
 
   // auto process =
@@ -259,7 +259,7 @@ int main(int argc, char** argv)
 
   // process->addModel(t92, Vuint({2}));
     
-  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, paramPhyloTree, rootFreqs);//, scenario));
+  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree.get(), rootFreqs);//, scenario));
 
   // Build likelihood value node
   auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, *process);

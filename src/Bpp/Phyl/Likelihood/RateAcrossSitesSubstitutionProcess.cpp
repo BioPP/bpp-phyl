@@ -48,6 +48,26 @@ using namespace std;
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
   shared_ptr<BranchModel> model,
   shared_ptr<DiscreteDistribution> rdist,
+  const PhyloTree* tree) :
+  AbstractParameterAliasable(""),
+  AbstractAutonomousSubstitutionProcess(tree, model ? model->getNamespace() : ""),
+  model_(model),
+  rDist_(rdist)
+{
+  if (!model)
+    throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
+  if (!rdist)
+    throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
+
+  addParameters_(model->getIndependentParameters()); // Substitution model
+
+  addParameters_(rdist->getIndependentParameters()); // Rate
+                                                     // distribution
+}
+
+RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
+  shared_ptr<BranchModel> model,
+  shared_ptr<DiscreteDistribution> rdist,
   ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, model ? model->getNamespace() : ""),
