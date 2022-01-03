@@ -153,7 +153,7 @@ public:
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
 
-  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, ParametrizablePhyloTree* tree, FrequencySet* rootFreqs = nullptr) :
+  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, ParametrizablePhyloTree* tree = nullptr, FrequencySet* rootFreqs = nullptr) :
     AbstractParameterAliasable(""),
     AbstractAutonomousSubstitutionProcess(tree),
     modelSet_(),
