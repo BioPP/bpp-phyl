@@ -2,7 +2,8 @@
 // File: CompoundSubstitutionModel.h
 // Authors:
 //   Anaïs Prud'homme
-//   Date: vendredi 3 décembre à 11h30
+// Date: 
+//   Vendredi 3 décembre 2021
 //
 
 /*
@@ -38,8 +39,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_PHYL_MODEL_CompoundSubstitutionModel_H
-#define BPP_PHYL_MODEL_CompoundSubstitutionModel_H
+#ifndef BPP_PHYL_MODEL_COMPOUNDSUBSTITUTIONMODEL_H
+#define BPP_PHYL_MODEL_COMPOUNDSUBSTITUTIONMODEL_H
 
 #include <Bpp/Numeric/VectorTools.h>
 #include <cstring> // C lib for string copy
@@ -57,62 +58,29 @@ class CompoundSubstitutionModel :
 public:
   /**
    * @brief Constructor of a CompoundSubstitutionModel, where all
-   * the models have rate 1 and equal probability. => changer
+   * the models have rate 1 and equal probability.
    *
    * @param alpha pointer to the Alphabet
-   * @param vpModel vector of pointers to SubstitutionModels. All the
-   *   SubstitutionModels are owned by the instance.
-   * @warning providing a vpModel with size 0 will generate a segmentation fault!
-   */
-  CompoundSubstitutionModel(const Alphabet* alpha, std::vector<std::shared_ptr<TransitionModel>> vpModel) :
-    AbstractParameterAliasable("Mixture."),
-    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
-    CompoundTransitionModel(alpha, vpModel)
-  {
-    /*
-     * Check that all models are substitutionmodels
-     */
-
-    for (const auto& model:vpModel)
-    {
-      if (!dynamic_cast<const SubstitutionModel*>(model.get()))
-        throw Exception("CompoundSubstitutionModel can only be built with SubstitutionModels, not " + model->getName());
-    }
-  }
-
-  /**
-   * @brief Constructor of a CompoundSubstitutionModel.
+   * @param model pointer to the SubstitutionModel 
+   * @param parametersDistributionsList list from parameters names towards discrete distributions to will define the composition.
+   * @param ffrom   index of the starting codon that will be used to homogeneize the rates of the submodels
+   * @param tto     index of the arriving codon that will be used to homogeneize the rates of the submodels
    *
-   * @param alpha pointer to the Alphabet
-   * @param vpModel vector of pointers to SubstitutionModels. All the
-   *   SubstitutionModels are owned by the instance.
-   * @param vproba vector of the probabilities of the models
-   * @param vrate vector of the rates of the models
-   * @warning providing a vpModel with size 0 will generate a segmentation fault!
+   *   If ffrom and tto are not -1, for all submodels the transition
+   *   rate ffrom->tto is the same. Otherwise, all submodels are
+   *   normalized to have a substitution/time unit at equilibrium.
    *
-   * See above the constraints on the rates and the probabilities of
-   * the vectors.
    */
 
-  CompoundSubstitutionModel(
-    const Alphabet* alpha,
-    std::vector<std::shared_ptr<TransitionModel>> vpModel,
-    Vdouble& vproba, Vdouble& vrate) :
-    AbstractParameterAliasable("Mixture."),
-    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
-    CompoundTransitionModel(alpha, vpModel, vproba, vrate)
-  {
-    /*
-     * Check that all models are substitutionmodels
-     */
-
-    for (const auto& model:vpModel)
-    {
-      if (!dynamic_cast<const SubstitutionModel*>(model.get()))
-        throw Exception("CompoundSubstitutionModel can only be built with SubstitutionModels, not " + model->getName());
-    }
-  }
-
+  CompoundSubstitutionModel(const Alphabet* alpha,
+                              SubstitutionModel* model,
+                              std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+                              int ffrom = -1,
+                              int tto = -1) :
+    AbstractParameterAliasable(model->getNamespace()),
+    AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
+    CompoundTransitionModel(alpha, model, parametersDistributionsList, ffrom, tto)
+  {}
 
   CompoundSubstitutionModel(const CompoundSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -129,7 +97,24 @@ public:
 
   CompoundSubstitutionModel* clone() const { return new CompoundSubstitutionModel(*this); }
 
-public:
+  void updateMatrices()
+  {
+    CompoundTransitionModel::updateMatrices();
+    // setting the rates, if to_ & from_ are different from -1
+
+    if (to_ >= 0 && from_ >= 0)
+    {
+      Vdouble vd;
+
+      for (size_t j = 0; j < modelsContainer_.size(); j++)
+      {
+        vd.push_back(1 / getSubNModel(j)->Qij(static_cast<size_t>(from_), static_cast<size_t>(to_)));
+      }
+
+      setVRates(vd);
+    }
+  }
+
   /**
    * @brief retrieve a pointer to the subsitution model with the given name.
    *
@@ -139,6 +124,11 @@ public:
   const SubstitutionModel* getSubModel(const std::string& name) const
   {
     return dynamic_cast<const SubstitutionModel*>(getModel(name));
+  }
+
+  const SubstitutionModel* getSubNModel(size_t i) const
+  {
+    return dynamic_cast<const SubstitutionModel*>(getNModel(i));
   }
 };
 } // end of namespace bpp.

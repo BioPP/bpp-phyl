@@ -2,7 +2,8 @@
 // File: CompoundTransitionModel.h
 // Authors:
 //   Anaïs Prud'homme
-//   Date: vendredi 3 décembre à 11h
+// Date :
+//   Vendredi 3 décembre 2021
 //
 
 /*
@@ -41,55 +42,38 @@
 #ifndef BPP_PHYL_MODEL_COMPOUNDTRANSITIONMODEL_H
 #define BPP_PHYL_MODEL_COMPOUNDTRANSITIONMODEL_H
 
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/VectorTools.h>
 #include <cstring> // C lib for string copy
 #include <map>
 #include <string>
 #include <vector>
 
-#include "AbstractTransitionModel.h"
+#include "AbstractMixedTransitionModel.h"
 
 namespace bpp
 {
 /**
- * @brief 
+ * @brief Transition models defined as a composition of nested
+ * substitution models.
  * @author Anaïs Prud'homme
+ *
  */
-
 class CompoundTransitionModel :
-  public AbstractTransitionModel
+  public AbstractMixedTransitionModel
 {
+private:
+  std::map<std::string, DiscreteDistribution*> distributionMap_;
+
+protected:
+  int from_, to_;
+
 public:
-  /**
-   * @brief Constructor of a CompoundTransitionModel, where all
-   * the models have rate 1 and equal probability.
-   * @param alpha pointer to the Alphabet
-   * @param vpModel vector of pointers to TransitionModels. All the
-   *   TransitionModels are owned by the instance.
-   * @warning providing a vpModel with size 0 will generate a segmentation fault!
-   */
   CompoundTransitionModel(
     const Alphabet* alpha,
-    std::vector<std::shared_ptr<TransitionModel>> vpModel);
-
-  /**
-   * @brief Constructor of a CompoundTransitionModel.
-   *
-   * @param alpha pointer to the Alphabet
-   * @param vpModel vector of pointers to TransitionModels. All the
-   *   TransitionModels are owned by the instance.
-   * @param vproba vector of the probabilities of the models
-   * @param vrate vector of the rates of the models
-   * @warning providing a vpModel with size 0 will generate a segmentation fault!
-   *
-   * See above the constraints on the rates and the probabilities of
-   * the vectors.
-   */
-
-  CompoundTransitionModel(
-    const Alphabet* alpha,
-    std::vector<std::shared_ptr<TransitionModel>> vpModel,
-    Vdouble& vproba, Vdouble& vrate);
+    TransitionModel* model,
+    std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+    int ffrom = -1, int tto = -1);
 
   CompoundTransitionModel(const CompoundTransitionModel&);
 
@@ -100,7 +84,9 @@ public:
   CompoundTransitionModel* clone() const { return new CompoundTransitionModel(*this); }
 
 public:
-  std::string getName() const { return "Mixture"; }
+  std::string getName() const { return "CompoundModel"; }
+
+  void updateMatrices();
 
   /**
    * @brief retrieve a pointer to the submodel with the given name.
@@ -121,31 +107,42 @@ public:
   //   return AbstractMixedTransitionModel::getModel(i);
   // }
 
-  void updateMatrices();
-
-  /**
-   * @brief Sets the rates of the submodels to follow the constraint
-   * that the mean rate of the mixture equals rate_.
-   * @param vd a vector of positive values such that the rates of
-   * the respective submodels are in the same proportions (ie this
-   * vector does not need to be normalized).
-   */
-  virtual void setVRates(const Vdouble& vd);
-
-  /**
-   * @brief Returns the vector of numbers of the submodels in the
+  /*
+   *@brief Returns the vector of numbers of the submodels in the
    * mixture that match a description of the parameters numbers.
    *
-   * @param desc is the description of the class indexes of the mixed
-   * parameters. Syntax is like: kappa_1,gamma_3,delta_2
+   **@param desc is the description of the class indexes of the mixed
+   **parameters. Syntax is like: kappa_1,gamma_3,delta_2
+   *
    */
+
   Vuint getSubmodelNumbers(const std::string& desc) const;
 
   /**
-   * @brief applies setFreq to all the models of the mixture and
-   * recovers the parameters values.
+   * @brief sets the eq frequencies of the first nested model, and
+   * adapts the parameters at best to it (surely there is a better way
+   * to manage this).
+   *
    */
+
   void setFreq(std::map<int, double>&);
+
+  /**
+   * @brief returns the DiscreteDistribution associated with a given
+   * parameter name.
+   * @param parName name of the parameter
+   **/
+
+  const DiscreteDistribution* getDistribution(std::string& parName) const;
+
+  /**
+   *@brief Numbers of the states between which the substitution rates
+   * of all the submodels must be equal. If they are set to -1, this
+   * constraint does not exist among the submodels.
+   *
+   */
+  int from() const { return from_; }
+  int to() const { return to_; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CompoundTransitionModel_H

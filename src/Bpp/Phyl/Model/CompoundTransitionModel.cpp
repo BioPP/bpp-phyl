@@ -2,7 +2,8 @@
 // File: CompoundTransitionModel.cpp
 // Authors:
 //   Anaïs Prud'homme
-//   Date: vendredi 3 décembre à 11h00
+// Date :
+//   Vendredi 3 décembre 2021
 //
 
 /*
@@ -38,8 +39,10 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/NumConstants.h>
-#include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+#include <Bpp/Numeric/VectorTools.h>
 #include <string>
 
 #include "CompoundTransitionModel.h"
@@ -47,146 +50,222 @@
 using namespace bpp;
 using namespace std;
 
+
 CompoundTransitionModel::CompoundTransitionModel(
   const Alphabet* alpha,
-  vector<std::shared_ptr<TransitionModel> > vpModel) :
-  AbstractParameterAliasable("Mixture."),
-  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound.")
+  TransitionModel* model,
+  std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+  int ffrom,
+  int tto) :
+  AbstractParameterAliasable(model->getNamespace()),
+  AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
+  AbstractMixedTransitionModel(alpha, shareStateMap(), model->getNamespace()),
+  distributionMap_(),
+  from_(ffrom),
+  to_(tto)
 {
-  size_t i, nbmod = vpModel.size();
+  if (to_ >= int(alpha->getSize()))
+    throw BadIntegerException("Bad state in alphabet", to_);
+  if (from_ >= int(alpha->getSize()))
+    throw BadIntegerException("Bad state in alphabet", from_);
 
-  for (i = 0; i < nbmod; i++)
+  size_t c, i;
+  string s1, s2, t;
+  map<string, DiscreteDistribution*>::iterator it;
+
+  // Initialization of distributionMap_.
+
+  vector<string> parnames = model->getParameters().getParameterNames();
+
+  for (i = 0; i < model->getNumberOfParameters(); i++)
   {
-    if (!vpModel[i])
-      throw Exception("Empty model number " + TextTools::toString(i) + " in CompoundTransitionModel constructor");
-    for (size_t j = i + 1; j < nbmod; j++)
-    {
-      if (vpModel[i] == vpModel[j])
-        throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
-                        TextTools::toString(j) + " in CompoundTransitionModel constructor");
-    }
+    s1 = parnames[i];
+    s2 = model->getParameterNameWithoutNamespace(s1);
+
+    if (parametersDistributionsList.find(s2) != parametersDistributionsList.end())
+      distributionMap_[s1] = parametersDistributionsList.find(s2)->second->clone();
+    else
+      distributionMap_[ s1] = new ConstantDistribution(model->getParameterValue(s2));
+
+
+    if (dynamic_cast<ConstantDistribution*>(distributionMap_[s1]) == 0)
+      distributionMap_[s1]->setNamespace(s1 + "_" + distributionMap_[s1]->getNamespace());
+    else
+      distributionMap_[s1]->setNamespace(s1 + "_");
+
+    auto constr = model->getParameter(s2).getConstraint();
+    if (constr)
+      distributionMap_[s1]->restrictToConstraint(*constr);
   }
 
   // Initialization of modelsContainer_.
 
-  for (i = 0; i < nbmod; i++)
+  c = 1;
+
+  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
   {
-    modelsContainer_.push_back(vpModel[i]);
-    vProbas_.push_back(1.0 / static_cast<double>(nbmod));
+    c *= it->second->getNumberOfCategories();
+  }
+
+  for (i = 0; i < c; i++)
+  {
+    modelsContainer_.push_back(std::shared_ptr<TransitionModel>(model->clone()));
+    vProbas_.push_back(1.0 / static_cast<double>(c));
     vRates_.push_back(1.0);
   }
 
   // Initialization of parameters_.
 
-  // relative rates and probas
-  for (i = 0; i < nbmod - 1; i++)
+
+  DiscreteDistribution* pd;
+
+  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
   {
-    addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i + 1), 1.0 / static_cast<double>(nbmod - i), Parameter::PROP_CONSTRAINT_EX));
-    addParameter_(new Parameter("Mixture.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(nbmod - i), Parameter::PROP_CONSTRAINT_EX));
-  }
+    const Parameter& pm = model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
+    pd = it->second;
 
-  // models parameters
+    if (pm.hasConstraint())
+      pd->restrictToConstraint(*pm.getConstraint());
 
-  for (i = 0; i < nbmod; i++)
-  {
-    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
-    addParameters_(vpModel[i]->getParameters());
-  }
-
-  updateMatrices();
-}
-
-CompoundTransitionModel::CompoundTransitionModel(
-  const Alphabet* alpha,
-  vector<std::shared_ptr<TransitionModel> > vpModel,
-  Vdouble& vproba,
-  Vdouble& vrate) :
-  AbstractParameterAliasable("Mixture."),
-  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture.")
-  {
-  size_t i, nbmod = vpModel.size();
-
-  for (i = 0; i < nbmod; i++)
-  {
-    if (!vpModel[i])
-      throw Exception("Empty model number " + TextTools::toString(i) + " in CompoundTransitionModel constructor");
-    for (size_t j = i + 1; j < nbmod; j++)
+    if (!dynamic_cast<ConstantDistribution*>(it->second))
     {
-      if (vpModel[i] == vpModel[j])
-        throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
-                        TextTools::toString(j) + " in CompoundTransitionModel constructor");
+      const ParameterList pl = pd->getParameters();
+      for (i = 0; i != it->second->getNumberOfParameters(); i++)
+      {
+        addParameter_(pl[i].clone());
+      }
     }
+    else
+      addParameter_(new Parameter(it->first, pd->getCategory(0), (pd->getParameter("value").getConstraint()) ? std::shared_ptr<Constraint>(pd->getParameter("value").getConstraint()->clone()) : 0));
   }
-
-  double x = 0;
-  double sumrates = 0;
-
-  for (i = 0; i < nbmod; i++)
-  {
-    if (vrate[i] <= 0)
-      throw Exception("Non positive rate: " + TextTools::toString(vrate[i]) + " in CompoundTransitionModel constructor.");
-    if (vproba[i] <= 0)
-      throw Exception("Non positive probability: " + TextTools::toString(vproba[i]) + " in CompoundTransitionModel constructor.");
-    x += vproba[i];
-    sumrates += vrate[i];
-  }
-
-  if (fabs(1. - x) > NumConstants::SMALL())
-    throw Exception("Probabilities must equal 1 (sum = " + TextTools::toString(x) + ").");
-
-
-  // Initialization of modelsContainer_.
-
-  for (i = 0; i < nbmod; i++)
-  {
-    modelsContainer_.push_back(vpModel[i]);
-  }
-
-  // rates & probas
-
-  vProbas_.resize(nbmod);
-  vRates_.resize(nbmod);
-
-  // Initialization of parameters_.
-
-  // relative rates and probas
-  x = 0;
-  double y = 0;
-
-  for (i = 0; i < nbmod - 1; i++)
-  {
-    addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i + 1), vproba[i] / (1 - x), Parameter::PROP_CONSTRAINT_EX));
-    x += vproba[i];
-    addParameter_(new Parameter("Mixture.relrate" + TextTools::toString(i + 1), vrate[i] / (sumrates - y), Parameter::PROP_CONSTRAINT_EX));
-    y += vrate[i];
-  }
-
-  // models parameters
-
-  for (i = 0; i < nbmod; i++)
-  {
-    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
-    addParameters_(vpModel[i]->getParameters());
-  }
-
   updateMatrices();
 }
 
 CompoundTransitionModel::CompoundTransitionModel(const CompoundTransitionModel& msm) :
   AbstractParameterAliasable(msm),
-  AbstractTransitionModel(msm)
-{}
+  AbstractTransitionModel(msm),
+  AbstractMixedTransitionModel(msm),
+  distributionMap_(),
+  from_(msm.from_),
+  to_(msm.to_)
+{
+  map<string, DiscreteDistribution*>::const_iterator it;
+
+  for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
+  {
+    distributionMap_[it->first] = it->second->clone();
+  }
+}
 
 CompoundTransitionModel& CompoundTransitionModel::operator=(const CompoundTransitionModel& msm)
 {
-  AbstractTransitionModel::operator=(msm);
+  AbstractParameterAliasable::operator=(msm);
+  AbstractMixedTransitionModel::operator=(msm);
+  from_ = msm.from_;
+  to_ = msm.to_;
 
+  // Clear existing containers:
+  distributionMap_.clear();
+
+  // Now copy new containers:
+  map<string, DiscreteDistribution*>::const_iterator it;
+  for (it = msm.distributionMap_.begin(); it != msm.distributionMap_.end(); it++)
+  {
+    distributionMap_[it->first] = it->second->clone();
+  }
   return *this;
 }
 
 
 CompoundTransitionModel::~CompoundTransitionModel()
-{}
+{
+  map<string, DiscreteDistribution*>::iterator it;
+
+  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+  {
+    delete it->second;
+  }
+}
+
+const DiscreteDistribution* CompoundTransitionModel::getDistribution(std::string& parName) const
+{
+  if (distributionMap_.find(parName) != distributionMap_.end())
+    return distributionMap_.find(parName)->second;
+  else
+    return NULL;
+}
+
+void CompoundTransitionModel::updateMatrices()
+{
+  string s, t;
+  size_t j, l;
+  double d;
+  ParameterList pl;
+
+  // Update of distribution parameters from the parameters_ member
+  // data. (reverse operation compared to what has been done in the
+  // constructor).
+  //  vector<string> v=getParameters().getParameterNames();
+
+  for (auto distrib : distributionMap_)
+  {
+    if (dynamic_cast<ConstantDistribution*>(distrib.second) == NULL)
+    {
+      vector<string> vDistnames = distrib.second->getParameters().getParameterNames();
+      for (auto& parname : vDistnames)
+      {
+        d = getParameterValue(getParameterNameWithoutNamespace(parname));
+        pl.addParameter(Parameter(parname, d));
+      }
+      distrib.second->matchParametersValues(pl);
+      pl.reset();
+    }
+    else
+    {
+      t = distrib.second->getNamespace();
+      d = getParameter(getParameterNameWithoutNamespace(t.substr(0, t.length() - 1))).getValue();
+      distrib.second->setParameterValue("value", d);
+    }
+  }
+
+  for (size_t i = 0; i < modelsContainer_.size(); i++)
+  {
+    vProbas_[i] = 1;
+    j = i;
+    for (auto& distrib:distributionMap_)
+    {
+      s = distrib.first;
+      l = j % distrib.second->getNumberOfCategories();
+
+      d = distrib.second->getCategory(l);
+      vProbas_[i] *= distrib.second->getProbability(l);
+      if (pl.hasParameter(s))
+        pl.setParameterValue(s, d);
+      else
+        pl.addParameter(Parameter(s, d));
+
+      j = j / distrib.second->getNumberOfCategories();
+    }
+
+    modelsContainer_[i]->matchParametersValues(pl);
+  }
+
+  //  setting the equilibrium freqs
+  for (size_t i = 0; i < getNumberOfStates(); i++)
+  {
+    freq_[i] = 0;
+    for (j = 0; j < modelsContainer_.size(); j++)
+    {
+      freq_[i] += vProbas_[j] * modelsContainer_[j]->freq(i);
+    }
+  }
+}
+
+void CompoundTransitionModel::setFreq(std::map<int, double>& m)
+{
+  modelsContainer_[0]->setFreq(m);
+  matchParametersValues(modelsContainer_[0]->getParameters());
+}
 
 const TransitionModel* CompoundTransitionModel::getModel(const std::string& name) const
 {
@@ -201,101 +280,48 @@ const TransitionModel* CompoundTransitionModel::getModel(const std::string& name
   return NULL;
 }
 
-void CompoundTransitionModel::updateMatrices()
-{
-  size_t i, j, nbmod = modelsContainer_.size();
-
-  double x, y;
-  x = 1.0;
-
-  for (i = 0; i < nbmod - 1; i++)
-  {
-    y = getParameterValue("relproba" + TextTools::toString(i + 1));
-    vProbas_[i] = x * y;
-    x *= 1 - y;
-  }
-  vProbas_[nbmod - 1] = x;
-
-  x = 1.0;
-  double s = 0;
-  for (i = 0; i < nbmod - 1; i++)
-  {
-    y = getParameterValue("relrate" + TextTools::toString(i + 1));
-    vRates_[i] = x * y;
-    x *= 1 - y;
-    s += vProbas_[i] * vRates_[i];
-  }
-
-  vRates_[nbmod - 1] = x;
-  s += vProbas_[nbmod - 1] * vRates_[nbmod - 1];
-
-  for (i = 0; i < nbmod; i++)
-  {
-    vRates_[i] /= s;
-  }
-
-  // models
-
-  for (i = 0; i < nbmod; i++)
-  {
-    modelsContainer_[i]->setRate(rate_ * vRates_[i]);
-    modelsContainer_[i]->matchParametersValues(getParameters());
-  }
-
-  // / freq_
-
-  for (i = 0; i < getNumberOfStates(); i++)
-  {
-    freq_[i] = 0;
-    for (j = 0; j < modelsContainer_.size(); j++)
-    {
-      freq_[i] += vProbas_[j] * modelsContainer_[j]->freq(i);
-    }
-  }
-}
-
-
-void CompoundTransitionModel::setFreq(std::map<int, double>& m)
-{
-  ParameterList pl;
-  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
-  {
-    modelsContainer_[n]->setFreq(m);
-    pl.addParameters(modelsContainer_[n]->getParameters());
-  }
-  matchParametersValues(pl);
-}
-
-void CompoundTransitionModel::setVRates(const Vdouble& vd)
-{
-  AbstractMixedTransitionModel::setVRates(vd);
-
-  size_t i, nbmod = modelsContainer_.size();
-  double sP = 0;
-  for (const auto& rate:vRates_)
-  {
-    sP += rate;
-  }
-
-  for (i = 0; i < nbmod - 1; i++)
-  {
-    setParameterValue("relrate" + TextTools::toString(i + 1), vRates_[i] / sP);
-    sP -= vRates_[i];
-  }
-}
-
 Vuint CompoundTransitionModel::getSubmodelNumbers(const string& desc) const
 {
-  size_t i;
-  for (i = 0; i < getNumberOfModels(); i++)
-  {
-    if (getNModel(i)->getName() == desc)
-      break;
-  }
-  if (i == getNumberOfModels())
-    throw Exception("CompoundTransitionModel::getSubmodelNumbers model description do not match " + desc);
+  vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
+  std::map<std::string, size_t> msubn;
 
-  Vuint submodnb(1, uint(i));
+  StringTokenizer st(desc, ",");
+  while (st.hasMoreToken())
+  {
+    string param = st.nextToken();
+    string::size_type index = param.rfind("_");
+    if (index == string::npos)
+      throw Exception("CompoundTransitionModel::getSubmodelNumbers parameter description should contain a number " + param);
+    msubn[param.substr(0, index)] = TextTools::to<size_t>(param.substr(index + 1, 4)) - 1;
+  }
+
+  Vuint submodnb;
+  size_t i, j, l;
+  string s;
+
+  bool nameok = false;
+  map<string, DiscreteDistribution*>::const_iterator it;
+
+  for (i = 0; i < modelsContainer_.size(); i++)
+  {
+    j = i;
+    for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+    {
+      s = it->first;
+      l = j % it->second->getNumberOfCategories();
+
+      if (msubn.find(s) != msubn.end())
+      {
+        nameok = true;
+        if (msubn[s] != l)
+          break;
+      }
+
+      j = j / it->second->getNumberOfCategories();
+    }
+    if (nameok && it == distributionMap_.end())
+      submodnb.push_back(uint(i));
+  }
 
   return submodnb;
 }
