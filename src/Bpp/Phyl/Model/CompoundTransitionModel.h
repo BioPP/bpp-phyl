@@ -62,7 +62,7 @@ namespace bpp
  */
 class CompoundTransitionModel :
   //public AbstractMixedTransitionModel
-  public AbstractSubstitutionModel
+  public AbstractTransitionModel
 {
 private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;
