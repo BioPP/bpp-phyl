@@ -47,10 +47,14 @@ using namespace std;
 CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, bool includeGaps) :
   AbstractStateMap(alphabet)
 {
-  for (int i = 0; i < static_cast<int>(alphabet->getSize()); ++i)
+  size_t i=0;
+  while (states_.size()<alphabet->getSize())
   {
-    states_.push_back(i);
+    if (!alphabet->isGap(alphabet->getIntCodeAt(i)))
+      states_.push_back(alphabet->getIntCodeAt(i));
+    i++;
   }
+
   if (includeGaps)
     states_.push_back(alphabet->getGapCharacterCode());
 }
