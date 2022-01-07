@@ -43,6 +43,7 @@
 #define BPP_PHYL_MODEL_COMPOUNDTRANSITIONMODEL_H
 
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Numeric/VectorTools.h>
 #include <cstring> // C lib for string copy
 #include <map>

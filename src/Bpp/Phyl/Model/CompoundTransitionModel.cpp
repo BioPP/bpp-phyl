@@ -3,7 +3,7 @@
 // Authors:
 //   Anaïs Prud'homme
 // Date :
-//   Vendredi 3 décembre 2021
+//   Vendredi 3 décembre 2021 à 11h30
 //
 
 /*
@@ -59,10 +59,12 @@ CompoundTransitionModel::CompoundTransitionModel(
   int tto) :
   AbstractParameterAliasable(model->getNamespace()),
   AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
-  AbstractMixedTransitionModel(alpha, shareStateMap(), model->getNamespace()),
+  //AbstractMixedTransitionModel(alpha, shareStateMap(), model->getNamespace()),
   distributionMap_(),
   from_(ffrom),
-  to_(tto)
+  to_(tto),
+  modelsContainer_(),
+  vProbas_(),
 {
   if (to_ >= int(alpha->getSize()))
     throw BadIntegerException("Bad state in alphabet", to_);
@@ -111,7 +113,7 @@ CompoundTransitionModel::CompoundTransitionModel(
   {
     modelsContainer_.push_back(std::shared_ptr<TransitionModel>(model->clone()));
     vProbas_.push_back(1.0 / static_cast<double>(c));
-    vRates_.push_back(1.0);
+    //vRates_.push_back(1.0);
   }
 
   // Initialization of parameters_.
@@ -144,10 +146,12 @@ CompoundTransitionModel::CompoundTransitionModel(
 CompoundTransitionModel::CompoundTransitionModel(const CompoundTransitionModel& msm) :
   AbstractParameterAliasable(msm),
   AbstractTransitionModel(msm),
-  AbstractMixedTransitionModel(msm),
+  //AbstractMixedTransitionModel(msm),
   distributionMap_(),
   from_(msm.from_),
-  to_(msm.to_)
+  to_(msm.to_),
+  modelsContainer_(),
+  vProbas_(),
 {
   map<string, DiscreteDistribution*>::const_iterator it;
 
@@ -160,12 +164,15 @@ CompoundTransitionModel::CompoundTransitionModel(const CompoundTransitionModel& 
 CompoundTransitionModel& CompoundTransitionModel::operator=(const CompoundTransitionModel& msm)
 {
   AbstractParameterAliasable::operator=(msm);
-  AbstractMixedTransitionModel::operator=(msm);
+  //AbstractMixedTransitionModel::operator=(msm);
   from_ = msm.from_;
   to_ = msm.to_;
 
   // Clear existing containers:
   distributionMap_.clear();
+
+  modelsContainer_(),
+  vProbas_(),
 
   // Now copy new containers:
   map<string, DiscreteDistribution*>::const_iterator it;
@@ -273,8 +280,8 @@ const TransitionModel* CompoundTransitionModel::getModel(const std::string& name
 
   for (size_t i = 0; i < nbmod; i++)
   {
-    if (getNModel(i)->getName() == name)
-      return getNModel(i);
+    if (getModel(i)->getName() == name)
+      return getModel(i);
   }
 
   return NULL;
@@ -324,4 +331,86 @@ Vuint CompoundTransitionModel::getSubmodelNumbers(const string& desc) const
   }
 
   return submodnb;
+}
+
+size_t CompoundTransitionModel::getNumberOfStates() const
+{
+  return modelsContainer_[0]->getNumberOfStates();
+}
+
+const Matrix<double>& CompoundTransitionModel::getPij_t(double t) const
+{
+  vector<const Matrix<double>* > vM;
+  double sP = 0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+  {
+    vM.push_back(&modelsContainer_[n]->getPij_t(t));
+    sP += vProbas_[n];
+  }
+
+  for (unsigned int i = 0; i < getNumberOfStates(); i++)
+  {
+    for (unsigned int j = 0; j < getNumberOfStates(); j++)
+    {
+      double x = 0;
+      for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+      {
+        x += (*vM[n])(i, j) * vProbas_[n];
+      }
+      pijt_(i, j) = x / sP;
+    }
+  }
+  return pijt_;
+}
+
+
+const Matrix<double>& CompoundTransitionModel::getdPij_dt(double t) const
+{
+  vector<const Matrix<double>* > vM;
+  double sP = 0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+  {
+    vM.push_back(&modelsContainer_[n]->getdPij_dt(t));
+    sP += vProbas_[n];
+  }
+
+  for (unsigned int i = 0; i < getNumberOfStates(); i++)
+  {
+    for (unsigned int j = 0; j < getNumberOfStates(); j++)
+    {
+      double x = 0;
+      for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+      {
+        x += (*vM[n])(i, j) * vProbas_[n];
+      }
+      dpijt_(i, j) = x / sP;
+    }
+  }
+  return dpijt_;
+}
+
+
+const Matrix<double>& CompoundTransitionModel::getd2Pij_dt2(double t) const
+{
+  vector<const Matrix<double>* > vM;
+  double sP = 0;
+  for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+  {
+    vM.push_back(&modelsContainer_[n]->getd2Pij_dt2(t));
+    sP += vProbas_[n];
+  }
+
+  for (unsigned int i = 0; i < getNumberOfStates(); i++)
+  {
+    for (unsigned int j = 0; j < getNumberOfStates(); j++)
+    {
+      double x = 0;
+      for (unsigned int n = 0; n < modelsContainer_.size(); n++)
+      {
+        x += (*vM[n])(i, j) * vProbas_[n];
+      }
+      d2pijt_(i, j) = x / sP;
+    }
+  }
+  return d2pijt_;
 }
