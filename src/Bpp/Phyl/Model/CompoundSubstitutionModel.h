@@ -97,7 +97,7 @@ public:
 
   CompoundSubstitutionModel* clone() const { return new CompoundSubstitutionModel(*this); }
 
-  void updateMatrices()
+ /* void updateMatrices()
   {
     CompoundTransitionModel::updateMatrices();
     // setting the rates, if to_ & from_ are different from -1
@@ -111,9 +111,9 @@ public:
         vd.push_back(1 / getSubNModel(j)->Qij(static_cast<size_t>(from_), static_cast<size_t>(to_)));
       }
 
-      setVRates(vd);
+      //setVRates(vd);
     }
-  }
+  }*/
 
   /**
    * @brief retrieve a pointer to the subsitution model with the given name.
