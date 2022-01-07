@@ -3,7 +3,7 @@
 // Authors:
 //   Anaïs Prud'homme
 // Date :
-//   Vendredi 3 décembre 2021
+//   Vendredi 3 décembre 2021 à 11h30
 //
 
 /*
@@ -49,7 +49,8 @@
 #include <string>
 #include <vector>
 
-#include "AbstractMixedTransitionModel.h"
+//#include "AbstractMixedTransitionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 namespace bpp
 {
@@ -60,7 +61,8 @@ namespace bpp
  *
  */
 class CompoundTransitionModel :
-  public AbstractMixedTransitionModel
+  //public AbstractMixedTransitionModel
+  public AbstractSubstitutionModel
 {
 private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;
@@ -88,6 +90,15 @@ public:
 
   void updateMatrices();
 
+public:
+  /**
+   * @brief returns the number of models in the mixture
+   */
+  virtual size_t getNumberOfModels() const
+  {
+    return modelsContainer_.size();
+  }
+
   /**
    * @brief retrieve a pointer to the submodel with the given name.
    *
@@ -97,26 +108,84 @@ public:
 
   const TransitionModel* getModel(const std::string& name) const;
 
+  /**
+   * @brief Returns a specific model from the composition
+   */
+
   const TransitionModel* getModel(size_t i) const
   {
-    return AbstractMixedTransitionModel::getNModel(i);
+    //return AbstractMixedTransitionModel::getNModel(i);
+    return modelsContainer_[i].get();
   }
 
-  // TransitionModel* getModel(size_t i)
-  // {
-  //   return AbstractMixedTransitionModel::getModel(i);
-  // }
+  TransitionModel* getModel(size_t i)
+  {
+    return modelsContainer_[i].get();
+  }
 
-  /*
-   *@brief Returns the vector of numbers of the submodels in the
-   * mixture that match a description of the parameters numbers.
+  Vuint getSubmodelNumbers(const std::string& desc) const;
+
+  /**
+   * @brief Returns the probability of a specific model from the
+   * mixture
+   */
+  virtual double getNProbability(size_t i) const
+  {
+    return vProbas_[i];
+  }
+
+  /**
+   * @brief Returns the vector of probabilities
    *
-   **@param desc is the description of the class indexes of the mixed
-   **parameters. Syntax is like: kappa_1,gamma_3,delta_2
+   */
+  virtual const std::vector<double>& getProbabilities() const
+  {
+    return vProbas_;
+  }
+
+  /**
+   * @brief Sets the  probability of a specific model from the mixture
+   */
+  virtual void setNProbability(size_t i, double prob)
+  {
+    if (prob < 0)
+      prob = 0;
+    if (prob > 1)
+      prob = 1;
+
+    vProbas_[i] = prob;
+  }
+
+  /**
+   * @brief From TransitionModel interface
    *
    */
 
-  Vuint getSubmodelNumbers(const std::string& desc) const;
+  virtual size_t getNumberOfStates() const;
+
+  virtual const Matrix<double>& getPij_t(double t) const;
+  virtual const Matrix<double>& getdPij_dt(double t) const;
+  virtual const Matrix<double>& getd2Pij_dt2(double t) const;
+
+  /**
+   * @return Says if equilibrium frequencies should be computed (all
+   * models are likewise, may be refined)
+   */
+  bool computeFrequencies() const
+  {
+    return modelsContainer_[0]->computeFrequencies();
+  }
+
+  /**
+   * @return Set if equilibrium frequencies should be computed
+   */
+  void computeFrequencies(bool yn)
+  {
+    for (auto& sm : modelsContainer_)
+    {
+      sm->computeFrequencies(yn);
+    }
+  }
 
   /**
    * @brief sets the eq frequencies of the first nested model, and
@@ -126,6 +195,14 @@ public:
    */
 
   void setFreq(std::map<int, double>&);
+
+
+  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+  {
+    std::map<int, double> freqs;
+    SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
+    setFreq(freqs);
+  }
 
   /**
    * @brief returns the DiscreteDistribution associated with a given
