@@ -67,6 +67,8 @@ private:
 public:
   PhyloTree(bool rooted = false);
 
+  PhyloTree(const PhyloTree* tree);
+
   PhyloTree(const ParametrizablePhyloTree& tree);
 
   template<class T, class U>

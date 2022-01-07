@@ -46,7 +46,14 @@ using namespace std;
 PhyloTree::PhyloTree(bool rooted) :
   AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranch>(rooted),
   name_("")
-{}
+{
+}
+
+PhyloTree::PhyloTree(const PhyloTree* tree) :
+  AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranch>(tree?*tree:false),
+  name_(tree?tree->name_:"")
+{
+}
 
 PhyloTree::PhyloTree(const ParametrizablePhyloTree& tree) :
   AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranch>(tree),

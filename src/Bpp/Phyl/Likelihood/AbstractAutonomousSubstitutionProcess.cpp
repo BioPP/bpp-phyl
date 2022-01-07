@@ -93,8 +93,8 @@ void AbstractAutonomousSubstitutionProcess::setPhyloTree(const PhyloTree& phyloT
     getParameters_().deleteParameters(pTree_->getParameters().getParameterNames(), false);
     pTree_.release();
   }
-  
-  pTree_=std::unique_ptr<ParametrizablePhyloTree>(new ParametrizablePhyloTree(phyloTree));
-  addParameters_(pTree_->getParameters()); 
+
+  pTree_.reset(new ParametrizablePhyloTree(phyloTree));
+  addParameters_(pTree_->getParameters());
 }
   

@@ -260,6 +260,8 @@ public:
     virtual PhyloTree* readPhyloTree(const std::string& path) const
     {
       std::ifstream input(path.c_str(), std::ios::in);
+      if (!input)
+        throw IOException ("AbstractIPhyloTree::readPhyloTree(path): failed to read from path " + path);
       PhyloTree* tree = readPhyloTree(input);
       input.close();
       return tree;
