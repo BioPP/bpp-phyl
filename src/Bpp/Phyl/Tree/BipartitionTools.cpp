@@ -308,18 +308,11 @@ VectorSiteContainer* BipartitionTools::MRPEncode(
     }
   }
 
-  vector<const Sequence*> vec_sequences;
+  vector<std::shared_ptr<Sequence>> vec_sequences;
   for (size_t i = 0; i < all_elements.size(); i++)
-  {
-    const Sequence* seq = new BasicSequence(all_elements[i], sequences[i], alpha);
-    vec_sequences.push_back(seq);
-  }
+    vec_sequences.push_back(std::shared_ptr<Sequence>(new BasicSequence(all_elements[i], sequences[i], alpha)));
 
   VectorSequenceContainer vec_seq_cont(vec_sequences, alpha);
-  for (size_t i = 0; i < all_elements.size(); i++)
-  {
-    delete vec_sequences[i];
-  }
 
   VectorSiteContainer* vec_site_cont = new VectorSiteContainer(vec_seq_cont);
 
@@ -395,18 +388,11 @@ VectorSiteContainer* BipartitionTools::MRPEncodeMultilabel(
     }
   }
 
-  vector<const Sequence*> vec_sequences;
+  vector<std::shared_ptr<Sequence>> vec_sequences;
   for (size_t i = 0; i < all_elements.size(); i++)
-  {
-    const Sequence* seq = new BasicSequence(all_elements[i], sequences[i], alpha);
-    vec_sequences.push_back(seq);
-  }
+    vec_sequences.push_back(std::shared_ptr<Sequence>(new BasicSequence(all_elements[i], sequences[i], alpha)));
 
   VectorSequenceContainer vec_seq_cont(vec_sequences, alpha);
-  for (size_t i = 0; i < all_elements.size(); i++)
-  {
-    delete vec_sequences[i];
-  }
 
   VectorSiteContainer* vec_site_cont = new VectorSiteContainer(vec_seq_cont);
 
