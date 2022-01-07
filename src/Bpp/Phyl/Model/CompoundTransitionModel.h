@@ -62,13 +62,26 @@ namespace bpp
  */
 class CompoundTransitionModel :
   //public AbstractMixedTransitionModel
-  public AbstractTransitionModel
+  public virtual AbstractTransitionModel
 {
 private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;
 
 protected:
   int from_, to_;
+
+   /**
+   * @brief vector of pointers to TransitionModels.
+   *
+   * Beware: these TransitionModels are owned by the object, so
+   * will be deleted at destruction
+   */
+  std::vector<std::shared_ptr<TransitionModel> > modelsContainer_;
+
+  /**
+   * @brief vector of the probabilities of the models
+   */
+  std::vector<double> vProbas_;
 
 public:
   CompoundTransitionModel(
