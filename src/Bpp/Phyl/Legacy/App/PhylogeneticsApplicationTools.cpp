@@ -383,6 +383,91 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 
 /******************************************************************************/
 
+void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValuesWithAliases(
+  BranchModel& model,
+  map<string, string>& unparsedParameterValues,
+  size_t modelNumber,
+  const AlignedValuesContainer* data,
+  map<string, string>& sharedParams,
+  bool verbose)
+{
+  string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, 2);
+
+  if (verbose)
+    ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs == "") ? "None" : initFreqs);
+
+  if (initFreqs != "")
+  {
+    auto tmodel = dynamic_cast<TransitionModel*>(&model);
+    if (!tmodel)
+      ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
+    else
+    {
+      if (initFreqs == "observed")
+      {
+        if (!data)
+          throw Exception("Missing data for observed frequencies");
+        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
+        tmodel->setFreqFromData(*data, psi);
+      }
+      else if (initFreqs.substr(0, 6) == "values")
+      {
+        // Initialization using the "values" argument
+        map<int, double> frequencies;
+
+        string rf = initFreqs.substr(6);
+        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+        int i = 0;
+        while (strtok.hasMoreToken())
+          frequencies[i++] = TextTools::toDouble(strtok.nextToken());
+        tmodel->setFreq(frequencies);
+      }
+      else
+        throw Exception("Unknown initFreqs argument");
+    }
+  }
+
+  ParameterList pl = model.getIndependentParameters();
+  for (size_t i = 0; i < pl.size(); ++i)
+  {
+    AutoParameter ap(pl[i]);
+    ap.setMessageHandler(ApplicationTools::warning.get());
+    pl.setParameter(i, ap);
+  }
+  for (size_t i = 0; i < pl.size(); ++i)
+  {
+    const string pName = pl[i].getName();
+    size_t posp = model.getParameterNameWithoutNamespace(pName).rfind(".");
+    string value;
+    bool test1 = (initFreqs == "");
+    bool test2 = (model.getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
+    bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
+
+    if (test1 || test2 || test3)
+    {
+      if (!test1 && !test2 && test3)
+        ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
+
+      value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
+
+      try
+      {
+        pl[i].setValue(TextTools::toDouble(value));
+        if (verbose)
+          ApplicationTools::displayResult("Parameter found", pName + +"_" + TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
+      }
+      catch (Exception& e)
+      {
+        sharedParams[pl[i].getName() + "_" + TextTools::toString(modelNumber)] = value;
+      }
+    }
+  }
+
+  model.matchParametersValues(pl);
+}
+
+/******************************************************************************/
+
 SubstitutionModelSet* PhylogeneticsApplicationToolsOld::getSubstitutionModelSet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
@@ -527,7 +612,7 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
     map<string, string> sharedParameters;
 
 
-    PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
+    setSubstitutionModelParametersInitialValuesWithAliases(
       *model,
       unparsedModelParameters, i + 1, data,
       sharedParameters,

@@ -109,6 +109,7 @@ public:
    * @param suffixIsOptional Tell if the suffix is absolutely required.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
    * @return A new Tree object according to the specified options.
    */
   static Tree* getTree(
@@ -120,7 +121,7 @@ public:
     int warn = 1);
 
   /**
-   * @brief Build a list ofTree objects according to options.
+   * @brief Build a list of Tree objects according to options.
    *
    * See the Bio++ Program Suite manual for a description of available options.
    *
@@ -132,6 +133,7 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    * @return A new vector of Tree objects according to the specified options.
    */
+  
   static std::vector<Tree*> getTrees(
     const std::map<std::string, std::string>& params,
     const std::string& prefix = "input.",
@@ -141,21 +143,21 @@ public:
     int warn = 1);
 
   /**
-   * @brief Build a list ofTree objects according to options.
+   * @brief Build a map of <number,PhyloTree> according to options.
    *
    * See the Bio++ Program Suite manual for a description of available options.
    *
-   * @param params           The attribute map where options may be
-   * found.
+   * @param params           The attribute map where options may be found.
    * @param mSeq             A map of pointers of AlignedValuesContainers,
-   * necessary in case of random trees
-   * @param unparsedParams   A map of parameters (BrLen) that will
-   * be aliased after.
+   * necessary in case of random trees.
+   * @param unparsedParams A map of parameters (BrLen) that will be
+   * aliased after.
    * @param prefix           A prefix to be applied to each attribute name.
    * @param suffix           A suffix to be applied to each attribute name.
    * @param suffixIsOptional Tell if the suffix is absolutely required.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
    * @return A new vector of Tree objects according to the specified options.
    */
 
@@ -170,35 +172,74 @@ public:
     int warn = 1);
 
   /**
-   * @brief Build a SubstitutionModel object according to options.
+   * @brief Build a BranchModel (most general class of branch models)
+   * object according to options.
    *
-   * Creates a new substitution model object according to model description syntax
-   * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
-   * function also parses the parameter values and set them accordingly.
+   * Creates a new branch model object according to model description
+   * syntax (see the Bio++ Progam Suite manual for a detailed
+   * description of this syntax). The function also parses the
+   * parameter values and set them accordingly.
    *
-   * @param alphabet         The alphabet to use in the model.
-   *
+   * @param alphabet   The alphabet to use in the model.
    * @param gCode The genetic code to use (only for codon models,
    *              otherwise can be set to 0). If set to NULL and a
    *              codon model is requested, an Exception will be
    *              thrown.
-   *
    * @param data A pointer toward an AlignedValuesContainer used for
    *             the initialization of substitution model when this
    *             data is needed (typically use_observed_freq option).
    *             The alphabet associated to the data must be of the
    *             same type as the one specified for the model. May be
    *             equal to NULL, but in this case will be unavailable.
-   *
    * @param params The attribute map where options may be found.
-   *
    * @param unparsedparams   the map of the aliases between
    * parameters names.
    * @param suffix           A suffix to be applied to each attribute name.
    * @param suffixIsOptional Tell if the suffix is absolutely required.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   * @return A new SubstitutionModel object according to options specified.
+   *
+   * @return A new BranchModel object.
+   */
+  static BranchModel* getBranchModel(
+    const Alphabet* alphabet,
+    const GeneticCode* gCode,
+    const AlignedValuesContainer* data,
+    const std::map<std::string, std::string>& params,
+    std::map<std::string, std::string>& unparsedparams,
+    const std::string& suffix = "",
+    bool suffixIsOptional = true,
+    bool verbose = true,
+    int warn = 1);
+
+  /**
+   * @brief Build a SubstitutionModel object according to options (ie
+   * a BranchModel with a generator).
+   *
+   * Creates a new substitution model object according to model description syntax
+   * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
+   * function also parses the parameter values and set them accordingly.
+   *
+   * @param alphabet   The alphabet to use in the model.
+   * @param gCode The genetic code to use (only for codon models,
+   *              otherwise can be set to 0). If set to NULL and a
+   *              codon model is requested, an Exception will be
+   *              thrown.
+   * @param data A pointer toward an AlignedValuesContainer used for
+   *             the initialization of substitution model when this
+   *             data is needed (typically use_observed_freq option).
+   *             The alphabet associated to the data must be of the
+   *             same type as the one specified for the model. May be
+   *             equal to NULL, but in this case will be unavailable.
+   * @param params The attribute map where options may be found.
+   * @param unparsedparams   the map of the aliases between
+   * parameters names.
+   * @param suffix           A suffix to be applied to each attribute name.
+   * @param suffixIsOptional Tell if the suffix is absolutely required.
+   * @param verbose          Print some info to the 'message' output stream.
+   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
+   * @return A new SubstitutionModel object.
    */
 
   static SubstitutionModel* getSubstitutionModel(
@@ -213,19 +254,8 @@ public:
     int warn = 1);
 
 
-  static BranchModel* getBranchModel(
-    const Alphabet* alphabet,
-    const GeneticCode* gCode,
-    const AlignedValuesContainer* data,
-    const std::map<std::string, std::string>& params,
-    std::map<std::string, std::string>& unparsedparams,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
-
-  /*
-   * @brief The same as before, but with several models.
+  /**
+   * @brief The same as before, but returns a map <number, branch model>.
    *
    */
 
@@ -241,36 +271,6 @@ public:
     int warn = 1);
 
   /**
-   * @brief Set parameter initial values of a given model in a set according to options.
-   *
-   * Parameters actually depends on the model passed as argument.
-   * See getSubstitutionModelSet for more information.
-   *
-   * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
-   *
-   * @param model                   The model to set.
-   * @param unparsedParameterValues A map that contains all the model parameters
-   *                                names and their corresponding unparsed value, if they were found.
-   * @param modelNumber The number of this model in the SubstitutionModelSet.
-   * @param data A pointer toward an AlignedValuesContainer used for
-   *             the initialization of substitution model when this
-   *             data is needed (typically use_observed_freq option).
-   *             The alphabet associated to the data must be of the
-   *             same type as the one specified for the model. May be
-   *             equal to NULL, but in this case will be unavailable.
-   * @param sharedParams (out) remote parameters will be recorded here.
-   * @param verbose Print some info to the 'message' output stream.
-   */
-
-  static void setSubstitutionModelParametersInitialValuesWithAliases(
-    BranchModel& model,
-    std::map<std::string, std::string>& unparsedParameterValues,
-    size_t modelNumber,
-    const AlignedValuesContainer* data,
-    std::map<std::string, std::string>& sharedParams,
-    bool verbose);
-
-  /**
    * @brief Get A FrequencySet object for root frequencies (NH models) according to options.
    *
    * @param alphabet         The alpabet to use.
@@ -279,15 +279,15 @@ public:
    * @param data   A pointer toward the AlignedValuesContainer for which the root frequencies are designed.
    *               The alphabet associated to the data must be of the same type as the one specified for the model.
    *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-   * @param params           The attribute map where options may be
-   * found.
+   * @param params           The attribute map where options may be found.
    * @param sharedparams     The attribute map of aliases (out).
-   * @param rateFreqs        A vector of rate catÃÂ©gories frequencies in case of a Markov Modulated Markov Model.
+   * @param rateFreqs        A vector of rate categories frequencies in case of a Markov Modulated Markov Model.
    *                         Ignored if a vector with size 0 is passed.
    * @param suffix           A suffix to be applied to each attribute name.
    * @param suffixIsOptional Tell if the suffix is absolutely required.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
    * @return A new FrequencySet object according to options specified.
    */
 
@@ -304,7 +304,7 @@ public:
     int warn = 1);
 
   /*
-   * @brief The same, but with several FrequencySet.
+   * @brief The same, but returns a map <number, shared_ptr<FrequencySet>>.
    *
    */
 
@@ -325,8 +325,7 @@ public:
    * @param alphabet         The alpabet to use.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-   * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
-   *
+   * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.
    * @param data A pointer toward an AlignedValuesContainer used for
    *             the initialization of the frequency set when this
    *             data is needed (typically use_observed_freq option).
@@ -334,10 +333,11 @@ public:
    *             same type as the one specified for the frequency set. May be
    *             equal to NULL, but in this case will be unavailable.
    * @param sharedParams     (out) remote parameters will be recorded here.
-   * @param rateFreqs        A vector of rate catÃÂ©gories frequencies in case of a Markov Modulated Markov Model.
+   * @param rateFreqs        A vector of rate categories frequencies in case of a Markov Modulated Markov Model.
    *                         Ignored if a vector with size 0 is passed.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
    * @return A new FrequencySet object according to options specified.
    */
 
@@ -351,38 +351,6 @@ public:
     bool verbose = true,
     int warn = 1);
 
-  /**
-   * @brief Get A FrequencySet object according to options.
-   *
-   * @param alphabet         The alpabet to use.
-   * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
-   *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-   * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
-   *
-   * @param data A pointer toward an AlignedValuesContainer used for
-   *             the initialization of the frequency set when this
-   *             data is needed (typically use_observed_freq option).
-   *             The alphabet associated to the data must be of the
-   *             same type as the one specified for the frequency set. May be
-   *             equal to NULL, but in this case will be unavailable.
-   * @param rateFreqs        A vector of rate catÃÂ©gories frequencies in case of a Markov Modulated Markov Model.
-   *                         Ignored if a vector with size 0 is passed.
-   * @param verbose          Print some info to the 'message' output stream.
-   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   * @return A new FrequencySet object according to options specified.
-   */
-  static std::shared_ptr<FrequencySet> getFrequencySet(
-    const Alphabet* alphabet,
-    const GeneticCode* gCode,
-    const std::string& freqDescription,
-    const AlignedValuesContainer* data,
-    const std::vector<double>& rateFreqs,
-    bool verbose = true,
-    int warn = 1)
-  {
-    std::map<std::string, std::string> sharedParams;
-    return getFrequencySet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
-  }
 
   /**
    * @brief Build map of ModelPaths from a map of BranchModel.
@@ -398,8 +366,8 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    *
    * Warning: the model FIRST described in a ModelPath will be the
-   * leading model (ie which "decides" of the submodel
-   * probabilities).
+   * leading model (ie on which the submodel probabilities are
+   * chosen).
    *
    * @return A map of ModelPath shared_pointers objects according to
    * the specified options.
@@ -466,64 +434,28 @@ public:
   /**
    * @brief Sets a SubstitutionProcess object according to options.
    *
-   * Recognized options are:
-   * - number_of_models: the number of distinct SubstitutionModel to use.
-   *
-   * Then, for each of the models, the following information must be provided:
-   * - model1='model name(parameters'='value',...)
-   * Model names and parameters follow the same syntaxe as for the getSubstitutionModel method.
-   * - model1.nodes='list of nodes id, separated by comas'.
-   * And then
-   * - model2=...
-   * etc.
-   *
-   * All models must be fully specified, and at the end of the
-   * description, all nodes must be attributed to a model, otherwise
-   * an exception is thrown.
-   *
-   * Finally, this is also allowed for models to share one or
-   * several parameters. for instance:
-   * @code
-   * model1=T92(kappa=2.0, theta=0.5)
-   * model2=T92(kappa=model1.kappa, theta=0.5)
-   * @endcode
-   *
-   * In this case model1 and model2 with have their own and
-   * independent theta parameter, but only one kappa parameter will
-   * be used for both models.
-   *
-   * Note that
-   * @code
-   * model1=T92(kappa=2.0, theta=0.5)
-   * model1.nodes=1,2,3
-   * model2=T92(kappa= model1.kappa, theta=model1.theta)
-   * model2.nodes=4,5,6
-   * @endcode
-   * is equivalent to
-   * @code
-   * model1=T92(kappa=2.0, theta=0.5)
-   * model1.nodes=1,2,3,4,5,6
-   * @endcode
-   *
-   * but will require more memory and use more CPU, since some
-   * calculations will be performed twice.
+   * See the Bio++ Program Suite manual for a description of
+   * available options.
    *
    * @param alphabet The alpabet to use in all models.
-   * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
-   *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
+   * @param gCode The genetic code to use (only for codon alphabets,
+   *              otherwise can be set to 0). If set to NULL and a
+   *              codon frequencies set is requested, an Exception
+   *              will be thrown.
    * @param pData A pointer toward an AlignedValuesContainer used for
    *             the initialization of process set when this
    *             data is needed (typically use_observed_freq option).
    *             The alphabet associated to the data must be of the
    *             same type as the one specified for the process set. May be
    *             equal to NULL, but in this case will be unavailable.
-   *
    * @param vTree A vector of pointers of Trees, used to set processes.
    * @param params   The attribute map where options may be found.
    * @param suffix   A suffix to be applied to each attribute name.
    * @param suffixIsOptional Tell if the suffix is absolutely required.
    * @param verbose Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
+   * @return A pointer to a AutonomousSubstitutionProcess.
    */
 
   static AutonomousSubstitutionProcess* getSubstitutionProcess(
@@ -537,6 +469,28 @@ public:
     bool verbose = true,
     int warn = 1);
 
+  /**
+   * @brief Builds a  SubstitutionProcessCollection from meny maps of relevant objects.
+   *
+   * @param alphabet The alpabet to use in all models.
+   * @param gCode The genetic code to use (only for codon alphabets,
+   *              otherwise can be set to 0). If set to NULL and a
+   *              codon frequencies set is requested, an Exception
+   *              will be thrown.
+   * @param mTree Map of the PhyloTrees
+   * @param mMod Map of Branch Models
+   * @param mRootFreq Map of FrequencySet
+   * @param mDist Map of Rate Distributions
+   * @param mScen Map of Scenarios
+   * @param params   The attribute map where options may be found.
+   * @param suffix   A suffix to be applied to each attribute name.
+   * @param suffixIsOptional Tell if the suffix is absolutely required.
+   * @param verbose Print some info to the 'message' output stream.
+   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
+   * @return A pointer to a SubstitutionProcessCollection.
+   */
+  
   static SubstitutionProcessCollection* getSubstitutionProcessCollection(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
@@ -552,8 +506,22 @@ public:
     bool verbose = true,
     int warn = 1);
 
+
+  /**
+   * @brief Adds a SubstitutionProcessCollectionMember to a Collection, under a given number.
+   *
+   * @param SubProColl SubstitutionProcessCollection where the
+   * SubstitutionProcessCollectionMember will be added.
+   *
+   * @param params   The attribute map where options may be found.
+   * @param verbose Print some info to the 'message' output stream.
+   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
+   * @return if addition has been successful.
+   */
+  
   static bool addSubstitutionProcessCollectionMember(
-    SubstitutionProcessCollection* SubProColl,
+    SubstitutionProcessCollection& SubProColl,
     size_t procNum,
     const std::map<std::string, std::string>& params,
     bool verbose = true,
@@ -611,6 +579,7 @@ public:
    * @param verbose                 Print some info to the 'message' output stream.
    * @return A new MultipleDiscreteDistribution object according to options specified.
    */
+  
   static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
     const std::string& distDescription,
     std::map<std::string, std::string>& unparsedParameterValues,
@@ -658,7 +627,9 @@ public:
    * @param suffixIsOptional Tell if the suffix is absolutely required.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
    * @return A pointer toward the final likelihood object.
+   *
    * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
    * clone this object. We may change this bahavior in the future...
    * You hence should write something like
@@ -684,6 +655,7 @@ public:
    *
    * @param pl A list of parameters. Parameters without constraint will be ignored.
    */
+  
   static void checkEstimatedParameters(const ParameterList& pl);
 
   /**
@@ -705,6 +677,13 @@ public:
     bool verbose = true,
     int warn = 1);
 
+  /**
+   * @brief Output methods:
+   *
+   * @{
+   *
+   */
+  
   /**
    * @brief Write a tree according to options.
    *
@@ -878,6 +857,11 @@ public:
   static void printAnalysisInformation(const SingleDataPhyloLikelihood& phylolike, const std::string& infosFile, int warn = 1);
 
   static void printAnalysisInformation(const SetOfAlignedPhyloLikelihood& sOAP, const std::string& infosFile, int warn = 1);
+
+  /**
+   * @}
+   */
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_APP_PHYLOGENETICSAPPLICATIONTOOLS_H

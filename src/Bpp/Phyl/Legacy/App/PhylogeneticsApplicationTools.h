@@ -122,6 +122,36 @@ public:
     int warn = 1);
 
   /**
+   * @brief Set parameter initial values of a given model in a set according to options.
+   *
+   * Parameters actually depends on the model passed as argument.
+   * See getSubstitutionModelSet for more information.
+   *
+   * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
+   *
+   * @param model                   The model to set.
+   * @param unparsedParameterValues A map that contains all the model parameters
+   *                                names and their corresponding unparsed value, if they were found.
+   * @param modelNumber The number of this model in the SubstitutionModelSet.
+   * @param data A pointer toward an AlignedValuesContainer used for
+   *             the initialization of substitution model when this
+   *             data is needed (typically use_observed_freq option).
+   *             The alphabet associated to the data must be of the
+   *             same type as the one specified for the model. May be
+   *             equal to NULL, but in this case will be unavailable.
+   * @param sharedParams (out) remote parameters will be recorded here.
+   * @param verbose Print some info to the 'message' output stream.
+   */
+
+  static void setSubstitutionModelParametersInitialValuesWithAliases(
+    BranchModel& model,
+    std::map<std::string, std::string>& unparsedParameterValues,
+    size_t modelNumber,
+    const AlignedValuesContainer* data,
+    std::map<std::string, std::string>& sharedParams,
+    bool verbose);
+
+  /**
    * @brief Gets a SubstitutionModelSet object according to options.
    *
    * See setSubstitutionModelSet and setMixedSubstitutionModelSet

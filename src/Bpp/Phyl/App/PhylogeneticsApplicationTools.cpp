@@ -700,90 +700,6 @@ map<size_t, std::shared_ptr<BranchModel> > PhylogeneticsApplicationTools::getBra
   return mModel;
 }
 
-/******************************************************************************/
-
-void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
-  BranchModel& model,
-  map<string, string>& unparsedParameterValues,
-  size_t modelNumber,
-  const AlignedValuesContainer* data,
-  map<string, string>& sharedParams,
-  bool verbose)
-{
-  string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, 2);
-
-  if (verbose)
-    ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs == "") ? "None" : initFreqs);
-
-  if (initFreqs != "")
-  {
-    auto tmodel = dynamic_cast<TransitionModel*>(&model);
-    if (!tmodel)
-      ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
-    else
-    {
-      if (initFreqs == "observed")
-      {
-        if (!data)
-          throw Exception("Missing data for observed frequencies");
-        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-        tmodel->setFreqFromData(*data, psi);
-      }
-      else if (initFreqs.substr(0, 6) == "values")
-      {
-        // Initialization using the "values" argument
-        map<int, double> frequencies;
-
-        string rf = initFreqs.substr(6);
-        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-        int i = 0;
-        while (strtok.hasMoreToken())
-          frequencies[i++] = TextTools::toDouble(strtok.nextToken());
-        tmodel->setFreq(frequencies);
-      }
-      else
-        throw Exception("Unknown initFreqs argument");
-    }
-  }
-
-  ParameterList pl = model.getIndependentParameters();
-  for (size_t i = 0; i < pl.size(); ++i)
-  {
-    AutoParameter ap(pl[i]);
-    ap.setMessageHandler(ApplicationTools::warning.get());
-    pl.setParameter(i, ap);
-  }
-  for (size_t i = 0; i < pl.size(); ++i)
-  {
-    const string pName = pl[i].getName();
-    size_t posp = model.getParameterNameWithoutNamespace(pName).rfind(".");
-    string value;
-    bool test1 = (initFreqs == "");
-    bool test2 = (model.getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
-    bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
-
-    if (test1 || test2 || test3)
-    {
-      if (!test1 && !test2 && test3)
-        ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
-
-      value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
-
-      try
-      {
-        pl[i].setValue(TextTools::toDouble(value));
-        if (verbose)
-          ApplicationTools::displayResult("Parameter found", pName + +"_" + TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
-      }
-      catch (Exception& e)
-      {
-        sharedParams[pl[i].getName() + "_" + TextTools::toString(modelNumber)] = value;
-      }
-    }
-  }
-
-  model.matchParametersValues(pl);
-}
 
 /******************************************************/
 /**** FREQUENCIES SET *********************************/
@@ -1401,7 +1317,7 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
 /************************************************************/
 
 bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
-  SubstitutionProcessCollection* SubProColl,
+  SubstitutionProcessCollection& SubProColl,
   size_t procNum,
   const map<string, string>& params,
   bool verbose,
@@ -1430,7 +1346,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   size_t numTree = (size_t) ApplicationTools::getIntParameter("tree", args, 1, "", true, warn);
 
-  if (!SubProColl->hasTreeNumber(numTree))
+  if (!SubProColl.hasTreeNumber(numTree))
     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown tree number", (int)numTree);
 
 
@@ -1440,10 +1356,10 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   size_t numRate=0;
   if (args.find("rate") == args.end())
   {
-    const auto& vrdn = SubProColl->getRateDistributionNumbers();
+    const auto& vrdn = SubProColl.getRateDistributionNumbers();
     numRate=0;
     for (auto rdn:vrdn)
-      if (SubProColl->getRateDistribution(rdn).getName()=="Constant")
+      if (SubProColl.getRateDistribution(rdn).getName()=="Constant")
       {
         numRate=rdn;
         break;
@@ -1456,7 +1372,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
           numRate=i;
           break;
         }
-      SubProColl->addDistribution(std::make_shared<ConstantRateDistribution>(),numRate);
+      SubProColl.addDistribution(std::make_shared<ConstantRateDistribution>(),numRate);
     }
   }
   else
@@ -1467,13 +1383,13 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     numRate = static_cast<size_t>(TextTools::toInt(sRate.substr(0, pp)));
   
-    if (!SubProColl->hasDistributionNumber(numRate))
+    if (!SubProColl.hasDistributionNumber(numRate))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
     
     if (pp != string::npos)
     {
       size_t numSRate = static_cast<size_t>(TextTools::toInt(sRate.substr(pp + 1)));
-      SubProColl->addDistribution(std::make_shared<ConstantDistribution>(SubProColl->getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
+      SubProColl.addDistribution(std::make_shared<ConstantDistribution>(SubProColl.getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
       
       numRate = 10000 * (numRate + 1) + numSRate;
     }
@@ -1488,7 +1404,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   if (!stationarity)
   {
     numFreq = (size_t) ApplicationTools::getIntParameter("root_freq", args, 1, "", true, warn);
-    if (!SubProColl->hasFrequenciesNumber(numFreq))
+    if (!SubProColl.hasFrequenciesNumber(numFreq))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown root frequencies number", (int)numFreq);
   }
 
@@ -1501,7 +1417,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   {
     numScen = (size_t) ApplicationTools::getIntParameter("scenario", args, 1, "", true, warn);
 
-    if (!SubProColl->hasModelScenario(numScen))
+    if (!SubProColl.hasModelScenario(numScen))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown scenario number", (int)numScen);
   }
 
@@ -1521,10 +1437,10 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
 
-    if (!SubProColl->hasModelNumber(numModel))
+    if (!SubProColl.hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int>(numModel));
 
-    vector<uint> vNodes = SubProColl->getTree(numTree).getAllEdgesIndexes();
+    vector<uint> vNodes = SubProColl.getTree(numTree).getAllEdgesIndexes();
 
     map<size_t, vector<unsigned int> > mModBr;
     mModBr[numModel] = vNodes;
@@ -1549,9 +1465,9 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     }
 
     if (stationarity)
-      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
+      SubProColl.addSubstitutionProcess(procNum, mModBr, numTree, numRate);
     else
-      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
+      SubProColl.addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
 
   else if ((procName == "Nonhomogeneous") ||  (procName == "NonHomogeneous"))
@@ -1571,7 +1487,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       auto snodesid = "model" + TextTools::toString(indModel)  + ".nodes_id";
       auto descnodes = ApplicationTools::getStringParameter(snodesid, args, "", "", true, warn);
 
-      auto& tree = SubProColl->getTree(numTree);
+      auto& tree = SubProColl.getTree(numTree);
       if (descnodes == "All")
       {
         nodesId = tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
@@ -1610,9 +1526,9 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     }
 
     if (stationarity)
-      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
+      SubProColl.addSubstitutionProcess(procNum, mModBr, numTree, numRate);
     else
-      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
+      SubProColl.addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
   else if (procName == "OnePerBranch")
   {
@@ -1621,15 +1537,15 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
 
-    if (!SubProColl->hasModelNumber(numModel))
+    if (!SubProColl.hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
 
     vector<string> sharedParameters = ApplicationTools::getVectorParameter<string>("shared_parameters", args, ',', "", "", true, 1);
 
     if (stationarity)
-      SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, sharedParameters);
+      SubProColl.addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, sharedParameters);
     else
-      SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, numFreq, sharedParameters);
+      SubProColl.addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, numFreq, sharedParameters);
 
     if (verbose)
     {
@@ -1651,7 +1567,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   }
 
   if (numScen != 0)
-    SubProColl->getSubstitutionProcess(procNum).setModelScenario(numScen);
+    SubProColl.getSubstitutionProcess(procNum).setModelScenario(numScen);
 
   return true;
 }
@@ -1747,7 +1663,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     else
       num = 1;
 
-    bool addok = addSubstitutionProcessCollectionMember(SPC, num, params, (nT < 10 ? verbose : false), warn);
+    bool addok = addSubstitutionProcessCollectionMember(*SPC, num, params, (nT < 10 ? verbose : false), warn);
 
     if (addok)
     {
@@ -1782,7 +1698,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   //   throw Exception("Missing process in construction of SubstitutionProcessCollection.");
 
   // for (size_t i=0; i<processNum.size(); i++)
-  //   addSubstitutionProcessCollectionMember(SPC, params, processNum[i]);
+  //   addSubstitutionProcessCollectionMember(*SPC, params, processNum[i]);
 
 
   // /////////////////////////
