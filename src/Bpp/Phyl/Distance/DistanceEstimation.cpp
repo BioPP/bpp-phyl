@@ -118,8 +118,7 @@ void DistanceEstimation::computeMatrix()
       // Optimization:
       optimizer_->setFunction(&llh);
       optimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-      //ParameterList params = llh.getBranchLengthParameters();
-      ParameterList params = llh.getParameters();
+      ParameterList params = llh.getBranchLengthParameters();
       params.addParameters(parameters_);
       optimizer_->init(params);
       optimizer_->optimize();
