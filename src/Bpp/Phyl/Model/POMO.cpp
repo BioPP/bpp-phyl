@@ -1,0 +1,141 @@
+//
+// File: POMO.cpp
+// Authors:
+//   Laurent Gueguen
+// Created: jeudi 23 décembre 2021, à 15h 36
+//
+
+/*
+  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
+  
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
+  
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty and the software's author, the holder of the
+  economic rights, and the successive licensors have only limited
+  liability.
+  
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and, more generally, to use and operate it in the
+  same conditions as regards security.
+  
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
+
+
+#include "POMO.h"
+
+using namespace bpp;
+
+using namespace std;
+
+/******************************************************************************/
+
+POMO::POMO(const AllelicAlphabet* allAlph,
+           std::shared_ptr<SubstitutionModel> pmodel,
+           std::shared_ptr<FrequencySet> pfitness):
+  AbstractParameterAliasable("POMO."),
+  AbstractSubstitutionModel(allAlph, std::shared_ptr<const StateMap>(new CanonicalStateMap(allAlph, false)), "POMO."),
+  nbAlleles_(allAlph->getNbAlleles()),
+  pmodel_(pmodel),
+  pfitness_(pfitness)
+{
+
+  const auto& alph=allAlph->getStateAlphabet();
+  
+  if (alph.getAlphabetType() != pmodel_->getAlphabet()->getAlphabetType())
+    throw AlphabetMismatchException("POMO mismatch state alphabet for model.", &alph, pmodel_->getAlphabet());
+
+  if (alph.getAlphabetType() != pfitness_->getAlphabet()->getAlphabetType())
+    throw AlphabetMismatchException("POMO mismatch state alphabet for fitness.", &alph, pfitness_->getAlphabet());
+
+  pfitness_->setNamespace("POMO.fit_" + pfitness_->getNamespace());
+  pmodel_->setNamespace("POMO." + pmodel_->getNamespace());
+
+  pmodel_->enableEigenDecomposition(false);
+  addParameters_(pfitness_->getParameters());
+  addParameters_(pmodel_->getParameters());
+
+  updateMatrices();
+}
+
+void POMO::updateMatrices()
+{
+  auto nbStates=pmodel_->getNumberOfStates();
+  auto nbAlleles=dynamic_cast<const AllelicAlphabet*>(getAlphabet())->getNbAlleles();
+
+  const auto& Q=pmodel_->getGenerator();
+
+  const auto& fit=pfitness_->getFrequencies();
+  
+  // Per couple of alleles
+
+  // position of the bloc of alleles 
+  size_t nbloc = nbStates;
+
+  // for all couples starting with i
+  for (size_t i=0;i<nbStates;i++)
+  {
+    generator_(i, i)=Q(i,i);
+    double phi_i = fit[i];
+    // then for all couples ending with j
+    for (size_t j=i+1;j<nbStates;j++)
+    {
+      double phi_j = fit[j];
+      
+      // mutations
+      generator_(i, nbloc)=Q(i,j);
+      generator_(j, nbloc + nbAlleles-2)=Q(j,i);
+
+      // drift + selection
+      for (size_t a=1;a<nbAlleles;a++)
+      {
+        double rap = (double)(a * (nbAlleles - a ))/((double)a * phi_i  + (double)(nbAlleles - a) * phi_j);
+        
+        // drift towards i:  a -> a+1
+        generator_(nbloc+a-1 , (a>1?nbloc+a-2:i)) = phi_i * rap;
+
+        // drift towards j: nbAlleles - a -> nbAlleles -a +1
+        generator_(nbloc+a-1 , (a<nbAlleles-1?nbloc+a:j)) = phi_j  * rap;
+      }
+      // setting for the next couple of alleles
+      nbloc += nbAlleles-1;
+    }
+  }
+
+  setDiagonal();
+
+  AbstractSubstitutionModel::updateMatrices();
+}
+  
+  
+void POMO::fireParameterChanged(const ParameterList& parameters)
+{
+  pfitness_->matchParametersValues(parameters);
+  pmodel_->matchParametersValues(parameters);
+
+  updateMatrices();
+}
+
+
+void POMO::setFreq(map<int, double>& frequencies)
+{
+  // pfreqset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
+  // matchParametersValues(pfreqset_->getParameters());
+}
+

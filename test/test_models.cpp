@@ -39,15 +39,22 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/Model/Nucleotide/GTR.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
+#include <Bpp/Phyl/Model/Protein/JTT92.h>
+#include <Bpp/Phyl/Model/POMO.h>
 #include <Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.h>
+#include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
+#include <Bpp/Phyl/Model/FrequencySet/ProteinFrequencySet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
+#include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
+#include <Bpp/Seq/Alphabet/AllelicAlphabet.h>
 #include <Bpp/Seq/GeneticCode/StandardGeneticCode.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Function/ReparametrizationFunctionWrapper.h>
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/AbstractParametrizable.h>
 #include <Bpp/Numeric/Random/RandomTools.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <iostream>
 
 using namespace bpp;
@@ -111,9 +118,9 @@ bool testModel(SubstitutionModel& model) {
 
 int main() {
   //Nucleotide models:
-  GTR gtr(&AlphabetTools::DNA_ALPHABET);
-
-  if (!testModel(gtr)) return 1;
+  auto gtr=std::make_shared<GTR>(&AlphabetTools::DNA_ALPHABET);
+  
+  if (!testModel(*gtr)) return 1;
 
   //Codon models:
   StandardGeneticCode gc(AlphabetTools::DNA_ALPHABET);
@@ -122,5 +129,26 @@ int main() {
   
   if (!testModel(yn98)) return 1;
 
+  // Allelic models
+
+   AllelicAlphabet allalph(AlphabetTools::DNA_ALPHABET, 4);
+   auto fit = std::make_shared<FullNucleotideFrequencySet>(&AlphabetTools::DNA_ALPHABET);
+
+   auto statemod = gtr;
+   
+   // AllelicAlphabet allalph(AlphabetTools::PROTEIN_ALPHABET, 4);
+   // auto fit = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
+   // auto freq = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
+
+   // auto statemod = std::make_shared<JTT92>(&AlphabetTools::PROTEIN_ALPHABET, freq);
+  
+   POMO pomo(&allalph, statemod, fit);
+
+  auto& Q = pomo.getGenerator();
+
+  MatrixTools::printForR(Q,"Q",cerr);
+
+  VectorTools::printForR(pomo.getFrequencies(),"freq",cerr);
+  
   return 0;
 }
