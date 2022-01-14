@@ -58,12 +58,10 @@ class SimpleSubstitutionProcess :
 protected:
   std::shared_ptr<BranchModel> model_;
 
-private:
-
 public:
-  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, const PhyloTree* tree = nullptr);
+  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, const PhyloTree* tree = nullptr, FrequencySet* rootFrequencies = nullptr);
 
-  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree);
+  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree, FrequencySet* rootFrequencies = nullptr);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 
@@ -115,28 +113,12 @@ public:
     return 0;
   }
 
-  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const {
-  //   return model_->getGenerator();
-  // }
-
-  bool hasRootFrequencySet() const { return false; }
-
-  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
-  {
-    return std::shared_ptr<const FrequencySet>(0);
-  }
-
   ParameterList getSubstitutionModelParameters(bool independent) const
   {
     return independent ? model_->getIndependentParameters() : model_->getParameters();
   }
 
   ParameterList getRateDistributionParameters(bool independent) const
-  {
-    return ParameterList();
-  }
-
-  ParameterList getRootFrequenciesParameters(bool independent) const
   {
     return ParameterList();
   }
@@ -148,10 +130,15 @@ public:
 
   const std::vector<double>& getRootFrequencies() const
   {
-    if (std::dynamic_pointer_cast<const TransitionModel>(model_))
-      return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
+    if (!hasRootFrequencySet())
+    {
+      if (std::dynamic_pointer_cast<const TransitionModel>(model_))
+        return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
+      else
+        throw Exception("SimpleSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
+    }
     else
-      throw Exception("SimpleSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
+      return getRootFrequencySet()->getFrequencies();
   }
 
   /**

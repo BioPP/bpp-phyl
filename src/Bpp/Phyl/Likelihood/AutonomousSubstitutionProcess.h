@@ -53,9 +53,9 @@ namespace bpp
  * ParametrizablePhyloTree & Scenario.
  *
  */
-class AutonomousSubstitutionProcess :
-  public virtual SubstitutionProcess
-{
+  class AutonomousSubstitutionProcess :
+    public virtual SubstitutionProcess
+  {
   public:
 
     /**
@@ -68,13 +68,20 @@ class AutonomousSubstitutionProcess :
     virtual void setPhyloTree(const PhyloTree& phyloTree) = 0;
 
     /**
+     * @brief set the RootFrequency.
+     *
+     * @param rootfrequency The root frequencies to be associated with this instance.
+     */
+    virtual void setRootFrequencySet(std::shared_ptr<FrequencySet> rootfrequency) = 0;
+
+    /**
      * @brief set the ModelScenario.
      *
      * @param modelScenario The scenario to be associated with this instance.
      */
     virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
 
-};
+  };
 } // end namespace bpp
 
 #endif // BPP_PHYL_LIKELIHOOD_AUTONOMOUS_SUBSTITUTIONPROCESS_H

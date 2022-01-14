@@ -64,6 +64,11 @@ class AbstractAutonomousSubstitutionProcess :
 protected:
   std::unique_ptr<ParametrizablePhyloTree> pTree_;
 
+  /**
+   * @brief Root frequencies.
+   */
+  std::shared_ptr<FrequencySet> rootFrequencies_;
+  
   std::shared_ptr<ModelScenario> modelScenario_;
 
 protected:
@@ -75,7 +80,7 @@ protected:
    * AbstractAutonomousSubstitutionProcess.
    *
    */
-  AbstractAutonomousSubstitutionProcess(const PhyloTree* tree = nullptr, const std::string& prefix = "");
+  AbstractAutonomousSubstitutionProcess(const PhyloTree* tree = nullptr, FrequencySet* rootFrequencies = nullptr, const std::string& prefix = "");
 
   /*
    * @brief Builds using a pointer towards a ParametrizablePhyloTree.
@@ -84,7 +89,7 @@ protected:
    *
    */
   
-  AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, const std::string& prefix = "");
+  AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, FrequencySet* rootFrequencies = nullptr, const std::string& prefix = "");
 
   AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp);
 
@@ -93,6 +98,15 @@ protected:
 public:
   bool hasParametrizablePhyloTree() const { return pTree_!=0; }
 
+  /**
+   * @brief sets the ParametrizablePhyloTree.
+   *
+   * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
+   *
+   **/
+
+  void setPhyloTree(const PhyloTree& phyloTree);
+
   const ParametrizablePhyloTree& getParametrizablePhyloTree() const
   {
     if (!pTree_)
@@ -100,6 +114,48 @@ public:
     return *pTree_;
   }
   
+  /**
+   * @return true if the process has parametrized root frequencies (non-stationary model)
+   */
+  bool hasRootFrequencySet() const
+  {
+    return rootFrequencies_!=0;
+  }
+
+  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
+  {
+    return rootFrequencies_;
+  }
+
+  /**
+   * @brief set the RootFrequency.
+   *
+   * @param rootfrequency The root frequencies to be associated with this instance.
+   */
+
+  void setRootFrequencySet(std::shared_ptr<FrequencySet> rootfrequency)
+  {
+    if (rootFrequencies_)
+      getParameters_().deleteParameters(rootFrequencies_->getParameters().getParameterNames(),false);
+    rootFrequencies_=rootfrequency;
+    if (rootFrequencies_)
+      addParameters_(rootFrequencies_->getParameters());
+  }
+
+  /**
+   * @brief Get the parameters corresponding to the root frequencies.
+   *
+   * @return The parameters corresponding to the root frequencies.
+   */
+  ParameterList getRootFrequenciesParameters(bool independent) const
+  {
+    if (!hasRootFrequencySet())
+      return ParameterList();
+    else
+      return rootFrequencies_->getParameters();
+  }
+
+
   /**
    * @brief AbsractParametrizable interface
    *
@@ -124,15 +180,6 @@ public:
   {
     return *modelScenario_;
   }
-
-  /**
-   * @brief sets the ParametrizablePhyloTree.
-   *
-   * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
-   *
-   **/
-
-  void setPhyloTree(const PhyloTree& phyloTree);
 
   /**
    * @brief set the ModelScenario.

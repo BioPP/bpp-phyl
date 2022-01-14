@@ -44,27 +44,34 @@
 using namespace bpp;
 using namespace std;
 
-AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const PhyloTree* tree, const string& prefix) :
+AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const PhyloTree* tree, FrequencySet* rootFrequencies, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(nullptr),
+  rootFrequencies_(rootFrequencies),
   modelScenario_(0)
 {
   if (tree)
     setPhyloTree(*tree);
+  if (rootFrequencies_)
+    addParameters_(rootFrequencies_->getParameters());
 }
 
-AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, const string& prefix) :
+AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, FrequencySet* rootFrequencies, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),
+  rootFrequencies_(rootFrequencies),
   modelScenario_(0)
 {
   if (tree)
     addParameters_(tree->getParameters());  // Branch lengths
+  if (rootFrequencies_)
+    addParameters_(rootFrequencies_->getParameters());
 }
 
 AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
   pTree_(asp.pTree_?asp.pTree_->clone():0),
+  rootFrequencies_(asp.rootFrequencies_?asp.rootFrequencies_->clone():0),
   modelScenario_(asp.modelScenario_) // this has to be specified by inheriting class to follow model links
 {}
 
@@ -73,6 +80,7 @@ AbstractAutonomousSubstitutionProcess& AbstractAutonomousSubstitutionProcess::op
   AbstractParameterAliasable::operator=(*this);
 
   pTree_.reset(asp.pTree_?asp.pTree_->clone():0);
+  rootFrequencies_.reset(asp.rootFrequencies_?asp.rootFrequencies_->clone():0);
   modelScenario_ = asp.modelScenario_; // this has to be specified by inheriting class to follow model links
   return *this;
 }
@@ -84,6 +92,8 @@ void AbstractAutonomousSubstitutionProcess::fireParameterChanged(const Parameter
 
   if (pTree_)
     pTree_->matchParametersValues(gAP);
+  if (rootFrequencies_)
+    rootFrequencies_->matchParametersValues(gAP);
 }
 
 void AbstractAutonomousSubstitutionProcess::setPhyloTree(const PhyloTree& phyloTree)

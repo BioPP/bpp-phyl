@@ -63,12 +63,14 @@ public:
   RateAcrossSitesSubstitutionProcess(
     std::shared_ptr<BranchModel> model,
     std::shared_ptr<DiscreteDistribution> rdist,
-    const PhyloTree* tree = nullptr);
+    const PhyloTree* tree = nullptr,
+    FrequencySet* rootFrequencies = nullptr);
 
   RateAcrossSitesSubstitutionProcess(
     std::shared_ptr<BranchModel> model,
     std::shared_ptr<DiscreteDistribution> rdist,
-    ParametrizablePhyloTree* tree);
+    ParametrizablePhyloTree* tree,
+    FrequencySet* rootFrequencies = nullptr);
 
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp);
 
@@ -130,29 +132,22 @@ public:
     return independent ? rDist_->getIndependentParameters() : rDist_->getParameters();
   }
 
-  ParameterList getRootFrequenciesParameters(bool independent) const
-  {
-    return ParameterList();
-  }
-
   ParameterList getBranchLengthParameters(bool independent) const
   {
     return getParametrizablePhyloTree().getParameters();
   }
 
-  bool hasRootFrequencySet() const { return false; }
-  
-  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
-  {
-    return std::shared_ptr<const FrequencySet>(0);
-  }
-
   const std::vector<double>& getRootFrequencies() const
   {
-    if (std::dynamic_pointer_cast<const TransitionModel>(model_))
-      return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
+    if (!hasRootFrequencySet())
+    {
+      if (std::dynamic_pointer_cast<const TransitionModel>(model_))
+        return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
+      else
+        throw Exception("SimpleSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
+    }
     else
-      throw Exception("RateAcrossSitesSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
+      return getRootFrequencySet()->getFrequencies();
   }
 
   /**
