@@ -116,8 +116,7 @@ CompoundTransitionModel& CompoundTransitionModel::operator=(const CompoundTransi
 void CompoundTransitionModel::updateMatrices()
 {
   string s, t;
-  size_t j, l;
-  double d;
+  size_t j;
   ParameterList pl;
 
   for (size_t i = 0; i < modelsContainer_.size(); i++)
@@ -158,7 +157,7 @@ const TransitionModel* CompoundTransitionModel::getModel(const std::string& name
   return NULL;
 }
 
-Vuint CompoundTransitionModel::getSubmodelNumbers(const string& desc) const
+/*Vuint CompoundTransitionModel::getSubmodelNumbers(const string& desc) const
 {
   vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
   std::map<std::string, size_t> msubn;
@@ -173,12 +172,12 @@ Vuint CompoundTransitionModel::getSubmodelNumbers(const string& desc) const
     msubn[param.substr(0, index)] = TextTools::to<size_t>(param.substr(index + 1, 4)) - 1;
   }
 
-  Vuint submodnb;
-  size_t i, j, l;
-  string s;
+  //Vuint submodnb;
+  //size_t i, j, l;
+  //string s;
 
-  return submodnb;
-}
+  //return submodnb;
+}*/
 
 size_t CompoundTransitionModel::getNumberOfStates() const
 {
