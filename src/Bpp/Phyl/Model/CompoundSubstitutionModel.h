@@ -62,7 +62,6 @@ public:
    *
    * @param alpha pointer to the Alphabet
    * @param model pointer to the SubstitutionModel 
-   * @param parametersDistributionsList list from parameters names towards discrete distributions to will define the composition.
    * @param ffrom   index of the starting codon that will be used to homogeneize the rates of the submodels
    * @param tto     index of the arriving codon that will be used to homogeneize the rates of the submodels
    *
@@ -74,12 +73,11 @@ public:
 
   CompoundSubstitutionModel(const Alphabet* alpha,
                               SubstitutionModel* model,
-                              std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
                               int ffrom = -1,
                               int tto = -1) :
     AbstractParameterAliasable(model->getNamespace()),
     AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
-    CompoundTransitionModel(alpha, model, parametersDistributionsList, ffrom, tto)
+    CompoundTransitionModel(alpha, model, ffrom, tto)
   {}
 
   CompoundSubstitutionModel(const CompoundSubstitutionModel& model) :
@@ -97,10 +95,10 @@ public:
 
   CompoundSubstitutionModel* clone() const { return new CompoundSubstitutionModel(*this); }
 
- /* void updateMatrices()
+  void updateMatrices()
   {
     CompoundTransitionModel::updateMatrices();
-    // setting the rates, if to_ & from_ are different from -1
+    // setting if to_ & from_ are different from -1
 
     if (to_ >= 0 && from_ >= 0)
     {
@@ -111,9 +109,8 @@ public:
         vd.push_back(1 / getSubNModel(j)->Qij(static_cast<size_t>(from_), static_cast<size_t>(to_)));
       }
 
-      //setVRates(vd);
     }
-  }*/
+  }
 
   /**
    * @brief retrieve a pointer to the subsitution model with the given name.

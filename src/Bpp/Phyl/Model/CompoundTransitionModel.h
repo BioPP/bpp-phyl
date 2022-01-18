@@ -42,7 +42,6 @@
 #ifndef BPP_PHYL_MODEL_COMPOUNDTRANSITIONMODEL_H
 #define BPP_PHYL_MODEL_COMPOUNDTRANSITIONMODEL_H
 
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Numeric/VectorTools.h>
 #include <cstring> // C lib for string copy
@@ -50,7 +49,6 @@
 #include <string>
 #include <vector>
 
-//#include "AbstractMixedTransitionModel.h"
 #include "AbstractSubstitutionModel.h"
 
 namespace bpp
@@ -62,11 +60,8 @@ namespace bpp
  *
  */
 class CompoundTransitionModel :
-  //public AbstractMixedTransitionModel
   public virtual AbstractTransitionModel
 {
-private:
-  std::map<std::string, DiscreteDistribution*> distributionMap_;
 
 protected:
   int from_, to_;
@@ -88,14 +83,13 @@ public:
   CompoundTransitionModel(
     const Alphabet* alpha,
     TransitionModel* model,
-    std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
     int ffrom = -1, int tto = -1);
 
   CompoundTransitionModel(const CompoundTransitionModel&);
 
   CompoundTransitionModel& operator=(const CompoundTransitionModel&);
 
-  virtual ~CompoundTransitionModel();
+  virtual ~CompoundTransitionModel(){};
 
   CompoundTransitionModel* clone() const { return new CompoundTransitionModel(*this); }
 
@@ -106,7 +100,7 @@ public:
 
 public:
   /**
-   * @brief returns the number of models in the mixture
+   * @brief returns the number of models in the composition
    */
   virtual size_t getNumberOfModels() const
   {
@@ -125,10 +119,8 @@ public:
   /**
    * @brief Returns a specific model from the composition
    */
-
   const TransitionModel* getModel(size_t i) const
   {
-    //return AbstractMixedTransitionModel::getNModel(i);
     return modelsContainer_[i].get();
   }
 
@@ -219,14 +211,6 @@ public:
   }
 
   /**
-   * @brief returns the DiscreteDistribution associated with a given
-   * parameter name.
-   * @param parName name of the parameter
-   **/
-
-  const DiscreteDistribution* getDistribution(std::string& parName) const;
-
-  /**
    *@brief Numbers of the states between which the substitution rates
    * of all the submodels must be equal. If they are set to -1, this
    * constraint does not exist among the submodels.
@@ -234,6 +218,7 @@ public:
    */
   int from() const { return from_; }
   int to() const { return to_; }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CompoundTransitionModel_H
