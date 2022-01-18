@@ -126,23 +126,8 @@ void CompoundTransitionModel::updateMatrices()
 
     modelsContainer_[i]->matchParametersValues(pl);
   }
-
-  //  setting the equilibrium freqs
-  for (size_t i = 0; i < getNumberOfStates(); i++)
-  {
-    freq_[i] = 0;
-    for (j = 0; j < modelsContainer_.size(); j++)
-    {
-      freq_[i] += vProbas_[j] * modelsContainer_[j]->freq(i);
-    }
-  }
 }
 
-void CompoundTransitionModel::setFreq(std::map<int, double>& m)
-{
-  modelsContainer_[0]->setFreq(m);
-  matchParametersValues(modelsContainer_[0]->getParameters());
-}
 
 const TransitionModel* CompoundTransitionModel::getModel(const std::string& name) const
 {

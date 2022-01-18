@@ -91,7 +91,10 @@ public:
 
   virtual ~CompoundTransitionModel(){};
 
-  CompoundTransitionModel* clone() const { return new CompoundTransitionModel(*this); }
+  CompoundTransitionModel* clone() const 
+  { 
+    return new CompoundTransitionModel(*this); 
+  }
 
 public:
   std::string getName() const { return "CompoundModel"; }
@@ -172,43 +175,6 @@ public:
   virtual const Matrix<double>& getPij_t(double t) const;
   virtual const Matrix<double>& getdPij_dt(double t) const;
   virtual const Matrix<double>& getd2Pij_dt2(double t) const;
-
-  /**
-   * @return Says if equilibrium frequencies should be computed (all
-   * models are likewise, may be refined)
-   */
-  bool computeFrequencies() const
-  {
-    return modelsContainer_[0]->computeFrequencies();
-  }
-
-  /**
-   * @return Set if equilibrium frequencies should be computed
-   */
-  void computeFrequencies(bool yn)
-  {
-    for (auto& sm : modelsContainer_)
-    {
-      sm->computeFrequencies(yn);
-    }
-  }
-
-  /**
-   * @brief sets the eq frequencies of the first nested model, and
-   * adapts the parameters at best to it (surely there is a better way
-   * to manage this).
-   *
-   */
-
-  void setFreq(std::map<int, double>&);
-
-
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
-  {
-    std::map<int, double> freqs;
-    SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
-    setFreq(freqs);
-  }
 
   /**
    *@brief Numbers of the states between which the substitution rates
