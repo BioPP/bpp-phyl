@@ -186,7 +186,7 @@ public:
    *
    **/
 
-  virtual void setModelScenario(ModelScenario&& modelScenario) = 0;
+  virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
 };
 } // end namespace bpp
 
