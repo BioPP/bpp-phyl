@@ -122,9 +122,9 @@ public:
     return rootFrequencies_!=0;
   }
 
-  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
+  const FrequencySet* getRootFrequencySet() const
   {
-    return rootFrequencies_;
+    return rootFrequencies_.get();
   }
 
   /**
@@ -186,7 +186,7 @@ public:
    *
    **/
 
-  virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
+  virtual void setModelScenario(ModelScenario&& modelScenario) = 0;
 };
 } // end namespace bpp
 

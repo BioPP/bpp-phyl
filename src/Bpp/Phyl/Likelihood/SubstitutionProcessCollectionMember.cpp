@@ -182,12 +182,12 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
 }
 
 
-inline std::shared_ptr<const FrequencySet> SubstitutionProcessCollectionMember::getRootFrequencySet() const
+inline const FrequencySet* SubstitutionProcessCollectionMember::getRootFrequencySet() const
 {
   if (isStationary())
-    return std::shared_ptr<const FrequencySet>(0);
+    return nullptr;
   else
-    return getCollection()->shareFrequencies(nRoot_);
+    return getCollection()->shareFrequencies(nRoot_).get();
 }
 
 inline const std::vector<double>& SubstitutionProcessCollectionMember::getRootFrequencies() const

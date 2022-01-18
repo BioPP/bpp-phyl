@@ -305,9 +305,9 @@ bool NonHomogeneousSubstitutionProcess::hasMixedTransitionModel() const
 }
 
 
-void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelscenario)
+void NonHomogeneousSubstitutionProcess::setModelScenario(ModelScenario&& modelscenario)
 {
-  auto vmod = modelscenario->getModels();
+  auto vmod = modelscenario.getModels();
 
   for (auto& mod:vmod)
   {
@@ -315,7 +315,7 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelSc
       throw Exception("NonHomogeneousSubstitutionProcess::setModelPath: unknown model " + mod->getName());
   }
 
-  modelScenario_ = modelscenario;
+  modelScenario_ = std::move(modelscenario);
 }
 
 

@@ -279,7 +279,7 @@ public:
 
   bool hasRootFrequencySet() const { return !isStationary(); }
 
-  std::shared_ptr<const FrequencySet> getRootFrequencySet() const;
+  const FrequencySet* getRootFrequencySet() const;
 
   /*
    * @brief Set the Set of Model Path

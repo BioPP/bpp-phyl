@@ -3093,7 +3093,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
       }
 
       BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
-      bIO.writeFrequencySet(pNH->getRootFrequencySet().get(), out, aliases, writtenNames);
+      bIO.writeFrequencySet(pNH->getRootFrequencySet(), out, aliases, writtenNames);
     }
     else
       out << "nonhomogeneous.stationarity=true";

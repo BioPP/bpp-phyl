@@ -79,7 +79,7 @@ namespace bpp
      *
      * @param modelScenario The scenario to be associated with this instance.
      */
-    virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
+    virtual void setModelScenario(ModelScenario&& modelScenario) = 0;
 
   };
 } // end namespace bpp
