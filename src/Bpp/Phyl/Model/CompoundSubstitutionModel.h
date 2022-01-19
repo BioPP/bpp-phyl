@@ -73,14 +73,8 @@ public:
    */
 
   CompoundSubstitutionModel(const Alphabet* alpha, std::vector<std::shared_ptr<TransitionModel>> vpModel :
-                              //SubstitutionModel* model,
-                              //int ffrom = -1,
-                              //int tto = -1) :
-    //AbstractParameterAliasable(model->getNamespace()),
     AbstractParameterAliasable("Compound."),
-    //AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
     AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound."),
-    //AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound."),
     CompoundTransitionModel(alpha, vpmodel) 
   {
     /*

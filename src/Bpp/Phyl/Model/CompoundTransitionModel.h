@@ -93,8 +93,6 @@ public:
   CompoundTransitionModel(
     const Alphabet* alpha,
     std::vector<std::shared_ptr<TransitionModel>> vpModel);
-    /*TransitionModel* model,
-    int ffrom = -1, int tto = -1);*/
 
 
   /**

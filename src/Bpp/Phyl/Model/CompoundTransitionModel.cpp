@@ -52,16 +52,9 @@ using namespace std;
 
 CompoundTransitionModel::CompoundTransitionModel(
   const Alphabet* alpha,
-  //TransitionModel* model,
   vector<std::shared_ptr<TransitionModel> > vpModel) :
-  //int ffrom,
-  //int tto) :
-  //AbstractParameterAliasable(model->getNamespace()),
   AbstractParameterAliasable("Compound."),
-  //AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
   AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound."),
-  //from_(ffrom),
-  //to_(tto),
   modelsContainer_(),
   vProbas_()
 {
@@ -80,12 +73,9 @@ CompoundTransitionModel::CompoundTransitionModel(
   }
   // Initialization of modelsContainer_.
 
-  //for (i = 0; i < c; i++)
   for (i = 0; i < nbmod; i++)
   {
-    //modelsContainer_.push_back(std::shared_ptr<TransitionModel>(model->clone()));
     modelsContainer_.push_back(vpModel[i]);
-    //vProbas_.push_back(1.0 / static_cast<double>(c));
     vProbas_.push_back(1.0 / static_cast<double>(nbmod));
   }
 
@@ -158,7 +148,6 @@ CompoundTransitionModel::CompoundTransitionModel(
 
   // relative rates and probas
   x = 0;
-  //double y = 0;
 
   for (i = 0; i < nbmod - 1; i++)
   {
@@ -258,22 +247,6 @@ const TransitionModel* CompoundTransitionModel::getModel(const std::string& name
 
   return NULL;
 }
-
-/*Vuint CompoundTransitionModel::getSubmodelNumbers(const string& desc) const
-{
-  size_t i;
-  for (i = 0; i < getNumberOfModels(); i++)
-  {
-    if (getNModel(i)->getName() == desc)
-      break;
-  }
-  if (i == getNumberOfModels())
-    throw Exception("CompoundTransitionModel::getSubmodelNumbers model description do not match " + desc);
-
-  Vuint submodnb(1, uint(i));
-
-  return submodnb;
-}*/
 
 size_t CompoundTransitionModel::getNumberOfStates() const
 {
