@@ -61,9 +61,10 @@ public:
    * the models have rate 1 and equal probability.
    *
    * @param alpha pointer to the Alphabet
-   * @param model pointer to the SubstitutionModel 
-   * @param ffrom   index of the starting codon that will be used to homogeneize the rates of the submodels
-   * @param tto     index of the arriving codon that will be used to homogeneize the rates of the submodels
+   * @param vmodel vector of pointers to SubstitutionModels. All the
+   *   SubstitutionModels are owned by the instance.
+   //* @param ffrom   index of the starting codon that will be used to homogeneize the rates of the submodels
+   //* @param tto     index of the arriving codon that will be used to homogeneize the rates of the submodels
    *
    *   If ffrom and tto are not -1, for all submodels the transition
    *   rate ffrom->tto is the same. Otherwise, all submodels are
@@ -71,14 +72,59 @@ public:
    *
    */
 
-  CompoundSubstitutionModel(const Alphabet* alpha,
-                              SubstitutionModel* model,
-                              int ffrom = -1,
-                              int tto = -1) :
-    AbstractParameterAliasable(model->getNamespace()),
-    AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
-    CompoundTransitionModel(alpha, model, ffrom, tto)
-  {}
+  CompoundSubstitutionModel(const Alphabet* alpha, std::vector<std::shared_ptr<TransitionModel>> vpModel :
+                              //SubstitutionModel* model,
+                              //int ffrom = -1,
+                              //int tto = -1) :
+    //AbstractParameterAliasable(model->getNamespace()),
+    AbstractParameterAliasable("Compound."),
+    //AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
+    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound."),
+    //AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound."),
+    CompoundTransitionModel(alpha, vpmodel) 
+  {
+    /*
+     * Check that all models are substitutionmodels
+     */
+
+    for (const auto& model:vpModel)
+    {
+      if (!dynamic_cast<const SubstitutionModel*>(model.get()))
+        throw Exception("CompoundSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
+    }
+  }
+
+    /**
+   * @brief Constructor of a CompoundSubstitutionModel.
+   *
+   * @param alpha pointer to the Alphabet
+   * @param vpModel vector of pointers to SubstitutionModels. All the
+   *   SubstitutionModels are owned by the instance.
+   * @param vproba vector of the probabilities of the models
+   * @warning providing a vpModel with size 0 will generate a segmentation fault!
+   *
+   * See above the constraints on the rates and the probabilities of
+   * the vectors.
+   */
+
+  CompoundSubstitutionModel(
+    const Alphabet* alpha,
+    std::vector<std::shared_ptr<TransitionModel>> vpModel,
+    Vdouble& vproba) :
+    AbstractParameterAliasable("Compound."),
+    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound."),
+    CompoundTransitionModel(alpha, vpModel, vproba)
+  {
+    /*
+     * Check that all models are substitutionmodels
+     */
+
+    for (const auto& model:vpModel)
+    {
+      if (!dynamic_cast<const SubstitutionModel*>(model.get()))
+        throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
+    }
+  }
 
   CompoundSubstitutionModel(const CompoundSubstitutionModel& model) :
     AbstractParameterAliasable(model),

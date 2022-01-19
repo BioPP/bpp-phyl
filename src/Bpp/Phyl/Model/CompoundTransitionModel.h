@@ -80,10 +80,39 @@ protected:
   std::vector<double> vProbas_;
 
 public:
+
+  /**
+   * @brief Constructor of a MixtureOfTransitionModels, where all
+   * the models have rate 1 and equal probability.
+   *
+   * @param alpha pointer to the Alphabet
+   * @param vpModel vector of pointers to TransitionModels. All the
+   *   TransitionModels are owned by the instance.
+   * @warning providing a vpModel with size 0 will generate a segmentation fault!
+   */
   CompoundTransitionModel(
     const Alphabet* alpha,
-    TransitionModel* model,
-    int ffrom = -1, int tto = -1);
+    std::vector<std::shared_ptr<TransitionModel>> vpModel);
+    /*TransitionModel* model,
+    int ffrom = -1, int tto = -1);*/
+
+
+  /**
+   * @brief Constructor of a CompoundTransitionModel.
+   *
+   * @param alpha pointer to the Alphabet
+   * @param vpModel vector of pointers to TransitionModels. All the
+   *   TransitionModels are owned by the instance.
+   * @param vproba vector of the probabilities of the models
+   * @warning providing a vpModel with size 0 will generate a segmentation fault!
+   *
+   * See above the constraints on the probabilities of
+   * the vectors.
+   */
+  CompoundTransitionModel(
+    const Alphabet* alpha,
+    std::vector<std::shared_ptr<TransitionModel>> vpModel,
+    Vdouble& vproba);
 
   CompoundTransitionModel(const CompoundTransitionModel&);
 
@@ -91,13 +120,10 @@ public:
 
   virtual ~CompoundTransitionModel(){};
 
-  CompoundTransitionModel* clone() const 
-  { 
-    return new CompoundTransitionModel(*this); 
-  }
+  CompoundTransitionModel* clone() const { return new CompoundTransitionModel(*this); }
 
 public:
-  std::string getName() const { return "CompoundModel"; }
+  std::string getName() const { return "Compound"; }
 
   void updateMatrices();
 

@@ -52,30 +52,126 @@ using namespace std;
 
 CompoundTransitionModel::CompoundTransitionModel(
   const Alphabet* alpha,
-  TransitionModel* model,
-  int ffrom,
-  int tto) :
-  AbstractParameterAliasable(model->getNamespace()),
-  AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
-  from_(ffrom),
-  to_(tto),
+  //TransitionModel* model,
+  vector<std::shared_ptr<TransitionModel> > vpModel) :
+  //int ffrom,
+  //int tto) :
+  //AbstractParameterAliasable(model->getNamespace()),
+  AbstractParameterAliasable("Compound."),
+  //AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
+  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound."),
+  //from_(ffrom),
+  //to_(tto),
   modelsContainer_(),
   vProbas_()
 {
-  if (to_ >= int(alpha->getSize()))
-    throw BadIntegerException("Bad state in alphabet", to_);
-  if (from_ >= int(alpha->getSize()))
-    throw BadIntegerException("Bad state in alphabet", from_);
+  size_t i, nbmod = vpModel.size();
 
-  size_t c, i;
-  string s1, s2, t;
+  for (i = 0; i < nbmod; i++)
+  {
+    if (!vpModel[i])
+      throw Exception("Empty model number " + TextTools::toString(i) + " in CompoundTransitionModel constructor");
+    for (size_t j = i + 1; j < nbmod; j++)
+    {
+      if (vpModel[i] == vpModel[j])
+        throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
+                        TextTools::toString(j) + " in CompoundTransitionModel constructor");
+    }
+  }
+  // Initialization of modelsContainer_.
+
+  //for (i = 0; i < c; i++)
+  for (i = 0; i < nbmod; i++)
+  {
+    //modelsContainer_.push_back(std::shared_ptr<TransitionModel>(model->clone()));
+    modelsContainer_.push_back(vpModel[i]);
+    //vProbas_.push_back(1.0 / static_cast<double>(c));
+    vProbas_.push_back(1.0 / static_cast<double>(nbmod));
+  }
+
+  // Initialization of parameters_.
+
+  // relative rates and probas
+  for (i = 0; i < nbmod - 1; i++)
+  {
+    addParameter_(new Parameter("Compound.relproba" + TextTools::toString(i + 1), 1.0 / static_cast<double>(nbmod - i), Parameter::PROP_CONSTRAINT_EX));
+  }
+
+  // models parameters
+
+  for (i = 0; i < nbmod; i++)
+  {
+    modelsContainer_[i]->setNamespace("Compound." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
+    addParameters_(vpModel[i]->getParameters());
+  }
+
+  updateMatrices();
+}
+
+
+CompoundTransitionModel::CompoundTransitionModel(
+  const Alphabet* alpha,
+  vector<std::shared_ptr<TransitionModel> > vpModel,
+  Vdouble& vproba) :
+  AbstractParameterAliasable("Compound."),
+  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Compound.")
+{
+  size_t i, nbmod = vpModel.size();
+
+  for (i = 0; i < nbmod; i++)
+  {
+    if (!vpModel[i])
+      throw Exception("Empty model number " + TextTools::toString(i) + " in CompoundTransitionModel constructor");
+    for (size_t j = i + 1; j < nbmod; j++)
+    {
+      if (vpModel[i] == vpModel[j])
+        throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
+                        TextTools::toString(j) + " in CompoundTransitionModel constructor");
+    }
+  }
+
+  double x = 0;
+
+  for (i = 0; i < nbmod; i++)
+  {
+    if (vproba[i] <= 0)
+      throw Exception("Non positive probability: " + TextTools::toString(vproba[i]) + " in CompoundTransitionModel constructor.");
+    x += vproba[i];
+  }
+
+  if (fabs(1. - x) > NumConstants::SMALL())
+    throw Exception("Probabilities must equal 1 (sum = " + TextTools::toString(x) + ").");
+
 
   // Initialization of modelsContainer_.
 
-  for (i = 0; i < c; i++)
+  for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_.push_back(std::shared_ptr<TransitionModel>(model->clone()));
-    vProbas_.push_back(1.0 / static_cast<double>(c));
+    modelsContainer_.push_back(vpModel[i]);
+  }
+
+  // rates & probas
+
+  vProbas_.resize(nbmod);
+
+  // Initialization of parameters_.
+
+  // relative rates and probas
+  x = 0;
+  //double y = 0;
+
+  for (i = 0; i < nbmod - 1; i++)
+  {
+    addParameter_(new Parameter("Compound.relproba" + TextTools::toString(i + 1), vproba[i] / (1 - x), Parameter::PROP_CONSTRAINT_EX));
+    x += vproba[i];
+  }
+
+  // models parameters
+
+  for (i = 0; i < nbmod; i++)
+  {
+    modelsContainer_[i]->setNamespace("Compound." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
+    addParameters_(vpModel[i]->getParameters());
   }
 
   updateMatrices();
@@ -113,18 +209,39 @@ CompoundTransitionModel& CompoundTransitionModel::operator=(const CompoundTransi
   }
   return *this;
 }
+
+
 void CompoundTransitionModel::updateMatrices()
 {
-  string s, t;
-  size_t j;
-  ParameterList pl;
+  size_t i, j, nbmod = modelsContainer_.size();
 
-  for (size_t i = 0; i < modelsContainer_.size(); i++)
+  double x, y;
+  x = 1.0;
+
+  for (i = 0; i < nbmod - 1; i++)
   {
-    vProbas_[i] = 1;
-    j = i;
+    y = getParameterValue("relproba" + TextTools::toString(i + 1));
+    vProbas_[i] = x * y;
+    x *= 1 - y;
+  }
+  vProbas_[nbmod - 1] = x;
 
-    modelsContainer_[i]->matchParametersValues(pl);
+  // models
+
+  for (i = 0; i < nbmod; i++)
+  {
+    modelsContainer_[i]->matchParametersValues(getParameters());
+  }
+
+  // / freq_
+
+  for (i = 0; i < getNumberOfStates(); i++)
+  {
+    freq_[i] = 0;
+    for (j = 0; j < modelsContainer_.size(); j++)
+    {
+      freq_[i] += vProbas_[j] * modelsContainer_[j]->freq(i);
+    }
   }
 }
 
@@ -144,24 +261,18 @@ const TransitionModel* CompoundTransitionModel::getModel(const std::string& name
 
 /*Vuint CompoundTransitionModel::getSubmodelNumbers(const string& desc) const
 {
-  vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
-  std::map<std::string, size_t> msubn;
-
-  StringTokenizer st(desc, ",");
-  while (st.hasMoreToken())
+  size_t i;
+  for (i = 0; i < getNumberOfModels(); i++)
   {
-    string param = st.nextToken();
-    string::size_type index = param.rfind("_");
-    if (index == string::npos)
-      throw Exception("CompoundTransitionModel::getSubmodelNumbers parameter description should contain a number " + param);
-    msubn[param.substr(0, index)] = TextTools::to<size_t>(param.substr(index + 1, 4)) - 1;
+    if (getNModel(i)->getName() == desc)
+      break;
   }
+  if (i == getNumberOfModels())
+    throw Exception("CompoundTransitionModel::getSubmodelNumbers model description do not match " + desc);
 
-  //Vuint submodnb;
-  //size_t i, j, l;
-  //string s;
+  Vuint submodnb(1, uint(i));
 
-  //return submodnb;
+  return submodnb;
 }*/
 
 size_t CompoundTransitionModel::getNumberOfStates() const
