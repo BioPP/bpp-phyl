@@ -147,7 +147,7 @@ public:
    *
    */
 
-  void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
+  void setModelScenario(ModelScenario* modelpath);
 
   double getProbabilityForModel(size_t classIndex) const
   {

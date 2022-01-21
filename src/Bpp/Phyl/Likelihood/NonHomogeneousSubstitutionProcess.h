@@ -234,7 +234,7 @@ public:
    *
    */
 
-  void setModelScenario(std::shared_ptr<ModelScenario> modelscenario);
+  void setModelScenario(ModelScenario* modelscenario);
 
   std::vector<size_t> getModelNumbers() const
   {
@@ -489,7 +489,7 @@ public:
     std::shared_ptr<DiscreteDistribution> rdist,
     PhyloTree* tree,
     std::shared_ptr<FrequencySet> rootFreqs = 0,
-    std::shared_ptr<ModelScenario> scenario = 0
+    ModelScenario* scenario = 0
     );
 
   /**
@@ -514,7 +514,7 @@ public:
     PhyloTree* tree,
     std::shared_ptr<FrequencySet> rootFreqs,
     const std::vector<std::string>& globalParameterNames,
-    std::shared_ptr<ModelScenario> scenario = 0
+    ModelScenario* scenario = nullptr
     );
 
 

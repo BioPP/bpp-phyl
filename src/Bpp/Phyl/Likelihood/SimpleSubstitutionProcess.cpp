@@ -89,20 +89,22 @@ SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubs
   return *this;
 }
 
-void SimpleSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
+void SimpleSubstitutionProcess::setModelScenario(ModelScenario* modelpath)
 {
-  auto vmod = modelpath->getModels();
+  if (modelpath){
+    auto vmod = modelpath->getModels();
 
-  if (vmod.size() == 0) // as if no scenario
-    return;
+    if (vmod.size() == 0) // as if no scenario
+      return;
 
-  if (vmod.size() != 1)
-    throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
+    if (vmod.size() != 1)
+      throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
 
-  if (vmod[0] != model_)
-    throw Exception("SimpleSubstitutionProcess::setModelPath: models are different " + vmod[0]->getName() + " != " + model_->getName());
-
-  modelScenario_ = modelpath;
+    if (vmod[0] != model_)
+      throw Exception("SimpleSubstitutionProcess::setModelPath: models are different " + vmod[0]->getName() + " != " + model_->getName());
+  }
+  
+  modelScenario_.reset(modelpath);
 }
 
 void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)

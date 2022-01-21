@@ -305,7 +305,7 @@ bool NonHomogeneousSubstitutionProcess::hasMixedTransitionModel() const
 }
 
 
-void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelscenario)
+void NonHomogeneousSubstitutionProcess::setModelScenario(ModelScenario* modelscenario)
 {
   auto vmod = modelscenario->getModels();
 
@@ -315,7 +315,7 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelSc
       throw Exception("NonHomogeneousSubstitutionProcess::setModelPath: unknown model " + mod->getName());
   }
 
-  modelScenario_ = modelscenario;
+  modelScenario_.reset(modelscenario);
 }
 
 
@@ -324,7 +324,7 @@ AbstractAutonomousSubstitutionProcess* NonHomogeneousSubstitutionProcess::create
   std::shared_ptr<DiscreteDistribution> rdist,
   PhyloTree* tree,
   std::shared_ptr<FrequencySet> rootFreqs,
-  shared_ptr<ModelScenario> scenario)
+  ModelScenario* scenario)
 {
   if (!tree)
     throw Exception("NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess: missing tree.");
@@ -341,7 +341,7 @@ AbstractAutonomousSubstitutionProcess* NonHomogeneousSubstitutionProcess::create
     modelSet = new RateAcrossSitesSubstitutionProcess(model, rdist, tree);
 
   if (rootFreqs)
-    modelSet->setRootFrequencySet(std::shared_ptr<FrequencySet>(rootFreqs->clone()));
+    modelSet->setRootFrequencySet(rootFreqs->clone());
 
   if (scenario)
     modelSet->setModelScenario(scenario);
@@ -355,7 +355,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   PhyloTree* tree,
   std::shared_ptr<FrequencySet> rootFreqs,
   const vector<string>& globalParameterNames,
-  shared_ptr<ModelScenario> scenario)
+  ModelScenario* scenario)
 {
   if (!tree)
     throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess: missing tree.");

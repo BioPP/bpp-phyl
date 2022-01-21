@@ -72,14 +72,14 @@ namespace bpp
      *
      * @param rootfrequency The root frequencies to be associated with this instance.
      */
-    virtual void setRootFrequencySet(std::shared_ptr<FrequencySet> rootfrequency) = 0;
+    virtual void setRootFrequencySet(FrequencySet* rootfrequency) = 0;
 
     /**
      * @brief set the ModelScenario.
      *
      * @param modelScenario The scenario to be associated with this instance.
      */
-    virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
+    virtual void setModelScenario(ModelScenario* modelScenario) = 0;
 
   };
 } // end namespace bpp
