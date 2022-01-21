@@ -57,10 +57,13 @@ namespace bpp
  * of another value above 1.
  *
  * This model includes 5 parameters (@f$\kappa@f$, @f$ p @f$ and
- * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$p0@f$ the weight of the
- * Beta distribution and @f$\omega @f$ the selection parameter above 1
- * (with weight @f$ 1-p0 @f$)). The codon frequencies @f$ \pi_j @f$ are
- * either observed or infered.
+ * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$p0@f$ the weight
+ * of the Beta distribution and @f$\omega @f$ the selection parameter
+ * above 1 (with weight @f$ 1-p0 @f$)). The codon frequencies @f$
+ * \pi_j @f$ are either observed or infered.
+ *
+ * In option, the model YNGP_M8a is similar with @f$\omega=1 @f$ fixed
+ * (and then only 4 parameters).
  *
  * References:
  *
@@ -71,6 +74,15 @@ namespace bpp
 class YNGP_M8 :
   public YNGP_M
 {
+private:
+
+  /*
+   * @brief If parameter omega=1
+   *
+   */
+  
+  bool neutral_;
+
 public:
   /*
    *@brief Constructor that requires the number of classes of the
@@ -78,17 +90,19 @@ public:
    *
    */
 
-  YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nbclass);
+  YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nbclass, bool neutral = false);
 
   YNGP_M8* clone() const { return new YNGP_M8(*this); }
 
   YNGP_M8(const YNGP_M8& mod2) :
-    YNGP_M(mod2)
+    YNGP_M(mod2),
+    neutral_(mod2.neutral_)
   {}
 
   YNGP_M8& operator=(const YNGP_M8& mod2)
   {
     YNGP_M::operator=(mod2);
+    neutral_=mod2.neutral_;
     return *this;
   }
 
@@ -96,7 +110,7 @@ protected:
   void updateMatrices();
 
 public:
-  std::string getName() const { return "YNGP_M8"; }
+  std::string getName() const { return neutral_?"YNGP_M8a":"YNGP_M8"; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M8_H

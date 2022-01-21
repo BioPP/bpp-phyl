@@ -213,7 +213,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
         model.reset(new YNGP_M3(geneticCode_, codonFreqs));
       else
         model.reset(new YNGP_M3(geneticCode_, codonFreqs, TextTools::to<unsigned int>(args["n"])));
-    else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8")
+    else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8" || modelName == "YNGP_M8a")
     {
       if (args.find("n") == args.end())
         throw Exception("Missing argument 'n' (number of classes) in " + modelName + " distribution");
@@ -225,6 +225,8 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
         model.reset(new YNGP_M7(geneticCode_, codonFreqs, nbClasses));
       else if (modelName == "YNGP_M8")
         model.reset(new YNGP_M8(geneticCode_, codonFreqs, nbClasses));
+      else if (modelName == "YNGP_M8a")
+        model.reset(new YNGP_M8(geneticCode_, codonFreqs, nbClasses, true));
     }
     else if (modelName == "YNGP_M9" || modelName == "YNGP_M10")
     {

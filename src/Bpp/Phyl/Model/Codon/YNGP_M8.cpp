@@ -52,17 +52,18 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nclass) :
-  YNGP_M("YNGP_M8.")
+YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nclass, bool neutral) :
+  YNGP_M(neutral?"YNGP_M8a.":"YNGP_M8."),
+  neutral_(neutral)
 {
   if (nclass <= 0)
-    throw Exception("Bad number of classes for model YNGP_M8: " + TextTools::toString(nclass));
+    throw Exception("Bad number of classes for model " + getName() + ": " + TextTools::toString(nclass));
 
   // build the submodel
 
   std::unique_ptr<DiscreteDistribution> pbdd(new BetaDiscreteDistribution(nclass, 2, 2));
 
-  vector<double> val = {2.};
+  vector<double> val = {neutral_?1.:2.};
   vector<double> prob = {1.};
   std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(val, prob));
 
@@ -70,6 +71,7 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   v_distr.push_back(pbdd.get()); v_distr.push_back(psdd.get());
   prob.clear(); prob.push_back(0.5); prob.push_back(0.5);
 
+  // Distribution on omega = mixture (Beta + Simple of size 1)
   std::unique_ptr<DiscreteDistribution> pmodd(new MixtureOfDiscreteDistributions(v_distr, prob));
 
   map<string, DiscreteDistribution*> mpdd;
@@ -87,6 +89,8 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   ParameterList pl = pmixmodel_->getParameters();
   for (size_t i = 0; i < pl.size(); i++)
   {
+    if (neutral_ && pl[i].getName()=="YN98.omega_Mixture.2_Simple.V1")
+      continue;
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
@@ -101,7 +105,8 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   mapParNamesFromPmodel_["YN98.omega_Mixture.theta1"] = "p0";
   mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.alpha"] = "p";
   mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.beta"] = "q";
-  mapParNamesFromPmodel_["YN98.omega_Mixture.2_Simple.V1"] = "omegas";
+  if (neutral_)
+    mapParNamesFromPmodel_["YN98.omega_Mixture.2_Simple.V1"] = "omegas";
 
   // specific parameters
 
@@ -110,11 +115,12 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it.first);
     if (it.second != "omegas")
-      addParameter_(new Parameter("YNGP_M8." + it.second, pmixmodel_->getParameterValue(st),
+      addParameter_(new Parameter(getName()+"." + it.second, pmixmodel_->getParameterValue(st),
                                   pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
-  addParameter_(new Parameter("YNGP_M8.omegas", 2., std::make_shared<IntervalConstraint>(1, 1, false)));
+  if (!neutral_)
+    addParameter_(new Parameter("YNGP_M8.omegas", 2., std::make_shared<IntervalConstraint>(1, 1, false)));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); synfrom_++)
