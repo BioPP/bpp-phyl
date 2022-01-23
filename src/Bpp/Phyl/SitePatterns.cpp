@@ -160,7 +160,7 @@ void SitePatterns::init_(const AlignedValuesContainer* sequences , std::vector<s
 
 /******************************************************************************/
 
-std::shared_ptr<AlignedValuesContainer> SitePatterns::getSites() const
+AlignedValuesContainer* SitePatterns::getSites() const
 {
   if (sites_.size() == 0)
     throw Exception("SitePatterns::getSites : empty set.");
@@ -174,8 +174,7 @@ std::shared_ptr<AlignedValuesContainer> SitePatterns::getSites() const
 
   sites->setSequencesNames(names_, false);
 
-  auto ret= std::shared_ptr<AlignedValuesContainer>(sites);
-  return ret;
+  return sites;
 }
 
 /******************************************************************************/

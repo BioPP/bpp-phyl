@@ -72,7 +72,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
   if (usePatterns_)
   {
     patterns = initLikelihoodsWithPatterns(tree_->getRootNode(), sites, model);
-    shrunkData_       = patterns->getSites();
+    shrunkData_.reset(patterns->getSites());
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_.resize((size_t)patterns->getIndices().size());
     SitePatterns::IndicesType::Map(&rootPatternLinks_[0], patterns->getIndices().size()) = patterns->getIndices();
@@ -81,7 +81,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
   else
   {
     patterns = std::make_shared<SitePatterns>(&sites);
-    shrunkData_       = patterns->getSites();
+    shrunkData_.reset(patterns->getSites());
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_.resize(size_t(patterns->getIndices().size()));
     SitePatterns::IndicesType::Map(&rootPatternLinks_[0], patterns->getIndices().size()) = patterns->getIndices();
@@ -196,7 +196,7 @@ std::shared_ptr<SitePatterns> DRASRTreeLikelihoodData::initLikelihoodsWithPatter
 
   auto patterns = std::make_shared<SitePatterns>(tmp.get(), true);
 
-  shared_ptr<AlignedValuesContainer> subSequences = patterns->getSites();
+  shared_ptr<AlignedValuesContainer> subSequences(patterns->getSites());
   size_t nbSites = subSequences->getNumberOfSites();
 
   // Initialize likelihood vector:
