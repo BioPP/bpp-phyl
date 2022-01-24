@@ -596,7 +596,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTool
   if (mDist.size() == 0)
   {
     string distDescription = ApplicationTools::getStringParameter("rate_distribution", paramDist, "Constant()", suffix, suffixIsOptional);
-    mDist[0] = std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
+    mDist[1] = std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
   return mDist;
