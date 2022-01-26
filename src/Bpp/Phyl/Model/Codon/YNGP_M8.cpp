@@ -105,7 +105,7 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   mapParNamesFromPmodel_["YN98.omega_Mixture.theta1"] = "p0";
   mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.alpha"] = "p";
   mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.beta"] = "q";
-  if (neutral_)
+  if (!neutral_)
     mapParNamesFromPmodel_["YN98.omega_Mixture.2_Simple.V1"] = "omegas";
 
   // specific parameters
