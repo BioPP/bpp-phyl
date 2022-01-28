@@ -113,12 +113,9 @@ private:
   size_t nRoot_;
 
   /**
-   * @brief A boolean if the model has a Set Of Model Path, and the
-   *  number of the set of model path.
+   * @brief The number of the set of model path.
    *
    */
-
-  bool hasModelScenario_;
 
   size_t nPath_;
 
@@ -293,9 +290,7 @@ public:
 
   const size_t getModelScenarioNumber() const { return nPath_; }
 
-  bool hasModelScenario() const { return hasModelScenario_; }
-
-  const ModelScenario& getModelScenario() const;
+  const ModelScenario* getModelScenario() const;
 
   /**
    * @brief AbsractParametrizable interface

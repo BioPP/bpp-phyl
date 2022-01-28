@@ -46,12 +46,15 @@ using namespace bpp;
 using namespace std;
 
 ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& process) :
-  BaseTree(process.hasModelScenario() ? 0 : process.getParametrizablePhyloTree().getGraph()),
+  BaseTree(process.getModelScenario() ? 0 : process.getParametrizablePhyloTree().getGraph()),
   process_(process)
 {
   const ParametrizablePhyloTree& ptree = process.getParametrizablePhyloTree();
   // if no model scenario, copy the basic tree
-  if (!process.hasModelScenario())
+
+  const ModelScenario* scenario = process.getModelScenario();
+
+  if (!scenario)
   {
     auto itN = ptree.allNodesIterator();
     for (itN->start(); !itN->end(); itN->next())
@@ -77,13 +80,12 @@ ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& proces
     return;
   }
 
-  const auto& scenario = process.getModelScenario();
-
+  
 
   // Map of the mrca of the MixedTransitionModel split in several paths
   std::map<std::shared_ptr<MixedTransitionModel>, uint> mMrca;
 
-  auto vMod = scenario.getModels();
+  auto vMod = scenario->getModels();
   std::map<std::shared_ptr<MixedTransitionModel>, std::vector<std::shared_ptr<PhyloNode> > > mnodes;
 
   auto vNodes = ptree.getAllNodes();
@@ -127,7 +129,7 @@ ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& proces
   auto nroot = std::make_shared<ProcessComputationNode>(*root, ptree.getRootIndex());
   createNode(nroot);
   addNodeIndex(nroot);
-  _build_following_scenario(nroot, scenario, mMrca);
+  _build_following_scenario(nroot, *scenario, mMrca);
 
   rootAt(nroot);
 }

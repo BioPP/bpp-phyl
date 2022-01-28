@@ -3230,17 +3230,17 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   // first output the scenarios
   for (const auto& scennum : vSce)
   {
-    const auto& scen = collection->getModelScenario(scennum);
+    const auto scen = collection->getModelScenario(scennum);
 
     out.endLine();
 
     out << "scenario" << scennum << "=";
 
-    size_t nbMP = scen.getNumberOfModelPaths();
+    size_t nbMP = scen->getNumberOfModelPaths();
 
     for (size_t mpn = 0; mpn < nbMP; mpn++)
     {
-      const auto& mp = scen.getModelPath(mpn);
+      const auto& mp = scen->getModelPath(mpn);
 
       auto itmp = find(vMP.begin(), vMP.end(), mp.get());
       auto inmp = std::distance(vMP.begin(), itmp);
@@ -3328,7 +3328,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     if (spcm.getRootFrequencySet())
       out << ", root_freq=" << spcm.getRootFrequenciesNumber();
 
-    if (spcm.hasModelScenario())
+    if (spcm.getModelScenario())
       out << ", scenario=" << spcm.getModelScenarioNumber();
 
     out << ")";

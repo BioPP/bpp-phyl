@@ -165,21 +165,12 @@ public:
   void fireParameterChanged(const ParameterList& pl);
 
   /**
-   * @brief Return if process has ModelScenario.
+   * @brief get a pointer towards the ModelScenario (nullptr if no scenario)
    *
    **/
-  bool hasModelScenario() const
+  const ModelScenario* getModelScenario() const
   {
-    return modelScenario_ != 0;
-  }
-
-  /**
-   * @brief get the ModelScenario.
-   *
-   **/
-  const ModelScenario& getModelScenario() const
-  {
-    return *modelScenario_;
+    return modelScenario_.get();
   }
 
   /**

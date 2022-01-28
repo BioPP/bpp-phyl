@@ -56,7 +56,6 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember( Substi
   nTree_(nTree),
   nDist_(nDist),
   nRoot_(0),
-  hasModelScenario_(false),
   nPath_(0)
 {
   updateParameters();
@@ -72,7 +71,6 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   nTree_(set.nTree_),
   nDist_(set.nDist_),
   nRoot_(set.nRoot_),
-  hasModelScenario_(set.hasModelScenario_),
   nPath_(set.nPath_)
 {}
 
@@ -87,7 +85,6 @@ SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operat
   nTree_ = set.nTree_;
   nDist_ = set.nDist_;
   nRoot_ = set.nRoot_;
-  hasModelScenario_ = set.hasModelScenario_;
   nPath_ = set.nPath_;
 
   return *this;
@@ -209,7 +206,7 @@ void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
 
   // Now check all the models of the path are included in the process.
 
-  auto models = modelScenario.getModels();
+  auto models = modelScenario->getModels();
 
   auto modnum = getModelNumbers();
 
@@ -231,11 +228,10 @@ void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
       throw Exception("SubstitutionProcessCollectionMember::setModelScenario: Unknown model " + sm->getName());
   }
 
-  hasModelScenario_ = true;
   nPath_ = numPath;
 }
 
-const ModelScenario& SubstitutionProcessCollectionMember::getModelScenario() const
+const ModelScenario* SubstitutionProcessCollectionMember::getModelScenario() const
 {
   return getCollection()->getModelScenario(nPath_);
 }

@@ -376,9 +376,12 @@ public:
    * @param numPath The number of the model path in the set.
    * @return the matching ModelScenario.
    */
-  const ModelScenario& getModelScenario(size_t numPath) const
+  const ModelScenario* getModelScenario(size_t numPath) const
   {
-    return *mModelScenario_.at(numPath);
+    if (!hasModelScenario(numPath))
+      return nullptr;
+    else
+      return mModelScenario_.at(numPath).get();
   }
 
   std::vector<size_t> getScenarioNumbers() const

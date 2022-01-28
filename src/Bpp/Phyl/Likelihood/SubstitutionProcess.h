@@ -142,9 +142,7 @@ public:
    *
    */
 
-  virtual bool hasModelScenario() const = 0;
-
-  virtual const ModelScenario& getModelScenario() const = 0;
+  virtual const ModelScenario* getModelScenario() const = 0;
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
