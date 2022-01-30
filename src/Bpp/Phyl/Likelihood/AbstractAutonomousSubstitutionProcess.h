@@ -67,9 +67,9 @@ protected:
   /**
    * @brief Root frequencies.
    */
-  std::unique_ptr<FrequencySet> rootFrequencies_;
+  std::shared_ptr<FrequencySet> rootFrequencies_;
   
-  std::unique_ptr<ModelScenario> modelScenario_;
+  std::shared_ptr<ModelScenario> modelScenario_;
 
 protected:
   /*
@@ -80,7 +80,6 @@ protected:
    * AbstractAutonomousSubstitutionProcess.
    *
    */
-  
   AbstractAutonomousSubstitutionProcess(const PhyloTree* tree = nullptr, FrequencySet* rootFrequencies = nullptr, const std::string& prefix = "");
 
   /*
@@ -134,11 +133,11 @@ public:
    * @param rootfrequency The root frequencies to be associated with this instance.
    */
 
-  void setRootFrequencySet(FrequencySet* rootfrequency)
+  void setRootFrequencySet(std::shared_ptr<FrequencySet> rootfrequency)
   {
     if (rootFrequencies_)
       getParameters_().deleteParameters(rootFrequencies_->getParameters().getParameterNames(),false);
-    rootFrequencies_.reset(rootfrequency);
+    rootFrequencies_=rootfrequency;
     if (rootFrequencies_)
       addParameters_(rootFrequencies_->getParameters());
   }
@@ -187,7 +186,7 @@ public:
    *
    **/
 
-  virtual void setModelScenario(ModelScenario* modelScenario) = 0;
+  virtual void setModelScenario(std::shared_ptr<ModelScenario> modelScenario) = 0;
 };
 } // end namespace bpp
 

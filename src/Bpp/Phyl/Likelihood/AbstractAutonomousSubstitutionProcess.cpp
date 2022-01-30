@@ -47,8 +47,8 @@ using namespace std;
 AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const PhyloTree* tree, FrequencySet* rootFrequencies, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(nullptr),
-  rootFrequencies_(std::unique_ptr<FrequencySet>(rootFrequencies)),
-  modelScenario_(nullptr)
+  rootFrequencies_(rootFrequencies),
+  modelScenario_(0)
 {
   if (tree)
     setPhyloTree(*tree);
@@ -59,8 +59,8 @@ AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(con
 AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, FrequencySet* rootFrequencies, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),
-  rootFrequencies_(std::unique_ptr<FrequencySet>(rootFrequencies)),
-  modelScenario_(nullptr)
+  rootFrequencies_(rootFrequencies),
+  modelScenario_(0)
 {
   if (tree)
     addParameters_(tree->getParameters());  // Branch lengths
@@ -71,8 +71,8 @@ AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(Par
 AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
   pTree_(asp.pTree_?asp.pTree_->clone():0),
-  rootFrequencies_(asp.rootFrequencies_?std::unique_ptr<FrequencySet>(asp.rootFrequencies_->clone()):0),
-  modelScenario_(asp.modelScenario_?new ModelScenario(*asp.modelScenario_):0)
+  rootFrequencies_(asp.rootFrequencies_?asp.rootFrequencies_->clone():0),
+  modelScenario_(asp.modelScenario_) // this has to be specified by inheriting class to follow model links
 {}
 
 AbstractAutonomousSubstitutionProcess& AbstractAutonomousSubstitutionProcess::operator=(const AbstractAutonomousSubstitutionProcess& asp)
@@ -81,7 +81,7 @@ AbstractAutonomousSubstitutionProcess& AbstractAutonomousSubstitutionProcess::op
 
   pTree_.reset(asp.pTree_?asp.pTree_->clone():0);
   rootFrequencies_.reset(asp.rootFrequencies_?asp.rootFrequencies_->clone():0);
-  modelScenario_.reset(asp.modelScenario_?new ModelScenario(*asp.modelScenario_):0);
+  modelScenario_ = asp.modelScenario_; // this has to be specified by inheriting class to follow model links
   return *this;
 }
 
