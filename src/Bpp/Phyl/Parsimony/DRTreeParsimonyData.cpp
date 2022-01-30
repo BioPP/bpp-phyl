@@ -94,7 +94,7 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
 
   SitePatterns pattern(&sites);
 
-  shrunkData_.reset(dynamic_cast<SiteContainer*>(pattern.getSites()));
+  shrunkData_       = dynamic_pointer_cast<SiteContainer>(pattern.getSites());
   if (shrunkData_ == nullptr)
     throw Exception("DRTreeParsimonyData::init : Data must be plain alignments.");
 

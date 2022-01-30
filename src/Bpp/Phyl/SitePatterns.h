@@ -212,7 +212,7 @@ public:
   /**
    * @return A new container with each unique site.
    */
-  AlignedValuesContainer* getSites() const;
+  std::shared_ptr<AlignedValuesContainer> getSites() const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_SITEPATTERNS_H

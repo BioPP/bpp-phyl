@@ -97,7 +97,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
 void LikelihoodCalculationSingleProcess::setPatterns_()
 {
   SitePatterns patterns(psites_, process_.getParametrizablePhyloTree().getAllLeavesNames());
-  shrunkData_.reset(patterns.getSites());
+  shrunkData_       = patterns.getSites();
   rootPatternLinks_ = NumericConstant<PatternType>::create(getContext_(), patterns.getIndices());
   size_t nbSites    = shrunkData_->getNumberOfSites();
   Eigen::RowVectorXi weights(nbSites);
