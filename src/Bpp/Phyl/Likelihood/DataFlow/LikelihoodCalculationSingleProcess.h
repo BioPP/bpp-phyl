@@ -574,7 +574,7 @@ public:
    */
   void makeLikelihoodsTree()
   {
-    auto allIndex = process_.getParametrizablePhyloTree().getAllNodesIndexes();
+    auto allIndex = process_.getParametrizablePhyloTree()->getAllNodesIndexes();
 
     for (auto id: allIndex)
     {

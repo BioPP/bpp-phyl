@@ -187,7 +187,7 @@ public:
    */
   const ParametrizablePhyloTree& getTree() const
   {
-    return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getParametrizablePhyloTree();
+    return *getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getParametrizablePhyloTree();
   }
 
   /*

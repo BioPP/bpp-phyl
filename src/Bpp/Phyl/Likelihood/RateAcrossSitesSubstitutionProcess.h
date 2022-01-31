@@ -91,14 +91,14 @@ public:
     return model_->getStateMap();
   }
 
-  const BranchModel* getModel(size_t n) const
+  std::shared_ptr<const BranchModel> getModel(size_t n) const
   {
-    return model_.get();
+    return model_;
   }
 
-  const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const
+  std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const
   {
-    return model_.get();
+    return model_;
   }
 
   const std::vector<unsigned int> getNodesWithModel(size_t i) const
@@ -112,14 +112,14 @@ public:
     return 1;
   }
 
-  const BranchModel* getModelForNode(unsigned int nodeId) const
+  std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const
   {
-    return model_.get();
+    return model_;
   }
 
-  const DiscreteDistribution* getRateDistribution() const
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
   {
-    return rDist_.get();
+    return rDist_;
   }
 
   ParameterList getSubstitutionModelParameters(bool independent) const
@@ -134,7 +134,7 @@ public:
 
   ParameterList getBranchLengthParameters(bool independent) const
   {
-    return getParametrizablePhyloTree().getParameters();
+    return getParametrizablePhyloTree()->getParameters();
   }
 
   const std::vector<double>& getRootFrequencies() const

@@ -195,13 +195,13 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 
     if (mVConstDist_.find(vD[i]) != mVConstDist_.end())
     {
-      const DiscreteDistribution& dd = getRateDistribution(vD[i]);
+      auto dd = getRateDistribution(vD[i]);
       vector<size_t>& vv = mVConstDist_[vD[i]];
 
       for (size_t j = 0; j < vv.size(); j++)
       {
-        gAP.addParameter(new Parameter("Constant.value_" + TextTools::toString(10000 * (vD[i] + 1) + vv[j]), dd.getCategory(j)));
-        std::dynamic_pointer_cast<ConstantDistribution>(distColl_[10000 * (vD[i] + 1) + vv[j]])->setParameterValue("value", dd.getCategory(j));
+        gAP.addParameter(new Parameter("Constant.value_" + TextTools::toString(10000 * (vD[i] + 1) + vv[j]), dd->getCategory(j)));
+        std::dynamic_pointer_cast<ConstantDistribution>(distColl_[10000 * (vD[i] + 1) + vv[j]])->setParameterValue("value", dd->getCategory(j));
         const vector<size_t>&  vs2 = mDistToSubPro_[10000 * (vD[i] + 1) + vv[j]];
         for (size_t k = 0; k < vs2.size(); k++)
         {
@@ -362,10 +362,10 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
 
   // Build new models and assign to a map
 
-  const ParametrizablePhyloTree& tree = getTree(nTree);
+  auto tree = getTree(nTree);
   const auto model = getModel(nMod);
 
-  vector<uint> ids = tree.getAllEdgesIndexes();
+  vector<uint> ids = tree->getAllEdgesIndexes();
   sort(ids.begin(), ids.end());
   vector<size_t> vModN = getModelNumbers();
 

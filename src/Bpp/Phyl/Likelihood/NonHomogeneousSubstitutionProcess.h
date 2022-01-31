@@ -249,16 +249,16 @@ public:
    * @param n number of the model.
    * @return A pointer toward the corresponding model.
    */
-  const BranchModel* getModel(size_t n) const
+  std::shared_ptr<const BranchModel> getModel(size_t n) const
   {
     if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), n);
-    return modelSet_[n - 1].get();
+    return modelSet_[n - 1];
   }
 
-  BranchModel* getModel(size_t n)
+  std::shared_ptr<const BranchModel> getModel(size_t n)
   {
     if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), n);
-    return modelSet_[n - 1].get();
+    return modelSet_[n - 1];
   }
 
   /**
@@ -284,12 +284,12 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this node.
    */
-  const BranchModel* getModelForNode(unsigned int nodeId) const
+  std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const
   {
     std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("NonHomogeneousSubstitutionProcess::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-    return modelSet_[i->second].get();
+    return modelSet_[i->second];
   }
 
   /**
@@ -357,7 +357,7 @@ public:
 
   ParameterList getBranchLengthParameters(bool independent) const
   {
-    return getParametrizablePhyloTree().getParameters();
+    return getParametrizablePhyloTree()->getParameters();
   }
 
   /**
@@ -369,9 +369,9 @@ public:
     return rDist_.get() ? (independent ? rDist_->getIndependentParameters() : rDist_->getParameters()) : ParameterList();
   }
 
-  const DiscreteDistribution* getRateDistribution() const
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
   {
-    return rDist_ ? rDist_.get() : 0;
+    return rDist_ ? rDist_ : 0;
   }
 
   /**
@@ -431,9 +431,9 @@ public:
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
    */
-  const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const
+  std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const
   {
-    return modelSet_[nodeToModel_[nodeId]].get();
+    return modelSet_[nodeToModel_[nodeId]];
   }
 
   double getProbabilityForModel(size_t classIndex) const

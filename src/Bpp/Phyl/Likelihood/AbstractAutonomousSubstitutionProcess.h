@@ -62,7 +62,7 @@ class AbstractAutonomousSubstitutionProcess :
   public virtual AbstractSubstitutionProcess
 {
 protected:
-  std::unique_ptr<ParametrizablePhyloTree> pTree_;
+  std::shared_ptr<ParametrizablePhyloTree> pTree_;
 
   /**
    * @brief Root frequencies.
@@ -96,7 +96,6 @@ protected:
   AbstractAutonomousSubstitutionProcess& operator=(const AbstractAutonomousSubstitutionProcess& asp);
 
 public:
-  bool hasParametrizablePhyloTree() const { return pTree_!=0; }
 
   /**
    * @brief sets the ParametrizablePhyloTree.
@@ -107,11 +106,9 @@ public:
 
   void setPhyloTree(const PhyloTree& phyloTree);
 
-  const ParametrizablePhyloTree& getParametrizablePhyloTree() const
+  std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const
   {
-    if (!pTree_)
-      throw Exception("AbstractAutonomousSubstitutionProcess::getParametrizablePhyloTree has not ParametrizablePhyloTree.");
-    return *pTree_;
+    return pTree_;
   }
   
   /**
@@ -122,9 +119,9 @@ public:
     return rootFrequencies_!=0;
   }
 
-  const FrequencySet* getRootFrequencySet() const
+  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
   {
-    return rootFrequencies_.get();
+    return rootFrequencies_;
   }
 
   /**
@@ -164,21 +161,12 @@ public:
   void fireParameterChanged(const ParameterList& pl);
 
   /**
-   * @brief Return if process has ModelScenario.
-   *
-   **/
-  bool hasModelScenario() const
-  {
-    return modelScenario_ != 0;
-  }
-
-  /**
    * @brief get the ModelScenario.
    *
    **/
-  const ModelScenario& getModelScenario() const
+  std::shared_ptr<const ModelScenario> getModelScenario() const
   {
-    return *modelScenario_;
+    return modelScenario_;
   }
 
   /**

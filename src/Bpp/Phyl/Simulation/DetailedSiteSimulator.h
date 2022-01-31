@@ -64,12 +64,12 @@ private:
   size_t currentIndex_;
   std::vector<MutationPath> paths_;
   std::vector<size_t> ancestralStates_;
-  const ParametrizablePhyloTree* tree_;
+  std::shared_ptr<const ParametrizablePhyloTree> tree_;
   std::vector<unsigned int> leavesId_;
   const StateMap* statemap_;
 
 public:
-  SiteSimulationResult(const ParametrizablePhyloTree* tree, const StateMap* statemap, size_t ancestralState) :
+  SiteSimulationResult(std::shared_ptr<const ParametrizablePhyloTree> tree, const StateMap* statemap, size_t ancestralState) :
     indexes_        (),
     currentIndex_   (0),
     paths_          (),
@@ -213,7 +213,7 @@ protected:
   double rate_;
 
 public:
-  RASiteSimulationResult(const ParametrizablePhyloTree* tree, const StateMap* stateMap, size_t ancestralStateIndex, double rate) :
+  RASiteSimulationResult(std::shared_ptr<const ParametrizablePhyloTree> tree, const StateMap* stateMap, size_t ancestralStateIndex, double rate) :
     SiteSimulationResult(tree, stateMap, ancestralStateIndex),
     rate_(rate) {}
 

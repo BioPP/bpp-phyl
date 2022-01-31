@@ -71,7 +71,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   const SubstitutionProcess& sp = rltc.getSubstitutionProcess();
 
   if (edgeIds.size() == 0)
-    return new ProbabilisticRewardMapping(sp.getParametrizablePhyloTree(),
+    return new ProbabilisticRewardMapping(*sp.getParametrizablePhyloTree(),
                                           rltc.getRootArrayPositions(),
                                           rltc.getNumberOfDistinctSites());
 
@@ -128,7 +128,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     }
   }
 
-  const ParametrizablePhyloTree& ppt = sp.getParametrizablePhyloTree();
+  auto ppt = sp.getParametrizablePhyloTree();
 
   // A few variables we'll need:
 
@@ -139,7 +139,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   const auto& rootPatternLinks = rltc.getRootArrayPositions();
 
   // We create a new ProbabilisticRewardMapping object:
-  unique_ptr<ProbabilisticRewardMapping> rewards(new ProbabilisticRewardMapping(ppt, rootPatternLinks, nbDistinctSites));
+  unique_ptr<ProbabilisticRewardMapping> rewards(new ProbabilisticRewardMapping(*ppt, rootPatternLinks, nbDistinctSites));
 
   // Compute the reward for each class and each branch in the tree:
 

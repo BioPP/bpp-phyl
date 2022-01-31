@@ -243,15 +243,15 @@ ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters(
 
 bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(bool throwEx) const
 {
-  if (!hasParametrizablePhyloTree())
+  if (!getParametrizablePhyloTree())
   {
     if (throwEx)
       throw Exception("NonHomogeneousSubstitutionProcess::checkOrphanNodes(). No tree provided.");
     return false;
   }
 
-  vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
-  unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
+  vector<unsigned int> ids = getParametrizablePhyloTree()->getAllNodesIndexes();
+  unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
   for (size_t i = 0; i < ids.size(); i++)
   {
     if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
@@ -266,15 +266,15 @@ bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(bool throwEx) const
 
 bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
 {
-  if (!hasParametrizablePhyloTree())
+  if (!getParametrizablePhyloTree())
   {
     if (throwEx)
       throw Exception("NonHomogeneousSubstitutionProcess::checkUnknownNodes(). No tree provided.");
     return false;
   }
-  vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
+  vector<unsigned int> ids = getParametrizablePhyloTree()->getAllNodesIndexes();
   unsigned int id;
-  unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
+  unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
 
   std::map<size_t, std::vector<unsigned int> >::const_iterator it;
 
@@ -298,7 +298,7 @@ bool NonHomogeneousSubstitutionProcess::hasMixedTransitionModel() const
 {
   for (size_t i = 1; i <= getNumberOfModels(); i++)
   {
-    if (dynamic_cast<const MixedTransitionModel*>(getModel(i)) != NULL)
+    if (dynamic_pointer_cast<const MixedTransitionModel>(getModel(i)) != NULL)
       return true;
   }
   return false;

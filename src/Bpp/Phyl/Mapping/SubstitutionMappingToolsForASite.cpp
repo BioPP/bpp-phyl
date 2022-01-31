@@ -79,7 +79,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
   if (edgeIds.size() == 0)
   {
-    return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), reg.getNumberOfSubstitutionTypes(), 0);
+    return new ProbabilisticSubstitutionMapping(*sp.getParametrizablePhyloTree(), reg.getNumberOfSubstitutionTypes(), 0);
   }
 
   // Map from models to counts
@@ -161,10 +161,10 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
      if (edgeIds.size()==0)
      {
-     return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree();, m_Sm_Sc.begin()->second->getNumberOfSubstitutionTypes(), 0);
+     return new ProbabilisticSubstitutionMapping(*sp.getParametrizablePhyloTree();, m_Sm_Sc.begin()->second->getNumberOfSubstitutionTypes(), 0);
      }
 
-     ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
+     auto ppt=sp.getParametrizablePhyloTree();
 
      // A few variables we'll need:
 
@@ -176,7 +176,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
      // We create a Mapping objects
 
-     unique_ptr<ProbabilisticSubstitutionMapping> substitutions(new ProbabilisticSubstitutionMapping(ppt, nbTypes, 1));
+     unique_ptr<ProbabilisticSubstitutionMapping> substitutions(new ProbabilisticSubstitutionMapping(*ppt, nbTypes, 1));
 
      // Find the corresponding index in the compressed array :
 
@@ -422,8 +422,8 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
 
      if (edgeIds.size()==0)
      {
-     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-     return new ProbabilisticSubstitutionMapping(ppt, reg.getNumberOfSubstitutionTypes(), 0);
+     auto ppt=sp.getParametrizablePhyloTree();
+     return new ProbabilisticSubstitutionMapping(*ppt, reg.getNumberOfSubstitutionTypes(), 0);
      }
 
      for (auto id :edgeIds)
@@ -439,9 +439,9 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
      size_t nbStates = sm->getAlphabet()->getSize();
      vector<int> supportedStates = sm->getAlphabetStates();
 
-     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
+     auto ppt=sp.getParametrizablePhyloTree();
 
-     unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(ppt, nbTypes, 1));
+     unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(*ppt, nbTypes, 1));
 
      vector<size_t> vMod=nullModels->getModelNumbers();
      vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(sm->getAlphabet()));

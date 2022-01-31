@@ -69,7 +69,7 @@ ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
      rltc.computeTreeLikelihood();
 
      const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
-     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
+     auto ppt=sp.getParametrizablePhyloTree();
 
      // A few variables we'll need:
 

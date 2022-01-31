@@ -113,12 +113,9 @@ private:
   size_t nRoot_;
 
   /**
-   * @brief A boolean if the model has a Set Of Model Path, and the
-   *  number of the set of model path.
+   * @brief the number of the set of model path, if needed.
    *
    */
-
-  bool hasModelScenario_;
 
   size_t nPath_;
 
@@ -204,7 +201,7 @@ public:
    * @return A pointer toward the corresponding model.
    */
 
-  const BranchModel* getModel(size_t n) const;
+  std::shared_ptr<const BranchModel> getModel(size_t n) const;
 
   std::vector<size_t> getModelNumbers() const;
 
@@ -231,7 +228,7 @@ public:
    * @throw Exception If no model is found for this node.
    */
 
-  const BranchModel* getModelForNode(unsigned int nodeId) const;
+  std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const;
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -264,7 +261,7 @@ public:
    *
    **/
 
-  const DiscreteDistribution* getRateDistribution() const;
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const;
 
   const size_t getRateDistributionNumber() const { return nDist_; }
 
@@ -279,7 +276,7 @@ public:
 
   bool hasRootFrequencySet() const { return !isStationary(); }
 
-  const FrequencySet* getRootFrequencySet() const;
+  std::shared_ptr<const FrequencySet> getRootFrequencySet() const;
 
   /*
    * @brief Set the Set of Model Path
@@ -293,9 +290,7 @@ public:
 
   const size_t getModelScenarioNumber() const { return nPath_; }
 
-  bool hasModelScenario() const { return hasModelScenario_; }
-
-  const ModelScenario& getModelScenario() const;
+  std::shared_ptr<const ModelScenario> getModelScenario() const;
 
   /**
    * @brief AbsractParametrizable interface
@@ -342,12 +337,7 @@ public:
    * @return the Tree
    */
 
-  bool hasParametrizablePhyloTree() const
-  {
-    return nTree_>0;
-  }
-  
-  const ParametrizablePhyloTree& getParametrizablePhyloTree() const;
+  std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const;
 
   size_t getTreeNumber() const { return nTree_; }
 
@@ -358,7 +348,7 @@ public:
    * @param classIndex The model class index.
    */
 
-  const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const;
+  std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const;
 
   /**
    * @brief Get the parameters of the substitution models.

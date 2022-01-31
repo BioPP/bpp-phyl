@@ -63,7 +63,7 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
 {
   vector<size_t> nProc = evol.getSubstitutionProcessNumbers();
 
-  vector<shared_ptr<PhyloNode> > vpn = evol.getSubstitutionProcess(nProc[0]).getParametrizablePhyloTree().getAllLeaves();
+  vector<shared_ptr<PhyloNode> > vpn = evol.getSubstitutionProcess(nProc[0]).getParametrizablePhyloTree()->getAllLeaves();
 
   // set ups seqnames for all processes
   for (size_t i = 0; i < vpn.size(); i++)
@@ -79,7 +79,7 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
 
     vector<string> seqNames2;
 
-    vector<shared_ptr<PhyloNode> > vpn2 = sp.getParametrizablePhyloTree().getAllLeaves();
+    vector<shared_ptr<PhyloNode> > vpn2 = sp.getParametrizablePhyloTree()->getAllLeaves();
     for (size_t i2 = 0; i2 < vpn2.size(); i2++)
     {
       seqNames2.push_back(vpn2[i2]->getName());

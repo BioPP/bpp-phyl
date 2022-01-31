@@ -99,10 +99,7 @@ void AbstractAutonomousSubstitutionProcess::fireParameterChanged(const Parameter
 void AbstractAutonomousSubstitutionProcess::setPhyloTree(const PhyloTree& phyloTree)
 {
   if (pTree_)
-  {
     getParameters_().deleteParameters(pTree_->getParameters().getParameterNames(), false);
-    pTree_.release();
-  }
 
   pTree_.reset(new ParametrizablePhyloTree(phyloTree));
   addParameters_(pTree_->getParameters());

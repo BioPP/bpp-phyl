@@ -46,49 +46,49 @@ using namespace bpp;
 using namespace std;
 
 ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& process) :
-  BaseTree(process.hasModelScenario() ? 0 : process.getParametrizablePhyloTree().getGraph()),
+  BaseTree(process.getModelScenario() ? 0 : process.getParametrizablePhyloTree()->getGraph()),
   process_(process)
 {
-  const ParametrizablePhyloTree& ptree = process.getParametrizablePhyloTree();
+  std::shared_ptr<const ParametrizablePhyloTree> ptree = process.getParametrizablePhyloTree();
   // if no model scenario, copy the basic tree
-  if (!process.hasModelScenario())
+  if (!process.getModelScenario())
   {
-    auto itN = ptree.allNodesIterator();
+    auto itN = ptree->allNodesIterator();
     for (itN->start(); !itN->end(); itN->next())
     {
-      auto index = ptree.getNodeIndex(*(*itN));
+      auto index = ptree->getNodeIndex(*(*itN));
       auto nnode = std::make_shared<ProcessComputationNode>(*(*(*itN)), index);
       nnode->setProperty("event", NodeEvent::speciationEvent);
-      associateNode(nnode, ptree.getNodeGraphid(*(*itN)));
+      associateNode(nnode, ptree->getNodeGraphid(*(*itN)));
       setNodeIndex(nnode, index);
     }
 
-    auto itE = ptree.allEdgesIterator();
+    auto itE = ptree->allEdgesIterator();
     for (itE->start(); !itE->end(); itE->next())
     {
-      auto index = ptree.getEdgeIndex(*(*itE));
+      auto index = ptree->getEdgeIndex(*(*itE));
       auto model = process.getModelForNode(index);
       size_t nmodel = process.getModelNumberForNode(index);
-      auto nedge = std::make_shared<ProcessComputationEdge>(model, nmodel, index);
-      associateEdge(nedge, ptree.getEdgeGraphid(*(*itE)));
+      auto nedge = std::make_shared<ProcessComputationEdge>(model.get(), nmodel, index);
+      associateEdge(nedge, ptree->getEdgeGraphid(*(*itE)));
       setEdgeIndex(nedge, index);
     }
 
     return;
   }
 
-  const auto& scenario = process.getModelScenario();
+  auto scenario = process.getModelScenario();
 
 
   // Map of the mrca of the MixedTransitionModel split in several paths
   std::map<std::shared_ptr<MixedTransitionModel>, uint> mMrca;
 
-  auto vMod = scenario.getModels();
+  auto vMod = scenario->getModels();
   std::map<std::shared_ptr<MixedTransitionModel>, std::vector<std::shared_ptr<PhyloNode> > > mnodes;
 
-  auto vNodes = ptree.getAllNodes();
+  auto vNodes = ptree->getAllNodes();
 
-  auto root = ptree.getRoot();
+  auto root = ptree->getRoot();
 
   // first the nodes that carry the models
   for (const auto& node:vNodes)
@@ -96,11 +96,11 @@ ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& proces
     if (node == root)
       continue;
 
-    const auto medge = process_.getModelForNode(ptree.getNodeIndex(node));
+    const auto medge = process_.getModelForNode(ptree->getNodeIndex(node));
     std::shared_ptr<MixedTransitionModel> mok(0);
     for (const auto& mod:vMod)
     {
-      if (mod.get() == medge)
+      if (mod.get() == medge.get())
       {
         mok = mod;
         break;
@@ -118,16 +118,16 @@ ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& proces
 
   for (const auto& mnode:mnodes)
   {
-    auto nrca = ptree.MRCA(mnode.second);
-    mMrca[mnode.first] = ptree.getNodeIndex(nrca);
+    auto nrca = ptree->MRCA(mnode.second);
+    mMrca[mnode.first] = ptree->getNodeIndex(nrca);
   }
 
   // Then construcion of the tree
 
-  auto nroot = std::make_shared<ProcessComputationNode>(*root, ptree.getRootIndex());
+  auto nroot = std::make_shared<ProcessComputationNode>(*root, ptree->getRootIndex());
   createNode(nroot);
   addNodeIndex(nroot);
-  _build_following_scenario(nroot, scenario, mMrca);
+  _build_following_scenario(nroot, *scenario, mMrca);
 
   rootAt(nroot);
 }
@@ -139,7 +139,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
 
   size_t nbpath = scenario.getNumberOfModelPaths();
 
-  const auto& ptree = process_.getParametrizablePhyloTree();
+  auto ptree = process_.getParametrizablePhyloTree();
 
   std::shared_ptr<MixedTransitionModel> mrca(0); // One MixedModel which is
   // "split" at father node
@@ -161,12 +161,12 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
     father->setProperty("event", NodeEvent::speciationEvent);
 
     // and then look at the branches
-    auto vbrInd = ptree.getBranches(spInd);
+    auto vbrInd = ptree->getBranches(spInd);
 
     for (const auto& brInd:vbrInd)
     {
-      auto sonInd = ptree.getSon(brInd);
-      auto son = ptree.getNode(sonInd);
+      auto sonInd = ptree->getSon(brInd);
+      auto son = ptree->getNode(sonInd);
 
       auto modSon = process_.getModelForNode(sonInd);
       size_t nmodel = process_.getModelNumberForNode(sonInd);
@@ -176,11 +176,11 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
       addNodeIndex(sonnode);
 
       // Check if model is a mixture
-      auto mixMod = dynamic_cast<const MixedTransitionModel*>(modSon);
+      auto mixMod = dynamic_pointer_cast<const MixedTransitionModel>(modSon);
 
       if (!mixMod) // No mixture, then a branch with a full model
       {
-        auto nedge = std::make_shared<ProcessComputationEdge>(modSon, nmodel, sonInd);
+        auto nedge = std::make_shared<ProcessComputationEdge>(modSon.get(), nmodel, sonInd);
         link(father, sonnode, nedge);
         addEdgeIndex(nedge);
         _build_following_scenario(sonnode, scenario, mMrca);
@@ -227,7 +227,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
           createNode(ssonnode);
           addNodeIndex(ssonnode);
           ssonnode->setProperty("event", NodeEvent::speciationEvent);
-          auto ssedge = std::make_shared<ProcessComputationEdge>(mixMod, nmodel, sonInd, true, vmp.first);
+          auto ssedge = std::make_shared<ProcessComputationEdge>(mixMod.get(), nmodel, sonInd, true, vmp.first);
           link(sonnode, ssonnode, ssedge);
           addEdgeIndex(ssedge);
 
@@ -235,7 +235,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
           auto s3onnode = std::make_shared<ProcessComputationNode>(*son, sonInd);
           createNode(s3onnode);
           addNodeIndex(s3onnode);
-          auto s3edge = std::make_shared<ProcessComputationEdge>(mixMod, nmodel, sonInd, false, vmp.first);
+          auto s3edge = std::make_shared<ProcessComputationEdge>(mixMod.get(), nmodel, sonInd, false, vmp.first);
           link(ssonnode, s3onnode, s3edge);
           addEdgeIndex(s3edge);
 
@@ -252,7 +252,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
            // (probably done before)
       {
         auto beg = vMP.begin();
-        auto nedge = std::make_shared<ProcessComputationEdge>(mixMod, nmodel, sonInd, false, beg->first);
+        auto nedge = std::make_shared<ProcessComputationEdge>(mixMod.get(), nmodel, sonInd, false, beg->first);
         link(father, sonnode, nedge);
         addEdgeIndex(nedge);
 
@@ -297,7 +297,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
     auto modNbs = process_.getModelNumbers();
     for (auto nb: modNbs)
     {
-      if (process_.getModel(nb) == mrca.get())
+      if (process_.getModel(nb) == mrca)
       {
         nmodel = nb;
         modok = true;
@@ -308,7 +308,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
       throw Exception("ProcessComputationTree::ProcessComputationTree : unknown model  for process : " + mrca.get()->getName());
 
 
-    auto node = ptree.getNode(spInd);
+    auto node = ptree->getNode(spInd);
 
     for (auto vmp:vMP)
     {
@@ -337,17 +337,17 @@ void ProcessComputationTree::_build_following_path(shared_ptr<ProcessComputation
 
   auto nodeIndex = father->getSpeciesIndex();
 
-  const auto& ptree = process_.getParametrizablePhyloTree();
+  auto ptree = process_.getParametrizablePhyloTree();
 
   // and look at the branches
 
-  auto vbrInd = ptree.getBranches(nodeIndex);
+  auto vbrInd = ptree->getBranches(nodeIndex);
 
   for (const auto brInd:vbrInd)
   {
     // create the son
-    auto sonInd = ptree.getSon(brInd);
-    auto son = ptree.getNode(sonInd);
+    auto sonInd = ptree->getSon(brInd);
+    auto son = ptree->getNode(sonInd);
 
     auto sonnode = std::make_shared<ProcessComputationNode>(*son, sonInd);
     createNode(sonnode);
@@ -359,12 +359,12 @@ void ProcessComputationTree::_build_following_path(shared_ptr<ProcessComputation
     auto nmodel = process_.getModelNumberForNode(sonInd);
 
     shared_ptr<ProcessComputationEdge> nedge;
-    const MixedTransitionModel* mixmod = dynamic_cast<const MixedTransitionModel*>(modSon);
+    auto mixmod = dynamic_pointer_cast<const MixedTransitionModel>(modSon);
 
     if (mixmod && path.hasModel(mixmod))
-      nedge = std::make_shared<ProcessComputationEdge>(modSon, nmodel, sonInd, false, (const Vuint&)path.getPathNode(mixmod));
+      nedge = std::make_shared<ProcessComputationEdge>(modSon.get(), nmodel, sonInd, false, (const Vuint&)path.getPathNode(mixmod));
     else
-      nedge = std::make_shared<ProcessComputationEdge>(modSon, nmodel, sonInd);
+      nedge = std::make_shared<ProcessComputationEdge>(modSon.get(), nmodel, sonInd);
 
     link(father, sonnode, nedge);
     addEdgeIndex(nedge);

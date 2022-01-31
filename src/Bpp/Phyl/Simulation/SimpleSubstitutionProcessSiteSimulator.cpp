@@ -59,7 +59,7 @@ using namespace std;
 
 SimpleSubstitutionProcessSiteSimulator::SimpleSubstitutionProcessSiteSimulator(const SubstitutionProcess& process) :
   process_(&process),
-  phyloTree_(&process_->getParametrizablePhyloTree()),
+  phyloTree_(process_->getParametrizablePhyloTree()),
   tree_(ProcessComputationTree(*process_)),
   qRates_(),
   qRoots_(),

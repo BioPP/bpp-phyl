@@ -56,7 +56,6 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember( Substi
   nTree_(nTree),
   nDist_(nDist),
   nRoot_(0),
-  hasModelScenario_(false),
   nPath_(0)
 {
   updateParameters();
@@ -72,7 +71,6 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   nTree_(set.nTree_),
   nDist_(set.nDist_),
   nRoot_(set.nRoot_),
-  hasModelScenario_(set.hasModelScenario_),
   nPath_(set.nPath_)
 {}
 
@@ -87,7 +85,6 @@ SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operat
   nTree_ = set.nTree_;
   nDist_ = set.nDist_;
   nRoot_ = set.nRoot_;
-  hasModelScenario_ = set.hasModelScenario_;
   nPath_ = set.nPath_;
 
   return *this;
@@ -101,9 +98,9 @@ void SubstitutionProcessCollectionMember::clear()
   nRoot_=0;
 }
 
-inline const BranchModel* SubstitutionProcessCollectionMember::getModel(size_t n) const
+inline std::shared_ptr<const BranchModel> SubstitutionProcessCollectionMember::getModel(size_t n) const
 {
-  return getCollection()->getModel(n).get();
+  return getCollection()->getModel(n);
 }
 
 inline bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters)
@@ -122,9 +119,9 @@ std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
   return vMN;
 }
 
-inline const DiscreteDistribution* SubstitutionProcessCollectionMember::getRateDistribution() const
+inline std::shared_ptr<const DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution() const
 {
-  return &getCollection()->getRateDistribution(nDist_);
+  return getCollection()->getRateDistribution(nDist_);
 }
 
 ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters(bool independent) const
@@ -182,12 +179,12 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
 }
 
 
-inline const FrequencySet* SubstitutionProcessCollectionMember::getRootFrequencySet() const
+inline std::shared_ptr<const FrequencySet> SubstitutionProcessCollectionMember::getRootFrequencySet() const
 {
   if (isStationary())
     return nullptr;
   else
-    return getCollection()->shareFrequencies(nRoot_).get();
+    return getCollection()->shareFrequencies(nRoot_);
 }
 
 inline const std::vector<double>& SubstitutionProcessCollectionMember::getRootFrequencies() const
@@ -209,18 +206,16 @@ void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
 
   // Now check all the models of the path are included in the process.
 
-  auto models = modelScenario.getModels();
+  auto models = modelScenario->getModels();
 
   auto modnum = getModelNumbers();
 
   for (const auto& model:models)
   {
-    auto sm = model.get();
-
     bool ok = false;
     for (auto num:modnum)
     {
-      if (getModel(num) == sm)
+      if (getModel(num) == model)
       {
         ok = true;
         break;
@@ -228,22 +223,21 @@ void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
     }
 
     if (!ok)
-      throw Exception("SubstitutionProcessCollectionMember::setModelScenario: Unknown model " + sm->getName());
+      throw Exception("SubstitutionProcessCollectionMember::setModelScenario: Unknown model " + model->getName());
   }
 
-  hasModelScenario_ = true;
   nPath_ = numPath;
 }
 
-const ModelScenario& SubstitutionProcessCollectionMember::getModelScenario() const
+std::shared_ptr<const ModelScenario> SubstitutionProcessCollectionMember::getModelScenario() const
 {
   return getCollection()->getModelScenario(nPath_);
 }
 
 
-inline const ParametrizablePhyloTree& SubstitutionProcessCollectionMember::getParametrizablePhyloTree() const
+std::shared_ptr<const ParametrizablePhyloTree> SubstitutionProcessCollectionMember::getParametrizablePhyloTree() const
 {
-  return getCollection()->getTree(nTree_);
+  return getCollection()->hasTreeNumber(nTree_)?getCollection()->getTree(nTree_):0;
 }
 
 void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<unsigned int>& nodesId)
@@ -298,8 +292,8 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
 
 bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
 {
-  vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
-  unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
+  vector<unsigned int> ids = getParametrizablePhyloTree()->getAllNodesIndexes();
+  unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
   for (size_t i = 0; i < ids.size(); i++)
   {
     if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
@@ -314,10 +308,10 @@ bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
 
 bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
 {
-  vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
+  vector<unsigned int> ids = getParametrizablePhyloTree()->getAllNodesIndexes();
 
   unsigned int id;
-  unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
+  unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
 
   std::map<size_t, std::vector<unsigned int> >::const_iterator it;
 
@@ -352,7 +346,7 @@ bool SubstitutionProcessCollectionMember::hasMixedTransitionModel() const
  * Inheriting from SubstitutionProcess
  */
 
-inline const BranchModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const
+inline std::shared_ptr<const BranchModel> SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const
 {
   std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
   if (i == nodeToModel_.end())
@@ -360,7 +354,7 @@ inline const BranchModel* SubstitutionProcessCollectionMember::getModelForNode(u
   return getModel(i->second);
 }
 
-inline const BranchModel* SubstitutionProcessCollectionMember::getModel(unsigned int nodeId, size_t classIndex) const
+inline std::shared_ptr<const BranchModel> SubstitutionProcessCollectionMember::getModel(unsigned int nodeId, size_t classIndex) const
 {
   return getModel(nodeToModel_.at(nodeId));
 }

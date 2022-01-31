@@ -310,11 +310,11 @@ public:
   bool hasModel(std::shared_ptr<MixedTransitionModel> mMod) const
   { return mModPath_.find(mMod) != mModPath_.end(); }
 
-  bool hasModel(const MixedTransitionModel* mMod) const
+  bool hasModel(std::shared_ptr<const MixedTransitionModel> mMod) const
   {
     for (const auto& mn:mModPath_)
     {
-      if (mn.first.get() == mMod)
+      if (mn.first == mMod)
         return true;
     }
     return false;
@@ -328,11 +328,11 @@ public:
   const PathNode& getPathNode(std::shared_ptr<MixedTransitionModel> mMod) const
   { return mModPath_.at(mMod); }
 
-  const PathNode& getPathNode(const MixedTransitionModel* mMod) const
+  const PathNode& getPathNode(std::shared_ptr<const MixedTransitionModel> mMod) const
   {
     for (const auto& mn:mModPath_)
     {
-      if (mn.first.get() == mMod)
+      if (mn.first == mMod)
         return mn.second;
     }
     throw Exception("ModelPath::getPathNode : unknown model " + mMod->getName());

@@ -1240,7 +1240,7 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
 
       NonHomogeneousSubstitutionProcess* nhSP = dynamic_cast<NonHomogeneousSubstitutionProcess*>(SP);
 
-      if (SP->hasParametrizablePhyloTree())
+      if (SP->getParametrizablePhyloTree())
       {
       for (size_t i = 0; i < nbModels; i++)
       {
@@ -1262,19 +1262,19 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
         auto snodesid = prefix + ".nodes_id";
         auto descnodes = ApplicationTools::getStringParameter(snodesid, params, "", suffix, suffixIsOptional, warn);
 
-        const auto& tree = SP->getParametrizablePhyloTree();
+        auto tree = SP->getParametrizablePhyloTree();
         if (descnodes == "All")
         {
-          nodesId = tree.getSubtreeEdges(tree.getRootIndex());
+          nodesId = tree->getSubtreeEdges(tree->getRootIndex());
         }
         else if (descnodes == "Leaves")
         {
-          nodesId = tree.getLeavesUnderNode(tree.getRootIndex());
+          nodesId = tree->getLeavesUnderNode(tree->getRootIndex());
         }
         else if (descnodes == "NoLeaves")
         {
-          auto allIds = tree.getSubtreeEdges(tree.getRootIndex());
-          auto leavesId = tree.getLeavesUnderNode(tree.getRootIndex());
+          auto allIds = tree->getSubtreeEdges(tree->getRootIndex());
+          auto leavesId = tree->getLeavesUnderNode(tree->getRootIndex());
           VectorTools::diff(allIds, leavesId, nodesId);
         }
         else
@@ -1359,7 +1359,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     const auto& vrdn = SubProColl.getRateDistributionNumbers();
     numRate=0;
     for (auto rdn:vrdn)
-      if (SubProColl.getRateDistribution(rdn).getName()=="Constant")
+      if (SubProColl.getRateDistribution(rdn)->getName()=="Constant")
       {
         numRate=rdn;
         break;
@@ -1389,7 +1389,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (pp != string::npos)
     {
       size_t numSRate = static_cast<size_t>(TextTools::toInt(sRate.substr(pp + 1)));
-      SubProColl.addDistribution(std::make_shared<ConstantDistribution>(SubProColl.getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
+      SubProColl.addDistribution(std::make_shared<ConstantDistribution>(SubProColl.getRateDistribution(numRate)->getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
       
       numRate = 10000 * (numRate + 1) + numSRate;
     }
@@ -1440,7 +1440,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (!SubProColl.hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int>(numModel));
 
-    vector<uint> vNodes = SubProColl.getTree(numTree).getAllEdgesIndexes();
+    vector<uint> vNodes = SubProColl.getTree(numTree)->getAllEdgesIndexes();
 
     map<size_t, vector<unsigned int> > mModBr;
     mModBr[numModel] = vNodes;
@@ -1487,19 +1487,19 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       auto snodesid = "model" + TextTools::toString(indModel)  + ".nodes_id";
       auto descnodes = ApplicationTools::getStringParameter(snodesid, args, "", "", true, warn);
 
-      auto& tree = SubProColl.getTree(numTree);
+      auto tree = SubProColl.getTree(numTree);
       if (descnodes == "All")
       {
-        nodesId = tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
+        nodesId = tree->getEdgeIndexes(tree->getSubtreeEdges(tree->getRoot()));
       }
       else if (descnodes == "Leaves")
       {
-        nodesId = tree.getNodeIndexes(tree.getLeavesUnderNode(tree.getRoot()));
+        nodesId = tree->getNodeIndexes(tree->getLeavesUnderNode(tree->getRoot()));
       }
       else if (descnodes == "NoLeaves")
       {
-        auto allIds = tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
-        auto leavesId = tree.getNodeIndexes(tree.getLeavesUnderNode(tree.getRoot()));
+        auto allIds = tree->getEdgeIndexes(tree->getSubtreeEdges(tree->getRoot()));
+        auto leavesId = tree->getNodeIndexes(tree->getLeavesUnderNode(tree->getRoot()));
         VectorTools::diff(allIds, leavesId, nodesId);
       }
       else
@@ -2962,23 +2962,23 @@ void PhylogeneticsApplicationTools::writePhyloTrees(
 
     for (size_t i = 0; i < vTN.size(); i++)
     {
-      PhyloTree tree(spc.getTree(vTN[i]));
+      auto tree=spc.getTree(vTN[i]);
 
-      std::vector<shared_ptr<PhyloNode> > nodes = tree.getAllNodes();
+      std::vector<shared_ptr<PhyloNode> > nodes = tree->getAllNodes();
 
       for (auto& node : nodes)
       {
-        if (tree.isLeaf(node) && withIds)
-          node->setName(TextTools::toString(tree.getNodeIndex(node)) + "_" + node->getName());
+        if (tree->isLeaf(node) && withIds)
+          node->setName(TextTools::toString(tree->getNodeIndex(node)) + "_" + node->getName());
         else
-          node->setProperty("NodeId", BppString(TextTools::toString(tree.getNodeIndex(node))));
+          node->setProperty("NodeId", BppString(TextTools::toString(tree->getNodeIndex(node))));
       }
 
       Newick* nt = dynamic_cast<Newick*>(treeWriter);
       if (nt)
         nt->enableExtendedBootstrapProperty("NodeId");
 
-      treeWriter->writePhyloTree(tree, file + "_" + TextTools::toString(vTN[i]), true);
+      treeWriter->writePhyloTree(*tree, file + "_" + TextTools::toString(vTN[i]), true);
     }
     if (verbose)
       ApplicationTools::displayResult("Wrote trees to files : ", file + "_...");
@@ -3093,7 +3093,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
       }
 
       BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
-      bIO.writeFrequencySet(pNH->getRootFrequencySet(), out, aliases, writtenNames);
+      bIO.writeFrequencySet(pNH->getRootFrequencySet().get(), out, aliases, writtenNames);
     }
     else
       out << "nonhomogeneous.stationarity=true";
@@ -3102,7 +3102,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     // Rate distribution
 
     map<string, string> aliases;
-    const DiscreteDistribution* pdd = pNH->getRateDistribution();
+    auto pdd = pNH->getRateDistribution();
 
     ParameterList pl = pdd->getParameters();
     for (size_t np = 0; np < pl.size(); np++)
@@ -3192,14 +3192,14 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   {
     if (distn < 10000)
     {
-      const DiscreteDistribution& dist = collection->getRateDistribution(distn);
+      auto dist = collection->getRateDistribution(distn);
 
       // First get the aliases for this model:
       map<string, string> aliases;
 
       if (withAlias)
       {
-        ParameterList pl = dist.getParameters();
+        ParameterList pl = dist->getParameters();
 
         for (size_t np = 0; np < pl.size(); np++)
         {
@@ -3213,7 +3213,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       writtenNames.clear();
       out.endLine() << "rate_distribution" << distn << "=";
       BppORateDistributionFormat bIOd(true);
-      bIOd.writeDiscreteDistribution(dist, out, aliases, writtenNames);
+      bIOd.writeDiscreteDistribution(*dist, out, aliases, writtenNames);
       out.endLine();
     }
   }
@@ -3236,11 +3236,11 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
     out << "scenario" << scennum << "=";
 
-    size_t nbMP = scen.getNumberOfModelPaths();
+    size_t nbMP = scen->getNumberOfModelPaths();
 
     for (size_t mpn = 0; mpn < nbMP; mpn++)
     {
-      const auto& mp = scen.getModelPath(mpn);
+      const auto& mp = scen->getModelPath(mpn);
 
       auto itmp = find(vMP.begin(), vMP.end(), mp.get());
       auto inmp = std::distance(vMP.begin(), itmp);
@@ -3328,7 +3328,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     if (spcm.getRootFrequencySet())
       out << ", root_freq=" << spcm.getRootFrequenciesNumber();
 
-    if (spcm.hasModelScenario())
+    if (spcm.getModelScenario())
       out << ", scenario=" << spcm.getModelScenarioNumber();
 
     out << ")";
@@ -3771,7 +3771,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     colNames.push_back("is.constant");
     colNames.push_back("lnL");
 
-    const DiscreteDistribution* pDD = pSP->getRateDistribution();
+    auto pDD = pSP->getRateDistribution();
     size_t nbR = 0;
 
     if (pDD != NULL)
@@ -3844,7 +3844,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     for (auto nP : nbProc)
     {
       const SubstitutionProcess& sp = pSE.getSubstitutionProcess(nP);
-      const DiscreteDistribution* pDD = sp.getRateDistribution();
+      auto pDD = sp.getRateDistribution();
       mNbr[nP] = (pDD ? pDD->getNumberOfCategories() : 1);
     }
 

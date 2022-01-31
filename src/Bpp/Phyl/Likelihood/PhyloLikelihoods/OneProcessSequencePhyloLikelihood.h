@@ -190,7 +190,7 @@ public:
    * with some of the LikelihoodCalculationSingleProcess
    *
    */
-  const ParametrizablePhyloTree& getTree() const { return mSeqEvol_.getSubstitutionProcess().getParametrizablePhyloTree(); }
+  const ParametrizablePhyloTree& getTree() const { return *mSeqEvol_.getSubstitutionProcess().getParametrizablePhyloTree(); }
 
 
   /** @} */

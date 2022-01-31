@@ -67,7 +67,7 @@ class MarginalAncestralReconstruction :
 {
 private:
   std::shared_ptr<LikelihoodCalculationSingleProcess> likelihood_;
-  const ParametrizablePhyloTree* tree_;
+  std::shared_ptr<const ParametrizablePhyloTree> tree_;
   const Alphabet* alphabet_;
   size_t nbSites_;
   size_t nbDistinctSites_;
@@ -78,7 +78,7 @@ private:
 public:
   MarginalAncestralReconstruction(std::shared_ptr<LikelihoodCalculationSingleProcess> drl) :
     likelihood_      (drl),
-    tree_            (&drl->getSubstitutionProcess().getParametrizablePhyloTree()),
+    tree_            (drl->getSubstitutionProcess().getParametrizablePhyloTree()),
     alphabet_        (drl->getStateMap().getAlphabet()),
     nbSites_         (drl->getNumberOfSites()),
     nbDistinctSites_ (drl->getNumberOfDistinctSites()),
