@@ -51,7 +51,9 @@ ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& proces
 {
   std::shared_ptr<const ParametrizablePhyloTree> ptree = process.getParametrizablePhyloTree();
   // if no model scenario, copy the basic tree
-  if (!process.getModelScenario())
+  auto scenario = process.getModelScenario();
+
+  if (!scenario)
   {
     auto itN = ptree->allNodesIterator();
     for (itN->start(); !itN->end(); itN->next())
@@ -76,9 +78,6 @@ ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& proces
 
     return;
   }
-
-  auto scenario = process.getModelScenario();
-
 
   // Map of the mrca of the MixedTransitionModel split in several paths
   std::map<std::shared_ptr<MixedTransitionModel>, uint> mMrca;

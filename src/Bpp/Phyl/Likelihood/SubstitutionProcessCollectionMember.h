@@ -113,7 +113,11 @@ private:
   size_t nRoot_;
 
   /**
+<<<<<<< HEAD
    * @brief the number of the set of model path, if needed.
+=======
+   * @brief The number of the set of model path.
+>>>>>>> 98b74832ea0ad0be437085e715c0c75ba6362513
    *
    */
 

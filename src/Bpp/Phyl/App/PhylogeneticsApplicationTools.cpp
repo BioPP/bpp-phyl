@@ -3230,7 +3230,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   // first output the scenarios
   for (const auto& scennum : vSce)
   {
-    const auto& scen = collection->getModelScenario(scennum);
+    const auto scen = collection->getModelScenario(scennum);
 
     out.endLine();
 

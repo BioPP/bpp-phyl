@@ -229,6 +229,7 @@ void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
   nPath_ = numPath;
 }
 
+
 std::shared_ptr<const ModelScenario> SubstitutionProcessCollectionMember::getModelScenario() const
 {
   return getCollection()->getModelScenario(nPath_);
