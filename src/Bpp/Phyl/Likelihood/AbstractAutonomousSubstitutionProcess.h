@@ -80,7 +80,7 @@ protected:
    * AbstractAutonomousSubstitutionProcess.
    *
    */
-  AbstractAutonomousSubstitutionProcess(const PhyloTree* tree = nullptr, FrequencySet* rootFrequencies = nullptr, const std::string& prefix = "");
+  AbstractAutonomousSubstitutionProcess(std::shared_ptr<const PhyloTree> tree = 0, std::shared_ptr<FrequencySet> rootFrequencies = 0, const std::string& prefix = "");
 
   /*
    * @brief Builds using a pointer towards a ParametrizablePhyloTree.
@@ -89,7 +89,7 @@ protected:
    *
    */
   
-  AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, FrequencySet* rootFrequencies = nullptr, const std::string& prefix = "");
+  AbstractAutonomousSubstitutionProcess(std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies = 0, const std::string& prefix = "");
 
   AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp);
 

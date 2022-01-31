@@ -163,7 +163,7 @@ public:
 
   static std::map<size_t, std::shared_ptr<PhyloTree> > getPhyloTrees(
     const std::map<std::string, std::string>& params,
-    const std::map<size_t, AlignedValuesContainer*>& mSeq,
+    const std::map<size_t, const AlignedValuesContainer*>& mSeq,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -262,7 +262,7 @@ public:
   static std::map<size_t, std::shared_ptr<BranchModel> > getBranchModels(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
-    const std::map<size_t, AlignedValuesContainer*>& mData,
+    const std::map<size_t, const AlignedValuesContainer*>& mData,
     const std::map<std::string, std::string>& params,
     std::map<std::string, std::string>& unparsedparams,
     const std::string& suffix = "",
@@ -311,7 +311,7 @@ public:
   static std::map<size_t, std::shared_ptr<FrequencySet> > getRootFrequencySets(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
-    const std::map<size_t, AlignedValuesContainer*>& mData,
+    const std::map<size_t, const AlignedValuesContainer*>& mData,
     const std::map<std::string, std::string>& params,
     std::map<std::string, std::string>& sharedparams,
     const std::string& suffix = "",
@@ -558,7 +558,7 @@ public:
     Context& context,
     SubstitutionProcessCollection& SPC,
     std::map<size_t, SequenceEvolution*>& mSeqEvol,
-    const std::map<size_t, AlignedValuesContainer*>& mData,
+    const std::map<size_t, const AlignedValuesContainer*>& mData,
     const std::map<std::string, std::string>& params,
     const string& suffix = "",
     bool suffixIsOptional = true,

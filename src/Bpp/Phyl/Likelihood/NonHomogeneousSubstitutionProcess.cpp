@@ -322,7 +322,7 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelSc
 AbstractAutonomousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
   std::shared_ptr<BranchModel> model,
   std::shared_ptr<DiscreteDistribution> rdist,
-  PhyloTree* tree,
+  std::shared_ptr<PhyloTree> tree,
   std::shared_ptr<FrequencySet> rootFreqs,
   shared_ptr<ModelScenario> scenario)
 {
@@ -352,7 +352,7 @@ AbstractAutonomousSubstitutionProcess* NonHomogeneousSubstitutionProcess::create
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
   std::shared_ptr<BranchModel> model,
   std::shared_ptr<DiscreteDistribution> rdist,
-  PhyloTree* tree,
+  std::shared_ptr<PhyloTree> tree,
   std::shared_ptr<FrequencySet> rootFreqs,
   const vector<string>& globalParameterNames,
   shared_ptr<ModelScenario> scenario)
@@ -422,7 +422,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
     }
   }
 
-  NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs->clone());
+  NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
 
   // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<unsigned int> ids = tree->getAllNodesIndexes();

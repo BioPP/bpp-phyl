@@ -60,7 +60,7 @@ using namespace std;
 int main() {
 
   Newick reader;
-  auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+  auto phyloTree = std::shared_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
 
   vector<string> seqNames= phyloTree->getAllLeavesNames();
   //-------------
@@ -71,7 +71,7 @@ int main() {
   auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
   std::vector<std::string> globalParameterNames({"T92.kappa"});
 
-  auto process=NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, rdist, phyloTree.get(), rootFreqs, globalParameterNames);
+  auto process=NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, rdist, phyloTree, rootFreqs, globalParameterNames);
 
   vector<double> thetas;
   for (unsigned int i = 0; i < process->getNumberOfModels(); ++i) {

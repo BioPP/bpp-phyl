@@ -242,7 +242,7 @@ int main(int argc, char** argv)
 
   // Read tree structure
   Newick reader;
-  auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
+  auto phyloTree = std::shared_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
 
 //  std::vector<std::string> globalParameterNames({"T92.kappa"});
 
@@ -259,7 +259,7 @@ int main(int argc, char** argv)
 
   // process->addModel(t92, Vuint({2}));
     
-  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree.get(), rootFreqs);//, scenario));
+  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree, rootFreqs);//, scenario));
 
   process->getParameters().printParameters(cerr);
   

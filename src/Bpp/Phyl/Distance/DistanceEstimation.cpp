@@ -99,9 +99,7 @@ void DistanceEstimation::computeMatrix()
   
       auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("("+names[i]+":0.01,"+names[j]+":0.01);", false, "", false, false));
 
-      std::unique_ptr<ParametrizablePhyloTree> partree(new ParametrizablePhyloTree(*phyloTree));
-
-      auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model_, rateDist_, partree.release());
+      auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model_, rateDist_, phyloTree);
       
       auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *sites_, *process);
 

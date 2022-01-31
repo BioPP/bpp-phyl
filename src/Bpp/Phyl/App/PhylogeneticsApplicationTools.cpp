@@ -119,6 +119,7 @@ using namespace bpp;
 #include <memory>
 #include <set>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -185,7 +186,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhyloTrees(
   const map<string, string>& params,
-  const map<size_t, AlignedValuesContainer*>& mSeq,
+  const map<size_t, const AlignedValuesContainer*>& mSeq,
   map<string, string>& unparsedParams,
   const string& prefix,
   const string& suffix,
@@ -610,7 +611,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTool
 map<size_t, std::shared_ptr<BranchModel> > PhylogeneticsApplicationTools::getBranchModels(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, AlignedValuesContainer*>& mData,
+  const map<size_t, const AlignedValuesContainer*>& mData,
   const map<string, string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -778,7 +779,7 @@ std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getRootFrequencySet
 map<size_t, std::shared_ptr<FrequencySet> > PhylogeneticsApplicationTools::getRootFrequencySets(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, AlignedValuesContainer*>& mData,
+  const map<size_t, const AlignedValuesContainer*>& mData,
   const map<string, string>& params,
   map<string, string>& sharedparams,
   const string& suffix,
@@ -1121,197 +1122,69 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
   bool verbose,
   int warn)
 {
-  AutonomousSubstitutionProcess* SP = 0;
-
+  // Read files with same process as SubstitutionCollection
+  
   map<string, string> unparsedParams;
 
-  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, warn);
-  ApplicationTools::displayResult("Heterogeneous process", nhOpt);
+  map<size_t, const AlignedValuesContainer*> mData;
+  mData[1]=pData;
 
-  // ////////////////////////
-  // Rates
-
-  shared_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
-
-  BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
-  bIO.setGeneticCode(gCode);
-
-
-  // /////////////////////////
-  // / Models
-
-  string tmpDesc;
-
-  if (nhOpt == "no")
+  map<size_t, std::shared_ptr<PhyloTree> > mTree;
+  size_t i=1;
+  for (auto it:vTree)
   {
-    // Homogeneous & stationary models
+    mTree[i++]=std::shared_ptr<PhyloTree>(it);
 
-    shared_ptr<BranchModel> tmp(getBranchModel(alphabet, gCode, pData, params, unparsedParams));
-
-    if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName() == "Constant")) // first test is for Markov-modulated Markov model!
-      SP = new SimpleSubstitutionProcess(tmp, vTree[0]);
-    else
-      SP = new RateAcrossSitesSubstitutionProcess(tmp, rDist, vTree[0]);
   }
+  
+  map<size_t, std::shared_ptr<BranchModel> >  mMod=getBranchModels(alphabet, gCode, mData, params, unparsedParams, suffix, suffixIsOptional, verbose, warn);
+  
+  map<size_t, std::shared_ptr<FrequencySet> > mRootFreq=getRootFrequencySets(alphabet, gCode, mData, params, unparsedParams, suffix, suffixIsOptional, verbose, warn);
+  
+  map<size_t, std::shared_ptr<DiscreteDistribution> > mDist=getRateDistributions(params, suffix, suffixIsOptional, verbose);
+  
+  map<size_t, std::shared_ptr<ModelPath> > mPath = getModelPaths(params, mMod, suffix, suffixIsOptional, verbose, warn);
 
-  // Non-homogeneous models
-  else
+  map<size_t, std::shared_ptr<ModelScenario> > mScen = getModelScenarios(params, mPath, mMod, suffix, suffixIsOptional, verbose, warn);
+
+  std::unique_ptr<SubstitutionProcessCollection> SPC(getSubstitutionProcessCollection(alphabet, gCode, mTree,
+                                                                                      mMod,
+                                                                                      mRootFreq,
+                                                                                      mDist,
+                                                                                      mScen,
+                                                                                      params,
+                                                                                      unparsedParams,
+                                                                                      suffix,
+                                                                                      suffixIsOptional,
+                                                                                      verbose,
+                                                                                      warn));
+
+  // Get relevant objects from Collection to build an AutonomousSubstitutionProcess
+  AutonomousSubstitutionProcess* ASP;
+
+  auto psNum = SPC->getSubstitutionProcessNumbers();
+  if (psNum.size()==0)
+    throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess : missing process in parameters.");
+
+  size_t maxps = *max_element(psNum.begin(), psNum.end());
+
+  SubstitutionProcessCollectionMember& procm = SPC->getSubstitutionProcess(maxps);
+
+  auto distproc = procm.getRateDistribution();
+
+  auto rootproc = procm.getRootFrequencySet();
+
+  auto scen = procm.getModelScenario();
+
+  auto vmodnb = procm.getModelNumbers();
+
+  if (vmodnb.size()==1)
   {
-    string fName = (nhOpt == "one_per_branch" ? "model" : "model1");
-
-    tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
-    shared_ptr<BranchModel> tmp(bIO.readBranchModel(alphabet, tmpDesc, pData, true));
-
-
-    // ////////////////////////////////////
-    // Root frequencies
-
-    bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, warn);
-
-    shared_ptr<FrequencySet> rootFrequencies;
-
-    if (!stationarity)
-    {
-      // Markov Modulated  models
-      vector<double> rateFreqs;
-      if (tmp->getNumberOfStates() != alphabet->getSize())
-      {
-        // Markov-Modulated Markov Model...
-        size_t n = static_cast<size_t>(tmp->getNumberOfStates() / alphabet->getSize());
-        rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-      }
-
-      // MVA models
-
-      string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
-      if (freqDescription.substr(0, 10) == "MVAprotein")
-      {
-        if (dynamic_cast<Coala*>(tmp.get()))
-          dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
-        else
-          throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
-      }
-      else
-        rootFrequencies = getRootFrequencySet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn);
-
-      stationarity = !rootFrequencies.get();
-    }
-
-    ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
-
-    // /////////////////////////////////////
-    // One_per_branch
-
-    if (nhOpt == "one_per_branch")
-    {
-      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
-
-      for (unsigned int i = 0; i < globalParameters.size(); i++)
-      {
-        ApplicationTools::displayResult("Global parameter", globalParameters[i]);
-      }
-
-      SP = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-        tmp,
-        rDist,
-        vTree[0],
-        rootFrequencies,
-        globalParameters);
-    }
-    else
-    {
-      // //////////////////////////////
-      // General
-
-      size_t nbModels = ApplicationTools::getParameter<size_t>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, warn);
-
-      if (nbModels == 0)
-        throw Exception("The number of models can't be 0 !");
-
-      if (verbose)
-        ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
-
-      // //////////////////////////////////////
-      // Now parse all models:
-
-      bIO.setVerbose(true);
-
-      SP = new NonHomogeneousSubstitutionProcess(rDist, vTree[0], rootFrequencies->clone());
-
-      NonHomogeneousSubstitutionProcess* nhSP = dynamic_cast<NonHomogeneousSubstitutionProcess*>(SP);
-
-      if (SP->getParametrizablePhyloTree())
-      {
-      for (size_t i = 0; i < nbModels; i++)
-      {
-        string prefix = "model" + TextTools::toString(i + 1);
-        string modelDesc;
-        modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
-
-        
-        shared_ptr<BranchModel> model(bIO.readBranchModel(alphabet, modelDesc, pData, true));
-        map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
-
-        for (auto& it : tmpUnparsedParameterValues)
-        {
-          unparsedParams[it.first + "_" + TextTools::toString(i + 1)] = it.second;
-        }
-
-        vector<unsigned int> nodesId;
-
-        auto snodesid = prefix + ".nodes_id";
-        auto descnodes = ApplicationTools::getStringParameter(snodesid, params, "", suffix, suffixIsOptional, warn);
-
-        auto tree = SP->getParametrizablePhyloTree();
-        if (descnodes == "All")
-        {
-          nodesId = tree->getSubtreeEdges(tree->getRootIndex());
-        }
-        else if (descnodes == "Leaves")
-        {
-          nodesId = tree->getLeavesUnderNode(tree->getRootIndex());
-        }
-        else if (descnodes == "NoLeaves")
-        {
-          auto allIds = tree->getSubtreeEdges(tree->getRootIndex());
-          auto leavesId = tree->getLeavesUnderNode(tree->getRootIndex());
-          VectorTools::diff(allIds, leavesId, nodesId);
-        }
-        else
-          nodesId = ApplicationTools::getVectorParameter<unsigned int>(snodesid, params, ',', ':', "", suffix, suffixIsOptional, warn);
-
-        if (verbose)
-          ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
-
-        nhSP->addModel(model, nodesId);
-      }
-
-      nhSP->isFullySetUp();
-      }
-    }
+    if (!distproc)
+      ASP = new SimpleSubstitutionProcess(procm.getModel(1), procm.getParametrizablePhyloTree(), rootproc);
   }
-
-
-  // ////// Aliasing
-  // Finally check parameter aliasing:
-
-  string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, warn);
-
-  StringTokenizer st(aliasDesc, ",");
-  while (st.hasMoreToken())
-  {
-    string alias = st.nextToken();
-    string::size_type index = alias.find("->");
-    if (index == string::npos)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess. Bad alias syntax, should contain `->' symbol: " + alias);
-    string p1 = alias.substr(0, index);
-    string p2 = alias.substr(index + 2);
-    unparsedParams[p1] = p2;
-  }
-
-  SP->aliasParameters(unparsedParams, verbose);
-
-  return SP;
+  
+  return ASP;
 }
 
 /************************************************************/
@@ -1954,7 +1827,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   Context& context,
   SubstitutionProcessCollection& SPC,
   map<size_t, SequenceEvolution*>& mSeqEvol,
-  const map<size_t, AlignedValuesContainer*>& mData,
+  const map<size_t, const AlignedValuesContainer*>& mData,
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -2050,7 +1923,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
       continue;
     }
 
-    const AlignedValuesContainer* data = dynamic_cast<const AlignedValuesContainer*>(mData.find(nData)->second);
+    auto data = mData.find(nData)->second;
 
     if (!data)
     {

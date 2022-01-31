@@ -507,9 +507,8 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
     std::shared_ptr<BranchModel> model(estimationMethod.getModel().clone());
     std::shared_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
     auto phyloT = PhyloTreeTools::buildFromTreeTemplate(*tree);
-    ParametrizablePhyloTree partree(phyloT.get());
 
-    auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, &partree);
+    auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, phyloT);
       
     auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context,
                                                                     *estimationMethod.getData(), *process);

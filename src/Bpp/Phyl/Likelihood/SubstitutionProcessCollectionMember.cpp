@@ -103,6 +103,11 @@ inline std::shared_ptr<const BranchModel> SubstitutionProcessCollectionMember::g
   return getCollection()->getModel(n);
 }
 
+std::shared_ptr<BranchModel> SubstitutionProcessCollectionMember::getModel(size_t n)
+{
+  return getCollection()->getModel(n);
+}
+
 inline bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters)
 {
   return getCollection()->matchParametersValues(parameters);
@@ -179,7 +184,15 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
 }
 
 
-inline std::shared_ptr<const FrequencySet> SubstitutionProcessCollectionMember::getRootFrequencySet() const
+std::shared_ptr<const FrequencySet> SubstitutionProcessCollectionMember::getRootFrequencySet() const
+{
+  if (isStationary())
+    return nullptr;
+  else
+    return getCollection()->shareFrequencies(nRoot_);
+}
+
+std::shared_ptr<FrequencySet> SubstitutionProcessCollectionMember::getRootFrequencySet()
 {
   if (isStationary())
     return nullptr;
@@ -237,6 +250,11 @@ std::shared_ptr<const ModelScenario> SubstitutionProcessCollectionMember::getMod
 
 
 std::shared_ptr<const ParametrizablePhyloTree> SubstitutionProcessCollectionMember::getParametrizablePhyloTree() const
+{
+  return getCollection()->hasTreeNumber(nTree_)?getCollection()->getTree(nTree_):0;
+}
+
+std::shared_ptr<ParametrizablePhyloTree> SubstitutionProcessCollectionMember::getParametrizablePhyloTree()
 {
   return getCollection()->hasTreeNumber(nTree_)?getCollection()->getTree(nTree_):0;
 }

@@ -44,9 +44,9 @@
 using namespace bpp;
 using namespace std;
 
-AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const PhyloTree* tree, FrequencySet* rootFrequencies, const string& prefix) :
+AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(std::shared_ptr<const PhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies, const string& prefix) :
   AbstractParameterAliasable(prefix),
-  pTree_(nullptr),
+  pTree_(0),
   rootFrequencies_(rootFrequencies),
   modelScenario_(0)
 {
@@ -56,7 +56,7 @@ AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(con
     addParameters_(rootFrequencies_->getParameters());
 }
 
-AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(ParametrizablePhyloTree* tree, FrequencySet* rootFrequencies, const string& prefix) :
+AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),
   rootFrequencies_(rootFrequencies),

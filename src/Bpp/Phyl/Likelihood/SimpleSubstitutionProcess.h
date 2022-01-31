@@ -59,9 +59,9 @@ protected:
   std::shared_ptr<BranchModel> model_;
 
 public:
-  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, const PhyloTree* tree = nullptr, FrequencySet* rootFrequencies = nullptr);
+  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, std::shared_ptr<const PhyloTree> tree = 0, std::shared_ptr<FrequencySet> rootFrequencies = 0);
 
-  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree, FrequencySet* rootFrequencies = nullptr);
+  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies = 0);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 

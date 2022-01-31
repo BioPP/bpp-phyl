@@ -147,7 +147,7 @@ public:
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
 
-  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, const PhyloTree* tree = nullptr, FrequencySet* rootFreqs = nullptr) :
+  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, std::shared_ptr<const PhyloTree> tree = 0, std::shared_ptr<FrequencySet> rootFreqs = 0) :
     AbstractParameterAliasable(""),
     AbstractAutonomousSubstitutionProcess(tree, rootFreqs),
     modelSet_(),
@@ -169,7 +169,7 @@ public:
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
 
-  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, ParametrizablePhyloTree* tree, FrequencySet* rootFreqs = nullptr) :
+  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFreqs = 0) :
     AbstractParameterAliasable(""),
     AbstractAutonomousSubstitutionProcess(tree, rootFreqs),
     modelSet_(),
@@ -487,7 +487,7 @@ public:
   static AbstractAutonomousSubstitutionProcess* createHomogeneousSubstitutionProcess(
     std::shared_ptr<BranchModel> model,
     std::shared_ptr<DiscreteDistribution> rdist,
-    PhyloTree* tree,
+    std::shared_ptr<PhyloTree> tree,
     std::shared_ptr<FrequencySet> rootFreqs = 0,
     std::shared_ptr<ModelScenario> scenario = 0
     );
@@ -511,7 +511,7 @@ public:
   static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
     std::shared_ptr<BranchModel> model,
     std::shared_ptr<DiscreteDistribution> rdist,
-    PhyloTree* tree,
+    std::shared_ptr<PhyloTree> tree,
     std::shared_ptr<FrequencySet> rootFreqs,
     const std::vector<std::string>& globalParameterNames,
     std::shared_ptr<ModelScenario> scenario = 0

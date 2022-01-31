@@ -207,6 +207,8 @@ public:
 
   std::shared_ptr<const BranchModel> getModel(size_t n) const;
 
+  std::shared_ptr<BranchModel> getModel(size_t n);
+
   std::vector<size_t> getModelNumbers() const;
 
   /**
@@ -282,6 +284,8 @@ public:
 
   std::shared_ptr<const FrequencySet> getRootFrequencySet() const;
 
+  std::shared_ptr<FrequencySet> getRootFrequencySet();
+
   /*
    * @brief Set the Set of Model Path
    * @param numPath the index of the frequencies in the collection.
@@ -342,6 +346,8 @@ public:
    */
 
   std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const;
+
+  std::shared_ptr<ParametrizablePhyloTree> getParametrizablePhyloTree();
 
   size_t getTreeNumber() const { return nTree_; }
 

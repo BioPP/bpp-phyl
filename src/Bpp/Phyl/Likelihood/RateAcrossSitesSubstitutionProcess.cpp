@@ -48,8 +48,8 @@ using namespace std;
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
   shared_ptr<BranchModel> model,
   shared_ptr<DiscreteDistribution> rdist,
-  const PhyloTree* tree,
-  FrequencySet* rootFrequencies) :
+  std::shared_ptr<const PhyloTree> tree,
+  std::shared_ptr<FrequencySet> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model),
@@ -69,8 +69,8 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
   shared_ptr<BranchModel> model,
   shared_ptr<DiscreteDistribution> rdist,
-  ParametrizablePhyloTree* tree,
-  FrequencySet* rootFrequencies) :
+  std::shared_ptr<ParametrizablePhyloTree> tree,
+  std::shared_ptr<FrequencySet> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model),
