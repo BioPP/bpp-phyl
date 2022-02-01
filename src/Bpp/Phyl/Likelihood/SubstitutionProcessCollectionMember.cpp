@@ -124,7 +124,12 @@ std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
   return vMN;
 }
 
-inline std::shared_ptr<const DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution() const
+ std::shared_ptr<const DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution() const
+{
+  return getCollection()->getRateDistribution(nDist_);
+}
+
+ std::shared_ptr<DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution()
 {
   return getCollection()->getRateDistribution(nDist_);
 }
@@ -248,6 +253,10 @@ std::shared_ptr<const ModelScenario> SubstitutionProcessCollectionMember::getMod
   return getCollection()->getModelScenario(nPath_);
 }
 
+std::shared_ptr<ModelScenario> SubstitutionProcessCollectionMember::getModelScenario()
+{
+  return getCollection()->getModelScenario(nPath_);
+}
 
 std::shared_ptr<const ParametrizablePhyloTree> SubstitutionProcessCollectionMember::getParametrizablePhyloTree() const
 {

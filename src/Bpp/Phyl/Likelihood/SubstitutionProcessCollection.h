@@ -386,6 +386,14 @@ public:
       return mModelScenario_.at(numPath);
   }
 
+  std::shared_ptr<ModelScenario> getModelScenario(size_t numPath)
+  {
+    if (!hasModelScenario(numPath))
+      return 0;
+    else
+      return mModelScenario_.at(numPath);
+  }
+
   std::vector<size_t> getScenarioNumbers() const
   {
     std::vector<size_t> vkeys;

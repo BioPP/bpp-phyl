@@ -269,6 +269,8 @@ public:
 
   std::shared_ptr<const DiscreteDistribution> getRateDistribution() const;
 
+  std::shared_ptr<DiscreteDistribution> getRateDistribution();
+
   const size_t getRateDistributionNumber() const { return nDist_; }
 
   /**
@@ -299,6 +301,8 @@ public:
   const size_t getModelScenarioNumber() const { return nPath_; }
 
   std::shared_ptr<const ModelScenario> getModelScenario() const;
+
+  std::shared_ptr<ModelScenario> getModelScenario();
 
   /**
    * @brief AbsractParametrizable interface

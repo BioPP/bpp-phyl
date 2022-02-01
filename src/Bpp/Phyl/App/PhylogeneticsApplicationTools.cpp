@@ -1182,10 +1182,26 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
   {
     if (!distproc)
       ASP = new SimpleSubstitutionProcess(procm.getModel(1), procm.getParametrizablePhyloTree(), rootproc);
+    else
+      ASP = new RateAcrossSitesSubstitutionProcess(procm.getModel(1), procm.getRateDistribution(), procm.getParametrizablePhyloTree(), rootproc);
+  }
+  else
+  {
+    auto NHSP = new NonHomogeneousSubstitutionProcess(procm.getRateDistribution(), procm.getParametrizablePhyloTree(), rootproc);
+    ASP=NHSP;
+    
+    for (auto nb:vmodnb)
+      NHSP->addModel(procm.getModel(nb), procm.getNodesWithModel(nb));
+
+    if (!NHSP->isFullySetUp())
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess: process not fully set up.");
   }
   
+  ASP->setModelScenario(procm.getModelScenario());
+
   return ASP;
 }
+
 
 /************************************************************/
 

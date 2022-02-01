@@ -292,6 +292,8 @@ public:
       // Open file in specified mode
 
       std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out | std::ios::app));
+      if (!output)
+        throw Exception("Problem opening file " + path + "in write Tree.");
       writeTree(tree, output);
       output.close();
     }
@@ -324,6 +326,8 @@ you have the proper authorizations? ";
         // Open file in specified mode
 
         std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out | std::ios::app));
+        if (!output)
+          throw Exception("Problem opening file " + path + "in writePhyloTree.");
         writePhyloTree(tree, output);
         output.close();
       }
