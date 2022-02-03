@@ -158,6 +158,11 @@ public:
 
   Vuint getSubmodelNumbers(const std::string& desc) const;
 
+  void computeFrequencies(bool yn)
+  {
+    throw Exception("CompoundTM::ComputeFrequencies not implemented.");
+  } 
+
   /**
    * @brief Returns the probability of a specific model from the
    * mixture
