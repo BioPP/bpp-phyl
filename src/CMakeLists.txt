@@ -181,6 +181,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/YNGP_M7.cpp
   Bpp/Phyl/Model/Codon/YNGP_M8.cpp
   Bpp/Phyl/Model/Codon/YNGP_M9.cpp
+  Bpp/Phyl/Model/CompoundTransitionModel.cpp
   Bpp/Phyl/Model/EquiprobableSubstitutionModel.cpp
   Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.cpp
   Bpp/Phyl/Model/FrequencySet/FrequencySet.cpp
