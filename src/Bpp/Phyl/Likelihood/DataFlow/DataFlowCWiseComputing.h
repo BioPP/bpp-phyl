@@ -121,7 +121,7 @@ public:
   }
 
   CWiseApply (NodeRefVec&& deps, const Dimension<R>& dim)
-    : Value<R>(std::move (deps)), targetDimension_ (dim)
+    : Value<R>(std::move (deps)), targetDimension_ (dim), bppLik_(dim.cols)
   {
     this->accessValueMutable().resize(dim.rows, dim.cols);
   }
@@ -201,11 +201,26 @@ private:
     const auto& func = accessValueConstCast<F>(*this->dependency (1));
 
     for (auto i = 0; i < x0.cols(); i++)
-    {
-      result.col(i) = func(x0.col(i));
-    }
+      bppLik_[(size_t)i]=func(x0.col(i));
+
+    copyBppToEigen(bppLik_, result);
+    
+#ifdef DEBUG
+    std::cerr << "=== Function Apply === " << this << std::endl;
+    std::cerr << "x0= " << x0 << std::endl;
+    std::cerr << "res=" << result << std::endl;
+    std::cerr << "=== end Function Apply === " << this << std::endl << std::endl;
+#endif
+
   }
 
+  /**
+   *@brief For computation purpose
+   *
+   */
+  
+  std::vector<VectorLik> bppLik_;
+  
   Dimension<R> targetDimension_;
 };
 
@@ -1044,6 +1059,11 @@ private:
     const auto& x1 = accessValueConstCast<V>(*this->dependency (1));
 
     result = [x0, x1](const VectorLik& x)->VectorLik {return cwise(x0(x)) * cwise(x1(x));};
+
+#ifdef DEBUG
+    std::cerr << "=== Mul Transition Function X Transition Function === " << this << std::endl;
+    std::cerr << "=== end Mul Transition Function X Transition Function  === " << this << std::endl << std::endl;
+#endif
   }
 
   template<class U, class V>
@@ -1056,7 +1076,13 @@ private:
     const auto& x1 = accessValueConstCast<V>(*this->dependency (1));
 
     result = [x0, x1](const VectorLik& x)->VectorLik {return cwise(x0(x)) * cwise(x1);};
-  }
+
+#ifdef DEBUG
+    std::cerr << "=== Mul Transition Function X Normal === " << this << std::endl;
+    std::cerr << "x1= "     << x1 << std::endl;
+    std::cerr << "=== end Mul Transition Function  X Normal  === " << this << std::endl << std::endl;
+#endif
+}
 
   template<class U, class V>
   typename std::enable_if<!std::is_same<U, TransitionFunction>::value && std::is_same<V, TransitionFunction>::value, void>::type
@@ -1068,7 +1094,13 @@ private:
     const auto& x1 = accessValueConstCast<V>(*this->dependency (1));
 
     result = [x0, x1](const VectorLik& x)->VectorLik {return cwise(x1(x)) * cwise(x0);};
-  }
+
+#ifdef DEBUG
+    std::cerr << "=== Mul Normal X Transition Function === " << this << std::endl;
+    std::cerr << "x0= "     << x0 << std::endl;
+    std::cerr << "=== end Mul Normal X Transition Function  === " << this << std::endl << std::endl;
+#endif
+}
 
   Dimension<R> targetDimension_;
 };
@@ -1994,7 +2026,6 @@ private:
 
       result = product.log () + double(m.exponent_part() * p.sum()) * ExtendedFloat::ln_radix;
 #ifdef DEBUG
-      std::cerr << "PRODUCT= " << product << "* 2^" << p.sum() * m.exponent_part() << std::endl;
       std::cerr << "RESULT log= " << result << std::endl;
 #endif
     }

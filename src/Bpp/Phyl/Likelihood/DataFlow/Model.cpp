@@ -351,18 +351,20 @@ void TransitionFunctionFromModel::compute ()
 
   auto& r = this->accessValueMutable ();
 
-  const auto& dim = targetDimension_;
+  auto dimin = VectorDimension(Eigen::Dynamic);//ttargetDimension_;
+  auto dimout = Dimension<VectorLik>(Eigen::Dynamic, 1);//ttargetDimension_;
 
-  r = [model, brlen, nDeriv, dim](const VectorLik& values)
+  r = [model, brlen, nDeriv, dimin, dimout](const VectorLik& values)
       {
         switch (nDeriv)
         {
         case 0:
-          return numeric::convert<VectorLik, Eigen::VectorXd>(model->Lik_t(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen), dim);
+          return numeric::convert(model->Lik_t(numeric::convert<Eigen::Dynamic, 1>(values, dimin), brlen), dimout);
         case 1:
-          return numeric::convert<VectorLik, Eigen::VectorXd>(model->dLik_dt(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen), dim);
+          return numeric::convert(model->dLik_dt(numeric::convert<Eigen::Dynamic, 1>(values, dimin), brlen), dimout);
         case 2:
-          return numeric::convert<VectorLik, Eigen::VectorXd>(model->d2Lik_dt2(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen), dim);
+          return numeric::convert(model->d2Lik_dt2(numeric::convert<Eigen::Dynamic, 1>(values, dimin), brlen), dimout);
+//          return numeric::convert<VectorLik, Eigen::VectorXd>(model->d2Lik_dt2(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen), dim);
         default:
           throw Exception("TransitionFunctionFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
         }
