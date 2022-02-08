@@ -233,7 +233,7 @@ public:
   }
 
 private:
-  /*
+  /**
    * @brief Fills the res vector of the likelihoods of the counts
    * given ancestral states & transition matrix.
    *
@@ -249,6 +249,13 @@ private:
     return (n == 0 || n == 1) ? 1 : factorial(n - 1) * n;
   }
 
+  /**
+   * @brief Compute the log of the normalization term for the
+   * multinomial for any count, and keeps it in a map to avoid
+   * recalcultation.
+   *
+   */
+  
   double getFact_(const Eigen::VectorXd& counts) const
   {
     auto it = mapFact_.find(counts);
@@ -256,7 +263,7 @@ private:
     {
       auto lsto(std::lgamma(counts.sum() + 1));
       auto lr((counts.array() + 1.).lgamma().sum());
-      auto fact = std::exp(lsto - lr);
+      auto fact = lsto - lr;
 
       mapFact_[counts] = fact;
       return fact;
