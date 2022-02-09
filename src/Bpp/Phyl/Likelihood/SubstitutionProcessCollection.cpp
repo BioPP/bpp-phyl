@@ -303,8 +303,9 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   if (mSubProcess_.find(nProc) != mSubProcess_.end())
     throw BadIntegerException("Already assigned substitution process", (int)nProc);
 
-  if (!treeColl_.hasObject(nTree))
+  if (nTree!=0 && !treeColl_.hasObject(nTree))
     throw BadIntegerException("Wrong Tree number", (int)nTree);
+
   if (!distColl_.hasObject(nRate))
     throw BadIntegerException("Wrong Rate distribution number", (int)nRate);
 
