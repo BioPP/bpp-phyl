@@ -84,7 +84,10 @@ public:
     nbDistinctSites_ (drl->getNumberOfDistinctSites()),
   nbStates_        (drl->getStateMap().getNumberOfModelStates()),
   rootPatternLinks_(drl->getRootArrayPositions())
-  {}
+  {
+    if (!tree_)
+      throw Exception("MarginalAncestralReconstruction::MarginalAncestralReconstruction: missing ParametrizablePhyloTree.");
+  }
 
   MarginalAncestralReconstruction(const MarginalAncestralReconstruction& masr) :
     likelihood_      (masr.likelihood_),
@@ -94,7 +97,8 @@ public:
     nbDistinctSites_ (masr.nbDistinctSites_),
   nbStates_        (masr.nbStates_),
   rootPatternLinks_(masr.rootPatternLinks_)
-  {}
+  {
+  }
 
   MarginalAncestralReconstruction& operator=(const MarginalAncestralReconstruction& masr)
   {

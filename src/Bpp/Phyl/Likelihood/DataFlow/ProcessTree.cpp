@@ -272,6 +272,9 @@ std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(Context& context, cons
 {
   auto parTree = process.getParametrizablePhyloTree();
 
+  if (!parTree)
+    throw Exception("ProcessTree::makeProcessTree: missing Tree in process.");
+  
   auto modelColl = makeConfiguredModelCollection(context, process, parList);
 
   ProcessTree pt(context, *parTree, parList, suff); // tree with only branches

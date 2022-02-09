@@ -29,6 +29,8 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
+  if (!process_.getParametrizablePhyloTree())
+    throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
   setPatterns_();
   makeProcessNodes_();
 
@@ -44,6 +46,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
+  if (!process_.getParametrizablePhyloTree())
+    throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
+
   makeProcessNodes_();
 
   // Default Derivate
@@ -58,6 +63,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
+  if (!process_.getParametrizablePhyloTree())
+    throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
+
   setPatterns_();
   makeProcessNodes_(collection, nProcess);
 
@@ -508,7 +516,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   auto nbState = Eigen::Index(stateMap.getNumberOfModelStates());
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbDistSite);
 
-  const auto& phylotree = process_.getParametrizablePhyloTree();
+  const auto phylotree = process_.getParametrizablePhyloTree();
 
   ValueRef<RowLik> siteLikelihoodsNode;
 

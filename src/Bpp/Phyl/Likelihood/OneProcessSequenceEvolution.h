@@ -129,7 +129,10 @@ public:
    * @return The tree of this OneProcessSequenceEvolution object.
    */
 
-  std::shared_ptr<const ParametrizablePhyloTree> getTree() const { return subsProc_->getParametrizablePhyloTree(); }
+  std::shared_ptr<const ParametrizablePhyloTree> getTree() const
+  {
+    return subsProc_->getParametrizablePhyloTree();
+  }
 
   void fireParameterChanged(const ParameterList& pl)
   {

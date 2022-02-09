@@ -134,7 +134,10 @@ public:
 
   ParameterList getBranchLengthParameters(bool independent) const
   {
-    return getParametrizablePhyloTree()->getParameters();
+    if (getParametrizablePhyloTree())
+      return getParametrizablePhyloTree()->getParameters();
+    else
+      return ParameterList();
   }
 
   const std::vector<double>& getRootFrequencies() const

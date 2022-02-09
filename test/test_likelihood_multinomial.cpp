@@ -98,11 +98,13 @@ int main() {
 
   
   // internal leaves
-  process->addModel(t92, {2,4}); // internal leaves
-  process->addModel(multimodel, {0,1,3,5});
-  
+  process->addModel(t92, {2,4}); // internal branches
+  process->addModel(multimodel, {0,1,3,5}); // leaves
+
   if (!process->isFullySetUp())
     throw Exception("test_likelihood_multinomial: process not fully set up.");
+
+  process->getParameters().printParameters(cerr);
 
   process->aliasParameters("MultinomialFrom.T92.kappa_2","T92.kappa_1");
   process->aliasParameters("MultinomialFrom.T92.theta_2","T92.theta_1");

@@ -46,10 +46,14 @@ using namespace bpp;
 using namespace std;
 
 ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& process) :
-  BaseTree(process.getModelScenario() ? 0 : process.getParametrizablePhyloTree()->getGraph()),
+  BaseTree(process.getModelScenario() ? 0 :
+           (process.getParametrizablePhyloTree()?process.getParametrizablePhyloTree()->getGraph():0)),
   process_(process)
 {
   std::shared_ptr<const ParametrizablePhyloTree> ptree = process.getParametrizablePhyloTree();
+  if (!ptree)
+    throw Exception("ProcessComputationTree::ProcessComputationTree: missing tree.");
+  
   // if no model scenario, copy the basic tree
   auto scenario = process.getModelScenario();
 

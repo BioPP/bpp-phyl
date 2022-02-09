@@ -1230,14 +1230,21 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   // ///
   // tree number
 
+  size_t numTree;
+  
   if (args.find("tree") == args.end())
-    throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A tree number is compulsory.");
+  {
+    if (warn)
+      ApplicationTools::displayWarning("Warning, missing tree for  process name: " + procName);
+    numTree=0;
+  }
+  else
+  {
+    numTree = (size_t) ApplicationTools::getIntParameter("tree", args, 1, "", true, warn);
 
-  size_t numTree = (size_t) ApplicationTools::getIntParameter("tree", args, 1, "", true, warn);
-
-  if (!SubProColl.hasTreeNumber(numTree))
-    throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown tree number", (int)numTree);
-
+    if (numTree!=0 && !SubProColl.hasTreeNumber(numTree))
+      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown tree number", (int)numTree);
+  }
 
   // /////
   // rate number
@@ -1329,11 +1336,14 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (!SubProColl.hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int>(numModel));
 
-    vector<uint> vNodes = SubProColl.getTree(numTree)->getAllEdgesIndexes();
-
     map<size_t, vector<unsigned int> > mModBr;
-    mModBr[numModel] = vNodes;
 
+    if (numTree!=0)
+    {
+      vector<uint> vNodes = SubProColl.getTree(numTree)->getAllEdgesIndexes();
+      mModBr[numModel] = vNodes;
+    }
+    
     if (verbose)
     {
       ApplicationTools::displayResult("Process type", string("Homogeneous"));
@@ -1361,13 +1371,16 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   else if ((procName == "Nonhomogeneous") ||  (procName == "NonHomogeneous"))
   {
+    if (numTree==0)
+      throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : missing tree number for process " + TextTools::toString(procName));
+
     size_t indModel = 1;
     map<size_t, vector<unsigned int> > mModBr;
 
     while (args.find("model" + TextTools::toString(indModel)) != args.end())
     {
       size_t numModel = (size_t) ApplicationTools::getIntParameter("model" + TextTools::toString(indModel), args, 1, "", true, warn);
-
+      
       if (mModBr.find(numModel) != mModBr.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
 
@@ -1376,6 +1389,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       auto snodesid = "model" + TextTools::toString(indModel)  + ".nodes_id";
       auto descnodes = ApplicationTools::getStringParameter(snodesid, args, "", "", true, warn);
 
+        
       auto tree = SubProColl.getTree(numTree);
       if (descnodes == "All")
       {
@@ -1421,6 +1435,9 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   }
   else if (procName == "OnePerBranch")
   {
+    if (numTree==0)
+      throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : missing tree number for process " + TextTools::toString(procName));
+
     if (args.find("model") == args.end())
       throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A model number is compulsory.");
 
@@ -1490,7 +1507,8 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
   for (const auto& itt : mTree)
   {
-    SPC->addTree(std::make_shared<ParametrizablePhyloTree>(*(itt.second)), itt.first);
+    if (itt.second)
+      SPC->addTree(std::make_shared<ParametrizablePhyloTree>(*(itt.second)), itt.first);
   }
 
   // ///////////////////////

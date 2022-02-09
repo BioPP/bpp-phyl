@@ -141,7 +141,10 @@ ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters
 
 ParameterList SubstitutionProcessCollectionMember::getBranchLengthParameters(bool independent) const
 {
-  return getCollection()->getBranchLengthParameters(nTree_, independent);
+  if (nTree_!=0)
+    return getCollection()->getBranchLengthParameters(nTree_, independent);
+  else
+    return ParameterList();
 }
 
 ParameterList SubstitutionProcessCollectionMember::getRootFrequenciesParameters(bool independent) const
@@ -320,6 +323,14 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
 
 bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
 {
+  if (!getParametrizablePhyloTree())
+  {
+    if (throwEx)
+      throw Exception("SubstitutionProcessCollectionMember::checkOrphanNodes(). No Tree");
+    
+    return true;
+  }
+  
   vector<unsigned int> ids = getParametrizablePhyloTree()->getAllNodesIndexes();
   unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
   for (size_t i = 0; i < ids.size(); i++)
@@ -336,6 +347,14 @@ bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
 
 bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
 {
+  if (!getParametrizablePhyloTree())
+  {
+    if (throwEx)
+      throw Exception("SubstitutionProcessCollectionMember::checkUnknownNodes(). No Tree");
+    
+    return true;
+  }
+  
   vector<unsigned int> ids = getParametrizablePhyloTree()->getAllNodesIndexes();
 
   unsigned int id;
