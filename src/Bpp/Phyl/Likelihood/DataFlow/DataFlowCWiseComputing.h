@@ -121,7 +121,7 @@ public:
   }
 
   CWiseApply (NodeRefVec&& deps, const Dimension<R>& dim)
-    : Value<R>(std::move (deps)), targetDimension_ (dim), bppLik_(dim.cols)
+    : Value<R>(std::move (deps)), bppLik_(dim.cols), targetDimension_ (dim)
   {
     this->accessValueMutable().resize(dim.rows, dim.cols);
   }

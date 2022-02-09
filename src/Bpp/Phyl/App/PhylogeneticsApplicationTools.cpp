@@ -1507,8 +1507,9 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
   for (const auto& itt : mTree)
   {
-    if (itt.second)
+    if (itt.second) {
       SPC->addTree(std::make_shared<ParametrizablePhyloTree>(*(itt.second)), itt.first);
+    }
   }
 
   // ///////////////////////
