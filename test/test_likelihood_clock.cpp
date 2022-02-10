@@ -53,7 +53,7 @@ using namespace bpp;
 using namespace std;
 
 void fitModelH(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<DiscreteDistribution> rdist,
-               ParametrizablePhyloTree* tree, const VectorSiteContainer& sites,
+               std::shared_ptr<PhyloTree> tree, const VectorSiteContainer& sites,
                double initialValue, double finalValue)
 {
   RateAcrossSitesSubstitutionProcess process(model, rdist, tree);
@@ -85,7 +85,7 @@ void fitModelH(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<Discret
 }
 
 void fitModelHClock(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<DiscreteDistribution> rdist,
-                    ParametrizablePhyloTree* tree, const VectorSiteContainer& sites,
+                    std::shared_ptr<PhyloTree> tree, const VectorSiteContainer& sites,
 
                     double initialValue, double finalValue)
 {
@@ -119,8 +119,7 @@ void fitModelHClock(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<Di
 
 int main() {
   bpp::Newick reader;
-  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);", false, "", false, false));
-  ParametrizablePhyloTree paramphyloTree(*phyloTree);
+  auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);", false, "", false, false));
   
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   shared_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
@@ -133,7 +132,7 @@ int main() {
   sites.addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTA", alphabet));
 
   try {
-    fitModelH(std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), paramphyloTree.clone(), sites, 94.3957, 71.0564);
+    fitModelH(std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<PhyloTree>(phyloTree->clone()), sites, 94.3957, 71.0564);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
@@ -142,7 +141,7 @@ int main() {
   cout << endl << endl;
   
   try {
-    fitModelHClock(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), paramphyloTree.clone(), sites, 94.395699, 72.7196);
+    fitModelHClock(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<PhyloTree>(phyloTree->clone()), sites, 94.395699, 72.7196);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

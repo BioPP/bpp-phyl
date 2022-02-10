@@ -119,7 +119,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<Discr
 
   cout << "=============================" << endl;
 
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), partree.clone()));
+  auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<ParametrizablePhyloTree>(partree.clone()));
 
   Context context;                        
   auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
@@ -187,7 +187,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<Discr
   tlop.getParameters().printParameters(cout);
 
   
-  process.reset(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), partree.clone()));
+  process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<ParametrizablePhyloTree>(partree.clone()));
 
   Context context2;
   

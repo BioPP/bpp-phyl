@@ -119,6 +119,7 @@ using namespace bpp;
 #include <memory>
 #include <set>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -185,7 +186,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhyloTrees(
   const map<string, string>& params,
-  const map<size_t, AlignedValuesContainer*>& mSeq,
+  const map<size_t, const AlignedValuesContainer*>& mSeq,
   map<string, string>& unparsedParams,
   const string& prefix,
   const string& suffix,
@@ -596,7 +597,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTool
   if (mDist.size() == 0)
   {
     string distDescription = ApplicationTools::getStringParameter("rate_distribution", paramDist, "Constant()", suffix, suffixIsOptional);
-    mDist[0] = std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
+    mDist[1] = std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
   return mDist;
@@ -610,7 +611,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTool
 map<size_t, std::shared_ptr<BranchModel> > PhylogeneticsApplicationTools::getBranchModels(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, AlignedValuesContainer*>& mData,
+  const map<size_t, const AlignedValuesContainer*>& mData,
   const map<string, string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -700,90 +701,6 @@ map<size_t, std::shared_ptr<BranchModel> > PhylogeneticsApplicationTools::getBra
   return mModel;
 }
 
-/******************************************************************************/
-
-void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
-  BranchModel& model,
-  map<string, string>& unparsedParameterValues,
-  size_t modelNumber,
-  const AlignedValuesContainer* data,
-  map<string, string>& sharedParams,
-  bool verbose)
-{
-  string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, 2);
-
-  if (verbose)
-    ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs == "") ? "None" : initFreqs);
-
-  if (initFreqs != "")
-  {
-    auto tmodel = dynamic_cast<TransitionModel*>(&model);
-    if (!tmodel)
-      ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
-    else
-    {
-      if (initFreqs == "observed")
-      {
-        if (!data)
-          throw Exception("Missing data for observed frequencies");
-        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-        tmodel->setFreqFromData(*data, psi);
-      }
-      else if (initFreqs.substr(0, 6) == "values")
-      {
-        // Initialization using the "values" argument
-        map<int, double> frequencies;
-
-        string rf = initFreqs.substr(6);
-        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-        int i = 0;
-        while (strtok.hasMoreToken())
-          frequencies[i++] = TextTools::toDouble(strtok.nextToken());
-        tmodel->setFreq(frequencies);
-      }
-      else
-        throw Exception("Unknown initFreqs argument");
-    }
-  }
-
-  ParameterList pl = model.getIndependentParameters();
-  for (size_t i = 0; i < pl.size(); ++i)
-  {
-    AutoParameter ap(pl[i]);
-    ap.setMessageHandler(ApplicationTools::warning.get());
-    pl.setParameter(i, ap);
-  }
-  for (size_t i = 0; i < pl.size(); ++i)
-  {
-    const string pName = pl[i].getName();
-    size_t posp = model.getParameterNameWithoutNamespace(pName).rfind(".");
-    string value;
-    bool test1 = (initFreqs == "");
-    bool test2 = (model.getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
-    bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
-
-    if (test1 || test2 || test3)
-    {
-      if (!test1 && !test2 && test3)
-        ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
-
-      value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
-
-      try
-      {
-        pl[i].setValue(TextTools::toDouble(value));
-        if (verbose)
-          ApplicationTools::displayResult("Parameter found", pName + +"_" + TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
-      }
-      catch (Exception& e)
-      {
-        sharedParams[pl[i].getName() + "_" + TextTools::toString(modelNumber)] = value;
-      }
-    }
-  }
-
-  model.matchParametersValues(pl);
-}
 
 /******************************************************/
 /**** FREQUENCIES SET *********************************/
@@ -862,7 +779,7 @@ std::shared_ptr<FrequencySet> PhylogeneticsApplicationTools::getRootFrequencySet
 map<size_t, std::shared_ptr<FrequencySet> > PhylogeneticsApplicationTools::getRootFrequencySets(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, AlignedValuesContainer*>& mData,
+  const map<size_t, const AlignedValuesContainer*>& mData,
   const map<string, string>& params,
   map<string, string>& sharedparams,
   const string& suffix,
@@ -1205,203 +1122,92 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
   bool verbose,
   int warn)
 {
-  AutonomousSubstitutionProcess* SP = 0;
-
+  // Read files with same process as SubstitutionCollection
+  
   map<string, string> unparsedParams;
 
-  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, warn);
-  ApplicationTools::displayResult("Heterogeneous process", nhOpt);
+  map<size_t, const AlignedValuesContainer*> mData;
+  mData[1]=pData;
 
-  // ////////////////////////
-  // Rates
-
-  shared_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
-
-  BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
-  bIO.setGeneticCode(gCode);
-
-
-  // /////////////////////////
-  // / Models
-
-  string tmpDesc;
-
-  if (nhOpt == "no")
+  map<size_t, std::shared_ptr<PhyloTree> > mTree;
+  size_t i=1;
+  for (auto it:vTree)
   {
-    // Homogeneous & stationary models
+    mTree[i++]=std::shared_ptr<PhyloTree>(it);
 
-    shared_ptr<BranchModel> tmp(getBranchModel(alphabet, gCode, pData, params, unparsedParams));
-
-    if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName() == "Constant")) // first test is for Markov-modulated Markov model!
-      SP = new SimpleSubstitutionProcess(tmp, vTree[0]);
-    else
-      SP = new RateAcrossSitesSubstitutionProcess(tmp, rDist, vTree[0]);
   }
+  
+  map<size_t, std::shared_ptr<BranchModel> >  mMod=getBranchModels(alphabet, gCode, mData, params, unparsedParams, suffix, suffixIsOptional, verbose, warn);
+  
+  map<size_t, std::shared_ptr<FrequencySet> > mRootFreq=getRootFrequencySets(alphabet, gCode, mData, params, unparsedParams, suffix, suffixIsOptional, verbose, warn);
+  
+  map<size_t, std::shared_ptr<DiscreteDistribution> > mDist=getRateDistributions(params, suffix, suffixIsOptional, verbose);
+  
+  map<size_t, std::shared_ptr<ModelPath> > mPath = getModelPaths(params, mMod, suffix, suffixIsOptional, verbose, warn);
 
-  // Non-homogeneous models
+  map<size_t, std::shared_ptr<ModelScenario> > mScen = getModelScenarios(params, mPath, mMod, suffix, suffixIsOptional, verbose, warn);
+
+  std::unique_ptr<SubstitutionProcessCollection> SPC(getSubstitutionProcessCollection(alphabet, gCode, mTree,
+                                                                                      mMod,
+                                                                                      mRootFreq,
+                                                                                      mDist,
+                                                                                      mScen,
+                                                                                      params,
+                                                                                      unparsedParams,
+                                                                                      suffix,
+                                                                                      suffixIsOptional,
+                                                                                      verbose,
+                                                                                      warn));
+
+  // Get relevant objects from Collection to build an AutonomousSubstitutionProcess
+  AutonomousSubstitutionProcess* ASP;
+
+  auto psNum = SPC->getSubstitutionProcessNumbers();
+  if (psNum.size()==0)
+    throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess : missing process in parameters.");
+
+  size_t maxps = *max_element(psNum.begin(), psNum.end());
+
+  SubstitutionProcessCollectionMember& procm = SPC->getSubstitutionProcess(maxps);
+
+  auto distproc = procm.getRateDistribution();
+
+  auto rootproc = procm.getRootFrequencySet();
+
+  auto scen = procm.getModelScenario();
+
+  auto vmodnb = procm.getModelNumbers();
+
+  if (vmodnb.size()==1)
+  {
+    if (!distproc)
+      ASP = new SimpleSubstitutionProcess(procm.getModel(1), procm.getParametrizablePhyloTree(), rootproc);
+    else
+      ASP = new RateAcrossSitesSubstitutionProcess(procm.getModel(1), procm.getRateDistribution(), procm.getParametrizablePhyloTree(), rootproc);
+  }
   else
   {
-    string fName = (nhOpt == "one_per_branch" ? "model" : "model1");
+    auto NHSP = new NonHomogeneousSubstitutionProcess(procm.getRateDistribution(), procm.getParametrizablePhyloTree(), rootproc);
+    ASP=NHSP;
+    
+    for (auto nb:vmodnb)
+      NHSP->addModel(procm.getModel(nb), procm.getNodesWithModel(nb));
 
-    tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
-    shared_ptr<BranchModel> tmp(bIO.readBranchModel(alphabet, tmpDesc, pData, true));
-
-
-    // ////////////////////////////////////
-    // Root frequencies
-
-    bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, warn);
-
-    shared_ptr<FrequencySet> rootFrequencies;
-
-    if (!stationarity)
-    {
-      // Markov Modulated  models
-      vector<double> rateFreqs;
-      if (tmp->getNumberOfStates() != alphabet->getSize())
-      {
-        // Markov-Modulated Markov Model...
-        size_t n = static_cast<size_t>(tmp->getNumberOfStates() / alphabet->getSize());
-        rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-      }
-
-      // MVA models
-
-      string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
-      if (freqDescription.substr(0, 10) == "MVAprotein")
-      {
-        if (dynamic_cast<Coala*>(tmp.get()))
-          dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
-        else
-          throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
-      }
-      else
-        rootFrequencies = getRootFrequencySet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn);
-
-      stationarity = !rootFrequencies.get();
-    }
-
-    ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
-
-    // /////////////////////////////////////
-    // One_per_branch
-
-    if (nhOpt == "one_per_branch")
-    {
-      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
-
-      for (unsigned int i = 0; i < globalParameters.size(); i++)
-      {
-        ApplicationTools::displayResult("Global parameter", globalParameters[i]);
-      }
-
-      SP = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-        tmp,
-        rDist,
-        vTree[0],
-        rootFrequencies,
-        globalParameters);
-    }
-    else
-    {
-      // //////////////////////////////
-      // General
-
-      size_t nbModels = ApplicationTools::getParameter<size_t>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, warn);
-
-      if (nbModels == 0)
-        throw Exception("The number of models can't be 0 !");
-
-      if (verbose)
-        ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
-
-      // //////////////////////////////////////
-      // Now parse all models:
-
-      bIO.setVerbose(true);
-
-      SP = new NonHomogeneousSubstitutionProcess(rDist, vTree[0], rootFrequencies->clone());
-
-      NonHomogeneousSubstitutionProcess* nhSP = dynamic_cast<NonHomogeneousSubstitutionProcess*>(SP);
-
-      if (SP->hasParametrizablePhyloTree())
-      {
-      for (size_t i = 0; i < nbModels; i++)
-      {
-        string prefix = "model" + TextTools::toString(i + 1);
-        string modelDesc;
-        modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
-
-        
-        shared_ptr<BranchModel> model(bIO.readBranchModel(alphabet, modelDesc, pData, true));
-        map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
-
-        for (auto& it : tmpUnparsedParameterValues)
-        {
-          unparsedParams[it.first + "_" + TextTools::toString(i + 1)] = it.second;
-        }
-
-        vector<unsigned int> nodesId;
-
-        auto snodesid = prefix + ".nodes_id";
-        auto descnodes = ApplicationTools::getStringParameter(snodesid, params, "", suffix, suffixIsOptional, warn);
-
-        const auto& tree = SP->getParametrizablePhyloTree();
-        if (descnodes == "All")
-        {
-          nodesId = tree.getSubtreeEdges(tree.getRootIndex());
-        }
-        else if (descnodes == "Leaves")
-        {
-          nodesId = tree.getLeavesUnderNode(tree.getRootIndex());
-        }
-        else if (descnodes == "NoLeaves")
-        {
-          auto allIds = tree.getSubtreeEdges(tree.getRootIndex());
-          auto leavesId = tree.getLeavesUnderNode(tree.getRootIndex());
-          VectorTools::diff(allIds, leavesId, nodesId);
-        }
-        else
-          nodesId = ApplicationTools::getVectorParameter<unsigned int>(snodesid, params, ',', ':', "", suffix, suffixIsOptional, warn);
-
-        if (verbose)
-          ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
-
-        nhSP->addModel(model, nodesId);
-      }
-
-      nhSP->isFullySetUp();
-      }
-    }
+    if (!NHSP->isFullySetUp(false))
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess: process not fully set up.");
   }
 
+  if (procm.getModelScenario())
+    ASP->setModelScenario(procm.getModelScenario());
 
-  // ////// Aliasing
-  // Finally check parameter aliasing:
-
-  string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, warn);
-
-  StringTokenizer st(aliasDesc, ",");
-  while (st.hasMoreToken())
-  {
-    string alias = st.nextToken();
-    string::size_type index = alias.find("->");
-    if (index == string::npos)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess. Bad alias syntax, should contain `->' symbol: " + alias);
-    string p1 = alias.substr(0, index);
-    string p2 = alias.substr(index + 2);
-    unparsedParams[p1] = p2;
-  }
-
-  SP->aliasParameters(unparsedParams, verbose);
-
-  return SP;
+  return ASP;
 }
+
 
 /************************************************************/
 
 bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
-  SubstitutionProcessCollection* SubProColl,
+  SubstitutionProcessCollection& SubProColl,
   size_t procNum,
   const map<string, string>& params,
   bool verbose,
@@ -1425,14 +1231,21 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   // ///
   // tree number
 
+  size_t numTree;
+  
   if (args.find("tree") == args.end())
-    throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A tree number is compulsory.");
+  {
+    if (warn)
+      ApplicationTools::displayWarning("Warning, missing tree for  process name: " + procName);
+    numTree=0;
+  }
+  else
+  {
+    numTree = (size_t) ApplicationTools::getIntParameter("tree", args, 1, "", true, warn);
 
-  size_t numTree = (size_t) ApplicationTools::getIntParameter("tree", args, 1, "", true, warn);
-
-  if (!SubProColl->hasTreeNumber(numTree))
-    throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown tree number", (int)numTree);
-
+    if (numTree!=0 && !SubProColl.hasTreeNumber(numTree))
+      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown tree number", (int)numTree);
+  }
 
   // /////
   // rate number
@@ -1440,10 +1253,10 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   size_t numRate=0;
   if (args.find("rate") == args.end())
   {
-    const auto& vrdn = SubProColl->getRateDistributionNumbers();
+    const auto& vrdn = SubProColl.getRateDistributionNumbers();
     numRate=0;
     for (auto rdn:vrdn)
-      if (SubProColl->getRateDistribution(rdn).getName()=="Constant")
+      if (SubProColl.getRateDistribution(rdn)->getName()=="Constant")
       {
         numRate=rdn;
         break;
@@ -1456,7 +1269,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
           numRate=i;
           break;
         }
-      SubProColl->addDistribution(std::make_shared<ConstantRateDistribution>(),numRate);
+      SubProColl.addDistribution(std::make_shared<ConstantRateDistribution>(),numRate);
     }
   }
   else
@@ -1467,13 +1280,13 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     numRate = static_cast<size_t>(TextTools::toInt(sRate.substr(0, pp)));
   
-    if (!SubProColl->hasDistributionNumber(numRate))
+    if (!SubProColl.hasDistributionNumber(numRate))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
     
     if (pp != string::npos)
     {
       size_t numSRate = static_cast<size_t>(TextTools::toInt(sRate.substr(pp + 1)));
-      SubProColl->addDistribution(std::make_shared<ConstantDistribution>(SubProColl->getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
+      SubProColl.addDistribution(std::make_shared<ConstantDistribution>(SubProColl.getRateDistribution(numRate)->getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
       
       numRate = 10000 * (numRate + 1) + numSRate;
     }
@@ -1488,7 +1301,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   if (!stationarity)
   {
     numFreq = (size_t) ApplicationTools::getIntParameter("root_freq", args, 1, "", true, warn);
-    if (!SubProColl->hasFrequenciesNumber(numFreq))
+    if (!SubProColl.hasFrequenciesNumber(numFreq))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown root frequencies number", (int)numFreq);
   }
 
@@ -1501,7 +1314,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   {
     numScen = (size_t) ApplicationTools::getIntParameter("scenario", args, 1, "", true, warn);
 
-    if (!SubProColl->hasModelScenario(numScen))
+    if (!SubProColl.hasModelScenario(numScen))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown scenario number", (int)numScen);
   }
 
@@ -1521,14 +1334,18 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
 
-    if (!SubProColl->hasModelNumber(numModel))
+    if (!SubProColl.hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int>(numModel));
 
-    vector<uint> vNodes = SubProColl->getTree(numTree).getAllEdgesIndexes();
-
     map<size_t, vector<unsigned int> > mModBr;
-    mModBr[numModel] = vNodes;
 
+    vector<uint> vNodes;
+    if (numTree!=0)
+      vNodes=SubProColl.getTree(numTree)->getAllEdgesIndexes();
+    else
+      vNodes={0};
+    mModBr[numModel] = vNodes;
+    
     if (verbose)
     {
       ApplicationTools::displayResult("Process type", string("Homogeneous"));
@@ -1549,20 +1366,23 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     }
 
     if (stationarity)
-      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
+      SubProColl.addSubstitutionProcess(procNum, mModBr, numTree, numRate);
     else
-      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
+      SubProColl.addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
 
   else if ((procName == "Nonhomogeneous") ||  (procName == "NonHomogeneous"))
   {
+    if (numTree==0)
+      throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : missing tree number for process " + TextTools::toString(procName));
+
     size_t indModel = 1;
     map<size_t, vector<unsigned int> > mModBr;
 
     while (args.find("model" + TextTools::toString(indModel)) != args.end())
     {
       size_t numModel = (size_t) ApplicationTools::getIntParameter("model" + TextTools::toString(indModel), args, 1, "", true, warn);
-
+      
       if (mModBr.find(numModel) != mModBr.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
 
@@ -1571,19 +1391,20 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       auto snodesid = "model" + TextTools::toString(indModel)  + ".nodes_id";
       auto descnodes = ApplicationTools::getStringParameter(snodesid, args, "", "", true, warn);
 
-      auto& tree = SubProColl->getTree(numTree);
+        
+      auto tree = SubProColl.getTree(numTree);
       if (descnodes == "All")
       {
-        nodesId = tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
+        nodesId = tree->getEdgeIndexes(tree->getSubtreeEdges(tree->getRoot()));
       }
       else if (descnodes == "Leaves")
       {
-        nodesId = tree.getNodeIndexes(tree.getLeavesUnderNode(tree.getRoot()));
+        nodesId = tree->getNodeIndexes(tree->getLeavesUnderNode(tree->getRoot()));
       }
       else if (descnodes == "NoLeaves")
       {
-        auto allIds = tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
-        auto leavesId = tree.getNodeIndexes(tree.getLeavesUnderNode(tree.getRoot()));
+        auto allIds = tree->getEdgeIndexes(tree->getSubtreeEdges(tree->getRoot()));
+        auto leavesId = tree->getNodeIndexes(tree->getLeavesUnderNode(tree->getRoot()));
         VectorTools::diff(allIds, leavesId, nodesId);
       }
       else
@@ -1610,26 +1431,29 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     }
 
     if (stationarity)
-      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
+      SubProColl.addSubstitutionProcess(procNum, mModBr, numTree, numRate);
     else
-      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
+      SubProColl.addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
   else if (procName == "OnePerBranch")
   {
+    if (numTree==0)
+      throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : missing tree number for process " + TextTools::toString(procName));
+
     if (args.find("model") == args.end())
       throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A model number is compulsory.");
 
     size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
 
-    if (!SubProColl->hasModelNumber(numModel))
+    if (!SubProColl.hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
 
     vector<string> sharedParameters = ApplicationTools::getVectorParameter<string>("shared_parameters", args, ',', "", "", true, 1);
 
     if (stationarity)
-      SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, sharedParameters);
+      SubProColl.addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, sharedParameters);
     else
-      SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, numFreq, sharedParameters);
+      SubProColl.addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, numFreq, sharedParameters);
 
     if (verbose)
     {
@@ -1651,7 +1475,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   }
 
   if (numScen != 0)
-    SubProColl->getSubstitutionProcess(procNum).setModelScenario(numScen);
+    SubProColl.getSubstitutionProcess(procNum).setModelScenario(numScen);
 
   return true;
 }
@@ -1681,18 +1505,15 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   // ///////////////////////
   // Trees
 
-  if (mTree.size() == 0)
-    throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
   for (const auto& itt : mTree)
   {
-    SPC->addTree(std::make_shared<ParametrizablePhyloTree>(*(itt.second)), itt.first);
+    if (itt.second) {
+      SPC->addTree(std::make_shared<ParametrizablePhyloTree>(*(itt.second)), itt.first);
+    }
   }
 
   // ///////////////////////
   // Rates
-
-  if (mDist.size() == 0)
-    throw Exception("Missing rate distribution in construction of SubstitutionProcessCollection.");
 
   for (const auto& itd : mDist)
   {
@@ -1701,9 +1522,6 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
 
   // ////////////////////////
   // Models
-
-  if (mMod.size() == 0)
-    throw Exception("Missing model in construction of SubstitutionProcessCollection.");
 
   for (const auto& itm : mMod)
   {
@@ -1747,7 +1565,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     else
       num = 1;
 
-    bool addok = addSubstitutionProcessCollectionMember(SPC, num, params, (nT < 10 ? verbose : false), warn);
+    bool addok = addSubstitutionProcessCollectionMember(*SPC, num, params, (nT < 10 ? verbose : false), warn);
 
     if (addok)
     {
@@ -1782,7 +1600,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   //   throw Exception("Missing process in construction of SubstitutionProcessCollection.");
 
   // for (size_t i=0; i<processNum.size(); i++)
-  //   addSubstitutionProcessCollectionMember(SPC, params, processNum[i]);
+  //   addSubstitutionProcessCollectionMember(*SPC, params, processNum[i]);
 
 
   // /////////////////////////
@@ -2038,7 +1856,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   Context& context,
   SubstitutionProcessCollection& SPC,
   map<size_t, SequenceEvolution*>& mSeqEvol,
-  const map<size_t, AlignedValuesContainer*>& mData,
+  const map<size_t, const AlignedValuesContainer*>& mData,
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -2134,7 +1952,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
       continue;
     }
 
-    const AlignedValuesContainer* data = dynamic_cast<const AlignedValuesContainer*>(mData.find(nData)->second);
+    auto data = mData.find(nData)->second;
 
     if (!data)
     {
@@ -3046,23 +2864,23 @@ void PhylogeneticsApplicationTools::writePhyloTrees(
 
     for (size_t i = 0; i < vTN.size(); i++)
     {
-      PhyloTree tree(spc.getTree(vTN[i]));
+      auto tree=spc.getTree(vTN[i]);
 
-      std::vector<shared_ptr<PhyloNode> > nodes = tree.getAllNodes();
+      std::vector<shared_ptr<PhyloNode> > nodes = tree->getAllNodes();
 
       for (auto& node : nodes)
       {
-        if (tree.isLeaf(node) && withIds)
-          node->setName(TextTools::toString(tree.getNodeIndex(node)) + "_" + node->getName());
+        if (tree->isLeaf(node) && withIds)
+          node->setName(TextTools::toString(tree->getNodeIndex(node)) + "_" + node->getName());
         else
-          node->setProperty("NodeId", BppString(TextTools::toString(tree.getNodeIndex(node))));
+          node->setProperty("NodeId", BppString(TextTools::toString(tree->getNodeIndex(node))));
       }
 
       Newick* nt = dynamic_cast<Newick*>(treeWriter);
       if (nt)
         nt->enableExtendedBootstrapProperty("NodeId");
 
-      treeWriter->writePhyloTree(tree, file + "_" + TextTools::toString(vTN[i]), true);
+      treeWriter->writePhyloTree(*tree, file + "_" + TextTools::toString(vTN[i]), true);
     }
     if (verbose)
       ApplicationTools::displayResult("Wrote trees to files : ", file + "_...");
@@ -3186,7 +3004,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     // Rate distribution
 
     map<string, string> aliases;
-    const DiscreteDistribution* pdd = pNH->getRateDistribution();
+    auto pdd = pNH->getRateDistribution();
 
     ParameterList pl = pdd->getParameters();
     for (size_t np = 0; np < pl.size(); np++)
@@ -3276,14 +3094,14 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   {
     if (distn < 10000)
     {
-      const DiscreteDistribution& dist = collection->getRateDistribution(distn);
+      auto dist = collection->getRateDistribution(distn);
 
       // First get the aliases for this model:
       map<string, string> aliases;
 
       if (withAlias)
       {
-        ParameterList pl = dist.getParameters();
+        ParameterList pl = dist->getParameters();
 
         for (size_t np = 0; np < pl.size(); np++)
         {
@@ -3297,7 +3115,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       writtenNames.clear();
       out.endLine() << "rate_distribution" << distn << "=";
       BppORateDistributionFormat bIOd(true);
-      bIOd.writeDiscreteDistribution(dist, out, aliases, writtenNames);
+      bIOd.writeDiscreteDistribution(*dist, out, aliases, writtenNames);
       out.endLine();
     }
   }
@@ -3314,17 +3132,17 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   // first output the scenarios
   for (const auto& scennum : vSce)
   {
-    const auto& scen = collection->getModelScenario(scennum);
+    const auto scen = collection->getModelScenario(scennum);
 
     out.endLine();
 
     out << "scenario" << scennum << "=";
 
-    size_t nbMP = scen.getNumberOfModelPaths();
+    size_t nbMP = scen->getNumberOfModelPaths();
 
     for (size_t mpn = 0; mpn < nbMP; mpn++)
     {
-      const auto& mp = scen.getModelPath(mpn);
+      const auto& mp = scen->getModelPath(mpn);
 
       auto itmp = find(vMP.begin(), vMP.end(), mp.get());
       auto inmp = std::distance(vMP.begin(), itmp);
@@ -3412,7 +3230,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     if (spcm.getRootFrequencySet())
       out << ", root_freq=" << spcm.getRootFrequenciesNumber();
 
-    if (spcm.hasModelScenario())
+    if (spcm.getModelScenario())
       out << ", scenario=" << spcm.getModelScenarioNumber();
 
     out << ")";
@@ -3855,7 +3673,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     colNames.push_back("is.constant");
     colNames.push_back("lnL");
 
-    const DiscreteDistribution* pDD = pSP->getRateDistribution();
+    auto pDD = pSP->getRateDistribution();
     size_t nbR = 0;
 
     if (pDD != NULL)
@@ -3928,7 +3746,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     for (auto nP : nbProc)
     {
       const SubstitutionProcess& sp = pSE.getSubstitutionProcess(nP);
-      const DiscreteDistribution* pDD = sp.getRateDistribution();
+      auto pDD = sp.getRateDistribution();
       mNbr[nP] = (pDD ? pDD->getNumberOfCategories() : 1);
     }
 

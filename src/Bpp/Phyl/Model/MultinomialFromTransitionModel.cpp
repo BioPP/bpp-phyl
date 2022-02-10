@@ -63,7 +63,7 @@ void MultinomialFromTransitionModel::compute_Multinomial_(const Eigen::VectorXd&
     }
   }
 
-  Pi_.array() = Pi_.array().exp() * getFact_(counts);
+  Pi_.array() = (Pi_.array() + getFact_(counts)).exp();
 }
 
 void MultinomialFromTransitionModel::compute_dMultinomial_dt_(const Eigen::VectorXd& counts) const
@@ -84,7 +84,7 @@ void MultinomialFromTransitionModel::compute_dMultinomial_dt_(const Eigen::Vecto
     }
   }
 
-  dPi_.array() *= Pi_.array().exp()  * getFact_(counts);
+  dPi_.array() *= (Pi_.array() + getFact_(counts)).exp();
 }
 
 void MultinomialFromTransitionModel::compute_d2Multinomial_dt2_(const Eigen::VectorXd& counts) const
@@ -105,7 +105,7 @@ void MultinomialFromTransitionModel::compute_d2Multinomial_dt2_(const Eigen::Vec
     }
   }
 
-  d2Pi_.array() *= Pi_.array().exp() * getFact_(counts);
+  d2Pi_.array() *= (Pi_.array() + getFact_(counts)).exp();
 }
 
 

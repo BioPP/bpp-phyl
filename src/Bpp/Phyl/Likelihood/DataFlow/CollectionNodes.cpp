@@ -47,10 +47,10 @@ CollectionNodes::CollectionNodes(Context& context,
   {
     std::string suff = "_" + TextTools::toString(num);
 
-    const auto& obj = collection_.getRateDistribution(num);
+    auto obj = collection_.getRateDistribution(num);
 
-    if (dynamic_cast<const ConstantRateDistribution*>(&obj) == nullptr)
-      distColl_.addObject(ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext(), obj, getParameters_(), suff), num);
+    if (dynamic_pointer_cast<const ConstantRateDistribution>(obj) == 0)
+      distColl_.addObject(ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext(), *obj, getParameters_(), suff), num);
   }
 
   // models nodes
@@ -85,9 +85,9 @@ CollectionNodes::CollectionNodes(Context& context,
   {
     std::string suff = "_" + TextTools::toString(num);
 
-    const auto& obj = collection_.getTree(num);
+    auto obj = collection_.getTree(num);
 
-    treeColl_.addObject(make_shared<ProcessTree>(context_, obj, getParameters_(), suff), num);
+    treeColl_.addObject(make_shared<ProcessTree>(context_, *obj, getParameters_(), suff), num);
   }
 }
 

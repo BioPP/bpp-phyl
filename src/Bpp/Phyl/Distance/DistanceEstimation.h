@@ -242,7 +242,7 @@ public:
     if (hasModel())
       return *model_;
     else
-      throw Exception("DistanceEstimation::getSubstitutionModel(). No model assciated to this instance.");
+      throw Exception("DistanceEstimation::getSubstitutionModel(). No model associated to this instance.");
   }
 
   void resetSubstitutionModel(BranchModel* model = 0) { model_.reset(model); }
@@ -254,7 +254,7 @@ public:
     if (hasRateDistribution())
       return *rateDist_;
     else
-      throw Exception("DistanceEstimation::getRateDistribution(). No rate distribution assciated to this instance.");
+      throw Exception("DistanceEstimation::getRateDistribution(). No rate distribution associated to this instance.");
   }
 
   void resetRateDistribution(DiscreteDistribution* rateDist = 0) { rateDist_.reset(rateDist); }

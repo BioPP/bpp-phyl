@@ -80,7 +80,7 @@ public:
    * @brief Get the std::map of initial phylo trees
    */
   virtual std::map<size_t, std::shared_ptr<PhyloTree> > getPhyloTreesMap(
-    const std::map<size_t, AlignedValuesContainer*>& mSites,
+    const std::map<size_t, const AlignedValuesContainer*>& mSites,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -93,7 +93,7 @@ public:
   virtual SubstitutionProcessCollection* getCollection(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
-    const std::map<size_t, AlignedValuesContainer*>& mSites,
+    const std::map<size_t, const AlignedValuesContainer*>& mSites,
     const std::map<size_t, std::shared_ptr<PhyloTree> >& mpTree,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
@@ -103,7 +103,7 @@ public:
   virtual SubstitutionProcessCollection* getCollection(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
-    const std::map<size_t, AlignedValuesContainer*>& mSites,
+    const std::map<size_t, const AlignedValuesContainer*>& mSites,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -126,7 +126,7 @@ public:
     std::map<size_t, SequenceEvolution*> mSeqEvol,
     SubstitutionProcessCollection& collection,
     const std::map<size_t,
-                   AlignedValuesContainer*>& mSites,
+                   const AlignedValuesContainer*>& mSites,
     const std::string& suffix = "",
     bool suffixIsOptional = true) const;
 

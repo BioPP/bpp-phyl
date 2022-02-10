@@ -93,9 +93,7 @@ public:
 
   virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
 
-  virtual bool hasParametrizablePhyloTree() const = 0;
-  
-  virtual const ParametrizablePhyloTree& getParametrizablePhyloTree() const = 0;
+  virtual std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const = 0;
 
   virtual size_t getNumberOfClasses() const = 0;
 
@@ -117,7 +115,7 @@ public:
    * @return the model with given index.
    */
 
-  virtual const BranchModel* getModel(size_t i) const = 0;
+  virtual std::shared_ptr<const BranchModel> getModel(size_t i) const = 0;
 
   /**
    * @brief Get the substitution model corresponding to a certain
@@ -127,7 +125,7 @@ public:
    * @param classIndex The model class index.
    */
 
-  virtual const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const = 0;
+  virtual std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const = 0;
 
   /**
    * @brief Get the Model Scenario associated with this process, in
@@ -142,9 +140,7 @@ public:
    *
    */
 
-  virtual bool hasModelScenario() const = 0;
-
-  virtual const ModelScenario& getModelScenario() const = 0;
+  virtual std::shared_ptr<const ModelScenario> getModelScenario() const = 0;
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -175,7 +171,7 @@ public:
    * @throw Exception If no model is found for this node.
    */
 
-  virtual const BranchModel* getModelForNode(unsigned int nodeId) const = 0;
+  virtual std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const = 0;
 
   /**
    * @brief Get a pointer to the rate distribution (or null if there
@@ -183,7 +179,7 @@ public:
    *
    */
 
-  virtual const DiscreteDistribution* getRateDistribution() const = 0;
+  virtual std::shared_ptr<const DiscreteDistribution> getRateDistribution() const = 0;
 
   /**
    * @brief Methods to retrieve the parameters of specific objects.

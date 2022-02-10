@@ -67,7 +67,7 @@ class MarginalAncestralReconstruction :
 {
 private:
   std::shared_ptr<LikelihoodCalculationSingleProcess> likelihood_;
-  const ParametrizablePhyloTree* tree_;
+  std::shared_ptr<const ParametrizablePhyloTree> tree_;
   const Alphabet* alphabet_;
   size_t nbSites_;
   size_t nbDistinctSites_;
@@ -78,13 +78,16 @@ private:
 public:
   MarginalAncestralReconstruction(std::shared_ptr<LikelihoodCalculationSingleProcess> drl) :
     likelihood_      (drl),
-    tree_            (&drl->getSubstitutionProcess().getParametrizablePhyloTree()),
+    tree_            (drl->getSubstitutionProcess().getParametrizablePhyloTree()),
     alphabet_        (drl->getStateMap().getAlphabet()),
     nbSites_         (drl->getNumberOfSites()),
     nbDistinctSites_ (drl->getNumberOfDistinctSites()),
   nbStates_        (drl->getStateMap().getNumberOfModelStates()),
   rootPatternLinks_(drl->getRootArrayPositions())
-  {}
+  {
+    if (!tree_)
+      throw Exception("MarginalAncestralReconstruction::MarginalAncestralReconstruction: missing ParametrizablePhyloTree.");
+  }
 
   MarginalAncestralReconstruction(const MarginalAncestralReconstruction& masr) :
     likelihood_      (masr.likelihood_),
@@ -94,7 +97,8 @@ public:
     nbDistinctSites_ (masr.nbDistinctSites_),
   nbStates_        (masr.nbStates_),
   rootPatternLinks_(masr.rootPatternLinks_)
-  {}
+  {
+  }
 
   MarginalAncestralReconstruction& operator=(const MarginalAncestralReconstruction& masr)
   {

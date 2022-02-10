@@ -69,7 +69,7 @@ int main() {
   Newick reader;
   Context context;
   
-  unique_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.02);", false, "", false, false));
+  shared_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.02);", false, "", false, false));
 
   vector<uint> ids = {0, 1, 2, 3, 4};
 
@@ -79,8 +79,8 @@ int main() {
   auto model = std::make_shared<GTR>(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
 //  DiscreteDistribution* rdist = new ConstantDistribution(1);
   auto rdist = std::make_shared<GammaDiscreteDistribution>(4, 0.4, 0.4);
-  std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), pTree->clone()));
+
+  shared_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<PhyloTree>(new_tree->clone())));
 
   SimpleSubstitutionProcessSiteSimulator simulator(*process);
   

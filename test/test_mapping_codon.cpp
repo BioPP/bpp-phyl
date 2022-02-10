@@ -70,7 +70,7 @@ int main() {
   Newick reader;
   Context context;
   
-  unique_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.1);", false, "", false, false));
+  shared_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.1);", false, "", false, false));
 
   vector<uint> ids = {0, 1, 2, 3, 4};
 
@@ -80,8 +80,7 @@ int main() {
   
   auto model = std::make_shared<YN98>(gc.get(), CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F0, gc.get()));
   auto rdist = std::make_shared<ConstantDistribution>(1.0);
-  std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist, pTree->clone()));
+  shared_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist, std::shared_ptr<PhyloTree>(new_tree->clone())));
 
   SimpleSubstitutionProcessSiteSimulator simulator(*process);
 

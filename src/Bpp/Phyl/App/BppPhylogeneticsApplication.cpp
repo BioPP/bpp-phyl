@@ -54,7 +54,7 @@ using namespace bpp;
 /******************************************************************************/
 
 map<size_t, std::shared_ptr<PhyloTree> > BppPhylogeneticsApplication::getPhyloTreesMap(
-  const map<size_t, AlignedValuesContainer*>& mSites,
+  const map<size_t, const AlignedValuesContainer*>& mSites,
   map<string, string>& unparsedParams,
   const std::string& prefix,
   const std::string& suffix,
@@ -84,7 +84,7 @@ map<size_t, std::shared_ptr<PhyloTree> > BppPhylogeneticsApplication::getPhyloTr
 SubstitutionProcessCollection* BppPhylogeneticsApplication::getCollection(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, AlignedValuesContainer*>& mSites,
+  const map<size_t, const AlignedValuesContainer*>& mSites,
   map<string, string>& unparsedParams,
   const std::string& prefix,
   const std::string& suffix,
@@ -98,7 +98,7 @@ SubstitutionProcessCollection* BppPhylogeneticsApplication::getCollection(
 SubstitutionProcessCollection* BppPhylogeneticsApplication::getCollection(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, AlignedValuesContainer*>& mSites,
+  const map<size_t, const AlignedValuesContainer*>& mSites,
   const map<size_t, std::shared_ptr<PhyloTree> >& mpTree,
   map<string, string>& unparsedParams,
   const std::string& prefix,
@@ -132,7 +132,7 @@ std::shared_ptr<PhyloLikelihoodContainer> BppPhylogeneticsApplication::getPhyloL
   Context& context,
   map<size_t, SequenceEvolution*> mSeqEvol,
   SubstitutionProcessCollection& collection,
-  const map<size_t, AlignedValuesContainer*>& mSites,
+  const map<size_t, const AlignedValuesContainer*>& mSites,
   const std::string& suffix,
   bool suffixIsOptional) const
 {

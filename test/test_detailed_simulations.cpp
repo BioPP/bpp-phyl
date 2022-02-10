@@ -56,8 +56,7 @@ using namespace std;
 
 int main() {
   Newick reader;
-  auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.003,C:0.01,D:0.1);"));
-  auto paramPhyloTree = new ParametrizablePhyloTree(*phyloTree);
+  auto phyloTree = std::shared_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.003,C:0.01,D:0.1);"));
 
   auto ids = phyloTree->getAllEdgesIndexes();
   
@@ -68,7 +67,7 @@ int main() {
   //DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
   auto rdist = std::make_shared<ConstantDistribution>(1.0);
 
-  RateAcrossSitesSubstitutionProcess process(model, rdist, paramPhyloTree);
+  RateAcrossSitesSubstitutionProcess process(model, rdist, phyloTree);
 
   process.setPhyloTree(*phyloTree);
   

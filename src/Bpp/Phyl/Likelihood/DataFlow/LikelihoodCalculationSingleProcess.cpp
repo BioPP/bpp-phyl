@@ -29,6 +29,8 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
+  if (!process_.getParametrizablePhyloTree())
+    throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
   setPatterns_();
   makeProcessNodes_();
 
@@ -44,6 +46,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
+  if (!process_.getParametrizablePhyloTree())
+    throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
+
   makeProcessNodes_();
 
   // Default Derivate
@@ -58,6 +63,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
+  if (!process_.getParametrizablePhyloTree())
+    throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
+
   setPatterns_();
   makeProcessNodes_(collection, nProcess);
 
@@ -96,7 +104,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
 
 void LikelihoodCalculationSingleProcess::setPatterns_()
 {
-  SitePatterns patterns(psites_, process_.getParametrizablePhyloTree().getAllLeavesNames());
+  SitePatterns patterns(psites_, process_.getParametrizablePhyloTree()->getAllLeavesNames());
   shrunkData_       = patterns.getSites();
   rootPatternLinks_ = NumericConstant<PatternType>::create(getContext_(), patterns.getIndices());
   size_t nbSites    = shrunkData_->getNumberOfSites();
@@ -145,7 +153,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
   std::string suff = spcm ? ("_" + TextTools::toString(spcm->getRateDistributionNumber())) : "";
 
   auto rates = process_.getRateDistribution();
-  if (rates && dynamic_cast<const ConstantRateDistribution*>(rates) == nullptr)
+  if (rates && dynamic_pointer_cast<const ConstantRateDistribution>(rates) == nullptr)
     processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext_(), *rates, pl2, suff);
 
   ///////
@@ -215,9 +223,9 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& coll
 
   // rates node
 
-  const DiscreteDistribution* rates = spcm.getRateDistribution();
+  auto rates = spcm.getRateDistribution();
 
-  if (dynamic_cast<const ConstantRateDistribution*>(rates) == nullptr)
+  if (dynamic_pointer_cast<const ConstantRateDistribution>(rates) == nullptr)
     processNodes_.ratesNode_ = collection.getRateDistribution(spcm.getRateDistributionNumber());
 
   ///////
@@ -508,7 +516,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   auto nbState = Eigen::Index(stateMap.getNumberOfModelStates());
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbDistSite);
 
-  const auto& phylotree = process_.getParametrizablePhyloTree();
+  const auto phylotree = process_.getParametrizablePhyloTree();
 
   ValueRef<RowLik> siteLikelihoodsNode;
 
@@ -522,7 +530,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   std::vector<std::shared_ptr<Node_DF> > vRoot; // if several rates
 
   if (!condLikelihoodTree_)
-    condLikelihoodTree_ = std::make_shared<ConditionalLikelihoodTree>(phylotree.getGraph());
+    condLikelihoodTree_ = std::make_shared<ConditionalLikelihoodTree>(phylotree->getGraph());
 
   auto one = ConstantOne<Eigen::RowVectorXd>::create(getContext_(), RowVectorDimension (nbState));
 
@@ -539,7 +547,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
 
 
     if (!rateCat.speciesLt)
-      rateCat.speciesLt = std::make_shared<SiteLikelihoodsTree>(phylotree.getGraph());
+      rateCat.speciesLt = std::make_shared<SiteLikelihoodsTree>(phylotree->getGraph());
 
     auto& dagIndexes = rateCat.flt->getDAGNodesIndexes(speciesId);
 
@@ -590,7 +598,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
 
     if (!rateCat.speciesLt->hasNode(speciesId))
     {
-      rateCat.speciesLt->associateNode(siteLikelihoodsCat, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
+      rateCat.speciesLt->associateNode(siteLikelihoodsCat, phylotree->getNodeGraphid(phylotree->getNode(speciesId)));
       rateCat.speciesLt->setNodeIndex(siteLikelihoodsCat, speciesId);
     }
 
@@ -621,7 +629,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
     conditionalLikelihoodsNode = CWiseMean<MatrixLik, ReductionOf<MatrixLik>, RowLik>::create(getContext_(), std::move(vCondRate), MatrixDimension (nbState, nbDistSite));
   }
 
-  condLikelihoodTree_->associateNode(conditionalLikelihoodsNode, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
+  condLikelihoodTree_->associateNode(conditionalLikelihoodsNode, phylotree->getNodeGraphid(phylotree->getNode(speciesId)));
   condLikelihoodTree_->setNodeIndex(conditionalLikelihoodsNode, speciesId);
 
   // We want -log(likelihood)

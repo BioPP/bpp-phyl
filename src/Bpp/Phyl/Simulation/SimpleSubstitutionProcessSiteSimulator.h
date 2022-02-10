@@ -108,7 +108,7 @@ class SimpleSubstitutionProcessSiteSimulator :
 {
 protected:
   const SubstitutionProcess*     process_;
-  const ParametrizablePhyloTree* phyloTree_;
+  std::shared_ptr<const ParametrizablePhyloTree> phyloTree_;
 
 
   /*
@@ -276,7 +276,7 @@ public:
    *
    * @return The Tree object associated to this instance.
    */
-  const ParametrizablePhyloTree* getTree() const { return phyloTree_; }
+  std::shared_ptr<const ParametrizablePhyloTree> getTree() const { return phyloTree_; }
 
   /**
    * @brief Enable the use of continuous rates instead of discrete rates.

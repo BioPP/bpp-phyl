@@ -695,13 +695,6 @@ const Eigen::Matrix<double, R, C> convert (const ExtendedFloatMatrix<R, C>& from
   return from.float_part() * constexpr_power<double>(ExtendedFloat::radix, from.exponent_part()); // efmatrix -> matrix
 }
 
-// template< int R,  int C, template< int R2,  int C2> class EigenType>
-// EigenType<R,C>& convert (ExtendedFloatEigen<R, C, EigenType> & from,
-//                          const Dimension<EigenType<R, C>> & dim)
-// {
-//   return from.float_part(); // efmatrix -> efmatrix, conversion will be done in the assignment
-// }
-
 
 /***********************/
 /** General call **/
@@ -718,13 +711,13 @@ void convert (R& r, const R& from, const Dimension<R>& dim)
   r = R(from);
 }
 
-template<typename R, typename F>
-typename std::enable_if<!((std::is_base_of<R, Eigen::MatrixXd>::value) && (std::is_base_of<F, ExtendedFloatMatrixXd>::value)), const R>::type
-convert (const F& from, const Dimension<R>& dim)
-{
-  const R result = convert (from, dim);
-  return result;
-}
+// template<typename R, typename F>
+// typename std::enable_if<!((std::is_base_of<R, Eigen::MatrixXd>::value) && (std::is_base_of<F, ExtendedFloatMatrixXd>::value)), const R>::type
+// convert (const F& from, const Dimension<R>& dim)
+// {
+//   const R result = convert (from, dim);
+//   return result;
+// }
 
 /*******************************************/
 /*** Simple operators ***/

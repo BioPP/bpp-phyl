@@ -349,27 +349,6 @@ public:
 
   const DAGindexes& getEdgesIds(uint speciesId, size_t nCat) const;
 
-  /*
-   * @brief Return the loglikehood computation at a given node.
-   *
-   */
-
-  // ValueRef<double> getLogLikelihoodAtNode(uint nodeId)
-  // {
-  //   const auto pt=process_.getParametrizablePhyloTree();
-  //   if (!pt.hasNode(nodeId))
-  //     throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihoodAtNode : node " + TextTools::toString(nodeId) + " does not exist in Phylo Tree.");
-
-  //   // No need to recompute with backward if at root
-  //   if (pt.getRootIndex()==nodeId)
-  //     return likelihood_;
-
-  //   makeLikelihoodsAtNode_(nodeId);
-
-
-  // }
-
-
   size_t getNumberOfSites() const
   {
     return psites_ ? psites_->getNumberOfSites() : 0;
@@ -574,7 +553,7 @@ public:
    */
   void makeLikelihoodsTree()
   {
-    auto allIndex = process_.getParametrizablePhyloTree().getAllNodesIndexes();
+    auto allIndex = process_.getParametrizablePhyloTree()->getAllNodesIndexes();
 
     for (auto id: allIndex)
     {

@@ -44,9 +44,9 @@
 using namespace bpp;
 using namespace std;
 
-SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree) :
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies) :
   AbstractParameterAliasable(""),
-  AbstractAutonomousSubstitutionProcess(tree, model ? model->getNamespace() : ""),
+  AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model)
 {
   if (!model)
@@ -56,9 +56,9 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel
   addParameters_(model->getIndependentParameters()); // Substitution model
 }
 
-SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, const PhyloTree* tree) :
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, std::shared_ptr<const PhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies) :
   AbstractParameterAliasable(""),
-  AbstractAutonomousSubstitutionProcess(tree, model ? model->getNamespace() : ""),
+  AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model)
 {
   if (!model)

@@ -40,10 +40,7 @@
 
 #include "AbstractCodonFrequenciesSubstitutionModel.h"
 
-// #include <Bpp/Seq/Alphabet/AlphabetTools.h>
-
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/

@@ -77,7 +77,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   const SubstitutionProcess& sp = rltc.getSubstitutionProcess();
 
   if (edgeIds.size() == 0)
-    return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), reg.getNumberOfSubstitutionTypes(), rltc.getRootArrayPositions(), rltc.getNumberOfDistinctSites());
+    return new ProbabilisticSubstitutionMapping(*sp.getParametrizablePhyloTree(), reg.getNumberOfSubstitutionTypes(), rltc.getRootArrayPositions(), rltc.getNumberOfDistinctSites());
 
   unique_ptr<SubstitutionCount> substitutionCount(new DecompositionSubstitutionCount(reg.clone(), weights, distances));
 
@@ -99,7 +99,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   const SubstitutionProcess& sp = rltc.getSubstitutionProcess();
 
   if (edgeIds.size() == 0)
-    return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(),
+    return new ProbabilisticSubstitutionMapping(*sp.getParametrizablePhyloTree(),
                                                 substitutionCount.getNumberOfSubstitutionTypes(),
                                                 rltc.getRootArrayPositions(),
                                                 rltc.getNumberOfDistinctSites());
@@ -158,7 +158,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     }
   }
 
-  const ParametrizablePhyloTree& ppt = sp.getParametrizablePhyloTree();
+  auto ppt = sp.getParametrizablePhyloTree();
 
   // A few variables we'll need:
 
@@ -172,7 +172,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
   // We create a Mapping objects
 
-  unique_ptr<ProbabilisticSubstitutionMapping> substitutions(new ProbabilisticSubstitutionMapping(ppt, nbTypes, rootPatternLinks, nbDistinctSites));
+  unique_ptr<ProbabilisticSubstitutionMapping> substitutions(new ProbabilisticSubstitutionMapping(*ppt, nbTypes, rootPatternLinks, nbDistinctSites));
 
   // Compute the number of substitutions for each class and each branch in the tree
 
@@ -337,7 +337,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
   const SubstitutionProcess& sp = rltc.getSubstitutionProcess();
 
   if (edgeIds.size() == 0)
-    return new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(),
+    return new ProbabilisticSubstitutionMapping(*sp.getParametrizablePhyloTree(),
                                                 reg.getNumberOfSubstitutionTypes(),
                                                 rltc.getRootArrayPositions(),
                                                 rltc.getNumberOfDistinctSites());
@@ -471,7 +471,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
 
   // We create a Mapping objects
 
-  unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(sp.getParametrizablePhyloTree(), nbTypes, rootPatternLinks, nbDistinctSites));
+  unique_ptr<ProbabilisticSubstitutionMapping> normalizations(new ProbabilisticSubstitutionMapping(*sp.getParametrizablePhyloTree(), nbTypes, rootPatternLinks, nbDistinctSites));
 
   // Compute the reward for each class and each branch in the tree:
 

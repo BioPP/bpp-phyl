@@ -58,12 +58,10 @@ class SimpleSubstitutionProcess :
 protected:
   std::shared_ptr<BranchModel> model_;
 
-private:
-
 public:
-  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, const PhyloTree* tree = nullptr);
+  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, std::shared_ptr<const PhyloTree> tree = 0, std::shared_ptr<FrequencySet> rootFrequencies = 0);
 
-  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree);
+  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies = 0);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 
@@ -84,14 +82,14 @@ public:
     return std::vector<size_t>(1, 1);
   }
 
-  const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const
+  std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const
   {
-    return model_.get();
+    return model_;
   }
 
-  const BranchModel* getModel(size_t n) const
+  std::shared_ptr<const BranchModel> getModel(size_t n) const
   {
-    return model_.get();
+    return model_;
   }
 
   const std::vector<unsigned int> getNodesWithModel(size_t i) const
@@ -105,25 +103,14 @@ public:
     return 1;
   }
 
-  const BranchModel* getModelForNode(unsigned int nodeId) const
+  virtual std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const
   {
-    return model_.get();
+    return model_;
   }
 
-  const DiscreteDistribution* getRateDistribution() const
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
   {
     return 0;
-  }
-
-  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const {
-  //   return model_->getGenerator();
-  // }
-
-  bool hasRootFrequencySet() const { return false; }
-
-  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
-  {
-    return std::shared_ptr<const FrequencySet>(0);
   }
 
   ParameterList getSubstitutionModelParameters(bool independent) const
@@ -136,22 +123,25 @@ public:
     return ParameterList();
   }
 
-  ParameterList getRootFrequenciesParameters(bool independent) const
-  {
-    return ParameterList();
-  }
-
   ParameterList getBranchLengthParameters(bool independent) const
   {
-    return getParametrizablePhyloTree().getParameters();
+    if (getParametrizablePhyloTree())
+      return getParametrizablePhyloTree()->getParameters();
+    else
+      return ParameterList();
   }
 
   const std::vector<double>& getRootFrequencies() const
   {
-    if (std::dynamic_pointer_cast<const TransitionModel>(model_))
-      return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
+    if (!hasRootFrequencySet())
+    {
+      if (std::dynamic_pointer_cast<const TransitionModel>(model_))
+        return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
+      else
+        throw Exception("SimpleSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
+    }
     else
-      throw Exception("SimpleSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
+      return getRootFrequencySet()->getFrequencies();
   }
 
   /**

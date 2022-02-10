@@ -93,7 +93,7 @@ public:
     double threshold = -1,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
     return computeCounts(rltc, edgeIds, substitutionCount, threshold, verbose);
   }
 
@@ -122,7 +122,7 @@ public:
     double threshold = -1,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
     return computeCounts(rltc, edgeIds, reg, weights, distances, threshold, verbose);
   }
 
@@ -224,7 +224,7 @@ public:
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
     return computeNormalizations(rltc, edgeIds, nullModels, reg, distances, verbose);
   }
 
@@ -288,7 +288,7 @@ public:
     double threshold = -1,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
     return computeNormalizedCounts(rltc, edgeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
   }
 

@@ -65,7 +65,7 @@ double testBowker(const SimpleSubstitutionProcessSequenceSimulator& sim, size_t 
 int main() {
 
   Newick reader;
-  auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree("(A:0.02, B:0.02);", false, "", false, false));
+  auto phyloTree = std::shared_ptr<PhyloTree>(reader.parenthesisToPhyloTree("(A:0.02, B:0.02);", false, "", false, false));
 
   //First test stationnary model:
   cout << "..:: Testing with stationary model ::.." << endl;
@@ -73,7 +73,7 @@ int main() {
   std::shared_ptr<T92> model1(new T92(alphabet.get(), 3., 0.65));
   shared_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
   
-  auto process1 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model1, rdist, phyloTree.get());
+  auto process1 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model1, rdist, phyloTree);
 
   SimpleSubstitutionProcessSequenceSimulator simulatorS(*process1);
 
@@ -104,7 +104,7 @@ int main() {
   std::shared_ptr<T92> model2(new T92(alphabet.get(), 3., 0.65));
   auto rootFreqs2 = std::make_shared<GCFrequencySet>(alphabet.get(), 0.4);
 
-  auto process2 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model2, rdist, phyloTree.get(), rootFreqs2);
+  auto process2 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model2, rdist, phyloTree, rootFreqs2);
 
   SimpleSubstitutionProcessSequenceSimulator simulatorNS(*process2);
 
@@ -133,7 +133,7 @@ int main() {
 
   std::vector<string> globalParameterNames={"T92.kappa"};
   
-  auto process3 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model3, rdist, phyloTree.get(), rootFreqs3, globalParameterNames);
+  auto process3 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model3, rdist, phyloTree, rootFreqs3, globalParameterNames);
   
   process3->setParameterValue("T92.theta_1", 0.3);
   process3->setParameterValue("T92.theta_2", 0.8);
@@ -165,7 +165,7 @@ int main() {
   
   std::vector<string> globalParameterNames2={"T92.theta"};
   
-  auto process4 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model4, rdist, phyloTree.get(), rootFreqs4, globalParameterNames2);
+  auto process4 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model4, rdist, phyloTree, rootFreqs4, globalParameterNames2);
   
   process4->setParameterValue("T92.kappa_1", 2);
   process4->setParameterValue("T92.kappa_2", 7);

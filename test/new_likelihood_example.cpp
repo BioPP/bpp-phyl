@@ -242,7 +242,7 @@ int main(int argc, char** argv)
 
   // Read tree structure
   Newick reader;
-  auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
+  auto phyloTree = std::shared_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
 
 //  std::vector<std::string> globalParameterNames({"T92.kappa"});
 
@@ -259,8 +259,10 @@ int main(int argc, char** argv)
 
   // process->addModel(t92, Vuint({2}));
     
-  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree.get(), rootFreqs);//, scenario));
+  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree, rootFreqs);//, scenario));
 
+  process->getParameters().printParameters(cerr);
+  
   // Build likelihood value node
   auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, *process);
 
@@ -294,7 +296,7 @@ int main(int argc, char** argv)
 
   // // Manual access to dkappa
   
-  auto kappa= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("K80.kappa_1").get());
+  auto kappa= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("K80.kappa").get());
   auto dlogLik_dkappa = lik->getLikelihoodNode()->deriveAsValue(context, *kappa->dependency(0));
   std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
   dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
