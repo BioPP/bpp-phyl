@@ -1193,11 +1193,12 @@ AutonomousSubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionPro
     for (auto nb:vmodnb)
       NHSP->addModel(procm.getModel(nb), procm.getNodesWithModel(nb));
 
-    if (!NHSP->isFullySetUp())
+    if (!NHSP->isFullySetUp(false))
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess: process not fully set up.");
   }
-  
-  ASP->setModelScenario(procm.getModelScenario());
+
+  if (procm.getModelScenario())
+    ASP->setModelScenario(procm.getModelScenario());
 
   return ASP;
 }
@@ -1338,11 +1339,12 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     map<size_t, vector<unsigned int> > mModBr;
 
+    vector<uint> vNodes;
     if (numTree!=0)
-    {
-      vector<uint> vNodes = SubProColl.getTree(numTree)->getAllEdgesIndexes();
-      mModBr[numModel] = vNodes;
-    }
+      vNodes=SubProColl.getTree(numTree)->getAllEdgesIndexes();
+    else
+      vNodes={0};
+    mModBr[numModel] = vNodes;
     
     if (verbose)
     {
@@ -1503,8 +1505,6 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   // ///////////////////////
   // Trees
 
-  if (mTree.size() == 0)
-    throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
   for (const auto& itt : mTree)
   {
     if (itt.second) {
@@ -1515,9 +1515,6 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   // ///////////////////////
   // Rates
 
-  if (mDist.size() == 0)
-    throw Exception("Missing rate distribution in construction of SubstitutionProcessCollection.");
-
   for (const auto& itd : mDist)
   {
     SPC->addDistribution(itd.second, itd.first);
@@ -1525,9 +1522,6 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
 
   // ////////////////////////
   // Models
-
-  if (mMod.size() == 0)
-    throw Exception("Missing model in construction of SubstitutionProcessCollection.");
 
   for (const auto& itm : mMod)
   {

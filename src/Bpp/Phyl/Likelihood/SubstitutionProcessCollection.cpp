@@ -318,7 +318,7 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
     mModelToSubPro_[it->first].push_back(nProc);
   }
 
-  pSMS->isFullySetUp();
+  pSMS->isFullySetUp(nTree!=0);
 
   mTreeToSubPro_[nTree].push_back(nProc);
   mDistToSubPro_[nRate].push_back(nProc);
