@@ -89,8 +89,8 @@ ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool p
     const ProbabilisticSequenceContainer* psc = dynamic_cast<const ProbabilisticSequenceContainer*>(&data);
 
     shared_ptr<CruxSymbolList> seq(sc ?
-                                   dynamic_cast<CruxSymbolList*>(new BasicSequence(sc->getSequence(names[i]))) :
-                                   dynamic_cast<CruxSymbolList*>(new BasicProbabilisticSequence(*psc->getSequence(names[i]))));
+                                   dynamic_cast<CruxSymbolList*>(sc->getSequence(names[i]).clone()) :
+                                   dynamic_cast<CruxSymbolList*>(psc->getSequence(names[i]).clone()));
 
     SymbolListTools::changeGapsToUnknownCharacters(*seq);
     SequenceTools::getFrequencies(*seq, freqs.at(i));

@@ -99,24 +99,24 @@ AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesConta
 
     for (auto i : leaves)
     {
-      std::shared_ptr<BasicProbabilisticSequence> newSeq(0);
+      const ProbabilisticSequence* newSeq(0);
 
       if (i->hasName())
       {
         try
         {
-          newSeq = sitecontainer.getSequence(i->getName());
-          sequenceSubset->addSequence(newSeq);
+          newSeq = &sitecontainer.getSequence(i->getName());
+          sequenceSubset->addSequence(*newSeq);
         }
         catch (std::exception const& e)
         {
           ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
 
-          newSeq = shared_ptr<BasicProbabilisticSequence>(new BasicProbabilisticSequence(i->getName(), Table<double>(sequenceSet.getAlphabet()->getSize(), 0), sequenceSet.getAlphabet()));
+          BasicProbabilisticSequence newSeq2(i->getName(), Table<double>(sequenceSet.getAlphabet()->getSize(), 0), sequenceSet.getAlphabet());
 
-          newSeq->setToSizeR(nbSites);
-          SymbolListTools::changeGapsToUnknownCharacters(*newSeq);
-          sequenceSubset->addSequence(newSeq);
+          newSeq2.setToSizeR(nbSites);
+          SymbolListTools::changeGapsToUnknownCharacters(newSeq2);
+          sequenceSubset->addSequence(newSeq2);
         }
       }
     }
@@ -159,10 +159,10 @@ AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesConta
 
     for (unsigned int i = 0; i < names.size(); i++)
     {
-      shared_ptr<BasicProbabilisticSequence> newSeq = sitecontainer.getSequence(names[i]);
+      const auto newSeq = &sitecontainer.getSequence(names[i]);
       if (!newSeq)
         throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", names[i]);
-      sequenceSubset->addSequence(newSeq);
+      sequenceSubset->addSequence(*newSeq);
     }
   }
   else

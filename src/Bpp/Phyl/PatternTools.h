@@ -178,7 +178,7 @@ AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesConta
         try
         {
           std::shared_ptr<BasicProbabilisticSequence> newSeq(sitecontainer.getSequence(i->getName()));
-          sequenceSubset->addSequence(newSeq);
+          sequenceSubset->addSequence(*newSeq);
         }
         catch (std::exception const& e)
         {
@@ -187,7 +187,7 @@ AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesConta
           std::shared_ptr<BasicProbabilisticSequence> newSeq(new BasicProbabilisticSequence(i->getName(), Table<double>(sequenceSet.getAlphabet()->getSize(), 0), sequenceSet.getAlphabet()));
           newSeq->setToSizeR(nbSites);
           SymbolListTools::changeGapsToUnknownCharacters(*newSeq);
-          sequenceSubset->addSequence(newSeq);
+          sequenceSubset->addSequence(*newSeq);
         }
       }
     }
