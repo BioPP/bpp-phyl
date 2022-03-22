@@ -72,7 +72,7 @@ using namespace std;
 void DistanceEstimation::computeMatrix()
 {
   size_t n = sites_->getNumberOfSequences();
-  vector<string> names = sites_->getSequencesNames();
+  vector<string> names = sites_->getSequenceNames();
   dist_ = std::shared_ptr<DistanceMatrix>(new DistanceMatrix(names));
   optimizer_->setVerbose(static_cast<unsigned int>(max(static_cast<int>(verbose_) - 2, 0)));
 

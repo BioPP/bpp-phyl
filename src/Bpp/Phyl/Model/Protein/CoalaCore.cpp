@@ -80,7 +80,7 @@ ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool p
   ParameterList pList;
   // Now we perform the Correspondence Analysis on from the matrix of observed frequencies computed on the alignment, to obtain the matrix of principal axes.
   // First, the matrix of amino acid frequencies is calculated from the alignment:
-  vector<string> names = data.getSequencesNames();
+  vector<string> names = data.getSequenceNames();
   vector< map<int, double> > freqs(names.size()); // One map per sequence
   // Each map is filled with the corresponding frequencies, which are then normalized.
   for (size_t i = 0; i < names.size(); ++i)

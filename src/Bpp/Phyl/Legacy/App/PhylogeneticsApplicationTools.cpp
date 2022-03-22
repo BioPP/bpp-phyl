@@ -233,7 +233,7 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
       if (mSeq.find(seqNum) == mSeq.end())
         throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
 
-      vector<string> names = mSeq.find(seqNum)->second->getSequencesNames();
+      vector<string> names = mSeq.find(seqNum)->second->getSequenceNames();
       Tree* tree = TreeTemplateTools::getRandomTree(names);
       tree->setBranchLengths(1.);
 

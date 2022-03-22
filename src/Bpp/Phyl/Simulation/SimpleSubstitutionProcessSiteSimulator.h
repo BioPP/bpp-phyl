@@ -237,7 +237,7 @@ public:
 
   Site* simulateSite(size_t ancestralStateIndex, double rate) const;
 
-  std::vector<std::string> getSequencesNames() const { return seqNames_; }
+  std::vector<std::string> getSequenceNames() const { return seqNames_; }
   /** @} */
 
   /**

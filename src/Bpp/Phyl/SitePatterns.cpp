@@ -53,7 +53,7 @@ using namespace std;
 /******************************************************************************/
 
 SitePatterns::SitePatterns(const AlignedValuesContainer* sequences , bool own) :
-  names_(sequences->getSequencesNames()),
+  names_(sequences->getSequenceNames()),
   sites_(),
   weights_(),
   indices_(),
@@ -71,7 +71,7 @@ SitePatterns::SitePatterns(const AlignedValuesContainer* sequences , std::vector
   alpha_(sequences->getAlphabet()),
   own_(false)
 {
-  names_=sequences->getSequencesNames();
+  names_=sequences->getSequenceNames();
   if (names.size()!=0)
     names_=VectorTools::vectorIntersection(names_, names);
   init_(sequences, names_);
@@ -172,7 +172,7 @@ std::shared_ptr<AlignedValuesContainer> SitePatterns::getSites() const
   else
     sites = new VectorProbabilisticSiteContainer(sites_, alpha_);
 
-  sites->setSequencesNames(names_, false);
+  sites->setSequenceNames(names_, false);
 
   auto ret= std::shared_ptr<AlignedValuesContainer>(sites);
   return ret;

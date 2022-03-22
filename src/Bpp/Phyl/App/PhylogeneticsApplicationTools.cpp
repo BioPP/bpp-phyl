@@ -320,7 +320,7 @@ map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhylo
       if (mSeq.find(seqNum) == mSeq.end())
         throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
 
-      vector<string> names = mSeq.find(seqNum)->second->getSequencesNames();
+      vector<string> names = mSeq.find(seqNum)->second->getSequenceNames();
 //      PhyloTree* tree = TreeTemplateTools::getRandomTree(names);
       PhyloTree* tree = 0;
       tree->setBranchLengths(1.);

@@ -204,7 +204,7 @@ AlignedValuesContainer* PatternTools::shrinkSiteSet(const AlignedValuesContainer
   }
   result = sc ? dynamic_cast<AlignedValuesContainer*>(new VectorSiteContainer(sites, siteSet.getAlphabet(), false)) :
            dynamic_cast<AlignedValuesContainer*>(new VectorProbabilisticSiteContainer(sites, siteSet.getAlphabet(), false)); // We do not check positions here.
-  result->setSequencesNames(siteSet.getSequencesNames(), false);
+  result->setSequenceNames(siteSet.getSequenceNames(), false);
   return result;
 }
 
