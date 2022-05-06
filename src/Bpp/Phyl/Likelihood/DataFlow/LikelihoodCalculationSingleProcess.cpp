@@ -353,22 +353,9 @@ AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsFo
   {
     allLk->row(Eigen::Index(nCat)) = getSiteLikelihoodsForAClass(nCat, shrunk);
   }
+ 
   return *allLk;
 }
-
-// std::shared_ptr<ConditionalLikelihoodTree> LikelihoodCalculationSingleProcess::getConditionalLikelihoodTree(size_t nCat)
-// {
-//   if (nCat>=vRateCatTrees_.size())
-//     throw Exception("LikelihoodCalculationSingleProcess::getConditionalLikelihoodTree : Bad Class number " + TextTools::toString(nCat));
-
-//   if (shrunkData_ && !likelihood_)
-//     makeLikelihoodsAtRoot_();
-
-//   if (vRateCatTrees_[nCat].clt==0)
-//     makeLikelihoodsAtNode_(getTreeNode()->getRootIndex());
-
-//   return vRateCatTrees_[nCat].clt;
-// }
 
 
 /****************************************

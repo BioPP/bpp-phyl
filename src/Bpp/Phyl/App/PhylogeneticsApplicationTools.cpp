@@ -3683,7 +3683,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       if (nbR > 1)
         for (size_t i = 0; i < nbR; i++)
         {
-          colNames.push_back("prob" + TextTools::toString(i + 1));
+          colNames.push_back("Pr_rate=" + TextTools::toString(pDD->getCategory(i)));
         }
     }
 
