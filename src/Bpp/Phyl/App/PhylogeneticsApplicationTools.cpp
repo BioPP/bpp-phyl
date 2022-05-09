@@ -3686,10 +3686,12 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
           colNames.push_back("Pr_rate=" + TextTools::toString(pDD->getCategory(i)));
         }
     }
+    colNames.push_back("rc");
+    colNames.push_back("pr");
 
     const AlignedValuesContainer* sites = phyloLike.getData();
 
-    vector<string> row(4 + (nbR > 1 ? nbR : 0));
+    vector<string> row(6 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
 
     VVdouble vvPP(pSPL->getPosteriorProbabilitiesPerSitePerClass());
@@ -3720,11 +3722,18 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       row[3] = TextTools::toString(lnL);
 
       if (nbR > 1)
+      {
+        double pr=0;
         for (size_t j = 0; j < nbR; j++)
         {
           row[4 + j] = TextTools::toString(vvPP[i][j]);
+          pr += vvPP[i][j] * pDD->getCategory(j);
         }
 
+        row[4 + nbR] = TextTools::toString(VectorTools::whichMax(vvPP[i])+1);
+        row[5 + nbR] = TextTools::toString(pr);
+      }
+      
       infos->addRow(row);
     }
 
