@@ -1222,7 +1222,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   if ((procName != "OnePerBranch") && (procName != "Homogeneous") && (procName != "Nonhomogeneous") &&  (procName != "NonHomogeneous"))
   {
-    if (warn)
+    if (warn>=2)
       ApplicationTools::displayWarning("Warning, unknown process name: " + procName);
 
     return 0;
@@ -2585,7 +2585,7 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
             pl[p].setValue(TextTools::toDouble(pvalue));
           }
           else
-            ApplicationTools::displayMessage("Warning: unknown parameter in backup file : " + pname);
+            ApplicationTools::displayWarning("Unknown parameter in backup file : " + pname);
         }
       }
       bck.close();

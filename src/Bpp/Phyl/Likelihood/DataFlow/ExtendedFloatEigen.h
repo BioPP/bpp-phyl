@@ -315,12 +315,14 @@ public:
   {
     using namespace std;
 
-    if (isfinite(float_part().cwiseAbs().maxCoeff()))
+    auto max = float_part().cwiseAbs().maxCoeff();
+    if (isfinite(max))
     {
       bool normalized = false;
-      while (float_part().cwiseAbs().maxCoeff() > ExtendedFloat::biggest_normalized_value)
+      while (max > ExtendedFloat::biggest_normalized_value)
       {
         float_part() *= (double)ExtendedFloat::normalize_big_factor;
+        max *= (double)ExtendedFloat::normalize_big_factor;
         exp_ += ExtendedFloat::biggest_normalized_radix_power;
         normalized = true;
       }
@@ -331,16 +333,19 @@ public:
 
   bool normalize_small ()
   {
-    if (float_part().cwiseAbs().minCoeff() != 0)
-    {
+    const auto& fabs= float_part().cwiseAbs();
+    auto max=fabs.maxCoeff();
+    if (max > 0){
+      // not a vector of zeros
+      auto min=fabs.unaryExpr([max](double d){return d>0?d:max;}).minCoeff();
       bool normalized = false;
-      while (float_part().cwiseAbs().minCoeff() < ExtendedFloat::smallest_normalized_value)
-      {
-        if (float_part().cwiseAbs().maxCoeff() >= ExtendedFloat::biggest_value_for_mult)
-        {
+      while (min< ExtendedFloat::smallest_normalized_value) {
+        if (max>=ExtendedFloat::biggest_value_for_mult){
           break;
-        }
+        } 
         float_part() *= (double)ExtendedFloat::normalize_small_factor;
+        min *= (double)ExtendedFloat::normalize_small_factor;
+        max *= (double)ExtendedFloat::normalize_small_factor;
         exp_ -= ExtendedFloat::biggest_normalized_radix_power;
         normalized = true;
       }
@@ -348,7 +353,7 @@ public:
     }
     return false;
   }
-
+  
   void normalize () noexcept
   {
     if (!normalize_big())
