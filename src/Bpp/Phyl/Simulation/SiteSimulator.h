@@ -62,8 +62,11 @@ public:
 
 public:
   virtual Site* simulateSite() const = 0;
+
   virtual Site* simulateSite(size_t rateClass) const = 0;
+
   virtual Site* simulateSite(double rate) const = 0;
+
   virtual Site* simulateSite(size_t ancestralStateIndex, double rate) const = 0;
 
   virtual std::vector<std::string> getSequenceNames() const = 0;
