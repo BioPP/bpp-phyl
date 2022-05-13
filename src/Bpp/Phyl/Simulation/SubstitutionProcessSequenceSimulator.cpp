@@ -181,7 +181,7 @@ void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
 std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
 {
   auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
-  sites->setSequencesNames(seqNames_);
+  sites->setSequenceNames(seqNames_);
 
   Vint vval(seqNames_.size());
 
@@ -209,7 +209,7 @@ std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(co
     throw Exception("SubstitutionProcessSequenceSimulator::simulate : some sites do not have attributed process");
 
   auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
-  sites->setSequencesNames(seqNames_);
+  sites->setSequenceNames(seqNames_);
 
   Vint vval(seqNames_.size());
 
@@ -234,7 +234,7 @@ std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(co
   size_t numberOfSites = states.size();
 
   auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
-  sites->setSequencesNames(seqNames_);
+  sites->setSequenceNames(seqNames_);
 
   Vint vval(seqNames_.size());
 
@@ -261,7 +261,7 @@ std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(co
     throw Exception("SubstitutionProcessSequenceSimulator::simulate, 'rates' and 'states' must have the same length.");
 
   auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
-  sites->setSequencesNames(seqNames_);
+  sites->setSequenceNames(seqNames_);
 
   Vint vval(seqNames_.size());
 

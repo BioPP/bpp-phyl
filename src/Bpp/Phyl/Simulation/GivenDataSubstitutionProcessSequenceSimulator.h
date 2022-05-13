@@ -112,9 +112,9 @@ public:
    */
   const Alphabet* getAlphabet() const { return vSiteSim_[0]->getAlphabet(); }
 
-  std::vector<std::string> getSequencesNames() const
+  std::vector<std::string> getSequenceNames() const
   {
-    return vSiteSim_[0]->getSequencesNames();
+    return vSiteSim_[0]->getSequenceNames();
   }
 
 

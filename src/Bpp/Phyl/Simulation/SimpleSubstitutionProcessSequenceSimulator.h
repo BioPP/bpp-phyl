@@ -102,9 +102,9 @@ public:
     return *siteSim_;
   }
 
-  std::vector<std::string> getSequencesNames() const
+  std::vector<std::string> getSequenceNames() const
   {
-    return siteSim_->getSequencesNames();
+    return siteSim_->getSequenceNames();
   }
 
   /**

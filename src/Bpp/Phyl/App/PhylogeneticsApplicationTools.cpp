@@ -320,7 +320,7 @@ map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhylo
       if (mSeq.find(seqNum) == mSeq.end())
         throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
 
-      vector<string> names = mSeq.find(seqNum)->second->getSequencesNames();
+      vector<string> names = mSeq.find(seqNum)->second->getSequenceNames();
 //      PhyloTree* tree = TreeTemplateTools::getRandomTree(names);
       PhyloTree* tree = 0;
       tree->setBranchLengths(1.);
@@ -1222,7 +1222,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   if ((procName != "OnePerBranch") && (procName != "Homogeneous") && (procName != "Nonhomogeneous") &&  (procName != "NonHomogeneous"))
   {
-    if (warn)
+    if (warn>=2)
       ApplicationTools::displayWarning("Warning, unknown process name: " + procName);
 
     return 0;
@@ -2585,7 +2585,7 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
             pl[p].setValue(TextTools::toDouble(pvalue));
           }
           else
-            ApplicationTools::displayMessage("Warning: unknown parameter in backup file : " + pname);
+            ApplicationTools::displayWarning("Unknown parameter in backup file : " + pname);
         }
       }
       bck.close();
@@ -3683,13 +3683,15 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       if (nbR > 1)
         for (size_t i = 0; i < nbR; i++)
         {
-          colNames.push_back("prob" + TextTools::toString(i + 1));
+          colNames.push_back("Pr_rate=" + TextTools::toString(pDD->getCategory(i)));
         }
     }
+    colNames.push_back("rc");
+    colNames.push_back("pr");
 
     const AlignedValuesContainer* sites = phyloLike.getData();
 
-    vector<string> row(4 + (nbR > 1 ? nbR : 0));
+    vector<string> row(6 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
 
     VVdouble vvPP(pSPL->getPosteriorProbabilitiesPerSitePerClass());
@@ -3720,11 +3722,18 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       row[3] = TextTools::toString(lnL);
 
       if (nbR > 1)
+      {
+        double pr=0;
         for (size_t j = 0; j < nbR; j++)
         {
           row[4 + j] = TextTools::toString(vvPP[i][j]);
+          pr += vvPP[i][j] * pDD->getCategory(j);
         }
 
+        row[4 + nbR] = TextTools::toString(VectorTools::whichMax(vvPP[i])+1);
+        row[5 + nbR] = TextTools::toString(pr);
+      }
+      
       infos->addRow(row);
     }
 

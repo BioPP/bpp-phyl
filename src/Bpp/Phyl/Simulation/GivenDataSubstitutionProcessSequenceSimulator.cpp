@@ -41,7 +41,7 @@
 
 #include "GivenDataSubstitutionProcessSequenceSimulator.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
@@ -51,9 +51,9 @@ using namespace std;
 
 std::shared_ptr<SiteContainer> GivenDataSubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
 {
-  auto seqNames = vSiteSim_[0]->getSequencesNames();
+  auto seqNames = vSiteSim_[0]->getSequenceNames();
   auto sites = make_shared<VectorSiteContainer>(seqNames, getAlphabet());
-  sites->setSequencesNames(seqNames);
+  sites->setSequenceNames(seqNames);
 
   for (size_t j = 0; j < calcul_->getNumberOfSites(); j++)
   {

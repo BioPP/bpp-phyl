@@ -71,7 +71,7 @@ public:
 
   virtual const SiteSimulator& getSiteSimulator(size_t pos) const = 0;
 
-  virtual std::vector<std::string> getSequencesNames() const = 0;
+  virtual std::vector<std::string> getSequenceNames() const = 0;
 
   virtual const Alphabet* getAlphabet() const = 0;
 

@@ -162,5 +162,38 @@ public:
     return efMat_;
   }
 };
+
+
+/*
+ * Manage Row in a ExtendedFloatMatrix;
+ *
+ */
+
+  template< int R,  int C, template< int R2,  int C2> class EigenType>
+class ExtendedFloatRow
+{
+protected:
+  ExtendedFloatEigen<R, C, EigenType>& efMat_;
+  Eigen::Index nrow_;
+  
+public:
+  ExtendedFloatRow(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index nrow) :
+    efMat_(der), nrow_(nrow) {}
+
+  /*
+   * @brief Includes a row in an ExtendedFloatMatrix. Exponent parts
+   * of both are to be fit, as in denorm_add method.
+   *
+   */
+  
+  ExtendedFloatRow& operator=(const ExtendedFloatEigen<1, C, EigenType>& row)
+  {
+    efMat_.float_part().row(nrow_) = row.float_part() * constexpr_power<double>(ExtendedFloat::radix, row.exponent_part()-efMat_.exponent_part());
+    efMat_.normalize();
+    return *this;
+  }
+
+};
 }
+
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_EXTENDEDFLOATEIGENTOOLS_H

@@ -100,9 +100,6 @@ using EFArray = Eigen::Array<double, R, C>;
 /*
  * Class associating Eigen::Matrix & exponant to hanble underflow.
  *
- * BEWARE: Most operators (such as operator (), = ) handle only Eigen object.
- *
- *
  *
  */
 
@@ -318,12 +315,14 @@ public:
   {
     using namespace std;
 
-    if (isfinite(float_part().cwiseAbs().maxCoeff()))
+    auto max = float_part().cwiseAbs().maxCoeff();
+    if (isfinite(max))
     {
       bool normalized = false;
-      while (float_part().cwiseAbs().maxCoeff() > ExtendedFloat::biggest_normalized_value)
+      while (max > ExtendedFloat::biggest_normalized_value)
       {
         float_part() *= (double)ExtendedFloat::normalize_big_factor;
+        max *= (double)ExtendedFloat::normalize_big_factor;
         exp_ += ExtendedFloat::biggest_normalized_radix_power;
         normalized = true;
       }
@@ -334,16 +333,19 @@ public:
 
   bool normalize_small ()
   {
-    if (float_part().cwiseAbs().minCoeff() != 0)
-    {
+    const auto& fabs= float_part().cwiseAbs();
+    auto max=fabs.maxCoeff();
+    if (max > 0){
+      // not a vector of zeros
+      auto min=fabs.unaryExpr([max](double d){return d>0?d:max;}).minCoeff();
       bool normalized = false;
-      while (float_part().cwiseAbs().minCoeff() < ExtendedFloat::smallest_normalized_value)
-      {
-        if (float_part().cwiseAbs().maxCoeff() >= ExtendedFloat::biggest_value_for_mult)
-        {
+      while (min< ExtendedFloat::smallest_normalized_value) {
+        if (max>=ExtendedFloat::biggest_value_for_mult){
           break;
-        }
+        } 
         float_part() *= (double)ExtendedFloat::normalize_small_factor;
+        min *= (double)ExtendedFloat::normalize_small_factor;
+        max *= (double)ExtendedFloat::normalize_small_factor;
         exp_ -= ExtendedFloat::biggest_normalized_radix_power;
         normalized = true;
       }
@@ -351,7 +353,7 @@ public:
     }
     return false;
   }
-
+  
   void normalize () noexcept
   {
     if (!normalize_big())
@@ -773,6 +775,7 @@ public:
   {
     return float_part().rows();
   }
+
   template<typename CustomNullaryOp>
   static Self NullaryExpr(Eigen::Index rows, Eigen::Index cols, const CustomNullaryOp& func)
   {
@@ -790,10 +793,10 @@ public:
   }
 
   template<typename M = MatType>
-  typename std::enable_if<std::is_same<M, EFMatrix<R, C> >::value, ExtendedFloatMatrix<1, C> >::type
-  row(Eigen::Index pos) const
+  typename std::enable_if<std::is_same<M, EFMatrix<R, C> >::value, ExtendedFloatRow<R, C, EigenType > >::type
+  row(Eigen::Index pos)
   {
-    return ExtendedFloatMatrix<1, C>(float_part().row(pos), exponent_part());
+    return ExtendedFloatRow<R, C, EigenType>(*this, pos);
   }
 
   ExtendedFloatVectorwiseOp<Self, MatType, Eigen::Horizontal> rowwise()
@@ -829,6 +832,7 @@ public:
   typename std::enable_if<std::is_same<M, EFArray<R, C> >::value, const ExtendedFloat&>::type
   operator[](Eigen::Index pos) const
   {
+    EFtmp_.set_exponent_part(exponent_part());
     EFtmp_.set_float_part(float_part()[pos]);
     return EFtmp_;
   }
@@ -842,12 +846,14 @@ public:
 
   const ExtendedFloat& mean() const
   {
+    EFtmp_.set_exponent_part(exponent_part());
     EFtmp_.set_float_part(float_part().mean());
     return EFtmp_;
   }
 
   const ExtendedFloat& maxCoeff(size_t* pos = 0) const
   {
+    EFtmp_.set_exponent_part(exponent_part());
     if (pos)
       EFtmp_.set_float_part(float_part().maxCoeff(pos));
     else

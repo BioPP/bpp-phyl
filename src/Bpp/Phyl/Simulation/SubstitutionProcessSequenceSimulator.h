@@ -108,7 +108,7 @@ public:
     return *mProcess_.at(vMap_[pos]);
   }
 
-  std::vector<std::string> getSequencesNames() const
+  std::vector<std::string> getSequenceNames() const
   {
     return seqNames_;
   }

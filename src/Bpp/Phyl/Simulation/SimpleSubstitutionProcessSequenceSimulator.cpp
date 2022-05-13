@@ -53,9 +53,9 @@ using namespace std;
 
 std::shared_ptr<SiteContainer> SimpleSubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
 {
-  auto seqNames = siteSim_->getSequencesNames();
+  auto seqNames = siteSim_->getSequenceNames();
   auto sites = make_shared<VectorSiteContainer>(seqNames, getAlphabet());
-  sites->setSequencesNames(seqNames);
+  sites->setSequenceNames(seqNames);
   for (size_t j = 0; j < numberOfSites; j++)
   {
     Site* site = siteSim_->simulateSite();

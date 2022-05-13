@@ -62,7 +62,7 @@ std::shared_ptr<SiteContainer> SequenceSimulationTools::simulateSites(const Sequ
     vs[i] = s;
   }
   auto sites = make_shared<VectorSiteContainer>(vs, simulator.getAlphabet());
-  sites->setSequencesNames(simulator.getSequencesNames(), false);
+  sites->setSequenceNames(simulator.getSequenceNames(), false);
   // Freeing memory:
   for (size_t i = 0; i < numberOfSites; i++)
   {
@@ -86,7 +86,7 @@ std::shared_ptr<SiteContainer> SequenceSimulationTools::simulateSites(const Sequ
   }
 
   auto sites = make_shared<VectorSiteContainer>(vs, simulator.getAlphabet());
-  sites->setSequencesNames(simulator.getSequencesNames(), false);
+  sites->setSequenceNames(simulator.getSequenceNames(), false);
   // Freeing memory:
   for (size_t i = 0; i < numberOfSites; i++)
   {
@@ -102,13 +102,13 @@ std::shared_ptr<SiteContainer> SequenceSimulationTools::simulateSites(const Sequ
   vector<const Site*> vs(numberOfSites);
   for (size_t i = 0; i < numberOfSites; i++)
   {
-    Site* s = simulator.getSiteSimulator(i).simulateSite(states[i]);
+    Site* s = simulator.getSiteSimulator(i).simulateSite(states[i], 1);
     s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }
 
   auto sites = make_shared<VectorSiteContainer>(vs, simulator.getAlphabet());
-  sites->setSequencesNames(simulator.getSequencesNames(), false);
+  sites->setSequenceNames(simulator.getSequenceNames(), false);
   // Freeing memory:
   for (size_t i = 0; i < numberOfSites; i++)
   {
