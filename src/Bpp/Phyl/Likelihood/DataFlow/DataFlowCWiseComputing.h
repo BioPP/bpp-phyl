@@ -934,6 +934,7 @@ private:
  *
  * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
  */
+
 template<typename R, typename T0, typename T1> class CWiseMul<R, std::tuple<T0, T1> > : public Value<R>
 {
 public:
@@ -1038,12 +1039,14 @@ private:
     auto& result = this->accessValueMutable ();
     const auto& x0 = accessValueConstCast<U>(*this->dependency (0));
     const auto& x1 = accessValueConstCast<V>(*this->dependency (1));
-    result = cwise (x0) * cwise (x1);
-
 #ifdef DEBUG
     std::cerr << "=== Mul === " << this << std::endl;
     std::cerr << "x0= "     << x0 << std::endl;
     std::cerr << "x1= "     << x1 << std::endl;
+#endif
+    result = cwise (x0) * cwise (x1);
+
+#ifdef DEBUG
     std::cerr << "result= " << result << std::endl;
     std::cerr << "=== end Mul === " << this << std::endl << std::endl;
 #endif
@@ -1104,7 +1107,6 @@ private:
 
   Dimension<R> targetDimension_;
 };
-
 
 /*************************************************************************
  * @brief r = prod (x_i), for each component.
@@ -1207,6 +1209,7 @@ private:
 
   Dimension<R> targetDimension_;
 };
+
 
 
 /*************************************************************************
