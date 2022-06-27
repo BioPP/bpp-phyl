@@ -46,6 +46,7 @@
 #include <Bpp/Phyl/Model/FrequencySet/FrequencySet.h>
 #include <Bpp/Seq/Io/Fasta.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
+#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
 #include <Bpp/Phyl/Legacy/OptimizationTools.h>
 
 #include <Bpp/Phyl/OptimizationTools.h>
@@ -65,7 +66,7 @@ using namespace std;
 int main() {
   
   Newick reader;
-  PhyloTree* phyloTree = reader.readPhyloTree("lysozymeLarge.dnd");
+  auto phyloTree = std::shared_ptr<PhyloTree>(reader.readPhyloTree("lysozymeLarge.dnd"));
 
   //-------------
 
@@ -78,11 +79,14 @@ int main() {
   
   SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
-  vector<std::shared_ptr<Sequence>> vseq;
+  vector<std::shared_ptr<ProbabilisticSequence>> vseq;
   for (size_t ns=0;ns < sites->getNumberOfSequences(); ns++)
-    vseq.push_back(std::shared_ptr<Sequence>(alphaall->convertFromStateAlphabet(sites->getSequence(ns))));
+    vseq.push_back(std::shared_ptr<ProbabilisticSequence>(alphaall->convertFromStateAlphabet(sites->getSequence(ns))));
 
-  AlignedSequenceContainer sites2(vseq, alphaall.get());
+  VectorProbabilisticSiteContainer sites2(alphaall.get());
+
+  for (const auto& seq:vseq)
+    sites2.addSequence(*seq);
 
   auto t92 = std::make_shared<T92>(&AlphabetTools::DNA_ALPHABET);
   

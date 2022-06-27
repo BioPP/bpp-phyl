@@ -657,6 +657,7 @@ public:
    */
   static void outputPerSitePerBranch(const std::string& filename,
                                      const std::vector<uint>& ids,
+                                     const AlignedValuesContainer& sites,
                                      const VVdouble& counts);
 
   /**
@@ -664,6 +665,7 @@ public:
    */
   static void outputPerSitePerType(const std::string& filename,
                                    const SubstitutionRegister& reg,
+                                   const AlignedValuesContainer& sites,
                                    const VVdouble& counts);
 
   /**
@@ -672,6 +674,7 @@ public:
   static void outputPerSitePerBranchPerType(const std::string& filenamePrefix,
                                             const std::vector<uint>& ids,
                                             const SubstitutionRegister& reg,
+                                            const AlignedValuesContainer& sites,
                                             const VVVdouble& counts);
 
 

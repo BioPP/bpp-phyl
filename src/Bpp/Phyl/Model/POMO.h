@@ -51,21 +51,21 @@
  *
  * In the alphabet from which the AllelicAlphabet is built, this model
  * needs a given mutation model with generator (aka SubstitutionModel
- * in Bio++), and allele selection coefficients from a FrequencySet.
+ * in Bio++), and allele selection coefficients from a finess vector
+ * (aka FrequencySet in Bio++).
  *
+ * If we denote @f$F@f$ this fitness, the drift term towards the
+ * fixation of allele @f$i@f$ is proportional @f$F_i@f$, and follows
+ * the Moran law.
  *
- * If we denote @f$F@f$ the equilibrium frequency, the generator term
- * defined from inherited and inheriting classes, @f$Q_{ij})@f$, is
- * multiplied by @f$F_{j}@f$.
- *
- * see:
+ * See:
  *
  * De Maio, N., Schrempf, D., and Kosiol, C. (2015). PoMo: An allele
- * frequency-based approach for279species tree estimation. Systematic
+ * frequency-based approach for 279 species tree estimation. Systematic
  * Biology, 64(6):1018–1031.
  *
  * Borges, R. and Kosiol, C. (2020). Consistency and identifiability
- * of the polymorphism-aware phylo-269genetic models. Journal of
+ * of the polymorphism-aware phylo-genetic models. Journal of
  * Theoretical Biology, 486:110074.
  */
 
