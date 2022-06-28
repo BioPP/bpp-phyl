@@ -1208,6 +1208,7 @@ double SubstitutionMappingTools::getNormForSite(const ProbabilisticSubstitutionM
 void SubstitutionMappingTools::outputPerSitePerBranch(
   const string& filename,
   const vector<uint>& ids,
+  const AlignedValuesContainer& sites,
   const VVdouble& counts)
 {
   size_t nbSites = counts.size();
@@ -1228,7 +1229,7 @@ void SubstitutionMappingTools::outputPerSitePerBranch(
   for (size_t k = 0; k < nbSites; ++k)
   {
     const Vdouble& countS = counts[k];
-    file << k;
+    file << sites.getSymbolListSite(k).getPosition();
     for (size_t i = 0; i < nbBr; ++i)
     {
       file << "\t" << countS[i];
@@ -1244,6 +1245,7 @@ void SubstitutionMappingTools::outputPerSitePerBranch(
 void SubstitutionMappingTools::outputPerSitePerType(
   const string& filename,
   const SubstitutionRegister& reg,
+  const AlignedValuesContainer& sites,
   const VVdouble& counts)
 {
   size_t nbSites = counts.size();
@@ -1263,7 +1265,7 @@ void SubstitutionMappingTools::outputPerSitePerType(
 
   for (size_t k = 0; k < nbSites; ++k)
   {
-    file << k;
+    file << sites.getSymbolListSite(k).getPosition();
     const Vdouble& resS = counts[k];
     for (size_t i = 0; i < nbTypes; ++i)
     {
@@ -1281,6 +1283,7 @@ void SubstitutionMappingTools::outputPerSitePerBranchPerType(
   const string& filenamePrefix,
   const vector<uint>& ids,
   const SubstitutionRegister& reg,
+  const AlignedValuesContainer& sites,
   const VVVdouble& counts)
 {
   size_t nbSites = counts.size();
@@ -1315,7 +1318,8 @@ void SubstitutionMappingTools::outputPerSitePerBranchPerType(
     {
       const VVdouble& resS = counts[j];
 
-      file << j;
+      file << sites.getSymbolListSite(j).getPosition();
+
       for (size_t k = 0; k < nbBr; ++k)
       {
         file << "\t" << resS[k][i];
