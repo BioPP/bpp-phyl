@@ -121,7 +121,7 @@ public:
   /**
    * @brief Get ancestral states  for a given node as a vector of int.
    *
-   * The size of the vector is the number of distinct sites in the container
+   * The size of the vector is the total number of sites in the container
    * associated to the likelihood object.
    * This method is mainly for efficient internal use in other classes.
    * Consider using the getAncestralSequenceForNode() method for a more
