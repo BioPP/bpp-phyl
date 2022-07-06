@@ -340,7 +340,8 @@ public:
       auto min=fabs.unaryExpr([max](double d){return d>0?d:max;}).minCoeff();
       bool normalized = false;
       while (min< ExtendedFloat::smallest_normalized_value) {
-        if (max>=ExtendedFloat::biggest_value_for_mult){
+        //to prevent overflow
+        if (max * ExtendedFloat::normalize_small_factor >=ExtendedFloat::biggest_normalized_value){
           break;
         } 
         float_part() *= (double)ExtendedFloat::normalize_small_factor;

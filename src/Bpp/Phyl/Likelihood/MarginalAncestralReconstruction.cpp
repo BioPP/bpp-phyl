@@ -102,29 +102,21 @@ Sequence* MarginalAncestralReconstruction::getAncestralSequenceForNode(uint node
   string name = tree_->getNode(nodeId)->hasName() ? tree_->getNode(nodeId)->getName() : ("" + TextTools::toString(nodeId));
   vector<int> allStates(nbSites_);
 
-  const auto& rootPatternLinks = likelihood_->getRootArrayPositions();
-
   const auto& statemap = likelihood_->getStateMap();
 
   VVdouble patternedProbs;
 
   if (probs)
   {
-    auto states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
-    probs->resize(nbSites_);
+    auto states = getAncestralStatesForNode(nodeId, *probs, sample);
     for (size_t i = 0; i < nbSites_; i++)
-    {
-      allStates[i] = statemap.getAlphabetStateAsInt(states[rootPatternLinks(Eigen::Index(i))]);
-      (*probs)[i] = patternedProbs[rootPatternLinks(Eigen::Index(i))];
-    }
+      allStates[i] = statemap.getAlphabetStateAsInt(states[i]);
   }
   else
   {
     auto states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     for (size_t i = 0; i < nbSites_; i++)
-    {
-      allStates[i] = statemap.getAlphabetStateAsInt(states[rootPatternLinks(Eigen::Index(i))]);
-    }
+      allStates[i] = statemap.getAlphabetStateAsInt(states[i]);
   }
 
   return new BasicSequence(name, allStates, alphabet_);

@@ -100,7 +100,7 @@ public:
     constexpr_power (FloatType (radix), biggest_normalized_radix_power);
 
   // smallest_repr_radix_power = min { n ; radix^n is representable }
-  static constexpr int smallest_repr_radix_power = std::numeric_limits<FloatType>::min_exponent - 1;
+  static constexpr int smallest_repr_radix_power = std::numeric_limits<FloatType>::min_exponent + 1;
 
   // smallest_normalized_radix_power = min { n ; (radix^n)^allowed_product_denorm is representable }
   static constexpr int smallest_normalized_radix_power =
@@ -113,15 +113,6 @@ public:
   // factors to scale f_ to renormalize.
   static constexpr FloatType normalize_big_factor = 1. / biggest_normalized_value;
   static constexpr FloatType normalize_small_factor = 1. / smallest_normalized_value;
-
-  // constants to prevent oveflow in the float type. The overflow can happen when mulltiplying float part
-  // values larger than biggest_value_for_mult. The maximum double value is 1.79769e+308 (~ 2^1023)
-  // In normalize_small() (in ExtendedFloatEigen.h) each float part value should be 2^(1023/2) ~ 2^511 to
-  // prevent potential overflow. Therefore, the normalization should be stopped before reaching a value larger
-  // than 2^(511 + smallest_normalized_radix_power) before the next iteration.
-  static constexpr int biggest_power_for_mult = 511 + smallest_normalized_radix_power;
-  static constexpr FloatType biggest_value_for_mult = constexpr_power (FloatType (radix), biggest_power_for_mult);
-
 
   // TODO add denorm info for sum
 
