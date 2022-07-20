@@ -67,10 +67,11 @@ POMO::POMO(const AllelicAlphabet* allAlph,
   pfitness_->setNamespace("POMO.fit_" + pfitness_->getNamespace());
   pmodel_->setNamespace("POMO." + pmodel_->getNamespace());
 
-  pmodel_->enableEigenDecomposition(false);
+  pmodel_->enableEigenDecomposition(pmodel_->computeFrequencies()); // enable eigen if needed for pmodel->freq_
   addParameters_(pfitness_->getParameters());
   addParameters_(pmodel_->getParameters());
 
+  computeFrequencies(false); // freq_ analytically defined
   updateMatrices();
 }
 
@@ -91,7 +92,6 @@ void POMO::updateMatrices()
   // for all couples starting with i
   for (size_t i=0;i<nbStates;i++)
   {
-    generator_(i, i)=Q(i,i);
     double phi_i = fit[i];
     // then for all couples ending with j
     for (size_t j=i+1;j<nbStates;j++)
@@ -120,7 +120,58 @@ void POMO::updateMatrices()
 
   setDiagonal();
 
+  // Stationnary distribution
+  // and variables used for rate of substitutions
+  
+  const auto& pFreq = pmodel_->getFrequencies();
+
+  for (size_t i=0;i<nbStates;i++)
+    freq_[i]=pFreq[i]*std::pow(fit[i],nbAlleles-1);
+
+  size_t k=nbStates;
+  double ssden1=0;
+  double ssnum=0;
+  
+  for (size_t i = 0; i < nbStates-1; ++i)
+    for (size_t j = i+1; j < nbStates; ++j)
+    {
+      auto mu=Q(i,j)*pFreq[i];   // alleles i & j
+      double rfreq=std::pow(fit[i],nbAlleles-2);
+      double den1=std::pow(fit[i],nbAlleles-1);
+      double den2=std::pow(fit[i],nbAlleles);
+      double sden1=den1;
+      double sden2=den2;
+      
+      double rat=fit[j]/fit[i];
+                            
+      for (size_t n=1 ; n<nbAlleles; n++)   // i_{N-n}j_{n}
+      {
+        freq_[k++]=mu*rfreq*nbAlleles/((int)n*(int)(nbAlleles-n));
+        rfreq*=rat;
+        den1*=rat;
+        den2*=rat;
+        sden1+=den1;
+        sden2+=den2;
+      }
+
+      ssden1+=mu*sden1;
+      ssnum+=mu*std::pow(fit[j],nbAlleles)*std::pow(fit[i],nbAlleles)/sden2;
+    }
+
+  
+  // stationary freq
+  double x = VectorTools::sum(freq_);
+  freq_ /= x;
+
+
+  // Specific normalization in numbers of substitutions (from appendix D of Genetics. 2019 Aug; 212(4): 1321–1336.)
+  // s is the probability of substitution on a duration of 1 generation (ie the actual scale time of the model). 
+  double s=ssnum/ssden1;
+  
+  // And everything for exponential
   AbstractSubstitutionModel::updateMatrices();
+
+  setScale(1/s);
 }
   
   

@@ -100,6 +100,7 @@
 #include "../Model/Nucleotide/gBGC.h"
 #include "../Model/OneChangeRegisterTransitionModel.h"
 #include "../Model/OneChangeTransitionModel.h"
+#include "../Model/POMO.h"
 #include "../Model/Protein/Coala.h"
 #include "../Model/Protein/CoalaCore.h"
 #include "../Model/Protein/DSO78.h"
@@ -262,6 +263,53 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
     }
 
     delete nestedModel;
+  }
+
+  else if (modelName == "POMO")
+  {
+    auto allelic = dynamic_cast<const AllelicAlphabet*>(alphabet);
+    if (!allelic) 
+      throw Exception("BppOSubstitutionModelFormat;;read. POMO model with no allelic alphabet.");
+
+    // We have to parse the nested model first:
+    if (args.find("model") == args.end())
+      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'POMO'.");
+
+    map<string, string> unparsedParameterValuesNested;
+    // fitness
+    std::shared_ptr<FrequencySet> nestedFreq(0);
+    
+    if (args.find("fitness") != args.end())
+    {
+      string nestedFreqDescription = args["fitness"];
+      BppOFrequencySetFormat nestedFreqReader(ALL, verbose_, warningLevel_);
+
+      nestedFreq = nestedFreqReader.readFrequencySet(&allelic->getStateAlphabet(), nestedFreqDescription, data, false);
+      unparsedParameterValuesNested=nestedFreqReader.getUnparsedArguments();
+
+      for (auto & it : unparsedParameterValuesNested)
+        unparsedParameterValuesNested["fit_" + it.first] = it.second;
+    }
+
+    // model
+    
+    string nestedModelDescription = args["model"];
+    BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_);
+
+    auto nestedModel = shared_ptr<SubstitutionModel>(nestedReader.readSubstitutionModel(&allelic->getStateAlphabet(), nestedModelDescription, data, false));
+    unparsedParameterValuesNested.insert(nestedReader.getUnparsedArguments().begin(),
+                                         nestedReader.getUnparsedArguments().end());
+    
+
+    model.reset(new POMO(allelic, nestedModel, nestedFreq));
+
+    // Then we update the parameter set:
+    for (auto& it: unparsedParameterValuesNested)
+    {
+      unparsedArguments_["POMO." + it.first] = it.second;
+    }
   }
 
 

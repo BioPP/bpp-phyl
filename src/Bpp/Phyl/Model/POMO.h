@@ -64,6 +64,10 @@
  * frequency-based approach for 279 species tree estimation. Systematic
  * Biology, 64(6):1018–1031.
  *
+ * Borges R, Szöllősi GJ, Kosiol C. Quantifying GC-Biased Gene Conversion
+ * in Great Ape Genomes Using Polymorphism-Aware Models.
+ * Genetics. 2019 Aug;212(4):1321-1336.
+ *
  * Borges, R. and Kosiol, C. (2020). Consistency and identifiability
  * of the polymorphism-aware phylo-genetic models. Journal of
  * Theoretical Biology, 486:110074.
@@ -84,9 +88,8 @@ namespace bpp
 
   public:
     /**
-     *@brief Build a POMO instance
+     * @brief Build a POMO instance
      *
-     *@param prefix the Namespace
      */
 
     POMO(const AllelicAlphabet* allAlph,
