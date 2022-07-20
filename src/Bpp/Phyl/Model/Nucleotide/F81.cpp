@@ -68,6 +68,7 @@ F81::F81(
   addParameter_(new Parameter("F81.theta", theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter("F81.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter("F81.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  computeFrequencies(false);
   updateMatrices();
 }
 
