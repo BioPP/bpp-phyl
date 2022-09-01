@@ -126,6 +126,7 @@ public:
 public:
   static std::shared_ptr<IntervalConstraint> FREQUENCE_CONSTRAINT_SMALL;
   static std::shared_ptr<IntervalConstraint> FREQUENCE_CONSTRAINT_MILLI;
+  static std::shared_ptr<IntervalConstraint> FREQUENCE_CONSTRAINT_CENTI;
 };
 
 /**

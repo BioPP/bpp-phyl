@@ -475,9 +475,10 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
     }
     for (size_t i = 1; i < vPowGen_.size(); i++)
     {
-      s *= v / static_cast<double>(i);
+      s *= v / static_cast<double>(i);   // v^n/n!
       MatrixTools::add(pijt_, s, vPowGen_[i]);
     }
+    
     while (m > 0)  // recover the 2^m
     {
       MatrixTools::mult(pijt_, pijt_, tmpMat_);
@@ -485,6 +486,7 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
       m--;
     }
   }
+
 //  MatrixTools::print(pijt_);
 
   // Check to avoid numerical issues

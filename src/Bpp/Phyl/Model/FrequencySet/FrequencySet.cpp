@@ -55,6 +55,7 @@ using namespace bpp;
 using namespace std;
 
 std::shared_ptr<IntervalConstraint> FrequencySet::FREQUENCE_CONSTRAINT_MILLI(new IntervalConstraint(NumConstants::MILLI(), 1 - NumConstants::MILLI(), false, false));
+std::shared_ptr<IntervalConstraint> FrequencySet::FREQUENCE_CONSTRAINT_CENTI(new IntervalConstraint(NumConstants::CENTI(), 1 - NumConstants::CENTI(), false, false));
 std::shared_ptr<IntervalConstraint> FrequencySet::FREQUENCE_CONSTRAINT_SMALL(new IntervalConstraint(NumConstants::SMALL(), 1 - NumConstants::SMALL(), false, false));
 
 // ///////////////////////////////////////
