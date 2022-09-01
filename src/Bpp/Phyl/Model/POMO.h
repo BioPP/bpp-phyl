@@ -101,7 +101,7 @@ namespace bpp
       AbstractSubstitutionModel(model),
       nbAlleles_(model.nbAlleles_),
       pmodel_(model.pmodel_->clone()),
-      pfitness_(model.pfitness_->clone())
+      pfitness_(model.pfitness_?model.pfitness_->clone():0)
     {}
 
     POMO& operator=(const POMO& model)
@@ -109,7 +109,7 @@ namespace bpp
       AbstractParameterAliasable::operator=(model);
       nbAlleles_ = model.nbAlleles_;
       pmodel_ = std::shared_ptr<SubstitutionModel>(model.pmodel_->clone());
-      pfitness_ = std::shared_ptr<FrequencySet>(model.pfitness_->clone());
+      pfitness_ = model.pfitness_?std::shared_ptr<FrequencySet>(model.pfitness_->clone()):0;
       return *this;
     }
 
@@ -126,7 +126,8 @@ namespace bpp
     {
       AbstractParameterAliasable::setNamespace(prefix);
       pmodel_->setNamespace(prefix+pmodel_->getNamespace());
-      pfitness_->setNamespace(prefix+pfitness_->getNamespace());
+      if (pfitness_)
+        pfitness_->setNamespace(prefix+pfitness_->getNamespace());
     }
 
     uint getNbAlleles() const

@@ -1644,6 +1644,24 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
     comma = true;
   }
 
+  // Is it a POMO model?
+  const POMO* pomo=dynamic_cast<const POMO*>(&model);
+  if (pomo)
+  {
+    out << "model=";
+    write(*pomo->getMutationModel(), out, globalAliases, writtenNames);
+
+    const auto fit=pomo->getFitness();
+    if (fit)
+    {
+      out << ", fitness=";
+
+      BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
+      bIOFreq.writeFrequencySet(fit.get(), out, globalAliases, writtenNames);
+    }
+    comma = true;
+  }
+
   // Is it a model with FrequencySet?
 
   const auto pfs = model.getFrequencySet();
@@ -1706,6 +1724,7 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
     }
   }
 
+  
   // Specific case of SENCA
 
   const SENCA* pCF = dynamic_cast<const SENCA*>(&model);

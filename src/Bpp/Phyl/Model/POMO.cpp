@@ -61,14 +61,16 @@ POMO::POMO(const AllelicAlphabet* allAlph,
   if (alph.getAlphabetType() != pmodel_->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("POMO mismatch state alphabet for model.", &alph, pmodel_->getAlphabet());
 
-  if (alph.getAlphabetType() != pfitness_->getAlphabet()->getAlphabetType())
+  if (pfitness_ && alph.getAlphabetType() != pfitness_->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("POMO mismatch state alphabet for fitness.", &alph, pfitness_->getAlphabet());
 
-  pfitness_->setNamespace("POMO.fit_" + pfitness_->getNamespace());
+  if (pfitness_)
+    pfitness_->setNamespace("POMO.fit_" + pfitness_->getNamespace());
   pmodel_->setNamespace("POMO." + pmodel_->getNamespace());
 
   pmodel_->enableEigenDecomposition(pmodel_->computeFrequencies()); // enable eigen if needed for pmodel->freq_
-  addParameters_(pfitness_->getParameters());
+  if (pfitness_)
+    addParameters_(pfitness_->getParameters());
   addParameters_(pmodel_->getParameters());
 
   computeFrequencies(false); // freq_ analytically defined
@@ -82,7 +84,7 @@ void POMO::updateMatrices()
 
   const auto& Q=pmodel_->getGenerator();
 
-  const auto& fit=pfitness_->getFrequencies();
+  const Vdouble* fit=pfitness_?&pfitness_->getFrequencies():0;
   
   // Per couple of alleles
 
@@ -92,11 +94,11 @@ void POMO::updateMatrices()
   // for all couples starting with i
   for (size_t i=0;i<nbStates;i++)
   {
-    double phi_i = fit[i];
+    double phi_i = fit?(*fit)[i]:0.25;
     // then for all couples ending with j
     for (size_t j=i+1;j<nbStates;j++)
     {
-      double phi_j = fit[j];
+      double phi_j = fit?(*fit)[j]:0.25;
       
       // mutations
       generator_(i, nbloc)=Q(i,j);
@@ -126,7 +128,7 @@ void POMO::updateMatrices()
   const auto& pFreq = pmodel_->getFrequencies();
 
   for (size_t i=0;i<nbStates;i++)
-    freq_[i]=pFreq[i]*std::pow(fit[i],nbAlleles-1);
+    freq_[i]=pFreq[i]*(fit?std::pow((*fit)[i],nbAlleles-1):1);
 
   size_t k=nbStates;
   double ssden1=0;
@@ -136,13 +138,13 @@ void POMO::updateMatrices()
     for (size_t j = i+1; j < nbStates; ++j)
     {
       auto mu=Q(i,j)*pFreq[i];   // alleles i & j
-      double rfreq=std::pow(fit[i],nbAlleles-2);
-      double den1=std::pow(fit[i],nbAlleles-1);
-      double den2=std::pow(fit[i],nbAlleles);
+      double rfreq=fit?std::pow((*fit)[i],nbAlleles-2):1;
+      double den1=fit?std::pow((*fit)[i],nbAlleles-1):1;
+      double den2=fit?std::pow((*fit)[i],nbAlleles):1;
       double sden1=den1;
       double sden2=den2;
       
-      double rat=fit[j]/fit[i];
+      double rat=fit?(*fit)[j]/(*fit)[i]:1;
                             
       for (size_t n=1 ; n<nbAlleles; n++)   // i_{N-n}j_{n}
       {
@@ -155,7 +157,7 @@ void POMO::updateMatrices()
       }
 
       ssden1+=mu*sden1;
-      ssnum+=mu*std::pow(fit[j],nbAlleles)*std::pow(fit[i],nbAlleles)/sden2;
+      ssnum+=mu*(fit?std::pow((*fit)[j],nbAlleles)*std::pow((*fit)[i],nbAlleles):1)/sden2;
     }
 
   
@@ -177,7 +179,8 @@ void POMO::updateMatrices()
   
 void POMO::fireParameterChanged(const ParameterList& parameters)
 {
-  pfitness_->matchParametersValues(parameters);
+  if (pfitness_)
+    pfitness_->matchParametersValues(parameters);
   pmodel_->matchParametersValues(parameters);
 
   updateMatrices();

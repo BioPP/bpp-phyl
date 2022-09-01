@@ -483,6 +483,7 @@ public:
    * @param mDist Map of Rate Distributions
    * @param mScen Map of Scenarios
    * @param params   The attribute map where options may be found.
+   * @param unparsedparams   map of the attributes that will not be parsed there
    * @param suffix   A suffix to be applied to each attribute name.
    * @param suffixIsOptional Tell if the suffix is absolutely required.
    * @param verbose Print some info to the 'message' output stream.
@@ -512,7 +513,7 @@ public:
    *
    * @param SubProColl SubstitutionProcessCollection where the
    * SubstitutionProcessCollectionMember will be added.
-   *
+   * @param procNum the number of the process
    * @param params   The attribute map where options may be found.
    * @param verbose Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
