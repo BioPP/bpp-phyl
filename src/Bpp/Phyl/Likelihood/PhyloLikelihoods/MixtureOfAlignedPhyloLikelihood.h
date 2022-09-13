@@ -45,7 +45,7 @@
 #include "SetOfAlignedPhyloLikelihood.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "../DataFlow/Simplex_DF.h"
 

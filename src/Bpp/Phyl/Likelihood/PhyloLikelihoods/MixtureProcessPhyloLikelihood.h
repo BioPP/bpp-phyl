@@ -47,7 +47,7 @@
 #include "MultiProcessSequencePhyloLikelihood.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 
 namespace bpp
@@ -88,7 +88,7 @@ private:
 
 public:
   MixtureProcessPhyloLikelihood(
-    const AlignedValuesContainer& data,
+    const AlignmentDataInterface<std::string>& data,
     MixtureSequenceEvolution& processSeqEvol,
     CollectionNodes& collNodes,
     size_t nSeqEvol = 0,

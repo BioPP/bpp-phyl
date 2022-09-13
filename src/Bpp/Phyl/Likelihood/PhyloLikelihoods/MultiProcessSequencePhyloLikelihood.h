@@ -48,7 +48,7 @@
 #include "SequencePhyloLikelihood.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 using namespace std;
 
@@ -87,7 +87,7 @@ protected:
 
 public:
   MultiProcessSequencePhyloLikelihood(
-    const AlignedValuesContainer& data,
+    const AlignmentDataInterface<std::string>& data,
     MultiProcessSequenceEvolution& processSeqEvol,
     CollectionNodes& collNodes,
     size_t nSeqEvol = 0,
@@ -107,7 +107,7 @@ public:
    *
    * @{
    */
-  const AlignedValuesContainer* getData() const
+  const AlignmentDataInterface<std::string>* getData() const
   {
     return vLikCal_[0]->getData();
   }
@@ -167,7 +167,7 @@ public:
    * @param nData the number of the data (optionnal, default 0).
    */
 
-  void setData(const AlignedValuesContainer& sites, size_t nData = 0);
+  void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0);
 
   /**
    * @brief Return the number of process used for computation.

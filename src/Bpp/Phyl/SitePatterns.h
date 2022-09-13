@@ -46,7 +46,7 @@
 
 
 // From bpp-seq:
-#include <Bpp/Seq/Site.h>
+#include <Bpp/Seq/CoreSite.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 
 // From the STL:
@@ -80,7 +80,7 @@ private:
   {
 public:
     std::string siteS;
-    const CruxSymbolListSite* siteP;
+    const CoreSiteInterface* siteP;
     size_t originalPosition;
 
 public:
@@ -101,7 +101,7 @@ public:
 
 private:
   std::vector<std::string> names_;
-  std::vector<const CruxSymbolListSite* > sites_;
+  std::vector<const CoreSiteInterface*> sites_;
   std::vector<unsigned int> weights_;
   IndicesType indices_;
   const Alphabet* alpha_;
@@ -120,7 +120,7 @@ public:
    * be deleted together with this instance.
    */
   
-  SitePatterns(const AlignedValuesContainer* sequences, std::vector<std::string> names= {});
+  SitePatterns(const AlignmentDataInterface<std::string>* sequences, std::vector<std::string> names= {});
 
   /**
    * @brief Build a new SitePattern object.
@@ -133,10 +133,10 @@ public:
    * this instance.
    */
   
-  SitePatterns(const AlignedValuesContainer* sequences, bool own);
+  SitePatterns(const AlignmentDataInterface<std::string>* sequences, bool own);
 
 private:
-  void init_(const AlignedValuesContainer* sequences, std::vector<std::string> names= {});
+  void init_(const AlignmentDataInterface<std::string>* sequences, std::vector<std::string> names= {});
 
   
 public:
@@ -212,7 +212,7 @@ public:
   /**
    * @return A new container with each unique site.
    */
-  std::shared_ptr<AlignedValuesContainer> getSites() const;
+  std::shared_ptr< AlignmentDataInterface<std::string> > getSites() const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_SITEPATTERNS_H

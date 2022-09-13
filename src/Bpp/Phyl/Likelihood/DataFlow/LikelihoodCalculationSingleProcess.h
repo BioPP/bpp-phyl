@@ -45,7 +45,7 @@
 #include <Bpp/Phyl/Likelihood/DataFlow/DataFlow.h>
 #include <Bpp/Phyl/Likelihood/DataFlow/DataFlowCWiseComputing.h>
 #include <Bpp/Phyl/SitePatterns.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "Bpp/Phyl/Likelihood/DataFlow/CollectionNodes.h"
 #include "Bpp/Phyl/Likelihood/DataFlow/DiscreteDistribution.h"
@@ -209,7 +209,7 @@ public:
   /* Dependencies */
 
   const SubstitutionProcess& process_;
-  const AlignedValuesContainer* psites_;
+  const AlignmentDataInterface<std::string>* psites_;
 
   /*****************************
    ****** Patterns
@@ -232,7 +232,7 @@ public:
    */
 
   std::shared_ptr<SiteWeights> rootWeights_;
-  std::shared_ptr<AlignedValuesContainer> shrunkData_;
+  std::shared_ptr<AlignmentDataInterface<std::string>> shrunkData_;
 
   /************************************/
   /* DataFlow objects */
@@ -250,7 +250,7 @@ public:
 
 public:
   LikelihoodCalculationSingleProcess(Context& context,
-                                     const AlignedValuesContainer& sites,
+                                     const AlignmentDataInterface<std::string>& sites,
                                      const SubstitutionProcess& process);
 
   LikelihoodCalculationSingleProcess(Context& context,
@@ -265,7 +265,7 @@ public:
    */
 
   LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                     const AlignedValuesContainer& sites,
+                                     const AlignmentDataInterface<std::string>& sites,
                                      size_t nProcess);
 
 
@@ -285,7 +285,7 @@ public:
     throw bpp::Exception("LikelihoodCalculationSingleProcess clone should not happen.");
   }
 
-  void setData(const AlignedValuesContainer& sites)
+  void setData(const AlignmentDataInterface<std::string>& sites)
   {
     psites_ = &sites;
     setPatterns_();
@@ -371,7 +371,7 @@ public:
     return process_;
   }
 
-  const AlignedValuesContainer* getData() const
+  const AlignmentDataInterface<std::string>* getData() const
   {
     return psites_;
   }
@@ -401,7 +401,7 @@ public:
 
   const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
 
-  const AlignedValuesContainer* getShrunkData() const
+  const AlignmentDataInterface<std::string>* getShrunkData() const
   {
     return shrunkData_.get();
   }

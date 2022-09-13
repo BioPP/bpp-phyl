@@ -47,7 +47,7 @@
 #include "MultiProcessSequencePhyloLikelihood.h"
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "HmmLikelihood_DF.h"
 #include <Bpp/Numeric/Hmm/AutoCorrelationTransitionMatrix.h>
@@ -72,7 +72,7 @@ private:
 
 public:
   AutoCorrelationProcessPhyloLikelihood(
-    const AlignedValuesContainer& data,
+    const AlignmentDataInterface<std::string>& data,
     AutoCorrelationSequenceEvolution& processSeqEvol,
     CollectionNodes& collNodes,
     size_t nSeqEvol = 0,

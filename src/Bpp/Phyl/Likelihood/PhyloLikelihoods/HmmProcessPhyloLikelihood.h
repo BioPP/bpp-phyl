@@ -47,7 +47,8 @@
 #include "MultiProcessSequencePhyloLikelihood.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
+
 
 #include "HmmLikelihood_DF.h"
 #include <Bpp/Numeric/Hmm/HmmTransitionMatrix.h>
@@ -77,7 +78,7 @@ private:
 
 public:
   HmmProcessPhyloLikelihood(
-    const AlignedValuesContainer& data,
+    const AlignmentDataInterface<std::string>& data,
     HmmSequenceEvolution& processSeqEvol,
     CollectionNodes& collNodes,
     size_t nSeqEvol = 0,

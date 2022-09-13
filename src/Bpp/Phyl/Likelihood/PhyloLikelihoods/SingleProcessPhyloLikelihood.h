@@ -132,7 +132,7 @@ public:
     return new SingleProcessPhyloLikelihood (*this);
   }
 
-  void setData(const AlignedValuesContainer& sites, size_t nData = 0) override
+  void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0) override
   {
     AbstractSingleDataPhyloLikelihood::setData(sites, nData);
     getLikelihoodCalculationSingleProcess()->setData(sites);
@@ -142,7 +142,7 @@ public:
    * @brief return a pointer to the compressed data.
    *
    */
-  const AlignedValuesContainer* getShrunkData() const
+  const AlignmentDataInterface<std::string>* getShrunkData() const
   {
     return getLikelihoodCalculationSingleProcess()->getShrunkData();
   }
@@ -151,7 +151,7 @@ public:
    * @brief return a pointer to the original  data.
    *
    */
-  const AlignedValuesContainer* getData() const override
+  const AlignmentDataInterface<std::string>* getData() const override
   {
     return getLikelihoodCalculationSingleProcess()->getData();
   }

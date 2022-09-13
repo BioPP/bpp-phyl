@@ -45,7 +45,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "SetOfAlignedPhyloLikelihood.h"
 
@@ -54,9 +54,7 @@ namespace bpp
 /**
  * @brief The ProductOfAlignedPhyloLikelihood class, for phylogenetic
  * likelihood on several independent data.
- *
  */
-
 class ProductOfAlignedPhyloLikelihood :
   public SetOfAlignedPhyloLikelihood
 {

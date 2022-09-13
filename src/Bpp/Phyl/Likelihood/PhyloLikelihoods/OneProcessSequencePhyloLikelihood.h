@@ -51,7 +51,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "../DataFlow/LikelihoodCalculationSingleProcess.h"
 
@@ -104,13 +104,13 @@ public:
 
   OneProcessSequencePhyloLikelihood(
     Context& context,
-    const AlignedValuesContainer& data,
+    const AlignmentDataInterface<std::string>& data,
     OneProcessSequenceEvolution& evol,
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
   OneProcessSequencePhyloLikelihood(
-    const AlignedValuesContainer& data,
+    const AlignmentDataInterface<std::string>& data,
     OneProcessSequenceEvolution& evol,
     CollectionNodes& collNodes,
     size_t nSeqEvol = 0,
@@ -134,7 +134,7 @@ public:
    *
    * @{
    */
-  void setData(const AlignedValuesContainer& sites, size_t nData = 0) override
+  void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0) override
   {
     AbstractSequencePhyloLikelihood::setData(sites, nData);
     getLikelihoodCalculationSingleProcess()->setData(sites);
@@ -149,7 +149,7 @@ public:
    * @brief return a pointer to the compressed data.
    *
    */
-  const AlignedValuesContainer* getData() const override
+  const AlignmentDataInterface<std::string>* getData() const override
   {
     return getLikelihoodCalculationSingleProcess()->getData();
   }

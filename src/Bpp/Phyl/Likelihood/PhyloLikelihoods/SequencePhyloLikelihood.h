@@ -45,7 +45,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "PhyloLikelihood.h"
 #include "AbstractPhyloLikelihood.h"
@@ -165,7 +165,7 @@ protected:
   }
 
 public:
-  void setData(const AlignedValuesContainer& sites, size_t nData = 0)
+  void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0)
   {
     AbstractSingleDataPhyloLikelihood::setData(sites, nData);
   }

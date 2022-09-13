@@ -48,7 +48,7 @@
 #include "SingleProcessPhyloLikelihood.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 namespace bpp
 {
@@ -87,11 +87,11 @@ private:
   std::vector<ProcPos> vProcPos_;
 
   /**
-   * map nbe of phylolikelihood : created AlignedValuesContainer
+   * map nbe of phylolikelihood : created AlignmentDataInterface<std::string>
    *
    */
 
-  std::map<size_t, std::shared_ptr<AlignedValuesContainer> > mData_;
+  std::map<size_t, std::shared_ptr<AlignmentDataInterface<std::string>> > mData_;
 
   /**
    * AlignedLikelihoodCalculation to store DF nodes
@@ -107,13 +107,13 @@ public:
 
   PartitionProcessPhyloLikelihood(
     Context& context,
-    const AlignedValuesContainer& data,
+    const AlignmentDataInterface<std::string>& data,
     PartitionSequenceEvolution& processSeqEvol,
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
   PartitionProcessPhyloLikelihood(
-    const AlignedValuesContainer& data,
+    const AlignmentDataInterface<std::string>& data,
     PartitionSequenceEvolution& processSeqEvol,
     std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol = 0,
@@ -142,7 +142,7 @@ public:
    * @param nData the number of the data (optionnal, default = 0)
    */
 
-  void setData(const AlignedValuesContainer& data, size_t nData = 0);
+  void setData(const AlignmentDataInterface<std::string>& data, size_t nData = 0);
 
   /*
    * @brief Get PhyloLikelihood Number for a given site.
@@ -159,7 +159,7 @@ public:
    *
    * @{
    */
-  const AlignedValuesContainer* getData() const
+  const AlignmentDataInterface<std::string>* getData() const
   {
     return getPhyloContainer()->getData(getPhyloContainer()->getNumbersOfPhyloLikelihoods()[0]);
   }
