@@ -43,10 +43,11 @@
 
 
 #include "IoSubstitutionModelFactory.h"
+#include "../Model/MixedTransitionModel.h"
 
 // From bpp-seq
+#include <Bpp/Seq/Container/AlignmentData.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
-#include "../Model/MixedTransitionModel.h"
 
 namespace bpp
 {
@@ -145,7 +146,11 @@ public:
     geneticCode_ = gCode;
   }
 
-  SubstitutionModel* readSubstitutionModel(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data = 0, bool parseArguments = true);
+  SubstitutionModel* readSubstitutionModel(
+      const Alphabet* alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface<std::string>* data = 0,
+      bool parseArguments = true);
 
   const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 
@@ -169,7 +174,10 @@ public:
   void setVerbose(bool verbose) { verbose_ = verbose;}
 
 private:
-  SubstitutionModel* readWord_(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data);
+  SubstitutionModel* readWord_(
+      const Alphabet* alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface<std::string>* data);
 
   void writeMixed_(const MixedTransitionModel& model,
                    OutputStream& out,
@@ -199,7 +207,8 @@ protected:
    *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
    * @throw Exception if an error occured.
    */
-  void initialize_(BranchModel& model, const AlignedValuesContainer* data);
+  void initialize_(BranchModel& model, const AlignmentDataInterface<std::string>* data);
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOSUBSTITUTIONMODELFORMAT_H

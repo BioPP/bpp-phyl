@@ -9,7 +9,7 @@ cmake_minimum_required (VERSION 3.0) #3.0 needed for Eigen inclusion to work
 project (bpp-phyl3 CXX)
 
 # Compile options
-set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wshadow -Wconversion")
+set (CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wshadow -Wconversion")
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING

@@ -48,7 +48,7 @@
 #include "SubstitutionProcessCollection.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 using namespace std;
 
@@ -146,7 +146,7 @@ public:
    *
    */
 
-  virtual bool isCompatibleWith(const AlignedValuesContainer& data) const;
+  virtual bool isCompatibleWith(const AlignmentDataInterface<std::string>& data) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_MULTIPROCESSSEQUENCEEVOLUTION_H

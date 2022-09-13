@@ -44,7 +44,7 @@
 
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "AlignedPhyloLikelihood.h"
 #include "SetOfAbstractPhyloLikelihood.h"

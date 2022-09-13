@@ -94,7 +94,7 @@ public:
   virtual std::shared_ptr<FrequencySet> readFrequencySet(
     const Alphabet* alphabet,
     const std::string& freqDescription,
-    const AlignedValuesContainer* data,
+    const AlignmentDataInterface<std::string>* data,
     bool parseArguments = true) = 0;
 
   /**

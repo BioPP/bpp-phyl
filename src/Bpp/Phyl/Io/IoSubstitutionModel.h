@@ -50,7 +50,7 @@
 #include <Bpp/Io/OutputStream.h>
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 namespace bpp
 {
@@ -96,7 +96,7 @@ public:
 
   virtual SubstitutionModel* readSubstitutionModel(const Alphabet* alphabet,
                                                    const std::string& modelDescription,
-                                                   const AlignedValuesContainer* data = 0,
+                                                   const AlignmentDataInterface<std::string>* data = 0,
                                                    bool parseArguments = true) = 0;
 
   /**

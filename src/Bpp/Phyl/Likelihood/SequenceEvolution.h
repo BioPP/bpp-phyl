@@ -50,7 +50,7 @@
 
 // From bpp-seq:
 
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 // From the STL:
 #include <memory>
@@ -75,7 +75,7 @@ public:
   virtual SequenceEvolution* clone() const = 0;
 
 public:
-  virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
+  virtual bool isCompatibleWith(const AlignmentDataInterface<std::string>& data) const = 0;
 
   virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
 

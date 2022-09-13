@@ -83,7 +83,7 @@ public:
   }
 
 
-  bool isCompatibleWith(const AlignedValuesContainer& data) const
+  bool isCompatibleWith(const AlignmentDataInterface<std::string>& data) const
   {
     return data.getAlphabet()->getAlphabetType() == getAlphabet()->getAlphabetType();
   }

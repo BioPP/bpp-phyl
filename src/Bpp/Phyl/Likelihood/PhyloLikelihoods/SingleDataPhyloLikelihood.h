@@ -45,7 +45,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 // from bpp-core
 
@@ -64,7 +64,7 @@ namespace bpp
  */
 
 class SingleDataPhyloLikelihood :
-  virtual public AlignedPhyloLikelihood
+  public virtual AlignedPhyloLikelihood
 {
 public:
   SingleDataPhyloLikelihood() {}
@@ -87,7 +87,7 @@ public:
    * @param nData the number of the data
    */
 
-  virtual void setData(const AlignedValuesContainer& sites, size_t nData = 0) = 0;
+  virtual void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0) = 0;
 
   /**
    * @brief Get the dataset for which the likelihood must be evaluated.
@@ -95,7 +95,7 @@ public:
    * @return A pointer toward the site container where the sequences are stored.
    */
 
-  virtual const AlignedValuesContainer* getData() const = 0;
+  virtual const AlignmentDataInterface<std::string>* getData() const = 0;
 
   /**
    * @brief Get the number of dataset concerned.
@@ -157,7 +157,7 @@ public:
 
   AbstractSingleDataPhyloLikelihood* clone() const = 0;
 
-  virtual void setData(const AlignedValuesContainer& sites, size_t nData = 0)
+  virtual void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0)
   {
     setNumberOfSites(sites.getNumberOfSites());
     nbStates_ = sites.getAlphabet()->getSize();

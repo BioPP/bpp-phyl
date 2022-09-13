@@ -122,7 +122,7 @@ public:
   std::shared_ptr<FrequencySet> readFrequencySet(
     const Alphabet* alphabet,
     const std::string& freqDescription,
-    const AlignedValuesContainer* data,
+    const AlignmentDataInterface<std::string>* data,
     bool parseArguments = true);
 
   const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
@@ -136,7 +136,7 @@ public:
   void setVerbose(bool verbose) { verbose_ = verbose;}
 
 private:
-  void initialize_(FrequencySet& freqSet, const AlignedValuesContainer* data);
+  void initialize_(FrequencySet& freqSet, const AlignmentDataInterface<std::string>* data);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOFREQUENCYSETFORMAT_H

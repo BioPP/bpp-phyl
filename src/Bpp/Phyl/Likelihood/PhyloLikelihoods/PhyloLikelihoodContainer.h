@@ -44,7 +44,7 @@
 
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "PhyloLikelihood.h"
 #include "SingleDataPhyloLikelihood.h"
@@ -180,7 +180,7 @@ public:
    * @param nPhyl The number of the Likelihood.
    * @param sites The data set to use.
    */
-  void setData(const AlignedValuesContainer& sites, size_t nPhyl)
+  void setData(const AlignmentDataInterface<std::string>& sites, size_t nPhyl)
   {
     auto it = mPhylo_.find(nPhyl);
     if (it != mPhylo_.end())
@@ -197,7 +197,7 @@ public:
    *
    * @return A pointer toward the site container where the sequences are stored.
    */
-  const AlignedValuesContainer* getData(size_t nPhyl) const
+  const AlignmentDataInterface<std::string>* getData(size_t nPhyl) const
   {
     const auto it = mPhylo_.find(nPhyl);
     if (it != mPhylo_.end())

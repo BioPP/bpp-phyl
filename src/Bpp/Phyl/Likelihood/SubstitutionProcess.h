@@ -50,7 +50,7 @@
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 // From the STL:
 #include <memory>
@@ -91,7 +91,7 @@ public:
 
   virtual const StateMap& getStateMap() const = 0;
 
-  virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
+  virtual bool isCompatibleWith(const AlignmentDataInterface<std::string>& data) const = 0;
 
   virtual std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const = 0;
 

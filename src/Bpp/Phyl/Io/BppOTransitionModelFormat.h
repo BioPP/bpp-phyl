@@ -59,7 +59,10 @@ class BppOTransitionModelFormat :
   public BppOSubstitutionModelFormat
 {
 private:
-  MixedTransitionModel* readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data);
+  MixedTransitionModel* readMixed_(
+      const Alphabet* alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface<std::string>* data);
 
 public:
   /**
@@ -89,7 +92,12 @@ public:
   virtual ~BppOTransitionModelFormat() {}
 
 public:
-  TransitionModel* readTransitionModel(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data = 0, bool parseArguments = true);
+  TransitionModel* readTransitionModel(
+      const Alphabet* alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface<std::string>* data = 0,
+      bool parseArguments = true);
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOTRANSITIONMODELFORMAT_H

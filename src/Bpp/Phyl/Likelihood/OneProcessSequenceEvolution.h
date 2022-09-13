@@ -93,7 +93,7 @@ public:
     return new OneProcessSequenceEvolution(*this);
   }
 
-  bool isCompatibleWith(const AlignedValuesContainer& data) const
+  bool isCompatibleWith(const AlignmentDataInterface<std::string>& data) const
   {
     return subsProc_->isCompatibleWith(data);
   }
