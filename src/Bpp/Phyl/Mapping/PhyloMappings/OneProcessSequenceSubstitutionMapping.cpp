@@ -74,6 +74,7 @@ OneProcessSequenceSubstitutionMapping::OneProcessSequenceSubstitutionMapping(One
 }
 
 void OneProcessSequenceSubstitutionMapping::computeNormalizations(const ParameterList& nullParams,
+                                                                  short unresolvedOption,
                                                                   bool verbose)
 {
   matchParametersValues(nullParams);
@@ -82,24 +83,9 @@ void OneProcessSequenceSubstitutionMapping::computeNormalizations(const Paramete
                                                                  this,
                                                                  getRegister(),
                                                                  getDistances(),
+                                                                 unresolvedOption,
                                                                  verbose));
 }
-
-// void OneProcessSequenceSubstitutionMapping::computeNormalizationsForASite(
-//   size_t site,
-//   const ParameterList& nullParams,
-//   bool verbose)
-// {
-//   matchParametersValues(nullParams);
-
-//   factors_.reset(SubstitutionMappingToolsForASite::computeNormalizations(
-//                    site,
-//                    getLikelihoodCalculationSingleProcess(),
-//                    this,
-//                    getRegister(),
-//                    getDistances(),
-//                    verbose));
-// }
 
 void OneProcessSequenceSubstitutionMapping::setBranchedModelSet_()
 {

@@ -45,6 +45,7 @@
 #include "../Likelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
 #include "ProbabilisticRewardMapping.h"
 #include "Reward.h"
+#include "SubstitutionMappingTools.h"
 
 namespace bpp
 {
@@ -75,6 +76,7 @@ public:
    * @param edgeIds           The Ids of the nodes the reward vectors
    *                          are computed on.
    * @param reward            The Reward to use.
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param verbose           Print info to screen.
    * @return A vector of reward vectors (one for each site).
    * @throw Exception If the likelihood object is not initialized.
@@ -84,6 +86,7 @@ public:
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& edgeIds,
     Reward& reward,
+    short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
     bool verbose = true);
 
 

@@ -62,6 +62,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& edgeIds,
   Reward& reward,
+  short unresolvedOption,
   bool verbose)
 {
   // Preamble:
@@ -224,6 +225,29 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
         auto rew = rpxy * likelihoodsBotEdge;
 
         auto bb = (cwise(likelihoodsTopEdge) * cwise(rew)).colwise().sum();
+
+        
+        Eigen::VectorXd ff(likelihoodsBotEdge.cols());
+        switch(unresolvedOption){
+        case SubstitutionMappingTools::UNRESOLVED_ZERO:
+        case SubstitutionMappingTools::UNRESOLVED_AVERAGE:
+            
+          // Nullify counts where sum likelihoods > 1 : ie unknown
+          for (auto i=0;i<ff.size();i++)
+          {
+            const auto& s=likelihoodsBotEdge.col(i).sum();
+            if (s>=2.)
+              ff[i]=(unresolvedOption==SubstitutionMappingTools::UNRESOLVED_ZERO)?0.:1./convert(s);
+            else
+              ff[i]=1;
+          }
+          
+          // Normalizes by likelihood on this node
+
+          bb *= ff.array();
+        default:
+          ;
+        }
 
         // Normalizes by likelihood on this node
         auto cc = bb / cwise(likelihoodsFather);

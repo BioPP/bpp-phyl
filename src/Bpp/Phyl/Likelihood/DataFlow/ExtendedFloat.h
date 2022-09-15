@@ -371,9 +371,19 @@ public:
     return exponent_part() > rhs.exponent_part() || (exponent_part() == rhs.exponent_part() && float_part() >= rhs.float_part());
   }
 
+  inline bool operator>=(const double& rhs) const
+  {
+    return convert(*this) >= rhs;
+  }
+  
   inline bool operator>(const ExtendedFloat& rhs) const
   {
     return exponent_part() > rhs.exponent_part() || (exponent_part() == rhs.exponent_part() && float_part() > rhs.float_part());
+  }
+
+  inline bool operator>(const double& rhs) const
+  {
+    return convert(*this) > rhs;
   }
 
   inline double log () const

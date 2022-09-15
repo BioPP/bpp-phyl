@@ -615,7 +615,7 @@ public:
   template<typename Derived>
   inline Self& operator*=(const Eigen::DenseBase<Derived>& div)
   {
-    float_part () *= div.derived().float_part();
+    float_part () *= div.derived();
     normalize();
     return *this;
   }
@@ -794,6 +794,18 @@ public:
   }
 
   template<typename M = MatType>
+  typename std::enable_if<std::is_same<M, EFMatrix<R, C> >::value, ExtendedFloatCol<R, C, EigenType > >::type
+  col(Eigen::Index pos)
+  {
+    return ExtendedFloatCol<R, C, EigenType>(*this, pos);
+  }
+
+  ExtendedFloatEigen<R, 1, EigenType> col(Eigen::Index col) const
+  {
+    return ExtendedFloatEigen<R, 1, EigenType>(float_part().col(col), exponent_part());
+  }
+
+  template<typename M = MatType>
   typename std::enable_if<std::is_same<M, EFMatrix<R, C> >::value, ExtendedFloatRow<R, C, EigenType > >::type
   row(Eigen::Index pos)
   {
@@ -860,11 +872,6 @@ public:
     else
       EFtmp_.set_float_part(float_part().maxCoeff());
     return EFtmp_;
-  }
-
-  ExtendedFloatEigen<R, 1, EigenType> col(Eigen::Index col) const
-  {
-    return ExtendedFloatEigen<R, 1, EigenType>(float_part().col(col), exponent_part());
   }
 
   /*********************************************/

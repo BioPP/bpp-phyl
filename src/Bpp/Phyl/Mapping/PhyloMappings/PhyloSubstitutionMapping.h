@@ -48,6 +48,7 @@
 #include <Bpp/Numeric/ParametrizableCollection.h>
 #include "../SubstitutionRegister.h"
 #include "../../Model/SubstitutionModel.h"
+#include "../SubstitutionMappingTools.h"
 
 #include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
@@ -94,7 +95,9 @@ public:
    *
    */
 
-  virtual void computeNormalizations(const ParameterList& nullParams, bool verbose = true) = 0;
+  virtual void computeNormalizations(const ParameterList& nullParams,
+                                     short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
+                                     bool verbose = true) = 0;
 
   /*
    * @brief return if normalizations have been performed.
@@ -117,9 +120,8 @@ public:
    *
    */
 
-  virtual void computeCounts(double threshold = -1, bool verbose = true) = 0;
-
-  // virtual void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true) = 0;
+  virtual void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
+                             double threshold = -1, bool verbose = true) = 0;
 
   /*
    * @brief Return the tree of counts

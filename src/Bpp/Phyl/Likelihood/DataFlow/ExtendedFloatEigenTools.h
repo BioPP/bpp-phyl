@@ -169,9 +169,12 @@ public:
  *
  */
 
-  template< int R,  int C, template< int R2,  int C2> class EigenType>
+template< int R,  int C, template< int R2,  int C2> class EigenType>
 class ExtendedFloatRow
 {
+  using VecType = EigenType<1, C>;
+  using ExtType =  int;
+
 protected:
   ExtendedFloatEigen<R, C, EigenType>& efMat_;
   Eigen::Index nrow_;
@@ -179,6 +182,14 @@ protected:
 public:
   ExtendedFloatRow(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index nrow) :
     efMat_(der), nrow_(nrow) {}
+
+  const ExtType& exponent_part () const { return efMat_.exponent_part(); }
+
+  const VecType& float_part () const { return efMat_.float_part().row(nrow_); }
+
+  ExtType& exponent_part () { return efMat_.exponent_part(); }
+
+  VecType& float_part () { return efMat_.float_part().row(nrow_); }
 
   /*
    * @brief Includes a row in an ExtendedFloatMatrix. Exponent parts
@@ -189,6 +200,48 @@ public:
   ExtendedFloatRow& operator=(const ExtendedFloatEigen<1, C, EigenType>& row)
   {
     efMat_.float_part().row(nrow_) = row.float_part() * constexpr_power<double>(ExtendedFloat::radix, row.exponent_part()-efMat_.exponent_part());
+    efMat_.normalize();
+    return *this;
+  }
+
+};
+
+/*
+ * Manage Col in a ExtendedFloatMatrix;
+ *
+ */
+
+template< int R,  int C, template< int R2,  int C2> class EigenType>
+class ExtendedFloatCol : public ExtendedFloatEigen<R, 1, EigenType>
+{
+  using VecType = EigenType<R, 1>;
+  using ExtType =  int;
+
+protected:
+  ExtendedFloatEigen<R, C, EigenType>& efMat_;
+  Eigen::Index ncol_;
+  
+public:
+  ExtendedFloatCol(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index ncol) :
+    efMat_(der), ncol_(ncol) {}
+
+  /*
+   * @brief Includes a row in an ExtendedFloatMatrix. Exponent parts
+   * of both are to be fit, as in denorm_add method.
+   *
+   */
+
+  const ExtType& exponent_part () const { return efMat_.exponent_part(); }
+
+  const VecType& float_part () const { return efMat_.float_part().col(ncol_); }
+
+  ExtType& exponent_part () { return efMat_.exponent_part(); }
+
+  VecType& float_part () { return efMat_.float_part().col(ncol_); }
+
+  ExtendedFloatCol& operator=(const ExtendedFloatEigen<R, 1, EigenType>& col)
+  {
+    efMat_.float_part().col(ncol_) = col.float_part() * constexpr_power<double>(ExtendedFloat::radix, col.exponent_part()-efMat_.exponent_part());
     efMat_.normalize();
     return *this;
   }

@@ -64,10 +64,30 @@ namespace bpp
  *
  * @author Julien Dutheil
  */
+
 class SubstitutionMappingTools
 {
 public:
+
+  /**
+   * @brief Constants describing how unresolved characters are counted:
+   *
+   * UNRESOLVED_ZERO: Considered as gaps, so no counted (default).
+   * UNRESOLVED_AVERAGE: Considered as unresolved, so all matching
+   * states share a uniform probability in conditioned likelihood
+   * vector.
+   * UNRESOLVED_ONE: Considered as whateverunresolved, so all matching
+   * states have probability 1 in conditioned likelihood vector.
+   *
+   **/
+  
+  static const short UNRESOLVED_ZERO = 0;
+  static const short UNRESOLVED_AVERAGE = 2;
+  static const short UNRESOLVED_ONE= 1;
+
+public:
   SubstitutionMappingTools() {}
+
   virtual ~SubstitutionMappingTools() {}
 
 public:
@@ -82,19 +102,22 @@ public:
    *
    * @param rltc              A LikelihoodCalculationSingleProcess object.
    * @param substitutionCount The SubstitutionCount to use.
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param threshold         value above which counts are considered
    *                          saturated (default: -1 means no threshold).
    * @param verbose           Print info to screen.
    * @return A tree <PhyloNode, PhyloBranchMapping>
    */
+  
   static ProbabilisticSubstitutionMapping* computeCounts(
     LikelihoodCalculationSingleProcess& rltc,
     SubstitutionCount& substitutionCount,
+    short unresolvedOption = UNRESOLVED_ZERO,
     double threshold = -1,
     bool verbose = true)
   {
     std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
-    return computeCounts(rltc, edgeIds, substitutionCount, threshold, verbose);
+    return computeCounts(rltc, edgeIds, substitutionCount, unresolvedOption, threshold, verbose);
   }
 
   /**
@@ -108,6 +131,7 @@ public:
    * @param distances         Pointer to AlphabetIndex2 for distances
    *                          for all substitutions (default: null
    *                          means each distance = 1),
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param threshold         value above which counts are considered
    *                          saturated (default: -1 means no threshold).
    * @param verbose           Print info to screen.
@@ -119,11 +143,12 @@ public:
     const SubstitutionRegister& reg,
     std::shared_ptr<const AlphabetIndex2> weights = 0,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
+    short unresolvedOption = UNRESOLVED_ZERO,
     double threshold = -1,
     bool verbose = true)
   {
     std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
-    return computeCounts(rltc, edgeIds, reg, weights, distances, threshold, verbose);
+    return computeCounts(rltc, edgeIds, reg, weights, distances, unresolvedOption, threshold, verbose);
   }
 
   /**
@@ -133,6 +158,7 @@ public:
    * @param speciesIds        The Species Ids of the edges the substitutions
    *                          are counted on.
    * @param substitutionCount The SubstitutionCount to use.
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param threshold         value above which counts are considered
    *                          saturated (default: -1 means no threshold).
    * @param verbose           Print info to screen.
@@ -144,6 +170,7 @@ public:
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& speciesIds,
     SubstitutionCount& substitutionCount,
+    short unresolvedOption = UNRESOLVED_ZERO,
     double threshold = -1,
     bool verbose = true);
 
@@ -161,6 +188,7 @@ public:
    * @param distances         Pointer to AlphabetIndex2 for distances
    *                          for all substitutions (default: null
    *                          means each distance = 1),
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param threshold         value above which counts are considered
    *                          saturated (default: -1 means no threshold).
    * @param verbose           Print info to screen.
@@ -174,6 +202,7 @@ public:
     const SubstitutionRegister& reg,
     std::shared_ptr<const AlphabetIndex2> weights = 0,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
+    short unresolvedOption = UNRESOLVED_ZERO,
     double threshold = -1,
     bool verbose = true);
 
@@ -190,6 +219,7 @@ public:
    * @param distances         Pointer to AlphabetIndex2 for distances
    *                          for all substitutions (default: null
    *                          means each distance = 1),
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param verbose           Display progress messages.
    *
    * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
@@ -201,6 +231,7 @@ public:
     const BranchedModelSet* nullModels,
     const SubstitutionRegister& reg,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
+    short unresolvedOption = UNRESOLVED_ZERO,
     bool verbose = true);
 
   /**
@@ -213,6 +244,7 @@ public:
    * @param distances         Pointer to AlphabetIndex2 for distances
    *                          for all substitutions (default: null
    *                          means each distance = 1),
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param verbose           Display progress messages.
    *
    * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
@@ -222,10 +254,11 @@ public:
     const BranchedModelSet* nullModels,
     const SubstitutionRegister& reg,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
+    short unresolvedOption = UNRESOLVED_ZERO,
     bool verbose = true)
   {
     std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
-    return computeNormalizations(rltc, edgeIds, nullModels, reg, distances, verbose);
+    return computeNormalizations(rltc, edgeIds, nullModels, reg, distances, unresolvedOption, verbose);
   }
 
   /**
@@ -250,6 +283,8 @@ public:
    *                          false).
    * @param siteSize          The length of a site, as considered as
    *                          a counting unit (default = 1)
+   *
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param threshold         value above which non-normalized counts are
    *                          considered saturated (default: -1
    *                          means no threshold).
@@ -267,6 +302,7 @@ public:
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     bool perTimeUnit = false,
     uint siteSize = 1,
+    short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO, 
     double threshold = -1,
     bool verbose = true);
 
@@ -285,11 +321,12 @@ public:
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     bool perTimeUnit = false,
     uint siteSize = 1,
+    short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO, 
     double threshold = -1,
     bool verbose = true)
   {
     std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
-    return computeNormalizedCounts(rltc, edgeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
+    return computeNormalizedCounts(rltc, edgeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, unresolvedOption, threshold, verbose);
   }
 
   static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
@@ -470,6 +507,7 @@ public:
    * @param distances         Pointer to AlphabetIndex2 for distances
    *                          for all substitutions (default: null
    *                          means each distance = 1),
+   * @param unresolvedOption  Describes how unresolved are managed (see above).
    * @param threshold         value above which counts are considered
    *                          saturated (default: -1 means no threshold).
    * @param verbose Display progress messages.
@@ -481,6 +519,7 @@ public:
     const SubstitutionRegister& reg,
     std::shared_ptr<const AlphabetIndex2> weights = 0,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
+    short unresolvedOption = UNRESOLVED_ZERO,
     double threshold = -1,
     bool verbose = true);
 
@@ -718,5 +757,9 @@ public:
    *
    */
 };
+
 } // end of namespace bpp.
+
+
+
 #endif // BPP_PHYL_MAPPING_SUBSTITUTIONMAPPINGTOOLS_H

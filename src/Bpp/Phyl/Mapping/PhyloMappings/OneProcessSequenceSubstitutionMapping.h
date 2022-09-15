@@ -45,8 +45,6 @@
 #include "../../Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
 #include "../SubstitutionMappingTools.h"
 
-// #include "../SubstitutionMappingToolsForASite.h"
-
 #include "AbstractSinglePhyloSubstitutionMapping.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
@@ -97,34 +95,21 @@ public:
    * @brief ComputeCounts
    *
    */
-  void computeCounts(double threshold = -1, bool verbose = true)
+  void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
+                     double threshold = -1, bool verbose = true)
   {
     counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculationSingleProcess(),
                                                           getRegister(),
                                                           getWeights(),
                                                           getDistances(),
+                                                          unresolvedOption,
                                                           threshold,
                                                           verbose));
   }
 
-  // void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
-  // {
-  //   counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
-  //                   site,
-  //                   getLikelihoodCalculationSingleProcess(),
-  //                   getRegister(),
-  //                   getWeights(),
-  //                   getDistances(),
-  //                   threshold,
-  //                   verbose));
-  // }
-
   void computeNormalizations(const ParameterList& nullParams,
+                             short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO, 
                              bool verbose = true);
-
-  // void computeNormalizationsForASite(size_t site,
-  //                                    const ParameterList& nullParams,
-  //                                    bool verbose = true);
 
   size_t getNumberOfModels() const
   {

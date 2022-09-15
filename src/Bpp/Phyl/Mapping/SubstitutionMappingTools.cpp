@@ -67,6 +67,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> weights,
   std::shared_ptr<const AlphabetIndex2> distances,
+  short unresolvedOption,
   double threshold,
   bool verbose)
 {
@@ -81,7 +82,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
   unique_ptr<SubstitutionCount> substitutionCount(new DecompositionSubstitutionCount(reg.clone(), weights, distances));
 
-  return computeCounts(rltc, edgeIds, *substitutionCount, threshold, verbose);
+  return computeCounts(rltc, edgeIds, *substitutionCount, unresolvedOption, threshold, verbose);
 }
 
 
@@ -89,6 +90,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& edgeIds,
   SubstitutionCount& substitutionCount,
+  short unresolvedOption,
   double threshold,
   bool verbose)
 {
@@ -267,6 +269,26 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
           auto bb = (cwise(likelihoodsTopEdge) * cwise(counts)).colwise().sum();
 
+          Eigen::VectorXd ff(likelihoodsBotEdge.cols());
+          switch(unresolvedOption){
+          case SubstitutionMappingTools::UNRESOLVED_ZERO:
+          case SubstitutionMappingTools::UNRESOLVED_AVERAGE:
+            
+            // Nullify counts where sum likelihoods > 1 : ie unknown
+            for (auto i=0;i<ff.size();i++)
+            {
+              const auto& s=likelihoodsBotEdge.col(i).sum();
+              if (s>=2.)
+                ff[i]=(unresolvedOption==SubstitutionMappingTools::UNRESOLVED_ZERO)?0.:1./convert(s);
+              else
+                ff[i]=1;
+            }
+
+            bb *= ff.array();
+          default:
+            ;
+          }
+
           // Normalizes by likelihood on this node
           auto cc = bb / cwise(likelihoodsFather);
 
@@ -328,6 +350,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> distances,
+  short unresolvedOption,
   bool verbose)
 {
   // Preamble:
@@ -566,6 +589,28 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
 
           auto bb = (cwise(likelihoodsTopEdge) * cwise(rew)).colwise().sum();
 
+          // Nullify counts where sum likelihoods > 1 : ie unknown
+          Eigen::VectorXd ff(likelihoodsBotEdge.cols());
+
+          switch(unresolvedOption){
+          case SubstitutionMappingTools::UNRESOLVED_ZERO:
+          case SubstitutionMappingTools::UNRESOLVED_AVERAGE:
+            
+            // Nullify counts where sum likelihoods > 1 : ie unknown
+            for (auto i=0;i<ff.size();i++)
+            {
+              const auto& s=likelihoodsBotEdge.col(i).sum();
+              if (s>=2.)
+                ff[i]=(unresolvedOption==SubstitutionMappingTools::UNRESOLVED_ZERO)?0.:1./convert(s);
+              else
+                ff[i]=1;
+            }
+                    
+            bb *= ff.array();
+          default:
+            ;
+          }
+
           // Normalizes by likelihood on this node
           auto cc = bb / cwise(likelihoodsFather);
 
@@ -613,12 +658,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCou
   std::shared_ptr<const AlphabetIndex2> distances,
   bool perTimeUnit,
   uint siteSize,
+  short unresolvedOption,
   double threshold,
   bool verbose)
 {
-  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(rltc, edgeIds, reg, weights, distances, threshold, verbose));
+  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(rltc, edgeIds, reg, weights, distances, unresolvedOption, threshold, verbose));
 
-  unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(rltc, edgeIds, nullModels, reg, distances, verbose));
+  unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(rltc, edgeIds, nullModels, reg, distances, unresolvedOption, verbose));
 
   return computeNormalizedCounts(counts.get(), factors.get(), edgeIds, perTimeUnit, siteSize);
 }
@@ -952,10 +998,11 @@ VVdouble SubstitutionMappingTools::computeCountsPerTypePerBranch(
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> weights,
   std::shared_ptr<const AlphabetIndex2> distances,
+  short unresolvedOption,
   double threshold,
   bool verbose)
 {
-  ProbabilisticSubstitutionMapping psm(computeCounts(rltc, ids, reg, weights, distances, threshold, verbose));
+  ProbabilisticSubstitutionMapping psm(computeCounts(rltc, ids, reg, weights, distances, unresolvedOption, threshold, verbose));
 
   VVdouble result = getCountsPerTypePerBranch(psm, ids);
 
@@ -1411,3 +1458,4 @@ void SubstitutionMappingTools::readFromStream(istream& in, ProbabilisticSubstitu
     throw IOException(string("Bad input file. ") + e.what());
   }
 }
+
