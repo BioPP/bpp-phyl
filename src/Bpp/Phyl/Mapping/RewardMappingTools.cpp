@@ -314,7 +314,7 @@ void RewardMappingTools::readFromStream(istream& in, ProbabilisticRewardMapping&
 {
   try
   {
-    DataTable* data = DataTable::read(in, "\t", true, -1);
+    auto data = DataTable::read(in, "\t", true, -1);
     vector<string> ids = data->getColumn(0);
     data->deleteColumn(0); // Remove ids
     data->deleteColumn(0); // Remove means
@@ -347,7 +347,6 @@ void RewardMappingTools::readFromStream(istream& in, ProbabilisticRewardMapping&
       rewards.setSitePosition(i, site);
     }
 
-    delete data;
   }
   catch (Exception& e)
   {
