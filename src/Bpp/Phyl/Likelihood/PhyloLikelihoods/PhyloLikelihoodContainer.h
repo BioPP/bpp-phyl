@@ -204,7 +204,7 @@ public:
     {
       const SingleDataPhyloLikelihood* sdp = dynamic_cast<const SingleDataPhyloLikelihood*>(it->second.get());
       if (sdp)
-        sdp->getData();
+        return sdp->getData();
     }
     return 0;
   }
