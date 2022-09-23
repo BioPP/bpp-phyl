@@ -1418,7 +1418,7 @@ void SubstitutionMappingTools::readFromStream(istream& in, ProbabilisticSubstitu
 {
   try
   {
-    DataTable* data = DataTable::read(in, "\t", true, -1);
+    auto data = DataTable::read(in, "\t", true, -1);
     vector<string> ids = data->getColumn(0);
     data->deleteColumn(0); // Remove ids
     data->deleteColumn(0); // Remove means
@@ -1450,8 +1450,7 @@ void SubstitutionMappingTools::readFromStream(istream& in, ProbabilisticSubstitu
       substitutions.setSitePosition(i, site);
     }
 
-    delete data;
-  }
+}
   catch (Exception& e)
   {
     throw IOException(string("Bad input file. ") + e.what());
