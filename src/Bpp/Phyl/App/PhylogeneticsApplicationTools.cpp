@@ -1743,7 +1743,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
           }
         }
 
-        size_t pos = 1;
+        size_t pos = posProc.begin()->first;
 
         while (posProc.find(pos) != posProc.end())
         {
