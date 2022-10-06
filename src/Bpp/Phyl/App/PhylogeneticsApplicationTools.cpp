@@ -3733,7 +3733,12 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
         row[4 + nbR] = TextTools::toString(VectorTools::whichMax(vvPP[i])+1);
         row[5 + nbR] = TextTools::toString(pr);
       }
-      
+      else
+      {
+        row[4] = "1";
+        row[5] = "1";
+      }
+     
       infos->addRow(row);
     }
 
