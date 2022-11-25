@@ -63,7 +63,9 @@ class AbstractSubstitutionProcess :
   public virtual AbstractParameterAliasable
 {
 public:
-  AbstractSubstitutionProcess(){}
+  AbstractSubstitutionProcess() :
+    AbstractParameterAliasable("")
+  {}
   
   size_t getNumberOfClasses() const
   {

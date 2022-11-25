@@ -54,7 +54,7 @@ namespace bpp
 /**
  * @brief The so-called 'Nhx - New Hampshire eXtended' parenthetic format.
  *
- * See http://www.phylosoft.org/Nhx/ for details.
+ * See http://www.phylosoft.org/NHX/ for details.
  *
  * Branch lengths and node annotations are supported:
  *
