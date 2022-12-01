@@ -59,60 +59,53 @@ namespace bpp
  *
  * @see SubstitutionRegister
  */
-
 class RegisterRatesSubstitutionModel :
-  virtual public AbstractWrappedSubstitutionModel,
-  virtual public AbstractSubstitutionModel
+  public AbstractTotallyWrappedSubstitutionModel
 {
 private:
-  /*
+  /**
    * @brief The related model.
-   *
    */
+  std::unique_ptr<SubstitutionModelInterface> originalModel_;
 
-  std::unique_ptr<SubstitutionModel> originalModel_;
-
-  /*
+  /**
    * For output
-   *
    */
-
   std::string registerName_;
 
-  /*
+  /**
    * @brief Vector of register state -> vector of from states ->
    * vector of to states (for acceleration purpose)
-   *
    */
-
-
   VVVuint vRegStates_;
   size_t nbTypes_;
 
-  /*
+  /**
    * @brief vector of the rates of the register types
-   *
    */
-
   Vdouble vRates_;
 
 public:
-  /*
+  /**
    * @brief Constructor
    *
    * @param originalModel the substitution model used
    * @param reg the register in which the considered types of event are
    * used.
    * @param isNormalized says if model is normalized (default false)
-   *
    */
-
-  RegisterRatesSubstitutionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, bool isNormalized = false);
+  RegisterRatesSubstitutionModel(
+      std::unique_ptr<const SubstitutionModelInterface> originalModel,
+      const SubstitutionRegisterInterface& reg,
+      bool isNormalized = false);
 
 
   RegisterRatesSubstitutionModel(const RegisterRatesSubstitutionModel& fmsm) :
-    AbstractParameterAliasable(fmsm),
-    AbstractSubstitutionModel(fmsm),
+      AbstractWrappedModel(fmsm),
+      AbstractWrappedTransitionModel(fmsm),
+      AbstractTotallyWrappedTransitionModel(fmsm),
+      AbstractWrappedSubstitutionModel(fmsm),
+      AbstractTotallyWrappedSubstitutionModel(fmsm),
     originalModel_(fmsm.originalModel_->clone()),
     registerName_(fmsm.registerName_),
     vRegStates_(fmsm.vRegStates_),
@@ -123,9 +116,9 @@ public:
 
   RegisterRatesSubstitutionModel& operator=(const RegisterRatesSubstitutionModel& fmsm)
   {
-    AbstractSubstitutionModel::operator=(fmsm);
+    AbstractTotallyWrappedSubstitutionModel::operator=(fmsm);
+    
     originalModel_.reset(fmsm.originalModel_->clone());
-
     registerName_ = fmsm.registerName_;
     vRegStates_ = fmsm.vRegStates_;
     nbTypes_ = fmsm.nbTypes_;
@@ -134,106 +127,58 @@ public:
     return *this;
   }
 
-  ~RegisterRatesSubstitutionModel() {}
+  virtual ~RegisterRatesSubstitutionModel() {}
 
-  RegisterRatesSubstitutionModel* clone() const { return new RegisterRatesSubstitutionModel(*this); }
+  RegisterRatesSubstitutionModel* clone() const override
+  {
+    return new RegisterRatesSubstitutionModel(*this);
+  }
 
 public:
-  /*
-   * @brief clear overrides of AbstractSubstitutionModel and
-   * AbstractWrappedSubstitutionModel.
-   *
-   */
-  const std::vector<int>& getAlphabetStates() const
-  {
-    return AbstractWrappedSubstitutionModel::getAlphabetStates();
-  }
-
-  std::vector<size_t> getModelStates(int i) const
-  {
-    return AbstractWrappedSubstitutionModel::getModelStates(i);
-  }
-
-  std::vector<size_t> getModelStates(const std::string& s) const
-  {
-    return AbstractWrappedSubstitutionModel::getModelStates(s);
-  }
-
-  int getAlphabetStateAsInt(size_t i) const
-  {
-    return AbstractWrappedSubstitutionModel::getAlphabetStateAsInt(i);
-  }
-
-  std::string getAlphabetStateAsChar(size_t s) const
-  {
-    return AbstractWrappedSubstitutionModel::getAlphabetStateAsChar(s);
-  }
-
-  const Alphabet* getAlphabet() const
-  {
-    return AbstractWrappedSubstitutionModel::getAlphabet();
-  }
-
-  const StateMap& getStateMap() const
-  {
-    return AbstractWrappedSubstitutionModel::getStateMap();
-  }
-
-  std::shared_ptr<const StateMap> shareStateMap() const
-  {
-    return AbstractWrappedSubstitutionModel::shareStateMap();
-  }
-
-
-  /*
+  /**
    * @brief From AbstractWrappedSubstitutionModel
-   *
    */
-  const SubstitutionModel& getSubstitutionModel() const
+  const SubstitutionModelInterface& substitutionModel() const override
   {
-    return *originalModel_.get();
+    return *originalModel_;
   }
 
-  const TransitionModel& getModel() const
+  const TransitionModelInterface& transitionModel() const override
   {
-    return *originalModel_.get();
+    return *originalModel_;
   }
 
 protected:
-  SubstitutionModel& getSubstitutionModel()
+  SubstitutionModelInterface& substitutionModel() override
   {
-    return *originalModel_.get();
+    return *originalModel_;
   }
 
 
-  TransitionModel& getModel()
+  TransitionModelInterface& transitionModel() override
   {
-    return *originalModel_.get();
+    return *originalModel_;
   }
 
 public:
-  /*
-   * @brief From AbstractSubstitutionModel
-   *
-   */
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
-    getSubstitutionModel().matchParametersValues(parameters);
+    substitutionModel().matchParametersValues(parameters);
 
     AbstractParameterAliasable::fireParameterChanged(parameters);
 
     updateMatrices();
   }
 
-  size_t getNumberOfStates() const
+  size_t getNumberOfStates() const override
   {
-    return getStateMap().getNumberOfModelStates();
+    return stateMap().getNumberOfModelStates();
   }
 
 public:
-  void updateMatrices();
+  void updateMatrices() override;
 
-  std::string getName() const
+  std::string getName() const override
   {
     return "FromRegister";
   }
@@ -243,18 +188,17 @@ public:
     return registerName_;
   }
 
-  void addRateParameter()
+  void addRateParameter() override
   {
     throw Exception("RegisterRatesSubstitutionModel::addRateParameter method should not be called, because rates are defined through registers.");
   }
 
-  /*
+  /**
    * @}
-   *
    */
-  void setRate(double rate) { getModel().setRate(rate); }
+  void setRate(double rate) override { model().setRate(rate); }
 
-  double getRate() const { return getModel().getRate(); }
+  double getRate() const override { return model().getRate(); }
 
 private:
   void setRegStates_();

@@ -61,31 +61,28 @@ namespace bpp
  *
  * Frequencies are ordered according to alphabet states.
  */
-
-class TransitionModel;
-
-class FrequencySet :
+class FrequencySetInterface :
   public virtual ParameterAliasable
 {
 public:
-  FrequencySet* clone() const = 0;
+  FrequencySetInterface* clone() const = 0;
 
 public:
   /**
    * @return The alphabet associated to this set.
    */
-  virtual const Alphabet* getAlphabet() const = 0;
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
 
   /**
    * @return The mapping of model states with alphabet states.
    */
-  virtual const StateMap& getStateMap() const = 0;
+  virtual const StateMapInterface& stateMap() const = 0;
 
   /**
-   * @return Share the mapping of model states with alphabet states.
+   * @return A shared_ptr toward the mapping of model states with alphabet states.
    */
 
-  virtual std::shared_ptr<const StateMap> shareStateMap() const = 0;
+  virtual std::shared_ptr<const StateMapInterface> getStateMap() const = 0;
 
   /**
    * @return The frequencies values of the set.
@@ -134,25 +131,26 @@ public:
  */
 
 class AbstractFrequencySet :
-  public virtual FrequencySet,
+  public virtual FrequencySetInterface,
   public AbstractParameterAliasable
 {
 private:
-  const Alphabet* alphabet_;
-  std::shared_ptr<const StateMap> stateMap_;
+  std::shared_ptr<const Alphabet> alphabet_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
   std::vector<double> freq_;
   std::string name_;
 
 public:
-  AbstractFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix, const std::string& name) :
+  AbstractFrequencySet(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix,
+      const std::string& name) :
     AbstractParameterAliasable(prefix),
     alphabet_(stateMap->getAlphabet()),
     stateMap_(stateMap),
     freq_(stateMap->getNumberOfModelStates()),
     name_(name)
   {}
-
-  AbstractFrequencySet* clone() const = 0;
 
   AbstractFrequencySet(const AbstractFrequencySet& af) :
     AbstractParameterAliasable(af),
@@ -173,15 +171,15 @@ public:
   }
 
 public:
-  const Alphabet* getAlphabet() const { return alphabet_; }
+  std::shared_ptr<const Alphabet> getAlphabet() const override { return alphabet_; }
 
-  const StateMap& getStateMap() const { return *stateMap_; }
+  const StateMapInterface& stateMap() const override { return *stateMap_; }
+  
+  std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
 
-  std::shared_ptr<const StateMap> shareStateMap() const { return stateMap_; }
+  const Vdouble& getFrequencies() const override { return freq_; }
 
-  const Vdouble& getFrequencies() const { return freq_; }
-
-  const std::map<int, double> getAlphabetStatesFrequencies() const;
+  const std::map<int, double> getAlphabetStatesFrequencies() const override;
 
   /**
    * @brief Set the Frequencies from the one of the map which keys
@@ -192,18 +190,18 @@ public:
    *
    * @param frequencies The set of frequencies to match.
    */
-  void setFrequenciesFromAlphabetStatesFrequencies(const std::map<int, double>& frequencies);
+  void setFrequenciesFromAlphabetStatesFrequencies(const std::map<int, double>& frequencies) override;
 
-  size_t getNumberOfFrequencies() const { return freq_.size(); }
+  size_t getNumberOfFrequencies() const override { return freq_.size(); }
 
-  std::string getName() const { return name_; }
+  std::string getName() const override { return name_; }
 
   void normalize()
   {
     double x = 0;
-    for (size_t i = 0; i < freq_.size(); i++)
+    for (auto f : freq_)
     {
-      x += freq_[i];
+      x += f;
     }
     freq_ /= x;
   }
@@ -214,6 +212,8 @@ protected:
   const double& getFreq_(size_t i) const { return freq_[i]; }
   void setFrequencies_(const std::vector<double>& frequencies) { freq_ = frequencies; }
 };
+
+
 
 /**
  * @brief A generic FrequencySet allowing for the estimation of all frequencies.
@@ -226,7 +226,6 @@ protected:
  *
  * @see Simplex
  */
-
 class FullFrequencySet :
   public AbstractFrequencySet
 {
@@ -241,24 +240,39 @@ public:
    * @brief Construction with uniform frequencies on the states of
    * the alphabet.
    */
-  FullFrequencySet(std::shared_ptr<const StateMap> stateMap, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
-  FullFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
+  FullFrequencySet(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      bool allowNullFreqs = false,
+      unsigned short method = 1,
+      const std::string& name = "Full");
 
-  FullFrequencySet* clone() const { return new FullFrequencySet(*this); }
+  FullFrequencySet(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::vector<double>& initFreqs,
+      bool allowNullFreqs = false,
+      unsigned short method = 1,
+      const std::string& name = "Full");
+
+  FullFrequencySet* clone() const override
+  {
+    return new FullFrequencySet(*this);
+  }
 
 public:
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
   unsigned short getMethod() const { return sFreq_.getMethod();}
 
-  void setNamespace(const std::string& nameSpace);
+  void setNamespace(const std::string& nameSpace) override;
 
 protected:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
 private:
   void updateFreq_();
 };
+
+class TransitionModelInterface;
 
 /**
  * @brief FrequencySet defined from the equilibrium distribution
@@ -266,35 +280,39 @@ private:
  *
  * Its parameters are the parameters of the model.
  */
-
 class FromModelFrequencySet :
   public AbstractFrequencySet
 {
 private:
-  TransitionModel* model_;
+  std::shared_ptr<TransitionModelInterface> model_;
 
 public:
-  FromModelFrequencySet(TransitionModel* model);
+  FromModelFrequencySet(std::shared_ptr<TransitionModelInterface> model);
 
   FromModelFrequencySet(const FromModelFrequencySet& fmfs);
 
   FromModelFrequencySet& operator=(const FromModelFrequencySet& fmfs);
 
-  FromModelFrequencySet* clone() const { return new FromModelFrequencySet(*this); }
+  FromModelFrequencySet* clone() const override { return new FromModelFrequencySet(*this); }
 
-  ~FromModelFrequencySet();
+  virtual ~FromModelFrequencySet();
 
 public:
-  const TransitionModel* getModel() const
+  const TransitionModelInterface& model() const
+  {
+    return *model_;
+  }
+
+  std::shared_ptr<const TransitionModelInterface> getModel() const
   {
     return model_;
   }
 
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
-  void fireParameterChanged(const ParameterList& pl);
+  void fireParameterChanged(const ParameterList& pl) override;
 
-  void setNamespace(const std::string& name);
+  void setNamespace(const std::string& name) override;
 };
 
 
@@ -309,11 +327,11 @@ class MarkovModulatedFrequencySet :
   public AbstractFrequencySet
 {
 private:
-  std::shared_ptr<FrequencySet> freqSet_;
+  std::shared_ptr<FrequencySetInterface> freqSet_;
   std::vector<double> rateFreqs_;
 
 public:
-  MarkovModulatedFrequencySet(std::shared_ptr<FrequencySet> freqSet, const std::vector<double>& rateFreqs);
+  MarkovModulatedFrequencySet(std::shared_ptr<FrequencySetInterface> freqSet, const std::vector<double>& rateFreqs);
 
   MarkovModulatedFrequencySet(const MarkovModulatedFrequencySet& mmfs) :
     AbstractFrequencySet(mmfs),
@@ -324,7 +342,7 @@ public:
   MarkovModulatedFrequencySet& operator=(const MarkovModulatedFrequencySet& mmfs)
   {
     AbstractFrequencySet::operator=(mmfs);
-    freqSet_ = std::shared_ptr<FrequencySet>(mmfs.freqSet_->clone());
+    freqSet_ = std::shared_ptr<FrequencySetInterface>(mmfs.freqSet_->clone());
     rateFreqs_ = mmfs.rateFreqs_;
     return *this;
   }
@@ -346,7 +364,7 @@ public:
     setFrequencies_(VectorTools::kroneckerMult(rateFreqs_, freqSet_->getFrequencies()));
   }
 
-  const FrequencySet& getStatesFrequencySet() const { return *freqSet_; }
+  const FrequencySetInterface& getStatesFrequencySet() const { return *freqSet_; }
 };
 
 
@@ -367,7 +385,10 @@ public:
    * @param name The name of the set.
    * @throw Exception In case the number of frequencies does not match the number of model states.
    */
-  FixedFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
+  FixedFrequencySet(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::vector<double>& initFreqs,
+      const std::string& name = "Fixed");
 
   /**
    * @brief Construction with uniform frequencies on the states of the model.
@@ -375,12 +396,14 @@ public:
    * @param stateMap The model states for which frequencies should be built.
    * @param name The name of the set.
    */
-  FixedFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& name = "Fixed");
+  FixedFrequencySet(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& name = "Fixed");
 
-  FixedFrequencySet* clone() const { return new FixedFrequencySet(*this); }
+  FixedFrequencySet* clone() const override { return new FixedFrequencySet(*this); }
 
 public:
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 };
 
 
@@ -388,9 +411,7 @@ public:
  * @brief FrequencySet to be read in a file. More specifically, a
  * frequency set is read in a column of a given file, which column
  * number is given in argument (default: 1).
- *
  */
-
 class UserFrequencySet :
   public AbstractFrequencySet
 {
@@ -399,15 +420,18 @@ private:
   size_t nCol_;
 
 public:
-  UserFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol = 1);
+  UserFrequencySet(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& path,
+      size_t nCol = 1);
 
   UserFrequencySet(const UserFrequencySet& fmfs);
 
   UserFrequencySet& operator=(const UserFrequencySet& fmfs);
 
-  UserFrequencySet* clone() const { return new UserFrequencySet(*this); }
+  UserFrequencySet* clone() const override { return new UserFrequencySet(*this); }
 
-  ~UserFrequencySet(){}
+  virtual ~UserFrequencySet(){}
 
 public:
   const std::string& getPath() const { return path_; }
@@ -417,9 +441,7 @@ public:
     return nCol_;
   }
 
-  void setFrequencies(const std::vector<double>& frequencies);
-
-  // void fireParameterChanged(const ParameterList& pl){};
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
 protected:
   void readFromFile_();

@@ -53,9 +53,7 @@ namespace bpp
  * path. See class ModelScenario for a thorough description.
  *
  * A path is defined through an hypergraph, ie a list of hypernodes.
- *
  */
-
 class ModelPath
 {
 public:
@@ -63,9 +61,7 @@ public:
    * @brief A vector<int> where all elements are different and in
    * INCREASING ORDER. So inclusion should be done through dedicated
    * methods.
-   *
    */
-
   class PathNode : public Vuint
   {
 public:
@@ -151,14 +147,14 @@ private:
    *
    */
 
-  std::map<std::shared_ptr<MixedTransitionModel>, PathNode> mModPath_;
+  std::map<std::shared_ptr<MixedTransitionModelInterface>, PathNode> mModPath_;
 
   /*
    * The leading model (ie which that decides of the submodels probabilities).
    *
    */
 
-  std::shared_ptr<MixedTransitionModel> leadMod_;
+  std::shared_ptr<MixedTransitionModelInterface> leadMod_;
 
   /**
    * @brief probability of this ModelPath.
@@ -182,12 +178,12 @@ public:
    * @brief gets the leader model.
    *
    */
-  std::shared_ptr<MixedTransitionModel> getLeadModel()
+  std::shared_ptr<MixedTransitionModelInterface> getLeadModel()
   {
     return leadMod_;
   }
 
-  const std::shared_ptr<MixedTransitionModel> getLeadModel() const
+  const std::shared_ptr<MixedTransitionModelInterface> getLeadModel() const
   {
     return leadMod_;
   }
@@ -198,7 +194,7 @@ public:
    * The model must be in the map before.
    *
    */
-  void setLeadModel(std::shared_ptr<MixedTransitionModel> model)
+  void setLeadModel(std::shared_ptr<MixedTransitionModelInterface> model)
   {
     if (mModPath_.find(model) == mModPath_.end())
       throw Exception("ModelPath::setLeadModel: Unknown model " + model->getName());
@@ -213,7 +209,7 @@ public:
    * @param vnS vector of indexes of the submodels
    */
 
-  void setModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint& vnS);
+  void setModel(std::shared_ptr<MixedTransitionModelInterface> mMod, const Vuint& vnS);
 
   /**
    * @brief change from a model to another
@@ -225,15 +221,15 @@ public:
    *
    */
 
-  void changeModel(std::shared_ptr<MixedTransitionModel> mMod1,
-                   std::shared_ptr<MixedTransitionModel> mMod2);
+  void changeModel(std::shared_ptr<MixedTransitionModelInterface> mMod1,
+                   std::shared_ptr<MixedTransitionModelInterface> mMod2);
 
   /**
    * @brief Remove a model
    *
    * if the model is the leadmodel, the leadmodel is set to 0.
    */
-  void removeModel(std::shared_ptr<MixedTransitionModel> mMod)
+  void removeModel(std::shared_ptr<MixedTransitionModelInterface> mMod)
   {
     if (mMod == leadMod_)
       leadMod_ = 0;
@@ -250,7 +246,7 @@ public:
    * @param vnS vector of numbers of the submodel
    */
 
-  void addToModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint& vnS);
+  void addToModel(std::shared_ptr<MixedTransitionModelInterface> mMod, const Vuint& vnS);
 
   /**
    * @brief Cumulates the PathNodes of the given ModelPath into this one.
@@ -307,10 +303,10 @@ public:
    *
    *
    */
-  bool hasModel(std::shared_ptr<MixedTransitionModel> mMod) const
+  bool hasModel(std::shared_ptr<MixedTransitionModelInterface> mMod) const
   { return mModPath_.find(mMod) != mModPath_.end(); }
 
-  bool hasModel(std::shared_ptr<const MixedTransitionModel> mMod) const
+  bool hasModel(std::shared_ptr<const MixedTransitionModelInterface> mMod) const
   {
     for (const auto& mn:mModPath_)
     {
@@ -325,10 +321,10 @@ public:
    *
    *
    */
-  const PathNode& getPathNode(std::shared_ptr<MixedTransitionModel> mMod) const
+  const PathNode& getPathNode(std::shared_ptr<MixedTransitionModelInterface> mMod) const
   { return mModPath_.at(mMod); }
 
-  const PathNode& getPathNode(std::shared_ptr<const MixedTransitionModel> mMod) const
+  const PathNode& getPathNode(std::shared_ptr<const MixedTransitionModelInterface> mMod) const
   {
     for (const auto& mn:mModPath_)
     {
@@ -343,14 +339,12 @@ public:
    *
    */
 
-  std::vector<std::shared_ptr<MixedTransitionModel> > getModels() const;
+  std::vector<std::shared_ptr<MixedTransitionModelInterface> > getModels() const;
 
   /**
    * @brief string description
-   *
    */
-
-  std::string to_string() const;
+  std::string toString() const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_MODELPATH_H

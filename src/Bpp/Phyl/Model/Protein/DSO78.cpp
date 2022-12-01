@@ -52,10 +52,10 @@ using namespace std;
 
 /******************************************************************************/
 
-DSO78::DSO78(const ProteicAlphabet* alpha) :
+DSO78::DSO78(std::shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("DSO78."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "DSO78."),
-  freqSet_(0)
+  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(alpha, false)), "DSO78."),
+  freqSet_(nullptr)
 {
   #include "__DSO78ExchangeabilityCode"
   #include "__DSO78FrequenciesCode"

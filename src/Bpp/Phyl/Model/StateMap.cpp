@@ -44,11 +44,11 @@
 using namespace bpp;
 using namespace std;
 
-CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, bool includeGaps) :
+CanonicalStateMap::CanonicalStateMap(std::shared_ptr<const Alphabet> alphabet, bool includeGaps) :
   AbstractStateMap(alphabet)
 {
-  size_t i=0;
-  while (states_.size()<alphabet->getSize())
+  size_t i = 0;
+  while (states_.size() < alphabet->getSize())
   {
     if (!alphabet->isGap(alphabet->getIntCodeAt(i)))
       states_.push_back(alphabet->getIntCodeAt(i));
@@ -59,7 +59,7 @@ CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, bool includeGaps)
     states_.push_back(alphabet->getGapCharacterCode());
 }
 
-CanonicalStateMap::CanonicalStateMap(const StateMap& sm, bool includeGaps) :
+CanonicalStateMap::CanonicalStateMap(const StateMapInterface& sm, bool includeGaps) :
   AbstractStateMap(sm.getAlphabet())
 {
   for (size_t i = 0; i < sm.getNumberOfModelStates(); ++i)
@@ -70,7 +70,7 @@ CanonicalStateMap::CanonicalStateMap(const StateMap& sm, bool includeGaps) :
     states_.push_back(sm.getAlphabet()->getGapCharacterCode());
 }
 
-MarkovModulatedStateMap::MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses) :
+MarkovModulatedStateMap::MarkovModulatedStateMap(const StateMapInterface& unitMap, unsigned int nbClasses) :
   AbstractStateMap(unitMap.getAlphabet()),
   nbClasses_(nbClasses)
 {

@@ -120,7 +120,7 @@ private:
    *
    */
 
-  const BranchModel* model_;
+  const BranchModelInterface* model_;
 
   /*
    * Number of the model carried by the branch
@@ -155,7 +155,7 @@ private:
   const uint speciesIndex_;
 
 public:
-  ProcessComputationEdge(const BranchModel* model, uint nmodel, uint speciesIndex, bool useProb = false, const std::vector<uint>& vNb = Vuint(0)) :
+  ProcessComputationEdge(const BranchModelInterface* model, uint nmodel, uint speciesIndex, bool useProb = false, const std::vector<uint>& vNb = Vuint(0)) :
     model_(model),
     nmodel_(nmodel),
     vSubNb_(vNb),
@@ -171,7 +171,7 @@ public:
     speciesIndex_(edge.speciesIndex_)
   {}
 
-  const BranchModel* getModel() const
+  const BranchModelInterface* getModel() const
   {
     return model_;
   }
@@ -203,7 +203,7 @@ class ProcessComputationTree :
   public BaseTree
 {
 private:
-  const SubstitutionProcess& process_;
+  const SubstitutionProcessInterface& process_;
 
   /*
    * Build rest of the tree under given father (event on father will
@@ -213,7 +213,7 @@ private:
 
   void _build_following_path(std::shared_ptr<ProcessComputationNode> father, const ModelPath& path);
 
-  void _build_following_scenario(std::shared_ptr<ProcessComputationNode> father, const ModelScenario& scenario,  std::map<std::shared_ptr<MixedTransitionModel>, uint>& mMrca);
+  void _build_following_scenario(std::shared_ptr<ProcessComputationNode> father, const ModelScenario& scenario,  std::map<std::shared_ptr<MixedTransitionModelInterface>, uint>& mMrca);
 
 public:
   /*
@@ -223,7 +223,7 @@ public:
    *
    */
 
-  ProcessComputationTree(const SubstitutionProcess& process);
+  ProcessComputationTree(const SubstitutionProcessInterface& process);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_PROCESSCOMPUTATIONTREE_H

@@ -56,7 +56,7 @@ namespace bpp
  */
 class AbstractDiscreteRatesAcrossSitesTreeLikelihood :
   public AbstractTreeLikelihood,
-  public virtual DiscreteRatesAcrossSitesTreeLikelihood
+  public virtual DiscreteRatesAcrossSitesTreeLikelihoodInterface
 {
 protected:
   DiscreteDistribution* rateDistribution_;

@@ -98,6 +98,7 @@ void AbstractTransitionModel::addRateParameter()
 }
 
 /******************************************************************************/
+
 double AbstractTransitionModel::getInitValue(size_t i, int state) const
 {
   if (i >= size_)

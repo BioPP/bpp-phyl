@@ -44,6 +44,7 @@
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/ParameterList.h>
 
+#include "../DataFlow/LikelihoodCalculation.h"
 
 namespace bpp
 {
@@ -53,18 +54,17 @@ namespace bpp
  * This interface defines the common methods needed to compute a likelihood
  * from a sequence alignement, usually involving one or more phylogenetic trees.
  */
-class PhyloLikelihood :
-  public virtual DerivableSecondOrder
+class PhyloLikelihoodInterface :
+  public virtual SecondOrderDerivable
 {
 public:
-  PhyloLikelihood() {}
-  virtual ~PhyloLikelihood() {}
+  PhyloLikelihoodInterface() {}
+  virtual ~PhyloLikelihoodInterface() {}
 
-  PhyloLikelihood* clone() const = 0;
+  PhyloLikelihoodInterface* clone() const = 0;
 
 public:
   /**
-   *
    * @name The data functions
    *
    * @{
@@ -121,7 +121,6 @@ public:
    *
    * @return A ParameterList with all branch lengths.
    */
-
   virtual ParameterList getBranchLengthParameters() const = 0;
 
   /**
@@ -129,7 +128,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getSubstitutionModelParameters() const = 0;
 
   /**
@@ -137,7 +135,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getRateDistributionParameters() const = 0;
 
   /**
@@ -145,10 +142,21 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getRootFrequenciesParameters() const = 0;
 
   /** @} */
+
+  /**
+   * @return The LikelihoodCalculation.
+   */
+  virtual LikelihoodCalculation& likelihoodCalculation() const = 0;
+
+  /**
+   * @return A shared pointer toward the LikelihoodCalculation.
+   */
+  virtual std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const = 0;
+
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_PHYLOLIKELIHOOD_H

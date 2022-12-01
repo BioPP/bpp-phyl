@@ -283,7 +283,7 @@ public:
    *
    * @param alpha The alphabet to use for this set.
    */
-  MixedSubstitutionModelSet(const Alphabet* alpha) :
+  MixedSubstitutionModelSet(std::shared_ptr<const Alphabet> alpha) :
     SubstitutionModelSet(alpha),
     vpHyperNodes_() {}
 

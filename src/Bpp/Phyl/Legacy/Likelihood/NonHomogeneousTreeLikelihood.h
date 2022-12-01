@@ -59,18 +59,18 @@ namespace bpp
  */
 
 class NonHomogeneousTreeLikelihood :
-  public virtual TreeLikelihood
+  public virtual TreeLikelihoodInterface
 {
 public:
-  NonHomogeneousTreeLikelihood* clone() const = 0;
+  NonHomogeneousTreeLikelihood* clone() const override = 0;
 
 public:
-  const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const
+  std::shared_ptr<const TransitionModelInterface> getModelForSite(int nodeId, size_t siteIndex) const override
   {
     return getModelForNode(nodeId);
   }
 
-  TransitionModel* getModelForSite(int nodeId, size_t siteIndex)
+  std::shared_ptr<TransitionModelInterface> getModelForSite(int nodeId, size_t siteIndex) override
   {
     return getModelForNode(nodeId);
   }
@@ -82,7 +82,7 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
    */
-  virtual const TransitionModel* getModelForNode(int nodeId) const = 0;
+  virtual std::shared_ptr<const TransitionModelInterface> getModelForNode(int nodeId) const = 0;
 
   /**
    * @brief Get the substitution model associated to a given node.
@@ -91,23 +91,23 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
    */
-  virtual TransitionModel* getModelForNode(int nodeId) = 0;
+  virtual std::shared_ptr<TransitionModelInterface> getModelForNode(int nodeId) = 0;
 
   /**
    * @return The set of substitution models associated to this instance.
    */
-  virtual const SubstitutionModelSet* getSubstitutionModelSet() const = 0;
+  virtual std::shared_ptr<const SubstitutionModelSet> getSubstitutionModelSet() const = 0;
 
   /**
    * @return The set of substitution models associated to this instance.
    */
-  virtual SubstitutionModelSet* getSubstitutionModelSet() = 0;
+  virtual std::shared_ptr<SubstitutionModelSet> getSubstitutionModelSet() = 0;
 
   /**
    * @return Set the substitution models for this instance.
    * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
    */
-  virtual void setSubstitutionModelSet(SubstitutionModelSet* model) = 0;
+  virtual void setSubstitutionModelSet(std::shared_ptr<SubstitutionModelSet> model) = 0;
 
   /**
    * @return The parameters on which the root frequencies depend.

@@ -87,6 +87,7 @@ DRTreeParsimonyData& DRTreeParsimonyData::operator=(const DRTreeParsimonyData& d
 }
 
 /******************************************************************************/
+
 void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& stateMap)
 {
   nbStates_         = stateMap.getNumberOfModelStates();
@@ -116,6 +117,7 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
 }
 
 /******************************************************************************/
+
 void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, const StateMap& stateMap)
 {
   const Alphabet* alphabet = sites.getAlphabet();

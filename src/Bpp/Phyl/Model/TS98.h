@@ -87,8 +87,12 @@ public:
    * @param s2    Second rate parameter.
    * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
    */
-  TS98(ReversibleSubstitutionModel* model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false) :
-    MarkovModulatedSubstitutionModel(model, 2, normalizeRateChanges, "TS98.")
+  TS98(
+      std::unique_ptr<ReversibleSubstitutionModelInterface> model,
+      double s1 = 1.,
+      double s2 = 1.,
+      bool normalizeRateChanges = false) :
+    MarkovModulatedSubstitutionModel(std::move(model), 2, normalizeRateChanges, "TS98.")
   {
     addParameter_(new Parameter("TS98.s1", s1, Parameter::R_PLUS_STAR));
     addParameter_(new Parameter("TS98.s2", s2, Parameter::R_PLUS_STAR));
@@ -98,19 +102,19 @@ public:
 
   virtual ~TS98() {}
 
-  TS98* clone() const { return new TS98(*this); }
+  TS98* clone() const override { return new TS98(*this); }
 
 public:
-  std::string getName() const { return "TS98"; }
+  std::string getName() const override { return "TS98"; }
 
-  double getRate() const { return 1.;}
+  double getRate() const override { return 1.;}
 
-  void setRate(double rate) {}
+  void setRate(double rate) override {}
 
-  void addRateParameter() {}
+  void addRateParameter() override {}
 
 protected:
-  void updateRatesModel()
+  void updateRatesModel() override
   {
     double s1 = getParameterValue("s1");
     double s2 = getParameterValue("s2");

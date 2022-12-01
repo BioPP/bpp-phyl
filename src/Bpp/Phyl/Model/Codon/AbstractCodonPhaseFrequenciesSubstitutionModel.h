@@ -65,18 +65,16 @@ namespace bpp
  * term defined from inherited and inheriting classes,
  * @f$Q_{ij})@f$, is multiplied by the product of the @f$F_{j_k}@f$
  * for each @f$k \in 1, 2, 3@f$ such that @f$i_k \neq j_k@f$.
- *
  */
-
 class AbstractCodonPhaseFrequenciesSubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
+  public virtual CoreCodonSubstitutionModelInterface,
   public virtual AbstractParameterAliasable
 {
 private:
   /**
    * @brief Position dependent version of Codon Frequencies Set
    */
-  std::shared_ptr<WordFrequencySet> posfreqset_;
+  std::shared_ptr<WordFrequencySetInterface> posfreqset_;
   std::string freqName_;
 
 public:
@@ -88,7 +86,7 @@ public:
    * @param prefix the Namespace
    */
   AbstractCodonPhaseFrequenciesSubstitutionModel(
-    std::shared_ptr<FrequencySet> pfreq,
+    std::shared_ptr<FrequencySetInterface> pfreq,
     const std::string& prefix);
 
   AbstractCodonPhaseFrequenciesSubstitutionModel(const AbstractCodonPhaseFrequenciesSubstitutionModel& model) :
@@ -100,32 +98,47 @@ public:
   AbstractCodonPhaseFrequenciesSubstitutionModel& operator=(const AbstractCodonPhaseFrequenciesSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    posfreqset_   = std::shared_ptr<WordFrequencySet>(model.posfreqset_->clone());
+    posfreqset_   = std::shared_ptr<WordFrequencySetInterface>(model.posfreqset_->clone());
     freqName_   = model.freqName_;
 
     return *this;
   }
 
-  AbstractCodonPhaseFrequenciesSubstitutionModel* clone() const
+  AbstractCodonPhaseFrequenciesSubstitutionModel* clone() const override
   {
     return new AbstractCodonPhaseFrequenciesSubstitutionModel(*this);
   }
 
   virtual ~AbstractCodonPhaseFrequenciesSubstitutionModel();
 
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     posfreqset_->setNamespace(prefix + freqName_);
   }
 
-  double getCodonsMulRate(size_t, size_t) const;
+  double getCodonsMulRate(size_t, size_t) const override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return *posfreqset_;
+  }
+
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  {
+    return posfreqset_;
+  }
+
+  const WordFrequencySetInterface& wordFrequencySet() const
+  {
+    return *posfreqset_;
+  }
+
+  std::shared_ptr<const WordFrequencySetInterface> getWordFrequencySet() const
   {
     return posfreqset_;
   }

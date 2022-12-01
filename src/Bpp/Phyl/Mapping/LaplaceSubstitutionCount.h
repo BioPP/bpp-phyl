@@ -63,26 +63,26 @@ class LaplaceSubstitutionCount :
   public AbstractSubstitutionCount
 {
 private:
-  const SubstitutionModel* model_;
+  std::shared_ptr<const SubstitutionModelInterface> model_;
   size_t cutOff_;
   mutable double currentLength_;
   mutable RowMatrix<double> m_;
 
 public:
-  LaplaceSubstitutionCount(const SubstitutionModel* model, size_t cutOff) :
-    AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getStateMap())),
+  LaplaceSubstitutionCount(std::shared_ptr<const SubstitutionModelInterface> model, size_t cutOff) :
+    AbstractSubstitutionCount(make_shared<TotalSubstitutionRegister>(model->getStateMap())),
     model_        (model),
     cutOff_       (cutOff),
     currentLength_(0),
     m_            (model->getNumberOfStates(), model->getNumberOfStates())
   {}
 
-  LaplaceSubstitutionCount(const StateMap& statemap, size_t cutOff) :
-    AbstractSubstitutionCount(new TotalSubstitutionRegister(statemap)),
+  LaplaceSubstitutionCount(std::shared_ptr<const StateMapInterface> stateMap, size_t cutOff) :
+    AbstractSubstitutionCount(make_shared<TotalSubstitutionRegister>(stateMap)),
     model_        (0),
     cutOff_       (cutOff),
     currentLength_(0),
-    m_            (statemap.getNumberOfModelStates(), statemap.getNumberOfModelStates())
+    m_            (stateMap->getNumberOfModelStates(), stateMap->getNumberOfModelStates())
   {}
 
   LaplaceSubstitutionCount(const LaplaceSubstitutionCount& asc) :
@@ -105,35 +105,36 @@ public:
 
   virtual ~LaplaceSubstitutionCount() {}
 
-  LaplaceSubstitutionCount* clone() const { return new LaplaceSubstitutionCount(*this); }
+  LaplaceSubstitutionCount* clone() const override { return new LaplaceSubstitutionCount(*this); }
 
 public:
-  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const;
+  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const override;
 
-  Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
-  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const;
+  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
 
-  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
+  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override;
+
+  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const override
   {
     std::vector<double> v(0);
     v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
     return v;
   }
 
-  void setSubstitutionModel(const SubstitutionModel* model);
+  void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) override;
 
   /*
    *@param reg pointer to a SubstitutionRegister
    *
    */
-  void setSubstitutionRegister(SubstitutionRegister* reg)
+  void setSubstitutionRegister(std::shared_ptr<const SubstitutionRegisterInterface> reg) override
   {
     throw Exception("LaplaceSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
   }
 
 protected:
   void computeCounts(double length) const;
-  void substitutionRegisterHasChanged() {}
+  void substitutionRegisterHasChanged() override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MAPPING_LAPLACESUBSTITUTIONCOUNT_H

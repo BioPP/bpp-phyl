@@ -51,39 +51,39 @@ namespace bpp
 /**
  * @brief Parametrize a set of state frequencies for nucleotides.
  */
-class NucleotideFrequencySet :
-  public virtual FrequencySet
+class NucleotideFrequencySetInterface :
+  public virtual FrequencySetInterface
 {
 public:
-  NucleotideFrequencySet* clone() const = 0;
+  NucleotideFrequencySetInterface* clone() const override = 0;
 
-  const NucleicAlphabet* getAlphabet() const = 0;
+  virtual std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const = 0;
 };
 
 /**
  * @brief Nucleotide FrequencySet using only one parameter, the GC content.
  */
 class GCFrequencySet :
-  public virtual NucleotideFrequencySet,
+  public virtual NucleotideFrequencySetInterface,
   public AbstractFrequencySet
 {
 public:
-  GCFrequencySet(const NucleicAlphabet* alphabet) :
-    AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "GC.", "GC")
+  GCFrequencySet(std::shared_ptr<const NucleicAlphabet> alphabet) :
+    AbstractFrequencySet(std::make_shared<const CanonicalStateMap>(alphabet, false), "GC.", "GC")
   {
     addParameter_(new Parameter("GC.theta", 0.5, Parameter::PROP_CONSTRAINT_IN));
     getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
   }
 
-  GCFrequencySet(const NucleicAlphabet* alphabet, double theta) :
-    AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "GC.", "GC")
+  GCFrequencySet(std::shared_ptr<const NucleicAlphabet> alphabet, double theta) :
+    AbstractFrequencySet(std::make_shared<const CanonicalStateMap>(alphabet, false), "GC.", "GC")
   {
     addParameter_(new Parameter("GC.theta", theta, Parameter::PROP_CONSTRAINT_IN));
     getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
     getFreq_(1) = getFreq_(2) = theta / 2.;
   }
 
-  GCFrequencySet* clone() const
+  GCFrequencySet* clone() const override
   {
     return new GCFrequencySet(*this);
   }
@@ -93,15 +93,15 @@ public:
   {}
 
 public:
-  const NucleicAlphabet* getAlphabet() const
+  std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const override
   {
-    return dynamic_cast<const NucleicAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const NucleicAlphabet>(getAlphabet());
   }
 
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
 protected:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 };
 
 /**
@@ -126,26 +126,33 @@ protected:
  * with \f$\pi_x\f$ the frequency of nucleotide \f$x\f$.
  */
 class FullNucleotideFrequencySet :
-  public virtual NucleotideFrequencySet,
+  public virtual NucleotideFrequencySetInterface,
   public AbstractFrequencySet
 {
 public:
-  FullNucleotideFrequencySet(const NucleicAlphabet* alphabet, bool allowNullFreqs = false, const std::string& name = "Full");
+  FullNucleotideFrequencySet(
+      std::shared_ptr<const NucleicAlphabet> alphabet,
+      bool allowNullFreqs = false,
+      const std::string& name = "Full");
 
-  FullNucleotideFrequencySet(const NucleicAlphabet* alphabet, double theta, double theta1, double theta2, bool allowNullFreqs = false, const std::string& name = "Full");
+  FullNucleotideFrequencySet(
+      std::shared_ptr<const NucleicAlphabet> alphabet,
+      double theta, double theta1, double theta2,
+      bool allowNullFreqs = false,
+      const std::string& name = "Full");
 
-  FullNucleotideFrequencySet* clone() const { return new FullNucleotideFrequencySet(*this); }
+  FullNucleotideFrequencySet* clone() const override { return new FullNucleotideFrequencySet(*this); }
 
 public:
-  const NucleicAlphabet* getAlphabet() const
+  std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const override
   {
-    return dynamic_cast<const NucleicAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const NucleicAlphabet>(getAlphabet());
   }
 
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
 protected:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 };
 
 
@@ -155,25 +162,30 @@ protected:
  * This set contains no parameter.
  */
 class FixedNucleotideFrequencySet :
-  public virtual NucleotideFrequencySet,
+  public virtual NucleotideFrequencySetInterface,
   public FixedFrequencySet
 {
 public:
-  FixedNucleotideFrequencySet(const NucleicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed") :
-    FixedFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), initFreqs, name) {}
+  FixedNucleotideFrequencySet(
+      std::shared_ptr<const NucleicAlphabet> alphabet,
+      const std::vector<double>& initFreqs, 
+      const std::string& name = "Fixed") :
+    FixedFrequencySet(std::make_shared<const CanonicalStateMap>(alphabet, false), initFreqs, name) {}
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
-  FixedNucleotideFrequencySet(const NucleicAlphabet* alphabet, const std::string& name = "Fixed") :
-    FixedFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), name) {}
+  FixedNucleotideFrequencySet(
+      std::shared_ptr<const NucleicAlphabet> alphabet,
+      const std::string& name = "Fixed") :
+    FixedFrequencySet(std::make_shared<const CanonicalStateMap>(alphabet, false), name) {}
 
-  FixedNucleotideFrequencySet* clone() const { return new FixedNucleotideFrequencySet(*this); }
+  FixedNucleotideFrequencySet* clone() const override { return new FixedNucleotideFrequencySet(*this); }
 
-  const NucleicAlphabet* getAlphabet() const
+  std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const override
   {
-    return dynamic_cast<const NucleicAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const NucleicAlphabet>(getAlphabet());
   }
 };
 
@@ -183,18 +195,21 @@ public:
  * This set contains no parameter.
  */
 class UserNucleotideFrequencySet :
-  public virtual NucleotideFrequencySet,
+  public virtual NucleotideFrequencySetInterface,
   public UserFrequencySet
 {
 public:
-  UserNucleotideFrequencySet(const NucleicAlphabet* alphabet, const std::string& path, size_t nCol = 1) :
-    UserFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), path, nCol) {}
+  UserNucleotideFrequencySet(
+      std::shared_ptr<const NucleicAlphabet> alphabet,
+      const std::string& path,
+      size_t nCol = 1) :
+    UserFrequencySet(std::make_shared<const CanonicalStateMap>(alphabet, false), path, nCol) {}
 
-  UserNucleotideFrequencySet* clone() const { return new UserNucleotideFrequencySet(*this); }
+  UserNucleotideFrequencySet* clone() const override { return new UserNucleotideFrequencySet(*this); }
 
-  const NucleicAlphabet* getAlphabet() const
+  std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const override
   {
-    return dynamic_cast<const NucleicAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const NucleicAlphabet>(getAlphabet());
   }
 };
 } // end of namespace bpp.

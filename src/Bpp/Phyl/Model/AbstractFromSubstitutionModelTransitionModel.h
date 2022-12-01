@@ -52,24 +52,18 @@ namespace bpp
  *
  * It has the same parameters as the SubModel.
  */
-
 class AbstractFromSubstitutionModelTransitionModel :
-  public virtual AbstractWrappedTransitionModel,
-  virtual public AbstractParameterAliasable
+  public virtual AbstractWrappedTransitionModel
 {
 protected:
-  /*
+  /**
    * @brief The related model.
-   *
    */
+  std::unique_ptr<SubstitutionModelInterface> subModel_;
 
-  std::unique_ptr<SubstitutionModel> subModel_;
-
-  /*
+  /**
    * The number of states
-   *
    */
-
   size_t size_;
 
   /**
@@ -82,7 +76,9 @@ protected:
   std::string nestedPrefix_;
 
 public:
-  AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel, const std::string& prefix);
+  AbstractFromSubstitutionModelTransitionModel(
+      std::unique_ptr<SubstitutionModelInterface> subModel,
+      const std::string& prefix);
 
   AbstractFromSubstitutionModelTransitionModel(const AbstractFromSubstitutionModelTransitionModel& fmsm);
 
@@ -90,25 +86,23 @@ public:
 
   virtual ~AbstractFromSubstitutionModelTransitionModel() {}
 
-  virtual AbstractFromSubstitutionModelTransitionModel* clone() const = 0;
-
 public:
-  const SubstitutionModel& getSubstitutionModel() const
+  const SubstitutionModelInterface& substitutionModel() const
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
-  const TransitionModel& getTransitionModel() const
+  const TransitionModelInterface& transitionModel() const override
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
-  const BranchModel& getModel() const
+  const BranchModelInterface& model() const override
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
-  bool computeFrequencies() const
+  bool computeFrequencies() const override
   {
     return subModel_->computeFrequencies();
   }
@@ -117,55 +111,54 @@ public:
    * @return Set if equilibrium frequencies should be computed from
    * the generator
    */
-  void computeFrequencies(bool yn)
+  void computeFrequencies(bool yn) override
   {
     subModel_->computeFrequencies(yn);
   }
 
-  /*
+  /**
    * @}
-   *
    */
 
 protected:
-  Vdouble& getFrequencies_()
+  Vdouble& getFrequencies_() override
   {
     return subModel_->getFrequencies_();
   }
 
-  SubstitutionModel& getSubstitutionModel()
+  SubstitutionModelInterface& substitutionModel()
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
 
-  TransitionModel& getTransitionModel()
+  TransitionModelInterface& transitionModel() override
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
-  BranchModel& getModel()
+  BranchModelInterface& model() override
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
 public:
-  virtual void addRateParameter()
+  virtual void addRateParameter() override
   {
-    getModel().addRateParameter();
-    addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
+    model().addRateParameter();
+    addParameter_(new Parameter(getNamespace() + "rate", model().getRate(), Parameter::R_PLUS_STAR));
   }
 
-  virtual void fireParameterChanged(const ParameterList& parameters)
+  virtual void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
-    getModel().matchParametersValues(parameters);
+    model().matchParametersValues(parameters);
   }
 
-  virtual void setNamespace(const std::string& prefix)
+  virtual void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix + nestedPrefix_);
-    getModel().setNamespace(prefix + nestedPrefix_);
+    model().setNamespace(prefix + nestedPrefix_);
   }
 };
 } // end of namespace bpp.

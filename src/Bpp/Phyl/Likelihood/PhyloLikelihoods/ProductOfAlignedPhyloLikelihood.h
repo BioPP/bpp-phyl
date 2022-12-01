@@ -78,15 +78,24 @@ public:
 
   ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd) :
     AbstractPhyloLikelihood(sd),
-    AbstractAlignedPhyloLikelihood(sd),
     SetOfAlignedPhyloLikelihood(sd),
     likCal_(sd.likCal_)
   {}
 
 public:
+  LikelihoodCalculation& likelihoodCalculation () const
+  {
+    return *likCal_;
+  }
+
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
   {
     return likCal_;
+  }
+
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const
+  {
+    return *likCal_;
   }
 
   std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const

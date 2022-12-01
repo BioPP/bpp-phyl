@@ -1,7 +1,7 @@
 //
 // File: F81.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mardi 21 avril 2015, ÃÂ  23h 32
 //
 
@@ -186,7 +186,7 @@ private:
 
 public:
   F81(
-    const NucleicAlphabet* alpha,
+    std::shared_ptr<const NucleicAlphabet> alpha,
     double piA = 0.25,
     double piC = 0.25,
     double piG = 0.25,

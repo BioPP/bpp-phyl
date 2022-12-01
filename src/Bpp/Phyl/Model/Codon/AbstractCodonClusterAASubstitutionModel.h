@@ -84,21 +84,19 @@ namespace bpp
  *    Populations, Molecular Biology and Evolution, Volume 36, Issue
  *    4, April 2019, Pages 679Ã¢ÂÂ690,
  *    https://doi.org/10.1093/molbev/msz003
- *
  */
-
 class AbstractCodonClusterAASubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
+  public virtual CoreCodonSubstitutionModelInterface,
   public virtual AbstractParameterAliasable
 {
 private:
-  const GeneticCode* pgencode_;
+  std::shared_ptr<const GeneticCode> pgencode_;
 
   double omegaR_, omegaC_;
 
   std::vector<uint> assign_;
 
-  std::shared_ptr<const StateMap> stateMap_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
 
 public:
   /**
@@ -109,9 +107,8 @@ public:
    * @param assign an paramSynRate is true iff synonymous rate is parametrised
    *       (default categories:   "AGPV", "RQEHKWY", "NDCST", "ILMF")
    */
-
   AbstractCodonClusterAASubstitutionModel(
-    const GeneticCode* pgencode,
+    std::shared_ptr<const GeneticCode> pgencode,
     const std::string& prefix,
     const std::vector<uint>& assign = {1, 2, 3, 3, 3, 2, 2, 1, 2, 4, 4, 2, 4, 4, 1, 3, 3, 2, 2, 1});
 
@@ -137,7 +134,7 @@ public:
     return *this;
   }
 
-  AbstractCodonClusterAASubstitutionModel* clone() const
+  AbstractCodonClusterAASubstitutionModel* clone() const override
   {
     return new AbstractCodonClusterAASubstitutionModel(*this);
   }
@@ -145,13 +142,18 @@ public:
   virtual ~AbstractCodonClusterAASubstitutionModel() {}
 
 public:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const FrequencySetInterface& frequencySet() const override
   {
-    return 0;
+    throw NullPointerException("AbstractCodonClusterAASubstitutionModel::frequencySet. No associated FrequencySet.");
+  }
+
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  {
+    return nullptr;
   }
 
   const std::vector<uint>& getAssign() const
@@ -159,7 +161,7 @@ public:
     return assign_;
   }
 
-  void setFreq(std::map<int, double>& frequencies){}
+  void setFreq(std::map<int, double>& frequencies) override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONCLUSTERAASUBSTITUTIONMODEL_H

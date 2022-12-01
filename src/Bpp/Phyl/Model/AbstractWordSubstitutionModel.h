@@ -56,15 +56,12 @@ namespace bpp
  * @brief A list of models, for building a WordSubstitutionModel
  *
  * Instance of ModelList contains a vector of pointers toward a substitution model which they do not own. Several methods are provided to build and check Alphabet and StateMaps.
- *
- * @author Julien Y. Dutheil.
  */
 class ModelList
 {
 protected:
-  std::vector<SubstitutionModel*> models_;
-  std::unique_ptr<WordAlphabet> wordAlphabet_;
-  WordAlphabet* pWordAlphabet_;
+  std::vector< std::shared_ptr<SubstitutionModelInterface> > models_;
+  std::shared_ptr<WordAlphabet> wordAlphabet_;
 
 public:
   /**
@@ -72,58 +69,45 @@ public:
    *
    * @param models A vector of pointers toward substitution model objects.
    */
-  ModelList(const std::vector<SubstitutionModel*>& models) :
-    models_(models), wordAlphabet_(), pWordAlphabet_(0)
+  ModelList(const std::vector< std::shared_ptr<SubstitutionModelInterface> >& models) :
+    models_(models), wordAlphabet_(nullptr)
   {
-    std::vector<const Alphabet*> alphabets(models.size());
+    std::vector< std::shared_ptr<const Alphabet> > alphabets(models.size());
     for (size_t i = 0; i < models.size(); ++i)
     {
       alphabets[i] = models[i]->getAlphabet();
     }
-    wordAlphabet_.reset(new WordAlphabet(alphabets));
-    pWordAlphabet_ = wordAlphabet_.get();
+    wordAlphabet_ = std::make_shared<WordAlphabet>(alphabets);
   }
 
-  ModelList(const ModelList& ml) :
-    models_(ml.models_),
-    wordAlphabet_(ml.wordAlphabet_.get() ? ml.wordAlphabet_.get()->clone() : 0),
-    pWordAlphabet_(wordAlphabet_.get())
-  {}
+ private:
+  ModelList(const ModelList& ml) {}
 
-  ModelList& operator=(const ModelList& ml)
-  {
-    models_ = ml.models_;
-    wordAlphabet_.reset(ml.wordAlphabet_.get() ? ml.wordAlphabet_.get()->clone() : 0);
-    pWordAlphabet_ = wordAlphabet_.get();
-    return *this;
-  }
+  ModelList& operator=(const ModelList& ml) { return *this; }
 
 public:
   size_t size() const { return models_.size(); }
 
-  const SubstitutionModel* getModel(size_t i) const
+  std::shared_ptr<const SubstitutionModelInterface> getModel(size_t i) const
   {
     return models_[i];
   }
 
-  SubstitutionModel* getModel(size_t i)
+   std::shared_ptr<SubstitutionModelInterface> getModel(size_t i)
   {
     return models_[i];
   }
 
-  const WordAlphabet* getWordAlphabet()
+  std::shared_ptr<const WordAlphabet> getWordAlphabet()
   {
-    if (wordAlphabet_.get()) // First call
-      return wordAlphabet_.release();
-    else // Other calls, this class does not own the pointer anymore.
-      return pWordAlphabet_;
+    return wordAlphabet_;
   }
 };
 
 
 /**
  * @brief Abstract Basal class for words of substitution models.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * Objects of this class are built from several substitution models.
  * Each model corresponds to a position in the word. No model is
@@ -148,20 +132,18 @@ public:
  *
  * If there is only one model, "123..._" where all positions are
  * enumerated.
- *
  */
-
 class AbstractWordSubstitutionModel :
-  public AbstractSubstitutionModel
+  public virtual AbstractSubstitutionModel
 {
 private:
   /**
    * @brief boolean flag to check if a specific WordAlphabet has been built
    */
-  bool new_alphabet_;
+  bool newAlphabet_;
 
 protected:
-  std::vector<SubstitutionModel*> VSubMod_;
+  std::vector< std::shared_ptr<SubstitutionModelInterface> > VSubMod_;
   std::vector<std::string> VnestedPrefix_;
 
   std::vector<double> Vrate_;
@@ -177,9 +159,7 @@ protected:
 
   /**
    * @brief First fill of the generator, from the position model
-   *
    */
-
   virtual void fillBasicGenerator();
 
 public:
@@ -209,7 +189,7 @@ public:
    * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
-    SubstitutionModel* pmodel,
+    std::shared_ptr<SubstitutionModelInterface> model,
     unsigned int num,
     const std::string& prefix);
 
@@ -225,20 +205,22 @@ protected:
   /**
    * @brief Constructor for the derived classes only
    */
-  AbstractWordSubstitutionModel(const Alphabet* alph, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
+  AbstractWordSubstitutionModel(
+      std::shared_ptr<const Alphabet> alph,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix);
 
 public:
 
   /**
-   * @brief returns the ith model, or Null if i is not a valid number.
-   *
+   * @brief returns the ith model, or nullptr if i is not a valid number.
    */
-  const SubstitutionModel* getNModel(size_t i) const
+  std::shared_ptr<const SubstitutionModelInterface> getNModel(size_t i) const
   {
     if (i < VSubMod_.size())
-      return dynamic_cast<const SubstitutionModel*>(VSubMod_[i]);
+      return VSubMod_[i];
     else
-      return 0;
+      return nullptr;
   }
 
   size_t getNumberOfModels() const
@@ -256,9 +238,7 @@ public:
    * parameters are fit on the means of the frequencies on each
    * position. Otherwise, each model is fit on the frequencies on its
    * corresponding position in the word.
-   *
-   **/
-
+   */
   virtual void setFreq(std::map<int, double>& freqs);
 };
 } // end of namespace bpp.

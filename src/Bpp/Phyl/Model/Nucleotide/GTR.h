@@ -143,7 +143,7 @@ protected:
 
 public:
   GTR(
-    const NucleicAlphabet* alpha,
+    std::shared_ptr<const NucleicAlphabet> alpha,
     double a = 1.,
     double b = 1.,
     double c = 1.,

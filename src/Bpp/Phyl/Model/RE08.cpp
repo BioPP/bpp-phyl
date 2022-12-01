@@ -51,7 +51,7 @@ using namespace std;
 
 RE08::RE08(ReversibleSubstitutionModel* simpleModel, double lambda, double mu) :
   AbstractParameterAliasable("RE08."),
-  AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(simpleModel->getStateMap(), true)), "RE08."),
+  AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(simpleModel->getStateMap(), true)), "RE08."),
   simpleModel_(simpleModel),
   simpleGenerator_(),
   simpleExchangeabilities_(),

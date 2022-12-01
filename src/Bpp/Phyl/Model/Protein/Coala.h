@@ -80,8 +80,8 @@ protected:
   bool param_;
 
 public:
-  Coala(const ProteicAlphabet* alpha,
-        const ProteinSubstitutionModel& model,
+  Coala(std::shared_ptr<const ProteicAlphabet> alpha,
+        std::shared_ptr<const ProteinSubstitutionModelInterface> model,
         unsigned int nbAxes = 0,
         bool param = true);
 
@@ -92,7 +92,7 @@ public:
 public:
   std::string getName() const { return "Coala"; }
   std::string getExch() const { return exch_; }
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0);
   std::string getEmpiricalMatrixFile() const { return file_; }
 
 protected:

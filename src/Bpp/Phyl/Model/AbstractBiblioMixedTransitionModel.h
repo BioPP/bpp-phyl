@@ -49,15 +49,14 @@ namespace bpp
 {
 /**
  * @brief Abstract class for mixture models based on the bibliography.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
-
 class AbstractBiblioMixedTransitionModel :
-  public virtual MixedTransitionModel,
-  public AbstractBiblioTransitionModel
+  public virtual MixedTransitionModelInterface,
+  public virtual AbstractBiblioTransitionModel
 {
 protected:
-  std::unique_ptr<MixedTransitionModel> pmixmodel_;
+  std::shared_ptr<MixedTransitionModelInterface> pmixmodel_;
 
 public:
   AbstractBiblioMixedTransitionModel(const std::string& prefix);
@@ -68,24 +67,28 @@ public:
 
   virtual ~AbstractBiblioMixedTransitionModel();
 
-  virtual AbstractBiblioMixedTransitionModel* clone() const
-  {
-    return new AbstractBiblioMixedTransitionModel(*this);
-  }
-
 public:
-  /*
-   *@brief Returns the submodel from the mixture.
-   *
+  /**
+   * @brief Returns the submodel from the mixture.
    */
-  const TransitionModel* getNModel(size_t i) const
+  const TransitionModelInterface& nModel(size_t i) const
   {
-    return getMixedModel().getNModel(i);
+    return mixedModel().nModel(i);
   }
 
-  TransitionModel* getNModel(size_t i)
+  std::shared_ptr<const TransitionModelInterface> getNModel(size_t i) const
   {
-    return getMixedModel().getNModel(i);
+    return mixedModel().getNModel(i);
+  }
+
+  TransitionModelInterface& nModel(size_t i)
+  {
+    return mixedModel().nModel(i);
+  }
+
+  std::shared_ptr<TransitionModelInterface> getNModel(size_t i)
+  {
+    return mixedModel().getNModel(i);
   }
 
   /**
@@ -93,7 +96,7 @@ public:
    */
   double getNProbability(size_t i) const
   {
-    return getMixedModel().getNProbability(i);
+    return mixedModel().getNProbability(i);
   }
 
   /**
@@ -103,7 +106,7 @@ public:
    */
   const std::vector<double>& getProbabilities() const
   {
-    return getMixedModel().getProbabilities();
+    return mixedModel().getProbabilities();
   }
 
   /**
@@ -112,7 +115,7 @@ public:
    */
   void setNProbability(size_t i, double prob)
   {
-    getMixedModel().setNProbability(i, prob);
+    mixedModel().setNProbability(i, prob);
   }
 
   /**
@@ -121,7 +124,7 @@ public:
    */
   size_t getNumberOfModels() const
   {
-    return getMixedModel().getNumberOfModels();
+    return mixedModel().getNumberOfModels();
   }
 
   /**
@@ -130,7 +133,7 @@ public:
    **/
   void setVRates(const Vdouble& vd)
   {
-    getMixedModel().setVRates(vd);
+    mixedModel().setVRates(vd);
   }
 
   /**
@@ -139,7 +142,7 @@ public:
    **/
   void normalizeVRates()
   {
-    getMixedModel().normalizeVRates();
+    mixedModel().normalizeVRates();
   }
 
   /**
@@ -147,7 +150,7 @@ public:
    */
   const std::vector<double>& getVRates() const
   {
-    return getMixedModel().getVRates();
+    return mixedModel().getVRates();
   }
 
   /**
@@ -155,42 +158,51 @@ public:
    */
   double getNRate(size_t i) const
   {
-    return getMixedModel().getNRate(i);
+    return mixedModel().getNRate(i);
   }
 
   /**
    * @brief retrieve a pointer to the submodel with the given name.
    *
    * Return Null if not found.
-   *
    */
-
-  using AbstractWrappedModel::getModel;
-  const TransitionModel* getModel(const std::string& name) const
+  using AbstractWrappedModel::model;
+  const TransitionModelInterface& model(const std::string& name) const
   {
-    return getMixedModel().getModel(name);
+    return mixedModel().model(name);
+  }
+  std::shared_ptr<const TransitionModelInterface> getModel(const std::string& name) const
+  {
+    return mixedModel().getModel(name);
   }
 
-  /*
-   *@brief Returns the vector of numbers of the submodels in the
+  /**
+   * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description.
-   *
    */
   Vuint getSubmodelNumbers(const std::string& desc) const;
 
-  const TransitionModel& getTransitionModel() const { return *pmixmodel_.get(); }
+  std::shared_ptr<const TransitionModelInterface> getTransitionModel() const { return pmixmodel_; }
+  
+  const TransitionModelInterface& transitionModel() const { return *pmixmodel_; }
 
-  const MixedTransitionModel& getMixedModel() const { return *pmixmodel_.get(); }
+  std::shared_ptr<const MixedTransitionModelInterface> getMixedModel() const { return pmixmodel_; }
+  
+  const MixedTransitionModelInterface& mixedModel() const { return *pmixmodel_; }
 
 protected:
-  TransitionModel& getTransitionModel()
+  TransitionModelInterface& transitionModel()
   {
-    return *pmixmodel_.get();
+    return *pmixmodel_;
   }
 
-  MixedTransitionModel& getMixedModel() { return *pmixmodel_.get(); }
+  MixedTransitionModelInterface& mixedModel() { return *pmixmodel_; }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const {return pmixmodel_->getNModel(0)->getFrequencySet();}
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const
+  {
+    return pmixmodel_->getNModel(0)->getFrequencySet();
+  }
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTBIBLIOMIXEDTRANSITIONMODEL_H

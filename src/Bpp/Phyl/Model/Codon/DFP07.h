@@ -81,41 +81,42 @@ namespace bpp
  * selection (omega<1).
  *
  * Parameter p0 is the proportion of negative "omega<1" sub-model.
- *
  */
-
 class DFP07 :
-  public AbstractBiblioMixedTransitionModel,
-  virtual public TransitionModel
+  public AbstractBiblioMixedTransitionModel
 {
 protected:
-  /*
+  /**
    * redefined mixed model pointer
-   *
    */
-
-  const MixtureOfASubstitutionModel*  pmixsubmodel_;
+  std::shared_ptr<const MixtureOfASubstitutionModel> pmixsubmodel_;
 
   /**
    * @brief indexes of 2 codons states between which the substitution is
    * synonymous, to set a basis to the homogeneization of the rates.
-   *
    */
   size_t synfrom_, synto_;
 
 public:
-  DFP07(const GeneticCode* gCode, std::shared_ptr<ProteinSubstitutionModel> pAAmodel, std::shared_ptr<CodonFrequencySet> codonFreqs);
+  DFP07(
+      std::shared_ptr<const GeneticCode> gCode,
+      std::shared_ptr<ProteinSubstitutionModelInterface> pAAmodel,
+      std::shared_ptr<CodonFrequencySetInterface> codonFreqs);
 
   DFP07(const DFP07& mod2) :
+    AbstractWrappedModel(mod2),
+    AbstractWrappedTransitionModel(mod2),
+    AbstractTotallyWrappedTransitionModel(mod2),
+    AbstractBiblioTransitionModel(mod2),
     AbstractBiblioMixedTransitionModel(mod2),
     pmixsubmodel_(),
     synfrom_(mod2.synfrom_),
     synto_(mod2.synto_)
   {
-    pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
+    pmixsubmodel_ = dynamic_pointer_cast<const MixtureOfASubstitutionModel>(getMixedModel());
   }
 
-  virtual DFP07* clone() const
+  virtual DFP07* clone() const override
   {
     return new DFP07(*this);
   }
@@ -126,23 +127,28 @@ public:
 
     synfrom_ = mod2.synfrom_;
     synto_ = mod2.synto_;
-    const auto& mm = eq.getMixedModel();
+    auto mm = eq.getMixedModel();
 
-    pmixsubmodel_ = &dynamic_cast<const MixtureOfASubstitutionModel&>(mm);
+    pmixsubmodel_ = dynamic_pointer_cast<const MixtureOfASubstitutionModel>(mm);
 
     return *this;
   }
 
-  std::shared_ptr<ProteinSubstitutionModel> getProtModel() const
+  const ProteinSubstitutionModelInterface& proteinModel() const
   {
-    return (dynamic_cast<const CodonSameAARateSubstitutionModel*>(getNModel(0)))->getProtModel();
+    return dynamic_pointer_cast<const CodonSameAARateSubstitutionModel>(getNModel(0))->proteinModel();
+  }
+
+  std::shared_ptr<const ProteinSubstitutionModelInterface> getProteinModel() const
+  {
+    return dynamic_pointer_cast<const CodonSameAARateSubstitutionModel>(getNModel(0))->getProteinModel();
   }
 
 protected:
-  void updateMatrices();
+  void updateMatrices() override;
 
 public:
-  std::string getName() const { return "DFP07"; }
+  std::string getName() const override { return "DFP07"; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_DFP07_H

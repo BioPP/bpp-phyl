@@ -83,10 +83,10 @@ public:
   }
 
 public:
-  BranchModel* readBranchModel(
-      const Alphabet* alphabet,
+  std::unique_ptr<BranchModelInterface> readBranchModel(
+      std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface<std::string>* data = 0,
+      std::shared_ptr<const AlignmentDataInterface> data = nullptr,
       bool parseArguments = true);
   
 };

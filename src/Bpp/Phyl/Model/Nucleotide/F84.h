@@ -184,7 +184,7 @@ private:
 
 public:
   F84(
-    const NucleicAlphabet* alpha,
+    std::shared_ptr<const NucleicAlphabet> alpha,
     double kappa = 1.,
     double piA = 0.25,
     double piC = 0.25,

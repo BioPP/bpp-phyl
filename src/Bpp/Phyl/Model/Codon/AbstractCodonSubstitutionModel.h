@@ -56,7 +56,7 @@ namespace bpp
 {
 /**
  * @brief Abstract class for substitution models on codons.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * Objects of this class are built from either one (repeated three
  * times) or three different substitution models of NucleicAlphabets.
@@ -71,10 +71,9 @@ namespace bpp
  * used. Their names have a new prefix, "i_" where i stands for the
  * the phase (1,2 or 3) in the codon.
  */
-
 class AbstractCodonSubstitutionModel :
-  public virtual CodonSubstitutionModel,
-  public AbstractWordSubstitutionModel
+  public virtual CodonSubstitutionModelInterface,
+  public virtual AbstractWordSubstitutionModel
 {
 private:
   /**
@@ -82,7 +81,7 @@ private:
    * rates. Default : false.
    */
   bool hasParametrizedRates_;
-  const GeneticCode* gCode_;
+  std::shared_ptr<const GeneticCode> gCode_;
 
 public:
   /**
@@ -97,8 +96,8 @@ public:
    * relative rates (default: false)
    */
   AbstractCodonSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::string& st,
     bool paramRates = false);
 
@@ -117,17 +116,16 @@ public:
    * relative rates (default: false)
    */
   AbstractCodonSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::string& st,
     bool paramRates = false);
 
   virtual ~AbstractCodonSubstitutionModel() {}
 
   AbstractCodonSubstitutionModel(const AbstractCodonSubstitutionModel& model) :
-    AbstractParameterAliasable(model),
     AbstractWordSubstitutionModel(model),
     hasParametrizedRates_(model.hasParametrizedRates_),
     gCode_(model.gCode_)
@@ -143,9 +141,9 @@ public:
     return *this;
   }
 
-  AbstractCodonSubstitutionModel* clone() const = 0;
+  AbstractCodonSubstitutionModel* clone() const override = 0;
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractWordSubstitutionModel::setNamespace(prefix);
   }
@@ -157,12 +155,12 @@ protected:
    * This method sets the rates to/from stop codons to zero and
    * performs the multiplication by the specific codon-codon rate.
    */
-  void completeMatrices();
+  void completeMatrices() override;
 
 public:
-  void updateMatrices();
+  void updateMatrices() override;
 
-  const GeneticCode* getGeneticCode() const { return gCode_; }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return gCode_; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONSUBSTITUTIONMODEL_H

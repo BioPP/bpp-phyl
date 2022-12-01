@@ -71,30 +71,26 @@ class SequencePhyloLikelihood :
 protected:
   /**
    * @brief the Sequence Evolution
-   *
-   **/
-
-  SequenceEvolution* seqEvol_;
+   */
+  std::shared_ptr<SequenceEvolution> seqEvol_;
 
   /**
    * @brief the Sequence Evolution number
-   *
-   **/
-
+   */
   size_t nSeqEvol_;
 
 public:
   SequencePhyloLikelihood(Context& context, SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
     AbstractPhyloLikelihood(context),
-    AbstractAlignedPhyloLikelihood(context, 0),
-    AbstractSingleDataPhyloLikelihood(context, 0, (se.getSubstitutionProcessNumbers().size() != 0) ? se.getSubstitutionProcess(se.getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+    //AbstractAlignedPhyloLikelihood(context, 0),
+    AbstractSingleDataPhyloLikelihood(context, 0, (se.getSubstitutionProcessNumbers().size() != 0) ? se.substitutionProcess(se.getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
     seqEvol_(&se),
     nSeqEvol_(nSE)
   {}
 
   SequencePhyloLikelihood(const SequencePhyloLikelihood& asd) :
     AbstractPhyloLikelihood(asd),
-    AbstractAlignedPhyloLikelihood(asd),
+    //AbstractAlignedPhyloLikelihood(asd),
     AbstractSingleDataPhyloLikelihood(asd),
     seqEvol_(asd.seqEvol_),
     nSeqEvol_(asd.nSeqEvol_)
@@ -102,16 +98,21 @@ public:
 
   virtual ~SequencePhyloLikelihood() {}
 
-  SequencePhyloLikelihood* clone() const = 0;
+  SequencePhyloLikelihood* clone() const override = 0;
 
 public:
   /**
    * @brief The Sequence Evolution
    *
    */
-  const SequenceEvolution& getSequenceEvolution() const
+  const SequenceEvolution& sequenceEvolution() const
   {
     return *seqEvol_;
+  }
+
+  std::shared_ptr<const SequenceEvolution> getSequenceEvolution() const
+  {
+    return seqEvol_;
   }
 
   const size_t getSequenceEvolutionNumber() const
@@ -123,12 +124,12 @@ public:
    * @name the Likelihood interface
    *
    */
-  const Alphabet* getAlphabet() const
+  std::shared_ptr<const Alphabet> getAlphabet() const override
   {
     if (seqEvol_->getSubstitutionProcessNumbers().size() == 0)
       return NULL;
     else
-      return seqEvol_->getSubstitutionProcess(seqEvol_->getSubstitutionProcessNumbers()[0]).getModel(0, 0)->getAlphabet();
+      return seqEvol_->substitutionProcess(seqEvol_->getSubstitutionProcessNumbers()[0]).getModel(0, 0)->getAlphabet();
   }
 };
 
@@ -139,7 +140,7 @@ class AbstractSequencePhyloLikelihood :
 public:
   AbstractSequencePhyloLikelihood(Context& context, SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
     AbstractPhyloLikelihood(context),
-    AbstractAlignedPhyloLikelihood(context, 0),
+    //AbstractAlignedPhyloLikelihood(context, 0),
     SequencePhyloLikelihood(context, se, nSE, nData),
     AbstractParametrizable("")
   {
@@ -149,64 +150,64 @@ public:
 
   AbstractSequencePhyloLikelihood(const AbstractSequencePhyloLikelihood& asd) :
     AbstractPhyloLikelihood(asd),
-    AbstractAlignedPhyloLikelihood(asd),
+    //AbstractAlignedPhyloLikelihood(asd),
     SequencePhyloLikelihood(asd),
     AbstractParametrizable(asd)
   {}
 
   virtual ~AbstractSequencePhyloLikelihood() {}
 
-  AbstractSequencePhyloLikelihood* clone() const = 0;
+  AbstractSequencePhyloLikelihood* clone() const override = 0;
 
 protected:
-  virtual void fireParameterChanged(const ParameterList& parameters)
+  virtual void fireParameterChanged(const ParameterList& parameters) override
   {
     seqEvol_->matchParametersValues(parameters);
   }
 
 public:
-  void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0)
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0) override
   {
     AbstractSingleDataPhyloLikelihood::setData(sites, nData);
   }
 
-  void setNamespace(const std::string& nameSpace)
+  void setNamespace(const std::string& nameSpace) override
   {
     seqEvol_->setNamespace(nameSpace);
   }
 
 
-  ParameterList getNonDerivableParameters() const
+  ParameterList getNonDerivableParameters() const override
   {
     return seqEvol_->getNonDerivableParameters();
   }
 
-  ParameterList getDerivableParameters() const
+  ParameterList getDerivableParameters() const override
   {
     return seqEvol_->getBranchLengthParameters(true);
   }
 
-  ParameterList getBranchLengthParameters() const
+  ParameterList getBranchLengthParameters() const override
   {
     return seqEvol_->getBranchLengthParameters(true);
   }
 
-  ParameterList getRootFrequenciesParameters() const
+  ParameterList getRootFrequenciesParameters() const override
   {
     return seqEvol_->getRootFrequenciesParameters(true);
   }
 
-  ParameterList getRateDistributionParameters() const
+  ParameterList getRateDistributionParameters() const override
   {
     return seqEvol_->getRateDistributionParameters(true);
   }
 
-  ParameterList getSubstitutionModelParameters() const
+  ParameterList getSubstitutionModelParameters() const override
   {
     return seqEvol_->getSubstitutionModelParameters(true);
   }
 
-  ParameterList getSubstitutionProcessParameters() const
+  virtual ParameterList getSubstitutionProcessParameters() const
   {
     return seqEvol_->getSubstitutionProcessParameters(true);
   }

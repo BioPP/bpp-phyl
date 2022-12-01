@@ -51,7 +51,7 @@
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 namespace bpp
 {
@@ -61,8 +61,8 @@ namespace bpp
  * This interface defines the methods needed for computing the likelihood
  * of a phylogenetic tree, given a dataset.
  */
-class TreeLikelihood :
-  public virtual DerivableSecondOrder
+class TreeLikelihoodInterface :
+  public virtual SecondOrderDerivable
 {
 public:
   /**
@@ -114,8 +114,12 @@ public:
     virtual ~ConstBranchModelDescription() {}
 
 public:
-    virtual const TransitionModel* getModel() const = 0;
-    virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+    virtual const TransitionModelInterface& model() const = 0;
+    virtual std::shared_ptr<const TransitionModelInterface> getModel() const = 0;
+
+    virtual const SubstitutionModelInterface& substitutionModel() const = 0;
+    virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const = 0;
+    
     virtual SiteIterator* getNewSiteIterator() const = 0;
   };
 
@@ -141,8 +145,12 @@ public:
     virtual ~ConstSiteModelDescription() {}
 
 public:
-    virtual const TransitionModel* getModel() const = 0;
-    virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+    virtual const TransitionModelInterface& model() const = 0;
+    virtual std::shared_ptr<const TransitionModelInterface> getModel() const = 0;
+    
+    virtual const SubstitutionModelInterface& substitutionModel() const = 0;
+    virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const = 0;
+    
     virtual BranchIterator* getNewBranchIterator() const = 0;
   };
 
@@ -160,10 +168,10 @@ public:
   };
 
 public:
-  TreeLikelihood() {}
-  virtual ~TreeLikelihood() {}
+  TreeLikelihoodInterface() {}
+  virtual ~TreeLikelihoodInterface() {}
 
-  TreeLikelihood* clone() const = 0;
+  TreeLikelihoodInterface* clone() const override = 0;
 
 public:
   /**
@@ -171,14 +179,21 @@ public:
    *
    * @param sites The data set to use.
    */
-  virtual void setData(const AlignedValuesContainer& sites) = 0;
+  virtual void setData(std::shared_ptr<const AlignmentDataInterface> sites) = 0;
+
+  /**
+   * @brief Get the dataset for which the likelihood must be evaluated.
+   *
+   * @return The site container where the sequences are stored.
+   */
+  virtual const AlignmentDataInterface& data() const = 0;
 
   /**
    * @brief Get the dataset for which the likelihood must be evaluated.
    *
    * @return A pointer toward the site container where the sequences are stored.
    */
-  virtual const AlignedValuesContainer* getData() const = 0;
+  virtual std::shared_ptr<const AlignmentDataInterface> getData() const = 0;
 
   /**
    * @brief Init the likelihood object.
@@ -198,12 +213,12 @@ public:
   /**
    * @return The underlying likelihood data structure.
    */
-  virtual TreeLikelihoodData* getLikelihoodData() = 0;
+  virtual TreeLikelihoodData& likelihoodData() = 0;
 
   /**
    * @return The underlying likelihood data structure.
    */
-  virtual const TreeLikelihoodData* getLikelihoodData() const = 0;
+  virtual const TreeLikelihoodData& likelihoodData() const = 0;
 
   /**
    * @brief Get the likelihood for a site.
@@ -320,7 +335,7 @@ public:
    *
    * @return the alphabet associated to the dataset.
    */
-  virtual const Alphabet* getAlphabet() const = 0;
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
 
   /**
    * @name Retrieve some particular parameters subsets.
@@ -350,7 +365,7 @@ public:
    * @see getSiteIndex
    * @return A pointer toward the corresponding model.
    */
-  virtual const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const = 0;
+  virtual std::shared_ptr<const TransitionModelInterface> getModelForSite(int nodeId, size_t siteIndex) const = 0;
 
   /**
    * @brief Get the substitution model associated to a given node and alignment column.
@@ -361,7 +376,7 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
    */
-  virtual TransitionModel* getModelForSite(int nodeId, size_t siteIndex) = 0;
+  virtual std::shared_ptr<TransitionModelInterface> getModelForSite(int nodeId, size_t siteIndex) = 0;
 
   /**
    * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node and site.

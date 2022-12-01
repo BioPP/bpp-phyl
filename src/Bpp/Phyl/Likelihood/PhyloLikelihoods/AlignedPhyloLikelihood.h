@@ -65,14 +65,14 @@ namespace bpp
  *
  */
 
-class AlignedPhyloLikelihood :
-  virtual public PhyloLikelihood
+class AlignedPhyloLikelihoodInterface :
+  virtual public PhyloLikelihoodInterface
 {
 public:
-  AlignedPhyloLikelihood() {}
-  virtual ~AlignedPhyloLikelihood() {}
+  AlignedPhyloLikelihoodInterface() {}
+  virtual ~AlignedPhyloLikelihoodInterface() {}
 
-  virtual AlignedPhyloLikelihood* clone() const = 0;
+  virtual AlignedPhyloLikelihoodInterface* clone() const = 0;
 
 public:
   /**
@@ -87,7 +87,6 @@ public:
    *
    * @return the number of sites in the dataset.
    */
-
   virtual size_t getNumberOfSites() const = 0;
 
   /**
@@ -100,11 +99,14 @@ public:
    * @{
    */
 
-  /*
-   *@ Return the LikelihoodCalculation.
-   *
+  /**
+   * @return The LikelihoodCalculation.
    */
+  virtual AlignedLikelihoodCalculation& alignedLikelihoodCalculation() const = 0;
 
+  /**
+   * @return A shared pointer toward the LikelihoodCalculation.
+   */
   virtual std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const = 0;
 
   /**
@@ -140,7 +142,7 @@ public:
 
 
 class AbstractAlignedPhyloLikelihood :
-  public virtual AlignedPhyloLikelihood,
+  public virtual AlignedPhyloLikelihoodInterface,
   public virtual AbstractPhyloLikelihood
 {
 protected:
@@ -171,7 +173,7 @@ public:
    */
   DataLik getLikelihoodForASite(size_t site) const
   {
-    return getAlignedLikelihoodCalculation()->getLikelihoodForASite(site);
+    return alignedLikelihoodCalculation().getLikelihoodForASite(site);
   }
 
   /**

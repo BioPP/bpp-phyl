@@ -156,21 +156,21 @@ private:
   mutable RowMatrix<double> p_;
 
 public:
-  K80(const NucleicAlphabet* alpha, double kappa = 1.);
+  K80(std::shared_ptr<const NucleicAlphabet> alpha, double kappa = 1.);
 
   virtual ~K80() {}
 
-  K80* clone() const { return new K80(*this); }
+  K80* clone() const override { return new K80(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double d) const;
-  double dPij_dt  (size_t i, size_t j, double d) const;
-  double d2Pij_dt2(size_t i, size_t j, double d) const;
-  const Matrix<double>& getPij_t    (double d) const;
-  const Matrix<double>& getdPij_dt  (double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const override;
+  double dPij_dt  (size_t i, size_t j, double d) const override;
+  double d2Pij_dt2(size_t i, size_t j, double d) const override;
+  const Matrix<double>& getPij_t    (double d) const override;
+  const Matrix<double>& getdPij_dt  (double d) const override;
+  const Matrix<double>& getd2Pij_dt2(double d) const override;
 
-  std::string getName() const { return "K80"; }
+  std::string getName() const override { return "K80"; }
 
   /**
    * @brief This method is disabled in this model since frequencies are not free parameters.
@@ -180,10 +180,10 @@ public:
    * @param data Unused parameter.
    * @param pseudoCount Unused parameter.
    */
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0) {}
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override {}
 
 protected:
-  void updateMatrices();
+  void updateMatrices() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_K80_H

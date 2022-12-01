@@ -78,21 +78,25 @@ namespace bpp
  * perform any calculations.
  * These are achieved through calls to the corresponding SubstitutionProcess class.
  */
-class SubstitutionProcess :
+class SubstitutionProcessInterface :
   public virtual ParameterAliasable
 {
 public:
-  virtual SubstitutionProcess* clone() const = 0;
+  virtual SubstitutionProcessInterface* clone() const = 0;
 
 public:
   /**
    * @return The state map associated with the models of this process
    */
 
-  virtual const StateMap& getStateMap() const = 0;
+  virtual const StateMapInterface& stateMap() const = 0;
+  
+  virtual std::shared_ptr<const StateMapInterface> getStateMap() const = 0;
 
-  virtual bool isCompatibleWith(const AlignmentDataInterface<std::string>& data) const = 0;
+  virtual bool isCompatibleWith(const AlignmentDataInterface& data) const = 0;
 
+  virtual const ParametrizablePhyloTree& parametrizablePhyloTree() const = 0;
+  
   virtual std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const = 0;
 
   virtual size_t getNumberOfClasses() const = 0;
@@ -114,8 +118,12 @@ public:
   /**
    * @return the model with given index.
    */
+  virtual const BranchModelInterface& model(size_t i) const = 0;
 
-  virtual std::shared_ptr<const BranchModel> getModel(size_t i) const = 0;
+  /**
+   * @return A shared pointer toward the model with given index.
+   */
+  virtual std::shared_ptr<const BranchModelInterface> getModel(size_t i) const = 0;
 
   /**
    * @brief Get the substitution model corresponding to a certain
@@ -123,9 +131,23 @@ public:
    *
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
+   * @return the model with given index.
    */
+  virtual const BranchModelInterface& model(
+      unsigned int nodeId,
+      size_t classIndex) const = 0;
 
-  virtual std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const = 0;
+  /**
+   * @brief Get the substitution model corresponding to a certain
+   * branch, site pattern, and model class.
+   *
+   * @param nodeId The id of the node.
+   * @param classIndex The model class index.
+   * @return A shared pointer toward the model with given index.
+   */
+  virtual std::shared_ptr<const BranchModelInterface> getModel(
+      unsigned int nodeId,
+      size_t classIndex) const = 0;
 
   /**
    * @brief Get the Model Scenario associated with this process, in
@@ -137,9 +159,7 @@ public:
    *
    * It returns 0 if there is no model path, which means that all
    * mixture models are considered as non-mixed.
-   *
    */
-
   virtual std::shared_ptr<const ModelScenario> getModelScenario() const = 0;
 
   /**
@@ -160,7 +180,6 @@ public:
    * @return The number of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-
   virtual size_t getModelNumberForNode(unsigned int nodeId) const = 0;
 
   /**
@@ -170,22 +189,36 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this node.
    */
+  virtual std::shared_ptr<const BranchModelInterface> getModelForNode(unsigned int nodeId) const = 0;
 
-  virtual std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const = 0;
+  /**
+   * @brief Get the rate distribution
+   * @throw NullPointerException if there is no associated rate distribution.
+   */
+  virtual const DiscreteDistribution& rateDistribution() const = 0;
+
+  /**
+   * @brief Get the rate distribution
+   * @throw NullPointerException if there is no associated rate distribution.
+   */
+  virtual DiscreteDistribution& rateDistribution() = 0;
 
   /**
    * @brief Get a pointer to the rate distribution (or null if there
    * is no rate distribution).
-   *
    */
-
   virtual std::shared_ptr<const DiscreteDistribution> getRateDistribution() const = 0;
 
   /**
-   * @brief Methods to retrieve the parameters of specific objects.
-   *
+   * @brief Get a pointer to the rate distribution (or null if there
+   * is no rate distribution).
    */
+  virtual std::shared_ptr<DiscreteDistribution> getRateDistribution() = 0;
 
+
+  /**
+   * @brief Methods to retrieve the parameters of specific objects.
+   */
   virtual ParameterList getSubstitutionModelParameters(bool independent) const = 0;
 
   virtual ParameterList getRateDistributionParameters(bool independent) const = 0;
@@ -215,7 +248,22 @@ public:
   /**
    * @return The set of parametrized root frequencies.
    */
-  virtual std::shared_ptr<const FrequencySet> getRootFrequencySet() const = 0;
+  virtual const FrequencySetInterface& rootFrequencySet() const = 0;
+
+  /**
+   * @return A pointer toward rhe set of parametrized root frequencies.
+   */
+  virtual std::shared_ptr<const FrequencySetInterface> getRootFrequencySet() const = 0;
+
+  /**
+   * @return The set of parametrized root frequencies.
+   */
+  virtual FrequencySetInterface& rootFrequencySet() = 0;
+
+  /**
+   * @return A pointer toward rhe set of parametrized root frequencies.
+   */
+  virtual std::shared_ptr<FrequencySetInterface> getRootFrequencySet() = 0;
 
   /**
    * @return The probability associated to the given model class.
@@ -227,9 +275,7 @@ public:
   /**
    * @return The vector of the probabilities associated to the
    * classes.
-   *
    */
-
   virtual Vdouble getClassProbabilities() const = 0;
 
   /**

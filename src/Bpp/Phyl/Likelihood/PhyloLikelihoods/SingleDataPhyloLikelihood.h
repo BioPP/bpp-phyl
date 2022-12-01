@@ -1,7 +1,7 @@
 //
 // File: SingleDataPhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 11 juillet 2013, ÃÂ  14h 05
 //
 
@@ -63,18 +63,17 @@ namespace bpp
  *
  */
 
-class SingleDataPhyloLikelihood :
-  public virtual AlignedPhyloLikelihood
+class SingleDataPhyloLikelihoodInterface :
+  public virtual AlignedPhyloLikelihoodInterface
 {
 public:
-  SingleDataPhyloLikelihood() {}
-  virtual ~SingleDataPhyloLikelihood() {}
+  SingleDataPhyloLikelihoodInterface() {}
+  virtual ~SingleDataPhyloLikelihoodInterface() {}
 
-  virtual SingleDataPhyloLikelihood* clone() const = 0;
+  virtual SingleDataPhyloLikelihoodInterface* clone() const = 0;
 
 public:
   /**
-   *
    * @name The data functions
    *
    * @{
@@ -86,28 +85,23 @@ public:
    * @param sites The data set to use.
    * @param nData the number of the data
    */
-
-  virtual void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0) = 0;
+  virtual void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0) = 0;
 
   /**
    * @brief Get the dataset for which the likelihood must be evaluated.
    *
    * @return A pointer toward the site container where the sequences are stored.
    */
-
-  virtual const AlignmentDataInterface<std::string>* getData() const = 0;
+  virtual std::shared_ptr<const AlignmentDataInterface> getData() const = 0;
 
   /**
    * @brief Get the number of dataset concerned.
-   *
    */
   virtual size_t getNData() const = 0;
 
   /**
    * @brief Get the number the states.
-   *
    */
-
   virtual size_t getNumberOfStates() const = 0;
 
   /**
@@ -115,7 +109,7 @@ public:
    *
    * @return the alphabet associated to the dataset.
    */
-  virtual const Alphabet* getAlphabet() const = 0;
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
 
   /**
    * @}
@@ -124,8 +118,8 @@ public:
 
 
 class AbstractSingleDataPhyloLikelihood :
-  public SingleDataPhyloLikelihood,
-  virtual public AbstractAlignedPhyloLikelihood
+  public virtual SingleDataPhyloLikelihoodInterface,
+  public AbstractAlignedPhyloLikelihood
 {
 protected:
   size_t nbStates_;
@@ -157,10 +151,10 @@ public:
 
   AbstractSingleDataPhyloLikelihood* clone() const = 0;
 
-  virtual void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0)
+  virtual void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0)
   {
-    setNumberOfSites(sites.getNumberOfSites());
-    nbStates_ = sites.getAlphabet()->getSize();
+    setNumberOfSites(sites->getNumberOfSites());
+    nbStates_ = sites->alphabet().getSize();
     nData_ = nData;
   }
 

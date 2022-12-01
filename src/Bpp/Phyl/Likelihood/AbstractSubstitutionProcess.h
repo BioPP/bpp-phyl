@@ -59,7 +59,7 @@ namespace bpp
  * as convenient arrays for storing previously computed probabilities.
  */
 class AbstractSubstitutionProcess :
-  public virtual SubstitutionProcess,
+  public virtual SubstitutionProcessInterface,
   public virtual AbstractParameterAliasable
 {
 public:
@@ -73,17 +73,15 @@ public:
 
   size_t getNumberOfStates() const
   {
-    return getStateMap().getNumberOfModelStates();
+    return stateMap().getNumberOfModelStates();
   }
 
-
-  const Alphabet* getAlphabet() const
+  std::shared_ptr<const Alphabet> getAlphabet() const
   {
-    return getStateMap().getAlphabet();
+    return stateMap().getAlphabet();
   }
 
-
-  bool isCompatibleWith(const AlignmentDataInterface<std::string>& data) const
+  bool isCompatibleWith(const AlignmentDataInterface& data) const
   {
     return data.getAlphabet()->getAlphabetType() == getAlphabet()->getAlphabetType();
   }

@@ -51,7 +51,7 @@ namespace bpp
  * @brief The general multiple substitution model for codons, from
  * Zaheri & al, 2014.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * This model is built from one or several nucleotide substitution
  * models. It also allows distinct equilibrium frequencies between
@@ -73,12 +73,10 @@ namespace bpp
  * -  Zaheri, M. and Dib, L. and Salamin, N. A Generalized
  * Mechanistic Codon Model,  Mol Biol Evol. 2014 Sep;31(9):2528-41.
  * doi: 10.1093/molbev/msu196. Epub 2014 Jun 23.
- *
  */
-
 class KCM :
   public AbstractBiblioSubstitutionModel,
-  public virtual CodonReversibleSubstitutionModel
+  public virtual CodonReversibleSubstitutionModelInterface
 {
 private:
   std::unique_ptr<KroneckerCodonDistanceSubstitutionModel> pmodel_;
@@ -90,10 +88,8 @@ public:
    *
    * If onemod, a unique GTR model is used, otherwise three
    * different GTR models are used.
-   *
-   **/
-
-  KCM(const GeneticCode* gc, bool oneModel);
+   */
+  KCM(std::shared_ptr<const GeneticCode> gc, bool oneModel);
 
   KCM(const KCM& kcm);
 
@@ -101,26 +97,30 @@ public:
 
   virtual ~KCM() {}
 
-  KCM* clone() const { return new KCM(*this); }
+  KCM* clone() const override { return new KCM(*this); }
 
 public:
-  std::string getName() const { return "KCM" + std::string(oneModel_ ? "7" : "19") + ".";}
+  std::string getName() const override { return "KCM" + std::string(oneModel_ ? "7" : "19") + ".";}
 
-  const SubstitutionModel& getSubstitutionModel() const { return *pmodel_.get(); }
+  const SubstitutionModelInterface& substitutionModel() const override { return *pmodel_; }
 
-  const GeneticCode* getGeneticCode() const { return pmodel_->getGeneticCode(); }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pmodel_->getGeneticCode(); }
 
-  double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
+  double getCodonsMulRate(size_t i, size_t j) const override { return pmodel_->getCodonsMulRate(i, j); }
 
 protected:
-  SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
+  SubstitutionModelInterface& substitutionModel() override { return *pmodel_.get(); }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const FrequencySetInterface& frequencySet() const override
   {
-    return 0;
+    throw NullPointerException("KCM::frequencySet. No FrequencySet available for this model.");
+  }
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  {
+    return nullptr;
   }
 
-  void setFreq(std::map<int, double>& frequencies)
+  void setFreq(std::map<int, double>& frequencies) override
   {
     AbstractBiblioSubstitutionModel::setFreq(frequencies);
   }

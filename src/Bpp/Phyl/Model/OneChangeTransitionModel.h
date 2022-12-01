@@ -57,69 +57,78 @@ class OneChangeTransitionModel :
   public AbstractFromSubstitutionModelTransitionModel
 {
 public:
-  OneChangeTransitionModel(const SubstitutionModel& originalModel) :
-    AbstractParameterAliasable("OneChange."),
-    AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange.")
+  OneChangeTransitionModel(std::unique_ptr<SubstitutionModelInterface> originalModel) :
+    AbstractWrappedModel("Onechange."),
+    AbstractWrappedTransitionModel("Onechange."),
+    AbstractFromSubstitutionModelTransitionModel(std::move(originalModel), "OneChange.")
   {}
 
   OneChangeTransitionModel(const OneChangeTransitionModel& fmsm) :
-    AbstractParameterAliasable(fmsm),
+    AbstractWrappedModel(fmsm),
+    AbstractWrappedTransitionModel(fmsm),
     AbstractFromSubstitutionModelTransitionModel(fmsm)
   {}
 
   OneChangeTransitionModel& operator=(const OneChangeTransitionModel& fmsm)
   {
+    AbstractWrappedModel::operator=(fmsm);
+    AbstractWrappedTransitionModel::operator=(fmsm);
     AbstractFromSubstitutionModelTransitionModel::operator=(fmsm);
     return *this;
   }
 
-  ~OneChangeTransitionModel() {}
+  virtual ~OneChangeTransitionModel() {}
 
-  OneChangeTransitionModel* clone() const { return new OneChangeTransitionModel(*this); }
+  OneChangeTransitionModel* clone() const override { return new OneChangeTransitionModel(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double t) const;
-  double dPij_dt  (size_t i, size_t j, double t) const;
-  double d2Pij_dt2(size_t i, size_t j, double t) const;
+  double Pij_t    (size_t i, size_t j, double t) const override;
+  double dPij_dt  (size_t i, size_t j, double t) const override;
+  double d2Pij_dt2(size_t i, size_t j, double t) const override;
 
-  const Matrix<double>& getPij_t(double t) const;
+  const Matrix<double>& getPij_t(double t) const override;
 
-  const Matrix<double>& getdPij_dt(double t) const;
+  const Matrix<double>& getdPij_dt(double t) const override;
 
-  const Matrix<double>& getd2Pij_dt2(double t) const;
+  const Matrix<double>& getd2Pij_dt2(double t) const override;
 
+  double freq(size_t i) const override { return transitionModel().freq(i); }
 
-  double freq(size_t i) const { return getTransitionModel().freq(i); }
+  const Vdouble& getFrequencies() const override { return transitionModel().getFrequencies(); }
 
-  const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
-
-  const std::shared_ptr<FrequencySet> getFrequencySet() const {return getTransitionModel().getFrequencySet(); }
-
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+  const FrequencySetInterface& frequencySet() const override
   {
-    getTransitionModel().setFreqFromData(data, pseudoCount);
+    return transitionModel().frequencySet();
   }
 
-  virtual void setFreq(std::map<int, double>& m)
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
   {
-    getTransitionModel().setFreq(m);
+    return transitionModel().getFrequencySet();
   }
 
-  double getRate() const { return getTransitionModel().getRate(); }
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount) override
+  {
+    transitionModel().setFreqFromData(data, pseudoCount);
+  }
 
-  void setRate(double rate) { return getTransitionModel().setRate(rate); }
+  virtual void setFreq(std::map<int, double>& m) override
+  {
+    transitionModel().setFreq(m);
+  }
 
-  double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
+  double getRate() const override { return transitionModel().getRate(); }
 
-  std::string getName() const
+  void setRate(double rate) override { return transitionModel().setRate(rate); }
+
+  double getInitValue(size_t i, int state) const override { return model().getInitValue(i, state); }
+
+  std::string getName() const override
   {
     return "OneChange";
   }
 
-
-  /*
+  /**
    * @}
-   *
    */
 };
 } // end of namespace bpp.

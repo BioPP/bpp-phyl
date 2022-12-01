@@ -49,7 +49,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
-#include <Bpp/Seq/Container/SequencedValuesContainer.h>
+#include <Bpp/Seq/Container/SequenceData.h>
 
 
 namespace bpp
@@ -91,7 +91,7 @@ public:
   void setParamValues(const std::map<std::string, std::string>& valuesSettings) { paramValues_ = valuesSettings; }
 
 protected:
-  ParameterList computeCOA(const SequencedValuesContainer& data, bool param = true);
+  ParameterList computeCOA(const SequenceDataInterface& data, bool param = true);
 
   std::vector<double> prodMatrixVector(RowMatrix<double>& P, std::vector<double>& V);
 };

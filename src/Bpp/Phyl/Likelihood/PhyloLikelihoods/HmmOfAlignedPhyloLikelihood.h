@@ -76,11 +76,14 @@ private:
   mutable std::shared_ptr<HmmLikelihood_DF> hmm_;
 
 public:
-  HmmOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
+  HmmOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      const std::vector<size_t>& nPhylo,
+      bool inCollection = true);
 
   HmmOfAlignedPhyloLikelihood(const HmmOfAlignedPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
-    AbstractAlignedPhyloLikelihood(mlc),
     SetOfAlignedPhyloLikelihood(mlc),
     hma_(std::shared_ptr<HmmPhyloAlphabet>(mlc.hma_->clone())),
     htm_(std::shared_ptr<FullHmmTransitionMatrix>(mlc.htm_->clone())),
@@ -90,16 +93,21 @@ public:
 
   virtual ~HmmOfAlignedPhyloLikelihood() {}
 
-  HmmOfAlignedPhyloLikelihood* clone() const { return new HmmOfAlignedPhyloLikelihood(*this); }
+  HmmOfAlignedPhyloLikelihood* clone() const override { return new HmmOfAlignedPhyloLikelihood(*this); }
 
 public:
-  void setNamespace(const std::string& nameSpace);
+  void setNamespace(const std::string& nameSpace) override;
 
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  const HmmPhyloAlphabet* getHmmStateAlphabet() const
+  const HmmPhyloAlphabet hmmStateAlphabet() const
   {
-    return hma_.get();
+    return *hma_;
+  }
+
+  std::shared_ptr<const HmmPhyloAlphabet> getHmmStateAlphabet() const
+  {
+    return hma_;
   }
 
   /**
@@ -107,12 +115,22 @@ public:
    *
    * @{
    */
-  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
+  LikelihoodCalculation& likelihoodCalculation () const override
+  {
+    return *hmm_;
+  }
+
+  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const override
   {
     return hmm_;
   }
 
-  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const override
+  {
+    return *hmm_;
+  }
+
+  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const override
   {
     return hmm_;
   }

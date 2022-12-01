@@ -72,9 +72,7 @@ class MultiProcessSequencePhyloLikelihood :
 private:
   /**
    * @brief to avoid the dynamic casts
-   *
    */
-
   MultiProcessSequenceEvolution& mSeqEvol_;
 
 protected:
@@ -82,12 +80,11 @@ protected:
    * vector of pointers towards LikelihoodCalculationSingleProcess, used
    * for the global likelihood.
    */
-
   mutable std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess> > vLikCal_;
 
 public:
   MultiProcessSequencePhyloLikelihood(
-    const AlignmentDataInterface<std::string>& data,
+    std::shared_ptr<const AlignmentDataInterface> data,
     MultiProcessSequenceEvolution& processSeqEvol,
     CollectionNodes& collNodes,
     size_t nSeqEvol = 0,
@@ -95,7 +92,7 @@ public:
 
   MultiProcessSequencePhyloLikelihood(const MultiProcessSequencePhyloLikelihood& lik) :
     AbstractPhyloLikelihood(lik),
-    AbstractAlignedPhyloLikelihood(lik),
+    //AbstractAlignedPhyloLikelihood(lik),
     AbstractSequencePhyloLikelihood(lik),
     mSeqEvol_(lik.mSeqEvol_),
     vLikCal_(lik.vLikCal_)
@@ -107,14 +104,14 @@ public:
    *
    * @{
    */
-  const AlignmentDataInterface<std::string>* getData() const
+  std::shared_ptr<const AlignmentDataInterface> getData() const
   {
     return vLikCal_[0]->getData();
   }
 
-  const Alphabet* getAlphabet() const
+  std::shared_ptr<const Alphabet> getAlphabet() const
   {
-    return vLikCal_[0]->getStateMap().getAlphabet();
+    return vLikCal_[0]->stateMap().getAlphabet();
   }
 
   /*
@@ -167,7 +164,7 @@ public:
    * @param nData the number of the data (optionnal, default 0).
    */
 
-  void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0);
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0);
 
   /**
    * @brief Return the number of process used for computation.

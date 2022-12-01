@@ -53,12 +53,12 @@ namespace bpp
  *
  * This interface provides methods for dealing with RAS models.
  */
-class DiscreteRatesAcrossSitesTreeLikelihood :
-  public virtual TreeLikelihood
+class DiscreteRatesAcrossSitesTreeLikelihoodInterface :
+  public virtual TreeLikelihoodInterface
 {
 public:
-  DiscreteRatesAcrossSitesTreeLikelihood() {}
-  virtual ~DiscreteRatesAcrossSitesTreeLikelihood() {}
+  DiscreteRatesAcrossSitesTreeLikelihoodInterface() {}
+  virtual ~DiscreteRatesAcrossSitesTreeLikelihoodInterface() {}
 
 public:
   /**

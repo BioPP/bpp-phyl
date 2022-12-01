@@ -66,7 +66,6 @@ namespace bpp
  *
  * Yang, Z., R. Nielsen, N. Goldman, and A.-M. K. Pedersen (2000)
  * Genetics 155:431-449.
- *
  */
 class YNGP_M9 :
   public YNGP_M
@@ -75,17 +74,23 @@ private:
   unsigned int nBeta_, nGamma_;
 
 public:
-  /*
-   *@brief Constructor that requires the number of classes of the
+  /**
+   * @brief Constructor that requires the number of classes of the
    * BetaDiscreteDistribution and the GammaDiscreteDistribution.
-   *
    */
+  YNGP_M9(
+      std::shared_ptr<const GeneticCode> gc,
+      std::shared_ptr<FrequencySetInterface> codonFreqs,
+      unsigned int nbBeta,
+      unsigned int nbGamma);
 
-  YNGP_M9(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nbBeta, unsigned int nbGamma);
-
-  YNGP_M9* clone() const { return new YNGP_M9(*this); }
+  YNGP_M9* clone() const override { return new YNGP_M9(*this); }
 
   YNGP_M9(const YNGP_M9& mod2) :
+    AbstractWrappedModel(mod2),
+    AbstractWrappedTransitionModel(mod2),
+    AbstractTotallyWrappedTransitionModel(mod2),
+    AbstractBiblioTransitionModel(mod2),
     YNGP_M(mod2),
     nBeta_(mod2.nBeta_),
     nGamma_(mod2.nGamma_)
@@ -94,17 +99,16 @@ public:
   YNGP_M9& operator=(const YNGP_M9& mod2)
   {
     YNGP_M::operator=(mod2);
-
     nBeta_ = mod2.nBeta_;
     nGamma_ = mod2.nGamma_;
     return *this;
   }
 
 protected:
-  void updateMatrices();
+  void updateMatrices() override;
 
 public:
-  std::string getName() const { return "YNGP_M9"; }
+  std::string getName() const override { return "YNGP_M9"; }
 
   unsigned int getNBeta() const
   {

@@ -61,16 +61,16 @@ class OneJumpSubstitutionCount :
   public AbstractSubstitutionCount
 {
 private:
-  const SubstitutionModel* model_;
+  std::shared_ptr<const SubstitutionModelInterface> model_;
   mutable RowMatrix<double> tmp_;
 
 public:
-  OneJumpSubstitutionCount(const SubstitutionModel* model) :
-    AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getStateMap())),
+  OneJumpSubstitutionCount(std::shared_ptr<const SubstitutionModelInterface> model) :
+    AbstractSubstitutionCount(make_shared<const TotalSubstitutionRegister>(model->getStateMap())),
     model_(model), tmp_() {}
 
-  OneJumpSubstitutionCount(const StateMap& statemap) :
-    AbstractSubstitutionCount(new TotalSubstitutionRegister(statemap)),
+  OneJumpSubstitutionCount(std::shared_ptr<const StateMapInterface> statemap) :
+    AbstractSubstitutionCount(make_shared<const TotalSubstitutionRegister>(statemap)),
     model_(0), tmp_() {}
 
   OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
@@ -87,10 +87,10 @@ public:
 
   virtual ~OneJumpSubstitutionCount() {}
 
-  virtual OneJumpSubstitutionCount* clone() const { return new OneJumpSubstitutionCount(*this); }
+  virtual OneJumpSubstitutionCount* clone() const override { return new OneJumpSubstitutionCount(*this); }
 
 public:
-  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
+  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const override
   {
     if (!model_)
       throw Exception("OneJumpSubstitutionCount::getNumberOfSubstitutions: model not defined.");
@@ -99,30 +99,30 @@ public:
     else return 1. - model_->Pij_t(initialState, finalState, length);
   }
 
-  Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
+  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
 
-  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const;
+  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override;
 
-  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
+  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const override
   {
     std::vector<double> v(0);
     v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);
     return v;
   }
 
-  void setSubstitutionModel(const SubstitutionModel* model) { model_ = model; }
+  void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) override { model_ = model; }
 
   /*
    *@param reg pointer to a SubstitutionRegister
    *
    */
-  void setSubstitutionRegister(SubstitutionRegister* reg)
+  void setSubstitutionRegister(std::shared_ptr<const SubstitutionRegisterInterface> reg) override
   {
     throw Exception("OneJumpSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
   }
 
 private:
-  void substitutionRegisterHasChanged() {}
+  void substitutionRegisterHasChanged() override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MAPPING_ONEJUMPSUBSTITUTIONCOUNT_H

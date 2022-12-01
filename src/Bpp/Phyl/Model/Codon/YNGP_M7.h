@@ -63,23 +63,27 @@ namespace bpp
  *
  * Yang, Z., R. Nielsen, N. Goldman, and A.-M. K. Pedersen (2000)
  * Genetics 155:431-449.
- *
  */
 class YNGP_M7 :
   public YNGP_M
 {
 public:
-  /*
-   *@brief Constructor that requires the number of classes of the
+  /**
+   * @brief Constructor that requires the number of classes of the
    * BetaDiscreteDistribution.
-   *
    */
+  YNGP_M7(
+      std::shared_ptr<const GeneticCode> gc,
+      std::shared_ptr<FrequencySetInterface> codonFreqs,
+      unsigned int nclass);
 
-  YNGP_M7(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nclass);
-
-  YNGP_M7* clone() const { return new YNGP_M7(*this); }
+  YNGP_M7* clone() const override { return new YNGP_M7(*this); }
 
   YNGP_M7(const YNGP_M7& mod2) :
+    AbstractWrappedModel(mod2),
+    AbstractWrappedTransitionModel(mod2),
+    AbstractTotallyWrappedTransitionModel(mod2),
+    AbstractBiblioTransitionModel(mod2),
     YNGP_M(mod2)
   {}
 
@@ -90,10 +94,10 @@ public:
   }
 
 protected:
-  void updateMatrices();
+  void updateMatrices() override;
 
 public:
-  std::string getName() const { return "YNGP_M7"; }
+  std::string getName() const override { return "YNGP_M7"; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M7_H

@@ -208,8 +208,8 @@ public:
   /************************************/
   /* Dependencies */
 
-  const SubstitutionProcess& process_;
-  const AlignmentDataInterface<std::string>* psites_;
+  std::shared_ptr<const SubstitutionProcessInterface> process_;
+  std::shared_ptr<const AlignmentDataInterface> psites_;
 
   /*****************************
    ****** Patterns
@@ -232,7 +232,7 @@ public:
    */
 
   std::shared_ptr<SiteWeights> rootWeights_;
-  std::shared_ptr<AlignmentDataInterface<std::string>> shrunkData_;
+  std::shared_ptr<AlignmentDataInterface> shrunkData_;
 
   /************************************/
   /* DataFlow objects */
@@ -250,11 +250,11 @@ public:
 
 public:
   LikelihoodCalculationSingleProcess(Context& context,
-                                     const AlignmentDataInterface<std::string>& sites,
-                                     const SubstitutionProcess& process);
+                                     std::shared_ptr<const AlignmentDataInterface> sites,
+                                     std::shared_ptr<const SubstitutionProcessInterface> process);
 
   LikelihoodCalculationSingleProcess(Context& context,
-                                     const SubstitutionProcess& process);
+                                     std::shared_ptr<const SubstitutionProcessInterface> process);
 
   /*
    * @brief Build using Nodes of CollectionNodes.
@@ -263,13 +263,12 @@ public:
    * @param nProcess the process Number in the collection
    * @param nData the data Number in the collection
    */
-
-  LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                     const AlignmentDataInterface<std::string>& sites,
+  LikelihoodCalculationSingleProcess(std::shared_ptr<CollectionNodes> collection,
+                                     std::shared_ptr<const AlignmentDataInterface> sites,
                                      size_t nProcess);
 
 
-  LikelihoodCalculationSingleProcess(CollectionNodes& collection,
+  LikelihoodCalculationSingleProcess(std::shared_ptr<CollectionNodes> collection,
                                      size_t nProcess);
 
 
@@ -285,9 +284,9 @@ public:
     throw bpp::Exception("LikelihoodCalculationSingleProcess clone should not happen.");
   }
 
-  void setData(const AlignmentDataInterface<std::string>& sites)
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites)
   {
-    psites_ = &sites;
+    psites_ = sites;
     setPatterns_();
     if (isInitialized())
     {
@@ -298,18 +297,14 @@ public:
   
   /**
    * @brief Set derivation procedure (see DataFlowNumeric.h)
-   *
    */
-
   void setNumericalDerivateConfiguration(double delta, const NumericalDerivativeType& config);
 
   /**
    * Set Tree ClockLike :
    *  - add a RateNode parameter for multiplying all branch lengths
    *  - remove all branch lengths parameters from the parameters
-   *
    */
-
   void setClockLike(double rate = 1);
 
   /**************************************************/
@@ -328,25 +323,21 @@ public:
   }
 
 
-  /*
+  /**
    * @brief Get indexes of the nodes in the Likelihood DAG that have
    * a given species index.
    *
    * @param speciesId  Looked species Index
-   *
    */
-
   const DAGindexes& getNodesIds(uint speciesId) const;
 
-  /*
+  /**
    * @brief Get indexes of the non-empty edges in the Likelihood DAG
    * that have a given species index for a given rate class index.
    *
    * @param speciesId  Looked species Index
    * @param nCat  Rate class category
-   *
    */
-
   const DAGindexes& getEdgesIds(uint speciesId, size_t nCat) const;
 
   size_t getNumberOfSites() const
@@ -359,24 +350,38 @@ public:
     return shrunkData_ ? shrunkData_->getNumberOfSites() : getNumberOfSites();
   }
 
-  /*
+  /**
    * @brief Return the ref to the SubstitutionProcess
    *
    * Warning; the process parameter values may not be up to date
    * with some of the LikelihoodCalculationSingleProcess
-   *
    */
-  const SubstitutionProcess& getSubstitutionProcess() const
+  const SubstitutionProcessInterface& substitutionProcess() const
+  {
+    return *process_;
+  }
+
+  std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const
   {
     return process_;
   }
 
-  const AlignmentDataInterface<std::string>* getData() const
+  const AlignmentDataInterface& data() const
+  {
+    return *psites_;
+  }
+
+  std::shared_ptr<const AlignmentDataInterface> getData() const
   {
     return psites_;
   }
 
-  const StateMap& getStateMap() const
+  const StateMapInterface& stateMap() const
+  {
+    return processNodes_.modelNode_->getTargetValue()->stateMap();
+  }
+
+  std::shared_ptr<const StateMapInterface> getStateMap() const
   {
     return processNodes_.modelNode_->getTargetValue()->getStateMap();
   }
@@ -401,9 +406,9 @@ public:
 
   const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
 
-  const AlignmentDataInterface<std::string>* getShrunkData() const
+  std::shared_ptr<const AlignmentDataInterface> getShrunkData() const
   {
-    return shrunkData_.get();
+    return shrunkData_;
   }
 
   /*
@@ -532,7 +537,7 @@ public:
 
   ConditionalLikelihoodRef getConditionalLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
 
-  /*
+  /**
    * @brief Get shrunked conditional likelihood matrix at Node (ie
    * just above the node), for a given rate class.
    *
@@ -544,16 +549,14 @@ public:
    * @param nCat  Rate class category
    *
    */
-
   SiteLikelihoodsRef getLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
 
-  /*
+  /**
    * @brief make backward likelihood tree (only computed when needed)
-   *
    */
   void makeLikelihoodsTree()
   {
-    auto allIndex = process_.getParametrizablePhyloTree()->getAllNodesIndexes();
+    auto allIndex = process_->parametrizablePhyloTree().getAllNodesIndexes();
 
     for (auto id: allIndex)
     {
@@ -562,24 +565,22 @@ public:
   }
 
   /*********************************/
-  /*@brief Methods for external usage (after lik computation) */
+  /* @brief Methods for external usage (after lik computation) */
 
-  /*
-   *@brief Get site likelihoods for a rate category
+  /**
+   * @brief Get site likelihoods for a rate category
    *
-   *@param nCat : index of the rate category
-   *@param shrunk : if returns on shrunked data (default: false)
+   * @param nCat : index of the rate category
+   * @param shrunk : if returns on shrunked data (default: false)
    */
-
   RowLik getSiteLikelihoodsForAClass(size_t nCat, bool shrunk = false);
 
-  /*
-   *@brief Output array (Classes X Sites) of likelihoods for all
+  /**
+   * @brief Output array (Classes X Sites) of likelihoods for all
    * sites & classes.
    *
-   *@param shrunk : if returns on shrunked data (default: false)
+   * @param shrunk : if returns on shrunked data (default: false)
    */
-
   AllRatesSiteLikelihoods getSiteLikelihoodsForAllClasses(bool shrunk = false);
 
 

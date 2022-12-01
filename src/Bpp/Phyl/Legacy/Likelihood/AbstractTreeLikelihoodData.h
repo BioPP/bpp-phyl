@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -90,12 +90,12 @@ protected:
    */
   std::vector<unsigned int> rootWeights_;
 
-  const TreeTemplate<Node>* tree_;
+  std::shared_ptr<const TreeTemplate<Node> > tree_;
 
-  const Alphabet* alphabet_;
+  std::shared_ptr<const Alphabet> alphabet_;
 
 public:
-  AbstractTreeLikelihoodData(const TreeTemplate<Node>* tree) :
+  AbstractTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node> > tree) :
     rootPatternLinks_(), rootWeights_(), tree_(tree), alphabet_(0) {}
 
   AbstractTreeLikelihoodData(const AbstractTreeLikelihoodData& atd) :
@@ -133,9 +133,9 @@ public:
     return rootWeights_;
   }
 
-  const Alphabet* getAlphabet() const { return alphabet_; }
+  std::shared_ptr<const Alphabet> getAlphabet() const { return alphabet_; }
 
-  const TreeTemplate<Node>* getTree() const { return tree_; }
+  std::shared_ptr< const TreeTemplate<Node> > getTree() const { return tree_; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_ABSTRACTTREELIKELIHOODDATA_H

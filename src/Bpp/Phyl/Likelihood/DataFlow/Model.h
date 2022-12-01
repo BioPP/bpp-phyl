@@ -78,7 +78,7 @@ class TransitionModel;
  *
  * The dummy value is implemented as a pointer to the internal model for simplicity.
  */
-class ConfiguredModel : public Value<BranchModel*>,
+class ConfiguredModel : public Value<BranchModelInterface*>,
   public AbstractParametrizable
 {
   // private:
@@ -86,10 +86,10 @@ class ConfiguredModel : public Value<BranchModel*>,
 
 public:
   using Self = ConfiguredModel;
-  using Target = BranchModel;
+  using Target = BranchModelInterface;
 
-  ConfiguredModel (Context& context, NodeRefVec&& deps, std::unique_ptr<BranchModel>&& model);
-  ~ConfiguredModel ();
+  ConfiguredModel (Context& context, NodeRefVec&& deps, std::unique_ptr<BranchModelInterface>&& model);
+  virtual ~ConfiguredModel();
 
   ConfiguredModel* clone() const
   {
@@ -124,7 +124,7 @@ private:
     model_->matchParametersValues(getParameters());
   }
 
-  std::unique_ptr<BranchModel> model_;
+  std::unique_ptr<BranchModelInterface> model_;
 };
 
 /** equilibriumFrequencies = f(model).

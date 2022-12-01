@@ -62,34 +62,26 @@ class OneChangeRegisterTransitionModel :
   public AbstractFromSubstitutionModelTransitionModel
 {
 private:
-  /*
+  /**
    * Boolean matrix of the sustitutions that are NOT considered (ie
    * for which the changes generator equal the ones of the original model).
-   *
    */
-
   RowMatrix<uint> noChangedStates_;
 
-  /*
+  /**
    * The SubstitutionModel in which generator has registered changes
    * set to 0.
    */
-
   std::unique_ptr<AnonymousSubstitutionModel> modelChanged_;
 
-  /*
+  /**
    * For output
-   *
    */
-
   std::string registerName_;
 
-  /*
-   *
+  /**
    * Vector of considered categories numbers in the register
-   *
    */
-
   std::vector<size_t> vNumRegs_;
 
 public:
@@ -101,12 +93,12 @@ public:
    * defined.
    * @param numReg the number of the considered event in the
    * register.
-   *
    */
+  OneChangeRegisterTransitionModel(
+      std::unique_ptr<SubstitutionModelInterface> originalModel,
+      const SubstitutionRegisterInterface& reg, size_t numReg);
 
-  OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, size_t numReg);
-
-  /*
+  /**
    * @brief Constructor
    *
    * @param originalModel the substitution model used
@@ -114,16 +106,18 @@ public:
    * defined.
    * @param vNumRegs the vector of numbers of the considered event
    * in the register.
-   *
    */
-
-  OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, std::vector<size_t> vNumRegs);
+  OneChangeRegisterTransitionModel(
+      std::unique_ptr<SubstitutionModelInterface> originalModel,
+      const SubstitutionRegisterInterface& reg,
+      std::vector<size_t> vNumRegs);
 
   OneChangeRegisterTransitionModel(const OneChangeRegisterTransitionModel& fmsm) :
-    AbstractParameterAliasable(fmsm),
+    AbstractWrappedModel(fmsm),
+    AbstractWrappedTransitionModel(fmsm),
     AbstractFromSubstitutionModelTransitionModel(fmsm),
     noChangedStates_(fmsm.noChangedStates_),
-    modelChanged_(std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone())),
+    modelChanged_(fmsm.modelChanged_->clone()),
     registerName_(fmsm.registerName_),
     vNumRegs_(fmsm.vNumRegs_)
   {}
@@ -131,6 +125,8 @@ public:
 
   OneChangeRegisterTransitionModel& operator=(const OneChangeRegisterTransitionModel& fmsm)
   {
+    AbstractWrappedModel::operator=(fmsm);
+    AbstractWrappedTransitionModel::operator=(fmsm);
     AbstractFromSubstitutionModelTransitionModel::operator=(fmsm);
     noChangedStates_ = fmsm.noChangedStates_;
     modelChanged_ = std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone());
@@ -140,54 +136,68 @@ public:
     return *this;
   }
 
-  ~OneChangeRegisterTransitionModel()
-  {}
+  virtual ~OneChangeRegisterTransitionModel() {}
 
-  OneChangeRegisterTransitionModel* clone() const { return new OneChangeRegisterTransitionModel(*this); }
+  OneChangeRegisterTransitionModel* clone() const override {
+    return new OneChangeRegisterTransitionModel(*this);
+  }
 
 public:
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractFromSubstitutionModelTransitionModel::fireParameterChanged(parameters);
     updateMatrices();
   }
 
-  double Pij_t    (size_t i, size_t j, double t) const;
-  double dPij_dt  (size_t i, size_t j, double t) const;
-  double d2Pij_dt2(size_t i, size_t j, double t) const;
+  double Pij_t    (size_t i, size_t j, double t) const override;
+  double dPij_dt  (size_t i, size_t j, double t) const override;
+  double d2Pij_dt2(size_t i, size_t j, double t) const override;
 
-  const Matrix<double>& getPij_t(double t) const;
+  const Matrix<double>& getPij_t(double t) const override;
 
-  const Matrix<double>& getdPij_dt(double t) const;
+  const Matrix<double>& getdPij_dt(double t) const override;
 
-  const Matrix<double>& getd2Pij_dt2(double t) const;
+  const Matrix<double>& getd2Pij_dt2(double t) const override;
 
-
-  double freq(size_t i) const { return getTransitionModel().freq(i); }
-
-  const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
-
-  const std::shared_ptr<FrequencySet> getFrequencySet() const {return getTransitionModel().getFrequencySet(); }
-
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+  double freq(size_t i) const override
   {
-    getTransitionModel().setFreqFromData(data, pseudoCount);
+    return transitionModel().freq(i);
   }
 
-  virtual void setFreq(std::map<int, double>& m)
+  const Vdouble& getFrequencies() const override
   {
-    getTransitionModel().setFreq(m);
+    return transitionModel().getFrequencies();
   }
 
-  double getRate() const { return getTransitionModel().getRate(); }
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return transitionModel().frequencySet();
+  }
 
-  void setRate(double rate) { return getTransitionModel().setRate(rate); }
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  {
+    return transitionModel().getFrequencySet();
+  }
 
-  double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount) override
+  {
+    transitionModel().setFreqFromData(data, pseudoCount);
+  }
+
+  virtual void setFreq(std::map<int, double>& m) override
+  {
+    transitionModel().setFreq(m);
+  }
+
+  double getRate() const override { return transitionModel().getRate(); }
+
+  void setRate(double rate) override { return transitionModel().setRate(rate); }
+
+  double getInitValue(size_t i, int state) const override { return model().getInitValue(i, state); }
 
   void updateMatrices();
 
-  std::string getName() const
+  std::string getName() const override
   {
     return "OneChange";
   }

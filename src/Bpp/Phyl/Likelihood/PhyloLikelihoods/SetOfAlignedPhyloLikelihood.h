@@ -59,8 +59,8 @@ namespace bpp
  */
 
 class SetOfAlignedPhyloLikelihood :
-  public SetOfAbstractPhyloLikelihood,
-  virtual public AbstractAlignedPhyloLikelihood
+  public SetOfPhyloLikelihood,
+  public AbstractAlignedPhyloLikelihood
 {
 public:
   SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true, const std::string& prefix = "");
@@ -69,8 +69,8 @@ public:
 
   SetOfAlignedPhyloLikelihood(const SetOfAlignedPhyloLikelihood& soap) :
     AbstractPhyloLikelihood(soap),
-    AbstractAlignedPhyloLikelihood(soap),
-    SetOfAbstractPhyloLikelihood(soap)
+    SetOfPhyloLikelihood(soap),
+    AbstractAlignedPhyloLikelihood(soap)
   {}
 
   virtual SetOfAlignedPhyloLikelihood* clone() const = 0;
@@ -88,34 +88,28 @@ public:
    *
    * @return if the PhyloLikelihood has been added.
    */
-
   bool addPhyloLikelihood(size_t nPhyl, const std::string& suff);
 
-  const AbstractAlignedPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
+  //TODO check design: no Abstract class as Interface level
+  //const AbstractAlignedPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
+  //{
+  //  return dynamic_cast<const AbstractAlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+  //}
+
+  //AbstractAlignedPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl)
+  //{
+  //  return dynamic_cast<AbstractAlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+  //}
+
+  std::shared_ptr<const AlignedPhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl) const
   {
-    return dynamic_cast<const AbstractAlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+    return dynamic_pointer_cast<const AlignedPhyloLikelihoodInterface>((*pPhyloCont_)[nPhyl]);
   }
 
 
-  AbstractAlignedPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl)
+  std::shared_ptr<AlignedPhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl)
   {
-    return dynamic_cast<AbstractAlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
-  }
-
-  const AlignedPhyloLikelihood* getPhyloLikelihood(size_t nPhyl) const
-  {
-    return dynamic_cast<const AlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
-  }
-
-
-  AlignedPhyloLikelihood* getPhyloLikelihood(size_t nPhyl)
-  {
-    return dynamic_cast<AlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
-  }
-
-  std::shared_ptr<AlignedPhyloLikelihood> sharePhyloLikelihood(size_t nPhyl)
-  {
-    return std::dynamic_pointer_cast<AlignedPhyloLikelihood>(pPhyloCont_->getPhyloLikelihood(nPhyl));
+    return dynamic_pointer_cast<AlignedPhyloLikelihoodInterface>((*pPhyloCont_)[nPhyl]);
   }
 
   /**

@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or <A9> or Copr. CNRS, (November 16, 2004)
+  Copyright or <A9> or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -47,7 +47,7 @@
 using namespace bpp;
 using namespace std;
 
-SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember( SubstitutionProcessCollection* pSubProColl, size_t nProc, size_t nTree, size_t nDist) :
+SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(SubstitutionProcessCollection* pSubProColl, size_t nProc, size_t nTree, size_t nDist) :
   AbstractParameterAliasable(""),
   pSubProColl_(pSubProColl),
   nProc_(nProc),
@@ -124,19 +124,29 @@ std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
   return vMN;
 }
 
- std::shared_ptr<const DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution() const
+std::shared_ptr<const DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution() const
 {
-  return getCollection()->getRateDistribution(nDist_);
+  return collection().getRateDistribution(nDist_);
 }
 
- std::shared_ptr<DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution()
+std::shared_ptr<DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution()
 {
-  return getCollection()->getRateDistribution(nDist_);
+  return collection().getRateDistribution(nDist_);
+}
+
+const DiscreteDistribution& SubstitutionProcessCollectionMember::rateDistribution() const
+{
+  return collection().rateDistribution(nDist_);
+}
+
+DiscreteDistribution& SubstitutionProcessCollectionMember::rateDistribution()
+{
+  return collection().rateDistribution(nDist_);
 }
 
 ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters(bool independent) const
 {
-  return getCollection()->getRateDistributionParameters(nDist_, independent);
+  return collection().getRateDistributionParameters(nDist_, independent);
 }
 
 ParameterList SubstitutionProcessCollectionMember::getBranchLengthParameters(bool independent) const
@@ -261,14 +271,30 @@ std::shared_ptr<ModelScenario> SubstitutionProcessCollectionMember::getModelScen
   return getCollection()->getModelScenario(nPath_);
 }
 
+const ParametrizablePhyloTree& SubstitutionProcessCollectionMember::parametrizablePhyloTree() const
+{
+  if (collection().hasTreeNumber(nTree_))
+    return collection().tree(nTree_);
+  else
+    throw Exception("SubstitutionProcessCollectionMember::parametrizablePhyloTree(). No associated tree.");
+}
+
 std::shared_ptr<const ParametrizablePhyloTree> SubstitutionProcessCollectionMember::getParametrizablePhyloTree() const
 {
-  return getCollection()->hasTreeNumber(nTree_)?getCollection()->getTree(nTree_):0;
+  return collection().hasTreeNumber(nTree_) ? collection().getTree(nTree_) : nullptr;
+}
+
+ParametrizablePhyloTree& SubstitutionProcessCollectionMember::parametrizablePhyloTree()
+{
+  if (collection().hasTreeNumber(nTree_))
+    return collection().tree(nTree_);
+  else
+    throw Exception("SubstitutionProcessCollectionMember::parametrizablePhyloTree(). No associated tree.");
 }
 
 std::shared_ptr<ParametrizablePhyloTree> SubstitutionProcessCollectionMember::getParametrizablePhyloTree()
 {
-  return getCollection()->hasTreeNumber(nTree_)?getCollection()->getTree(nTree_):0;
+  return collection().hasTreeNumber(nTree_) ? collection().getTree(nTree_) : nullptr;
 }
 
 void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<unsigned int>& nodesId)

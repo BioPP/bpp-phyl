@@ -48,11 +48,11 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonCpGSubstitutionModel::AbstractCodonCpGSubstitutionModel(
-  const CodonAlphabet& alphabet,
+  std::shared_ptr<const CodonAlphabet> alphabet,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   rho_(1),
-  stateMap_(new CanonicalStateMap(&alphabet, false))
+  stateMap_(new CanonicalStateMap(alphabet, false))
 {
   addParameter_(new Parameter(prefix + "rho", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 }

@@ -165,7 +165,7 @@ private:
   mutable RowMatrix<double> p_;
 
 public:
-  T92(const NucleicAlphabet* alpha, double kappa = 1., double theta = 0.5);
+  T92(std::shared_ptr<const NucleicAlphabet> alpha, double kappa = 1., double theta = 0.5);
 
   virtual ~T92() {}
 

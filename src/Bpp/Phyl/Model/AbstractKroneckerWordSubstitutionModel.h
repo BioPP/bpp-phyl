@@ -167,7 +167,7 @@ public:
    */
 
   AbstractKroneckerWordSubstitutionModel(
-    SubstitutionModel* pmodel,
+    std::shared_ptr<SubstitutionModelInterface> pmodel,
     unsigned int num,
     const std::string& prefix);
 
@@ -185,7 +185,7 @@ public:
    */
 
   AbstractKroneckerWordSubstitutionModel(
-    SubstitutionModel* pmodel,
+    std::shared_ptr<SubstitutionModelInterface> pmodel,
     unsigned int num,
     const std::vector<std::set< size_t> >& vPos,
     const std::string& prefix);
@@ -202,9 +202,13 @@ protected:
   /**
    * @brief Constructor for the derived classes only
    */
-  AbstractKroneckerWordSubstitutionModel(const Alphabet* alph, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
+  AbstractKroneckerWordSubstitutionModel(
+      std::shared_ptr<const Alphabet> alph,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix);
 
   void setChangingPositions(const std::vector<std::set<size_t> >& vPos);
 };
+
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTKRONECKERWORDSUBSTITUTIONMODEL_H

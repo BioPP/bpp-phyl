@@ -136,7 +136,7 @@ private:
 
 public:
   TN93(
-    const NucleicAlphabet* alpha,
+    std::shared_ptr<const NucleicAlphabet> alpha,
     double kappa1 = 1.,
     double kappa2 = 1.,
     double piA = 0.25,

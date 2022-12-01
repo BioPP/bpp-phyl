@@ -68,7 +68,7 @@ private:
     size_t index_;
 
 public:
-    ConstHomogeneousSiteModelIterator(const Tree& tree, const TransitionModel* model) :
+    ConstHomogeneousSiteModelIterator(const Tree& tree, std::shared_ptr<const TransitionModelInterface> model) :
       siteModelDescription_(model, tree.getBranchesId()),
       index_(0) {}
 
@@ -85,7 +85,7 @@ public:
   };
 
 protected:
-  TransitionModel* model_;
+  std::shared_ptr<TransitionModelInterface> model_;
   ParameterList brLenParameters_;
 
   mutable std::map<int, VVVdouble> pxy_;
@@ -201,13 +201,13 @@ public:
    *
    * @{
    */
-  const TransitionModel* getModel() const { return model_; }
-  const TransitionModel* getModel(int nodeId, size_t siteIndex) const { return model_; }
+  std::shared_ptr<const TransitionModelInterface> getModel() const { return model_; }
+  std::shared_ptr<const TransitionModelInterface> getModel(int nodeId, size_t siteIndex) const { return model_; }
 
-  TransitionModel* getModel() { return model_; }
-  TransitionModel* getModel(int nodeId, size_t siteIndex) { return model_; }
+  std::shared_ptr<TransitionModelInterface> getModel() { return model_; }
+  std::shared_ptr<TransitionModelInterface> getModel(int nodeId, size_t siteIndex) { return model_; }
 
-  void setModel(TransitionModel* model);
+  void setModel(std::shared_ptr<TransitionModelInterface> model);
   /** @} */
 
   /**
@@ -216,7 +216,7 @@ public:
    * Performs a cast operation on the pointer. Return NULL if cast failed.
    * @return A SubstitutionModel pointer toward the model associated to this instance.
    */
-  virtual const SubstitutionModel* getSubstitutionModel() const { return dynamic_cast<const SubstitutionModel*>(model_); }
+  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const { return dynamic_pointer_cast<const SubstitutionModelInterface>(model_); }
 
   /**
    * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
@@ -227,7 +227,7 @@ public:
    * @param nodeId Id of the node
    * @param siteIndex Position of the site
    */
-  virtual const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const { return dynamic_cast<const SubstitutionModel*>(model_); }
+  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel(int nodeId, size_t siteIndex) const { return dynamic_pointer_cast<const SubstitutionModelInterface>(model_); }
 
 public:
   // Specific methods:

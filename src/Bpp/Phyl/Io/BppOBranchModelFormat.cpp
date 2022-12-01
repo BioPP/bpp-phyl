@@ -70,14 +70,14 @@ using namespace bpp;
 
 using namespace std;
 
-BranchModel* BppOBranchModelFormat::readBranchModel(
-  const Alphabet* alphabet,
-  const std::string& modelDescription,
-  const AlignedValuesContainer* data,
+std::unique_ptr<BranchModelInterface> BppOBranchModelFormat::readBranchModel(
+  shared_ptr<const Alphabet> alphabet,
+  const string& modelDescription,
+  shared_ptr<const AlignmentDataInterface> data,
   bool parseArguments)
 {
   unparsedArguments_.clear();
-  unique_ptr<BranchModel> model;
+  unique_ptr<BranchModelInterface> model;
   string modelName = "";
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
@@ -96,24 +96,24 @@ BranchModel* BppOBranchModelFormat::readBranchModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    TransitionModel* nestedModel = nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false);
+    auto nestedModel = nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     model.reset(new MultinomialFromTransitionModel(*nestedModel));
   }
 
   if (!model)
-    model.reset(readTransitionModel(alphabet, modelDescription, data, parseArguments));
+    model = readTransitionModel(alphabet, modelDescription, data, parseArguments);
   else
   {
     if (verbose_)
       ApplicationTools::displayResult("Branch model", modelName);
 
-    updateParameters_(model.get(), args);
+    updateParameters_(*model, args);
 
     if (parseArguments)
       initialize_(*model, data);
   }
 
-  return model.release();
+  return model;
 }

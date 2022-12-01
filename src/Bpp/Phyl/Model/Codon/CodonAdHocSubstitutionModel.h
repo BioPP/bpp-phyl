@@ -50,31 +50,26 @@ namespace bpp
  * @brief Class for substitution models of codons with
  * several layers of codon models
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * Objects of this class are built from three substitution models of
  * NucleicAlphabets. No model is directly accessible. </p>
  *
  * Only substitutions with one letter changed are accepted. </p>
- *
- *
  */
-
 class CodonAdHocSubstitutionModel :
   public AbstractCodonSubstitutionModel
 {
 private:
-  std::vector<std::unique_ptr<CoreCodonSubstitutionModel> > vModel_;
+  std::vector< std::unique_ptr<CoreCodonSubstitutionModelInterface> > vModel_;
 
   std::string name_;
 
   /*
    * @brief optional FrequencySet if model is defined through a
    * FrequencySet.
-   *
    */
-
-  std::shared_ptr<FrequencySet> freqSet_;
+  std::shared_ptr<FrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -88,11 +83,10 @@ public:
    * @param vpmodel vector of codon models. They will be owned by the model.
    * @param name the name of the model
    */
-
   CodonAdHocSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
-    std::vector<CoreCodonSubstitutionModel*>& vpmodel,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::vector<CoreCodonSubstitutionModelInterface>& vpmodel,
     const std::string& name);
 
   /**
@@ -109,13 +103,12 @@ public:
    * model.
    * @param name the name of the model
    */
-
   CodonAdHocSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    std::vector<CoreCodonSubstitutionModel*>& vpmodel,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::vector<CoreCodonSubstitutionModelInterface>& vpmodel,
     const std::string& name);
 
   CodonAdHocSubstitutionModel(const CodonAdHocSubstitutionModel& model);
@@ -124,20 +117,20 @@ public:
 
   virtual ~CodonAdHocSubstitutionModel() {}
 
-  CodonAdHocSubstitutionModel* clone() const
+  CodonAdHocSubstitutionModel* clone() const override
   {
     return new CodonAdHocSubstitutionModel(*this);
   }
 
 public:
-  void fireParameterChanged(const ParameterList& parameterlist);
+  void fireParameterChanged(const ParameterList& parameterlist) override;
 
-  std::string getName() const
+  std::string getName() const override
   {
     return name_;
   }
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractCodonSubstitutionModel::setNamespace(prefix);
     for (auto& model : vModel_)
@@ -146,21 +139,26 @@ public:
     }
   }
 
-  size_t  getNumberOfModels() const
+  size_t getNumberOfModels() const
   {
     return vModel_.size();
   }
 
-  const std::unique_ptr<CoreCodonSubstitutionModel>& getNModel(size_t i) const
+  const CoreCodonSubstitutionModelInterface& layerModel(size_t i) const
   {
-    return vModel_[i];
+    return *vModel_[i];
   }
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return *freqSet_;
+  }
+
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
   {
     return freqSet_;
   }

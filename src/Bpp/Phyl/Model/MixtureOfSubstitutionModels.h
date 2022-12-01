@@ -64,18 +64,17 @@ public:
    *   SubstitutionModels are owned by the instance.
    * @warning providing a vpModel with size 0 will generate a segmentation fault!
    */
-  MixtureOfSubstitutionModels(const Alphabet* alpha, std::vector<std::shared_ptr<TransitionModel>> vpModel) :
+  MixtureOfSubstitutionModels(
+      std::shared_ptr<const Alphabet> alpha,
+      std::vector<std::shared_ptr<TransitionModelInterface>> vpModel) :
     AbstractParameterAliasable("Mixture."),
-    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
+    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
     MixtureOfTransitionModels(alpha, vpModel)
   {
-    /*
-     * Check that all models are substitutionmodels
-     */
-
-    for (const auto& model:vpModel)
+    // Check that all models are substitutionmodels
+    for (const auto& model : vpModel)
     {
-      if (!dynamic_cast<const SubstitutionModel*>(model.get()))
+      if (!dynamic_pointer_cast<const SubstitutionModelInterface>(model))
         throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
     }
   }
@@ -93,22 +92,21 @@ public:
    * See above the constraints on the rates and the probabilities of
    * the vectors.
    */
-
   MixtureOfSubstitutionModels(
-    const Alphabet* alpha,
-    std::vector<std::shared_ptr<TransitionModel>> vpModel,
+    std::shared_ptr<const Alphabet> alpha,
+    std::vector<std::shared_ptr<TransitionModelInterface>> vpModel,
     Vdouble& vproba, Vdouble& vrate) :
     AbstractParameterAliasable("Mixture."),
-    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
+    AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
     MixtureOfTransitionModels(alpha, vpModel, vproba, vrate)
   {
     /*
      * Check that all models are substitutionmodels
      */
 
-    for (const auto& model:vpModel)
+    for (const auto& model : vpModel)
     {
-      if (!dynamic_cast<const SubstitutionModel*>(model.get()))
+      if (!dynamic_pointer_cast<const SubstitutionModelInterface>(model))
         throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
     }
   }
@@ -127,18 +125,17 @@ public:
     return *this;
   }
 
-  MixtureOfSubstitutionModels* clone() const { return new MixtureOfSubstitutionModels(*this); }
+  MixtureOfSubstitutionModels* clone() const override { return new MixtureOfSubstitutionModels(*this); }
 
 public:
   /**
    * @brief retrieve a pointer to the subsitution model with the given name.
    *
-   * Return Null if not found.
-   *
+   * @return Null if not found.
    */
-  const SubstitutionModel* getSubModel(const std::string& name) const
+  std::shared_ptr<const SubstitutionModelInterface> getSubModel(const std::string& name) const
   {
-    return dynamic_cast<const SubstitutionModel*>(getModel(name));
+    return dynamic_pointer_cast<const SubstitutionModelInterface>(getModel(name));
   }
 };
 } // end of namespace bpp.

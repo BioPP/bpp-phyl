@@ -84,7 +84,7 @@ public:
    * @return A new distance matrix object.
    * @throw Exception If an error occured.
    */
-  virtual DistanceMatrix* readDistanceMatrix(const std::string& path) const = 0;
+  virtual std::unique_ptr<DistanceMatrix> readDistanceMatrix(const std::string& path) const = 0;
   /**
    * @brief Read a distance matrix from a stream.
    *
@@ -92,7 +92,7 @@ public:
    * @return A new distance matrix object.
    * @throw Exception If an error occured.
    */
-  virtual DistanceMatrix* readDistanceMatrix(std::istream& in) const = 0;
+  virtual std::unique_ptr<DistanceMatrix> readDistanceMatrix(std::istream& in) const = 0;
 };
 
 /**

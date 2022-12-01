@@ -66,13 +66,12 @@ namespace bpp
  * Whelan, S. and N. Goldman. 2001. A general empirical model of
  * protein evolution derived from multiple protein families using a
  * maximum likelihood approach. Molecular Biology and Evolution 18:691-699.
- *
  */
 class WAG01 :
   public AbstractReversibleProteinSubstitutionModel
 {
 private:
-  std::shared_ptr<ProteinFrequencySet> freqSet_;
+  std::shared_ptr<ProteinFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -80,7 +79,7 @@ public:
    *
    * @param alpha A proteic alphabet.
    */
-  WAG01(const ProteicAlphabet* alpha);
+  WAG01(std::shared_ptr<const ProteicAlphabet> alpha);
 
   /**
    * @brief Build a WAG01 model with special equilibrium frequencies.
@@ -90,28 +89,31 @@ public:
    * @param initFreqs Tell if the frequency set should be initialized with the original WAG01 values.
    * Otherwise, the values of the set will be used.
    */
-  WAG01(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs = false);
+  WAG01(
+      std::shared_ptr<const ProteicAlphabet> alpha,
+      std::shared_ptr<ProteinFrequencySetInterface> freqSet,
+      bool initFreqs = false);
 
   WAG01(const WAG01& model) :
     AbstractParameterAliasable(model),
     AbstractReversibleProteinSubstitutionModel(model),
-    freqSet_(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()))
+    freqSet_(model.freqSet_->clone())
   {}
 
   WAG01& operator=(const WAG01& model)
   {
     AbstractParameterAliasable::operator=(model);
     AbstractReversibleProteinSubstitutionModel::operator=(model);
-    freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()));
+    freqSet_.reset(model.freqSet_->clone());
     return *this;
   }
 
   virtual ~WAG01() {}
 
-  WAG01* clone() const { return new WAG01(*this); }
+  WAG01* clone() const override { return new WAG01(*this); }
 
 public:
-  std::string getName() const
+  std::string getName() const override
   {
     if (freqSet_->getNamespace().find("WAG01+F.") != std::string::npos)
       return "WAG01+F";
@@ -119,29 +121,37 @@ public:
       return "WAG01";
   }
 
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     freqSet_->matchParametersValues(parameters);
     freq_ = freqSet_->getFrequencies();
     AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
   }
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
   }
 
-  void setFrequencySet(const ProteinFrequencySet& freqSet)
+  void setFrequencySet(const ProteinFrequencySetInterface& freqSet)
   {
-    freqSet_ = std::shared_ptr<ProteinFrequencySet>(dynamic_cast<ProteinFrequencySet*>(freqSet.clone()));
+    freqSet_.reset(freqSet.clone());
     resetParameters_();
     addParameters_(freqSet_->getParameters());
   }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
+   const FrequencySetInterface& frequencySet() const override
+  {
+    if (freqSet_)
+      return *freqSet_;
+    throw NullPointerException("WAG01::frequencySet(). No associated FrequencySet.");
+  }
+    
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_WAG01_H

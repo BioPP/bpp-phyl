@@ -116,13 +116,13 @@ namespace bpp
 class ModelScenario
 {
 private:
-  std::vector<std::shared_ptr<ModelPath> > vModelPaths_;
+  std::vector< std::shared_ptr<ModelPath> > vModelPaths_;
 
 public:
   ModelScenario() :
     vModelPaths_() {}
 
-  ~ModelScenario(){}
+  virtual ~ModelScenario(){}
 
   ModelScenario(std::vector<std::shared_ptr<ModelPath> > vModelPaths) :
     vModelPaths_(vModelPaths)
@@ -163,8 +163,8 @@ public:
    *
    */
 
-  void changeModel(std::shared_ptr<MixedTransitionModel> m1,
-                   std::shared_ptr<MixedTransitionModel> m2);
+  void changeModel(std::shared_ptr<MixedTransitionModelInterface> m1,
+                   std::shared_ptr<MixedTransitionModelInterface> m2);
 
   /*
    *@brief If necessary, adds a new ModelPath such that all submodels
@@ -201,7 +201,7 @@ public:
    *
    */
 
-  std::vector<std::shared_ptr<MixedTransitionModel> > getModels() const;
+  std::vector<std::shared_ptr<MixedTransitionModelInterface> > getModels() const;
 
   /*
    *@brief Checks if all the path (ie hypernodes) are exclusive.

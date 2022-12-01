@@ -265,17 +265,32 @@ void MixtureOfATransitionModel::setFreq(std::map<int, double>& m)
   matchParametersValues(modelsContainer_[0]->getParameters());
 }
 
-const TransitionModel* MixtureOfATransitionModel::getModel(const std::string& name) const
+shared_ptr<const TransitionModelInterface> MixtureOfATransitionModel::getModel(const std::string& name) const
 {
   size_t nbmod = getNumberOfModels();
 
-  for (size_t i = 0; i < nbmod; i++)
+  for (size_t i = 0; i < nbmod; ++i)
   {
-    if (getNModel(i)->getName() == name)
-      return getNModel(i);
+    auto model = getNModel(i)
+    if (model->getName() == name)
+      return model;
   }
 
-  return NULL;
+  return nullptr;
+}
+
+const TransitionModelInterface& MixtureOfATransitionModel::model(const std::string& name) const
+{
+  size_t nbmod = getNumberOfModels();
+
+  for (size_t i = 0; i < nbmod; ++i)
+  {
+    auto model = getNModel(i)
+    if (model->getName() == name)
+      return *model;
+  }
+
+  throw NullPointerException("MixtureOfATransitionModel::model(). No model with the specified name.");
 }
 
 Vuint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const

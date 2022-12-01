@@ -54,8 +54,8 @@
 
 namespace bpp
 {
-class TransitionModel;
-class SubstitutionModel;
+class TransitionModelInterface;
+class SubstitutionModelInterface;
 
 /**
  * @brief General interface for model I/O.
@@ -93,11 +93,11 @@ public:
    * @return A new SubstitutionModel object according to options specified.
    * @throw Exception if an error occured.
    */
-
-  virtual SubstitutionModel* readSubstitutionModel(const Alphabet* alphabet,
-                                                   const std::string& modelDescription,
-                                                   const AlignmentDataInterface<std::string>* data = 0,
-                                                   bool parseArguments = true) = 0;
+  virtual std::unique_ptr<SubstitutionModelInterface> readSubstitutionModel(
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& modelDescription,
+      std::shared_ptr<const AlignmentDataInterface> data = nullptr,
+      bool parseArguments = true) = 0;
 
   /**
    * @return The arguments and their unparsed values from the last call of the read function, if there are any.
@@ -126,10 +126,11 @@ public:
    * parameters so far [in, out];
    * @throw Exception if an error occured.
    */
-  virtual void write(const BranchModel& model,
-                     OutputStream& out,
-                     std::map<std::string, std::string>& globalAliases,
-                     std::vector<std::string>& writtenNames) const = 0;
+  virtual void write(
+      const BranchModelInterface& model,
+      OutputStream& out,
+      std::map<std::string, std::string>& globalAliases,
+      std::vector<std::string>& writtenNames) const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_IOSUBSTITUTIONMODEL_H

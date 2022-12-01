@@ -88,7 +88,7 @@ private:
    * A collection of Transition Models
    */
 
-  ParametrizableCollection<BranchModel> modelColl_;
+  ParametrizableCollection<BranchModelInterface> modelColl_;
 
   /**
    * A map from each BranchModel number to the SubProcess
@@ -101,21 +101,17 @@ private:
   /*
    * A collection of Frequencies Sets
    */
-
-  ParametrizableCollection<FrequencySet> freqColl_;
+  ParametrizableCollection<FrequencySetInterface> freqColl_;
 
   /**
    * A map from each FrequencySet number to the SubProcess members
    * that are linked to it.
-   *
    */
-
   std::map<size_t, std::vector<size_t> > mFreqToSubPro_;
 
-  /*
+  /**
    * A collection of DiscreteDistributions
    */
-
   ParametrizableCollection<DiscreteDistribution> distColl_;
 
   /**
@@ -123,54 +119,41 @@ private:
    * categories that are used independently as ConstantDistributions.
    *
    * These ConstantDistributions are stored in distColl_ with numbers
-
    * 10000*(numberOfDiscreteDistribution+1) + numberOfTheCategory.
    */
-
   std::map<size_t, std::vector<size_t> > mVConstDist_;
 
   /**
    * A map from each DiscreteDistribution number to the SubProcess
    * members that are linked to it.
-   *
    */
-
   std::map<size_t, std::vector<size_t> > mDistToSubPro_;
 
-  /*
+  /**
    * A collection of trees
-   *
    */
-
   ParametrizableCollection<ParametrizablePhyloTree> treeColl_;
 
   /**
    * A map from each Tree number to the SubProcess members that are
    * linked to it.
-   *
    */
-
   std::map<size_t, std::vector<size_t> > mTreeToSubPro_;
 
-  /*
+  /**
    * A map of ModelScenario
-   *
    */
-
   std::map<size_t, std::shared_ptr<ModelScenario> > mModelScenario_;
 
-  /*
+  /**
    * A map of SubstitutionProcessCollectionMember
    */
-
-  std::map<size_t, SubstitutionProcessCollectionMember*> mSubProcess_;
+  std::map<size_t, std::shared_ptr<SubstitutionProcessCollectionMember> > mSubProcess_;
 
 public:
   /**
    * @brief Create empty collections.
-   *
    */
-
   SubstitutionProcessCollection() :
     AbstractParameterAliasable(""),
     modelColl_(),
@@ -220,9 +203,7 @@ public:
    *
    * @param withParameters boolean if the parameters of the object
    *         should be added (default: true)
-   *
    */
-
   void addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters = true);
 
   /*
@@ -234,12 +215,12 @@ public:
   /**
    * ? operator[] ?
    */
-  void addModel(std::shared_ptr<BranchModel> model, size_t modelIndex)
+  void addModel(std::shared_ptr<BranchModelInterface> model, size_t modelIndex)
   {
     addParametrizable(model, modelIndex);
   }
 
-  void addFrequencies(std::shared_ptr<FrequencySet> frequencies, size_t frequenciesIndex)
+  void addFrequencies(std::shared_ptr<FrequencySetInterface> frequencies, size_t frequenciesIndex)
   {
     addParametrizable(frequencies, frequenciesIndex);
   }
@@ -268,14 +249,14 @@ public:
    * @param modelIndex The index of the model in the collection.
    * @return the got shared-ptr to BranchModel.
    */
-  std::shared_ptr<BranchModel> getModel(size_t modelIndex)
+  std::shared_ptr<BranchModelInterface> getModel(size_t modelIndex)
   {
-    return std::dynamic_pointer_cast<BranchModel>(modelColl_[modelIndex]);
+    return std::dynamic_pointer_cast<BranchModelInterface>(modelColl_[modelIndex]);
   }
 
-  std::shared_ptr<const BranchModel> getModel(size_t modelIndex) const
+  std::shared_ptr<const BranchModelInterface> getModel(size_t modelIndex) const
   {
-    return std::dynamic_pointer_cast<const BranchModel>(modelColl_[modelIndex]);
+    return std::dynamic_pointer_cast<const BranchModelInterface>(modelColl_[modelIndex]);
   }
 
   /**
@@ -284,7 +265,7 @@ public:
    * @param model The model looked for in the collection.
    * @return the number of the model or 0 if no matching object
    */
-  size_t getModelIndex(std::shared_ptr<BranchModel> model) const
+  size_t getModelIndex(std::shared_ptr<BranchModelInterface> model) const
   {
     if (modelColl_.hasObject(model))
       return modelColl_.getFirstKey(model);
@@ -297,7 +278,7 @@ public:
    *
    * @param model The model looked for in the collection.
    */
-  bool hasModel(std::shared_ptr<BranchModel> model) const
+  bool hasModel(std::shared_ptr<BranchModelInterface> model) const
   {
     return modelColl_.hasObject(model);
   }
@@ -309,22 +290,22 @@ public:
    * @return the got FrequencySet*.
    */
 
-  FrequencySet& getFrequencies(size_t frequenciesIndex)
+  FrequencySetInterface& frequencySet(size_t frequenciesIndex)
   {
     return *freqColl_[frequenciesIndex];
   }
 
-  const FrequencySet& getFrequencies(size_t frequenciesIndex) const
+  const FrequencySetInterface& frequencySet(size_t frequenciesIndex) const
   {
-    return *(dynamic_cast<const FrequencySet*>(freqColl_[frequenciesIndex].get()));
+    return *(std::dynamic_pointer_cast<const FrequencySetInterface>(freqColl_[frequenciesIndex]));
   }
 
-  std::shared_ptr<FrequencySet> shareFrequencies(size_t frequenciesIndex)
+  std::shared_ptr<FrequencySetInterface> getFrequencySet(size_t frequenciesIndex)
   {
     return freqColl_[frequenciesIndex];
   }
 
-  std::shared_ptr<const FrequencySet> shareFrequencies(size_t frequenciesIndex) const
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet(size_t frequenciesIndex) const
   {
     return freqColl_[frequenciesIndex];
   }
@@ -435,8 +416,7 @@ public:
   {
     std::vector<size_t> vn;
 
-    std::map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it;
-    for (it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+    for (auto it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
     {
       vn.push_back(it->first);
     }
@@ -474,7 +454,7 @@ public:
    * the process members.
    *
    * @{
-   **/
+   */
 
 
   /**
@@ -483,7 +463,6 @@ public:
    *
    * @param parameters The modified parameters.
    */
-
   void fireParameterChanged(const ParameterList& parameters);
 
   void setNamespace(const std::string& prefix);
@@ -571,16 +550,28 @@ public:
    */
   size_t getNumberOfSubstitutionProcess() const { return mSubProcess_.size(); }
 
-  SubstitutionProcessCollectionMember& getSubstitutionProcess(size_t i)
+  SubstitutionProcessCollectionMember& substitutionProcess(size_t i)
   {
     return *mSubProcess_[i];
   }
 
-  const SubstitutionProcessCollectionMember& getSubstitutionProcess(size_t i) const
+  std::shared_ptr<SubstitutionProcessCollectionMember> getSubstitutionProcess(size_t i)
   {
-    const auto it(mSubProcess_.find(i));
+    return mSubProcess_[i];
+  }
+  
+  const SubstitutionProcessCollectionMember& substitutionProcess(size_t i) const
+  {
+    const auto it = mSubProcess_.find(i);
 
     return *(it->second);
+  }
+
+  std::shared_ptr<const SubstitutionProcessCollectionMember> getSubstitutionProcess(size_t i) const
+  {
+    const auto it = mSubProcess_.find(i);
+
+    return it->second;
   }
 
 

@@ -104,7 +104,7 @@ private:
   std::vector<const CoreSiteInterface*> sites_;
   std::vector<unsigned int> weights_;
   IndicesType indices_;
-  const Alphabet* alpha_;
+  std::shared_ptr<const Alphabet> alpha_;
   bool own_;
 
 public:
@@ -119,8 +119,7 @@ public:
    * filtered with the sequences names and belong to the sequences will
    * be deleted together with this instance.
    */
-  
-  SitePatterns(const AlignmentDataInterface<std::string>* sequences, std::vector<std::string> names= {});
+  SitePatterns(std::shared_ptr<const AlignmentDataInterface> sequences, std::vector<std::string> names = {});
 
   /**
    * @brief Build a new SitePattern object.
@@ -131,17 +130,16 @@ public:
    * @param own if the SitePatterns will own the sites of the
    * sequences. In which case the sites will be deleted together with
    * this instance.
-   */
-  
-  SitePatterns(const AlignmentDataInterface<std::string>* sequences, bool own);
+   */ 
+  SitePatterns(std::shared_ptr<const AlignmentDataInterface> sequences, bool own);
 
 private:
-  void init_(const AlignmentDataInterface<std::string>* sequences, std::vector<std::string> names= {});
+  void init_(std::shared_ptr<const AlignmentDataInterface> sequences, std::vector<std::string> names= {});
 
   
 public:
   
-  ~SitePatterns()
+  virtual ~SitePatterns()
   {
     if (own_)
       for (auto si : sites_)
@@ -212,7 +210,7 @@ public:
   /**
    * @return A new container with each unique site.
    */
-  std::shared_ptr< AlignmentDataInterface<std::string> > getSites() const;
+  std::shared_ptr<AlignmentDataInterface> getSites() const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_SITEPATTERNS_H

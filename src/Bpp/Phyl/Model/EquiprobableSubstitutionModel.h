@@ -139,7 +139,7 @@ class EquiprobableSubstitutionModel :
 private:
   mutable double exp_;
   mutable RowMatrix<double> p_;
-  std::shared_ptr<FrequencySet> freqSet_;
+  std::shared_ptr<FrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -147,7 +147,7 @@ public:
    *
    * @param alpha An alphabet.
    */
-  EquiprobableSubstitutionModel(const Alphabet* alpha);
+  EquiprobableSubstitutionModel(std::shared_ptr<const Alphabet> alpha);
 
   /**
    * @brief Build an equiprobable model with special equilibrium frequencies.
@@ -157,14 +157,17 @@ public:
    * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
    * Otherwise, the values of the set will be used.
    */
-  EquiprobableSubstitutionModel(const Alphabet* alpha, FrequencySet* freqSet, bool initFreqs = false);
+  EquiprobableSubstitutionModel(
+     std::shared_ptr<const Alphabet> alpha,
+     std::shared_ptr<FrequencySetInterface> freqSet,
+     bool initFreqs = false);
 
   EquiprobableSubstitutionModel(const EquiprobableSubstitutionModel& model) :
     AbstractParameterAliasable(model),
     AbstractReversibleSubstitutionModel(model),
     exp_(model.exp_),
     p_(model.p_),
-    freqSet_(std::shared_ptr<FrequencySet>(model.freqSet_->clone()))
+    freqSet_(model.freqSet_->clone())
   {}
 
   EquiprobableSubstitutionModel& operator=(const EquiprobableSubstitutionModel& model)
@@ -173,23 +176,23 @@ public:
     AbstractReversibleSubstitutionModel::operator=(model);
     exp_ = model.exp_;
     p_   = model.p_;
-    freqSet_ = std::shared_ptr<FrequencySet>(model.freqSet_->clone());
+    freqSet_.reset(model.freqSet_->clone());
     return *this;
   }
 
   virtual ~EquiprobableSubstitutionModel() {}
 
-  EquiprobableSubstitutionModel* clone() const { return new EquiprobableSubstitutionModel(*this); }
+  EquiprobableSubstitutionModel* clone() const override { return new EquiprobableSubstitutionModel(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double d) const;
-  double dPij_dt  (size_t i, size_t j, double d) const;
-  double d2Pij_dt2(size_t i, size_t j, double d) const;
-  const Matrix<double>& getPij_t    (double d) const;
-  const Matrix<double>& getdPij_dt  (double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const override;
+  double dPij_dt  (size_t i, size_t j, double d) const override;
+  double d2Pij_dt2(size_t i, size_t j, double d) const override;
+  const Matrix<double>& getPij_t    (double d) const override;
+  const Matrix<double>& getdPij_dt  (double d) const override;
+  const Matrix<double>& getd2Pij_dt2(double d) const override;
 
-  std::string getName() const
+  std::string getName() const override
   {
     if (freqSet_->getNamespace().find("+F.") != std::string::npos)
       return "Equi+F";
@@ -197,23 +200,25 @@ public:
       return "Equi";
   }
 
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     freqSet_->matchParametersValues(parameters);
     freq_ = freqSet_->getFrequencies();
     AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
   }
 
-  void setFrequencySet(const FrequencySet& freqSet)
+  void setFrequencySet(const FrequencySetInterface& freqSet)
   {
-    freqSet_ = std::shared_ptr<FrequencySet>(freqSet.clone());
+    freqSet_.reset(freqSet.clone());
     resetParameters_();
     addParameters_(freqSet_->getParameters());
   }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
+  const FrequencySetInterface& frequencySet() const override { return *freqSet_; }
+  
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
 
-  void setFreq(std::map<int, double>& freq);
+  void setFreq(std::map<int, double>& freq) override;
 
 protected:
   /**
@@ -221,7 +226,7 @@ protected:
    * the generator is fixed! No matrice can be changed... This method is only
    * used in the constructor of the class.
    */
-  void updateMatrices();
+  void updateMatrices() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_EQUIPROBABLESUBSTITUTIONMODEL_H

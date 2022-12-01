@@ -71,22 +71,20 @@ namespace bpp
  * FrequencySet object. The parameters are named \c
  * "fit_NameOfTheParameterInTheFrequencySet".
  */
-
-
 class AbstractCodonAAFitnessSubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
+  public virtual CoreCodonSubstitutionModelInterface,
   public virtual AbstractParameterAliasable
 {
 private:
-  std::shared_ptr<FrequencySet> pfitset_;
+  std::shared_ptr<FrequencySetInterface> pfitset_;
 
-  const GeneticCode* pgencode_;
+  std::shared_ptr<const GeneticCode> pgencode_;
 
   std::string fitName_;
 
-  std::shared_ptr<const StateMap> stateMap_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
 
-  std::shared_ptr<const StateMap> protStateMap_;
+  std::shared_ptr<const StateMapInterface> protStateMap_;
 
   /**
    * @brief The Ns of the model (default: 1),  The generator (and all
@@ -97,8 +95,8 @@ private:
 
 public:
   AbstractCodonAAFitnessSubstitutionModel(
-    std::shared_ptr<FrequencySet> pfitset,
-    const GeneticCode* pgencode,
+    std::shared_ptr<FrequencySetInterface> pfitset,
+    std::shared_ptr<const GeneticCode> pgencode,
     const std::string& prefix);
 
   AbstractCodonAAFitnessSubstitutionModel(const AbstractCodonAAFitnessSubstitutionModel& model) :
@@ -107,7 +105,7 @@ public:
     pgencode_(model.pgencode_),
     fitName_(model.fitName_),
     stateMap_(model.stateMap_),
-    protStateMap_(pfitset_->shareStateMap()),
+    protStateMap_(pfitset_->getStateMap()),
     Ns_(1)
   {}
 
@@ -118,13 +116,13 @@ public:
     pgencode_ = model.pgencode_;
     fitName_ = model.fitName_;
     stateMap_ = model.stateMap_;
-    protStateMap_ = pfitset_->shareStateMap();
+    protStateMap_ = pfitset_->getStateMap();
     Ns_ = 1;
 
     return *this;
   }
 
-  AbstractCodonAAFitnessSubstitutionModel* clone() const
+  AbstractCodonAAFitnessSubstitutionModel* clone() const override
   {
     return new AbstractCodonAAFitnessSubstitutionModel(*this);
   }
@@ -132,26 +130,30 @@ public:
   virtual ~AbstractCodonAAFitnessSubstitutionModel();
 
 public:
-  void fireParameterChanged (const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  const FrequencySet& getFreq() const { return *pfitset_; }
+  const FrequencySetInterface& frequencySet() const override { return *pfitset_; }
+  
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return pfitset_; }
 
-  void setNamespace (const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     pfitset_->setNamespace(prefix + fitName_);
   }
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  const std::shared_ptr<FrequencySet> getAAFitness() const { return pfitset_;}
+  const FrequencySetInterface& aaFitness() const { return *pfitset_; }
+  
+  std::shared_ptr<const FrequencySetInterface> getAAFitness() const { return pfitset_; }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
-  {
-    return 0;
-  }
+  //std::shared_ptr<const FrequencySetInterface> getFrequencySet() const
+  //{
+  //  return nullptr;
+  //}
 
   void addNsParameter()
   {

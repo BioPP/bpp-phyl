@@ -56,18 +56,23 @@ namespace bpp
 /**
  * @brief Map the states of a given alphabet which have a model state.
  */
-class StateMap :
+class StateMapInterface :
   public virtual Clonable
 {
 public:
-  virtual ~StateMap() {}
-  virtual StateMap* clone() const = 0;
+  virtual ~StateMapInterface() {}
+  virtual StateMapInterface* clone() const override = 0;
 
 public:
   /**
    * @return The associated alphabet.
    */
-  virtual const Alphabet* getAlphabet() const = 0;
+  virtual const Alphabet& alphabet() const = 0;
+
+  /**
+   * @return A shared_ptr towards the associated alphabet.
+   */
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
 
   /**
    * @return The number of states supported by the model.
@@ -110,6 +115,20 @@ public:
    * @return The corresponding model states, is any.
    */
   virtual std::vector<size_t> getModelStates(int code) const = 0;
+
+  /**
+   * @brief Comparison operator==
+   *
+   * Two StateMaps are identical if they share the same alphabet and states.
+   */
+  virtual bool operator==(const StateMapInterface& sm) const = 0;
+
+  /**
+   * @brief Comparison operator!=
+   *
+   * Two StateMaps are not identical if they do not share the same alphabet or states.
+   */
+  virtual bool operator!=(const StateMapInterface& sm) const = 0;
 };
 
 /**
@@ -119,14 +138,14 @@ public:
  * This vector has to be initialized and filled by the derived class.
  */
 class AbstractStateMap :
-  public virtual StateMap
+  public virtual StateMapInterface
 {
 protected:
-  const Alphabet* alphabet_;
+  std::shared_ptr<const Alphabet> alphabet_;
   std::vector<int> states_;
 
 public:
-  AbstractStateMap(const Alphabet* alphabet) :
+  AbstractStateMap(std::shared_ptr<const Alphabet> alphabet) :
     alphabet_(alphabet),
     states_()
   {}
@@ -144,18 +163,33 @@ public:
   }
 
 public:
-  virtual const Alphabet* getAlphabet() const { return alphabet_; }
-  virtual size_t getNumberOfModelStates() const { return states_.size(); }
-  virtual const std::vector<int>& getAlphabetStates() const { return states_; }
-  virtual int getAlphabetStateAsInt(size_t index) const { return states_[index]; }
-  virtual std::string getAlphabetStateAsChar(size_t index) const { return alphabet_->intToChar(states_[index]); }
-  virtual std::vector<size_t> getModelStates(int code) const
+  const Alphabet& alphabet() const override { return *alphabet_; }
+  std::shared_ptr<const Alphabet> getAlphabet() const override { return alphabet_; }
+  size_t getNumberOfModelStates() const override { return states_.size(); }
+  const std::vector<int>& getAlphabetStates() const override { return states_; }
+  int getAlphabetStateAsInt(size_t index) const override { return states_[index]; }
+  std::string getAlphabetStateAsChar(size_t index) const override { return alphabet_->intToChar(states_[index]); }
+  std::vector<size_t> getModelStates(int code) const override
   {
     return VectorTools::whichAll(states_, code);
   }
-  virtual std::vector<size_t> getModelStates(const std::string& code) const
+  std::vector<size_t> getModelStates(const std::string& code) const override
   {
     return VectorTools::whichAll(states_, alphabet_->charToInt(code));
+  }
+  
+  bool operator==(const StateMapInterface& sm) const override
+  {
+    if (alphabet_->getAlphabetType() != sm.alphabet().getAlphabetType()) return false;
+    if (states_ != sm.getAlphabetStates()) return false;
+    return true;
+  }
+
+  bool operator!=(const StateMapInterface& sm) const override
+  {
+    if (alphabet_->getAlphabetType() != sm.alphabet().getAlphabetType()) return true;
+    if (states_ != sm.getAlphabetStates()) return true;
+    return false;
   }
 };
 
@@ -169,13 +203,12 @@ class CanonicalStateMap :
   public AbstractStateMap
 {
 public:
-  CanonicalStateMap(const Alphabet* alphabet, bool includeGaps);
 
   /**
    * @brief this contructors takes an existing StateMap and adds one model states for gaps.
    * If the original StateMap alread had a state for gaps, a new one will be appended.
    */
-  CanonicalStateMap(const StateMap& sm, bool includeGaps);
+  CanonicalStateMap(std::shared_ptr<const Alphabet> alphabet, bool includeGaps);
 
   virtual CanonicalStateMap* clone() const { return new CanonicalStateMap(*this); }
 
@@ -196,7 +229,7 @@ private:
   unsigned int nbClasses_;
 
 public:
-  MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses);
+  MarkovModulatedStateMap(const StateMapInterface& unitMap, unsigned int nbClasses);
   virtual MarkovModulatedStateMap* clone() const { return new MarkovModulatedStateMap(*this); }
 
   virtual std::string getStateDescription(size_t index) const { return getAlphabetStateAsChar(index) + TextTools::toString(index % nbClasses_); }

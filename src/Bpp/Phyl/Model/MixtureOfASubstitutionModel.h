@@ -68,16 +68,14 @@ public:
    *   If ffrom and tto are not -1, for all submodels the transition
    *   rate ffrom->tto is the same. Otherwise, all submodels are
    *   normalized to have a substitution/time unit at equilibrium.
-   *
    */
-
-  MixtureOfASubstitutionModel(const Alphabet* alpha,
-                              SubstitutionModel* model,
-                              std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+  MixtureOfASubstitutionModel(std::shared_ptr<const Alphabet> alpha,
+                              std::shared_ptr<SubstitutionModelInterface> model,
+                              std::map<std::string, std::shared_ptr<DiscreteDistribution> > parametersDistributionsList,
                               int ffrom = -1,
                               int tto = -1) :
     AbstractParameterAliasable(model->getNamespace()),
-    AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
+    AbstractTransitionModel(alpha, model->getStateMap(), model->getNamespace()),
     MixtureOfATransitionModel(alpha, model, parametersDistributionsList, ffrom, tto)
   {}
 
@@ -94,9 +92,9 @@ public:
     return *this;
   }
 
-  MixtureOfASubstitutionModel* clone() const { return new MixtureOfASubstitutionModel(*this); }
+  MixtureOfASubstitutionModel* clone() const override { return new MixtureOfASubstitutionModel(*this); }
 
-  void updateMatrices()
+  void updateMatrices() override
   {
     MixtureOfATransitionModel::updateMatrices();
     // setting the rates, if to_ & from_ are different from -1
@@ -105,7 +103,7 @@ public:
     {
       Vdouble vd;
 
-      for (size_t j = 0; j < modelsContainer_.size(); j++)
+      for (size_t j = 0; j < modelsContainer_.size(); ++j)
       {
         vd.push_back(1 / getSubNModel(j)->Qij(static_cast<size_t>(from_), static_cast<size_t>(to_)));
       }
@@ -118,16 +116,15 @@ public:
    * @brief retrieve a pointer to the subsitution model with the given name.
    *
    * Return Null if not found.
-   *
    */
-  const SubstitutionModel* getSubModel(const std::string& name) const
+  shared_ptr<const SubstitutionModelInterface> getSubModel(const std::string& name) const
   {
-    return dynamic_cast<const SubstitutionModel*>(getModel(name));
+    return dynamic_pointer_cast<const SubstitutionModelInterface>(getModel(name));
   }
 
-  const SubstitutionModel* getSubNModel(size_t i) const
+  shared_ptr<const SubstitutionModelInterface> getSubNModel(size_t i) const
   {
-    return dynamic_cast<const SubstitutionModel*>(getNModel(i));
+    return dynamic_pointer_cast<const SubstitutionModelInterface>(getNModel(i));
   }
 };
 } // end of namespace bpp.

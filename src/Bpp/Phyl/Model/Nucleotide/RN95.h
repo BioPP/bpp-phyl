@@ -1,7 +1,7 @@
 //
 // File: RN95.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 24 fÃÂ©vrier 2011, ÃÂ  20h 43
 //
 
@@ -169,7 +169,7 @@ private:
 
 public:
   RN95(
-    const NucleicAlphabet* alphabet,
+    std::shared_ptr<const NucleicAlphabet> alphabet,
     double alpha = 1,
     double beta = 1,
     double gamma = 0.25,

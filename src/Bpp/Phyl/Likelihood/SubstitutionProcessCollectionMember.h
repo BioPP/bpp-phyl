@@ -62,25 +62,19 @@ private:
   /**
    * @brief A pointer towards the collection the SubstitutionProcessCollectionMember
    * belongs to.
-   *
    */
-
   SubstitutionProcessCollection* pSubProColl_;
 
   /**
    * @brief The number of the process in the collection
-   *
-   **/
-
+   */
   size_t nProc_;
 
 private:
   /**
    * @brief sets the parameters as the independent parameters on the
    * objects
-   *
-   **/
-
+   */
   void updateParameters();
 
 private:
@@ -92,31 +86,23 @@ private:
   std::map<size_t, std::vector<unsigned int> > modelToNodes_;
 
   /**
-   *@brief The number of the tree: 0 means no assigned tree
-   *
+   * @brief The number of the tree: 0 means no assigned tree
    */
-
   size_t nTree_;
 
   /**
-   *@brief The number of the rate distribution
-   *
+   * @brief The number of the rate distribution
    */
-
   size_t nDist_;
 
   /**
    * @brief The number of the root frequencies (0 if the process is stationary).
-   *
    */
-
   size_t nRoot_;
 
   /**
    * @brief the number of the set of model path, if needed.
-   *
    */
-
   size_t nPath_;
 
 private:
@@ -133,14 +119,11 @@ private:
    * @param nTree Number of the tree
    * @param nDist Number of the Discrete Distribution
    */
-
-  SubstitutionProcessCollectionMember( SubstitutionProcessCollection* pSubProColl, size_t nProc, size_t nTree, size_t nDist);
+  SubstitutionProcessCollectionMember(SubstitutionProcessCollection* pSubProColl, size_t nProc, size_t nTree, size_t nDist);
 
   /**
    * @brief Resets all the information contained in this object.
-   *
    */
-
   void clear();
 
   SubstitutionProcessCollectionMember(const SubstitutionProcessCollectionMember& set);
@@ -149,9 +132,23 @@ private:
 
   virtual ~SubstitutionProcessCollectionMember() {}
 
-  SubstitutionProcessCollectionMember* clone() const { return new SubstitutionProcessCollectionMember(*this); }
+  SubstitutionProcessCollectionMember* clone() const override { return new SubstitutionProcessCollectionMember(*this); }
 
 public:
+  const SubstitutionProcessCollection& collection() const
+  {
+    if (! pSubProColl_)
+      throw NullPointerException("SubstitutionProcessCollectionMember::collection(). Member is not associated to any collection.");
+    return *pSubProColl_;
+  }
+
+  SubstitutionProcessCollection& collection()
+  {
+    if (! pSubProColl_)
+      throw NullPointerException("SubstitutionProcessCollectionMember::collection(). Member is not associated to any collection.");
+    return *pSubProColl_;
+  }
+  
   const SubstitutionProcessCollection* getCollection() const
   {
     return pSubProColl_;
@@ -162,9 +159,14 @@ public:
     return pSubProColl_;
   }
 
-  const StateMap& getStateMap() const
+  const StateMapInterface& stateMap() const override
   {
-    return getModel(modelToNodes_.begin()->first)->getStateMap();
+    return model(modelToNodes_.begin()->first).stateMap();
+  }
+
+  std::shared_ptr<const StateMapInterface> getStateMap() const override
+  {
+    return model(modelToNodes_.begin()->first).getStateMap();
   }
 
   /**
@@ -178,34 +180,28 @@ public:
   /**
    * @return The current number of distinct substitution models in this set.
    */
-  size_t getNumberOfModels() const { return modelToNodes_.size(); }
+  size_t getNumberOfModels() const override { return modelToNodes_.size(); }
 
   /**
    * @return True iff there is a MixedTransitionModel in the SubstitutionProcessCollectionMember
-   **/
-
+   */
   bool hasMixedTransitionModel() const;
 
   /**
    * @return True iff is stationary.
-   **/
+   */
   bool isStationary() const
   {
-    return nRoot_==0;
+    return nRoot_ == 0;
   }
 
-  /**
-   * @brief Get one model from the set knowing its NUMBER.
-   *
-   * @param n Number of the model.
-   * @return A pointer toward the corresponding model.
-   */
+  const BranchModelInterface& model(size_t n) const override;
+  
+  std::shared_ptr<const BranchModelInterface> getModel(size_t n) const override;
 
-  std::shared_ptr<const BranchModel> getModel(size_t n) const;
+  std::shared_ptr<BranchModelInterface> getModel(size_t n);
 
-  std::shared_ptr<BranchModel> getModel(size_t n);
-
-  std::vector<size_t> getModelNumbers() const;
+  std::vector<size_t> getModelNumbers() const override;
 
   /**
    * @brief Get the number of the model associated to a particular node id.
@@ -214,9 +210,9 @@ public:
    * @return The number of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-  size_t getModelNumberForNode(unsigned int nodeId) const
+  size_t getModelNumberForNode(unsigned int nodeId) const override
   {
-    std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
+    auto i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionProcessCollectionMember::getModelNumberForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return i->second;
@@ -229,8 +225,7 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this node.
    */
-
-  std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const;
+  std::shared_ptr<const BranchModelInterface> getModelForNode(unsigned int nodeId) const override;
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -239,7 +234,7 @@ public:
    * @return A vector with the ids of the node associated to this model.
    * @throw IndexOutOfBoundsException If the index is not valid.
    */
-  const std::vector<unsigned int> getNodesWithModel(size_t i) const
+  const std::vector<unsigned int> getNodesWithModel(size_t i) const override
   {
     const auto it = modelToNodes_.find(i);
     if (it == modelToNodes_.end())
@@ -255,17 +250,18 @@ public:
    * @param nodesId the set of nodes in the tree that points toward this model.
    * This will override any previous affectation.
    */
-
   void addModel(size_t numModel, const std::vector<unsigned int>& nodesId);
 
   /**
    * @brief Get the rate distribution
-   *
-   **/
+   */
+  const DiscreteDistribution& rateDistribution() const override;
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const;
+  DiscreteDistribution& rateDistribution() override;
 
-  std::shared_ptr<DiscreteDistribution> getRateDistribution();
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override;
+
+  std::shared_ptr<DiscreteDistribution> getRateDistribution() override;
 
   const size_t getRateDistributionNumber() const { return nDist_; }
 
@@ -278,11 +274,15 @@ public:
 
   const size_t getRootFrequenciesNumber() const { return nRoot_; }
 
-  bool hasRootFrequencySet() const { return !isStationary(); }
+  bool hasRootFrequencySet() const override { return !isStationary(); }
 
-  std::shared_ptr<const FrequencySet> getRootFrequencySet() const;
+  const FrequencySetInterface& rootFrequencySet() const override;
 
-  std::shared_ptr<FrequencySet> getRootFrequencySet();
+  FrequencySetInterface& rootFrequencySet() override;
+
+  std::shared_ptr<const FrequencySetInterface> getRootFrequencySet() const override;
+
+  std::shared_ptr<FrequencySetInterface> getRootFrequencySet() override;
 
   /*
    * @brief Set the Set of Model Path
@@ -291,12 +291,11 @@ public:
    * This method checks that the models defined in the process match
    * those of the model paths.
    */
-
   void setModelScenario(size_t numPath);
 
   const size_t getModelScenarioNumber() const { return nPath_; }
 
-  std::shared_ptr<const ModelScenario> getModelScenario() const;
+  std::shared_ptr<const ModelScenario> getModelScenario() const override;
 
   std::shared_ptr<ModelScenario> getModelScenario();
 
@@ -305,7 +304,7 @@ public:
    *
    **/
 
-  bool matchParametersValues(const ParameterList& parameters);
+  bool matchParametersValues(const ParameterList& parameters) override;
 
   /**
    * @brief Check if the model set is fully specified for a given tree.
@@ -338,68 +337,56 @@ public:
   /**
    * @return The values of the root frequencies.
    */
-
-  const std::vector<double>& getRootFrequencies() const;
+  const std::vector<double>& getRootFrequencies() const override;
 
   /**
    * @return the Tree
    */
+  const ParametrizablePhyloTree& parametrizablePhyloTree() const override;
+  
+  std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const override;
 
-  std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const;
-
+  ParametrizablePhyloTree& parametrizablePhyloTree();
+  
   std::shared_ptr<ParametrizablePhyloTree> getParametrizablePhyloTree();
 
+public:
   size_t getTreeNumber() const { return nTree_; }
 
-  /**
-   * @brief Get the substitution model corresponding to a certain branch, site pattern, and model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
+  const BranchModelInterface& model(unsigned int nodeId, size_t classIndex) const override;
 
-  std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const;
+  std::shared_ptr<const BranchModelInterface> getModel(unsigned int nodeId, size_t classIndex) const override;
 
   /**
    * @brief Get the parameters of the substitution models.
-   *
-   **/
-
-  ParameterList getSubstitutionModelParameters(bool independent) const;
+   */
+  ParameterList getSubstitutionModelParameters(bool independent) const override;
 
   /**
    * @brief Get the parameters of the rate distribution.
-   *
-   **/
-
-  ParameterList getRateDistributionParameters(bool independent) const;
+   */
+  ParameterList getRateDistributionParameters(bool independent) const override;
 
   /**
    * @brief Get the parameters of the tree.
-   *
-   **/
-
-  ParameterList getBranchLengthParameters(bool independent) const;
+   */
+  ParameterList getBranchLengthParameters(bool independent) const override;
 
   /**
    * @brief Get the parameters of the root frequencies set.
-   *
-   **/
-
-  ParameterList getRootFrequenciesParameters(bool independent) const;
+   */
+  ParameterList getRootFrequenciesParameters(bool independent) const override;
 
   /**
    * @brief get all NonDerivable parameters.
-   *
-   **/
+   */
+  ParameterList getNonDerivableParameters() const override;
 
-  ParameterList getNonDerivableParameters() const;
+  double getProbabilityForModel(size_t classIndex) const override;
 
-  double getProbabilityForModel(size_t classIndex) const;
+  Vdouble getClassProbabilities() const override;
 
-  Vdouble getClassProbabilities() const;
-
-  double getRateForModel(size_t classIndex) const;
+  double getRateForModel(size_t classIndex) const override;
 
   friend class SubstitutionProcessCollection;
 };

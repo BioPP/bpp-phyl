@@ -52,17 +52,15 @@ namespace bpp
  *
  * Creates a new transition model object according to model description syntax
  * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
- *
  */
-
 class BppOTransitionModelFormat :
   public BppOSubstitutionModelFormat
 {
 private:
-  MixedTransitionModel* readMixed_(
-      const Alphabet* alphabet,
+  std::unique_ptr<MixedTransitionModelInterface> readMixed_(
+      std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface<std::string>* data);
+      std::shared_ptr<const AlignmentDataInterface> data);
 
 public:
   /**
@@ -92,10 +90,10 @@ public:
   virtual ~BppOTransitionModelFormat() {}
 
 public:
-  TransitionModel* readTransitionModel(
-      const Alphabet* alphabet,
+  std::unique_ptr<TransitionModelInterface> readTransitionModel(
+      std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface<std::string>* data = 0,
+      std::shared_ptr<const AlignmentDataInterface> data = 0,
       bool parseArguments = true);
   
 };

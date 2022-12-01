@@ -136,21 +136,21 @@ private:
   mutable RowMatrix<double> p_;
 
 public:
-  JCnuc(const NucleicAlphabet* alpha);
+  JCnuc(std::shared_ptr<const NucleicAlphabet> alpha);
 
   virtual ~JCnuc() {}
 
-  JCnuc* clone() const { return new JCnuc(*this); }
+  JCnuc* clone() const override { return new JCnuc(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double d) const;
-  double dPij_dt  (size_t i, size_t j, double d) const;
-  double d2Pij_dt2(size_t i, size_t j, double d) const;
-  const Matrix<double>& getPij_t    (double d) const;
-  const Matrix<double>& getdPij_dt  (double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const override;
+  double dPij_dt  (size_t i, size_t j, double d) const override;
+  double d2Pij_dt2(size_t i, size_t j, double d) const override;
+  const Matrix<double>& getPij_t    (double d) const override;
+  const Matrix<double>& getdPij_dt  (double d) const override;
+  const Matrix<double>& getd2Pij_dt2(double d) const override;
 
-  std::string getName() const { return "JC69"; }
+  std::string getName() const override { return "JC69"; }
 
   /**
    * @brief This method is disabled in this model since frequencies are not free parameters.
@@ -160,7 +160,7 @@ public:
    * @param data Unused parameter.
    * @param pseudoCount Unused parameter.
    */
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0) {}
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override {}
 
 protected:
   /**
@@ -168,7 +168,7 @@ protected:
    * the generator is fully determined. No matrice can be changed... This method is only
    * used in the constructor of the class.
    */
-  void updateMatrices();
+  void updateMatrices() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_JCNUC_H

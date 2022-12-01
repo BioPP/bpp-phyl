@@ -102,11 +102,11 @@ private:
   double beta_, gamma_, delta_, theta_, piA_, piC_, piG_, piT_;
 
 public:
-  SSR( const NucleicAlphabet* alpha,
-       double beta = 1.,
-       double gamma = 1.,
-       double delta = 1.,
-       double theta = 0.5);
+  SSR(std::shared_ptr<const NucleicAlphabet> alpha,
+      double beta = 1.,
+      double gamma = 1.,
+      double delta = 1.,
+      double theta = 0.5);
 
   virtual ~SSR() {}
 

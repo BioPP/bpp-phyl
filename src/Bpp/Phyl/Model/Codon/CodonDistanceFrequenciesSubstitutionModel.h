@@ -107,10 +107,10 @@ public:
    *        (default=false).
    */
   CodonDistanceFrequenciesSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
-    std::shared_ptr<FrequencySet> pfreq,
-    const AlphabetIndex2* pdist = 0,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr,
     bool paramSynRate = false);
 
   /**
@@ -130,33 +130,38 @@ public:
    *   (default=false).
    */
   CodonDistanceFrequenciesSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    std::shared_ptr<FrequencySet> pfreq,
-    const AlphabetIndex2* pdist = 0,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr,
     bool paramSynRate = false);
 
   virtual ~CodonDistanceFrequenciesSubstitutionModel() {}
 
-  CodonDistanceFrequenciesSubstitutionModel* clone() const
+  CodonDistanceFrequenciesSubstitutionModel* clone() const override
   {
     return new CodonDistanceFrequenciesSubstitutionModel(*this);
   }
 
 public:
-  void fireParameterChanged(const ParameterList& parameterlist);
+  void fireParameterChanged(const ParameterList& parameterlist) override;
 
-  std::string getName() const;
+  std::string getName() const override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  void setNamespace(const std::string&);
+  void setNamespace(const std::string&) override;
 
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return AbstractCodonFrequenciesSubstitutionModel::frequencySet();
+  }
+
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
   {
     return AbstractCodonFrequenciesSubstitutionModel::getFrequencySet();
   }

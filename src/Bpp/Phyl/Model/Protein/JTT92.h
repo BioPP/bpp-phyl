@@ -68,7 +68,7 @@ class JTT92 :
   public AbstractReversibleProteinSubstitutionModel
 {
 private:
-  std::shared_ptr<ProteinFrequencySet> freqSet_;
+  std::shared_ptr<ProteinFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -76,7 +76,7 @@ public:
    *
    * @param alpha A proteic alphabet.
    */
-  JTT92(const ProteicAlphabet* alpha);
+  JTT92(std::shared_ptr<const ProteicAlphabet> alpha);
 
   /**
    * @brief Build a JTT92 model with special equilibrium frequencies.
@@ -86,28 +86,31 @@ public:
    * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
    * Otherwise, the values of the set will be used.
    */
-  JTT92(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs = false);
+  JTT92(
+      std::shared_ptr<const ProteicAlphabet> alpha,
+      std::shared_ptr<ProteinFrequencySetInterface> freqSet,
+      bool initFreqs = false);
 
   JTT92(const JTT92& model) :
     AbstractParameterAliasable(model),
     AbstractReversibleProteinSubstitutionModel(model),
-    freqSet_(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()))
+    freqSet_(model.freqSet_->clone())
   {}
 
   JTT92& operator=(const JTT92& model)
   {
     AbstractParameterAliasable::operator=(model);
     AbstractReversibleProteinSubstitutionModel::operator=(model);
-    freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()));
+    freqSet_.reset(model.freqSet_->clone());
     return *this;
   }
 
   virtual ~JTT92() {}
 
-  JTT92* clone() const { return new JTT92(*this); }
+  JTT92* clone() const override { return new JTT92(*this); }
 
 public:
-  std::string getName() const
+  std::string getName() const override
   {
     if (freqSet_->getNamespace().find("JTT92+F.") != std::string::npos)
       return "JTT92+F";
@@ -115,30 +118,37 @@ public:
       return "JTT92";
   }
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
   }
 
 
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     freqSet_->matchParametersValues(parameters);
     freq_ = freqSet_->getFrequencies();
     AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
   }
 
-  void setFrequencySet(const ProteinFrequencySet& freqSet)
+  void setFrequencySet(const ProteinFrequencySetInterface& freqSet)
   {
-    freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(freqSet.clone()));
+    freqSet_.reset(freqSet.clone());
     resetParameters_();
     addParameters_(freqSet_->getParameters());
   }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
+  const FrequencySetInterface& frequencySet() const override
+  {
+    if (freqSet_)
+      return *freqSet_;
+    throw NullPointerException("JTT92::frequencySet(). No associated FrequencySet.");
+  }
+    
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_JTT92_H

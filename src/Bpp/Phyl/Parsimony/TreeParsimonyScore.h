@@ -53,14 +53,14 @@ namespace bpp
 /**
  * @brief Compute a parsimony score.
  */
-class TreeParsimonyScore :
+class TreeParsimonyScoreInterface :
   public virtual Clonable
 {
 public:
-  TreeParsimonyScore() {}
-  virtual ~TreeParsimonyScore() {}
+  TreeParsimonyScoreInterface() {}
+  virtual ~TreeParsimonyScoreInterface() {}
 
-  TreeParsimonyScore* clone() const = 0;
+  TreeParsimonyScoreInterface* clone() const = 0;
 
 public:
   /**
@@ -90,7 +90,28 @@ public:
    *
    * @return The tree associated to this object.
    */
-  virtual const Tree& getTree() const = 0;
+  virtual const Tree& tree() const = 0;
+
+  /**
+   * @brief Get the tree for wich scores are computed.
+   *
+   * @return A shared pointer toward the tree associated to this object.
+   */
+  virtual std::shared_ptr<const Tree> getTree() const = 0;
+  
+  /**
+   * @brief Get the state map associated to this instance.
+   *
+   * @return The underlying state map.
+   */
+  virtual const StateMapInterface& stateMap() const = 0;
+  
+  /**
+   * @brief Get the state map associated to this instance.
+   *
+   * @return A shared pointer toward the underlying state map.
+   */
+  virtual std::shared_ptr<const StateMapInterface> getStateMap() const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PARSIMONY_TREEPARSIMONYSCORE_H

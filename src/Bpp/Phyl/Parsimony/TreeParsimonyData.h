@@ -55,14 +55,14 @@ namespace bpp
  *
  * @see TreeParsimonyData
  */
-class TreeParsimonyNodeData :
+class TreeParsimonyNodeDataInterface :
   public virtual Clonable
 {
 public:
-  TreeParsimonyNodeData() {}
-  virtual ~TreeParsimonyNodeData() {}
+  TreeParsimonyNodeDataInterface() {}
+  virtual ~TreeParsimonyNodeDataInterface() {}
 
-  TreeParsimonyNodeData* clone() const = 0;
+  TreeParsimonyNodeDataInterface* clone() const = 0;
 
 public:
   /**
@@ -89,21 +89,22 @@ public:
  *
  * @see TreeParsimonyNodeData
  */
-class TreeParsimonyData :
+class TreeParsimonyDataInterface :
   public virtual Clonable
 {
 public:
-  TreeParsimonyData() {}
-  virtual ~TreeParsimonyData() {}
+  TreeParsimonyDataInterface() {}
+  virtual ~TreeParsimonyDataInterface() {}
 
-  TreeParsimonyData* clone() const = 0;
+  TreeParsimonyDataInterface* clone() const override = 0;
 
 public:
-  virtual const TreeTemplate<Node>* getTree() const = 0;
+  virtual const TreeTemplate<Node>& tree() const = 0;
+  virtual std::shared_ptr<const TreeTemplate<Node> > getTree() const = 0;
   virtual size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const = 0;
   virtual size_t getRootArrayPosition(size_t site) const = 0;
-  virtual TreeParsimonyNodeData& getNodeData(int nodeId) = 0;
-  virtual const TreeParsimonyNodeData& getNodeData(int nodeId) const = 0;
+  virtual TreeParsimonyNodeDataInterface& nodeData(int nodeId) = 0;
+  virtual const TreeParsimonyNodeDataInterface& nodeData(int nodeId) const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PARSIMONY_TREEPARSIMONYDATA_H

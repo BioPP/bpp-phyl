@@ -53,7 +53,7 @@ namespace bpp
  * on codons with parameterized equilibrium frequencies and
  * nucleotidic basic models.
  *
- * @author Fanny Pouyet, Laurent GuÃÂ©guen
+ * @author Fanny Pouyet, Laurent Guéguen
  *
  * See description in AbstractCodonDistanceSubstitutionModel
  * class, AbstractCodonFitnessSubstitutionModel class.
@@ -80,44 +80,44 @@ namespace bpp
  * Reference:
  * - Pouyet & al, Genome Biology and Evolution, 2016
  */
-
 class SENCA :
-  public virtual SubstitutionModel,
+  public virtual SubstitutionModelInterface,
   public AbstractCodonSubstitutionModel,
   public AbstractCodonDistanceSubstitutionModel,
   public AbstractCodonFitnessSubstitutionModel
 {
 public:
   SENCA(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
-    std::shared_ptr<FrequencySet> pfit,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::shared_ptr<FrequencySetInterface> pfit,
+    const AlphabetIndex2* pdist = nullptr);
+
   SENCA(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    std::shared_ptr<FrequencySet> pfit,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::shared_ptr<FrequencySetInterface> pfit,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~SENCA() {}
 
-  SENCA* clone() const
+  SENCA* clone() const override
   {
     return new SENCA(*this);
   }
 
 public:
-  void fireParameterChanged(const ParameterList& parameterlist);
+  void fireParameterChanged(const ParameterList& parameterlist) override;
 
-  std::string getName() const;
+  std::string getName() const override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  void setNamespace(const std::string&);
+  void setNamespace(const std::string&) override;
 
-  /*
+  /**
    * @brief set the fitness of the model from
    * given frequencies, such that the equilibrium frequencies of the
    * model matches at best the given ones.
@@ -127,11 +127,16 @@ public:
    * ratios between the given one and the one computed by the pahse
    * frequencies) is given for matching to the fitness.
    *
-   * @ param frequencies  the frequencies to match on.
+   * @param frequencies the frequencies to match on.
    */
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return AbstractCodonFitnessSubstitutionModel::frequencySet();
+  }
+
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
   {
     return AbstractCodonFitnessSubstitutionModel::getFrequencySet();
   }

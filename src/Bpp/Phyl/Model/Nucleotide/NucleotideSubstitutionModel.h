@@ -53,37 +53,32 @@ namespace bpp
 /**
  * @brief Specialisation interface for nucleotide substitution model.
  */
-class NucleotideSubstitutionModel :
-  public virtual SubstitutionModel
+class NucleotideSubstitutionModelInterface :
+  public virtual SubstitutionModelInterface
 {
 public:
-  virtual ~NucleotideSubstitutionModel() {}
+  virtual ~NucleotideSubstitutionModelInterface() {}
 
-  NucleotideSubstitutionModel* clone() const override = 0;
+  NucleotideSubstitutionModelInterface* clone() const override = 0;
 
 public:
-  size_t getNumberOfStates() const override { return 4; }
 
-  const NucleicAlphabet* getAlphabet() const override = 0;
+  virtual std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const = 0;
 };
 
 
 /**
  * @brief Specialisation interface for rversible nucleotide substitution model.
  */
-class NucleotideReversibleSubstitutionModel :
-  public virtual NucleotideSubstitutionModel,
-  public virtual ReversibleSubstitutionModel
+class NucleotideReversibleSubstitutionModelInterface :
+  public virtual NucleotideSubstitutionModelInterface,
+  public virtual ReversibleSubstitutionModelInterface
 {
 public:
-  virtual ~NucleotideReversibleSubstitutionModel() {}
+  virtual ~NucleotideReversibleSubstitutionModelInterface() {}
 
-  NucleotideReversibleSubstitutionModel* clone() const override = 0;
+  NucleotideReversibleSubstitutionModelInterface* clone() const override = 0;
 
-  size_t getNumberOfStates() const override
-  {
-    return NucleotideSubstitutionModel::getNumberOfStates();
-  }
 };
 
 
@@ -92,27 +87,25 @@ public:
  */
 class AbstractNucleotideSubstitutionModel :
   public AbstractSubstitutionModel,
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModelInterface
 {
 public:
-  AbstractNucleotideSubstitutionModel(const NucleicAlphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
-    AbstractParameterAliasable(prefix),
+  AbstractNucleotideSubstitutionModel(
+      std::shared_ptr<const NucleicAlphabet> alpha,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix) :
     AbstractSubstitutionModel(alpha, stateMap, prefix) {}
 
   virtual ~AbstractNucleotideSubstitutionModel() {}
-
+  
   AbstractNucleotideSubstitutionModel* clone() const override = 0;
 
 public:
-  const NucleicAlphabet* getAlphabet() const override
+  std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const override
   {
-    return dynamic_cast<const NucleicAlphabet*>(alphabet_);
+    return std::dynamic_pointer_cast<const NucleicAlphabet>(alphabet_);
   }
 
-  size_t getNumberOfStates() const override
-  {
-    return NucleotideSubstitutionModel::getNumberOfStates();
-  }
 };
 
 /**
@@ -120,11 +113,13 @@ public:
  */
 class AbstractReversibleNucleotideSubstitutionModel :
   public AbstractReversibleSubstitutionModel,
-  public virtual NucleotideReversibleSubstitutionModel
+  public virtual NucleotideReversibleSubstitutionModelInterface
 {
 public:
-  AbstractReversibleNucleotideSubstitutionModel(const NucleicAlphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
-    AbstractParameterAliasable(prefix),
+  AbstractReversibleNucleotideSubstitutionModel(
+      std::shared_ptr<const NucleicAlphabet> alpha,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix) :
     AbstractReversibleSubstitutionModel(alpha, stateMap, prefix) {}
 
   virtual ~AbstractReversibleNucleotideSubstitutionModel() {}
@@ -132,14 +127,9 @@ public:
   AbstractReversibleNucleotideSubstitutionModel* clone() const override = 0;
 
 public:
-  const NucleicAlphabet* getAlphabet() const override
+  std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const override
   {
-    return dynamic_cast<const NucleicAlphabet*>(alphabet_);
-  }
-
-  size_t getNumberOfStates() const override
-  {
-    return NucleotideSubstitutionModel::getNumberOfStates();
+    return std::dynamic_pointer_cast<const NucleicAlphabet>(alphabet_);
   }
 
 };

@@ -68,45 +68,40 @@ class MixtureProcessPhyloLikelihood :
 private:
   /**
    * @brief to avoid the dynamic casts
-   *
    */
-
-  MixtureSequenceEvolution& mSeqEvol_;
+  std::shared_ptr<MixtureSequenceEvolution> mSeqEvol_;
 
   /**
    * DF simplex for computation
-   *
    */
-
   std::shared_ptr<ConfiguredSimplex> simplex_;
 
   /**
    * Aligned LikelihoodCalculation to store DF nodes
    */
-
   mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
 
 public:
   MixtureProcessPhyloLikelihood(
-    const AlignmentDataInterface<std::string>& data,
-    MixtureSequenceEvolution& processSeqEvol,
-    CollectionNodes& collNodes,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<MixtureSequenceEvolution> processSeqEvol,
+    std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
   MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
-    AbstractAlignedPhyloLikelihood(mlc),
+    //AbstractAlignedPhyloLikelihood(mlc),
     MultiProcessSequencePhyloLikelihood(mlc),
     mSeqEvol_(mlc.mSeqEvol_),
     likCal_(mlc.likCal_)
   {}
 
-  MixtureProcessPhyloLikelihood* clone() const { return new MixtureProcessPhyloLikelihood(*this); }
+  MixtureProcessPhyloLikelihood* clone() const override { return new MixtureProcessPhyloLikelihood(*this); }
 
 public:
   /**
-   * @brief return the probability of a  subprocess
+   * @brief return the probability of a subprocess
    *
    * @param i the index of the subprocess
    */
@@ -120,25 +115,34 @@ public:
    *
    * @{
    */
-  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
+  LikelihoodCalculation& likelihoodCalculation () const override 
+  {
+    return *likCal_;
+  }
+
+  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const override
   {
     return likCal_;
   }
 
-  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const override
+  {
+    return *likCal_;
+  }
+
+  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const override
   {
     return likCal_;
   }
 
-  /*
-   *@brief return the posterior probabilities of subprocess on each site.
+  /**
+   * @brief return the posterior probabilities of subprocess on each site.
    *
-   *@return 2D-vector sites x states
+   * @return 2D-vector sites x states
    */
+  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const override;
 
-  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const;
-
-  /*
+  /**
    * @}
    */
 };

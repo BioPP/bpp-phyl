@@ -50,21 +50,19 @@
 namespace bpp
 {
 /**
- * @brief Abstract classes for codon models
- * @author Laurent GuÃÂ©guen
+ * @brief Interface for codon models
+ * @author Laurent Guéguen
  *
  * This class aims at defining methods needed for inheriting codon.
- *
  */
-
-class CoreCodonSubstitutionModel :
+class CoreCodonSubstitutionModelInterface :
   public virtual ParameterAliasable
 {
 public:
-  CoreCodonSubstitutionModel() {}
-  virtual ~CoreCodonSubstitutionModel() {}
+  CoreCodonSubstitutionModelInterface() {}
+  virtual ~CoreCodonSubstitutionModelInterface() {}
 
-  virtual CoreCodonSubstitutionModel* clone() const = 0;
+  virtual CoreCodonSubstitutionModelInterface* clone() const override = 0;
 
 public:
   /**
@@ -75,39 +73,41 @@ public:
    */
   virtual double getCodonsMulRate(size_t, size_t) const = 0;
 
-  virtual const std::shared_ptr<FrequencySet> getFrequencySet() const = 0;
+  virtual const FrequencySetInterface& frequencySet() const = 0;
+  
+  virtual std::shared_ptr<const FrequencySetInterface> getFrequencySet() const = 0;
 
   virtual void setFreq(std::map<int, double>& frequencies) = 0;
 };
 
 
-class CodonSubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
-  public virtual SubstitutionModel
+class CodonSubstitutionModelInterface :
+  public virtual CoreCodonSubstitutionModelInterface,
+  public virtual SubstitutionModelInterface
 {
 public:
-  CodonSubstitutionModel() {}
-  virtual ~CodonSubstitutionModel() {}
+  CodonSubstitutionModelInterface() {}
+  virtual ~CodonSubstitutionModelInterface() {}
 
-  virtual CodonSubstitutionModel* clone() const = 0;
+  virtual CodonSubstitutionModelInterface* clone() const override = 0;
 
-  virtual const GeneticCode* getGeneticCode() const = 0;
+  virtual std::shared_ptr<const GeneticCode> getGeneticCode() const = 0;
 };
 
 
 /**
- * @brief Abstract class for reversible codon models
+ * @brief Interface for reversible codon models
  * @author Julien Dutheil
  */
-class CodonReversibleSubstitutionModel :
-  public virtual CodonSubstitutionModel,
-  public virtual ReversibleSubstitutionModel
+class CodonReversibleSubstitutionModelInterface :
+  public virtual CodonSubstitutionModelInterface,
+  public virtual ReversibleSubstitutionModelInterface
 {
 public:
-  CodonReversibleSubstitutionModel() {}
-  virtual ~CodonReversibleSubstitutionModel() {}
+  CodonReversibleSubstitutionModelInterface() {}
+  virtual ~CodonReversibleSubstitutionModelInterface() {}
 
-  virtual CodonReversibleSubstitutionModel* clone() const = 0;
+  virtual CodonReversibleSubstitutionModelInterface* clone() const override = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_CODONSUBSTITUTIONMODEL_H

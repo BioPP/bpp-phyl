@@ -1,7 +1,7 @@
 //
 // File: L95.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: lundi 18 octobre 2010, ÃÂ  22h 21
 //
 
@@ -98,7 +98,7 @@ private:
 
 public:
   L95(
-    const NucleicAlphabet* alphabet,
+    std::shared_ptr<const NucleicAlphabet> alphabet,
     double alpha = 0.5,
     double beta = 0.5,
     double gamma = 0.5,

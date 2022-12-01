@@ -70,14 +70,14 @@ namespace bpp
  *
  * @see DRTreeLikelihoodTools
  */
-class DRTreeLikelihood :
-  public virtual DiscreteRatesAcrossSitesTreeLikelihood
+class DRTreeLikelihoodInterface :
+  public virtual DiscreteRatesAcrossSitesTreeLikelihoodInterface
 {
 public:
-  DRTreeLikelihood() {}
-  virtual ~DRTreeLikelihood() {}
+  DRTreeLikelihoodInterface() {}
+  virtual ~DRTreeLikelihoodInterface() {}
 
-  DRTreeLikelihood* clone() const = 0;
+  DRTreeLikelihoodInterface* clone() const override = 0;
 
 public:
 
@@ -87,8 +87,8 @@ public:
    *
    * @{
    */
-  virtual DRASDRTreeLikelihoodData* getLikelihoodData() = 0;
-  virtual const DRASDRTreeLikelihoodData* getLikelihoodData() const = 0;
+  virtual DRASDRTreeLikelihoodData& likelihoodData() override = 0;
+  virtual const DRASDRTreeLikelihoodData& likelihoodData() const override = 0;
   /** @} */
 
   /**

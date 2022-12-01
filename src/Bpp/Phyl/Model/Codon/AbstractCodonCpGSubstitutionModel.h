@@ -59,17 +59,15 @@ namespace bpp
  *  following a C).
  *
  * Hypermutability parameter is named \c "rho".
- *
  */
-
 class AbstractCodonCpGSubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
+  public virtual CoreCodonSubstitutionModelInterface,
   public virtual AbstractParameterAliasable
 {
 private:
   double rho_;
 
-  std::shared_ptr<const StateMap> stateMap_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
 
 public:
   /**
@@ -79,9 +77,8 @@ public:
    * @param alphabet the codon alphabet
    * @param prefix the Namespace
    */
-
   AbstractCodonCpGSubstitutionModel(
-    const CodonAlphabet& alphabet,
+    std::shared_ptr<const CodonAlphabet> alphabet,
     const std::string& prefix);
 
   AbstractCodonCpGSubstitutionModel(const AbstractCodonCpGSubstitutionModel& model) :
@@ -99,7 +96,7 @@ public:
     return *this;
   }
 
-  AbstractCodonCpGSubstitutionModel* clone() const
+  AbstractCodonCpGSubstitutionModel* clone() const override
   {
     return new AbstractCodonCpGSubstitutionModel(*this);
   }
@@ -107,16 +104,21 @@ public:
   virtual ~AbstractCodonCpGSubstitutionModel() {}
 
 public:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const FrequencySetInterface& frequencySet() const override
   {
-    return 0;
+    throw NullPointerException("AbstractCodonCpGSubstitutionModel::frequencySet. No associated FrequencySet.");
   }
 
-  void setFreq(std::map<int, double>& frequencies){}
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  {
+    return nullptr;
+  }
+
+  void setFreq(std::map<int, double>& frequencies) override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONCPGSUBSTITUTIONMODEL_H

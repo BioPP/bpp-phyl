@@ -56,7 +56,7 @@ namespace bpp
  */
 
 class FormulaOfPhyloLikelihood :
-  public SetOfAbstractPhyloLikelihood
+  public SetOfPhyloLikelihood
 {
 private:
   std::unique_ptr<ComputationTree> compTree_;
@@ -92,14 +92,12 @@ public:
 
   /**
    * @name The likelihood functions.
-   *
    */
+  LikelihoodCalculation& likelihoodCalculation() const
+  {
+    return *likCal_;
+  }
 
-  /**
-   * @brief Get the logarithm of the likelihood for the whole dataset.
-   *
-   * @return The logarithm of the likelihood of the dataset.
-   */
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
   {
     return likCal_;

@@ -49,51 +49,43 @@
 namespace bpp
 {
 /**
- * @brief The SetOfAbstractPhyloLikelihood class, to manage a
- * subset of AbstractPhyloLikelihoods from a given
+ * @brief The SetOfPhyloLikelihood class, to manage a
+ * subset of PhyloLikelihoods from a given
  * PhyloLikelihoodContainer
  *
  */
-
-class SetOfAbstractPhyloLikelihood :
-  virtual public AbstractPhyloLikelihood,
+class SetOfPhyloLikelihood :
+  public virtual AbstractPhyloLikelihood,
   public AbstractParametrizable
 {
 protected:
   /**
    * @brief pointer to a  PhyloLikelihoodContainer
-   *
    */
-
   std::shared_ptr<PhyloLikelihoodContainer> pPhyloCont_;
 
   /**
    * @brief vector of AbstractPhyloLikelihood numbers
-   *
    */
-
   std::vector<size_t> nPhylo_;
 
   /**
    * vector of pointers towards LikelihoodCalculation, used
    * for the global likelihood.
    */
-
   mutable std::vector<std::shared_ptr<LikelihoodCalculation> > vLikCal_;
 
 public:
-  /*
+  /**
    * @param inCollection : avoid suffix addition to parameter names
-   *
    */
+  SetOfPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true, const std::string& prefix = "");
 
-  SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true, const std::string& prefix = "");
+  SetOfPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
 
-  SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
+  virtual ~SetOfPhyloLikelihood() {}
 
-  ~SetOfAbstractPhyloLikelihood() {}
-
-  SetOfAbstractPhyloLikelihood(const SetOfAbstractPhyloLikelihood& sd);
+  SetOfPhyloLikelihood(const SetOfPhyloLikelihood& sd);
 
 public:
   std::shared_ptr<PhyloLikelihoodContainer> getPhyloContainer()
@@ -136,24 +128,24 @@ public:
     return std::find(nPhylo_.begin(), nPhylo_.end(), nPhyl) != nPhylo_.end();
   }
 
-  const AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
-  {
-    return dynamic_cast<const AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
-  }
+  //TODO check design, Abstract classes should not be used as intermediate interface level
+  //const AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
+  //{
+  //  return dynamic_cast<const AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+  //}
 
+  //AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl)
+  //{
+  //  return dynamic_cast<AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+  //}
 
-  AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl)
-  {
-    return dynamic_cast<AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
-  }
-
-  const PhyloLikelihood* getPhyloLikelihood(size_t nPhyl) const
+  std::shared_ptr<const PhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl) const
   {
     return (*pPhyloCont_)[nPhyl];
   }
 
 
-  PhyloLikelihood* getPhyloLikelihood(size_t nPhyl)
+  std::shared_ptr<PhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl)
   {
     return (*pPhyloCont_)[nPhyl];
   }
@@ -177,9 +169,9 @@ public:
    */
   bool isInitialized() const override
   {
-    for (size_t i = 0; i < nPhylo_.size(); i++)
+    for (auto nPhylo: nPhylo_)
     {
-      if (!getPhyloLikelihood(nPhylo_[i])->isInitialized())
+      if (!getPhyloLikelihood(nPhylo)->isInitialized())
         return false;
     }
     return true;
@@ -188,9 +180,9 @@ public:
 public:
   virtual void fireParameterChanged(const ParameterList& params) override
   {
-    for (size_t i = 0; i < nPhylo_.size(); i++)
+    for (auto nPhylo: nPhylo_)
     {
-      getAbstractPhyloLikelihood(nPhylo_[i])->matchParametersValues(params);
+      getPhyloLikelihood(nPhylo)->matchParametersValues(params);
 
       // to ensure each phylolikelihood is recomputed, such as in
       // case of total aliasing
@@ -214,7 +206,6 @@ public:
    *
    * @return A ParameterList with all branch lengths.
    */
-
   ParameterList getBranchLengthParameters() const override;
 
   /**
@@ -222,7 +213,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   ParameterList getSubstitutionModelParameters() const override;
 
   /**

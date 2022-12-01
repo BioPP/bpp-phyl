@@ -81,7 +81,6 @@ public:
 
   AutoCorrelationOfAlignedPhyloLikelihood(const AutoCorrelationOfAlignedPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
-    AbstractAlignedPhyloLikelihood(mlc),
     SetOfAlignedPhyloLikelihood(mlc),
     hma_(std::shared_ptr<HmmPhyloAlphabet>(mlc.hma_->clone())),
     htm_(std::shared_ptr<AutoCorrelationTransitionMatrix>(mlc.htm_->clone())),
@@ -103,9 +102,19 @@ public:
    *
    * @{
    */
+  LikelihoodCalculation& likelihoodCalculation () const
+  {
+    return *hmm_;
+  }
+  
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
   {
     return hmm_;
+  }
+
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const
+  {
+    return *hmm_;
   }
 
   std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const

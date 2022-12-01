@@ -61,13 +61,13 @@ namespace bpp
  * It takes only one parameter, the branch length.
  */
 class BranchLikelihood :
-  public Function,
+  public FunctionInterface,
   public AbstractParametrizable
 {
 protected:
   const VVVdouble* array1_, * array2_;
-  const TransitionModel* model_;
-  const DiscreteDistribution* rDist_;
+  std::shared_ptr<const TransitionModel> model_;
+  std::shared_ptr<const DiscreteDistribution> rDist_;
   size_t nbStates_, nbClasses_;
   VVVdouble pxy_;
   double lnL_;
@@ -213,9 +213,9 @@ public:
    */
   NNIHomogeneousTreeLikelihood(
     const Tree& tree,
-    const AlignedValuesContainer& data,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -228,14 +228,14 @@ public:
 
   virtual ~NNIHomogeneousTreeLikelihood();
 
-  NNIHomogeneousTreeLikelihood* clone() const { return new NNIHomogeneousTreeLikelihood(*this); }
+  NNIHomogeneousTreeLikelihood* clone() const override { return new NNIHomogeneousTreeLikelihood(*this); }
 
 public:
-  void setData(const AlignedValuesContainer& sites)
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites) override
   {
     DRHomogeneousTreeLikelihood::setData(sites);
     if (brLikFunction_) delete brLikFunction_;
-    brLikFunction_ = new BranchLikelihood(getLikelihoodData()->getWeights());
+    brLikFunction_ = new BranchLikelihood(likelihoodData().getWeights());
   }
 
   /**
@@ -249,23 +249,23 @@ public:
    * Usually, this is achieved by calling the topologyChangePerformed() method, which call the reInit() method of the LikelihoodData object.
    * @{
    */
-  const Tree& getTopology() const { return getTree(); }
+  const Tree& getTopology() const override { return getTree(); }
 
-  double getTopologyValue() const { return getValue(); }
+  double getTopologyValue() const override { return getValue(); }
 
-  double testNNI(int nodeId) const;
+  double testNNI(int nodeId) const override;
 
-  void doNNI(int nodeId);
+  void doNNI(int nodeId) override;
 
-  void topologyChangeTested(const TopologyChangeEvent& event)
+  void topologyChangeTested(const TopologyChangeEvent& event) override
   {
-    getLikelihoodData()->reInit();
+    likelihoodData().reInit();
     // if(brLenNNIParams_.size() > 0)
     fireParameterChanged(brLenNNIParams_);
     brLenNNIParams_.reset();
   }
 
-  void topologyChangeSuccessful(const TopologyChangeEvent& event)
+  void topologyChangeSuccessful(const TopologyChangeEvent& event) override
   {
     brLenNNIValues_.clear();
   }

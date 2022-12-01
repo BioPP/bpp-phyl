@@ -62,22 +62,18 @@ namespace bpp
  * It has the same parameters as the SubModel.
  *
  * If counts are not integers, rounded values are used.
- *
  */
-
 class MultinomialFromTransitionModel :
-  virtual public AbstractParameterAliasable,
-  virtual public AbstractWrappedModel
+  public AbstractWrappedModel
 {
   typedef bool lessEigenType(Eigen::VectorXd const&, Eigen::VectorXd const&);
 
 private:
-  /*
-   * @brief The related model.
-   *
-   */
 
-  std::unique_ptr<TransitionModel> subModel_;
+  /**
+   * @brief The related model.
+   */
+  std::unique_ptr<TransitionModelInterface> subModel_;
 
   /*
    * The number of states
@@ -86,39 +82,31 @@ private:
 
   size_t size_;
 
-  /*
+  /**
    * @brief Reference time to avoid recomuputation of transition
    * matrix when time has not changed. If <0, it means that
    * transition matrix should be recomputed (for ex if parameters
    * have changed).
-   *
    */
-
   mutable double tref_;
 
-  /*
+  /**
    * @brief Transition Matrices owned by the submodel.
-   *
    */
 
-  /*
+  /**
    * @brief These ones are for bookkeeping:
    */
-
   mutable const Matrix<double>* Pij_t, * dPij_dt, * d2Pij_dt2;
 
-  /*
+  /**
    * @brief Used return vectors
-   *
    */
-
   mutable Eigen::VectorXd Pi_, dPi_, d2Pi_;
 
-  /*
+  /**
    * @brief map to store constant values of multinomial
-   *
    */
-
   mutable std::map<Eigen::VectorXd, double, bool (*)(const Eigen::VectorXd&, const Eigen::VectorXd&)> mapFact_;
 
   static bool lessEigen(Eigen::VectorXd const& a, Eigen::VectorXd const& b)
@@ -133,21 +121,20 @@ private:
   }
 
 protected:
-  BranchModel& getModel()
+  BranchModelInterface& model()
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
-  TransitionModel& getTransitionModel()
+  TransitionModelInterface& transitionModel()
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
 public:
-  MultinomialFromTransitionModel(const TransitionModel& originalModel) :
-    AbstractParameterAliasable("MultinomialFrom." + originalModel.getNamespace()),
-    AbstractWrappedModel(),
-    subModel_(std::unique_ptr<TransitionModel>(originalModel.clone())),
+  MultinomialFromTransitionModel(const TransitionModelInterface& originalModel) :
+    AbstractWrappedModel("MultinomialFrom." + originalModel.getNamespace()),
+    subModel_(std::unique_ptr<TransitionModelInterface>(originalModel.clone())),
     size_(originalModel.getNumberOfStates()),
     tref_(NumConstants::MINF()), Pij_t(0), dPij_dt(0), d2Pij_dt2(0), Pi_(size_), dPi_(size_), d2Pi_(size_), mapFact_(&lessEigen)
   {
@@ -156,7 +143,6 @@ public:
   }
 
   MultinomialFromTransitionModel(const MultinomialFromTransitionModel& fmsm) :
-    AbstractParameterAliasable(fmsm),
     AbstractWrappedModel(fmsm),
     subModel_(fmsm.subModel_->clone()),
     size_(fmsm.size_),
@@ -167,7 +153,7 @@ public:
   {
     AbstractParameterAliasable::operator=(fmsm);
 
-    subModel_ = std::unique_ptr<TransitionModel>(fmsm.subModel_->clone());
+    subModel_ = std::unique_ptr<TransitionModelInterface>(fmsm.subModel_->clone());
     size_ = fmsm.size_;
     Pi_.resize(Eigen::Index(size_));
     dPi_.resize(Eigen::Index(size_));
@@ -179,7 +165,7 @@ public:
     return *this;
   }
 
-  ~MultinomialFromTransitionModel() {}
+  virtual ~MultinomialFromTransitionModel() {}
 
   MultinomialFromTransitionModel* clone() const { return new MultinomialFromTransitionModel(*this); }
 
@@ -187,39 +173,39 @@ public:
   void fireParameterChanged(const ParameterList& parameters)
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
-    if (getModel().matchParametersValues(parameters))
+    if (model().matchParametersValues(parameters))
       tref_ = NumConstants::MINF();
   }
 
-  const BranchModel& getModel() const
+  const BranchModelInterface& model() const
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
-  const TransitionModel& getTransitionModel() const
+  const TransitionModelInterface& transitionModel() const
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
   const Eigen::VectorXd& Lik_t    (const Eigen::VectorXd& from, double t) const;
   const Eigen::VectorXd& dLik_dt  (const Eigen::VectorXd& from, double t) const;
   const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& from, double t) const;
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0)
   {
-    getTransitionModel().setFreqFromData(data, pseudoCount);
+    transitionModel().setFreqFromData(data, pseudoCount);
   }
 
   virtual void setFreq(std::map<int, double>& m)
   {
-    getTransitionModel().setFreq(m);
+    transitionModel().setFreq(m);
   }
 
-  double getRate() const { return getTransitionModel().getRate(); }
+  double getRate() const { return transitionModel().getRate(); }
 
-  void setRate(double rate) { return getTransitionModel().setRate(rate); }
+  void setRate(double rate) { return transitionModel().setRate(rate); }
 
-  double getInitValue(size_t i, int state) const { return getTransitionModel().getInitValue(i, state); }
+  double getInitValue(size_t i, int state) const { return transitionModel().getInitValue(i, state); }
 
   std::string getName() const
   {
@@ -228,18 +214,15 @@ public:
 
   void addRateParameter()
   {
-    getModel().addRateParameter();
-    addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
+    model().addRateParameter();
+    addParameter_(new Parameter(getNamespace() + "rate", model().getRate(), Parameter::R_PLUS_STAR));
   }
 
 private:
   /**
    * @brief Fills the res vector of the likelihoods of the counts
    * given ancestral states & transition matrix.
-   *
    */
-
-
   void compute_Multinomial_(const Eigen::VectorXd& counts) const;
   void compute_dMultinomial_dt_(const Eigen::VectorXd& counts) const;
   void compute_d2Multinomial_dt2_(const Eigen::VectorXd& counts) const;

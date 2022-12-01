@@ -56,7 +56,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SequencedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 // From the STL:
 #include <cstdlib>
@@ -65,26 +65,22 @@
 
 namespace bpp
 {
-class SubstitutionModel;
 
-/*
- *
+/**
  * @brief Interface for all Branch models.
  *
  * Each BranchModel object includes a pointer toward an alphabet,
  * and provides a method to retrieve the alphabet used (getAlphabet() method).
- *
- *
  */
 
-class BranchModel :
+class BranchModelInterface :
   public virtual ParameterAliasable
 {
 public:
-  BranchModel() {}
-  virtual ~BranchModel() {}
+  BranchModelInterface() {}
+  virtual ~BranchModelInterface() {}
 
-  BranchModel* clone() const = 0;
+  BranchModelInterface* clone() const = 0;
 
 public:
   /**
@@ -104,13 +100,12 @@ public:
   /**
    * @return The mapping of model states with alphabet states.
    */
-  virtual const StateMap& getStateMap() const = 0;
+  virtual const StateMapInterface& stateMap() const = 0;
 
   /**
-   * @return The shared_ptr to the mapping of model states with alphabet states.
+   * @return A shared_ptr to the mapping of model states with alphabet states.
    */
-
-  virtual std::shared_ptr<const StateMap> shareStateMap() const = 0;
+  virtual std::shared_ptr<const StateMapInterface> getStateMap() const = 0;
 
   /**
    * @brief Get the state in the model corresponding to a particular state in the alphabet.
@@ -141,16 +136,27 @@ public:
   virtual std::string getAlphabetStateAsChar(size_t index) const = 0;
 
   /**
-   * @return Get the alphabet associated to this model.
+   * @return A reference to the alphabet associated to this model.
    */
-  virtual const Alphabet* getAlphabet() const = 0;
+  virtual const Alphabet& alphabet() const = 0;
+
+  /**
+   * @return A pointer toward the alphabet associated to this model.
+   */
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
+
+
+  /**
+   * @return Get the FrequencySet of equilibrium of this model.
+   * @throw Exception if no FrequenceSet is associated to this model.
+   */
+  virtual const FrequencySetInterface& frequencySet() const = 0;
 
   /**
    * @return Get the FrequencySet of equilibrium of this model. May
    * be null if not defined.
    */
-
-  virtual const std::shared_ptr<FrequencySet> getFrequencySet() const = 0;
+  virtual std::shared_ptr<const FrequencySetInterface> getFrequencySet() const = 0;
 
   /**
    * @brief Get the number of states.
@@ -186,7 +192,6 @@ public:
    * @throw IndexOutOfBoundsException if array position is out of range.
    * @throw BadIntException if states are not allowed in the associated alphabet.
    */
-
   virtual const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const = 0;
   virtual const Eigen::VectorXd& dLik_dt(const Eigen::VectorXd& values, double t) const = 0;
   virtual const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& values, double t) const = 0;
@@ -206,8 +211,7 @@ public:
 };
 
 
-/*
- *
+/**
  * @brief Interface for all transition models.
  *
  * A transition model defines transition probability matrices, the size of
@@ -222,22 +226,17 @@ public:
  * First and second order derivatives of \f$P(t)\f$ with respect to \f$t\f$
  * can also be retrieved.
  * These methods may be useful for optimization processes.
- *
  */
-
-class TransitionModel :
-  public virtual BranchModel
+class TransitionModelInterface :
+  public virtual BranchModelInterface
 {
 private:
-  // For computation purpos
-
-  mutable Eigen::VectorXd lik_;
 
 public:
-  TransitionModel() {}
-  virtual ~TransitionModel() {}
+  TransitionModelInterface() {}
+  virtual ~TransitionModelInterface() {}
 
-  TransitionModel* clone() const = 0;
+  TransitionModelInterface* clone() const = 0;
 
 public:
   /**
@@ -311,56 +310,11 @@ public:
    * @param values An vector of states on the site.
    * @param t the branch length
    */
-  const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const
-  {
-    lik_ = Eigen::VectorXd::Zero(values.size());
+  virtual const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const = 0;
 
-    const auto& pij = getPij_t(t);
+  virtual const Eigen::VectorXd& dLik_dt(const Eigen::VectorXd& values, double t) const = 0;
 
-    for (auto i = 0; i < values.size(); i++)
-    {
-      for (auto j = 0; j < values.size(); j++)
-      {
-        lik_(i) += pij(size_t(i), size_t(j)) * values(j);
-      }
-    }
-
-    return lik_;
-  }
-
-  const Eigen::VectorXd& dLik_dt(const Eigen::VectorXd& values, double t) const
-  {
-    lik_ = Eigen::VectorXd::Zero(values.size());
-
-    const auto& pij = getdPij_dt(t);
-
-    for (auto i = 0; i < values.size(); i++)
-    {
-      for (auto j = 0; j < values.size(); j++)
-      {
-        lik_(i) += pij(size_t(i), size_t(j)) * values(j);
-      }
-    }
-
-    return lik_;
-  }
-
-  const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& values, double t) const
-  {
-    lik_ = Eigen::VectorXd::Zero(values.size());
-
-    const auto& pij = getd2Pij_dt2(t);
-
-    for (auto i = 0; i < values.size(); i++)
-    {
-      for (auto j = 0; j < values.size(); j++)
-      {
-        lik_(i) += pij(size_t(i), size_t(j)) * values(j);
-      }
-    }
-
-    return lik_;
-  }
+  virtual const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& values, double t) const = 0;
 
   /**
    * @brief Set equilibrium frequencies equal to the frequencies estimated
@@ -374,29 +328,23 @@ public:
    * \pi_i = \frac{n_i+\psi}{\sum_j (f_j+\psi)}
    * @f]
    */
-  virtual void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0) = 0;
+  virtual void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) = 0;
 
   /**
    * @brief Set equilibrium frequencies
    *
    * @param frequencies The map of the frequencies to use.
    */
-
   virtual void setFreq(std::map<int, double>& frequencies) = 0;
-
-  /**
-   * @brief If the model owns a FrequencySet, returns a pointer to
-   * it, otherwise return 0.
-   */
-  virtual const std::shared_ptr<FrequencySet> getFrequencySet() const {return NULL;}
 
 protected:
   virtual Vdouble& getFrequencies_() = 0;
 
-  friend class AbstractTotallyWrappedTransitionModel;
-  friend class AbstractFromSubstitutionModelTransitionModel;
-  friend class InMixedSubstitutionModel;
+friend class AbstractTotallyWrappedTransitionModel;
+friend class AbstractFromSubstitutionModelTransitionModel;
+friend class InMixedSubstitutionModel;
 };
+
 
 
 /**
@@ -493,24 +441,20 @@ protected:
  *
  * In this case, derivatives according to @\f$ t @\f$ are computed
  * analytically too.
- *
  */
-
-class SubstitutionModel :
-  public virtual TransitionModel
+class SubstitutionModelInterface :
+  public virtual TransitionModelInterface
 {
 public:
-  SubstitutionModel() {}
-  virtual ~SubstitutionModel() {}
+  SubstitutionModelInterface() {}
+  virtual ~SubstitutionModelInterface() {}
 
-  SubstitutionModel* clone() const = 0;
+  SubstitutionModelInterface* clone() const = 0;
 
 protected:
   /**
    * @brief A method for computing all necessary matrices
-   *
    */
-
   virtual void updateMatrices() = 0;
 
 public:
@@ -550,7 +494,6 @@ public:
    *
    * By definition Sij(i,j) = Sij(j,i).
    */
-
   virtual double Sij(size_t i, size_t j) const = 0;
 
   /**
@@ -598,16 +541,12 @@ public:
   /**
    * @brief sets if model is scalable, ie scale can be changed.
    * Default : true, set to false to avoid normalization for example.
-   *
    */
-
   virtual void setScalable(bool scalable) = 0;
 
   /**
    * @brief returns  if model is scalable
-   *
    */
-
   virtual bool isScalable() const = 0;
 
   /**
@@ -625,23 +564,18 @@ public:
    * @brief Multiplies the current generator by the given scale.
    *
    * @param scale the scale by which the generator is multiplied.
-   *
    */
   virtual void setScale(double scale) = 0;
 
   /**
    * @brief Normalize the generator
-   *
    */
-
   virtual void normalize() = 0;
 
   /**
    * @brief set the diagonal of the generator such that sum on each
    * line equals 0.
-   *
    */
-
   virtual void setDiagonal() = 0;
 };
 
@@ -657,14 +591,14 @@ public:
  * or individually by the freq() method.
  * The \f$S\f$ matrix may be obtained by the getExchangeabilityMatrix().
  */
-class ReversibleSubstitutionModel :
-  public virtual SubstitutionModel
+class ReversibleSubstitutionModelInterface :
+  public virtual SubstitutionModelInterface
 {
 public:
-  ReversibleSubstitutionModel() {}
-  virtual ~ReversibleSubstitutionModel() {}
+  ReversibleSubstitutionModelInterface() {}
+  virtual ~ReversibleSubstitutionModelInterface() {}
 
-  ReversibleSubstitutionModel* clone() const = 0;
+  ReversibleSubstitutionModelInterface* clone() const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_SUBSTITUTIONMODEL_H

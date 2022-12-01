@@ -58,9 +58,7 @@ namespace bpp
  *
  * Objects of this class are built from three substitution
  * models of NucleicAlphabets. No model is directly accessible. </p>
- *
  */
-
 class TripletSubstitutionModel :
   public WordSubstitutionModel
 {
@@ -73,9 +71,9 @@ public:
    *@param pmod  pointer to the NucleotideSubstitutionModel to be used
    *       in the three positions. It is owned by the instance.
    */
-
-  TripletSubstitutionModel(const CodonAlphabet* palph,
-                           NucleotideSubstitutionModel* pmod);
+  TripletSubstitutionModel(
+      std::shared_ptr<const CodonAlphabet> palph,
+      std::shared_ptr<NucleotideSubstitutionModelInterface> pmod);
 
   /**
    *@brief Build a new TripletSubstitutionModel object
@@ -88,18 +86,17 @@ public:
    *   redundancy, otherwise only the first model is used. The used
    *   models are owned by the instance.
    */
+  TripletSubstitutionModel(std::shared_ptr<const CodonAlphabet> palph,
+                           std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
+                           std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
+                           std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3);
 
-  TripletSubstitutionModel(const CodonAlphabet* palph,
-                           NucleotideSubstitutionModel* pmod1,
-                           NucleotideSubstitutionModel* pmod2,
-                           NucleotideSubstitutionModel* pmod3);
+  virtual ~TripletSubstitutionModel() {}
 
-  ~TripletSubstitutionModel() {}
-
-  TripletSubstitutionModel* clone() const { return new TripletSubstitutionModel(*this);}
+  TripletSubstitutionModel* clone() const override { return new TripletSubstitutionModel(*this);}
 
 public:
-  std::string getName() const;
+  std::string getName() const override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_TRIPLETSUBSTITUTIONMODEL_H

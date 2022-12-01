@@ -1,7 +1,7 @@
 //
 // File: SequenceEvolution.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mardi 28 avril 2015, ÃÂ  10h 51
 //
 
@@ -65,25 +65,30 @@ namespace bpp
  * models and HMM.
  *
  * This object has the INDEPENDENT parameters of the processes.
- *
  */
-
 class SequenceEvolution :
   public virtual ParameterAliasable
 {
 public:
-  virtual SequenceEvolution* clone() const = 0;
+  virtual SequenceEvolution* clone() const override = 0;
 
 public:
-  virtual bool isCompatibleWith(const AlignmentDataInterface<std::string>& data) const = 0;
+  virtual bool isCompatibleWith(const AlignmentDataInterface& data) const = 0;
 
   virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
 
-  virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
+  virtual const SubstitutionProcessInterface& substitutionProcess(size_t number) const = 0;
+  
+  virtual std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess(size_t number) const = 0;
 
-  const StateMap& getStateMap() const
+  const StateMapInterface& stateMap() const
   {
-    return getSubstitutionProcess(getSubstitutionProcessNumbers()[0]).getStateMap();
+    return substitutionProcess(getSubstitutionProcessNumbers()[0]).stateMap();
+  }
+
+  std::shared_ptr<const StateMapInterface> getStateMap() const
+  {
+    return substitutionProcess(getSubstitutionProcessNumbers()[0]).getStateMap();
   }
 
   /**

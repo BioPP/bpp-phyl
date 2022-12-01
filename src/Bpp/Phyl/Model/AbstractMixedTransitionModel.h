@@ -61,12 +61,10 @@ namespace bpp
  *
  * In this kind of model, there is no generator.
  *
- * @author Laurent GuÃÂ©guen
- *
+ * @author Laurent Guéguen
  */
-
 class AbstractMixedTransitionModel :
-  public virtual MixedTransitionModel,
+  public virtual MixedTransitionModelInterface,
   public virtual AbstractTransitionModel
 {
 protected:
@@ -76,7 +74,7 @@ protected:
    * Beware: these TransitionModels are owned by the object, so
    * will be deleted at destruction
    */
-  std::vector<std::shared_ptr<TransitionModel> > modelsContainer_;
+  std::vector< std::shared_ptr<TransitionModelInterface> > modelsContainer_;
 
   /**
    * @brief vector of the probabilities of the models
@@ -98,19 +96,22 @@ protected:
   std::vector<double> vRates_;
 
 public:
-  AbstractMixedTransitionModel(const Alphabet*, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
+  AbstractMixedTransitionModel(
+      std::shared_ptr<const Alphabet>,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix);
 
   AbstractMixedTransitionModel(const AbstractMixedTransitionModel&);
 
   AbstractMixedTransitionModel& operator=(const AbstractMixedTransitionModel&);
 
-  virtual AbstractMixedTransitionModel* clone() const = 0;
+  virtual AbstractMixedTransitionModel* clone() const override = 0;
 
 public:
   /**
    * @brief returns the number of models in the mixture
    */
-  virtual size_t getNumberOfModels() const
+  virtual size_t getNumberOfModels() const override
   {
     return modelsContainer_.size();
   }
@@ -118,20 +119,30 @@ public:
   /**
    * @brief Returns a specific model from the mixture
    */
-  const TransitionModel* getNModel(size_t i) const
+  const TransitionModelInterface& nModel(size_t i) const override
   {
-    return modelsContainer_[i].get();
+    return *modelsContainer_[i];
   }
 
-  TransitionModel* getNModel(size_t i)
+  std::shared_ptr<const TransitionModelInterface> getNModel(size_t i) const override
   {
-    return modelsContainer_[i].get();
+    return modelsContainer_[i];
+  }
+
+  TransitionModelInterface& nModel(size_t i) override
+  {
+    return *modelsContainer_[i];
+  }
+
+  std::shared_ptr<TransitionModelInterface> getNModel(size_t i) override
+  {
+    return modelsContainer_[i];
   }
 
   /**
    * @brief Returns the rate of a specific model from the mixture
    */
-  double getNRate(size_t i) const
+  double getNRate(size_t i) const override
   {
     return vRates_[i];
   }
@@ -140,32 +151,28 @@ public:
    * @brief Set the rate of the model and the submodels.
    * @param rate must be positive.
    */
-
-  virtual void setRate(double rate);
+  virtual void setRate(double rate) override;
 
   /**
    * @brief Sets the rates of the submodels to be proportional to a
    * given vector, with the constraint that the mean rate of the
    * mixture equals rate_.
-
    * @param vd a vector of positive values such that the rates of
    * the respective submodels are in the same proportions (ie this
    * vector does not need to be normalized).
    */
-
-  virtual void setVRates(const Vdouble& vd);
+  virtual void setVRates(const Vdouble& vd) override;
 
   /**
    * @brief Normalizes the rates of the submodels so that the mean
    * rate of the mixture equals rate_.
    */
-
-  virtual void normalizeVRates();
+  virtual void normalizeVRates() override;
 
   /**
    * @brief Returns the vector of all the rates of the mixture
    */
-  const std::vector<double>& getVRates() const
+  const std::vector<double>& getVRates() const override
   {
     return vRates_;
   }
@@ -174,7 +181,7 @@ public:
    * @brief Returns the probability of a specific model from the
    * mixture
    */
-  virtual double getNProbability(size_t i) const
+  virtual double getNProbability(size_t i) const override
   {
     return vProbas_[i];
   }
@@ -183,7 +190,7 @@ public:
    * @brief Returns the vector of probabilities
    *
    */
-  virtual const std::vector<double>& getProbabilities() const
+  virtual const std::vector<double>& getProbabilities() const override
   {
     return vProbas_;
   }
@@ -191,7 +198,7 @@ public:
   /**
    * @brief Sets the  probability of a specific model from the mixture
    */
-  virtual void setNProbability(size_t i, double prob)
+  virtual void setNProbability(size_t i, double prob) override
   {
     if (prob < 0)
       prob = 0;
@@ -203,18 +210,16 @@ public:
 
   /**
    * @brief From TransitionModel interface
-   *
    */
-
-  virtual const Matrix<double>& getPij_t(double t) const;
-  virtual const Matrix<double>& getdPij_dt(double t) const;
-  virtual const Matrix<double>& getd2Pij_dt2(double t) const;
+  virtual const Matrix<double>& getPij_t(double t) const override;
+  virtual const Matrix<double>& getdPij_dt(double t) const override;
+  virtual const Matrix<double>& getd2Pij_dt2(double t) const override;
 
   /**
    * @return Says if equilibrium frequencies should be computed (all
    * models are likewise, may be refined)
    */
-  bool computeFrequencies() const
+  bool computeFrequencies() const override
   {
     return modelsContainer_[0]->computeFrequencies();
   }
@@ -222,7 +227,7 @@ public:
   /**
    * @return Set if equilibrium frequencies should be computed
    */
-  void computeFrequencies(bool yn)
+  void computeFrequencies(bool yn) override
   {
     for (auto& sm : modelsContainer_)
     {
@@ -230,7 +235,7 @@ public:
     }
   }
 
-  void setFreq(std::map<int, double>& frequ)
+  void setFreq(std::map<int, double>& frequ) override
   {
     for (auto& sm : modelsContainer_)
     {
@@ -238,7 +243,7 @@ public:
     }
   }
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount) override
   {
     std::map<int, double> freqs;
     SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);

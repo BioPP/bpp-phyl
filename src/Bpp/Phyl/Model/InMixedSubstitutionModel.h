@@ -62,50 +62,50 @@ namespace bpp
  */
 
 class InMixedSubstitutionModel :
-  public virtual AbstractWrappedSubstitutionModel,
-  public AbstractParameterAliasable
+  public virtual AbstractWrappedSubstitutionModel
 {
 private:
-  /*
+  /**
    * @brief The MixedOfTransitionModels.
-   *
    */
+  std::unique_ptr<MixedTransitionModelInterface> mixedModel_;
 
-  std::unique_ptr<MixedTransitionModel> mixedModel_;
-
-  /*
+  /**
    * @brief the number of the submodel
-   *
    */
-
   size_t subModelNumber_;
 
-  /*
+  /**
    * @brief The name of the mixture model (for io purpose).
    */
-
   std::string mixtName_;
 
 public:
-  InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
+  InMixedSubstitutionModel(
+      std::unique_ptr<const MixedTransitionModelInterface> mixedModel,
+      const std::string& subModelName,
+      const std::string& mixtDesc);
 
-  InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
+  InMixedSubstitutionModel(
+      std::unique_ptr<const MixedTransitionModelInterface> mixedModel,
+      size_t subModelNumber,
+      const std::string& mixtDesc);
 
   InMixedSubstitutionModel(const InMixedSubstitutionModel& fmsm);
 
   InMixedSubstitutionModel& operator=(const InMixedSubstitutionModel& fmsm);
 
-  InMixedSubstitutionModel* clone() const { return new InMixedSubstitutionModel(*this); }
+  InMixedSubstitutionModel* clone() const override { return new InMixedSubstitutionModel(*this); }
 
 public:
-  const MixedTransitionModel& getMixedModel() const
+  const MixedTransitionModelInterface& mixedModel() const
   {
-    return *mixedModel_.get();
+    return *mixedModel_;
   }
 
-  const SubstitutionModel& getSubstitutionModel() const
+  const SubstitutionModelInterface& substitutionModel() const override
   {
-    return dynamic_cast<const SubstitutionModel&>(*mixedModel_->getNModel(subModelNumber_));
+    return dynamic_cast<const SubstitutionModelInterface&>(*mixedModel_->getNModel(subModelNumber_));
   }
 
   size_t getSubModelNumber() const
@@ -113,158 +113,155 @@ public:
     return subModelNumber_;
   }
 
-  bool computeFrequencies() const
+  bool computeFrequencies() const override
   {
-    return getMixedModel().computeFrequencies();
+    return mixedModel().computeFrequencies();
   }
 
   /**
    * @return Set if equilibrium frequencies should be computed from
    * the generator
    */
-  void computeFrequencies(bool yn)
+  void computeFrequencies(bool yn) override
   {
-    getMixedModel().computeFrequencies(yn);
+    mixedModel().computeFrequencies(yn);
   }
 
 protected:
-  Vdouble& getFrequencies_()
+  Vdouble& getFrequencies_() override
   {
-    return getMixedModel().getFrequencies_();
+    return mixedModel().getFrequencies_();
   }
 
-  /*
+  /**
    * @}
-   *
    */
-  MixedTransitionModel& getMixedModel()
+  MixedTransitionModelInterface& mixedModel()
   {
-    return *mixedModel_.get();
+    return *mixedModel_;
   }
 
-  SubstitutionModel& getSubstitutionModel()
+  SubstitutionModelInterface& substitutionModel() override
   {
-    return dynamic_cast<SubstitutionModel&>(*mixedModel_->getNModel(subModelNumber_));
+    return dynamic_cast<SubstitutionModelInterface&>(*mixedModel_->getNModel(subModelNumber_));
   }
 
 public:
-  /*
-   *@ brief Methods to supersede WrappedSubstitutionModel methods.
+  /**
+   * @ brief Methods to supersede WrappedSubstitutionModel methods.
    *
    * @{
    */
-  double freq(size_t i) const { return getTransitionModel().freq(i); }
+  double freq(size_t i) const override { return transitionModel().freq(i); }
 
-  double Pij_t    (size_t i, size_t j, double t) const { return getTransitionModel().Pij_t(i, j, t); }
-  double dPij_dt  (size_t i, size_t j, double t) const { return getTransitionModel().dPij_dt (i, j, t); }
-  double d2Pij_dt2(size_t i, size_t j, double t) const { return getTransitionModel().d2Pij_dt2(i, j, t); }
+  double Pij_t    (size_t i, size_t j, double t) const override { return transitionModel().Pij_t(i, j, t); }
+  double dPij_dt  (size_t i, size_t j, double t) const override { return transitionModel().dPij_dt (i, j, t); }
+  double d2Pij_dt2(size_t i, size_t j, double t) const override { return transitionModel().d2Pij_dt2(i, j, t); }
 
-  const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
+  const Vdouble& getFrequencies() const override { return transitionModel().getFrequencies(); }
 
-  const Matrix<double>& getPij_t(double t) const { return getTransitionModel().getPij_t(t); }
+  const Matrix<double>& getPij_t(double t) const override { return transitionModel().getPij_t(t); }
 
-  const Matrix<double>& getdPij_dt(double t) const { return getTransitionModel().getdPij_dt(t); }
+  const Matrix<double>& getdPij_dt(double t) const override { return transitionModel().getdPij_dt(t); }
 
-  const Matrix<double>& getd2Pij_dt2(double t) const { return getTransitionModel().getd2Pij_dt2(t); }
+  const Matrix<double>& getd2Pij_dt2(double t) const override { return transitionModel().getd2Pij_dt2(t); }
 
-  double getInitValue(size_t i, int state) const
+  double getInitValue(size_t i, int state) const override
   {
-    return getModel().getInitValue(i, state);
+    return model().getInitValue(i, state);
   }
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override
   {
-    getMixedModel().setFreqFromData(data, pseudoCount);
+    mixedModel().setFreqFromData(data, pseudoCount);
   }
 
-  void setFreq(std::map<int, double>& frequencies)
+  void setFreq(std::map<int, double>& frequencies) override
   {
-    getMixedModel().setFreq(frequencies);
+    mixedModel().setFreq(frequencies);
   }
 
-  /*
-   *@ brief Methods to supersede SubstitutionModel methods.
+  /**
+   * @brief Methods to supersede SubstitutionModel methods.
    *
    * @{
    */
-  double Qij(size_t i, size_t j) const { return getSubstitutionModel().Qij(i, j); }
+  double Qij(size_t i, size_t j) const override { return substitutionModel().Qij(i, j); }
 
-  const Matrix<double>& getGenerator() const { return getSubstitutionModel().getGenerator(); }
+  const Matrix<double>& getGenerator() const override { return substitutionModel().getGenerator(); }
 
-  const Matrix<double>& getExchangeabilityMatrix() const { return getSubstitutionModel().getExchangeabilityMatrix(); }
+  const Matrix<double>& getExchangeabilityMatrix() const override { return substitutionModel().getExchangeabilityMatrix(); }
 
-  double Sij(size_t i, size_t j) const { return getSubstitutionModel().Sij(i, j); }
+  double Sij(size_t i, size_t j) const override { return substitutionModel().Sij(i, j); }
 
-  void enableEigenDecomposition(bool yn) { getSubstitutionModel().enableEigenDecomposition(yn); }
+  void enableEigenDecomposition(bool yn) override { substitutionModel().enableEigenDecomposition(yn); }
 
-  bool enableEigenDecomposition() { return getSubstitutionModel().enableEigenDecomposition(); }
+  bool enableEigenDecomposition() override { return substitutionModel().enableEigenDecomposition(); }
 
-  bool isDiagonalizable() const { return getSubstitutionModel().isDiagonalizable(); }
+  bool isDiagonalizable() const override { return substitutionModel().isDiagonalizable(); }
 
-  bool isNonSingular() const { return getSubstitutionModel().isNonSingular(); }
+  bool isNonSingular() const override { return substitutionModel().isNonSingular(); }
 
-  const Vdouble& getEigenValues() const { return getSubstitutionModel().getEigenValues(); }
+  const Vdouble& getEigenValues() const override { return substitutionModel().getEigenValues(); }
 
-  const Vdouble& getIEigenValues() const { return getSubstitutionModel().getIEigenValues(); }
+  const Vdouble& getIEigenValues() const override { return substitutionModel().getIEigenValues(); }
 
-  const Matrix<double>& getRowLeftEigenVectors() const { return getSubstitutionModel().getRowLeftEigenVectors(); }
+  const Matrix<double>& getRowLeftEigenVectors() const override { return substitutionModel().getRowLeftEigenVectors(); }
 
-  const Matrix<double>& getColumnRightEigenVectors() const { return getSubstitutionModel().getColumnRightEigenVectors(); }
+  const Matrix<double>& getColumnRightEigenVectors() const override { return substitutionModel().getColumnRightEigenVectors(); }
 
 
-  /*
+  /**
    * @}
-   *
    */
-  bool isScalable() const
+  bool isScalable() const override
   {
-    return getSubstitutionModel().isScalable();
+    return substitutionModel().isScalable();
   }
 
-  void setScalable(bool scalable)
+  void setScalable(bool scalable) override 
   {
-    getSubstitutionModel().setScalable(scalable);
+    substitutionModel().setScalable(scalable);
   }
 
 
-  double getScale() const { return getSubstitutionModel().getScale(); }
+  double getScale() const override { return substitutionModel().getScale(); }
 
-  void setScale(double scale) { getSubstitutionModel().setScale(scale); }
+  void setScale(double scale) override { substitutionModel().setScale(scale); }
 
 
-  void normalize()
+  void normalize() override
   {
-    getSubstitutionModel().normalize();
+    substitutionModel().normalize();
   }
 
-  void setDiagonal()
+  void setDiagonal() override
   {
-    getSubstitutionModel().setDiagonal();
+    substitutionModel().setDiagonal();
   }
 
-  double getRate() const
+  double getRate() const override
   {
-    return getTransitionModel().getRate();
+    return transitionModel().getRate();
   }
 
-  void setRate(double rate)
+  void setRate(double rate) override
   {
-    return getMixedModel().setRate(rate);
+    return mixedModel().setRate(rate);
   }
 
-  void addRateParameter()
+  void addRateParameter() override
   {
-    getMixedModel().addRateParameter();
-    addParameter_(new Parameter(getNamespace() + "rate", getMixedModel().getRate(), Parameter::R_PLUS_STAR));
+    mixedModel().addRateParameter();
+    addParameter_(new Parameter(getNamespace() + "rate", mixedModel().getRate(), Parameter::R_PLUS_STAR));
   }
 
-  /*
+  /**
    * @}
-   *
    */
 
-  /*
-   *@ brief Methods to supersede AbstractSubstitutionnModel methods.
+  /**
+   * @brief Methods to supersede AbstractSubstitutionnModel methods.
    *
    * @{
    */
@@ -274,29 +271,28 @@ public:
    *
    * This updates the matrices consequently.
    */
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
-    getMixedModel().matchParametersValues(parameters);
+    mixedModel().matchParametersValues(parameters);
   }
 
-  void setNamespace(const std::string& name)
+  void setNamespace(const std::string& name) override
   {
     AbstractParameterAliasable::setNamespace(name);
-    getMixedModel().setNamespace(name);
+    mixedModel().setNamespace(name);
   }
 
 
-  /*
+  /**
    * @}
    */
-  std::string getName() const
+  std::string getName() const override
   {
     return mixedModel_->getName();
   }
 
 protected:
-  void updateMatrices()
-  {}
+  void updateMatrices() override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_INMIXEDSUBSTITUTIONMODEL_H

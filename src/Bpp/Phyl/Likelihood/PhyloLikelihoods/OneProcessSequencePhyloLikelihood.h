@@ -77,16 +77,12 @@ class OneProcessSequencePhyloLikelihood :
 private:
   /**
    * @brief to avoid the dynamic casts
-   *
    */
-
-  OneProcessSequenceEvolution& mSeqEvol_;
+  std::shared_ptr<OneProcessSequenceEvolution> mSeqEvol_;
 
   /**
    * @brief For Dataflow computing
-   *
    */
-
   mutable std::unordered_map<std::string, ValueRef<RowLik> > firstOrderDerivativeVectors_;
 
   mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>,
@@ -99,26 +95,26 @@ protected:
 public:
   OneProcessSequencePhyloLikelihood(
     Context& context,
-    OneProcessSequenceEvolution& evol,
+    std::shared_ptr<OneProcessSequenceEvolution> evol,
     size_t nSeqEvol = 0);
 
   OneProcessSequencePhyloLikelihood(
     Context& context,
-    const AlignmentDataInterface<std::string>& data,
-    OneProcessSequenceEvolution& evol,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<OneProcessSequenceEvolution> evol,
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
   OneProcessSequencePhyloLikelihood(
-    const AlignmentDataInterface<std::string>& data,
-    OneProcessSequenceEvolution& evol,
-    CollectionNodes& collNodes,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<OneProcessSequenceEvolution> evol,
+    std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
   OneProcessSequencePhyloLikelihood(const OneProcessSequencePhyloLikelihood& lik) :
     AbstractPhyloLikelihood(lik),
-    AbstractAlignedPhyloLikelihood(lik),
+    //AbstractAlignedPhyloLikelihood(lik),
     AbstractSequencePhyloLikelihood(lik),
     mSeqEvol_(lik.mSeqEvol_),
     likCal_(lik.likCal_)
@@ -134,29 +130,28 @@ public:
    *
    * @{
    */
-  void setData(const AlignmentDataInterface<std::string>& sites, size_t nData = 0) override
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0) override
   {
     AbstractSequencePhyloLikelihood::setData(sites, nData);
-    getLikelihoodCalculationSingleProcess()->setData(sites);
+    likelihoodCalculationSingleProcess().setData(sites);
   }
 
   bool isInitialized() const override
   {
-    return getLikelihoodCalculationSingleProcess()->isInitialized();
+    return likelihoodCalculationSingleProcess().isInitialized();
   }
 
   /**
    * @brief return a pointer to the compressed data.
-   *
    */
-  const AlignmentDataInterface<std::string>* getData() const override
+  std::shared_ptr<const AlignmentDataInterface> getData() const override
   {
     return getLikelihoodCalculationSingleProcess()->getData();
   }
 
-  const Alphabet* getAlphabet() const override
+  std::shared_ptr<const Alphabet> getAlphabet() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getStateMap().getAlphabet();
+    return getLikelihoodCalculationSingleProcess()->stateMap().getAlphabet();
   }
 
   /** @} */
@@ -167,34 +162,37 @@ public:
    * @{
    */
 
-  /*
+  /**
    * @brief Get the ParametrizablePhyloTree.
    *
    * Warning: the branch lengths may not be up to date with those of
    * the LikelihoodCalculationSingleProcess.
-   *
    */
-  const SubstitutionProcess& getSubstitutionProcess() const { return mSeqEvol_.getSubstitutionProcess(); }
+  const SubstitutionProcessInterface& substitutionProcess() const { return mSeqEvol_->substitutionProcess(); }
+  
+  std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const { return mSeqEvol_->getSubstitutionProcess(); }
 
   /**
    * @brief Get the number of model classes.
-   *
    */
-  size_t getNumberOfClasses() const { return mSeqEvol_.getSubstitutionProcess().getNumberOfClasses(); }
+  size_t getNumberOfClasses() const { return mSeqEvol_->substitutionProcess().getNumberOfClasses(); }
 
-  /*
+  /**
    * @brief Return the ref to the SubstitutionProcess used to build
    * the phylolikelihood.
    *
    * Warning; the process parameter values may not be up to date
    * with some of the LikelihoodCalculationSingleProcess
-   *
    */
-  const ParametrizablePhyloTree& getTree() const
+  const ParametrizablePhyloTree& tree() const
   {
-    return *mSeqEvol_.getSubstitutionProcess().getParametrizablePhyloTree();
+    return mSeqEvol_->substitutionProcess().parametrizablePhyloTree();
   }
-
+  
+  std::shared_ptr<const ParametrizablePhyloTree> getTree() const
+  {
+    return mSeqEvol_->substitutionProcess().getParametrizablePhyloTree();
+  }
 
   /** @} */
 
@@ -202,14 +200,29 @@ public:
   /**
    * @return The underlying likelihood computation structure.
    */
+  LikelihoodCalculation& likelihoodCalculation() const override
+  {
+    return *likCal_;
+  }
+
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const override
   {
     return likCal_;
   }
 
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation() const override
+  {
+    return *likCal_;
+  }
+
   std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const override
   {
     return likCal_;
+  }
+
+  LikelihoodCalculationSingleProcess& likelihoodCalculationSingleProcess() const
+  {
+    return *likCal_;
   }
 
   std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculationSingleProcess() const

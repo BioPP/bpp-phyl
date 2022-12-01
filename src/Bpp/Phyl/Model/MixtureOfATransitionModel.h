@@ -104,16 +104,16 @@ class MixtureOfATransitionModel :
   public AbstractMixedTransitionModel
 {
 private:
-  std::map<std::string, DiscreteDistribution*> distributionMap_;
+  std::map<std::string, std::shared_ptr<DiscreteDistribution> > distributionMap_;
 
 protected:
   int from_, to_;
 
 public:
   MixtureOfATransitionModel(
-    const Alphabet* alpha,
-    TransitionModel* model,
-    std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+    std::shared_ptr<const Alphabet> alpha,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::map<std::string, std::shared_ptr<DiscreteDistribution> > parametersDistributionsList,
     int ffrom = -1, int tto = -1);
 
   MixtureOfATransitionModel(const MixtureOfATransitionModel&);
@@ -122,59 +122,69 @@ public:
 
   virtual ~MixtureOfATransitionModel();
 
-  MixtureOfATransitionModel* clone() const { return new MixtureOfATransitionModel(*this); }
+  MixtureOfATransitionModel* clone() const override { return new MixtureOfATransitionModel(*this); }
 
 public:
-  std::string getName() const { return "MixedModel"; }
+  std::string getName() const override { return "MixedModel"; }
 
-  void updateMatrices();
+  void updateMatrices() override;
 
   /**
    * @brief retrieve a pointer to the submodel with the given name.
    *
    * Return Null if not found.
-   *
    */
+  std::shared_ptr<const TransitionModelInterface> getModel(const std::string& name) const override;
 
-  const TransitionModel* getModel(const std::string& name) const;
-
-  const TransitionModel* getModel(size_t i) const
+  std::shared_ptr<const TransitionModelInterface> getModel(size_t i) const
   {
     return AbstractMixedTransitionModel::getNModel(i);
   }
 
+  const TransitionModelInterface& model(const std::string& name) const override
+  {
+    return *getModel(name);
+  }
+
+  const TransitionModelInterface& model(size_t i) const
+  {
+    return *AbstractMixedTransitionModel::getNModel(i);
+  }
+  
   // TransitionModel* getModel(size_t i)
   // {
   //   return AbstractMixedTransitionModel::getModel(i);
   // }
 
-  /*
-   *@brief Returns the vector of numbers of the submodels in the
+  /**
+   * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description of the parameters numbers.
    *
-   **@param desc is the description of the class indexes of the mixed
-   **parameters. Syntax is like: kappa_1,gamma_3,delta_2
-   *
+   * @param desc is the description of the class indexes of the mixed
+   * parameters. Syntax is like: kappa_1,gamma_3,delta_2
    */
-
-  Vuint getSubmodelNumbers(const std::string& desc) const;
+  Vuint getSubmodelNumbers(const std::string& desc) const override;
 
   /**
    * @brief sets the eq frequencies of the first nested model, and
    * adapts the parameters at best to it (surely there is a better way
    * to manage this).
-   *
    */
-
-  void setFreq(std::map<int, double>&);
+  void setFreq(std::map<int, double>&) override;
 
   /**
    * @brief returns the DiscreteDistribution associated with a given
    * parameter name.
    * @param parName name of the parameter
-   **/
+   */
+  std::shared_ptr<const DiscreteDistribution> getDistribution(std::string& parName) const;
 
-  const DiscreteDistribution* getDistribution(std::string& parName) const;
+  /**
+   * @brief returns the DiscreteDistribution associated with a given
+   * parameter name.
+   * @param parName name of the parameter
+   */
+  const DiscreteDistribution& distribution(std::string& parName) const;
 
   /**
    *@brief Numbers of the states between which the substitution rates

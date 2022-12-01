@@ -70,7 +70,7 @@ private:
   std::shared_ptr<CollectionNodes> collectionNodes_;
 
 protected:
-  std::map<size_t, std::shared_ptr<PhyloLikelihood> >  mPhylo_;
+  std::map<size_t, std::shared_ptr<PhyloLikelihoodInterface> >  mPhylo_;
 
 public:
   PhyloLikelihoodContainer(Context& context, SubstitutionProcessCollection& sColl) :
@@ -105,14 +105,7 @@ public:
    * Beware! Takes possession of the PhyloLikelihood through
    *
    */
-  void addPhyloLikelihood(size_t pos, PhyloLikelihood* Ap)
-  {
-    if (mPhylo_.find(pos) != mPhylo_.end())
-      throw Exception("PhyloLikelihoodContainer::addPhylolikelihood: map number already used : " + TextTools::toString(pos));
-    mPhylo_[pos] = std::shared_ptr<PhyloLikelihood>(Ap);
-  }
-
-  void sharePhyloLikelihood(size_t pos, std::shared_ptr<PhyloLikelihood> Ap)
+  void addPhyloLikelihood(size_t pos, std::shared_ptr<PhyloLikelihoodInterface> Ap)
   {
     if (mPhylo_.find(pos) != mPhylo_.end())
       throw Exception("PhyloLikelihoodContainer::addPhylolikelihood: map number already used : " + TextTools::toString(pos));
@@ -124,22 +117,28 @@ public:
     return mPhylo_.find(pos) != mPhylo_.end();
   }
 
-  const PhyloLikelihood* operator[](size_t pos) const
+  std::shared_ptr<const PhyloLikelihoodInterface> operator[](size_t pos) const
   {
-    std::map<size_t, std::shared_ptr<PhyloLikelihood> >::const_iterator it = mPhylo_.find(pos);
-    return it != mPhylo_.end() ? it->second.get() : 0;
+    auto it = mPhylo_.find(pos);
+    return it != mPhylo_.end() ? it->second : nullptr;
   }
 
-  PhyloLikelihood* operator[](size_t pos)
+  std::shared_ptr<PhyloLikelihoodInterface> operator[](size_t pos)
   {
-    std::map<size_t, std::shared_ptr<PhyloLikelihood> >::iterator it = mPhylo_.find(pos);
-    return it != mPhylo_.end() ? it->second.get() : 0;
+    auto it = mPhylo_.find(pos);
+    return it != mPhylo_.end() ? it->second : nullptr;
   }
 
-  std::shared_ptr<PhyloLikelihood> getPhyloLikelihood(size_t pos)
+  std::shared_ptr<const PhyloLikelihoodInterface> getPhyloLikelihood(size_t pos) const
   {
-    std::map<size_t, std::shared_ptr<PhyloLikelihood> >::const_iterator it = mPhylo_.find(pos);
-    return it != mPhylo_.end() ? it->second : 0;
+    auto it = mPhylo_.find(pos);
+    return it != mPhylo_.end() ? it->second : nullptr;
+  }
+
+  std::shared_ptr<PhyloLikelihoodInterface> getPhyloLikelihood(size_t pos)
+  {
+    auto it = mPhylo_.find(pos);
+    return it != mPhylo_.end() ? it->second : nullptr;
   }
 
   size_t getSize() const
@@ -180,12 +179,12 @@ public:
    * @param nPhyl The number of the Likelihood.
    * @param sites The data set to use.
    */
-  void setData(const AlignmentDataInterface<std::string>& sites, size_t nPhyl)
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nPhyl)
   {
     auto it = mPhylo_.find(nPhyl);
     if (it != mPhylo_.end())
     {
-      SingleDataPhyloLikelihood* sdp = dynamic_cast<SingleDataPhyloLikelihood*>(it->second.get());
+      auto sdp = std::dynamic_pointer_cast<SingleDataPhyloLikelihoodInterface>(it->second);
       if (sdp)
         sdp->setData(sites);
     }
@@ -197,17 +196,18 @@ public:
    *
    * @return A pointer toward the site container where the sequences are stored.
    */
-  const AlignmentDataInterface<std::string>* getData(size_t nPhyl) const
+  std::shared_ptr<const AlignmentDataInterface> getData(size_t nPhyl) const
   {
     const auto it = mPhylo_.find(nPhyl);
     if (it != mPhylo_.end())
     {
-      const SingleDataPhyloLikelihood* sdp = dynamic_cast<const SingleDataPhyloLikelihood*>(it->second.get());
+      auto sdp = std::dynamic_pointer_cast<SingleDataPhyloLikelihoodInterface>(it->second);
       if (sdp)
-        sdp->getData();
+        return sdp->getData();
     }
-    return 0;
+    return nullptr;
   }
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_PHYLOLIKELIHOODCONTAINER_H

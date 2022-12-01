@@ -48,8 +48,6 @@
 
 #include "../Parsimony/DRTreeParsimonyScore.h"
 #include "../Tree/TreeTemplate.h"
-#include "Likelihood/ClockTreeLikelihood.h"
-#include "Likelihood/ClockTreeLikelihood.h"
 #include "Likelihood/NNIHomogeneousTreeLikelihood.h"
 #include "Tree/NNITopologySearch.h"
 
@@ -293,18 +291,18 @@ public:
    * @throw Exception any exception thrown by the Optimizer.
    */
   static unsigned int optimizeNumericalParameters(
-    DiscreteRatesAcrossSitesTreeLikelihood* tl,
+    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
     const ParameterList& parameters,
-    OptimizationListener* listener    = 0,
-    unsigned int nstep                = 1,
-    double tolerance                  = 0.000001,
-    unsigned int tlEvalMax            = 1000000,
-    OutputStream* messageHandler      = ApplicationTools::message.get(),
-    OutputStream* profiler            = ApplicationTools::message.get(),
-    bool reparametrization            = false,
-    unsigned int verbose              = 1,
-    const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
-    const std::string& optMethodModel = OPTIMIZATION_BRENT);
+    std::shared_ptr<OptimizationListener> listener = nullptr,
+    unsigned int nstep                             = 1,
+    double tolerance                               = 0.000001,
+    unsigned int tlEvalMax                         = 1000000,
+    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+    bool reparametrization                         = false,
+    unsigned int verbose                           = 1,
+    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON,
+    const std::string& optMethodModel              = OPTIMIZATION_BRENT);
 
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -329,17 +327,17 @@ public:
    * @throw Exception any exception thrown by the Optimizer.
    */
   static unsigned int optimizeNumericalParameters2(
-    DiscreteRatesAcrossSitesTreeLikelihood* tl,
+    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
     const ParameterList& parameters,
-    OptimizationListener* listener     = 0,
-    double tolerance                   = 0.000001,
-    unsigned int tlEvalMax             = 1000000,
-    OutputStream* messageHandler       = ApplicationTools::message.get(),
-    OutputStream* profiler             = ApplicationTools::message.get(),
-    bool reparametrization             = false,
-    bool useClock                      = false,
-    unsigned int verbose               = 1,
-    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
+    std::shared_ptr<OptimizationListener> listener = nullptr,
+    double tolerance                               = 0.000001,
+    unsigned int tlEvalMax                         = 1000000,
+    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+    bool reparametrization                         = false,
+    bool useClock                                  = false,
+    unsigned int verbose                           = 1,
+    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
   /**
    * @brief Optimize branch lengths parameters of a TreeLikelihood function.
@@ -362,98 +360,31 @@ public:
    * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
    * @throw Exception any exception thrown by the Optimizer.
    */
-
   static unsigned int optimizeBranchLengthsParameters(
-    DiscreteRatesAcrossSitesTreeLikelihood* tl,
+    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
     const ParameterList& parameters,
-    OptimizationListener* listener     = 0,
-    double tolerance                   = 0.000001,
-    unsigned int tlEvalMax             = 1000000,
-    OutputStream* messageHandler       = ApplicationTools::message.get(),
-    OutputStream* profiler             = ApplicationTools::message.get(),
-    unsigned int verbose               = 1,
-    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
+    std::shared_ptr<OptimizationListener> listener = nullptr,
+    double tolerance                               = 0.000001,
+    unsigned int tlEvalMax                         = 1000000,
+    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+    unsigned int verbose                           = 1,
+    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
-  /**
-   * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
-   *
-   * Uses Newton or conjugate gradient method for branch length and Brent's one dimensional method for other parameters
-   * (NewtonBrentMetaOptimizer).
-   * Derivatives are computed analytically.
-   *
-   * A condition over function values is used as a stop condition for the algorithm.
-   *
-   * @see NewtonBrentMetaOptimizer
-   *
-   * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
-   * @param parameters     The list of parameters to optimize. Use cl->getIndependentParameters() in order to estimate all parameters.
-   * @param listener       A pointer toward an optimization listener, if needed.
-   * @param nstep          The number of progressive steps to perform (see NewtonBrentMetaOptimizer). 1 means full precision from start.
-   * @param tolerance      The tolerance to use in the algorithm.
-   * @param tlEvalMax      The maximum number of function evaluations.
-   * @param messageHandler The massage handler.
-   * @param profiler       The profiler.
-   * @param verbose        The verbose level.
-   * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
-   * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
-   * @throw Exception any exception thrown by the Optimizer.
-   * @deprecated See optimizeNumericalParameters2 as a more general replacement.
-   */
-  static unsigned int optimizeNumericalParametersWithGlobalClock(
-    DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
-    const ParameterList& parameters,
-    OptimizationListener* listener    = 0,
-    unsigned int nstep                = 1,
-    double tolerance                  = 0.000001,
-    unsigned int tlEvalMax            = 1000000,
-    OutputStream* messageHandler      = ApplicationTools::message.get(),
-    OutputStream* profiler            = ApplicationTools::message.get(),
-    unsigned int verbose              = 1,
-    const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT);
 
-  /**
-   * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
-   *
-   * Uses Newton or conjugate gradient method for all parameters, branch length derivatives are computed analytically, derivatives for other parameters numerically.
-   *
-   * @see PseudoNewtonOptimizer
-   *
-   * @param cl             A pointer toward the ClockTreeLikelihood object to optimize.
-   * @param parameters     The list of parameters to optimize. Use cl->getIndependentParameters() in order to estimate all parameters.
-   * @param listener       A pointer toward an optimization listener, if needed.
-   * @param tolerance      The tolerance to use in the algorithm.
-   * @param tlEvalMax      The maximum number of function evaluations.
-   * @param messageHandler The massage handler.
-   * @param profiler       The profiler.
-   * @param verbose        The verbose level.
-   * @param optMethodDeriv Optimization type for derivable parameters (first or second order derivatives).
-   * @see OPTIMIZATION_NEWTON, OPTIMIZATION_GRADIENT
-   * @throw Exception any exception thrown by the Optimizer.
-   * @deprecated See optimizeNumericalParameters2 as a more general replacement.
-   */
 
-  static unsigned int optimizeNumericalParametersWithGlobalClock2(
-    DiscreteRatesAcrossSitesClockTreeLikelihood* cl,
-    const ParameterList& parameters,
-    OptimizationListener* listener    = 0,
-    double tolerance                  = 0.000001,
-    unsigned int tlEvalMax            = 1000000,
-    OutputStream* messageHandler      = ApplicationTools::message.get(),
-    OutputStream* profiler            = ApplicationTools::message.get(),
-    unsigned int verbose              = 1,
-    const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT);
 
 private:
   class ScaleFunction :
-    public virtual Function,
+    public virtual FunctionInterface,
     public ParametrizableAdapter
   {
 private:
-    TreeLikelihood* tl_;
+    std::shared_ptr<TreeLikelihoodInterface> tl_;
     mutable ParameterList brLen_, lambda_;
 
 public:
-    ScaleFunction(TreeLikelihood* tl);
+    ScaleFunction(std::shared_ptr<TreeLikelihoodInterface> tl);
 
     ScaleFunction(const ScaleFunction& sf) :
       tl_(sf.tl_),
@@ -517,12 +448,12 @@ public:
    * @throw Exception any exception thrown by the optimizer.
    */
   static unsigned int optimizeTreeScale(
-    TreeLikelihood* tl,
-    double tolerance = 0.000001,
-    unsigned int tlEvalMax = 1000000,
-    OutputStream* messageHandler = ApplicationTools::message.get(),
-    OutputStream* profiler       = ApplicationTools::message.get(),
-    unsigned int verbose = 1);
+    std::shared_ptr<TreeLikelihoodInterface> tl,
+    double tolerance                             = 0.000001,
+    unsigned int tlEvalMax                       = 1000000,
+    std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
+    unsigned int verbose                         = 1);
 
   
   /**
@@ -564,21 +495,21 @@ public:
    * @endcode
    * @throw Exception any exception thrown by the optimizer.
    */
-  static NNIHomogeneousTreeLikelihood* optimizeTreeNNI(
-    NNIHomogeneousTreeLikelihood* tl,
+  static std::shared_ptr<NNIHomogeneousTreeLikelihood> optimizeTreeNNI(
+    std::shared_ptr<NNIHomogeneousTreeLikelihood> tl,
     const ParameterList& parameters,
-    bool optimizeNumFirst        = true,
-    double tolBefore             = 100,
-    double tolDuring             = 100,
-    unsigned int tlEvalMax       = 1000000,
-    unsigned int numStep         = 1,
-    OutputStream* messageHandler = ApplicationTools::message.get(),
-    OutputStream* profiler       = ApplicationTools::message.get(),
-    bool reparametrization       = false,
-    unsigned int verbose         = 1,
-    const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-    unsigned int nStep           = 1,
-    const std::string& nniMethod = NNITopologySearch::PHYML);
+    bool optimizeNumFirst                        = true,
+    double tolBefore                             = 100,
+    double tolDuring                             = 100,
+    unsigned int tlEvalMax                       = 1000000,
+    unsigned int numStep                         = 1,
+    std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
+    bool reparametrization                       = false,
+    unsigned int verbose                         = 1,
+    const std::string& optMethod                 = OptimizationTools::OPTIMIZATION_NEWTON,
+    unsigned int nStep                           = 1,
+    const std::string& nniMethod                 = NNITopologySearch::PHYML);
 
   /**
    * @brief Optimize all parameters from a TreeLikelihood object, including tree topology using Nearest Neighbor Interchanges.
@@ -618,20 +549,20 @@ public:
    * @endcode
    * @throw Exception any exception thrown by the optimizer.
    */
-  static NNIHomogeneousTreeLikelihood* optimizeTreeNNI2(
-    NNIHomogeneousTreeLikelihood* tl,
+  static std::shared_ptr<NNIHomogeneousTreeLikelihood> optimizeTreeNNI2(
+    std::shared_ptr<NNIHomogeneousTreeLikelihood> tl,
     const ParameterList& parameters,
-    bool optimizeNumFirst        = true,
-    double tolBefore             = 100,
-    double tolDuring             = 100,
-    unsigned int tlEvalMax       = 1000000,
-    unsigned int numStep         = 1,
-    OutputStream* messageHandler = ApplicationTools::message.get(),
-    OutputStream* profiler       = ApplicationTools::message.get(),
-    bool reparametrization       = false,
-    unsigned int verbose         = 1,
-    const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-    const std::string& nniMethod = NNITopologySearch::PHYML);
+    bool optimizeNumFirst                        = true,
+    double tolBefore                             = 100,
+    double tolDuring                             = 100,
+    unsigned int tlEvalMax                       = 1000000,
+    unsigned int numStep                         = 1,
+    std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
+    bool reparametrization                       = false,
+    unsigned int verbose                         = 1,
+    const std::string& optMethod                 = OptimizationTools::OPTIMIZATION_NEWTON,
+    const std::string& nniMethod                 = NNITopologySearch::PHYML);
 
   /**
    * @brief Optimize tree topology from a DRTreeParsimonyScore using Nearest Neighbor Interchanges.

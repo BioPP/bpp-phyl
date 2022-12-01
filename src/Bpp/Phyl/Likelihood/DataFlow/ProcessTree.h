@@ -276,7 +276,7 @@ public:
    *
    */
 
-  static std::shared_ptr<ProcessTree> makeProcessTree(Context& context, const SubstitutionProcess& process, ParameterList& parList, const std::string& suff = "");
+  static std::shared_ptr<ProcessTree> makeProcessTree(Context& context, const SubstitutionProcessInterface& process, ParameterList& parList, const std::string& suff = "");
 
   /***************************************************/
   /** Create a Process Tree following a Substitution Process in a Collection. Tree
@@ -300,7 +300,7 @@ public:
  */
 inline ParametrizableCollection<ConfiguredModel> makeConfiguredModelCollection(
   Context& context,
-  const SubstitutionProcess& process,
+  const SubstitutionProcessInterface& process,
   ParameterList& parList)
 {
   ParametrizableCollection<ConfiguredModel> modelColl;
@@ -312,7 +312,7 @@ inline ParametrizableCollection<ConfiguredModel> makeConfiguredModelCollection(
   {
     auto mod = process.getModel(nMod);
 
-    modelColl.addObject(ConfiguredParametrizable::createConfigured<BranchModel, ConfiguredModel>(context, *mod, parList, (nMod == 1 ? "" : "_" + TextTools::toString(nMod))), nMod); // suffix "_1" will be added if necessary
+    modelColl.addObject(ConfiguredParametrizable::createConfigured<BranchModelInterface, ConfiguredModel>(context, *mod, parList, (nMod == 1 ? "" : "_" + TextTools::toString(nMod))), nMod); // suffix "_1" will be added if necessary
   }
 
   return modelColl;

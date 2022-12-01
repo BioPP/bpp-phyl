@@ -57,7 +57,7 @@ namespace bpp
 {
 /**
  * @brief gBGC model.
- * @author Laurent GuÃ©guen
+ * @author Laurent Guéguen
  *
  * modelling of GC biased gene-conversion.
  *
@@ -83,7 +83,7 @@ class gBGC :
   public AbstractNucleotideSubstitutionModel
 {
 private:
-  std::unique_ptr<NucleotideSubstitutionModel>  model_;
+  std::unique_ptr<NucleotideSubstitutionModelInterface>  model_;
   std::string nestedPrefix_;
 
   /**
@@ -95,28 +95,31 @@ public:
   /**
    * @brief Build a new gBGC substitution model.
    */
-  gBGC(const NucleicAlphabet*, NucleotideSubstitutionModel* const, double B = 0);
+  gBGC(
+      std::shared_ptr<const NucleicAlphabet>,
+      std::unique_ptr<NucleotideSubstitutionModelInterface>,
+      double B = 0);
 
   gBGC(const gBGC&);
 
   gBGC& operator=(const gBGC& gbgc);
 
-  gBGC* clone() const { return new gBGC(*this); }
+  gBGC* clone() const override { return new gBGC(*this); }
 
   virtual ~gBGC() {}
 
 public:
-  std::string getName() const;
+  std::string getName() const override;
 
-  size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
+  size_t getNumberOfStates() const override { return model_->getNumberOfStates(); }
 
-  void fireParameterChanged(const ParameterList&);
+  void fireParameterChanged(const ParameterList&) override;
 
-  const SubstitutionModel* getNestedModel() const {return model_.get(); }
+  const SubstitutionModelInterface& nestedModel() const {return *model_; }
 
-  void updateMatrices();
+  void updateMatrices() override;
 
-  void setNamespace(const std::string&);
+  void setNamespace(const std::string&) override;
 };
 }
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_GBGC_H

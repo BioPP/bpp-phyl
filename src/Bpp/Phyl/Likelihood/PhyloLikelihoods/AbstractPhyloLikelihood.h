@@ -1,7 +1,7 @@
 //
 // File: AbstractPhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: lundi 25 avril 2016, ÃÂ  23h 32
 //
 
@@ -52,7 +52,7 @@ namespace bpp
 class LikelihoodCalculation;
 
 class AbstractPhyloLikelihood :
-  public virtual PhyloLikelihood
+  public virtual PhyloLikelihoodInterface
 {
 public:
   // Cache generated nodes representing derivatives, to avoid recreating them every time.
@@ -119,10 +119,9 @@ public:
   }
 
 public:
-  /*
-   *
-   *@ brief Share Parameters, that are DF_parameters
-   *
+
+  /**
+   * @brief Share Parameters, that are DF_parameters
    */
   void shareParameters(const ParameterList& variableNodes)
   {
@@ -134,16 +133,8 @@ public:
     setParametersValues(parameters);
   }
 
-  /*
-   *@ Return the LikelihoodCalculation.
-   *
-   */
-
-  virtual std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const = 0;
-
-  /*
-   *@ Return the LikDF node where the Likelihood is computed.
-   *
+  /**
+   * @return the LikDF node where the Likelihood is computed.
    */
   ValueRef<DataLik> getLikelihoodNode() const
   {

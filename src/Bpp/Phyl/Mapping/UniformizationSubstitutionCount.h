@@ -62,7 +62,7 @@ class UniformizationSubstitutionCount :
   public AbstractSubstitutionDistance
 {
 private:
-  const SubstitutionModel* model_;
+  std::shared_ptr<const SubstitutionModelInterface> model_;
   size_t nbStates_;
   std::vector< RowMatrix<double> > bMatrices_;
   mutable std::vector< RowMatrix<double> > power_;
@@ -72,9 +72,17 @@ private:
   mutable double currentLength_;
 
 public:
-  UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0, std::shared_ptr<const AlphabetIndex2> distances = 0);
+  UniformizationSubstitutionCount(
+      std::shared_ptr<const SubstitutionModelInterface> model,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      std::shared_ptr<const AlphabetIndex2> weights = nullptr,
+      std::shared_ptr<const AlphabetIndex2> distances = nullptr);
 
-  UniformizationSubstitutionCount(const StateMap& statemap, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0, std::shared_ptr<const AlphabetIndex2> distances = 0);
+  UniformizationSubstitutionCount(
+      std::shared_ptr<const StateMapInterface> statemap,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      std::shared_ptr<const AlphabetIndex2> weights = nullptr,
+      std::shared_ptr<const AlphabetIndex2> distances = nullptr);
 
   UniformizationSubstitutionCount(const UniformizationSubstitutionCount& usc) :
     AbstractSubstitutionCount(usc),
@@ -108,24 +116,24 @@ public:
 
   virtual ~UniformizationSubstitutionCount() {}
 
-  UniformizationSubstitutionCount* clone() const { return new UniformizationSubstitutionCount(*this); }
+  UniformizationSubstitutionCount* clone() const override { return new UniformizationSubstitutionCount(*this); }
 
 public:
-  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const;
+  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const override;
 
-  Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
+  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
 
-  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const;
+  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override;
 
-  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const;
+  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const override;
 
-  void setSubstitutionModel(const SubstitutionModel* model);
+  void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) override;
 
 protected:
   void computeCounts_(double length) const;
-  void substitutionRegisterHasChanged();
-  void weightsHaveChanged();
-  void distancesHaveChanged();
+  void substitutionRegisterHasChanged() override;
+  void weightsHaveChanged() override;
+  void distancesHaveChanged() override;
 
 private:
   void resetBMatrices_();

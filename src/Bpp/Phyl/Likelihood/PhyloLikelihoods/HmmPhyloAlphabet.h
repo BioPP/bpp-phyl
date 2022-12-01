@@ -57,22 +57,19 @@ namespace bpp
  *
  * Implementation of HmmStateAlphabet where Alphabet States are all
  * the PhyloLikelihoods belonging to a SetOfAlignedPhyloLikelihood.
- *
  */
-
 class HmmPhyloAlphabet :
   public virtual HmmStateAlphabet,
   public AbstractParametrizable
 {
 private:
   Context& context_;
-  /*
+
+  /**
    * @brief vector of aligned phylolikelihoods. These
    * phylolikelihoods are not owned by the alphabet.
-   *
    */
-
-  std::vector<std::shared_ptr<AlignedPhyloLikelihood> > vAP_;
+  std::vector<std::shared_ptr<AlignedPhyloLikelihoodInterface> > vAP_;
 
   size_t nbSites_;
 
@@ -87,7 +84,7 @@ public:
 
     for (size_t i = 0; i < nphyl.size(); i++)
     {
-      auto ap = soap.sharePhyloLikelihood(nphyl[i]);
+      auto ap = soap.getPhyloLikelihood(nphyl[i]);
       vAP_.push_back(ap);
       includeParameters_(ap->getParameters());
     }
@@ -127,9 +124,9 @@ public:
     nbSites_(hpa.nbSites_)
   {}
 
-  HmmPhyloAlphabet* clone() const {return new HmmPhyloAlphabet(*this);}
+  HmmPhyloAlphabet* clone() const override { return new HmmPhyloAlphabet(*this);}
 
-  ~HmmPhyloAlphabet() {}
+  virtual ~HmmPhyloAlphabet() {}
 
   Context& getContext() { return context_;}
 
@@ -138,17 +135,17 @@ public:
    * @return The corresponding hidden state.
    * @see getNumberOfStates
    */
-  const Clonable& getState(size_t stateIndex) const
+  const Clonable& getState(size_t stateIndex) const override
   {
     return *vAP_[stateIndex];
   }
 
-  const AlignedPhyloLikelihood& getPhyloLikelihood(size_t stateIndex) const
+  std::shared_ptr<const AlignedPhyloLikelihoodInterface> getPhyloLikelihood(size_t stateIndex) const
   {
-    return *vAP_[stateIndex];
+    return vAP_[stateIndex];
   }
 
-  size_t getNumberOfStates() const
+  size_t getNumberOfStates() const override
   {
     return vAP_.size();
   }
@@ -166,9 +163,9 @@ public:
    * @param stateAlphabet The alphabet to check.
    * @return true if the matrix is compatible with the given alphabet.
    */
-  bool worksWith(const HmmStateAlphabet* stateAlphabet) const
+  bool worksWith(const HmmStateAlphabet& stateAlphabet) const override
   {
-    return stateAlphabet == this;
+    return &stateAlphabet == this;
   }
 };
 }

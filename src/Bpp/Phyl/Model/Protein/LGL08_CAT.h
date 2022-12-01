@@ -83,11 +83,18 @@ private:
     std::string name_;
 
 public:
-    EmbeddedModel(const ProteicAlphabet* alpha, std::string name, unsigned int nbCat = 10);
+    EmbeddedModel(
+	std::shared_ptr<const ProteicAlphabet> alpha,
+	std::string name,
+	unsigned int nbCat = 10);
+
     virtual ~EmbeddedModel(){}
-    EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
-    std::string getName() const { return name_;}
-    double getProportion() const { return proportion_;}
+
+    EmbeddedModel* clone() const override { return new EmbeddedModel(*this); }
+
+    std::string getName() const override { return name_; }
+
+    double getProportion() const { return proportion_; }
   };
 
 public:
@@ -98,26 +105,34 @@ public:
    * @param nbCat number of profiles
    *
    */
-  LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat = 10);
+  LGL08_CAT(std::shared_ptr<const ProteicAlphabet> alpha, unsigned int nbCat = 10);
 
-  LGL08_CAT* clone() const { return new LGL08_CAT(*this); }
+  LGL08_CAT* clone() const override { return new LGL08_CAT(*this); }
 
   LGL08_CAT(const LGL08_CAT& mod2) :
+    AbstractWrappedModel(mod2),
+    AbstractWrappedTransitionModel(mod2),
+    AbstractTotallyWrappedTransitionModel(mod2),
+    AbstractBiblioTransitionModel(mod2),
     AbstractBiblioMixedTransitionModel(mod2)
   {}
 
   LGL08_CAT& operator=(const LGL08_CAT& mod2)
   {
+    AbstractWrappedModel::operator=(mod2);
+    AbstractWrappedTransitionModel::operator=(mod2);
+    AbstractTotallyWrappedTransitionModel::operator=(mod2);
+    AbstractBiblioTransitionModel::operator=(mod2);
     AbstractBiblioMixedTransitionModel::operator=(mod2);
     return *this;
   }
 
   uint getNumberOfCategories() const
   {
-    return (uint)pmixmodel_->getNumberOfModels();
+    return static_cast<uint>(pmixmodel_->getNumberOfModels());
   }
 
-  std::string getName() const { return "LGL08_CAT";}
+  std::string getName() const override { return "LGL08_CAT";}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_LGL08_CAT_H

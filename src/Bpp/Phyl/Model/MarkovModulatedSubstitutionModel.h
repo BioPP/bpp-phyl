@@ -45,6 +45,7 @@
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 #include "SubstitutionModel.h"
+#include "AbstractSubstitutionModel.h"
 
 namespace bpp
 {
@@ -79,11 +80,12 @@ namespace bpp
  * Computational Biology_, 11:727-33.
  */
 class MarkovModulatedSubstitutionModel :
-  public virtual ReversibleSubstitutionModel,
-  public AbstractParameterAliasable
+  public virtual ReversibleSubstitutionModelInterface,
+  public AbstractParameterAliasable,
+  public AbstractLkTransitionModel
 {
 protected:
-  ReversibleSubstitutionModel* model_;
+  std::unique_ptr<ReversibleSubstitutionModelInterface> model_;
   std::shared_ptr<const MarkovModulatedStateMap> stateMap_;
   size_t nbStates_; // Number of states in model
   size_t nbRates_; // Number of rate classes
@@ -170,12 +172,28 @@ public:
    * @param prefix The parameter namespace to be forwarded to the AbstractParametrizable constructor.
    * changes instead of state change only.
    */
-  MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, unsigned int nbRates, bool normalizeRateChanges, const std::string& prefix) :
+  MarkovModulatedSubstitutionModel(
+      std::unique_ptr<ReversibleSubstitutionModelInterface> model,
+      unsigned int nbRates,
+      bool normalizeRateChanges,
+      const std::string& prefix) :
     AbstractParameterAliasable(prefix),
-    model_(model), stateMap_(new MarkovModulatedStateMap(model->getStateMap(), nbRates)), nbStates_(model->getNumberOfStates()),
-    nbRates_(nbRates), rates_(nbRates, nbRates), ratesExchangeability_(nbRates, nbRates),
-    ratesFreq_(nbRates), ratesGenerator_(nbRates, nbRates), generator_(), exchangeability_(),
-    leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), iEigenValues_(), eigenDecompose_(true), compFreq_(false),
+    model_(std::move(model)),
+    stateMap_(make_shared<MarkovModulatedStateMap>(model->stateMap(), nbRates)),
+    nbStates_(model->getNumberOfStates()),
+    nbRates_(nbRates),
+    rates_(nbRates, nbRates),
+    ratesExchangeability_(nbRates, nbRates),
+    ratesFreq_(nbRates),
+    ratesGenerator_(nbRates, nbRates),
+    generator_(),
+    exchangeability_(),
+    leftEigenVectors_(),
+    rightEigenVectors_(),
+    eigenValues_(),
+    iEigenValues_(),
+    eigenDecompose_(true),
+    compFreq_(false),
     pijt_(), dpijt_(), d2pijt_(), freq_(),
     normalizeRateChanges_(normalizeRateChanges),
     nestedPrefix_("model_" + model->getNamespace())
@@ -187,71 +205,83 @@ public:
   MarkovModulatedSubstitutionModel(const MarkovModulatedSubstitutionModel& model);
   MarkovModulatedSubstitutionModel& operator=(const MarkovModulatedSubstitutionModel& model);
 
-  virtual ~MarkovModulatedSubstitutionModel() { delete model_; }
+  virtual ~MarkovModulatedSubstitutionModel() {}
 
-  MarkovModulatedSubstitutionModel* clone() const = 0;
+  MarkovModulatedSubstitutionModel* clone() const override = 0;
 
 public:
-  const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
+  const Alphabet& alphabet() const override { return model_->alphabet(); }
+  
+  std::shared_ptr<const Alphabet> getAlphabet() const override { return model_->getAlphabet(); }
 
-  size_t getNumberOfStates() const { return getStateMap().getNumberOfModelStates(); }
+  size_t getNumberOfStates() const override { return stateMap_->getNumberOfModelStates(); }
 
-  const StateMap& getStateMap() const { return *stateMap_; }
+  const StateMapInterface& stateMap() const override { return *stateMap_; }
 
-  std::shared_ptr<const StateMap> shareStateMap() const { return stateMap_; }
+  std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
 
-  const std::vector<int>& getAlphabetStates() const { return stateMap_->getAlphabetStates(); }
+  const std::vector<int>& getAlphabetStates() const override { return stateMap_->getAlphabetStates(); }
 
-  std::string getAlphabetStateAsChar(size_t index) const { return stateMap_->getAlphabetStateAsChar(index); }
+  std::string getAlphabetStateAsChar(size_t index) const override { return stateMap_->getAlphabetStateAsChar(index); }
 
-  int getAlphabetStateAsInt(size_t index) const { return stateMap_->getAlphabetStateAsInt(index); }
+  int getAlphabetStateAsInt(size_t index) const override { return stateMap_->getAlphabetStateAsInt(index); }
 
-  std::vector<size_t> getModelStates(int code) const { return stateMap_->getModelStates(code); }
+  std::vector<size_t> getModelStates(int code) const override { return stateMap_->getModelStates(code); }
 
-  std::vector<size_t> getModelStates(const std::string& code) const { return stateMap_->getModelStates(code); }
+  std::vector<size_t> getModelStates(const std::string& code) const override { return stateMap_->getModelStates(code); }
 
-  const Vdouble& getFrequencies() const { return freq_; }
+  const Vdouble& getFrequencies() const override { return freq_; }
 
-  const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
+  const Matrix<double>& getExchangeabilityMatrix() const override { return exchangeability_; }
 
-  const Matrix<double>& getGenerator() const { return generator_; }
+  const Matrix<double>& getGenerator() const override { return generator_; }
 
-  const Matrix<double>& getPij_t(double t) const;
-  const Matrix<double>& getdPij_dt(double t) const;
-  const Matrix<double>& getd2Pij_dt2(double t) const;
+  const Matrix<double>& getPij_t(double t) const override;
+  const Matrix<double>& getdPij_dt(double t) const override;
+  const Matrix<double>& getd2Pij_dt2(double t) const override;
 
-  const Vdouble& getEigenValues() const { return eigenValues_; }
-  const Vdouble& getIEigenValues() const { return iEigenValues_; }
+  const Vdouble& getEigenValues() const override { return eigenValues_; }
+  const Vdouble& getIEigenValues() const override { return iEigenValues_; }
 
-  bool isDiagonalizable() const { return true; }
-  bool isNonSingular() const { return true; }
+  bool isDiagonalizable() const override { return true; }
+  bool isNonSingular() const override { return true; }
 
-  const Matrix<double>& getRowLeftEigenVectors() const { return leftEigenVectors_; }
-  const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
+  const Matrix<double>& getRowLeftEigenVectors() const override { return leftEigenVectors_; }
+  const Matrix<double>& getColumnRightEigenVectors() const override { return rightEigenVectors_; }
 
-  double freq(size_t i) const { return freq_[i]; }
-  double Sij(size_t i, size_t j) const { return exchangeability_(i, j); }
-  double Qij(size_t i, size_t j) const { return generator_(i, j); }
+  double freq(size_t i) const override { return freq_[i]; }
+  double Sij(size_t i, size_t j) const override { return exchangeability_(i, j); }
+  double Qij(size_t i, size_t j) const override { return generator_(i, j); }
 
-  double Pij_t    (size_t i, size_t j, double t) const { return getPij_t(t)(i, j); }
-  double dPij_dt  (size_t i, size_t j, double t) const { return getdPij_dt(t)(i, j); }
-  double d2Pij_dt2(size_t i, size_t j, double t) const { return getd2Pij_dt2(t)(i, j); }
+  double Pij_t    (size_t i, size_t j, double t) const override { return getPij_t(t)(i, j); }
+  double dPij_dt  (size_t i, size_t j, double t) const override { return getdPij_dt(t)(i, j); }
+  double d2Pij_dt2(size_t i, size_t j, double t) const override { return getd2Pij_dt2(t)(i, j); }
 
-  double getInitValue(size_t i, int state) const;
+  double getInitValue(size_t i, int state) const override;
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override
   {
     model_->setFreqFromData(data, pseudoCount);
     updateMatrices();
   }
 
-  virtual void setFreq(std::map<int, double>& frequencies)
+  void setFreq(std::map<int, double>& frequencies) override
   {
     model_->setFreq(frequencies);
     updateMatrices();
   }
 
-  const ReversibleSubstitutionModel* getNestedModel() const { return model_; }
+  const FrequencySetInterface& frequencySet() const override {
+    throw NullPointerException("MarkovModulatedSubstitutionModel::frequencySet. No FrequencySet associated to this model. Frequencies are computed from the FrequencySet of the modulated model.");
+  }
+  
+  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override {
+    return nullptr;
+  }
+
+  const ReversibleSubstitutionModelInterface& nestedModel() const {
+    return *model_;
+  }
 
   /**
    * @brief Get the rate category corresponding to a particular state in the compound model.
@@ -265,48 +295,48 @@ public:
     return i / nbStates_;
   }
 
-  double getRate() const { return model_->getRate(); }
+  double getRate() const override { return model_->getRate(); }
 
-  void setRate(double rate) { model_->setRate(rate); }
+  void setRate(double rate) override { model_->setRate(rate); }
 
-  bool isScalable() const
+  bool isScalable() const override
   {
     return model_->isScalable();
   }
 
-  void setScalable(bool scalable)
+  void setScalable(bool scalable) override
   {
     model_->setScalable(scalable);
   }
 
-  void normalize()
+  void normalize() override
   {
     model_->normalize();
     updateMatrices();
   }
 
-  void setDiagonal();
+  void setDiagonal() override;
 
-  double getScale() const
+  double getScale() const override 
   {
     std::vector<double> v;
     MatrixTools::diag(generator_, v);
     return -VectorTools::scalar<double, double>(v, freq_);
   }
 
-  void setScale(double scale)
+  void setScale(double scale) override
   {
     model_->setScale(scale);
     updateMatrices();
   }
 
-  void enableEigenDecomposition(bool yn) { eigenDecompose_ = yn; }
+  void enableEigenDecomposition(bool yn) override { eigenDecompose_ = yn; }
 
-  bool enableEigenDecomposition() { return eigenDecompose_; }
+  bool enableEigenDecomposition() override { return eigenDecompose_; }
 
-  bool computeFrequencies() const { return compFreq_; }
+  bool computeFrequencies() const override { return compFreq_; }
 
-  void computeFrequencies(bool yn) { compFreq_ = yn; }
+  void computeFrequencies(bool yn) override { compFreq_ = yn; }
 
 
   /**
@@ -314,17 +344,17 @@ public:
    *
    * This updates the matrices consequently.
    */
-  virtual void fireParameterChanged(const ParameterList& parameters)
+  virtual void fireParameterChanged(const ParameterList& parameters) override
   {
     model_->matchParametersValues(parameters);
     updateRatesModel();
     updateMatrices();
   }
 
-  void setNamespace(const std::string& prefix);
+  void setNamespace(const std::string& prefix) override;
 
 protected:
-  virtual void updateMatrices();
+  virtual void updateMatrices() override;
 
   /**
    * @brief Update the rates vector, generator and equilibrium frequencies.
@@ -334,7 +364,7 @@ protected:
    */
   virtual void updateRatesModel() = 0;
 
-  Vdouble& getFrequencies_()
+  Vdouble& getFrequencies_() override
   {
     return freq_;
   }

@@ -1,7 +1,7 @@
 //
 // File: BppOSubstitutionModelFormat.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mercredi 4 juillet 2012, ÃÂ  13h 26
 //
 
@@ -56,9 +56,7 @@ namespace bpp
  *
  * Creates a new substitution model object according to model description syntax
  * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
- *
  */
-
 class BppOSubstitutionModelFormat :
   public ISubstitutionModel,
   public OSubstitutionModel
@@ -80,7 +78,7 @@ protected:
   bool allowGaps_;
   bool verbose_;
   std::map<std::string, std::string> unparsedArguments_;
-  const GeneticCode* geneticCode_;
+  std::shared_ptr<const GeneticCode> geneticCode_;
   int warningLevel_;
 
 public:
@@ -132,27 +130,30 @@ public:
   virtual ~BppOSubstitutionModelFormat() {}
 
 public:
-  const std::string getFormatName() const { return "BppO"; }
+  const std::string getFormatName() const override { return "BppO"; }
 
-  const std::string getFormatDescription() const { return "Bpp Options format."; }
+  const std::string getFormatDescription() const override { return "Bpp Options format."; }
 
   /**
    * @brief Set the genetic code to use in case a codon frequencies set should be built.
    *
    * @param gCode The genetic code to use.
    */
-  void setGeneticCode(const GeneticCode* gCode)
+  void setGeneticCode(std::shared_ptr<const GeneticCode> gCode)
   {
     geneticCode_ = gCode;
   }
 
-  SubstitutionModel* readSubstitutionModel(
-      const Alphabet* alphabet,
+  std::unique_ptr<SubstitutionModelInterface> readSubstitutionModel(
+      std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface<std::string>* data = 0,
-      bool parseArguments = true);
+      std::shared_ptr<const AlignmentDataInterface> data = nullptr,
+      bool parseArguments = true) override;
 
-  const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
+  const std::map<std::string, std::string>& getUnparsedArguments() const override
+  {
+    return unparsedArguments_;
+  }
 
   /**
    * @brief Write a substitution model to a stream.
@@ -165,33 +166,31 @@ public:
    * parameters so far [in, out];
    * @throw Exception If an error occured.
    */
-
-  void write(const BranchModel& model,
-             OutputStream& out,
-             std::map<std::string, std::string>& globalAliases,
-             std::vector<std::string>& writtenNames) const;
+  void write(const BranchModelInterface& model,
+      OutputStream& out,
+      std::map<std::string, std::string>& globalAliases,
+      std::vector<std::string>& writtenNames) const override;
 
   void setVerbose(bool verbose) { verbose_ = verbose;}
 
 private:
-  SubstitutionModel* readWord_(
-      const Alphabet* alphabet,
+  std::unique_ptr<SubstitutionModelInterface> readWord_(
+      std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface<std::string>* data);
+      std::shared_ptr<const AlignmentDataInterface> data);
 
-  void writeMixed_(const MixedTransitionModel& model,
-                   OutputStream& out,
-                   std::map<std::string, std::string>& globalAliases,
-                   std::vector<std::string>& writtenNames) const;
+  void writeMixed_(const MixedTransitionModelInterface& model,
+      OutputStream& out,
+      std::map<std::string, std::string>& globalAliases,
+      std::vector<std::string>& writtenNames) const;
 
 protected:
-  /*
+  /**
    * @brief Finish parsing of parameters, taking care of aliases.
-   *
    */
-
-  void updateParameters_(BranchModel* model,
-                         std::map<std::string, std::string>& args);
+  void updateParameters_(
+      BranchModelInterface& model,
+      std::map<std::string, std::string>& args);
 
   /**
    * @brief Set parameter initial values of a given model according to options.
@@ -202,12 +201,14 @@ protected:
    * This function is mainly for internal usage, you're probably looking for the getSubstitutionModel or getSubstitutionModelSet function.
    *
    * @param model                   The model to set.
-   * @param data   A pointer toward the AlignedValuesContainer for which the substitution model is designed.
+   * @param data   A pointer toward the AlignmentDataInterface for which the substitution model is designed.
    *               The alphabet associated to the data must be of the same type as the one specified for the model.
    *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
    * @throw Exception if an error occured.
    */
-  void initialize_(BranchModel& model, const AlignmentDataInterface<std::string>* data);
+  void initialize_(
+      BranchModelInterface& model,
+      std::shared_ptr<const AlignmentDataInterface> data);
   
 };
 } // end of namespace bpp.

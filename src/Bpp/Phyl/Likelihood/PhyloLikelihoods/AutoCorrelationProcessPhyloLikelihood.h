@@ -72,49 +72,59 @@ private:
 
 public:
   AutoCorrelationProcessPhyloLikelihood(
-    const AlignmentDataInterface<std::string>& data,
-    AutoCorrelationSequenceEvolution& processSeqEvol,
-    CollectionNodes& collNodes,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<AutoCorrelationSequenceEvolution> processSeqEvol,
+    std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
   AutoCorrelationProcessPhyloLikelihood(const AutoCorrelationProcessPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
-    AbstractAlignedPhyloLikelihood(mlc),
+    //AbstractAlignedPhyloLikelihood(mlc),
     MultiProcessSequencePhyloLikelihood(mlc),
     Hpep_(std::shared_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone())),
     hmm_(std::shared_ptr<HmmLikelihood_DF>(mlc.hmm_->clone())) {}
 
   virtual ~AutoCorrelationProcessPhyloLikelihood() {}
 
-  AutoCorrelationProcessPhyloLikelihood* clone() const { return new AutoCorrelationProcessPhyloLikelihood(*this); }
+  AutoCorrelationProcessPhyloLikelihood* clone() const override { return new AutoCorrelationProcessPhyloLikelihood(*this); }
 
 public:
-  void setNamespace(const std::string& nameSpace);
+  void setNamespace(const std::string& nameSpace) override;
 
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
   /**
    * @name The likelihood functions.
    *
    * @{
    */
-  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
+  LikelihoodCalculation& likelihoodCalculation () const override
+  {
+    return *hmm_;
+  }
+  
+  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const override
   {
     return hmm_;
   }
 
-  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const override
+  {
+    return *hmm_;
+  }
+
+  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const override
   {
     return hmm_;
   }
 
-  /*
-   *@brief return the posterior probabilities of subprocess on each site.
+  /**
+   * @brief return the posterior probabilities of subprocess on each site.
    *
-   *@return MatrixXd sites x states
+   * @return MatrixXd sites x states
    */
-  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const
+  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const override
   {
     VVdouble pp;
     auto mat = hmm_->getHiddenStatesPosteriorProbabilities().transpose();
