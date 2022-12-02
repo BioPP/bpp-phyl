@@ -119,8 +119,8 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
- * For now, the generator of this model is diagonalized numericaly.
- * See AbstractSubstitutionModel for details of how the porbabilities are computed.
+ * The generator of this model is diagonalized numericaly.
+ * See AbstractSubstitutionModel for details of how the probabilities are computed.
  *
  * The parameters are named \c "a", \c "b", \c "c", \c "d", \c "e", \c "theta", \c "theta1", and \c "theta2"
  * and their values may be retrieve with the command
@@ -132,9 +132,10 @@ namespace bpp
  * Reference:
  * - Yang Z (1994), Journal_ Of Molecular Evolution_ 39(1) 105-11.
  * - Lanave C, Preparata G, Saccone C and Serio G (1984), Journal_ Of Molecular Evolution_ 20 86-93.
- * - TavarÃÂ© S (1986), Lect_. Math. Life Sci._ 17 57-86.
+ * - Tavaré S (1986), Lect_. Math. Life Sci._ 17 57-86.
  * - Rodriguez F (1990, Journal_ Of Theoretical Biology_ 142(4) 485-501.
  */
+  
 class GTR :
   public AbstractReversibleNucleotideSubstitutionModel
 {
