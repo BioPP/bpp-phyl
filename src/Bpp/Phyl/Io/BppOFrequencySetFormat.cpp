@@ -806,8 +806,8 @@ void BppOFrequencySetFormat::initialize_(FrequencySet& freqSet, const AlignedVal
       if (!data)
         throw Exception("Missing data for observed frequencies");
       unsigned int psc = 0;
-      if (unparsedArguments_.find("observedPseudoCount") != unparsedArguments_.end())
-        psc = TextTools::to<unsigned int>(unparsedArguments_["observedPseudoCount"]);
+      if (unparsedArguments_.find("init.observedPseudoCount") != unparsedArguments_.end())
+        psc = TextTools::to<unsigned int>(unparsedArguments_["init.observedPseudoCount"]);
 
       map<int, double> freqs;
       SequenceContainerTools::getFrequencies(*data, freqs, psc);
@@ -833,6 +833,7 @@ void BppOFrequencySetFormat::initialize_(FrequencySet& freqSet, const AlignedVal
       throw Exception("Unknown init argument");
 
     unparsedArguments_.erase(unparsedArguments_.find("init"));
+    unparsedArguments_.erase(unparsedArguments_.find("init.observedPseudoCount"));
   }
 
   // Explicit initialization of each parameter
