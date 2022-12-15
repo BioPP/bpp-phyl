@@ -101,8 +101,8 @@ void POMO::updateMatrices()
       double phi_j = fit?(*fit)[j]:0.25;
       
       // mutations
-      generator_(i, nbloc)=Q(i,j);
-      generator_(j, nbloc + nbAlleles-2)=Q(j,i);
+      generator_(i, nbloc) = nbAlleles * Q(i,j);
+      generator_(j, nbloc + nbAlleles-2)= nbAlleles * Q(j,i);
 
       // drift + selection
       for (size_t a=1;a<nbAlleles;a++)
@@ -127,39 +127,44 @@ void POMO::updateMatrices()
   
   const auto& pFreq = pmodel_->getFrequencies();
 
+  Vdouble pN(nbStates), pNm(nbStates), pNm2(nbStates), p(nbStates);
   for (size_t i=0;i<nbStates;i++)
-    freq_[i]=pFreq[i]*(fit?std::pow((*fit)[i],nbAlleles-1):1);
+  {
+    pNm2[i]=fit?std::pow((*fit)[i],nbAlleles-2):1;
+    pNm[i]=fit?pNm2[i] * (*fit)[i]:1;
+    pN[i]=fit?pNm[i] * (*fit)[i]:1;
+    freq_[i]=pFreq[i]*pNm[i];
+  }
 
   size_t k=nbStates;
-  double ssden1=0;
-  double ssnum=0;
+  double sden=0;
+  double snum=0;
   
   for (size_t i = 0; i < nbStates-1; ++i)
-    for (size_t j = i+1; j < nbStates; ++j)
+  {
+    double phi_i = fit?(*fit)[i]:0.25;
+    // then for all couples ending with j
+    for (size_t j=i+1;j<nbStates;j++)
     {
+      double phi_j = fit?(*fit)[j]:0.25;
+
       auto mu=Q(i,j)*pFreq[i];   // alleles i & j
-      double rfreq=fit?std::pow((*fit)[i],nbAlleles-2):1;
-      double den1=fit?std::pow((*fit)[i],nbAlleles-1):1;
-      double den2=fit?std::pow((*fit)[i],nbAlleles):1;
-      double sden1=den1;
-      double sden2=den2;
+
+      double rfreq=pNm2[i];
       
       double rat=fit?(*fit)[j]/(*fit)[i]:1;
                             
       for (size_t n=1 ; n<nbAlleles; n++)   // i_{N-n}j_{n}
       {
-        freq_[k++]=mu*rfreq*nbAlleles/((int)n*(int)(nbAlleles-n));
+        freq_[k++]=mu*rfreq*((int)(nbAlleles-n) * phi_i  + (int)n * phi_j)*nbAlleles/((int)n*(int)(nbAlleles-n));
         rfreq*=rat;
-        den1*=rat;
-        den2*=rat;
-        sden1+=den1;
-        sden2+=den2;
       }
 
-      ssden1+=mu*sden1;
-      ssnum+=mu*(fit?std::pow((*fit)[j],nbAlleles)*std::pow((*fit)[i],nbAlleles):1)/sden2;
+      snum+=2*mu*pNm2[i] * pN[j] * (pN[i]!=pN[j]?(phi_i-phi_j)/(pN[i]-pN[j]):(1./nbAlleles));
+      sden+=mu * 2 * pNm[i] + ((phi_i+phi_j)*
+                               ((phi_i!=phi_j)?((pNm[i]-pNm[j])/(phi_i-phi_j)):(nbAlleles-1)));
     }
-
+  }
   
   // stationary freq
   double x = VectorTools::sum(freq_);
@@ -168,7 +173,7 @@ void POMO::updateMatrices()
 
   // Specific normalization in numbers of substitutions (from appendix D of Genetics. 2019 Aug; 212(4): 1321–1336.)
   // s is the probability of substitution on a duration of 1 generation (ie the actual scale time of the model). 
-  double s=ssnum/ssden1;
+  double s=snum/sden;
   
   // And everything for exponential
   AbstractSubstitutionModel::updateMatrices();
