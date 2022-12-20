@@ -55,7 +55,6 @@ POMO::POMO(const AllelicAlphabet* allAlph,
   pmodel_(pmodel),
   pfitness_(pfitness)
 {
-
   const auto& alph=allAlph->getStateAlphabet();
   
   if (alph.getAlphabetType() != pmodel_->getAlphabet()->getAlphabetType())
@@ -94,27 +93,37 @@ void POMO::updateMatrices()
   // for all couples starting with i
   for (size_t i=0;i<nbStates;i++)
   {
-    double phi_i = fit?(*fit)[i]:0.25;
+    double phi_i = fit?(*fit)[i]:1./(double)nbStates;
     // then for all couples ending with j
     for (size_t j=i+1;j<nbStates;j++)
     {
-      double phi_j = fit?(*fit)[j]:0.25;
+      double phi_j = fit?(*fit)[j]:1./(double)nbStates;
       
       // mutations
       generator_(i, nbloc) = nbAlleles * Q(i,j);
       generator_(j, nbloc + nbAlleles-2)= nbAlleles * Q(j,i);
 
       // drift + selection
-      for (size_t a=1;a<nbAlleles;a++)
+      if (std::abs(generator_(i, nbloc)) < NumConstants::TINY() &&
+          std::abs(generator_(j, nbloc + nbAlleles-2) < NumConstants::TINY())) // No mutation between states
       {
-        double rap = (double)(a * (nbAlleles - a ))/((double)a * phi_i  + (double)(nbAlleles - a) * phi_j);
-        
-        // drift towards i:  a -> a+1
-        generator_(nbloc+a-1 , (a>1?nbloc+a-2:i)) = phi_i * rap;
-
-        // drift towards j: nbAlleles - a -> nbAlleles -a +1
-        generator_(nbloc+a-1 , (a<nbAlleles-1?nbloc+a:j)) = phi_j  * rap;
+        for (size_t a=1;a<nbAlleles;a++)
+        {
+          generator_(nbloc+a-1 , (a>1?nbloc+a-2:i)) = 0;
+          generator_(nbloc+a-1 , (a<nbAlleles-1?nbloc+a:j)) = 0;
+        }
       }
+      else
+        for (size_t a=1;a<nbAlleles;a++)
+        {
+          double rap = (double)(a * (nbAlleles - a ))/((double)a * phi_i  + (double)(nbAlleles - a) * phi_j);
+          
+          // drift towards i:  a -> a+1
+          generator_(nbloc+a-1 , (a>1?nbloc+a-2:i)) = phi_i * rap;
+          
+          // drift towards j: nbAlleles - a -> nbAlleles -a +1
+          generator_(nbloc+a-1 , (a<nbAlleles-1?nbloc+a:j)) = phi_j  * rap;
+        }
       // setting for the next couple of alleles
       nbloc += nbAlleles-1;
     }
@@ -142,11 +151,11 @@ void POMO::updateMatrices()
   
   for (size_t i = 0; i < nbStates-1; ++i)
   {
-    double phi_i = fit?(*fit)[i]:0.25;
+    double phi_i = fit?(*fit)[i]:1./(double)nbStates;
     // then for all couples ending with j
     for (size_t j=i+1;j<nbStates;j++)
     {
-      double phi_j = fit?(*fit)[j]:0.25;
+      double phi_j = fit?(*fit)[j]:1./(double)nbStates;
 
       auto mu=Q(i,j)*pFreq[i];   // alleles i & j
 
@@ -174,7 +183,7 @@ void POMO::updateMatrices()
   // Specific normalization in numbers of substitutions (from appendix D of Genetics. 2019 Aug; 212(4): 1321–1336.)
   // s is the probability of substitution on a duration of 1 generation (ie the actual scale time of the model). 
   double s=snum/sden;
-  
+
   // And everything for exponential
   AbstractSubstitutionModel::updateMatrices();
 

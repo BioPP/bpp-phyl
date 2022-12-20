@@ -295,8 +295,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
     
     string nestedModelDescription = args["model"];
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
-    if (geneticCode_)
-      nestedReader.setGeneticCode(geneticCode_);
+    nestedReader.setGeneticCode(geneticCode_);
 
     auto nestedModel = shared_ptr<SubstitutionModel>(nestedReader.readSubstitutionModel(&allelic->getStateAlphabet(), nestedModelDescription, data, false));
     unparsedParameterValuesNested.insert(nestedReader.getUnparsedArguments().begin(),
