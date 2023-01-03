@@ -301,13 +301,13 @@ public:
 
   // access members
 
-  const ExtType& exponent_part () const { return exp_; }
+  virtual const ExtType& exponent_part () const { return exp_; }
 
-  const MatType& float_part () const { return mat_; }
+  virtual const MatType& float_part () const { return mat_; }
 
-  ExtType& exponent_part () noexcept { return exp_; }
+  virtual ExtType& exponent_part ()  { return exp_; }
 
-  MatType& float_part () noexcept { return mat_; }
+  virtual MatType& float_part ()  { return mat_; }
 
   // Normalization methods
 
