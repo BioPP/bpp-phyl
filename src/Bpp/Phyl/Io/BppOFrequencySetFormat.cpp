@@ -833,7 +833,8 @@ void BppOFrequencySetFormat::initialize_(FrequencySet& freqSet, const AlignedVal
       throw Exception("Unknown init argument");
 
     unparsedArguments_.erase(unparsedArguments_.find("init"));
-    unparsedArguments_.erase(unparsedArguments_.find("init.observedPseudoCount"));
+    if (unparsedArguments_.find("init.observedPseudoCount") != unparsedArguments_.end())
+      unparsedArguments_.erase(unparsedArguments_.find("init.observedPseudoCount"));
   }
 
   // Explicit initialization of each parameter
