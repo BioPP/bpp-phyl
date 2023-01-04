@@ -178,18 +178,22 @@ class ExtendedFloatRow
 protected:
   ExtendedFloatEigen<R, C, EigenType>& efMat_;
   Eigen::Index nrow_;
+
+private:
+
+  VecType tmp_;
   
 public:
   ExtendedFloatRow(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index nrow) :
-    efMat_(der), nrow_(nrow) {}
+    efMat_(der), nrow_(nrow), tmp_(efMat_.float_part().row(nrow_)) {}
 
   const ExtType& exponent_part () const { return efMat_.exponent_part(); }
 
-  const VecType& float_part () const { return efMat_.float_part().row(nrow_); }
+  const VecType& float_part () const { return tmp_; }
 
   ExtType& exponent_part () { return efMat_.exponent_part(); }
 
-  VecType& float_part () { return efMat_.float_part().row(nrow_); }
+  VecType& float_part () { return tmp_; }
 
   /*
    * @brief Includes a row in an ExtendedFloatMatrix. Exponent parts
@@ -220,10 +224,14 @@ class ExtendedFloatCol : public ExtendedFloatEigen<R, 1, EigenType>
 protected:
   ExtendedFloatEigen<R, C, EigenType>& efMat_;
   Eigen::Index ncol_;
+
+private:
+
+  VecType tmp_;
   
 public:
   ExtendedFloatCol(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index ncol) :
-    efMat_(der), ncol_(ncol) {}
+    efMat_(der), ncol_(ncol), tmp_(efMat_.float_part().col(ncol_)) {}
 
   /*
    * @brief Includes a row in an ExtendedFloatMatrix. Exponent parts
@@ -231,13 +239,17 @@ public:
    *
    */
 
-  const ExtType& exponent_part () const { return efMat_.exponent_part(); }
+  const ExtType& exponent_part () const {
+    return efMat_.exponent_part();
+  }
 
-  const VecType& float_part () const { return efMat_.float_part().col(ncol_); }
+  const VecType& float_part () const { return tmp_; }
 
-  ExtType& exponent_part () { return efMat_.exponent_part(); }
+  ExtType& exponent_part () {
+    return efMat_.exponent_part();
+  }
 
-  VecType& float_part () { return efMat_.float_part().col(ncol_); }
+  VecType& float_part () { return tmp_; }
 
   ExtendedFloatCol& operator=(const ExtendedFloatEigen<R, 1, EigenType>& col)
   {
