@@ -144,7 +144,6 @@ int main() {
 
   modelColl->addSubstitutionProcess(2, mModBr2, 2, 2, 1);
 
-  modelColl->aliasParameters("T92.kappa_1","T92.kappa_2");
   // Data
 
   VectorSiteContainer sites(alphabet);
@@ -194,7 +193,7 @@ int main() {
   for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
     DataLik x=spl1->getLikelihoodForASite(pos) * mlc.getSubProcessProb(0) + spl2->getLikelihoodForASite(pos) * mlc.getSubProcessProb(1);
     if (convert(abs(x-mlc.getLikelihoodForASite(pos)))>0.001)
-      cerr << "Mixture Process : Problem on site " << x << endl;
+      cerr << "Mixture Process : Problem on site " << pos << " : "  << x << " vs " << mlc.getLikelihoodForASite(pos) << endl;
   }
 
   //  Mixture of phylo

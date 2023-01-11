@@ -223,9 +223,18 @@ void TransitionMatrixFromModel::compute ()
 
   auto& r = this->accessValueMutable ();
 
-  r.resize(4, 4);
+  const auto* model1 = accessValueConstCast<const BranchModel*>(*this->dependency (0));
 
-  const auto* mixmodel = dynamic_cast<const MixedTransitionModel*>(accessValueConstCast<const BranchModel*>(*this->dependency (0)));
+  const auto* mixmodel = dynamic_cast<const MixedTransitionModel*>(model1);
+
+#ifdef DEBUG
+  std::cerr << "=== TransitionMatrixFromModel::compute === " << this << std::endl;
+  std::cerr << "brlen= " << brlen << std::endl;
+  std::cerr << "nDeriv=" << nDeriv << std::endl;
+  std::cerr << "model= "<< model1 << " : " << model1->getName() << std::endl;
+  model1->getParameters().printParameters(std::cerr);
+  std::cerr << "=== end TransitionMatrixFromModel::compute === " << this << std::endl << std::endl;
+#endif
 
   if (mixmodel && nbDependencies() >= 4 && this->dependency(3)) // in case there is a submodel
   {
@@ -248,7 +257,6 @@ void TransitionMatrixFromModel::compute ()
   }
   else
   {
-    const auto* model1 = accessValueConstCast<const BranchModel*>(*this->dependency (0));
     const auto model = dynamic_cast<const TransitionModel*>(model1);
 
     if (!model)
