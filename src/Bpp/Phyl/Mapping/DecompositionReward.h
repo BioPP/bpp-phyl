@@ -59,9 +59,8 @@ namespace bpp
  *
  * Only reversible models are supported for now.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
-
 class DecompositionReward :
   public AbstractReward,
   public DecompositionMethods
@@ -71,9 +70,13 @@ private:
   mutable double currentLength_;
 
 public:
-  DecompositionReward(const SubstitutionModel* model, AlphabetIndex1* alphIndex);
+  DecompositionReward(
+      std::shared_ptr<const SubstitutionModelInterface> model,
+      std::shared_ptr<const AlphabetIndex1> alphIndex);
 
-  DecompositionReward(const StateMap& statemap, AlphabetIndex1* alphIndex);
+  DecompositionReward(
+      const StateMapInterface& stateMap,
+      std::shared_ptr<const AlphabetIndex1> alphIndex);
 
   DecompositionReward(const DecompositionReward& dr) :
     AbstractReward(dr),
@@ -94,14 +97,14 @@ public:
 
   virtual ~DecompositionReward() {}
 
-  DecompositionReward* clone() const { return new DecompositionReward(*this); }
+  DecompositionReward* clone() const override { return new DecompositionReward(*this); }
 
 public:
-  double getReward(size_t initialState, size_t finalState, double length) const;
+  double getReward(size_t initialState, size_t finalState, double length) const override;
 
-  Matrix<double>* getAllRewards(double length) const;
+  Matrix<double>* getAllRewards(double length) const override;
 
-  void storeAllRewards(double length, Eigen::MatrixXd& mat) const;
+  void storeAllRewards(double length, Eigen::MatrixXd& mat) const override;
 
   /**
    * @brief Set the substitution model.
@@ -109,16 +112,15 @@ public:
    * @param model A pointer toward the substitution model to use. Only
    * reversible models are currently supported. Setting a
    * non-reversible model will throw an exception.
-   *
    */
-  void setSubstitutionModel(const SubstitutionModel* model);
+  void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) override;
 
 protected:
   void initRewards_();
 
   void computeRewards_(double length) const;
 
-  void alphabetIndexHasChanged();
+  void alphabetIndexHasChanged() override;
 
 private:
   void fillBMatrice_();

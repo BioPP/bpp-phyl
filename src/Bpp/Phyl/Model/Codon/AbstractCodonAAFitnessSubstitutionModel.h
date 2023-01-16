@@ -1,7 +1,7 @@
 //
 // File: AbstractCodonAAFitnessSubstitutionModel.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mercredi 8 novembre 2017, ÃÂ  21h 11
 //
 
@@ -134,10 +134,14 @@ public:
 
   void setFreq(std::map<int, double>& frequencies) override;
 
-  const FrequencySetInterface& frequencySet() const override { return *pfitset_; }
+  const CodonFrequencySetInterface& codonFrequencySet() const override {
+    throw NullPointerException("AbstractCodonAAFitnessSubstitutionModel::codonFrequencySet. This model does not take codon frequencies. See aaFitness.");
+  }
   
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return pfitset_; }
-
+  bool hasCodonFrequencySet() const override {
+    return false;
+  }
+  
   void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
@@ -149,11 +153,6 @@ public:
   const FrequencySetInterface& aaFitness() const { return *pfitset_; }
   
   std::shared_ptr<const FrequencySetInterface> getAAFitness() const { return pfitset_; }
-
-  //std::shared_ptr<const FrequencySetInterface> getFrequencySet() const
-  //{
-  //  return nullptr;
-  //}
 
   void addNsParameter()
   {

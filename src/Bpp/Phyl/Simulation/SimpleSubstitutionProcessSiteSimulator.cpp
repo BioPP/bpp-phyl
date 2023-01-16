@@ -47,7 +47,7 @@
 
 #include "SimpleSubstitutionProcessSiteSimulator.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 #include "GivenDataSubstitutionProcessSiteSimulator.h"
@@ -57,10 +57,11 @@ using namespace std;
 
 /******************************************************************************/
 
-SimpleSubstitutionProcessSiteSimulator::SimpleSubstitutionProcessSiteSimulator(const SubstitutionProcess& process) :
-  process_(&process),
+SimpleSubstitutionProcessSiteSimulator::SimpleSubstitutionProcessSiteSimulator(
+    shared_ptr<const SubstitutionProcessInterface> process) :
+  process_(process),
   phyloTree_(process_->getParametrizablePhyloTree()),
-  tree_(ProcessComputationTree(*process_)),
+  tree_(ProcessComputationTree(process_)),
   qRates_(),
   qRoots_(),
   seqIndexes_(),
@@ -108,7 +109,7 @@ void SimpleSubstitutionProcessSiteSimulator::init()
     if (edge->useProb())
       continue;
 
-    const auto transmodel = dynamic_cast<const TransitionModel*>(model);
+    const auto transmodel = dynamic_pointer_cast<const TransitionModelInterface>(model);
     if (!transmodel)
       throw Exception("SubstitutionProcessSiteSimulator::init : model "  + model->getName() + " on branch " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a TransitionModel.");
 
@@ -138,9 +139,9 @@ void SimpleSubstitutionProcessSiteSimulator::init()
         if (vSub.size() > 1)
           throw Exception("SubstitutionProcessSiteSimulator::init : only 1 submodel can be used.");
 
-        const auto* mmodel = dynamic_cast<const MixedTransitionModel*>(transmodel);
+        const auto mmodel = dynamic_pointer_cast<const MixedTransitionModelInterface>(transmodel);
 
-        const auto* model2 = mmodel->getNModel(vSub[0]);
+        const auto model2 = mmodel->getNModel(vSub[0]);
 
         P = &model2->getPij_t(brlen);
       }
@@ -170,7 +171,7 @@ void SimpleSubstitutionProcessSiteSimulator::init()
 
       for (auto edge : outEdges)
       {
-        auto model = dynamic_cast<const MixedTransitionModel*>(edge->getModel());
+        auto model = dynamic_pointer_cast<const MixedTransitionModelInterface>(edge->getModel());
         if (!model)
           throw Exception("SubstitutionProcessSiteSimulator::init : model in edge " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a mixture.");
 
@@ -202,7 +203,7 @@ void SimpleSubstitutionProcessSiteSimulator::init()
 
 /******************************************************************************/
 
-Site* SimpleSubstitutionProcessSiteSimulator::simulateSite() const
+unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite() const
 {
   if (continuousRates_ && process_->getRateDistribution())
   {
@@ -217,7 +218,7 @@ Site* SimpleSubstitutionProcessSiteSimulator::simulateSite() const
 }
 
 
-Site* SimpleSubstitutionProcessSiteSimulator::simulateSite(double rate) const
+unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(double rate) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   // Use rate class 0
@@ -233,13 +234,14 @@ Site* SimpleSubstitutionProcessSiteSimulator::simulateSite(double rate) const
   Vint site(seqNames_.size());
   for (size_t i = 0; i < seqNames_.size(); ++i)
   {
-    site[i] = process_->getStateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
+    site[i] = process_->stateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
   }
-  return new Site(site, getAlphabet());
+  auto alphabet = getAlphabet();
+  return make_unique<Site>(site, alphabet);
 }
 
 
-Site* SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t rateClass) const
+unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t rateClass) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
 
@@ -254,14 +256,15 @@ Site* SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t rateClass) con
   Vint site(seqNames_.size());
   for (size_t i = 0; i < seqNames_.size(); ++i)
   {
-    site[i] = process_->getStateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
+    site[i] = process_->stateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
   }
 
-  return new Site(site, getAlphabet());
+  auto alphabet = getAlphabet();
+  return make_unique<Site>(site, alphabet);
 }
 
 
-Site* SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t ancestralStateIndex, double rate) const
+unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t ancestralStateIndex, double rate) const
 {
   shared_ptr<SimProcessNode> root = tree_.getRoot();
   root->state_ = ancestralStateIndex;
@@ -272,15 +275,16 @@ Site* SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t ancestralState
   Vint site(seqNames_.size());
   for (size_t i = 0; i < seqNames_.size(); ++i)
   {
-    site[i] = process_->getStateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
+    site[i] = process_->stateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
   }
 
-  return new Site(site, getAlphabet());
+  auto alphabet = getAlphabet();
+  return make_unique<Site>(site, alphabet);
 }
 
 /******************************************************************************/
 
-SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite() const
+unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimulateSite() const
 {
   if (continuousRates_ && process_->getRateDistribution())
   {
@@ -295,7 +299,7 @@ SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite() co
 }
 
 
-SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite(double rate) const
+unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimulateSite(double rate) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   // Use rate class 0
@@ -305,14 +309,14 @@ SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite(doub
   shared_ptr<SimProcessNode> root = tree_.getRoot();
   root->state_ = initialStateIndex;
 
-  SiteSimulationResult* ssr = new SiteSimulationResult(phyloTree_, &process_->getStateMap(), initialStateIndex);
+  auto ssr = make_unique<SiteSimulationResult>(phyloTree_, process_->getStateMap(), initialStateIndex);
 
-  evolveInternal(root, rate, ssr);
+  evolveInternal(root, rate, ssr.get());
 
   return ssr;
 }
 
-SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size_t rateClass) const
+unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size_t rateClass) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
   // Use rate class 0
@@ -322,21 +326,21 @@ SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size
   shared_ptr<SimProcessNode> root = tree_.getRoot();
   root->state_ = initialStateIndex;
 
-  SiteSimulationResult* ssr = new SiteSimulationResult(phyloTree_, &process_->getStateMap(), initialStateIndex);
+  auto ssr = make_unique<SiteSimulationResult>(phyloTree_, process_->getStateMap(), initialStateIndex);
 
-  evolveInternal(root, rateClass, ssr);
+  evolveInternal(root, rateClass, ssr.get());
 
   return ssr;
 }
 
-SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size_t ancestralStateIndex, double rate) const
+unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size_t ancestralStateIndex, double rate) const
 {
   shared_ptr<SimProcessNode> root = tree_.getRoot();
   root->state_ = ancestralStateIndex;
 
-  SiteSimulationResult* ssr = new SiteSimulationResult(phyloTree_, &process_->getStateMap(), ancestralStateIndex);
+  auto ssr = make_unique<SiteSimulationResult>(phyloTree_, process_->getStateMap(), ancestralStateIndex);
 
-  evolveInternal(root, rate, ssr);
+  evolveInternal(root, rate, ssr.get());
 
   return ssr;
 }
@@ -344,7 +348,10 @@ SiteSimulationResult* SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size
 
 /******************************************************************************/
 
-void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimProcessNode> node, size_t rateClass, SiteSimulationResult* ssr) const
+void SimpleSubstitutionProcessSiteSimulator::evolveInternal(
+    std::shared_ptr<SimProcessNode> node,
+    size_t rateClass,
+    SiteSimulationResult* ssr) const
 {
   speciesNodes_[node->getSpeciesIndex()] = node;
 
@@ -360,7 +367,7 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
       {
         if (ssr) // Detailed simulation
         {
-          auto tm = dynamic_cast<const SubstitutionModel*>(edge->getModel());
+          auto tm = dynamic_pointer_cast<const SubstitutionModelInterface>(edge->getModel());
 
           if (!tm)
             throw Exception("SimpleSubstitutionProcessSiteSimulator::EvolveInternal : detailed simulation not possible for non-markovian model on edge " + TextTools::toString(son->getSpeciesIndex()) + " for model " + edge->getModel()->getName());
@@ -408,7 +415,10 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
 
 /******************************************************************************/
 
-void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimProcessNode> node, double rate, SiteSimulationResult* ssr) const
+void SimpleSubstitutionProcessSiteSimulator::evolveInternal(
+    std::shared_ptr<SimProcessNode> node,
+    double rate,
+    SiteSimulationResult* ssr) const
 {
   speciesNodes_[node->getSpeciesIndex()] = node;
 
@@ -422,14 +432,14 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
 
       if (edge->getModel())
       {
-        auto tm = dynamic_cast<const TransitionModel*>(edge->getModel());
+        auto tm = dynamic_pointer_cast<const TransitionModelInterface>(edge->getModel());
 
         double brlen = rate * phyloTree_->getEdge(edge->getSpeciesIndex())->getLength();
 
 
         if (ssr) // Detailed simulation
         {
-          auto sm = dynamic_cast<const SubstitutionModel*>(edge->getModel());
+          auto sm = dynamic_pointer_cast<const SubstitutionModelInterface>(edge->getModel());
 
           if (!sm)
             throw Exception("SimpleSubstitutionProcessSiteSimulator::EvolveInternal : detailed simulation not possible for non-markovian model on edge " + TextTools::toString(son->getSpeciesIndex()) + " for model " + tm->getName());
@@ -471,8 +481,8 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(std::shared_ptr<SimP
             if (vSub.size() > 1)
               throw Exception("SubstitutionProcessSiteSimulator::init : only 1 submodel can be used.");
 
-            const auto* mmodel = dynamic_cast<const MixedTransitionModel*>(tm);
-            const auto* model = mmodel->getNModel(vSub[0]);
+            const auto mmodel = dynamic_pointer_cast<const MixedTransitionModelInterface>(tm);
+            const auto model = mmodel->getNModel(vSub[0]);
 
             P = &model->getPij_t(brlen);
           }

@@ -88,7 +88,7 @@ public:
    */
   JTT92(
       std::shared_ptr<const ProteicAlphabet> alpha,
-      std::shared_ptr<ProteinFrequencySetInterface> freqSet,
+      std::unique_ptr<ProteinFrequencySetInterface> freqSet,
       bool initFreqs = false);
 
   JTT92(const JTT92& model) :
@@ -146,8 +146,6 @@ public:
     throw NullPointerException("JTT92::frequencySet(). No associated FrequencySet.");
   }
     
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
-
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 };
 } // end of namespace bpp.

@@ -49,8 +49,8 @@ using namespace bpp;
 
 using namespace std;
 
-DiscreteDistribution* RASTools::getPosteriorRateDistribution(
-  const DiscreteRatesAcrossSitesTreeLikelihood& treeLikelihood)
+unique_ptr<DiscreteDistribution> RASTools::getPosteriorRateDistribution(
+  const DiscreteRatesAcrossSitesTreeLikelihoodInterface& treeLikelihood)
 {
   // Get all posterior rate classes for each sites:
   vector<size_t> classes = treeLikelihood.getRateClassWithMaxPostProbPerSite();
@@ -61,13 +61,14 @@ DiscreteDistribution* RASTools::getPosteriorRateDistribution(
   }
 
   // Now compute the distribution:
-  const DiscreteDistribution* rDist = treeLikelihood.getRateDistribution();
+  auto rDist = treeLikelihood.getRateDistribution();
   map<double, double> distribution;
-  for (map<size_t, size_t>::iterator i = counts.begin(); i != counts.end(); i++)
+  for (auto& i : counts)
   {
-    distribution[rDist->getCategory(i->first)] = (double)i->second / (double)classes.size();
+    distribution[rDist->getCategory(i.first)] = static_cast<double>(i.second) / static_cast<double>(classes.size());
   }
 
   // Build a new distribution and return it:
-  return new SimpleDiscreteDistribution(distribution);
+  return make_unique<SimpleDiscreteDistribution>(distribution);
 }
+

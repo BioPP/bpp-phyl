@@ -53,7 +53,7 @@ namespace bpp
  * @brief Abstract class for modelling of ratios of substitution
  * rates between codons, whatever they are synonymous or not.
  *
- * @author Fanny Pouyet, Laurent GuÃÂ©guen
+ * @author Fanny Pouyet, Laurent Guéguen
  *
  * The fitness of a codon is a value between 0 and 1 defining the
  * relative advantage of a codon, compared to others. If a codon
@@ -71,7 +71,7 @@ class AbstractCodonFitnessSubstitutionModel :
   public virtual AbstractParameterAliasable
 {
 private:
-  std::shared_ptr<FrequencySetInterface> pfitset_;
+  std::unique_ptr<FrequencySetInterface> pfitset_;
 
   std::shared_ptr<const GeneticCode> pgencode_;
 
@@ -79,7 +79,7 @@ private:
 
 public:
   AbstractCodonFitnessSubstitutionModel(
-    std::shared_ptr<FrequencySetInterface> pfitset,
+    std::unique_ptr<FrequencySetInterface> pfitset,
     std::shared_ptr<const GeneticCode> pgencode,
     const std::string& prefix);
 
@@ -93,7 +93,7 @@ public:
   AbstractCodonFitnessSubstitutionModel& operator=(const AbstractCodonFitnessSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    pfitset_ = std::shared_ptr<FrequencySetInterface>(model.pfitset_->clone());
+    pfitset_.reset(model.pfitset_->clone());
     pgencode_ = model.pgencode_;
     fitName_ = model.fitName_;
     return *this;
@@ -123,17 +123,19 @@ public:
 
   const FrequencySetInterface& fitness() const { return *pfitset_; }
   
-  const std::shared_ptr<FrequencySetInterface> getFitness() const { return pfitset_; }
+  //TODO (jdutheil 30/12/22) not allowed if fully encapsulated.
+  //std::shared_ptr<const FrequencySetInterface> getFitness() const { return pfitset_; }
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
     throw NullPointerException("AbstractCodonFitnessSubstitutionModel::frequencySet. No associated FrequencySet.");
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return nullptr;
+    return false;
   }
+
 };
 } // end of namespace bpp
 # endif

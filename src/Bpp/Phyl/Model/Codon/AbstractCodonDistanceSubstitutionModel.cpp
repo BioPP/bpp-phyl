@@ -42,16 +42,15 @@
 #include "AbstractCodonDistanceSubstitutionModel.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
 AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
-  const AlphabetIndex2* pdist,
-  const GeneticCode* pgencode,
-  const std::string& prefix,
-  bool paramSynRate) :
+    shared_ptr<const AlphabetIndex2> pdist,
+    shared_ptr<const GeneticCode> pgencode,
+    const string& prefix,
+    bool paramSynRate) :
   AbstractParameterAliasable(prefix),
   pdistance_(pdist),
   pgencode_(pgencode),

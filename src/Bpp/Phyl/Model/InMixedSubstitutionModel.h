@@ -68,7 +68,7 @@ private:
   /**
    * @brief The MixedOfTransitionModels.
    */
-  std::unique_ptr<MixedTransitionModelInterface> mixedModel_;
+  std::unique_ptr<MixedTransitionModelInterface> mixedModelPtr_;
 
   /**
    * @brief the number of the submodel
@@ -82,12 +82,12 @@ private:
 
 public:
   InMixedSubstitutionModel(
-      std::unique_ptr<const MixedTransitionModelInterface> mixedModel,
+      std::unique_ptr<MixedTransitionModelInterface> mixedModel,
       const std::string& subModelName,
       const std::string& mixtDesc);
 
   InMixedSubstitutionModel(
-      std::unique_ptr<const MixedTransitionModelInterface> mixedModel,
+      std::unique_ptr<MixedTransitionModelInterface> mixedModel,
       size_t subModelNumber,
       const std::string& mixtDesc);
 
@@ -100,12 +100,12 @@ public:
 public:
   const MixedTransitionModelInterface& mixedModel() const
   {
-    return *mixedModel_;
+    return *mixedModelPtr_;
   }
 
   const SubstitutionModelInterface& substitutionModel() const override
   {
-    return dynamic_cast<const SubstitutionModelInterface&>(*mixedModel_->getNModel(subModelNumber_));
+    return dynamic_cast<const SubstitutionModelInterface&>(mixedModelPtr_->nModel(subModelNumber_));
   }
 
   size_t getSubModelNumber() const
@@ -124,26 +124,26 @@ public:
    */
   void computeFrequencies(bool yn) override
   {
-    mixedModel().computeFrequencies(yn);
+    mixedModel_().computeFrequencies(yn);
   }
 
 protected:
   Vdouble& getFrequencies_() override
   {
-    return mixedModel().getFrequencies_();
+    return mixedModel_().getFrequencies_();
   }
 
   /**
    * @}
    */
-  MixedTransitionModelInterface& mixedModel()
+  MixedTransitionModelInterface& mixedModel_()
   {
-    return *mixedModel_;
+    return *mixedModelPtr_;
   }
 
-  SubstitutionModelInterface& substitutionModel() override
+  SubstitutionModelInterface& substitutionModel_() override
   {
-    return dynamic_cast<SubstitutionModelInterface&>(*mixedModel_->getNModel(subModelNumber_));
+    return dynamic_cast<SubstitutionModelInterface&>(mixedModel_().nModel_(subModelNumber_));
   }
 
 public:
@@ -173,12 +173,12 @@ public:
 
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override
   {
-    mixedModel().setFreqFromData(data, pseudoCount);
+    mixedModel_().setFreqFromData(data, pseudoCount);
   }
 
   void setFreq(std::map<int, double>& frequencies) override
   {
-    mixedModel().setFreq(frequencies);
+    mixedModel_().setFreq(frequencies);
   }
 
   /**
@@ -194,9 +194,9 @@ public:
 
   double Sij(size_t i, size_t j) const override { return substitutionModel().Sij(i, j); }
 
-  void enableEigenDecomposition(bool yn) override { substitutionModel().enableEigenDecomposition(yn); }
+  void enableEigenDecomposition(bool yn) override { substitutionModel_().enableEigenDecomposition(yn); }
 
-  bool enableEigenDecomposition() override { return substitutionModel().enableEigenDecomposition(); }
+  bool enableEigenDecomposition() override { return substitutionModel_().enableEigenDecomposition(); }
 
   bool isDiagonalizable() const override { return substitutionModel().isDiagonalizable(); }
 
@@ -221,23 +221,23 @@ public:
 
   void setScalable(bool scalable) override 
   {
-    substitutionModel().setScalable(scalable);
+    substitutionModel_().setScalable(scalable);
   }
 
 
   double getScale() const override { return substitutionModel().getScale(); }
 
-  void setScale(double scale) override { substitutionModel().setScale(scale); }
+  void setScale(double scale) override { substitutionModel_().setScale(scale); }
 
 
   void normalize() override
   {
-    substitutionModel().normalize();
+    substitutionModel_().normalize();
   }
 
   void setDiagonal() override
   {
-    substitutionModel().setDiagonal();
+    substitutionModel_().setDiagonal();
   }
 
   double getRate() const override
@@ -247,12 +247,12 @@ public:
 
   void setRate(double rate) override
   {
-    return mixedModel().setRate(rate);
+    return mixedModel_().setRate(rate);
   }
 
   void addRateParameter() override
   {
-    mixedModel().addRateParameter();
+    mixedModel_().addRateParameter();
     addParameter_(new Parameter(getNamespace() + "rate", mixedModel().getRate(), Parameter::R_PLUS_STAR));
   }
 
@@ -273,13 +273,13 @@ public:
    */
   void fireParameterChanged(const ParameterList& parameters) override
   {
-    mixedModel().matchParametersValues(parameters);
+    mixedModel_().matchParametersValues(parameters);
   }
 
   void setNamespace(const std::string& name) override
   {
     AbstractParameterAliasable::setNamespace(name);
-    mixedModel().setNamespace(name);
+    mixedModel_().setNamespace(name);
   }
 
 
@@ -288,11 +288,9 @@ public:
    */
   std::string getName() const override
   {
-    return mixedModel_->getName();
+    return mixedModelPtr_->getName();
   }
 
-protected:
-  void updateMatrices() override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_INMIXEDSUBSTITUTIONMODEL_H

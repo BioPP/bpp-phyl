@@ -56,31 +56,49 @@ namespace bpp
  * likelihood on several independent data.
  */
 class ProductOfAlignedPhyloLikelihood :
-  public SetOfAlignedPhyloLikelihood
+  public AbstractSetOfAlignedPhyloLikelihood
 {
   /**
    * Aligned LikelihoodCalculation to store DF nodes
    */
-
   mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
 
 public:
-  ProductOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true);
+  ProductOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      bool inCollection = true);
 
-  ProductOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
+  ProductOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      const std::vector<size_t>& nPhylo,
+      bool inCollection = true);
 
-  ~ProductOfAlignedPhyloLikelihood() {}
+  virtual ~ProductOfAlignedPhyloLikelihood() {}
+
+protected:
+
+  ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd) :
+    AbstractPhyloLikelihood(sd),
+    AbstractParametrizable(""),
+    AbstractSetOfPhyloLikelihood(sd),
+    AbstractAlignedPhyloLikelihood(sd),
+    AbstractSetOfAlignedPhyloLikelihood(sd),
+    likCal_(sd.likCal_)
+  {}
+
+  ProductOfAlignedPhyloLikelihood& operator=(const ProductOfAlignedPhyloLikelihood& sd)
+  {
+    AbstractSetOfAlignedPhyloLikelihood::operator=(sd);
+    likCal_ = sd.likCal_;
+    return *this;
+  }
 
   ProductOfAlignedPhyloLikelihood* clone() const
   {
     return new ProductOfAlignedPhyloLikelihood(*this);
   }
-
-  ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd) :
-    AbstractPhyloLikelihood(sd),
-    SetOfAlignedPhyloLikelihood(sd),
-    likCal_(sd.likCal_)
-  {}
 
 public:
   LikelihoodCalculation& likelihoodCalculation () const

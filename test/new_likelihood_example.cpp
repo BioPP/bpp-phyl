@@ -127,13 +127,13 @@ namespace
   //   });
   // }
 
-  void optimize_for_params(DerivableSecondOrder& llh,
+  void optimize_for_params(shared_ptr<SecondOrderDerivable> llh,
                            const std::string& prefix,
                            const ParameterList& params)
   {
     auto ts = timingStart();
-    ConjugateGradientMultiDimensions optimizer(&llh);
-    // SimpleNewtonMultiDimensions optimizer(&llh);
+    ConjugateGradientMultiDimensions optimizer(llh);
+    // SimpleNewtonMultiDimensions optimizer(llh);
     optimizer.setVerbose(0);
     optimizer.setProfiler(nullptr);       // ApplicationTools::message);
     optimizer.setMessageHandler(nullptr); // ApplicationTools::message);
@@ -144,13 +144,14 @@ namespace
     optimizer.init(params);
     optimizer.optimize();
     timingEnd(ts, prefix);
-    printLik(llh.getValue(), prefix);
+    printLik(llh->getValue(), prefix);
   }
 
   struct CommonStuff
   {
-    const NucleicAlphabet& alphabet;
-    VectorSiteContainer sites;
+    shared_ptr<const Alphabet> alphabet;
+    shared_ptr<const NucleicAlphabet> nucAlphabet;
+    shared_ptr<VectorSiteContainer> sites;
     const char* treeStr;
     ParameterList paramModel1;
     ParameterList paramModel2;
@@ -161,19 +162,20 @@ namespace
 
     CommonStuff()
       : alphabet(AlphabetTools::DNA_ALPHABET)
-      , sites(&alphabet)
+      , nucAlphabet(AlphabetTools::DNA_ALPHABET)
+      , sites(new VectorSiteContainer(alphabet))
       , treeStr("(A:0.01, B:0.02);")
 //      , treeStr("((A:0.01, B:0.02):0.03,C:0.01);")
     {
       // Init sequences
-      sites.addSequence(
-        BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", &alphabet));
-      sites.addSequence(
-        BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", &alphabet));
-      sites.addSequence(
-        BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", &alphabet));
-      sites.addSequence(
-        BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
+      auto seqA = make_unique<Sequence>("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet);
+      sites->addSequence("A", seqA);
+      auto seqB = make_unique<Sequence>("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet);
+      sites->addSequence("B", seqB);
+      auto seqC = make_unique<Sequence>("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet);
+      sites->addSequence("C", seqC);
+      auto seqD = make_unique<Sequence>("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet);
+      sites->addSequence("D", seqD);
 
       // Set of parameters to apply to tree + model
       paramModel1.addParameter(Parameter("T92.kappa", 0.1));
@@ -204,16 +206,16 @@ int main(int argc, char** argv)
 
   auto ts = timingStart();
   
-  auto t92 = std::make_shared<T92>(&c.alphabet, 3., 0.7);
-  auto t922 = std::make_shared<T92>(&c.alphabet, 3., 0.7);
+  auto t92 = std::make_shared<T92>(c.nucAlphabet, 3., 0.7);
+  auto t922 = std::make_shared<T92>(c.nucAlphabet, 3., 0.7);
 
-  std::map<std::string, DiscreteDistribution*> mapParam1;
+  std::map<std::string, unique_ptr<DiscreteDistribution>> mapParam1;
 
-  mapParam1["kappa"]=new GammaDiscreteDistribution(2, 1);
+  mapParam1["kappa"].reset(new GammaDiscreteDistribution(2, 1));
 
 //  auto mt92 = std::make_shared<MixtureOfASubstitutionModel>(&c.alphabet, t92.get(), mapParam1);
 
-  auto k80 = std::make_shared<K80>(&c.alphabet, 2.);
+  auto k80 = std::make_shared<K80>(c.nucAlphabet, 2.);
   // std::map<std::string, DiscreteDistribution*> mapParam2;
   // auto sdm=std::map<double, double>({{0.0001,0.3},{200.,0.7}});
   
@@ -235,7 +237,7 @@ int main(int argc, char** argv)
 
   */
 
-  auto rootFreqs = std::make_shared<GCFrequencySet>(&c.alphabet, 0.1);
+  auto rootFreqs = std::make_shared<GCFrequencySet>(c.nucAlphabet, 0.1);
 
   auto distribution = std::make_shared<ConstantRateDistribution>();
   //auto distribution = new GammaDiscreteRateDistribution(3, 1);
@@ -259,28 +261,28 @@ int main(int argc, char** argv)
 
   // process->addModel(t92, Vuint({2}));
     
-  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree, rootFreqs);//, scenario));
+  shared_ptr<SubstitutionProcessInterface> process = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree, rootFreqs);//, scenario));
 
   process->getParameters().printParameters(cerr);
   
   // Build likelihood value node
-  auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, *process);
+  auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, process);
 
   
   l->setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
 
-  OneProcessSequenceEvolution ope(*process);
+  auto ope = make_shared<OneProcessSequenceEvolution>(process);
 
-  OneProcessSequencePhyloLikelihood llh(context, c.sites,  ope);
+  auto llh = make_shared<OneProcessSequencePhyloLikelihood>(context, c.sites,  ope);
 
   timingEnd(ts, "df_setup");
-  auto lik = llh.getLikelihoodCalculation();
+  auto lik = llh->getLikelihoodCalculation();
   dotOutput("likelihood_example_value", {lik->getLikelihoodNode().get()});
 
   ts = timingStart();
   
-  auto logLik = llh.getValue();
+  auto logLik = llh->getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
@@ -290,15 +292,15 @@ int main(int argc, char** argv)
   auto dlogLik_dbrlen1 = lik->getLikelihoodNode()->deriveAsValue(context, *br->dependency(0));
 
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
-  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
-  std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << std::endl;
-  std::cout << "[dbrlen1] " << llh.getSecondOrderDerivative("BrLen1") << std::endl;
+  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->targetValue() << "\n";
+  std::cout << "[dbrlen1] " << llh->getFirstOrderDerivative("BrLen1") << std::endl;
+  std::cout << "[dbrlen1] " << llh->getSecondOrderDerivative("BrLen1") << std::endl;
 
   // // Manual access to dkappa
   
-  auto kappa= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("K80.kappa").get());
+  auto kappa= dynamic_cast<ConfiguredParameter*>(llh->getLikelihoodCalculation()->getSharedParameter("K80.kappa").get());
   auto dlogLik_dkappa = lik->getLikelihoodNode()->deriveAsValue(context, *kappa->dependency(0));
-  std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
+  std::cout << "[dkappa] " << dlogLik_dkappa->targetValue() << "\n";
   dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
   
   // auto d2logLik_dkappa2 = dlogLik_dkappa->deriveAsValue(context, *kappa->dependency(0));
@@ -326,6 +328,6 @@ int main(int argc, char** argv)
   
   optimize_for_params(llh, "df_all_opt", l->getParameters());
   dotOutput("likelihood_optim_value", {lik->getLikelihoodNode().get()});
-  llh.getParameters().printParameters(std::cerr);  
+  llh->getParameters().printParameters(std::cerr);  
 
 }

@@ -53,13 +53,11 @@ namespace bpp
 /**
  * @brief Basal class for words of  substitution models with multiple
  * substitutions.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * The equilibrium frequency of each word is due to the combination of
  * the multiple substitutions.
- *
  */
-
 class KroneckerWordSubstitutionModel :
   public AbstractKroneckerWordSubstitutionModel
 {
@@ -105,7 +103,7 @@ public:
    * @param prefix the Namespace.
    */
   KroneckerWordSubstitutionModel(
-      std::shared_ptr<SubstitutionModelInterface> pmodel,
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
       unsigned int num,
       const std::string& prefix = "");
 
@@ -122,7 +120,7 @@ public:
    * @param prefix the Namespace.
    */
   KroneckerWordSubstitutionModel(
-      std::shared_ptr<SubstitutionModelInterface> pmodel,
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
       unsigned int num,
       const std::vector<std::set< size_t> >& vPos,
       const std::string& prefix = "");
@@ -143,7 +141,7 @@ protected:
       std::shared_ptr<const StateMapInterface> stateMap,
       const std::string& prefix = "");
 
-  void completeMatrices() override {}
+  void completeMatrices_() override {}
 
 public:
   virtual std::string getName() const override;

@@ -1,7 +1,7 @@
 //
 // File: PartitionSequenceEvolution.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: vendredi 15 mai 2015, ÃÂ  18h 29
 //
 
@@ -58,10 +58,8 @@ class PartitionSequenceEvolution :
 {
 private:
   /**
-   *@ brief vector of the substitution process numbers along the sequence.
-   *
+   * @brief vector of the substitution process numbers along the sequence.
    */
-
   std::vector<size_t> vProc_;
 
   size_t vSize_;
@@ -81,11 +79,9 @@ public:
    *
    * @param the used SubstitutionProcessCollection
    * @param A vector of the number of the processes along the sequence.
-   *
    */
-
   PartitionSequenceEvolution(
-    SubstitutionProcessCollection* processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     std::vector<size_t>& posProc);
 
   PartitionSequenceEvolution(const PartitionSequenceEvolution& mlc) :
@@ -132,12 +128,12 @@ public:
     return vProc_[i];
   }
 
-  std::map<size_t, std::vector<size_t> >& getMapOfProcessSites()
+  std::map<size_t, std::vector<size_t> >& mapOfProcessSites()
   {
     return mProcPos_;
   }
 
-  const std::map<size_t, std::vector<size_t> >& getMapOfProcessSites() const
+  const std::map<size_t, std::vector<size_t> >& mapOfProcessSites() const
   {
     return mProcPos_;
   }

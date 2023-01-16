@@ -91,14 +91,7 @@ public:
    * @return The tree associated to this object.
    */
   virtual const Tree& tree() const = 0;
-
-  /**
-   * @brief Get the tree for wich scores are computed.
-   *
-   * @return A shared pointer toward the tree associated to this object.
-   */
-  virtual std::shared_ptr<const Tree> getTree() const = 0;
-  
+ 
   /**
    * @brief Get the state map associated to this instance.
    *

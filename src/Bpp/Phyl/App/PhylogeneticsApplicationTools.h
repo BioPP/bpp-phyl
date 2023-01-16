@@ -41,13 +41,6 @@
 #ifndef BPP_PHYL_APP_PHYLOGENETICSAPPLICATIONTOOLS_H
 #define BPP_PHYL_APP_PHYLOGENETICSAPPLICATIONTOOLS_H
 
-#include <Bpp/Io/OutputStream.h>
-#include <Bpp/Numeric/Function/Optimizer.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
-#include <Bpp/Numeric/Prob/MultipleDiscreteDistribution.h>
-#include <Bpp/Phyl/Likelihood/DataFlow/DataFlow.h>
-#include <Bpp/Text/TextTools.h>
-
 #include "../Likelihood/ModelScenario.h"
 #include "../Likelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h"
 #include "../Likelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h"
@@ -60,8 +53,16 @@
 #include "../Model/MarkovModulatedSubstitutionModel.h"
 #include "../Model/SubstitutionModel.h"
 #include "../Tree/PhyloTree.h"
+#include "../Likelihood/DataFlow/DataFlow.h"
 
-// From SeqLib:
+// From bpp-core:
+#include <Bpp/Io/OutputStream.h>
+#include <Bpp/Numeric/Function/Optimizer.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/MultipleDiscreteDistribution.h>
+#include <Bpp/Text/TextTools.h>
+
+// From bpp-seq:
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
@@ -89,7 +90,6 @@ namespace bpp
  *
  * @see ApplicationTools
  */
-
 class PhylogeneticsApplicationTools
 {
 public:
@@ -111,7 +111,7 @@ public:
    *
    * @return A new Tree object according to the specified options.
    */
-  static Tree* getTree(
+  static std::unique_ptr<Tree> getTree(
     const std::map<std::string, std::string>& params,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -133,7 +133,7 @@ public:
    * @return A new vector of Tree objects according to the specified options.
    */
   
-  static std::vector<Tree*> getTrees(
+  static std::vector<std::unique_ptr<Tree>> getTrees(
     const std::map<std::string, std::string>& params,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -477,7 +477,7 @@ public:
    * @param verbose Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    *
-   * @return A pointer to a SubstitutionProcessCollection.
+   * @return A shared pointer to a SubstitutionProcessCollection.
    */  
   static std::unique_ptr<SubstitutionProcessCollection> getSubstitutionProcessCollection(
     std::shared_ptr<const Alphabet> alphabet,
@@ -505,7 +505,7 @@ public:
    * @param verbose Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    *
-   * @return if addition has been successful.
+   * @return if the addition has been successful.
    */
   static bool addSubstitutionProcessCollectionMember(
     SubstitutionProcessCollection& SubProColl,
@@ -520,7 +520,7 @@ public:
    * evolve, which may use several processes.
    */
   static std::map<size_t, std::unique_ptr<SequenceEvolution> > getSequenceEvolutions(
-    SubstitutionProcessCollection& SPC,
+    std::shared_ptr<SubstitutionProcessCollection> SPC,
     const std::map<std::string, std::string>& params,
     map<string, string>& unparsedParams,
     const string& suffix = "",
@@ -539,7 +539,7 @@ public:
    */
   static std::unique_ptr<PhyloLikelihoodContainer> getPhyloLikelihoodContainer(
     Context& context,
-    SubstitutionProcessCollection& SPC,
+    std::shared_ptr<SubstitutionProcessCollection> SPC,
     std::map<size_t, std::shared_ptr<SequenceEvolution> >& mSeqEvol,
     const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
     const std::map<std::string, std::string>& params,
@@ -580,8 +580,7 @@ public:
    * @param verbose Print some info to the 'message' output stream.
    * @return A new DiscreteDistribution object according to options specified.
    */
-
-  static DiscreteDistribution* getRateDistribution(
+  static std::unique_ptr<DiscreteDistribution> getRateDistribution(
     const std::map<std::string, std::string>& params,
     const std::string& suffix = "",
     bool suffixIsOptional = true,
@@ -619,7 +618,6 @@ public:
    * tl = PhylogeneticsApplicationTools::optimizeParameters(tl, ...);
    * @endcode
    */
-
   static std::shared_ptr<PhyloLikelihoodInterface> optimizeParameters(
     std::shared_ptr<PhyloLikelihoodInterface> lik,
     const ParameterList& parameters,
@@ -680,7 +678,6 @@ public:
    * checked and error messages sent, but no file is written.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
-
   static void writeTree(
     const TreeTemplate<Node>& tree,
     const std::map<std::string, std::string>& params,
@@ -708,7 +705,6 @@ public:
    * @param warn Set the warning level (0: always display warnings,
    * >0 display warnings on demand).
    */
-
   static void writePhyloTrees(
     const std::vector<const PhyloTree*>& trees,
     const std::map<std::string, std::string>& params,
@@ -832,7 +828,7 @@ public:
 
   static void printAnalysisInformation(const SingleDataPhyloLikelihoodInterface& phylolike, const std::string& infosFile, int warn = 1);
 
-  static void printAnalysisInformation(const SetOfAlignedPhyloLikelihood& sOAP, const std::string& infosFile, int warn = 1);
+  static void printAnalysisInformation(const SetOfAlignedPhyloLikelihoodInterface& sOAP, const std::string& infosFile, int warn = 1);
 
   /**
    * @}

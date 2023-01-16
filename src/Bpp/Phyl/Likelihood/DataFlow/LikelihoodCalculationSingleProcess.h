@@ -42,11 +42,11 @@
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_LIKELIHOODCALCULATIONSINGLEPROCESS_H
 
 #include <Bpp/Graph/AssociationDAGraphImplObserver.h>
-#include <Bpp/Phyl/Likelihood/DataFlow/DataFlow.h>
-#include <Bpp/Phyl/Likelihood/DataFlow/DataFlowCWiseComputing.h>
-#include <Bpp/Phyl/SitePatterns.h>
 #include <Bpp/Seq/Container/AlignmentData.h>
 
+#include "Bpp/Phyl/Likelihood/DataFlow/DataFlow.h"
+#include "Bpp/Phyl/Likelihood/DataFlow/DataFlowCWiseComputing.h"
+#include "Bpp/Phyl/SitePatterns.h"
 #include "Bpp/Phyl/Likelihood/DataFlow/CollectionNodes.h"
 #include "Bpp/Phyl/Likelihood/DataFlow/DiscreteDistribution.h"
 #include "Bpp/Phyl/Likelihood/DataFlow/FrequencySet.h"
@@ -155,27 +155,22 @@ public:
     std::shared_ptr<ProcessTree> phyloTree;
     std::shared_ptr<ForwardLikelihoodTree> flt;
 
-    /*
+    /**
      * @brief backward likelihood tree (only computed when needed)
-     *
      */
-
     std::shared_ptr<BackwardLikelihoodTree> blt;
 
-    /*
+    /**
      * @brief for each node n:  clt[n] = flt[n] * dlt[n]
-     *
      */
     std::shared_ptr<ConditionalLikelihoodDAG> clt;
 
-    /*
+    /**
      * @brief for each node n:  clt[n] = sum_states(clt[n][s])
-     *
      */
-
     std::shared_ptr<SiteLikelihoodsDAG> lt;
 
-    /*
+    /**
      * Site Likelihoods on the tree, with shrunked positions, summed
      * on all paths.
      *
@@ -184,16 +179,13 @@ public:
      * This is only computed when node specific likelihood is
      * computed.
      */
-
     std::shared_ptr<SiteLikelihoodsTree> speciesLt;
   };
 
-  /*
+  /**
    * @brief DF Nodes used in the process. ProcessTree is used
    * without any rate multiplier.
-   *
    */
-
   class ProcessNodes
   {
 public:
@@ -378,12 +370,12 @@ public:
 
   const StateMapInterface& stateMap() const
   {
-    return processNodes_.modelNode_->getTargetValue()->stateMap();
+    return processNodes_.modelNode_->targetValue()->stateMap();
   }
 
   std::shared_ptr<const StateMapInterface> getStateMap() const
   {
-    return processNodes_.modelNode_->getTargetValue()->getStateMap();
+    return processNodes_.modelNode_->targetValue()->getStateMap();
   }
 
   /************************************************
@@ -401,10 +393,15 @@ public:
    */
   size_t getRootArrayPosition(size_t currentPosition) const
   {
-    return rootPatternLinks_ ? rootPatternLinks_->getTargetValue()(Eigen::Index(currentPosition)) : currentPosition;
+    return rootPatternLinks_ ? rootPatternLinks_->targetValue()(Eigen::Index(currentPosition)) : currentPosition;
   }
 
-  const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
+  const PatternType& getRootArrayPositions() const { return rootPatternLinks_->targetValue(); }
+
+  const AlignmentDataInterface& shrunkData() const
+  {
+    return *shrunkData_;
+  }
 
   std::shared_ptr<const AlignmentDataInterface> getShrunkData() const
   {
@@ -436,7 +433,7 @@ public:
     if (!rootPatternLinks_)
       return matrix;
     else
-      return CWisePattern<MatrixLik>::create(getContext_(), {matrix, rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
+      return CWisePattern<MatrixLik>::create(getContext_(), {matrix, rootPatternLinks_}, MatrixDimension (matrix->targetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
   }
 
   /*
@@ -446,7 +443,7 @@ public:
    */
   unsigned int getWeight(size_t pos) const
   {
-    return (uint)(rootWeights_->getTargetValue()(Eigen::Index(pos)));
+    return (uint)(rootWeights_->targetValue()(Eigen::Index(pos)));
   }
 
   std::shared_ptr<SiteWeights> getRootWeights()
@@ -584,11 +581,10 @@ public:
   AllRatesSiteLikelihoods getSiteLikelihoodsForAllClasses(bool shrunk = false);
 
 
-  /*
-   *@brief Get process tree for a rate category
+  /**
+   * @brief Get process tree for a rate category
    *
-   *@param nCat : index of the rate category
-   *
+   * @param nCat : index of the rate category
    */
   std::shared_ptr<ProcessTree> getTreeNode(size_t nCat)
   {
@@ -611,14 +607,13 @@ private:
 
   void makeLikelihoodsAtRoot_();
 
-  /*
-   *@ brief make DF nodes of a process in a collection, using
+  /**
+   * @brief make DF nodes of a process in a collection, using
    * ConfiguredParameters defined in a CollectionNodes.
    */
-
   void makeProcessNodes_(CollectionNodes& pl, size_t nProc);
 
-  /*
+  /**
    * @brief Compute the likelihood at a given node in the tree,
    * which number may not be the same number in the DAG.
    *
@@ -627,10 +622,9 @@ private:
    *
    * @param nodeId : index of the node in the phylo Tree
    */
-
   void makeLikelihoodsAtNode_(uint nodeId);
 
-  /*
+  /**
    * @brief Compute the likelihood at a given node in the DAG,
    *
    * This is not enough to compute likelihoods at species nodes, use
@@ -638,7 +632,6 @@ private:
    *
    * @param nodeId : index of the node in the DAG
    */
-
   void makeLikelihoodsAtDAGNode_(uint nodeId);
 
   std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);

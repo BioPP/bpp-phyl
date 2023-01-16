@@ -60,13 +60,16 @@ DSO78::DSO78(std::shared_ptr<const ProteicAlphabet> alpha) :
   #include "__DSO78ExchangeabilityCode"
   #include "__DSO78FrequenciesCode"
   freqSet_.reset(new FixedProteinFrequencySet(alpha, freq_));
-  updateMatrices();
+  updateMatrices_();
 }
 
-DSO78::DSO78(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs) :
+DSO78::DSO78(
+    shared_ptr<const ProteicAlphabet> alpha,
+    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    bool initFreqs) :
   AbstractParameterAliasable("DSO78+F."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "DSO78+F."),
-  freqSet_(freqSet)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "DSO78+F."),
+  freqSet_(move(freqSet))
 {
   #include "__DSO78ExchangeabilityCode"
   #include "__DSO78FrequenciesCode"
@@ -76,12 +79,12 @@ DSO78::DSO78(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> 
   else
     freq_ = freqSet_->getFrequencies();
   addParameters_(freqSet_->getParameters());
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void DSO78::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void DSO78::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   map<int, double> counts;
   SequenceContainerTools::getFrequencies(data, counts, pseudoCount);

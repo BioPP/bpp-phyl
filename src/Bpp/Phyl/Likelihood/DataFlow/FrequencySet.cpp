@@ -49,8 +49,8 @@ namespace bpp
 {
 // FrequencySet node
 
-ConfiguredFrequencySet::ConfiguredFrequencySet (const Context& context, NodeRefVec&& deps, std::unique_ptr<FrequencySet>&& freqset)
-  : Value<const FrequencySet*>(std::move (deps), freqset.get ()), AbstractParametrizable(freqset->getNamespace())// , context_(context)
+ConfiguredFrequencySet::ConfiguredFrequencySet (const Context& context, NodeRefVec&& deps, std::unique_ptr<FrequencySetInterface>&& freqset)
+  : Value<const FrequencySetInterface*>(std::move (deps), freqset.get ()), AbstractParametrizable(freqset->getNamespace())// , context_(context)
   , freqset_(std::move(freqset))
 {
   for (const auto& dep:dependencies())
@@ -140,7 +140,7 @@ NodeRef FrequenciesFromFrequencySet::recreate (Context& c, NodeRefVec&& deps)
 
 void FrequenciesFromFrequencySet::compute ()
 {
-  const auto* freqset = accessValueConstCast<const FrequencySet*>(*this->dependency (0));
+  const auto* freqset = accessValueConstCast<const FrequencySetInterface*>(*this->dependency (0));
   const auto& freqsFromFS = freqset->getFrequencies ();
   auto& r = this->accessValueMutable ();
   r = Eigen::Map<const T>(freqsFromFS.data(), static_cast<Eigen::Index>(freqsFromFS.size ()));

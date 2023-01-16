@@ -53,44 +53,55 @@ using namespace std;
 
 
 FullNucleotideFrequencySet::FullNucleotideFrequencySet(
-  const NucleicAlphabet* alphabet, bool allowNullFreqs,
-  const string& name) :
-  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
+    shared_ptr<const NucleicAlphabet> alphabet,
+    bool allowNullFreqs,
+    const string& name) :
+  AbstractFrequencySet(
+    make_shared<CanonicalStateMap>(alphabet, false),
+    "Full.",
+    name)
 {
   addParameter_(new Parameter(
                   "Full.theta", 0.5,
                   allowNullFreqs ?
                   Parameter::PROP_CONSTRAINT_IN :
-                  FrequencySet::FREQUENCE_CONSTRAINT_CENTI));
+                  FrequencySetInterface::FREQUENCE_CONSTRAINT_CENTI));
   addParameter_(new Parameter(
                   "Full.theta1", 0.5,
                   allowNullFreqs ?
                   Parameter::PROP_CONSTRAINT_IN :
-                  FrequencySet::FREQUENCE_CONSTRAINT_CENTI));
+                  FrequencySetInterface::FREQUENCE_CONSTRAINT_CENTI));
   addParameter_(new Parameter("Full.theta2", 0.5,
                               allowNullFreqs ?
                               Parameter::PROP_CONSTRAINT_IN :
-                              FrequencySet::FREQUENCE_CONSTRAINT_CENTI));
+                              FrequencySetInterface::FREQUENCE_CONSTRAINT_CENTI));
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
 
 FullNucleotideFrequencySet::FullNucleotideFrequencySet(
-  const NucleicAlphabet* alphabet, double theta, double theta1, double theta2,
-  bool allowNullFreqs, const string& name) :
-  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
+    shared_ptr<const NucleicAlphabet> alphabet,
+    double theta, 
+    double theta1,
+    double theta2,
+    bool allowNullFreqs, 
+    const string& name) :
+  AbstractFrequencySet(
+    make_shared<CanonicalStateMap>(alphabet, false),
+    "Full.",
+    name)
 {
   addParameter_(new Parameter(
                   "Full.theta",
                   theta,
                   allowNullFreqs ?
                   Parameter::PROP_CONSTRAINT_IN :
-                  FrequencySet::FREQUENCE_CONSTRAINT_CENTI));
+                  FrequencySetInterface::FREQUENCE_CONSTRAINT_CENTI));
   addParameter_(new Parameter(
                   "Full.theta1",
                   theta1,
                   allowNullFreqs ?
                   Parameter::PROP_CONSTRAINT_IN :
-                  FrequencySet::FREQUENCE_CONSTRAINT_CENTI));
+                  FrequencySetInterface::FREQUENCE_CONSTRAINT_CENTI));
   addParameter_(new Parameter(
                   "Full.theta2",
                   theta2,
@@ -108,10 +119,7 @@ void FullNucleotideFrequencySet::setFrequencies(const vector<double>& frequencie
   if (frequencies.size() != 4)
     throw DimensionException(" FullNucleotideFrequencySet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;
-  for (unsigned int i = 0; i < 4; i++)
-  {
-    sum += frequencies[i];
-  }
+  for (auto& f : frequencies) sum += f;
   if (fabs(1. - sum) > NumConstants::SMALL())
     throw Exception("FullNucleotideFrequencySet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   double theta = frequencies[1] + frequencies[2];

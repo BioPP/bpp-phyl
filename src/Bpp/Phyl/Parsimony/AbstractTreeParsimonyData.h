@@ -70,10 +70,10 @@ class AbstractTreeParsimonyData :
 protected:
   std::vector<size_t> rootPatternLinks_;
   std::vector<unsigned int> rootWeights_;
-  std::shared_ptr< const TreeTemplate<Node> > tree_;
+  std::shared_ptr<const TreeTemplate<Node>> tree_;
 
 public:
-  AbstractTreeParsimonyData(std::shared_ptr< const TreeTemplate<Node> > tree) :
+  AbstractTreeParsimonyData(std::shared_ptr<const TreeTemplate<Node>> tree) :
     rootPatternLinks_(),
     rootWeights_(),
     tree_(tree)
@@ -109,10 +109,10 @@ public:
 
   const TreeTemplate<Node>& tree() const override { return *tree_; }
   
-  std::shared_ptr< const TreeTemplate<Node> > getTree() const override { return tree_; }
+  std::shared_ptr<const TreeTemplate<Node>> getTree() const override { return tree_; }
 
 protected:
-  void setTree(std::shared_ptr< const TreeTemplate<Node> > tree) { tree_ = tree; }
+  void setTree(std::shared_ptr<const TreeTemplate<Node>> tree) { tree_ = tree; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PARSIMONY_ABSTRACTTREEPARSIMONYDATA_H

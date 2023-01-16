@@ -67,11 +67,10 @@ protected:
   size_t nbTypes_;
   mutable RowMatrix<double> jMat_, jIMat_;
 
-  /*
+  /**
    * @brief Real and imaginary eigenvectors, for non-reversible
    * computation
    */
-
   ColMatrix<double> rightEigenVectors_, rightIEigenVectors_;
   RowMatrix<double> leftEigenVectors_, leftIEigenVectors_;
 
@@ -89,7 +88,7 @@ public:
 
   DecompositionMethods(std::shared_ptr<const SubstitutionModelInterface> model);
 
-  DecompositionMethods(std::shared_ptr<const StateMapInterface> statemap);
+  DecompositionMethods(const StateMapInterface& stateMap);
 
   DecompositionMethods(const DecompositionMethods& dm) :
     model_(dm.model_),

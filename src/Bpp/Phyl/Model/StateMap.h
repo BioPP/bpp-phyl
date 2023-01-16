@@ -204,12 +204,14 @@ class CanonicalStateMap :
 {
 public:
 
+  CanonicalStateMap(std::shared_ptr<const Alphabet> alphabet, bool includeGaps);
+
   /**
    * @brief this contructors takes an existing StateMap and adds one model states for gaps.
    * If the original StateMap alread had a state for gaps, a new one will be appended.
    */
-  CanonicalStateMap(std::shared_ptr<const Alphabet> alphabet, bool includeGaps);
-
+  CanonicalStateMap(const StateMapInterface& sm, bool includeGaps);
+    
   virtual CanonicalStateMap* clone() const { return new CanonicalStateMap(*this); }
 
   virtual std::string getStateDescription(size_t index) const { return getAlphabetStateAsChar(index); }

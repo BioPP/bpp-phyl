@@ -71,11 +71,7 @@ public:
   virtual const TransitionModelInterface& nModel(size_t i) const = 0;
   
   virtual std::shared_ptr<const TransitionModelInterface> getNModel(size_t i) const = 0;
-
-  virtual TransitionModelInterface& nModel(size_t i) = 0;
   
-  virtual std::shared_ptr<TransitionModelInterface> getNModel(size_t i) = 0;
-
   /**
    * @brief Returns the  probability of a specific model from the mixture
    */
@@ -117,24 +113,24 @@ public:
   virtual void normalizeVRates() = 0;
 
   /**
-   * @brief retrieve the submodel with the given name.
+   * @brief Access the submodel with the given name.
    *
-   * Throw an exception is no model is found.
+   * @throw NullPointerException if no model with the given name is found.
    */
   virtual const TransitionModelInterface& model(const std::string& name) const = 0;
-
-  /**
-   * @brief retrieve a pointer to the submodel with the given name.
-   *
-   * Return nullptr if not found.
-   */
-  virtual std::shared_ptr<const TransitionModelInterface> getModel(const std::string& name) const = 0;
 
   /**
    * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description.
    */
   virtual Vuint getSubmodelNumbers(const std::string& desc) const = 0;
+
+protected:
+
+  virtual TransitionModelInterface& nModel_(size_t i) = 0;
+
+  friend class AbstractBiblioMixedTransitionModel;
+  friend class InMixedSubstitutionModel;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_MIXEDTRANSITIONMODEL_H

@@ -114,7 +114,6 @@ public:
   /**
    * @brief Return the SubstitutionProcess of a given index
    * position (in nProc_ vector).
-   *
    */
   const SubstitutionProcessInterface& substitutionProcess(size_t number) const
   {

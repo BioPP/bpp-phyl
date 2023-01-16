@@ -1,7 +1,7 @@
 //
 // File: AbstractBiblioSubstitutionModel.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: vendredi 8 juillet 2011, ÃÂ  20h 17
 //
 
@@ -75,9 +75,11 @@ public:
   virtual ~AbstractBiblioTransitionModel() {}
 
 protected:
-  virtual void updateMatrices();
+
+  virtual void updateMatrices_();
 
 public:
+
   /**
    * @brief get the name of a parameter from its name in a submodel
    *
@@ -108,8 +110,8 @@ public:
    *
    */
 
-  /*
-   *@ brief Methods to supersede AbstractTransitionModel methods.
+  /**
+   * @brief Methods to supersede AbstractTransitionModel methods.
    *
    * @{
    */
@@ -123,12 +125,12 @@ public:
   {
     if (parameters.hasParameter(getNamespace() + "rate"))
     {
-      model().setRate(parameters.getParameterValue(getNamespace() + "rate"));
+      model_().setRate(parameters.getParameterValue(getNamespace() + "rate"));
       if (parameters.size() != 1)
-        updateMatrices();
+        updateMatrices_();
     }
     else
-      updateMatrices();
+      updateMatrices_();
   }
 
   void setNamespace(const std::string& name) override;
@@ -142,6 +144,7 @@ class AbstractBiblioSubstitutionModel :
   public virtual AbstractBiblioTransitionModel,
   public virtual AbstractTotallyWrappedSubstitutionModel
 {
+	
 public:
   AbstractBiblioSubstitutionModel(const std::string& prefix) :
     AbstractBiblioTransitionModel(prefix),
@@ -161,9 +164,11 @@ public:
 
   virtual ~AbstractBiblioSubstitutionModel() {}
 
-  void updateMatrices()
+protected:
+
+  void updateMatrices_() override
   {
-    AbstractBiblioTransitionModel::updateMatrices();
+    AbstractBiblioTransitionModel::updateMatrices_();
   }
 };
 } // end of namespace bpp.

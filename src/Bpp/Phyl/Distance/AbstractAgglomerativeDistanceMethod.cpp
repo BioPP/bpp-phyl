@@ -57,8 +57,7 @@ void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix
     throw Exception("AbstractAgglomerativeDistanceMethod::setDistanceMatrix(): matrix must be at least of dimension 3.");
   matrix_ = matrix;
   currentNodes_.clear();
-  if (tree_)
-    delete tree_;
+  tree_.reset(nullptr);
 }
 
 void AbstractAgglomerativeDistanceMethod::computeTree()

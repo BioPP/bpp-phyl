@@ -123,7 +123,7 @@ public:
    */
   DataLik operator()(size_t pos, size_t state) const
   {
-    return (emProb_->getTargetValue())(Eigen::Index(state), Eigen::Index(pos));
+    return (emProb_->targetValue())(Eigen::Index(state), Eigen::Index(pos));
   }
 
   ValueRef<MatrixLik> getEmissionProbabilities()
@@ -142,7 +142,7 @@ public:
    */
   VectorLik operator()(size_t pos) const
   {
-    return emProb_->getTargetValue().col(Eigen::Index(pos));
+    return emProb_->targetValue().col(Eigen::Index(pos));
   }
 
   /**

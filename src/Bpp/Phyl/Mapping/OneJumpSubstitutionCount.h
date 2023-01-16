@@ -66,12 +66,12 @@ private:
 
 public:
   OneJumpSubstitutionCount(std::shared_ptr<const SubstitutionModelInterface> model) :
-    AbstractSubstitutionCount(make_shared<const TotalSubstitutionRegister>(model->getStateMap())),
+    AbstractSubstitutionCount(std::make_shared<const TotalSubstitutionRegister>(model->getStateMap())),
     model_(model), tmp_() {}
 
   OneJumpSubstitutionCount(std::shared_ptr<const StateMapInterface> statemap) :
-    AbstractSubstitutionCount(make_shared<const TotalSubstitutionRegister>(statemap)),
-    model_(0), tmp_() {}
+    AbstractSubstitutionCount(std::make_shared<const TotalSubstitutionRegister>(statemap)),
+    model_(nullptr), tmp_() {}
 
   OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
     AbstractSubstitutionCount(ojsc),

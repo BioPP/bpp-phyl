@@ -104,7 +104,7 @@ class MixtureOfATransitionModel :
   public AbstractMixedTransitionModel
 {
 private:
-  std::map<std::string, std::shared_ptr<DiscreteDistribution> > distributionMap_;
+  std::map<std::string, std::unique_ptr<DiscreteDistribution> > distributionMap_;
 
 protected:
   int from_, to_;
@@ -112,8 +112,8 @@ protected:
 public:
   MixtureOfATransitionModel(
     std::shared_ptr<const Alphabet> alpha,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::map<std::string, std::shared_ptr<DiscreteDistribution> > parametersDistributionsList,
+    std::unique_ptr<TransitionModelInterface> model,
+    std::map<std::string, std::unique_ptr<DiscreteDistribution> >& parametersDistributionsList,
     int ffrom = -1, int tto = -1);
 
   MixtureOfATransitionModel(const MixtureOfATransitionModel&);
@@ -127,35 +127,28 @@ public:
 public:
   std::string getName() const override { return "MixedModel"; }
 
-  void updateMatrices() override;
-
   /**
    * @brief retrieve a pointer to the submodel with the given name.
-   *
-   * Return Null if not found.
    */
-  std::shared_ptr<const TransitionModelInterface> getModel(const std::string& name) const override;
-
-  std::shared_ptr<const TransitionModelInterface> getModel(size_t i) const
-  {
-    return AbstractMixedTransitionModel::getNModel(i);
-  }
-
   const TransitionModelInterface& model(const std::string& name) const override
   {
-    return *getModel(name);
+    size_t nbmod = getNumberOfModels();
+
+    for (size_t i = 0; i < nbmod; ++i)
+    {
+      auto& model = nModel(i);
+      if (model.getName() == name)
+        return model;
+    }
+
+    throw NullPointerException("MixtureOfATransitionModel::model(). No model with the specified name.");
   }
 
   const TransitionModelInterface& model(size_t i) const
   {
-    return *AbstractMixedTransitionModel::getNModel(i);
+    return AbstractMixedTransitionModel::nModel(i);
   }
   
-  // TransitionModel* getModel(size_t i)
-  // {
-  //   return AbstractMixedTransitionModel::getModel(i);
-  // }
-
   /**
    * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description of the parameters numbers.
@@ -173,18 +166,28 @@ public:
   void setFreq(std::map<int, double>&) override;
 
   /**
-   * @brief returns the DiscreteDistribution associated with a given
+   * @brief Tells whether a DiscreteDistribution is associated with a given
    * parameter name.
    * @param parName name of the parameter
    */
-  std::shared_ptr<const DiscreteDistribution> getDistribution(std::string& parName) const;
+  bool hasDistribution(std::string& parName) const
+  {
+    return (distributionMap_.find(parName) != distributionMap_.end());
+  }
 
   /**
    * @brief returns the DiscreteDistribution associated with a given
    * parameter name.
    * @param parName name of the parameter
    */
-  const DiscreteDistribution& distribution(std::string& parName) const;
+  const DiscreteDistribution& distribution(std::string& parName) const
+  {
+    if (distributionMap_.find(parName) != distributionMap_.end())
+      return *distributionMap_.find(parName)->second;
+    else
+      throw Exception("MixtureOfATransitionModel::distribution(). No distribution with name: '" + parName + "'.");
+  }
+
 
   /**
    *@brief Numbers of the states between which the substitution rates
@@ -193,7 +196,13 @@ public:
    *
    */
   int from() const { return from_; }
+
   int to() const { return to_; }
+
+protected:
+
+  void updateMatrices_() override;
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_MIXTUREOFATRANSITIONMODEL_H

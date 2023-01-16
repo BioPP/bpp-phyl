@@ -131,14 +131,14 @@ private:
   std::shared_ptr<ProcessTree> processTree_;
   ValueRef<Eigen::RowVectorXd> rFreqs_;
   MatrixDimension likelihoodMatrixDim_;
-  const StateMap& statemap_;
+  const StateMapInterface& statemap_;
 
 public:
   BackwardLikelihoodTree(Context& c,
                          std::shared_ptr<ForwardLikelihoodTree> forwardTree,
                          std::shared_ptr<ProcessTree> tree,
                          ValueRef<Eigen::RowVectorXd> rFreqs,
-                         const StateMap& statemap,
+                         const StateMapInterface& statemap,
                          Eigen::Index nbSite) :
     DAClass(forwardTree->getGraph()),
     context_(c), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSite_(nbSite), forwardTree_(forwardTree), processTree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)

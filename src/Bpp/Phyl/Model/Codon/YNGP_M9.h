@@ -80,13 +80,14 @@ public:
    */
   YNGP_M9(
       std::shared_ptr<const GeneticCode> gc,
-      std::shared_ptr<FrequencySetInterface> codonFreqs,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs,
       unsigned int nbBeta,
       unsigned int nbGamma);
 
   YNGP_M9* clone() const override { return new YNGP_M9(*this); }
 
   YNGP_M9(const YNGP_M9& mod2) :
+    AbstractParameterAliasable(mod2),
     AbstractWrappedModel(mod2),
     AbstractWrappedTransitionModel(mod2),
     AbstractTotallyWrappedTransitionModel(mod2),
@@ -104,9 +105,6 @@ public:
     return *this;
   }
 
-protected:
-  void updateMatrices() override;
-
 public:
   std::string getName() const override { return "YNGP_M9"; }
 
@@ -119,6 +117,11 @@ public:
   {
     return nGamma_;
   }
+
+protected:
+
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M9_H

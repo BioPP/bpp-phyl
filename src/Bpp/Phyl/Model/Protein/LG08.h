@@ -66,7 +66,7 @@ class LG08 :
   public AbstractReversibleProteinSubstitutionModel
 {
 private:
-  std::shared_ptr<ProteinFrequencySetInterface> freqSet_;
+  std::unique_ptr<ProteinFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -86,20 +86,20 @@ public:
    */
   LG08(
       std::shared_ptr<const ProteicAlphabet> alpha,
-      std::shared_ptr<ProteinFrequencySetInterface> freqSet,
+      std::unique_ptr<ProteinFrequencySetInterface> freqSet,
       bool initFreqs = false);
 
   LG08(const LG08& model) :
     AbstractParameterAliasable(model),
     AbstractReversibleProteinSubstitutionModel(model),
-    freqSet_(dynamic_cast<ProteinFrequencySetInterface*>(model.freqSet_->clone()))
+    freqSet_(model.freqSet_->clone())
   {}
 
   LG08& operator=(const LG08& model)
   {
     AbstractParameterAliasable::operator=(model);
     AbstractReversibleProteinSubstitutionModel::operator=(model);
-    freqSet_.reset(dynamic_cast<ProteinFrequencySetInterface*>(model.freqSet_->clone()));
+    freqSet_.reset(model.freqSet_->clone());
     return *this;
   }
 
@@ -143,8 +143,6 @@ public:
     throw NullPointerException("LG08::frequencySet(). No associated FrequencySet.");
   }
     
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
-
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 };
 } // end of namespace bpp.

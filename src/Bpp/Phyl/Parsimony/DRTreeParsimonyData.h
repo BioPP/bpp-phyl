@@ -70,8 +70,8 @@ class DRTreeParsimonyNodeData :
   public TreeParsimonyNodeDataInterface
 {
 private:
-  mutable std::map<int, std::vector<Bitset> > nodeBitsets_;
-  mutable std::map<int, std::vector<unsigned int> > nodeScores_;
+  mutable std::map<int, std::vector<Bitset>> nodeBitsets_;
+  mutable std::map<int, std::vector<unsigned int>> nodeScores_;
   const Node* node_;
 
 public:
@@ -201,19 +201,19 @@ private:
   mutable std::map<int, DRTreeParsimonyLeafData> leafData_;
   mutable std::vector<Bitset> rootBitsets_;
   mutable std::vector<unsigned int> rootScores_;
-  std::shared_ptr<SiteContainerInterface> shrunkData_;
+  std::unique_ptr<SiteContainerInterface> shrunkData_;
   size_t nbSites_;
   size_t nbStates_;
   size_t nbDistinctSites_;
 
 public:
-  DRTreeParsimonyData(std::shared_ptr< const TreeTemplate<Node> > tree) :
+  DRTreeParsimonyData(std::shared_ptr<const TreeTemplate<Node>> tree) :
     AbstractTreeParsimonyData(tree),
     nodeData_(),
     leafData_(),
     rootBitsets_(),
     rootScores_(),
-    shrunkData_(0),
+    shrunkData_(nullptr),
     nbSites_(0),
     nbStates_(0),
     nbDistinctSites_(0)
@@ -237,7 +237,7 @@ public:
    *
    * @param tree The tree to be associated to this data.
    */
-  void setTree(std::shared_ptr< const TreeTemplate<Node> > tree)
+  void setTree(std::shared_ptr<const TreeTemplate<Node>> tree)
   {
     AbstractTreeParsimonyData::setTree(tree);
     for (auto& it : nodeData_)
@@ -310,11 +310,11 @@ public:
   void reInit();
 
 protected:
-  void init(const Node* node,
+  void init_(const Node* node,
 	    std::shared_ptr<const SiteContainerInterface> sites,
 	    std::shared_ptr<const StateMapInterface> stateMap);
 
-  void reInit(const Node* node);
+  void reInit_(const Node* node);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PARSIMONY_DRTREEPARSIMONYDATA_H

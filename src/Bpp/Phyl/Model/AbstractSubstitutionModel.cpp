@@ -54,7 +54,10 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractTransitionModel::AbstractTransitionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
+AbstractTransitionModel::AbstractTransitionModel(
+    shared_ptr<const Alphabet> alpha,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
   alphabet_(alpha),
   stateMap_(stateMap),
@@ -104,10 +107,10 @@ double AbstractTransitionModel::getInitValue(size_t i, int state) const
   if (i >= size_)
     throw IndexOutOfBoundsException("AbstractTransitionModel::getInitValue", i, 0, size_ - 1);
   if (state < 0 || !alphabet_->isIntInAlphabet(state))
-    throw BadIntException(state, "AbstractTransitionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.");
+    throw BadIntException(state, "AbstractTransitionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.", alphabet_.get());
   vector<int> states = alphabet_->getAlias(state);
 
-  for (size_t j = 0; j < states.size(); j++)
+  for (size_t j = 0; j < states.size(); ++j)
   {
     if (getAlphabetStateAsInt(i) == states[j])
       return 1.;
@@ -117,7 +120,7 @@ double AbstractTransitionModel::getInitValue(size_t i, int state) const
 
 /******************************************************************************/
 
-void AbstractTransitionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void AbstractTransitionModel::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   map<int, double> freqs;
   SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
@@ -135,13 +138,16 @@ void AbstractTransitionModel::setFreq(map<int, double>& freqs)
   }
 
   // Re-compute generator and eigen values:
-  updateMatrices();
+  updateMatrices_();
 }
 
 
 /******************************************************************************/
 
-AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
+AbstractSubstitutionModel::AbstractSubstitutionModel(
+    shared_ptr<const Alphabet> alpha,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractTransitionModel(alpha, stateMap, prefix),
   isScalable_(true),
@@ -162,7 +168,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, std:
 
 /******************************************************************************/
 
-void AbstractSubstitutionModel::updateMatrices()
+void AbstractSubstitutionModel::updateMatrices_()
 {
   // Compute eigen values and vectors:
   if (enableEigenDecomposition())
@@ -280,7 +286,7 @@ void AbstractSubstitutionModel::updateMatrices()
       // is it diagonalizable ?
       isDiagonalizable_ = true;
 
-      if (!dynamic_cast<ReversibleSubstitutionModel*>(this))
+      if (!dynamic_cast<ReversibleSubstitutionModelInterface*>(this))
       {
         for (auto& vi : iEigenValues_)
         {
@@ -706,7 +712,7 @@ void AbstractSubstitutionModel::normalize()
 
 /******************************************************************************/
 
-void AbstractReversibleSubstitutionModel::updateMatrices()
+void AbstractReversibleSubstitutionModel::updateMatrices_()
 {
   MatrixTools::hadamardMult(exchangeability_, freq_, generator_, false); // Diagonal elements of the exchangeability matrix will be ignored.
 
@@ -714,7 +720,7 @@ void AbstractReversibleSubstitutionModel::updateMatrices()
   setDiagonal();
   normalize();
 
-  AbstractSubstitutionModel::updateMatrices();
+  AbstractSubstitutionModel::updateMatrices_();
 }
 
 /******************************************************************************/

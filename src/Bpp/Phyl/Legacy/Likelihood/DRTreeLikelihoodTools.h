@@ -63,7 +63,7 @@ public:
    * @return A 3-dimensional array, with probabilities for each site, each rate and each state.
    */
   static VVVdouble getPosteriorProbabilitiesPerStatePerRate(
-    const DRTreeLikelihood& drl,
+    const DRTreeLikelihoodInterface& drl,
     int nodeId);
 
   /**
@@ -78,7 +78,7 @@ public:
    * @return vector of double with state frequencies for the given node.
    */
   static Vdouble getPosteriorStateFrequencies(
-    const DRTreeLikelihood& drl,
+    const DRTreeLikelihoodInterface& drl,
     int nodeId);
 };
 } // end of namespace bpp.

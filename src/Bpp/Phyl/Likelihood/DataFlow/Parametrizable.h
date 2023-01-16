@@ -55,11 +55,11 @@
 
 namespace bpp
 {
-/** Helper: create a map with mutable dataflow nodes for each
-    parameter of the parametrizable.
+/** 
+ * Helper: create a map with mutable dataflow nodes for each
+ *   parameter of the parametrizable.
  * The map is indexed by parameter names.
  */
-
 std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter> >
 createParameterMap(Context& c, const Parametrizable& parametrizable);
 
@@ -67,13 +67,13 @@ std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter> >
 createParameterMap(Context& c, const ParameterAliasable& parametrizable);
 
 
-/** Create a dependency vector suitable for a parametrizable class constructor.
+/**
+ * @brief Create a dependency vector suitable for a parametrizable class constructor.
  * The vector is built from parameter names, and an opaque accessor function.
  * For each named parameter, getParameter(name) should return a valid node.
  * If no node is found (NodeRef was null), an exception is thrown.
  * Returned nodes must be Value<double> nodes.
  */
-
 NodeRefVec createDependencyVector (const Parametrizable& parametrizable,
                                    const std::function<NodeRef (const std::string&)>& getParameter);
 
@@ -84,12 +84,12 @@ NodeRefVec createDependencyVector (const ParameterAliasable& parametrizable,
 class ConfiguredParametrizable
 {
 public:
-  /** Create a new node from a dependency vector.
+  /**
+   * @brief Create a new node from a dependency vector.
    * Object parameters are given by a dependency vector of Value<double> nodes.
    * The number and order of parameters is given by the
    * Object internal ParameterList.
    */
-
   template<typename Object, typename Self>
   static std::shared_ptr<Self> createConfigured (Context& c, NodeRefVec&& deps,
                                                  std::unique_ptr<Object>&& object,

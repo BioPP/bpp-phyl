@@ -88,7 +88,7 @@ public:
 	std::string name,
 	unsigned int nbCat = 10);
 
-    virtual ~EmbeddedModel(){}
+    virtual ~EmbeddedModel() {}
 
     EmbeddedModel* clone() const override { return new EmbeddedModel(*this); }
 
@@ -110,6 +110,7 @@ public:
   LGL08_CAT* clone() const override { return new LGL08_CAT(*this); }
 
   LGL08_CAT(const LGL08_CAT& mod2) :
+    AbstractParameterAliasable(mod2),
     AbstractWrappedModel(mod2),
     AbstractWrappedTransitionModel(mod2),
     AbstractTotallyWrappedTransitionModel(mod2),
@@ -119,17 +120,13 @@ public:
 
   LGL08_CAT& operator=(const LGL08_CAT& mod2)
   {
-    AbstractWrappedModel::operator=(mod2);
-    AbstractWrappedTransitionModel::operator=(mod2);
-    AbstractTotallyWrappedTransitionModel::operator=(mod2);
-    AbstractBiblioTransitionModel::operator=(mod2);
     AbstractBiblioMixedTransitionModel::operator=(mod2);
     return *this;
   }
 
   uint getNumberOfCategories() const
   {
-    return static_cast<uint>(pmixmodel_->getNumberOfModels());
+    return static_cast<uint>(mixedModelPtr_->getNumberOfModels());
   }
 
   std::string getName() const override { return "LGL08_CAT";}

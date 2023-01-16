@@ -189,7 +189,7 @@ public:
     const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
   static unsigned int optimizeNumericalParameters2(
-    SingleProcessPhyloLikelihood& lik,
+    std::shared_ptr<SingleProcessPhyloLikelihood> lik,
     const ParameterList& parameters,
     std::shared_ptr<OptimizationListener> listener = nullptr,
     double tolerance                               = 0.000001,
@@ -217,7 +217,7 @@ public:
    *
    * @see buildDistanceTree for a procedure to jointly estimate the distance matrix and underlying tree.
    */
-  static DistanceMatrix* estimateDistanceMatrix(
+  static std::unique_ptr<DistanceMatrix> estimateDistanceMatrix(
     DistanceEstimation& estimationMethod,
     const ParameterList& parametersToIgnore,
     const std::string& param = DISTANCEMETHOD_INIT,
@@ -247,7 +247,7 @@ public:
    * @param messenger Output stream used by optimizer. Used only with param=DISTANCEMETHOD_ITERATIONS.
    * @param verbose Verbose level.
    */
-  static TreeTemplate<Node>* buildDistanceTree(
+  static std::unique_ptr<TreeTemplate<Node>> buildDistanceTree(
     DistanceEstimation& estimationMethod,
     AgglomerativeDistanceMethod& reconstructionMethod,
     const ParameterList& parametersToIgnore,
@@ -255,8 +255,8 @@ public:
     const std::string& param = DISTANCEMETHOD_INIT,
     double tolerance = 0.000001,
     unsigned int tlEvalMax = 1000000,
-    OutputStream* profiler = 0,
-    OutputStream* messenger = 0,
+    std::shared_ptr<OutputStream> profiler = nullptr,
+    std::shared_ptr<OutputStream> messenger = nullptr,
     unsigned int verbose = 0);
 
 public:

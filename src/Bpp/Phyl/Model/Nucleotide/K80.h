@@ -183,7 +183,7 @@ public:
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override {}
 
 protected:
-  void updateMatrices() override;
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_K80_H

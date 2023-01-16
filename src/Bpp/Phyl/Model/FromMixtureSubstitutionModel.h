@@ -95,7 +95,7 @@ public:
   }
 
 protected:
-  SubstitutionModelInterface& substitutionModel() override
+  SubstitutionModelInterface& substitutionModel_() override
   {
     return *subModel_;
   }
@@ -115,18 +115,18 @@ public:
    */
   void fireParameterChanged(const ParameterList& parameters) override
   {
-    model().matchParametersValues(parameters);
+    model_().matchParametersValues(parameters);
   }
 
   virtual void setNamespace(const std::string& name) override
   {
     AbstractParameterAliasable::setNamespace(name);
-    model().setNamespace(name);
+    model_().setNamespace(name);
   }
 
   virtual void addRateParameter() override
   {
-    model().addRateParameter();
+    model_().addRateParameter();
     addParameter_(new Parameter(getNamespace() + "rate", model().getRate(), Parameter::R_PLUS_STAR));
   }
 
@@ -139,8 +139,6 @@ public:
     return mixtName_.substr(0, posp) + "_" + model().getName() + mixtName_.substr(posp);
   }
 
-protected:
-  void updateMatrices() override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_FROMMIXTURESUBSTITUTIONMODEL_H

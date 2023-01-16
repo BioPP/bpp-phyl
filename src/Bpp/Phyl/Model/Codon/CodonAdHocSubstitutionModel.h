@@ -65,11 +65,11 @@ private:
 
   std::string name_;
 
-  /*
+  /**
    * @brief optional FrequencySet if model is defined through a
    * FrequencySet.
    */
-  std::shared_ptr<FrequencySetInterface> freqSet_;
+  std::unique_ptr<CodonFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -85,8 +85,8 @@ public:
    */
   CodonAdHocSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::vector<CoreCodonSubstitutionModelInterface>& vpmodel,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::vector<std::unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
     const std::string& name);
 
   /**
@@ -96,19 +96,16 @@ public:
    * @param gCode pointer to a GeneticCode
    * @param pmod1, pmod2, pmod3 pointers to the
    *   NucleotideSubstitutionModels to use in the three positions.
-   *   Either all the models are different objects to avoid parameters
-   *   redondancy, or only the first model is used in every position.
-   *   The used models are owned by the instance.
    * @param vpmodel vector of codon models. They will be owned by the
    * model.
    * @param name the name of the model
    */
   CodonAdHocSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::vector<CoreCodonSubstitutionModelInterface>& vpmodel,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::vector<std::unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
     const std::string& name);
 
   CodonAdHocSubstitutionModel(const CodonAdHocSubstitutionModel& model);
@@ -153,15 +150,16 @@ public:
 
   void setFreq(std::map<int, double>& frequencies) override;
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
     return *freqSet_;
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return freqSet_;
+    return (freqSet_ != nullptr);
   }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_CODONADHOCSUBSTITUTIONMODEL_H

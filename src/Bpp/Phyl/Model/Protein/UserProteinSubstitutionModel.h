@@ -67,7 +67,7 @@ class UserProteinSubstitutionModel :
 {
 private:
   std::string path_;
-  std::shared_ptr<ProteinFrequencySetInterface> freqSet_;
+  std::unique_ptr<ProteinFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -95,7 +95,7 @@ public:
   UserProteinSubstitutionModel(
     std::shared_ptr<const ProteicAlphabet> alpha,
     const std::string& path,
-    std::shared_ptr<ProteinFrequencySetInterface> freqSet,
+    std::unique_ptr<ProteinFrequencySetInterface> freqSet,
     const std::string& prefix,
     bool initFreqs = false
     );
@@ -152,8 +152,6 @@ public:
     throw NullPointerException("UserProteinSubstitutionModel::frequencySet(). No associated FrequencySet.");
   }
     
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
-
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
 protected:

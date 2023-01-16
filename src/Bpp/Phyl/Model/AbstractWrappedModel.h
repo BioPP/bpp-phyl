@@ -54,12 +54,12 @@ namespace bpp
  * are redirected from getModel().
  */
 class AbstractWrappedModel :
-  public AbstractParameterAliasable,
+  public virtual AbstractParameterAliasable,
   public virtual WrappedModelInterface
 {
 public:
-  AbstractWrappedModel(const string& prefix):
-       AbstractParameterAliasable(prefix) {}
+  AbstractWrappedModel(const std::string& prefix) :
+    AbstractParameterAliasable(prefix) {}
   
   virtual ~AbstractWrappedModel() {}
 
@@ -92,9 +92,7 @@ public:
 
   const FrequencySetInterface& frequencySet() const override { return model().frequencySet(); }
   
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return model().getFrequencySet(); }
-
-  /*
+  /**
    * @}
    */
   virtual std::string getName() const override
@@ -113,23 +111,29 @@ class AbstractWrappedTransitionModel :
   public virtual WrappedTransitionModelInterface
 {
 public:
-  AbstractWrappedTransitionModel(const string& prefix):
+  AbstractWrappedTransitionModel(const std::string& prefix):
       AbstractWrappedModel(prefix)
   {}
   
 protected:
-  BranchModelInterface& model() override
+  BranchModelInterface& model_()
   {
-    return transitionModel();
+    return transitionModel_();
   }
+  
+  virtual TransitionModelInterface& transitionModel_() = 0;
 
 public:
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return transitionModel().getFrequencySet();}
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return transitionModel().frequencySet();
+  }
 
   const BranchModelInterface& model() const override
   {
     return transitionModel();
   }
+  
 };
 
 
@@ -137,7 +141,7 @@ class AbstractTotallyWrappedTransitionModel :
   public virtual AbstractWrappedTransitionModel
 {
 public:
-  AbstractTotallyWrappedTransitionModel(const string& prefix):
+  AbstractTotallyWrappedTransitionModel(const std::string& prefix):
       AbstractWrappedTransitionModel(prefix) {}
   
   virtual ~AbstractTotallyWrappedTransitionModel() {}
@@ -174,7 +178,7 @@ public:
 
   void setRate(double rate) override
   {
-    return transitionModel().setRate(rate);
+    return transitionModel_().setRate(rate);
   }
 
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override
@@ -182,12 +186,12 @@ public:
     std::map<int, double> freqs;
     SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
     // Re-compute generator and eigen values:
-    transitionModel().setFreq(freqs);
+    transitionModel_().setFreq(freqs);
   }
 
   void setFreq(std::map<int, double>& frequencies) override
   {
-    transitionModel().setFreq(frequencies);
+    transitionModel_().setFreq(frequencies);
   }
 
   bool computeFrequencies() const override
@@ -201,7 +205,7 @@ public:
    */
   void computeFrequencies(bool yn) override
   {
-    transitionModel().computeFrequencies(yn);
+    transitionModel_().computeFrequencies(yn);
   }
 
   /**
@@ -211,7 +215,7 @@ public:
 protected:
   Vdouble& getFrequencies_() override
   {
-    return transitionModel().getFrequencies_();
+    return transitionModel_().getFrequencies_();
   }
 };
 
@@ -221,8 +225,8 @@ class AbstractWrappedSubstitutionModel :
   public virtual WrappedSubstitutionModelInterface
 {
 public:
-  AbstractWrappedSubstitutionModel(const string& prefix):
-      AbstractWrappedTransitionModel(prefix)
+  AbstractWrappedSubstitutionModel(const std::string& prefix) :
+    AbstractWrappedTransitionModel(prefix)
   {}
 
   virtual ~AbstractWrappedSubstitutionModel() {}
@@ -233,10 +237,12 @@ public:
   }
 
 protected:
-  TransitionModelInterface& transitionModel()
+  TransitionModelInterface& transitionModel_()
   {
-    return substitutionModel();
+    return substitutionModel_();
   }
+
+  virtual SubstitutionModelInterface& substitutionModel_() = 0;
 };
 
 class AbstractTotallyWrappedSubstitutionModel :
@@ -244,7 +250,7 @@ class AbstractTotallyWrappedSubstitutionModel :
   public virtual AbstractWrappedSubstitutionModel
 {
 public:
-  AbstractTotallyWrappedSubstitutionModel(const string& prefix):
+  AbstractTotallyWrappedSubstitutionModel(const std::string& prefix):
        AbstractTotallyWrappedTransitionModel(prefix),
        AbstractWrappedSubstitutionModel(prefix)	{}
 
@@ -263,9 +269,9 @@ public:
 
   double Sij(size_t i, size_t j) const { return substitutionModel().Sij(i, j); }
 
-  void enableEigenDecomposition(bool yn) { substitutionModel().enableEigenDecomposition(yn); }
+  void enableEigenDecomposition(bool yn) { substitutionModel_().enableEigenDecomposition(yn); }
 
-  bool enableEigenDecomposition() { return substitutionModel().enableEigenDecomposition(); }
+  bool enableEigenDecomposition() { return substitutionModel_().enableEigenDecomposition(); }
 
   bool isDiagonalizable() const { return substitutionModel().isDiagonalizable(); }
 
@@ -290,22 +296,28 @@ public:
 
   void setScalable(bool scalable)
   {
-    substitutionModel().setScalable(scalable);
+    substitutionModel_().setScalable(scalable);
   }
 
   void normalize()
   {
-    substitutionModel().normalize();
+    substitutionModel_().normalize();
   }
 
   void setDiagonal()
   {
-    substitutionModel().setDiagonal();
+    substitutionModel_().setDiagonal();
   }
 
-  double getScale() const { return substitutionModel().getScale(); }
+  double getScale() const
+  {
+    return substitutionModel().getScale();
+  }
 
-  void setScale(double scale) { substitutionModel().setScale(scale); }
+  void setScale(double scale)
+  {
+    substitutionModel_().setScale(scale);
+  }
 
   /**
    * @}

@@ -102,7 +102,7 @@ public:
    * @param prefix the Namespace.
    */
   WordSubstitutionModel(
-      std::shared_ptr<SubstitutionModelInterface> pmodel,
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
       unsigned int num,
       const std::string& prefix = "");
 
@@ -119,9 +119,9 @@ protected:
       std::shared_ptr<const StateMapInterface> stateMap,
       const std::string& prefix = "");
 
-  virtual void updateMatrices() override;
+  virtual void updateMatrices_() override;
 
-  virtual void completeMatrices() override;
+  virtual void completeMatrices_() override;
 
 public:
   virtual const RowMatrix<double>& getPij_t(double d) const override;

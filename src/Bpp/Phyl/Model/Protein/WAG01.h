@@ -71,7 +71,7 @@ class WAG01 :
   public AbstractReversibleProteinSubstitutionModel
 {
 private:
-  std::shared_ptr<ProteinFrequencySetInterface> freqSet_;
+  std::unique_ptr<ProteinFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -91,7 +91,7 @@ public:
    */
   WAG01(
       std::shared_ptr<const ProteicAlphabet> alpha,
-      std::shared_ptr<ProteinFrequencySetInterface> freqSet,
+      std::unique_ptr<ProteinFrequencySetInterface> freqSet,
       bool initFreqs = false);
 
   WAG01(const WAG01& model) :
@@ -148,8 +148,6 @@ public:
     throw NullPointerException("WAG01::frequencySet(). No associated FrequencySet.");
   }
     
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
-
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
 };

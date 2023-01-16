@@ -82,16 +82,16 @@ namespace bpp
   private:
     uint nbAlleles_;
   
-    std::shared_ptr<SubstitutionModelInterface> pmodel_;
-    std::shared_ptr<FrequencySetInterface> pfitness_;
+    std::unique_ptr<SubstitutionModelInterface> pmodel_;
+    std::unique_ptr<FrequencySetInterface> pfitness_;
 
   public:
     /**
      * @brief Build a POMO instance
      */
     POMO(std::shared_ptr<const AllelicAlphabet> allAlph,
-         std::shared_ptr<SubstitutionModelInterface> pmodel,
-         std::shared_ptr<FrequencySetInterface> pfitness);
+         std::unique_ptr<SubstitutionModelInterface> pmodel,
+         std::unique_ptr<FrequencySetInterface> pfitness);
 
     POMO(const POMO& model) :
       AbstractParameterAliasable(model),
@@ -105,8 +105,8 @@ namespace bpp
     {
       AbstractParameterAliasable::operator=(model);
       nbAlleles_ = model.nbAlleles_;
-      pmodel_ = std::shared_ptr<SubstitutionModelInterface>(model.pmodel_->clone());
-      pfitness_ = model.pfitness_ ? std::shared_ptr<FrequencySetInterface>(model.pfitness_->clone()) : nullptr;
+      pmodel_.reset(model.pmodel_->clone());
+      pfitness_.reset(model.pfitness_ ? model.pfitness_->clone() : nullptr);
       return *this;
     }
 
@@ -127,19 +127,34 @@ namespace bpp
         pfitness_->setNamespace(prefix+pfitness_->getNamespace());
     }
 
+    std::shared_ptr<const AllelicAlphabet> getAllelicAlphabet() const
+    {
+      return std::dynamic_pointer_cast<const AllelicAlphabet>(alphabet_);
+    }
+
+    const AllelicAlphabet& allelicAlphabet() const
+    {
+      return dynamic_cast<const AllelicAlphabet&>(*alphabet_);
+    }
+
     uint getNbAlleles() const
     {
       return nbAlleles_;
     }
 
-    std::shared_ptr<const FrequencySetInterface> getFitness() const
+    bool hasFitness() const 
     {
-      return pfitness_;
+      return pfitness_ != nullptr;
     }
 
-    std::shared_ptr<const SubstitutionModelInterface> getMutationModel() const
+    const FrequencySetInterface& fitness() const
     {
-      return pmodel_;
+      return *pfitness_;
+    }
+
+    const SubstitutionModelInterface& mutationModel() const
+    {
+      return *pmodel_;
     }
 
     std::string getName() const override
@@ -148,7 +163,8 @@ namespace bpp
     }
     
   protected:
-    void updateMatrices() override;
+    
+    void updateMatrices_() override;
   
   };
 } // end of namespace bpp.

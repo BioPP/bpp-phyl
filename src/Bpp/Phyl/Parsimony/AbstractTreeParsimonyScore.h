@@ -57,7 +57,7 @@ class AbstractTreeParsimonyScore :
   public virtual TreeParsimonyScoreInterface
 {
 private:
-  std::shared_ptr< const TreeTemplate<Node> > tree_;
+  std::shared_ptr<TreeTemplate<Node>> tree_;
   std::shared_ptr<const SiteContainerInterface> data_;
   std::shared_ptr<const Alphabet> alphabet_;
   std::shared_ptr<const StateMapInterface> statesMap_;
@@ -65,13 +65,13 @@ private:
 
 public:
   AbstractTreeParsimonyScore(
-    std::shared_ptr<const TreeTemplate<Node> > tree,
+    std::shared_ptr<TreeTemplate<Node>> tree,
     std::shared_ptr<const SiteContainerInterface> data,
     bool verbose,
     bool includeGaps);
 
   AbstractTreeParsimonyScore(
-    std::shared_ptr<const TreeTemplate<Node> > tree,
+    std::shared_ptr<TreeTemplate<Node>> tree,
     std::shared_ptr<const SiteContainerInterface> data,
     std::shared_ptr<const StateMapInterface> statesMap,
     bool verbose);
@@ -83,14 +83,16 @@ private:
 
 public:
   const Tree& tree() const override { return *tree_; }
-  std::shared_ptr<const Tree> getTree() const override { return tree_; }
+  virtual const TreeTemplate<Node>& treeTemplate() const { return *tree_; }
+  virtual std::shared_ptr<const TreeTemplate<Node>> getTreeTemplate() const { return tree_; }
   std::vector<unsigned int> getScorePerSite() const override;
   const StateMapInterface& stateMap() const override { return *statesMap_; }
   std::shared_ptr<const StateMapInterface> getStateMap() const override { return statesMap_; }
 
 protected:
-  virtual const TreeTemplate<Node>& treeTemplate() const { return *tree_; }
-  virtual std::shared_ptr< const TreeTemplate<Node> > getTreeTemplate() const { return tree_; }
+  virtual Tree& tree() { return *tree_; }
+  virtual TreeTemplate<Node>& treeTemplate() { return *tree_; }
+  virtual std::shared_ptr<TreeTemplate<Node>> getTreeTemplate() { return tree_; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PARSIMONY_ABSTRACTTREEPARSIMONYSCORE_H

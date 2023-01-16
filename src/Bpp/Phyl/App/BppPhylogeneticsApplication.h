@@ -1,7 +1,7 @@
 //
 // File: BppPhylogeneticsApplication.h
 // Authors:
-//   Laurent GuÃÂ©guen, Julien Dutheil
+//   Laurent Guéguen, Julien Dutheil
 // Created: 2021-06-15 15:14:00
 //
 
@@ -113,7 +113,7 @@ public:
    * @brief get the substitution processes.
    */
   virtual std::map<size_t, std::unique_ptr<SequenceEvolution> > getProcesses(
-    SubstitutionProcessCollection& collection,
+    std::shared_ptr<SubstitutionProcessCollection> collection,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& suffix = "",
     bool suffixIsOptional = true) const;
@@ -124,7 +124,7 @@ public:
   virtual std::unique_ptr<PhyloLikelihoodContainer> getPhyloLikelihoods(
     Context& context,
     std::map<size_t, std::shared_ptr<SequenceEvolution> > mSeqEvol,
-    SubstitutionProcessCollection& collection,
+    std::shared_ptr<SubstitutionProcessCollection> collection,
     const std::map<size_t,
                    std::shared_ptr<const AlignmentDataInterface> >& mSites,
     const std::string& suffix = "",

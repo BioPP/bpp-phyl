@@ -179,7 +179,7 @@ public:
       const std::string& prefix) :
     AbstractParameterAliasable(prefix),
     model_(std::move(model)),
-    stateMap_(make_shared<MarkovModulatedStateMap>(model->stateMap(), nbRates)),
+    stateMap_(std::make_shared<MarkovModulatedStateMap>(model->stateMap(), nbRates)),
     nbStates_(model->getNumberOfStates()),
     nbRates_(nbRates),
     rates_(nbRates, nbRates),
@@ -262,23 +262,19 @@ public:
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override
   {
     model_->setFreqFromData(data, pseudoCount);
-    updateMatrices();
+    updateMatrices_();
   }
 
   void setFreq(std::map<int, double>& frequencies) override
   {
     model_->setFreq(frequencies);
-    updateMatrices();
+    updateMatrices_();
   }
 
   const FrequencySetInterface& frequencySet() const override {
     throw NullPointerException("MarkovModulatedSubstitutionModel::frequencySet. No FrequencySet associated to this model. Frequencies are computed from the FrequencySet of the modulated model.");
   }
   
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override {
-    return nullptr;
-  }
-
   const ReversibleSubstitutionModelInterface& nestedModel() const {
     return *model_;
   }
@@ -312,7 +308,7 @@ public:
   void normalize() override
   {
     model_->normalize();
-    updateMatrices();
+    updateMatrices_();
   }
 
   void setDiagonal() override;
@@ -327,7 +323,7 @@ public:
   void setScale(double scale) override
   {
     model_->setScale(scale);
-    updateMatrices();
+    updateMatrices_();
   }
 
   void enableEigenDecomposition(bool yn) override { eigenDecompose_ = yn; }
@@ -347,14 +343,14 @@ public:
   virtual void fireParameterChanged(const ParameterList& parameters) override
   {
     model_->matchParametersValues(parameters);
-    updateRatesModel();
-    updateMatrices();
+    updateRatesModel_();
+    updateMatrices_();
   }
 
   void setNamespace(const std::string& prefix) override;
 
 protected:
-  virtual void updateMatrices() override;
+  virtual void updateMatrices_();
 
   /**
    * @brief Update the rates vector, generator and equilibrium frequencies.
@@ -362,7 +358,7 @@ protected:
    * This method must be implemented by the derived class.
    * It is called by the fireParameterChanged() method.
    */
-  virtual void updateRatesModel() = 0;
+  virtual void updateRatesModel_() = 0;
 
   Vdouble& getFrequencies_() override
   {

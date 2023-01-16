@@ -52,7 +52,7 @@ using namespace std;
 
 /******************************************************************************/
 
-JointLikelihoodFunction::JointLikelihoodFunction(BppApplication* bppml, const Tree* tree, const VectorSiteContainer* characterData, TransitionModel* characterModel, const VectorSiteContainer* sequenceData, MixedSubstitutionModelSet* sequenceModel, DiscreteDistribution* rDist, bool debug) :
+JointLikelihoodFunction::JointLikelihoodFunction(BppApplication* bppml, const Tree* tree, const VectorSiteContainer* characterData, TransitionModelInterface* characterModel, const VectorSiteContainer* sequenceData, MixedSubstitutionModelSet* sequenceModel, DiscreteDistribution* rDist, bool debug) :
   AbstractParametrizable(""),
   hypothesis_(null),
   bppml_(bppml),

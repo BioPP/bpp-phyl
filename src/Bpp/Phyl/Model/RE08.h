@@ -190,19 +190,23 @@ public:
     simpleModel_->matchParametersValues(parameters);
     lambda_ = getParameter_(0).getValue();
     mu_     = getParameter_(1).getValue();
-    updateMatrices();
+    updateMatrices_();
   }
 
   double getInitValue(size_t i, int state) const override;
 
   void setNamespace(const std::string& prefix) override;
 
-  const ReversibleSubstitutionModelInterface& nestedModel() const { return *simpleModel_; }
+  const ReversibleSubstitutionModelInterface& nestedModel() const
+  { 
+    return *simpleModel_; 
+  }
 
 protected:
-  void updateMatrices() override;
   
-  ReversibleSubstitutionModelInterface& nestedModel() { return *simpleModel_; }
+  void updateMatrices_() override;
+  
+  ReversibleSubstitutionModelInterface& nestedModel_() { return *simpleModel_; }
 };
 
 
@@ -244,7 +248,7 @@ public:
 public:
   std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const override
   {
-    return dynamic_pointer_cast<const NucleicAlphabet>(alphabet_);
+    return std::dynamic_pointer_cast<const NucleicAlphabet>(alphabet_);
   }
 
   const NucleotideReversibleSubstitutionModelInterface& nestedModel() const
@@ -288,7 +292,7 @@ public:
 public:
   std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
-    return dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
+    return std::dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
   }
   
   const ProteinReversibleSubstitutionModelInterface& nestedModel() const
@@ -348,19 +352,19 @@ public:
 
   size_t getNumberOfStates() const override { return RE08::getNumberOfStates(); }
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return RE08::nestedModel().frequencySet();
+    return dynamic_cast<const CodonFrequencySetInterface&>(RE08::nestedModel().frequencySet());
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return RE08::nestedModel().getFrequencySet();
+    return true;
   }
 
   void setFreq(std::map<int, double>& frequencies) override
   {
-    RE08::nestedModel().setFreq(frequencies);
+    RE08::nestedModel_().setFreq(frequencies);
   }
 };
 } // end of namespace bpp.

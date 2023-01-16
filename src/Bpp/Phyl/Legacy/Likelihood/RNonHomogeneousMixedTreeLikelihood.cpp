@@ -56,11 +56,12 @@ using namespace std;
 
 /******************************************************************************/
 
-RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                                                       MixedSubstitutionModelSet* modelSet,
-                                                                       DiscreteDistribution* rDist,
-                                                                       bool verbose,
-                                                                       bool usePatterns) :
+RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
+    const Tree& tree,
+    shared_ptr<MixedSubstitutionModelSet> modelSet,
+    shared_ptr<DiscreteDistribution> rDist,
+    bool verbose,
+    bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
   mvTreeLikelihoods_(),
   hyperNode_(modelSet),
@@ -70,20 +71,27 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tre
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
 
-  for (size_t i = 0; i < modelSet->getNumberOfHyperNodes(); i++)
+  for (size_t i = 0; i < modelSet->getNumberOfHyperNodes(); ++i)
   {
-    mvTreeLikelihoods_[tree.getRootId()].push_back(new RNonHomogeneousMixedTreeLikelihood(tree, modelSet, modelSet->getHyperNode(i), upperNode_, rDist, false, usePatterns));
+    mvTreeLikelihoods_[tree.getRootId()].push_back(
+        shared_ptr<RNonHomogeneousMixedTreeLikelihood>( //Note: cannot use make_shared because of private constructor
+	    new RNonHomogeneousMixedTreeLikelihood( 
+	        tree, modelSet, modelSet->getHyperNode(i),
+	        upperNode_, rDist, false, usePatterns)
+	    )
+	);
   }
 }
 
 /******************************************************************************/
 
-RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                                                       const AlignedValuesContainer& data,
-                                                                       MixedSubstitutionModelSet* modelSet,
-                                                                       DiscreteDistribution* rDist,
-                                                                       bool verbose,
-                                                                       bool usePatterns) :
+RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    shared_ptr<MixedSubstitutionModelSet> modelSet,
+    shared_ptr<DiscreteDistribution> rDist,
+    bool verbose,
+    bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, data, modelSet, rDist, verbose, usePatterns),
   mvTreeLikelihoods_(),
   hyperNode_(modelSet),
@@ -93,21 +101,28 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tre
   if (!modelSet->isFullySetUpFor(tree))
     throw Exception("RNonHomogeneousMixedTreeLikelihood(constructor). Model set is not fully specified.");
 
-  for (size_t i = 0; i < modelSet->getNumberOfHyperNodes(); i++)
+  for (size_t i = 0; i < modelSet->getNumberOfHyperNodes(); ++i)
   {
-    mvTreeLikelihoods_[tree.getRootId()].push_back(new RNonHomogeneousMixedTreeLikelihood(tree, data, modelSet, modelSet->getHyperNode(i), upperNode_, rDist, false, usePatterns));
+    mvTreeLikelihoods_[tree.getRootId()].push_back(
+        shared_ptr<RNonHomogeneousMixedTreeLikelihood>( //Note: cannot use make_shared because of private constructor
+	    new RNonHomogeneousMixedTreeLikelihood( 
+	        tree, data, modelSet, modelSet->getHyperNode(i),
+	        upperNode_, rDist, false, usePatterns)
+	    )
+	);
   }
 }
 
 /******************************************************************************/
 
-RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                                                       MixedSubstitutionModelSet* modelSet,
-                                                                       const MixedSubstitutionModelSet::HyperNode& hyperNode,
-                                                                       int upperNode,
-                                                                       DiscreteDistribution* rDist,
-                                                                       bool verbose,
-                                                                       bool usePatterns) :
+RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
+    const Tree& tree,
+    shared_ptr<MixedSubstitutionModelSet> modelSet,
+    const MixedSubstitutionModelSet::HyperNode& hyperNode,
+    int upperNode,
+    shared_ptr<DiscreteDistribution> rDist,
+    bool verbose,
+    bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
   mvTreeLikelihoods_(),
   hyperNode_(hyperNode),
@@ -122,14 +137,15 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tre
 
 /******************************************************************************/
 
-RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                                                       const AlignedValuesContainer& data,
-                                                                       MixedSubstitutionModelSet* modelSet,
-                                                                       const MixedSubstitutionModelSet::HyperNode& hyperNode,
-                                                                       int upperNode,
-                                                                       DiscreteDistribution* rDist,
-                                                                       bool verbose,
-                                                                       bool usePatterns) :
+RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    shared_ptr<MixedSubstitutionModelSet> modelSet,
+    const MixedSubstitutionModelSet::HyperNode& hyperNode,
+    int upperNode,
+    shared_ptr<DiscreteDistribution> rDist,
+    bool verbose,
+    bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, data, modelSet, rDist, verbose, usePatterns),
   mvTreeLikelihoods_(),
   hyperNode_(hyperNode),
@@ -151,9 +167,7 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
   vector<int> vn;
   size_t nbmodels = modelSet_->getNumberOfModels();
 
-  const AlignedValuesContainer* pdata = getData();
-
-  const Tree& tree = getTree();
+  const Tree& tr = tree();
 
   vDesc.push_back(upperNode_); // start of the exploration
 
@@ -164,13 +178,13 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
     vector<int> vExpMod; // vector of the ids of the MixedModels which
                          // nodes are not in only one subtree under desc
 
-    vector<int> vson = tree.getSonsId(desc);
+    vector<int> vson = tr.getSonsId(desc);
     std::map<int, vector<int> > mdesc; // map of the subtree nodes for
                                        // each son of desc
     for (size_t i = 0; i < vson.size(); i++)
     {
       std::vector<int> vi;
-      TreeTools::getNodesId(tree, vson[i], vi);
+      TreeTools::getNodesId(tr, vson[i], vi);
       mdesc[vson[i]] = vi;
     }
 
@@ -232,19 +246,33 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
             s /= mapmodels[static_cast<int>(j)];
           }
         }
-        hn.setProbability((dynamic_cast<MixedSubstitutionModelSet*>(modelSet_))->getHyperNodeProbability(hn));
-        RNonHomogeneousMixedTreeLikelihood* pr;
+        hn.setProbability(dynamic_pointer_cast<MixedSubstitutionModelSet>(modelSet_)->getHyperNodeProbability(hn));
+        shared_ptr<RNonHomogeneousMixedTreeLikelihood> pr;
 
-        if (pdata)
-          pr = new RNonHomogeneousMixedTreeLikelihood(tree, *pdata, dynamic_cast<MixedSubstitutionModelSet*>(modelSet_), hn, desc, rateDistribution_, false, usePatterns);
-        else
-          pr = new RNonHomogeneousMixedTreeLikelihood(tree, dynamic_cast<MixedSubstitutionModelSet*>(modelSet_), hn, desc, rateDistribution_, false, usePatterns);
+        if (hasLikelihoodData()) {
+          pr = shared_ptr<RNonHomogeneousMixedTreeLikelihood>( //Note: cannot use make_shared because of private constructor
+                   new RNonHomogeneousMixedTreeLikelihood(
+		       tr, 
+		       data(),
+		       dynamic_pointer_cast<MixedSubstitutionModelSet>(modelSet_),
+		       hn, desc, 
+		       rateDistribution_, false, usePatterns)
+		   );
+	} else {
+          pr = shared_ptr<RNonHomogeneousMixedTreeLikelihood>( //Note: cannot use make_shared because of private constructor
+                   new RNonHomogeneousMixedTreeLikelihood(
+		       tr,
+		       dynamic_pointer_cast<MixedSubstitutionModelSet>(modelSet_),
+		       hn, desc,
+		       rateDistribution_, false, usePatterns)
+		   );
+	}
         pr->resetParameters_();
         mvTreeLikelihoods_[desc].push_back(pr);
       }
     }
     else
-      for (size_t i = 0; i < vson.size(); i++)
+      for (size_t i = 0; i < vson.size(); ++i)
       {
         vDesc.push_back(vson[i]);
       }
@@ -262,12 +290,13 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
   upperNode_(lik.upperNode_),
   main_(lik.main_)
 {
-  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::const_iterator it;
-  for (it = lik.mvTreeLikelihoods_.begin(); it != lik.mvTreeLikelihoods_.end(); it++)
+  for (auto& it : lik.mvTreeLikelihoods_)
   {
-    for (size_t i = 0; i < it->second.size(); i++)
+    for (size_t i = 0; i < it.second.size(); ++i)
     {
-      mvTreeLikelihoods_[it->first].push_back(new RNonHomogeneousMixedTreeLikelihood(*it->second[i]));
+      mvTreeLikelihoods_[it.first].push_back(
+	  make_shared<RNonHomogeneousMixedTreeLikelihood>(*it.second[i])
+	  );
     }
   }
 }
@@ -284,12 +313,13 @@ RNonHomogeneousMixedTreeLikelihood& RNonHomogeneousMixedTreeLikelihood::operator
   upperNode_ = lik.upperNode_;
   main_ = lik.main_;
 
-  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::const_iterator it;
-  for (it = lik.mvTreeLikelihoods_.begin(); it != lik.mvTreeLikelihoods_.end(); it++)
+  for (auto& it : lik.mvTreeLikelihoods_)
   {
-    for (size_t i = 0; i < it->second.size(); i++)
+    for (size_t i = 0; i < it.second.size(); ++i)
     {
-      mvTreeLikelihoods_[it->first].push_back(new RNonHomogeneousMixedTreeLikelihood(*it->second[i]));
+      mvTreeLikelihoods_[it.first].push_back(
+	  make_shared<RNonHomogeneousMixedTreeLikelihood>(*it.second[i])
+	  );
     }
   }
 
@@ -300,17 +330,7 @@ RNonHomogeneousMixedTreeLikelihood& RNonHomogeneousMixedTreeLikelihood::operator
 
 /******************************************************************************/
 
-RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
-{
-  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
-  for (it = mvTreeLikelihoods_.begin(); it != mvTreeLikelihoods_.end(); it++)
-  {
-    for (size_t i = 0; i < it->second.size(); i++)
-    {
-      delete it->second[i];
-    }
-  }
-}
+RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood() {}
 
 /******************************************************************************/
 void RNonHomogeneousMixedTreeLikelihood::initialize()
@@ -323,12 +343,11 @@ void RNonHomogeneousMixedTreeLikelihood::initialize()
     includeParameters_(brLenParameters_);
   }
 
-  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
-  for (it = mvTreeLikelihoods_.begin(); it != mvTreeLikelihoods_.end(); it++)
+  for (auto& it : mvTreeLikelihoods_)
   {
-    for (size_t i = 0; i < it->second.size(); i++)
+    for (size_t i = 0; i < it.second.size(); ++i)
     {
-      it->second[i]->initialize();
+      it.second[i]->initialize();
     }
   }
 
@@ -367,12 +386,15 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
     }
   }
 
-  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::const_iterator it2;
-  for (it2 = mvTreeLikelihoods_.begin(); it2 != mvTreeLikelihoods_.end(); it2++)
+  for (auto& it2 : mvTreeLikelihoods_)
   {
-    for (size_t i = 0; i < it2->second.size(); i++)
+    for (size_t i = 0; i < it2.second.size(); ++i)
     {
-      (it2->second)[i]->setProbability((dynamic_cast<MixedSubstitutionModelSet*>(modelSet_))->getHyperNodeProbability((it2->second)[i]->getHyperNode()));
+      (it2.second)[i]->setProbability(
+          dynamic_pointer_cast<MixedSubstitutionModelSet>(modelSet_)->getHyperNodeProbability(
+	      (it2.second)[i]->getHyperNode()
+	      )
+	  );
     }
   }
 
@@ -401,13 +423,13 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
       }
       tmp = params.getCommonParametersWith(brLenParameters_).getParameterNames();
       vector<const Node*> nodes;
-      for (size_t i = 0; i < ids.size(); i++)
+      for (size_t i = 0; i < ids.size(); ++i)
       {
         nodes.push_back(idToNode_[ids[i]]);
       }
       vector<const Node*> tmpv;
       bool test = false;
-      for (size_t i = 0; i < tmp.size(); i++)
+      for (size_t i = 0; i < tmp.size(); ++i)
       {
         if (tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition")
         {
@@ -423,18 +445,17 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
       }
       nodes = VectorTools::vectorUnion(nodes, tmpv);
 
-      for (size_t i = 0; i < nodes.size(); i++)
+      for (size_t i = 0; i < nodes.size(); ++i)
       {
         computeTransitionProbabilitiesForNode(nodes[i]);
       }
     }
 
-    map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
-    for (it = mvTreeLikelihoods_.begin(); it != mvTreeLikelihoods_.end(); it++)
+    for (auto& it : mvTreeLikelihoods_)
     {
-      for (size_t i = 0; i < it->second.size(); i++)
+      for (size_t i = 0; i < it.second.size(); ++i)
       {
-        it->second[i]->matchParametersValues(params);
+        it.second[i]->matchParametersValues(params);
       }
     }
   }
@@ -447,27 +468,29 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
 }
 
 /******************************************************************************/
-void RNonHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites)
+
+void RNonHomogeneousMixedTreeLikelihood::setData(const AlignmentDataInterface& sites)
 {
   RNonHomogeneousTreeLikelihood::setData(sites);
-  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
-  for (it = mvTreeLikelihoods_.begin(); it != mvTreeLikelihoods_.end(); it++)
+  for (auto& it : mvTreeLikelihoods_)
   {
-    for (size_t i = 0; i < it->second.size(); i++)
+    for (size_t i = 0; i < it.second.size(); ++i)
     {
-      it->second[i]->setData(sites);
+      it.second[i]->setData(sites);
     }
   }
 }
 
 
 /******************************************************************************/
+
 double RNonHomogeneousMixedTreeLikelihood::getProbability() const
 {
   return hyperNode_.getProbability();
 }
 
 /******************************************************************************/
+
 void RNonHomogeneousMixedTreeLikelihood::setProbability(double x)
 {
   return hyperNode_.setProbability(x);
@@ -488,7 +511,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
 
     // Must reset the likelihood array first (i.e. set all of them to 0):
     VVVdouble* _likelihoods_node = &likelihoodData_->getLikelihoodArray(nodeId);
-    for (size_t i = 0; i < nbSites; i++)
+    for (size_t i = 0; i < nbSites; ++i)
     {
       // For each site in the sequence,
       VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
@@ -507,7 +530,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
     if (getProbability() == 0)
       return;
 
-    vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[nodeId];
+    auto& vr = mvTreeLikelihoods_[nodeId];
     for (size_t t = 0; t < vr.size(); t++)
     {
       vr[t]->computeSubtreeLikelihood(node);
@@ -603,7 +626,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& va
 
     if (getProbability() != 0)
     {
-      vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[fatherId];
+      auto& vr = mvTreeLikelihoods_[fatherId];
       for (size_t t = 0; t < vr.size(); t++)
       {
         vr[t]->computeTreeDLikelihood(variable);
@@ -707,7 +730,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& v
 
     if (getProbability() != 0)
     {
-      vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[fatherId];
+      auto& vr = mvTreeLikelihoods_[fatherId];
       for (size_t t = 0; t < vr.size(); t++)
       {
         vr[t]->computeTreeD2Likelihood(variable);
@@ -760,10 +783,10 @@ void RNonHomogeneousMixedTreeLikelihood::computeDownSubtreeD2Likelihood(const No
 
 void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
 {
-  const TransitionModel* model = modelSet_->getModelForNode(node->getId());
+  auto model = modelSet_->getModelForNode(node->getId());
   size_t modelnum = modelSet_->getModelIndexForNode(node->getId());
 
-  vector<const TransitionModel*> vModel;
+  vector< shared_ptr<const TransitionModelInterface> > vModel;
   vector<double> vProba;
 
   const MixedSubstitutionModelSet::HyperNode::Node& nd = hyperNode_.getNode(modelnum);
@@ -774,11 +797,11 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
   }
   else
   {
-    const MixedTransitionModel* mmodel = dynamic_cast<const MixedTransitionModel*>(model);
+    auto mmodel = dynamic_pointer_cast<const MixedTransitionModelInterface>(model);
     double x = 0;
     for (size_t i = 0; i < nd.size(); ++i)
     {
-      vModel.push_back(mmodel->getNModel(static_cast<size_t>(nd[i])));
+      vModel.push_back(shared_ptr<TransitionModelInterface>(mmodel->nModel(static_cast<size_t>(nd[i])).clone()));
       vProba.push_back(mmodel->getNProbability(static_cast<size_t>(nd[i])));
       x += vProba[i];
     }

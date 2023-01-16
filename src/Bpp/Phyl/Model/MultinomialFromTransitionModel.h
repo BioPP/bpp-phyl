@@ -133,6 +133,7 @@ protected:
 
 public:
   MultinomialFromTransitionModel(const TransitionModelInterface& originalModel) :
+    AbstractParameterAliasable("MultinomialFrom." + originalModel.getNamespace()),
     AbstractWrappedModel("MultinomialFrom." + originalModel.getNamespace()),
     subModel_(std::unique_ptr<TransitionModelInterface>(originalModel.clone())),
     size_(originalModel.getNumberOfStates()),
@@ -143,6 +144,7 @@ public:
   }
 
   MultinomialFromTransitionModel(const MultinomialFromTransitionModel& fmsm) :
+    AbstractParameterAliasable(fmsm),
     AbstractWrappedModel(fmsm),
     subModel_(fmsm.subModel_->clone()),
     size_(fmsm.size_),
@@ -151,7 +153,7 @@ public:
 
   MultinomialFromTransitionModel& operator=(const MultinomialFromTransitionModel& fmsm)
   {
-    AbstractParameterAliasable::operator=(fmsm);
+    AbstractWrappedModel::operator=(fmsm);
 
     subModel_ = std::unique_ptr<TransitionModelInterface>(fmsm.subModel_->clone());
     size_ = fmsm.size_;
@@ -167,17 +169,17 @@ public:
 
   virtual ~MultinomialFromTransitionModel() {}
 
-  MultinomialFromTransitionModel* clone() const { return new MultinomialFromTransitionModel(*this); }
+  MultinomialFromTransitionModel* clone() const override { return new MultinomialFromTransitionModel(*this); }
 
 public:
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
     if (model().matchParametersValues(parameters))
       tref_ = NumConstants::MINF();
   }
 
-  const BranchModelInterface& model() const
+  const BranchModelInterface& model() const override
   {
     return *subModel_;
   }
@@ -187,9 +189,9 @@ public:
     return *subModel_;
   }
 
-  const Eigen::VectorXd& Lik_t    (const Eigen::VectorXd& from, double t) const;
-  const Eigen::VectorXd& dLik_dt  (const Eigen::VectorXd& from, double t) const;
-  const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& from, double t) const;
+  const Eigen::VectorXd& Lik_t    (const Eigen::VectorXd& from, double t) const override;
+  const Eigen::VectorXd& dLik_dt  (const Eigen::VectorXd& from, double t) const override;
+  const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& from, double t) const override;
 
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0)
   {
@@ -201,18 +203,18 @@ public:
     transitionModel().setFreq(m);
   }
 
-  double getRate() const { return transitionModel().getRate(); }
+  double getRate() const override { return transitionModel().getRate(); }
 
-  void setRate(double rate) { return transitionModel().setRate(rate); }
+  void setRate(double rate) override { return transitionModel().setRate(rate); }
 
-  double getInitValue(size_t i, int state) const { return transitionModel().getInitValue(i, state); }
+  double getInitValue(size_t i, int state) const override { return transitionModel().getInitValue(i, state); }
 
-  std::string getName() const
+  std::string getName() const override
   {
     return "MultinomialFrom";
   }
 
-  void addRateParameter()
+  void addRateParameter() override
   {
     model().addRateParameter();
     addParameter_(new Parameter(getNamespace() + "rate", model().getRate(), Parameter::R_PLUS_STAR));

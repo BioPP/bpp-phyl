@@ -62,25 +62,29 @@ using namespace std;
 /******************************************************************************/
 
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
-  const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix) :
+    shared_ptr<const ProteicAlphabet> alpha,
+    const string& path, 
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), prefix),
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), prefix),
   path_(path),
-  freqSet_(0)
+  freqSet_(nullptr)
 {
   readFromFile();
   freqSet_.reset(new FixedProteinFrequencySet(alpha, freq_));
-  updateMatrices();
+  updateMatrices_();
 }
 
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
-  const ProteicAlphabet* alpha, const std::string& path,
-  std::shared_ptr<ProteinFrequencySet> freqSet, const std::string& prefix,
-  bool initFreqs) :
+    shared_ptr<const ProteicAlphabet> alpha,
+    const string& path,
+    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    const string& prefix,
+    bool initFreqs) :
   AbstractParameterAliasable(prefix),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), prefix),
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), prefix),
   path_(path),
-  freqSet_(freqSet)
+  freqSet_(move(freqSet))
 {
   readFromFile();
   freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
@@ -89,7 +93,7 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
   else
     freq_ = freqSet_->getFrequencies();
   addParameters_(freqSet_->getParameters());
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
@@ -158,7 +162,7 @@ void UserProteinSubstitutionModel::readFromFile()
 
 /******************************************************************************/
 
-void UserProteinSubstitutionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void UserProteinSubstitutionModel::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   map<int, double> counts;
   SequenceContainerTools::getFrequencies(data, counts, pseudoCount);

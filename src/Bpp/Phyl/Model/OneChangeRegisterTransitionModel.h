@@ -57,7 +57,6 @@ namespace bpp
  *
  * @see SubstitutionRegister
  */
-
 class OneChangeRegisterTransitionModel :
   public AbstractFromSubstitutionModelTransitionModel
 {
@@ -113,6 +112,7 @@ public:
       std::vector<size_t> vNumRegs);
 
   OneChangeRegisterTransitionModel(const OneChangeRegisterTransitionModel& fmsm) :
+    AbstractParameterAliasable(fmsm),
     AbstractWrappedModel(fmsm),
     AbstractWrappedTransitionModel(fmsm),
     AbstractFromSubstitutionModelTransitionModel(fmsm),
@@ -146,7 +146,7 @@ public:
   void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractFromSubstitutionModelTransitionModel::fireParameterChanged(parameters);
-    updateMatrices();
+    updateMatrices_();
   }
 
   double Pij_t    (size_t i, size_t j, double t) const override;
@@ -174,28 +174,24 @@ public:
     return transitionModel().frequencySet();
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
-  {
-    return transitionModel().getFrequencySet();
-  }
-
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount) override
   {
-    transitionModel().setFreqFromData(data, pseudoCount);
+    transitionModel_().setFreqFromData(data, pseudoCount);
   }
 
   virtual void setFreq(std::map<int, double>& m) override
   {
-    transitionModel().setFreq(m);
+    transitionModel_().setFreq(m);
   }
 
   double getRate() const override { return transitionModel().getRate(); }
 
-  void setRate(double rate) override { return transitionModel().setRate(rate); }
+  void setRate(double rate) override { return transitionModel_().setRate(rate); }
 
-  double getInitValue(size_t i, int state) const override { return model().getInitValue(i, state); }
-
-  void updateMatrices();
+  double getInitValue(size_t i, int state) const override
+  { 
+    return model().getInitValue(i, state);
+  }
 
   std::string getName() const override
   {
@@ -214,8 +210,12 @@ public:
 
   /*
    * @}
-   *
    */
+
+protected:  
+  
+  void updateMatrices_();
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ONECHANGEREGISTERTRANSITIONMODEL_H

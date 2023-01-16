@@ -133,7 +133,7 @@ public:
    */
   double getValue() const override
   {
-    double x = static_cast<NumericMutable<double>&>(*dependency(0)).getTargetValue();
+    double x = static_cast<NumericMutable<double>&>(*dependency(0)).targetValue();
     accessValueConst()->Parameter::setValue(x);
     return Parameter::getValue();
   }

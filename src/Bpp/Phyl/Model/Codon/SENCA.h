@@ -89,16 +89,16 @@ class SENCA :
 public:
   SENCA(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::shared_ptr<FrequencySetInterface> pfit,
-    const AlphabetIndex2* pdist = nullptr);
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<FrequencySetInterface> pfit,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   SENCA(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::shared_ptr<FrequencySetInterface> pfit,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<FrequencySetInterface> pfit,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~SENCA() {}
@@ -111,7 +111,10 @@ public:
 public:
   void fireParameterChanged(const ParameterList& parameterlist) override;
 
-  std::string getName() const override;
+  std::string getName() const override
+  {
+    return "SENCA";
+  }
 
   double getCodonsMulRate(size_t i, size_t j) const override;
 
@@ -131,15 +134,16 @@ public:
    */
   void setFreq(std::map<int, double>& frequencies) override;
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return AbstractCodonFitnessSubstitutionModel::frequencySet();
+    return AbstractCodonFitnessSubstitutionModel::codonFrequencySet();
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return AbstractCodonFitnessSubstitutionModel::getFrequencySet();
+    return AbstractCodonFitnessSubstitutionModel::hasCodonFrequencySet();
   }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_SENCA_H

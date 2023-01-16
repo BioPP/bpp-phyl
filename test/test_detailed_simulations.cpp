@@ -62,14 +62,13 @@ int main() {
   
   //-------------
 
-  NucleicAlphabet* alphabet = new DNA();
-  std::shared_ptr<GTR> model(new GTR(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2));
+  shared_ptr<NucleicAlphabet> alphabet(new DNA());
+  auto model = make_shared<GTR>(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
   //DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
   auto rdist = std::make_shared<ConstantDistribution>(1.0);
+  auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, phyloTree);
 
-  RateAcrossSitesSubstitutionProcess process(model, rdist, phyloTree);
-
-  process.setPhyloTree(*phyloTree);
+  process->setPhyloTree(*phyloTree);
   
   SimpleSubstitutionProcessSiteSimulator simulatorS(process);
 
@@ -115,13 +114,11 @@ int main() {
   
   for (size_t k = 0; k < ids.size(); ++k) {
     if (abs(sums[ids[k]] - phyloTree->getEdge(ids[k])->getLength()) > 0.01) {
-      delete alphabet;
       return 1;
     }
   }
   
   //-------------
-  delete alphabet;
 
   //return (abs(obs - 0.001) < 0.001 ? 0 : 1);
   return 0;

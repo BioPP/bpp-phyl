@@ -54,13 +54,13 @@ using namespace std;
 /******************************************************************************/
 
 SSR::SSR(
-  const NucleicAlphabet* alpha,
+  shared_ptr<const NucleicAlphabet> alpha,
   double beta,
   double gamma,
   double delta,
   double theta) :
   AbstractParameterAliasable("SSR."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "SSR."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "SSR."),
   beta_(beta), gamma_(gamma), delta_(delta), theta_(theta),
   piA_((1. - theta) / 2.), piC_(theta / 2.), piG_(theta / 2.), piT_((1. - theta) / 2.)
 {
@@ -68,12 +68,12 @@ SSR::SSR(
   addParameter_(new Parameter("SSR.gamma", gamma, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("SSR.delta", delta, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("SSR.theta", theta, Parameter::PROP_CONSTRAINT_EX));
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void SSR::updateMatrices()
+void SSR::updateMatrices_()
 {
   beta_  = getParameterValue("beta");
   gamma_ = getParameterValue("gamma");
@@ -103,7 +103,7 @@ void SSR::updateMatrices()
   exchangeability_(3, 2) = beta_;
   exchangeability_(3, 3) = -beta_ * piG_ - piC_ - gamma_ * piA_;
 
-  AbstractReversibleSubstitutionModel::updateMatrices();
+  AbstractReversibleSubstitutionModel::updateMatrices_();
 }
 
 /******************************************************************************/
@@ -113,7 +113,7 @@ void SSR::setFreq(map<int, double>& freqs)
   piC_ = freqs[1];
   piG_ = freqs[2];
   setParameterValue("theta", piC_ + piG_);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/

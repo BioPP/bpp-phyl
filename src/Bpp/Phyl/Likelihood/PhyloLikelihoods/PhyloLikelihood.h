@@ -75,6 +75,10 @@ public:
    */
   virtual bool isInitialized() const = 0;
 
+  virtual const Context& context() const = 0;
+  
+  virtual Context& context() = 0;
+
   /**
    * @}
    */
@@ -84,6 +88,11 @@ public:
    *
    * @{
    */
+
+  /**
+   * @return the LikDF node where the Likelihood is computed.
+   */
+  virtual ValueRef<DataLik> getLikelihoodNode() const = 0;
 
   /**
    * @brief Get the logarithm of the likelihood for the whole dataset.

@@ -100,7 +100,7 @@ void NNITopologySearch::searchFast()
   bool test = true;
   do
   {
-    TreeTemplate<Node> tree(searchableTree_->getTopology());
+    TreeTemplate<Node> tree(searchableTree_->topology());
     vector<Node*> nodes = tree.getNodes();
 
     vector<Node*> nodesSub = nodes;
@@ -152,7 +152,7 @@ void NNITopologySearch::searchBetter()
   bool test = true;
   do
   {
-    TreeTemplate<Node> tree(searchableTree_->getTopology());
+    TreeTemplate<Node> tree(searchableTree_->topology());
     vector<Node*> nodes = tree.getNodes();
 
     if (verbose_ >= 3)
@@ -219,7 +219,7 @@ void NNITopologySearch::searchPhyML()
   {
     if (verbose_ >= 3)
       ApplicationTools::displayTask("Test all possible NNIs...");
-    TreeTemplate<Node> tree(searchableTree_->getTopology());
+    TreeTemplate<Node> tree(searchableTree_->topology());
     vector<Node*> nodes = tree.getNodes();
     vector<Node*> nodesSub = nodes;
     for (size_t i = nodesSub.size(); i > 0; i--)
@@ -322,7 +322,7 @@ void NNITopologySearch::searchPhyML()
           if (verbose_ >= 2)
           {
             ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(nodeId)
-                                            + string(" at ") + TextTools::toString(searchableTree_->getTopology().getFatherId(nodeId)),
+                                            + string(" at ") + TextTools::toString(searchableTree_->topology().getFatherId(nodeId)),
                                             TextTools::toString(improvement[i]));
           }
           searchableTree_->doNNI(improving[i]);
@@ -336,8 +336,7 @@ void NNITopologySearch::searchPhyML()
         {
           // No improvement!
           // Restore backup:
-          delete searchableTree_;
-          searchableTree_ = dynamic_cast<NNISearchable*>(backup->clone());
+          searchableTree_.reset(backup->clone());
           if (verbose_ >= 1)
           {
             ApplicationTools::displayResult("Score >= current score! Moving backward", TextTools::toString(searchableTree_->getTopologyValue()));

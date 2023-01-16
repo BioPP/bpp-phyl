@@ -59,13 +59,9 @@ namespace bpp
  * The resulting likelihood is the likelihood of the given Hmm with
  * the site emission probabilities proportional to the computed
  * likelihoods of the process.
- *
- *
  */
-
-
 class AutoCorrelationOfAlignedPhyloLikelihood :
-  public SetOfAlignedPhyloLikelihood
+  public AbstractSetOfAlignedPhyloLikelihood
 {
 private:
   std::shared_ptr<HmmPhyloAlphabet> hma_;
@@ -77,20 +73,43 @@ private:
   mutable std::shared_ptr<HmmLikelihood_DF> hmm_;
 
 public:
-  AutoCorrelationOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
+  AutoCorrelationOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      const std::vector<size_t>& nPhylo,
+      bool inCollection = true);
 
+protected:
   AutoCorrelationOfAlignedPhyloLikelihood(const AutoCorrelationOfAlignedPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
-    SetOfAlignedPhyloLikelihood(mlc),
-    hma_(std::shared_ptr<HmmPhyloAlphabet>(mlc.hma_->clone())),
-    htm_(std::shared_ptr<AutoCorrelationTransitionMatrix>(mlc.htm_->clone())),
-    hpep_(std::shared_ptr<HmmPhyloEmissionProbabilities>(mlc.hpep_->clone())),
-    hmm_(std::shared_ptr<HmmLikelihood_DF>(mlc.hmm_->clone()))
+    AbstractParametrizable(mlc),
+    AbstractSetOfPhyloLikelihood(mlc),
+    AbstractAlignedPhyloLikelihood(mlc),
+    AbstractSetOfAlignedPhyloLikelihood(mlc),
+    hma_(mlc.hma_),
+    htm_(mlc.htm_),
+    hpep_(mlc.hpep_),
+    hmm_(mlc.hmm_)
   {}
 
-  virtual ~AutoCorrelationOfAlignedPhyloLikelihood() {}
+  AutoCorrelationOfAlignedPhyloLikelihood& operator=(const AutoCorrelationOfAlignedPhyloLikelihood& mlc) 
+  {
+    AbstractSetOfAlignedPhyloLikelihood::operator=(mlc);
+    hma_ = mlc.hma_;
+    htm_ = mlc.htm_;
+    hpep_ = mlc.hpep_;
+    hmm_ = mlc.hmm_;
+    return *this;
+  }
 
-  AutoCorrelationOfAlignedPhyloLikelihood* clone() const { return new AutoCorrelationOfAlignedPhyloLikelihood(*this); }
+  AutoCorrelationOfAlignedPhyloLikelihood* clone() const
+  {
+    return new AutoCorrelationOfAlignedPhyloLikelihood(*this);
+  }
+
+public:
+
+  virtual ~AutoCorrelationOfAlignedPhyloLikelihood() {}
 
 public:
   void setNamespace(const std::string& nameSpace);

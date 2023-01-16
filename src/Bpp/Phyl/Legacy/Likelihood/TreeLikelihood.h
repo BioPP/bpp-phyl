@@ -49,7 +49,7 @@
 #include "../../Model/SubstitutionModel.h"
 #include "TreeLikelihoodData.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/AlignmentData.h>
 
@@ -179,7 +179,7 @@ public:
    *
    * @param sites The data set to use.
    */
-  virtual void setData(std::shared_ptr<const AlignmentDataInterface> sites) = 0;
+  virtual void setData(const AlignmentDataInterface& sites) = 0;
 
   /**
    * @brief Get the dataset for which the likelihood must be evaluated.
@@ -187,13 +187,6 @@ public:
    * @return The site container where the sequences are stored.
    */
   virtual const AlignmentDataInterface& data() const = 0;
-
-  /**
-   * @brief Get the dataset for which the likelihood must be evaluated.
-   *
-   * @return A pointer toward the site container where the sequences are stored.
-   */
-  virtual std::shared_ptr<const AlignmentDataInterface> getData() const = 0;
 
   /**
    * @brief Init the likelihood object.
@@ -209,6 +202,11 @@ public:
    * @return 'true' is the likelihood function has been initialized.
    */
   virtual bool isInitialized() const = 0;
+
+  /**
+   * @return True if the TreeLikelihood object has a LikelihoodData.
+   */
+  virtual bool hasLikelihoodData() const = 0;
 
   /**
    * @return The underlying likelihood data structure.
@@ -301,7 +299,7 @@ public:
    *
    * @return The tree of this TreeLikelihood object.
    */
-  virtual const Tree& getTree() const = 0;
+  virtual const Tree& tree() const = 0;
 
   /**
    * @brief Get the number of sites in the dataset.

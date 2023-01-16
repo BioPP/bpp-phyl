@@ -77,7 +77,10 @@ public:
    * @throw Exception if an error occured.
    */
   template<class N, class E, class I>
-  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(const AlignmentDataInterface& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N, E, I>& tree);
+  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
+      const AlignmentDataInterface& sequenceSet, 
+      const std::shared_ptr<N> node, 
+      const AssociationTreeGraphImplObserver<N, E, I>& tree);
 
   /**
    * @brief Extract the sequences corresponding to a given subtree.
@@ -87,7 +90,9 @@ public:
    * @return A new site container with corresponding sequences.
    * @throw Exception if an error occured.
    */
-  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(const AlignmentDataInterface& sequenceSet, const Node& node);
+  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
+      const AlignmentDataInterface& sequenceSet,
+      const Node& node);
 
   /**
    * @brief Extract the sequences corresponding to a given set of names.
@@ -97,7 +102,9 @@ public:
    * @return A new site container with corresponding sequences.
    * @throw Exception if an error occured.
    */
-  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(const AlignmentDataInterface& sequenceSet, const std::vector<std::string>& names);
+  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
+      const AlignmentDataInterface& sequenceSet, 
+      const std::vector<std::string>& names);
 
   /**
    * @brief Compress a site container by removing duplicated sites.
@@ -106,7 +113,8 @@ public:
    * @return A new site container with unique sites.
    * @throw Exception if an error occured.
    */
-  static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(const AlignmentDataInterface& sequenceSet);
+  static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(
+      const AlignmentDataInterface& sequenceSet);
 
   /**
    * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
@@ -116,39 +124,46 @@ public:
    * @param sequences2 Second container.
    * @return A vector of positions.
    */
-  static Vint getIndexes(const AlignmentDataInterface& sequences1, const AlignmentDataInterface& sequences2);
+  static Vint getIndexes(
+      const AlignmentDataInterface& sequences1,
+      const AlignmentDataInterface& sequences2);
 };
 
 template<class N, class E, class I>
-std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(const AlignmentDataInterface& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N, E, I>& tree)
+std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
+    const AlignmentDataInterface& sequenceSet, 
+    const std::shared_ptr<N> node, 
+    const AssociationTreeGraphImplObserver<N, E, I>& tree)
 {
   size_t nbSites = sequenceSet.getNumberOfSites();
+  auto alphabet = sequenceSet.getAlphabet();
 
   try
   {
-    const SiteContainerInterface& sitecontainer = dynamic_cast<const SiteContainerInterface&>(sequenceSet);
+    const auto& sitecontainer = dynamic_cast<const SiteContainerInterface&>(sequenceSet);
 
-    auto sequenceSubset = std::make_unique<VectorSiteContainer>(sequenceSet.getAlphabet());
+    auto sequenceSubset = std::make_unique<VectorSiteContainer>(alphabet);
 
-    std::vector<std::shared_ptr<N> > leaves = tree.getLeavesUnderNode(node);
+    std::vector<std::shared_ptr<N>> leaves = tree.getLeavesUnderNode(node);
 
     for (auto i : leaves)
     {
       if (i->hasName())
       {
+	//Use sequence name as key.
         try
         {
-          std::unique_ptr<Sequence> newSeq(sitecontainer.getSequence(i->getName()).clone());
-          sequenceSubset->addSequence(newSeq->getName(), newSeq);
+          auto newSeq = std::make_unique<Sequence>(sitecontainer.sequence(i->getName()));
+          sequenceSubset->addSequence(i->getName(), newSeq);
         }
-        catch (std::exception const& e)
+        catch (std::exception& e)
         {
           ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
 
-          auto seq = std::make_unique<Sequence>(i->getName(), "", sequenceSet.getAlphabet());
+          auto seq = std::make_unique<Sequence>(i->getName(), "", alphabet);
           seq->setToSizeR(nbSites);
           SymbolListTools::changeGapsToUnknownCharacters(*seq);
-          sequenceSubset->addSequence(seq);
+          sequenceSubset->addSequence(i->getName(), seq);
         }
       }
     }
@@ -160,7 +175,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(const Al
   {
     const ProbabilisticSiteContainerInterface& sitecontainer = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequenceSet);
 
-    auto sequenceSubset = std::make_unique<ProbabilisticVectorSiteContainer>(sequenceSet.getAlphabet());
+    auto sequenceSubset = std::make_unique<ProbabilisticVectorSiteContainer>(alphabet);
 
     std::vector<std::shared_ptr<N> > leaves = tree.getLeavesUnderNode(node);
 
@@ -168,19 +183,20 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(const Al
     {
       if (i->hasName())
       {
+	//Use sequence name as key.
         try
         {
-          std::unique_ptr<ProbabilisticSequence> newSeq(sitecontainer.getSequence(i->getName()).clone());
+          auto newSeq = std::make_unique<ProbabilisticSequence> (sitecontainer.sequence(i->getName()));
           sequenceSubset->addSequence(newSeq->getName(), newSeq);
         }
         catch (std::exception const& e)
         {
           ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
 
-          auto newSeq = std::make_unique<ProbabilisticSequence>(i->getName(), Table<double>(sequenceSet.getAlphabet()->getSize(), 0), sequenceSet.getAlphabet());
+          auto newSeq = std::make_unique<ProbabilisticSequence>(i->getName(), Table<double>(alphabet->getSize(), 0), alphabet);
           newSeq->setToSizeR(nbSites);
           SymbolListTools::changeGapsToUnknownCharacters(*newSeq);
-          sequenceSubset->addSequence(newSeq);
+          sequenceSubset->addSequence(i->getName(), newSeq);
         }
       }
     }

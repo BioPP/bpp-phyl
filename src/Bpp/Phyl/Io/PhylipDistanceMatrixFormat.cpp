@@ -54,12 +54,12 @@ using namespace bpp;
 
 using namespace std;
 
-DistanceMatrix* PhylipDistanceMatrixFormat::readDistanceMatrix(istream& in) const
+unique_ptr<DistanceMatrix> PhylipDistanceMatrixFormat::readDistanceMatrix(istream& in) const
 {
   string s = FileTools::getNextLine(in);
   // the size of the matrix:
   unsigned int n = TextTools::fromString<unsigned int>(s);
-  DistanceMatrix* dist = new DistanceMatrix(n);
+  auto dist = make_unique<DistanceMatrix>(n);
   unsigned int rowNumber = 0;
   unsigned int colNumber = 0;
   s = FileTools::getNextLine(in);

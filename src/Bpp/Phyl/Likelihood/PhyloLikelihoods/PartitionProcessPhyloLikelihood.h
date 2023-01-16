@@ -47,7 +47,7 @@
 #include "SequencePhyloLikelihood.h"
 #include "SingleProcessPhyloLikelihood.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/AlignmentData.h>
 
 namespace bpp
@@ -67,8 +67,8 @@ struct ProcPos
 
 
 class PartitionProcessPhyloLikelihood :
-  public SequencePhyloLikelihood,
-  public SetOfPhyloLikelihood
+  public AbstractSequencePhyloLikelihood,
+  public AbstractSetOfPhyloLikelihood
 {
 private:
   /**
@@ -111,22 +111,38 @@ public:
     std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol = 0,
     size_t nData = 0);
+  
+protected:
 
   PartitionProcessPhyloLikelihood(const PartitionProcessPhyloLikelihood& lik) :
     AbstractPhyloLikelihood(lik),
-    //AbstractAlignedPhyloLikelihood(lik),
-    SequencePhyloLikelihood(lik),
-    SetOfPhyloLikelihood(lik),
+    AbstractAlignedPhyloLikelihood(lik),
+    AbstractSingleDataPhyloLikelihood(lik),
+    AbstractParametrizable(""),
+    AbstractSequencePhyloLikelihood(lik),
+    AbstractSetOfPhyloLikelihood(lik),
     mSeqEvol_(lik.mSeqEvol_),
     vProcPos_(lik.vProcPos_),
     mData_(lik.mData_),
     likCal_(lik.likCal_)
   {}
 
-  virtual ~PartitionProcessPhyloLikelihood()
-  {}
+  PartitionProcessPhyloLikelihood& operator=(const PartitionProcessPhyloLikelihood& lik)
+  {
+    AbstractSequencePhyloLikelihood::operator=(lik);
+    AbstractSetOfPhyloLikelihood::operator=(lik);
+    mSeqEvol_ = lik.mSeqEvol_;
+    vProcPos_ = lik.vProcPos_;
+    mData_    = lik.mData_;
+    likCal_   = lik.likCal_;
+    return *this;
+  }
 
   PartitionProcessPhyloLikelihood* clone() const override { return new PartitionProcessPhyloLikelihood(*this); }
+  
+public:
+
+  virtual ~PartitionProcessPhyloLikelihood() {}
 
   /**
    * @brief Set the dataset for which the likelihood must be evaluated.

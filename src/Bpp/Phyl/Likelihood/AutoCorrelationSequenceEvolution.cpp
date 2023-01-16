@@ -47,15 +47,15 @@ using namespace bpp;
 /******************************************************************************/
 
 AutoCorrelationSequenceEvolution::AutoCorrelationSequenceEvolution(
-  SubstitutionProcessCollection* processColl,
+  std::shared_ptr<SubstitutionProcessCollection> processColl,
   std::vector<size_t>& nProc) :
   MultiProcessSequenceEvolution(processColl, nProc),
   hmmAlph_(),
   autoCorrTransMat_()
 {
-  hmmAlph_ = std::unique_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
+  hmmAlph_ = make_unique<HmmProcessAlphabet>(processColl_, nProc);
 
-  autoCorrTransMat_ = std::unique_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(hmmAlph_.get(), "AutoCorr."));
+  autoCorrTransMat_ = make_unique<AutoCorrelationTransitionMatrix>(hmmAlph_, "AutoCorr.");
 
   // initialize parameters:
   addParameters_(hmmAlph_->getParameters());

@@ -1,7 +1,7 @@
 //
 // File: AlignedPhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 17 septembre 2015, ÃÂ  13h 31
 //
 
@@ -64,9 +64,8 @@ namespace bpp
  * does not match for HMM phylolikelihoods).
  *
  */
-
 class AlignedPhyloLikelihoodInterface :
-  virtual public PhyloLikelihoodInterface
+  public virtual PhyloLikelihoodInterface
 {
 public:
   AlignedPhyloLikelihoodInterface() {}
@@ -154,14 +153,22 @@ public:
     nbSites_(nbSites)
   {}
 
-  AbstractAlignedPhyloLikelihood(const AbstractAlignedPhyloLikelihood& asd) :
-    AbstractPhyloLikelihood(asd),
-    nbSites_(asd.nbSites_)
+protected:
+  AbstractAlignedPhyloLikelihood(const AbstractAlignedPhyloLikelihood& aasd) :
+    AbstractPhyloLikelihood(aasd),
+    nbSites_(aasd.nbSites_)
   {}
 
-  virtual ~AbstractAlignedPhyloLikelihood() {}
+  AbstractAlignedPhyloLikelihood& operator=(const AbstractAlignedPhyloLikelihood& aasd)
+  {
+    AbstractPhyloLikelihood::operator=(aasd);
+    nbSites_ = aasd.nbSites_;
+    return *this;
+  }
 
-  AbstractAlignedPhyloLikelihood* clone() const = 0;
+public:
+  
+  virtual ~AbstractAlignedPhyloLikelihood() {}
 
   size_t getNumberOfSites() const { return nbSites_; }
 

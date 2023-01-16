@@ -71,16 +71,12 @@ protected:
 
   /**
    * @brief the Substitution Process number
-   *
-   **/
-
+   */
   size_t nProc_;
 
   /**
    * @brief For Dataflow computing
-   *
    */
-
   mutable std::unordered_map<std::string, ValueRef<RowLik> > firstOrderDerivativeVectors_;
 
   mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>,
@@ -93,7 +89,7 @@ public:
                                 const ParameterList& variableNodes,
                                 size_t nProc = 0, size_t nData = 0) :
     AbstractPhyloLikelihood(context),
-    //AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
+    AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->stateMap().getNumberOfModelStates(), nData),
     AbstractParametrizable(""),
     likCal_(likCal), nProc_(nProc)
@@ -101,16 +97,14 @@ public:
     shareParameters_(variableNodes);
   }
 
-  /*
+  /**
    * @brief: the parameters the independent parameters of the LikelihoodCalculation
    */
-
   SingleProcessPhyloLikelihood (Context& context,
                                 std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-                                size_t nProc = 0, size_t nData = 0)
-    :
+                                size_t nProc = 0, size_t nData = 0) :
     AbstractPhyloLikelihood(context),
-    //AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
+    AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->stateMap().getNumberOfModelStates(), nData),
     AbstractParametrizable(""),
     likCal_(likCal), nProc_(nProc)
@@ -184,7 +178,7 @@ public:
    * the LikelihoodCalculationSingleProcess.
    *
    */
-  const ParametrizablePhyloTree& getTree() const
+  const ParametrizablePhyloTree& tree() const
   {
     return *likelihoodCalculationSingleProcess().substitutionProcess().getParametrizablePhyloTree();
   }

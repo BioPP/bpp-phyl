@@ -53,7 +53,9 @@ using namespace std;
 
 /******************************************************************************/
 
-void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model)
+void DRASRTreeLikelihoodData::initLikelihoods(
+    const AlignmentDataInterface& sites,
+    const TransitionModelInterface& model)
 {
   if (sites.getNumberOfSequences() == 1)
     throw Exception("Error, only 1 sequence!");
@@ -80,7 +82,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
   }
   else
   {
-    patterns = std::make_shared<SitePatterns>(&sites);
+    patterns = std::make_unique<SitePatterns>(sites);
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_.resize(size_t(patterns->getIndices().size()));
@@ -92,7 +94,10 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
 
 /******************************************************************************/
 
-void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model)
+void DRASRTreeLikelihoodData::initLikelihoods(
+    const Node* node, 
+    const AlignmentDataInterface& sequences,
+    const TransitionModelInterface& model)
 {
   // Initialize likelihood vector:
   DRASRTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
@@ -188,15 +193,18 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedVal
 
 /******************************************************************************/
 
-std::shared_ptr<SitePatterns> DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model)
+std::unique_ptr<SitePatterns> DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(
+    const Node* node,
+    const AlignmentDataInterface& sequences,
+    const TransitionModelInterface& model)
 {
   vector<const Node*> leaves = TreeTemplateTools::getLeaves(*node);
 
-  auto tmp = std::shared_ptr<AlignedValuesContainer>(PatternTools::getSequenceSubset(sequences, *node));
+  auto tmp = PatternTools::getSequenceSubset(sequences, *node);
 
-  auto patterns = std::make_shared<SitePatterns>(tmp.get(), true);
+  auto patterns = std::make_unique<SitePatterns>(*tmp);
 
-  shared_ptr<AlignedValuesContainer> subSequences = patterns->getSites();
+  auto subSequences = patterns->getSites();
   size_t nbSites = subSequences->getNumberOfSites();
 
   // Initialize likelihood vector:

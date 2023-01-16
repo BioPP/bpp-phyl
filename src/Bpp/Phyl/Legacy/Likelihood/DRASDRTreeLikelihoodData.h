@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -393,7 +393,9 @@ public:
 
   size_t getNumberOfClasses() const { return nbClasses_; }
 
-  const std::shared_ptr<AlignmentDataInterface> getShrunkData() const { return shrunkData_; }
+  std::shared_ptr<const AlignmentDataInterface> getShrunkData() const { return shrunkData_; }
+  
+  const AlignmentDataInterface& shrunkData() const { return *shrunkData_; }
 
   /**
    * @brief Resize and initialize all likelihood arrays according to the given data set and substitution model.

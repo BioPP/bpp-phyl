@@ -49,7 +49,7 @@ namespace bpp
 {
 /**
  * @brief The Yang et al (2000) M3 substitution model for codons.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
  * mixture being defined on the selection parameter to allow it to
@@ -74,25 +74,19 @@ class YNGP_M3 :
   public YNGP_M
 {
 public:
-  YNGP_M3(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nclass = 3);
+  YNGP_M3(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs,
+      unsigned int nclass = 3);
 
-  YNGP_M3* clone() const { return new YNGP_M3(*this); }
-
-  YNGP_M3(const YNGP_M3& mod2) :
-    YNGP_M(mod2)
-  {}
-
-  YNGP_M3& operator=(const YNGP_M3& mod2)
-  {
-    YNGP_M::operator=(mod2);
-    return *this;
-  }
-
-protected:
-  void updateMatrices();
+  YNGP_M3* clone() const override { return new YNGP_M3(*this); }
 
 public:
-  std::string getName() const { return "YNGP_M3"; }
+  std::string getName() const override { return "YNGP_M3"; }
+
+protected:
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M3_H

@@ -66,7 +66,7 @@ private:
 
 public:
   AutoCorrelationSequenceEvolution(
-    SubstitutionProcessCollection* processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     std::vector<size_t>& nProc);
 
   AutoCorrelationSequenceEvolution(const AutoCorrelationSequenceEvolution& mlc) :

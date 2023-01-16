@@ -58,12 +58,14 @@ class OneChangeTransitionModel :
 {
 public:
   OneChangeTransitionModel(std::unique_ptr<SubstitutionModelInterface> originalModel) :
+    AbstractParameterAliasable("Onechange."),
     AbstractWrappedModel("Onechange."),
     AbstractWrappedTransitionModel("Onechange."),
     AbstractFromSubstitutionModelTransitionModel(std::move(originalModel), "OneChange.")
   {}
 
   OneChangeTransitionModel(const OneChangeTransitionModel& fmsm) :
+    AbstractParameterAliasable(fmsm),
     AbstractWrappedModel(fmsm),
     AbstractWrappedTransitionModel(fmsm),
     AbstractFromSubstitutionModelTransitionModel(fmsm)
@@ -101,26 +103,24 @@ public:
     return transitionModel().frequencySet();
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
-  {
-    return transitionModel().getFrequencySet();
-  }
-
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount) override
   {
-    transitionModel().setFreqFromData(data, pseudoCount);
+    transitionModel_().setFreqFromData(data, pseudoCount);
   }
 
   virtual void setFreq(std::map<int, double>& m) override
   {
-    transitionModel().setFreq(m);
+    transitionModel_().setFreq(m);
   }
 
   double getRate() const override { return transitionModel().getRate(); }
 
-  void setRate(double rate) override { return transitionModel().setRate(rate); }
+  void setRate(double rate) override { return transitionModel_().setRate(rate); }
 
-  double getInitValue(size_t i, int state) const override { return model().getInitValue(i, state); }
+  double getInitValue(size_t i, int state) const override
+  { 
+    return model().getInitValue(i, state); 
+  }
 
   std::string getName() const override
   {

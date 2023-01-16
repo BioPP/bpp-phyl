@@ -74,6 +74,11 @@ public:
   virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
 
   /**
+   * @return The alphabet associated to this set.
+   */
+  virtual const Alphabet& alphabet() const = 0;
+
+  /**
    * @return The mapping of model states with alphabet states.
    */
   virtual const StateMapInterface& stateMap() const = 0;
@@ -81,13 +86,11 @@ public:
   /**
    * @return A shared_ptr toward the mapping of model states with alphabet states.
    */
-
   virtual std::shared_ptr<const StateMapInterface> getStateMap() const = 0;
 
   /**
    * @return The frequencies values of the set.
    */
-
   virtual const Vdouble& getFrequencies() const = 0;
 
   /**
@@ -172,6 +175,8 @@ public:
 
 public:
   std::shared_ptr<const Alphabet> getAlphabet() const override { return alphabet_; }
+  
+  const Alphabet& alphabet() const override { return *alphabet_; }
 
   const StateMapInterface& stateMap() const override { return *stateMap_; }
   
@@ -327,11 +332,13 @@ class MarkovModulatedFrequencySet :
   public AbstractFrequencySet
 {
 private:
-  std::shared_ptr<FrequencySetInterface> freqSet_;
+  std::unique_ptr<FrequencySetInterface> freqSet_;
   std::vector<double> rateFreqs_;
 
 public:
-  MarkovModulatedFrequencySet(std::shared_ptr<FrequencySetInterface> freqSet, const std::vector<double>& rateFreqs);
+  MarkovModulatedFrequencySet(
+      std::unique_ptr<FrequencySetInterface> freqSet,
+      const std::vector<double>& rateFreqs);
 
   MarkovModulatedFrequencySet(const MarkovModulatedFrequencySet& mmfs) :
     AbstractFrequencySet(mmfs),
@@ -342,23 +349,23 @@ public:
   MarkovModulatedFrequencySet& operator=(const MarkovModulatedFrequencySet& mmfs)
   {
     AbstractFrequencySet::operator=(mmfs);
-    freqSet_ = std::shared_ptr<FrequencySetInterface>(mmfs.freqSet_->clone());
+    freqSet_.reset(mmfs.freqSet_->clone());
     rateFreqs_ = mmfs.rateFreqs_;
     return *this;
   }
 
-  MarkovModulatedFrequencySet* clone() const { return new MarkovModulatedFrequencySet(*this); }
+  MarkovModulatedFrequencySet* clone() const override { return new MarkovModulatedFrequencySet(*this); }
 
   virtual ~MarkovModulatedFrequencySet() {}
 
 public:
-  void setFrequencies(const std::vector<double>& frequencies)
+  void setFrequencies(const std::vector<double>& frequencies) override
   {
     // Just forward this method to the sequence state frequencies set. This may change in the future...
     freqSet_->setFrequencies(frequencies);
   }
 
-  void fireParameterChanged(const ParameterList& pl)
+  void fireParameterChanged(const ParameterList& pl) override
   {
     freqSet_->matchParametersValues(pl);
     setFrequencies_(VectorTools::kroneckerMult(rateFreqs_, freqSet_->getFrequencies()));

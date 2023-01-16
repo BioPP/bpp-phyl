@@ -141,11 +141,11 @@ void ForwardHmmDLikelihood_DF::compute()
 
   auto forwardNode = dynamic_pointer_cast<ForwardHmmLikelihood_DF>(this->dependency(3));
 
-  const auto& condLik = forwardNode->getForwardCondLikelihood()->getTargetValue();
+  const auto& condLik = forwardNode->getForwardCondLikelihood()->targetValue();
 
   const auto& parCondLik = forwardNode->getParCondLik();
 
-  const auto& scales = forwardNode->getTargetValue();
+  const auto& scales = forwardNode->targetValue();
 
   const auto& dHmmEq = accessValueConstCast<Eigen::VectorXd>(*this->dependency(4));
 
@@ -254,11 +254,11 @@ void ForwardHmmD2Likelihood_DF::compute()
 
   auto forwardNode = dynamic_pointer_cast<ForwardHmmLikelihood_DF>(this->dependency(3));
 
-  const auto& condLik = forwardNode->getForwardCondLikelihood()->getTargetValue();
+  const auto& condLik = forwardNode->getForwardCondLikelihood()->targetValue();
 
   const auto& parCondLik = forwardNode->getParCondLik();
 
-  const auto& scales = forwardNode->getTargetValue();
+  const auto& scales = forwardNode->targetValue();
 
 
   const auto& dHmmEq = accessValueConstCast<Eigen::VectorXd>(*this->dependency(4));
@@ -270,11 +270,11 @@ void ForwardHmmD2Likelihood_DF::compute()
 
   auto forwardDNode = dynamic_pointer_cast<ForwardHmmDLikelihood_DF>(this->dependency(7));
 
-  const auto& dCondLik = forwardDNode->getForwardDCondLikelihood()->getTargetValue();
+  const auto& dCondLik = forwardDNode->getForwardDCondLikelihood()->targetValue();
 
   const auto& parDCondLik = forwardDNode->getParDCondLik();
 
-  const auto& dScales = forwardDNode->getTargetValue();
+  const auto& dScales = forwardDNode->targetValue();
 
 
   const auto& d2HmmEq = accessValueConstCast<Eigen::VectorXd>(*this->dependency(8));
@@ -287,11 +287,11 @@ void ForwardHmmD2Likelihood_DF::compute()
   //////////////////////////////////////
 
   auto nbSites = hmmEmis.cols();
-  const int nbStates = (int)hmmEmis.rows();
+  const int nbStates = static_cast<int>(hmmEmis.rows());
 
-  VDataLik td2Scales((size_t)nbSites);
+  VDataLik td2Scales(static_cast<size_t>(nbSites));
 
-  Eigen::VectorXd d2CondLik((int)hmmEmis.rows());
+  Eigen::VectorXd d2CondLik(static_cast<int>(hmmEmis.rows()));
  
   Eigen::VectorXd d2ParCondLik;
   VectorLik d2tmp(nbStates);

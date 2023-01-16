@@ -221,8 +221,6 @@ public:
 
   virtual ~AbstractTransitionModel() {}
 
-  virtual AbstractTransitionModel* clone() const override = 0;
-
 public:
   const Alphabet& alphabet() const override { return *alphabet_; }
 
@@ -269,10 +267,6 @@ public:
     throw Exception("TransitionModel::frequencySet(). No associated FrequencySet object.");
   }
   
-  virtual std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override {
-    return nullptr;
-  }
-
   /**
    * @brief Tells the model that a parameter value has changed.
    *
@@ -287,10 +281,10 @@ public:
       rate_ = parameters.getParameterValue(getNamespace() + "rate");
 
       if (parameters.size() != 1)
-        updateMatrices();
+        updateMatrices_();
     }
     else
-      updateMatrices();
+      updateMatrices_();
   }
 
   /**
@@ -319,7 +313,7 @@ protected:
    * !! Here there is no normalization of the generator.
    *
    */
-  virtual void updateMatrices() = 0;
+  virtual void updateMatrices_() = 0;
 
   /*
    * @brief : To update the eq freq
@@ -460,8 +454,6 @@ public:
 
   virtual ~AbstractSubstitutionModel() {}
 
-  virtual AbstractSubstitutionModel* clone() const = 0;
-
 public:
   bool computeFrequencies() const { return computeFreq_; }
 
@@ -512,9 +504,8 @@ protected:
    * method to prevent unnecessary computation.
    *
    * !! Here there is no normalization of the generator.
-   *
    */
-  virtual void updateMatrices();
+  virtual void updateMatrices_();
 
 public:
 
@@ -601,7 +592,7 @@ public:
 
   virtual ~AbstractReversibleSubstitutionModel() {}
 
-  virtual AbstractReversibleSubstitutionModel* clone() const = 0;
+  virtual AbstractReversibleSubstitutionModel* clone() const override = 0;
 
 protected:
   /**
@@ -625,7 +616,7 @@ protected:
    * Eigen values and vectors are computed from the scaled generator and assigned to the
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
    */
-  virtual void updateMatrices();
+  virtual void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTSUBSTITUTIONMODEL_H

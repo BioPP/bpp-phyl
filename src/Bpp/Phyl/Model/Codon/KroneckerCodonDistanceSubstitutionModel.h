@@ -56,7 +56,7 @@ namespace bpp
  * substitutions involved, before mgmt of selection and removing stop
  * codons.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * See description in AbstractKroneckerCodonDistanceSubstitutionModel
  * and AbstractCodonDistanceSubstitutionModel class.
@@ -75,8 +75,6 @@ namespace bpp
  * and synonymous substitutions rates is @f$\beta@f$ with positive
  * parameter \c "beta".
  */
-
-
 class KroneckerCodonDistanceSubstitutionModel :
   public AbstractKroneckerCodonSubstitutionModel,
   public AbstractCodonDistanceSubstitutionModel
@@ -97,7 +95,7 @@ public:
    */
   KroneckerCodonDistanceSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
@@ -115,7 +113,7 @@ public:
    */
   KroneckerCodonDistanceSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::vector<std::set< size_t> >& vPos,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
@@ -136,9 +134,9 @@ public:
    */
   KroneckerCodonDistanceSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
@@ -158,9 +156,9 @@ public:
    */
   KroneckerCodonDistanceSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::vector<std::set< size_t> >& vPos,
     std::shared_ptr<const AlphabetIndex2> pdist = 0);
 

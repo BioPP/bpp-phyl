@@ -84,8 +84,8 @@ public:
    *
    * @{
    */
-  const std::string getFormatName() const;
-  const std::string getFormatDescription() const;
+  const std::string getFormatName() const override;
+  const std::string getFormatDescription() const override;
   /* @} */
 
   /**
@@ -93,19 +93,13 @@ public:
    *
    * @{
    */
-  TreeTemplate<Node>* readTree(const std::string& path) const
-  {
-    return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::readTree(path));
-  }
+  using AbstractITree::readTreeTemplate;
 
-  TreeTemplate<Node>* readTree(std::istream& in) const;
+  std::unique_ptr<TreeTemplate<Node>> readTreeTemplate(std::istream& in) const override;
 
-  PhyloTree* readPhyloTree(const std::string& path) const
-  {
-    return AbstractIPhyloTree::readPhyloTree(path);
-  }
+  using AbstractIPhyloTree::readPhyloTree;
 
-  PhyloTree* readPhyloTree(std::istream& in) const;
+  std::unique_ptr<PhyloTree> readPhyloTree(std::istream& in) const override;
 
   /** @} */
 
@@ -114,19 +108,16 @@ public:
    *
    * @{
    */
-  void writeTree(const Tree& tree, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOTree::writeTree(tree, path, overwrite);
-  }
-  void writeTree(const Tree& tree, std::ostream& out) const
+  using AbstractOTree::writeTree;
+
+  void writeTree(const Tree& tree, std::ostream& out) const override
   {
     write_(tree, out);
   }
-  void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOPhyloTree::writePhyloTree(tree, path, overwrite);
-  }
-  void writePhyloTree(const PhyloTree& tree, std::ostream& out) const
+
+  using AbstractOPhyloTree::writePhyloTree;
+
+  void writePhyloTree(const PhyloTree& tree, std::ostream& out) const override
   {
     write_(tree, out);
   }
@@ -137,18 +128,13 @@ public:
    *
    * @{
    */
-  void readTrees(const std::string& path, std::vector<Tree*>& trees) const
-  {
-    AbstractIMultiTree::readTrees(path, trees);
-  }
-  void readTrees(std::istream& in, std::vector<Tree*>& trees) const;
+  using AbstractIMultiTree::readTrees;
 
-  void readPhyloTrees(const std::string& path, std::vector<PhyloTree*>& trees) const
-  {
-    AbstractIMultiPhyloTree::readPhyloTrees(path, trees);
-  }
+  void readTrees(std::istream& in, std::vector<std::unique_ptr<Tree>>& trees) const override;
 
-  void readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& trees) const;
+  using AbstractIMultiPhyloTree::readPhyloTrees;
+
+  void readPhyloTrees(std::istream& in, std::vector<std::unique_ptr<PhyloTree>>& trees) const override;
   /**@}*/
 
   /**
@@ -156,19 +142,16 @@ public:
    *
    * @{
    */
-  void writeTrees(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOMultiTree::writeTrees(trees, path, overwrite);
-  }
-  void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const
+  using AbstractOMultiTree::writeTrees;
+  
+  void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const override
   {
     write_(trees, out);
   }
-  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOMultiPhyloTree::writePhyloTrees(trees, path, overwrite);
-  }
-  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
+
+  using AbstractOMultiPhyloTree::writePhyloTrees;
+  
+  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const override
   {
     write_(trees, out);
   }

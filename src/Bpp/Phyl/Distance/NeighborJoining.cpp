@@ -156,5 +156,5 @@ void NeighborJoining::finalStep(int idRoot)
     n2->setDistanceToFather(d2 / 2.);
     n3->setDistanceToFather(d3 / 2.);
   }
-  tree_ = new TreeTemplate<Node>(root);
+  tree_.reset(new TreeTemplate<Node>(root));
 }

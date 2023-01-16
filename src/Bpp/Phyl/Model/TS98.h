@@ -96,8 +96,8 @@ public:
   {
     addParameter_(new Parameter("TS98.s1", s1, Parameter::R_PLUS_STAR));
     addParameter_(new Parameter("TS98.s2", s2, Parameter::R_PLUS_STAR));
-    updateRatesModel();
-    updateMatrices();
+    updateRatesModel_();
+    updateMatrices_();
   }
 
   virtual ~TS98() {}
@@ -107,14 +107,15 @@ public:
 public:
   std::string getName() const override { return "TS98"; }
 
-  double getRate() const override { return 1.;}
+  double getRate() const override { return 1.; }
 
   void setRate(double rate) override {}
 
   void addRateParameter() override {}
 
 protected:
-  void updateRatesModel() override
+  
+  void updateRatesModel_() override
   {
     double s1 = getParameterValue("s1");
     double s2 = getParameterValue("s2");

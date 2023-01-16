@@ -1,7 +1,7 @@
 //
 // File: LikelihoodCalculation.h
 // Authors:
-//   FranÃÂ§ois Gindraud, Laurent GuÃÂ©guen (2018)
+//   François Gindraud, Laurent Guéguen (2018)
 // Created: jeudi 28 fÃÂ©vrier 2019, ÃÂ  07h 22
 //
 
@@ -231,9 +231,9 @@ public:
       makeLikelihoods();
 
     if (shrunk && patternedSiteLikelihoods_)
-      return patternedSiteLikelihoods_->getTargetValue()(Eigen::Index(pos));
+      return patternedSiteLikelihoods_->targetValue()(Eigen::Index(pos));
     else
-      return siteLikelihoods_->getTargetValue()(Eigen::Index(pos));
+      return siteLikelihoods_->targetValue()(Eigen::Index(pos));
   }
 
   DataLik getLogLikelihoodForASite(size_t pos, bool shrunk = false)
@@ -250,7 +250,7 @@ public:
    */
   VDataLik getLikelihoodPerSite()
   {
-    auto vLik = getSiteLikelihoods(false)->getTargetValue();
+    auto vLik = getSiteLikelihoods(false)->targetValue();
     VDataLik v;
     copyEigenToBpp(vLik, v);
     return v;

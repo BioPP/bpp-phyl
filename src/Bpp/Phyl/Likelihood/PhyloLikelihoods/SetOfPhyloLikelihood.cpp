@@ -39,12 +39,16 @@
 */
 
 
-#include "SetOfAbstractPhyloLikelihood.h"
+#include "SetOfPhyloLikelihood.h"
 
 using namespace bpp;
 using namespace std;
 
-SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection, const std::string& prefix) :
+AbstractSetOfPhyloLikelihood::AbstractSetOfPhyloLikelihood(
+    Context& context,
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    bool inCollection,
+    const std::string& prefix) :
   AbstractPhyloLikelihood(context),
   AbstractParametrizable(prefix),
   pPhyloCont_(pC),
@@ -57,7 +61,12 @@ SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, std
   }
 }
 
-SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix) :
+AbstractSetOfPhyloLikelihood::AbstractSetOfPhyloLikelihood(
+    Context& context,
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    const std::vector<size_t>& nPhylo,
+    bool inCollection,
+    const std::string& prefix) :
   AbstractPhyloLikelihood(context),
   AbstractParametrizable(prefix),
   pPhyloCont_(pC),
@@ -70,20 +79,11 @@ SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, std
   }
 }
 
-
-SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(const SetOfAbstractPhyloLikelihood& sd) :
-  AbstractPhyloLikelihood(sd),
-  AbstractParametrizable(sd),
-  pPhyloCont_(sd.pPhyloCont_),
-  nPhylo_(sd.nPhylo_),
-  vLikCal_(sd.vLikCal_)
-{}
-
-bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::string& suff)
+bool AbstractSetOfPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::string& suff)
 {
-  AbstractPhyloLikelihood* aPL = getAbstractPhyloLikelihood(nPhyl);
+  auto aPL = getPhyloLikelihood(nPhyl);
 
-  if (aPL != NULL)
+  if (aPL)
   {
     nPhylo_.push_back(nPhyl);
     if (suff != "") // Use specific parameters names
@@ -118,7 +118,7 @@ bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::s
   return false;
 }
 
-ParameterList SetOfAbstractPhyloLikelihood::getNonDerivableParameters() const
+ParameterList AbstractSetOfPhyloLikelihood::getNonDerivableParameters() const
 {
   ParameterList pl;
   for (size_t i = 0; i < nPhylo_.size(); i++)
@@ -129,7 +129,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getNonDerivableParameters() const
   return pl;
 }
 
-ParameterList SetOfAbstractPhyloLikelihood::getDerivableParameters() const
+ParameterList AbstractSetOfPhyloLikelihood::getDerivableParameters() const
 {
   ParameterList pl;
   for (size_t i = 0; i < nPhylo_.size(); i++)
@@ -141,7 +141,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getDerivableParameters() const
 }
 
 
-ParameterList SetOfAbstractPhyloLikelihood::getBranchLengthParameters() const
+ParameterList AbstractSetOfPhyloLikelihood::getBranchLengthParameters() const
 {
   ParameterList pl;
   for (size_t i = 0; i < nPhylo_.size(); i++)
@@ -152,7 +152,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getBranchLengthParameters() const
   return pl;
 }
 
-ParameterList SetOfAbstractPhyloLikelihood::getSubstitutionModelParameters() const
+ParameterList AbstractSetOfPhyloLikelihood::getSubstitutionModelParameters() const
 {
   ParameterList pl;
   for (size_t i = 0; i < nPhylo_.size(); i++)
@@ -163,7 +163,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getSubstitutionModelParameters() con
   return pl;
 }
 
-ParameterList SetOfAbstractPhyloLikelihood::getRateDistributionParameters() const
+ParameterList AbstractSetOfPhyloLikelihood::getRateDistributionParameters() const
 {
   ParameterList pl;
   for (size_t i = 0; i < nPhylo_.size(); i++)
@@ -174,7 +174,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getRateDistributionParameters() cons
   return pl;
 }
 
-ParameterList SetOfAbstractPhyloLikelihood::getRootFrequenciesParameters() const
+ParameterList AbstractSetOfPhyloLikelihood::getRootFrequenciesParameters() const
 {
   ParameterList pl;
   for (size_t i = 0; i < nPhylo_.size(); i++)
@@ -184,3 +184,4 @@ ParameterList SetOfAbstractPhyloLikelihood::getRootFrequenciesParameters() const
 
   return pl;
 }
+

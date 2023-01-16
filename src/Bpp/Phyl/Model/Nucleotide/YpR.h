@@ -44,6 +44,7 @@
 #include <Bpp/Seq/Alphabet/RNY.h>
 
 #include "../AbstractSubstitutionModel.h"
+#include "NucleotideSubstitutionModel.h"
 
 // From Utils:
 #include <Bpp/Exceptions.h>
@@ -54,7 +55,7 @@ namespace bpp
 {
 /**
  * @brief YpR  model.
- * @author Laurent GuÃ©guen
+ * @author Laurent Guéguen
  *
  * Model YpR, on RNY triplets, with independent positions.
  *
@@ -124,9 +125,6 @@ class YpR :
 protected:
   std::unique_ptr<NucleotideSubstitutionModelInterface> pmodel_;
 
-  // Check that the model is good for YpR
-  void check_model(const SubstitutionModelInterface& model) const;
-
   std::string nestedPrefix_;
 
 protected:
@@ -156,8 +154,10 @@ public:
   virtual ~YpR() {}
 
 protected:
-  void updateMatrices(double, double, double, double,
+  void updateMatrices_(double, double, double, double,
                       double, double, double, double);
+  
+  virtual void updateMatrices_() override;
 
   string getNestedPrefix() const
   {
@@ -171,16 +171,18 @@ public:
   
   size_t getNumberOfStates() const override { return 36; }
 
-  virtual void updateMatrices() override;
-
   virtual void setNamespace(const std::string&) override;
 
   void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractSubstitutionModel::fireParameterChanged(parameters);
     pmodel_->matchParametersValues(parameters);
-    updateMatrices();
+    updateMatrices_();
   }
+  
+  // Check that the model is good for YpR
+  void checkModel(const SubstitutionModelInterface& model) const;
+
 };
 }
 
@@ -226,7 +228,10 @@ public:
 
   std::string getName() const override;
 
-  void updateMatrices() override;
+protected:
+
+  void updateMatrices_() override;
+  
 };
 
 // //////////////////////////////////////
@@ -269,7 +274,9 @@ public:
 
   std::string getName() const override;
 
-  void updateMatrices() override;
+protected:
+
+  void updateMatrices_() override;
 };
 }
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_YPR_H

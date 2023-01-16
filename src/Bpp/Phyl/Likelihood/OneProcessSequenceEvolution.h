@@ -139,7 +139,6 @@ public:
    *
    * @return The tree of this OneProcessSequenceEvolution object.
    */
-
   const ParametrizablePhyloTree& tree() const
   {
     return subsProc_->parametrizablePhyloTree();

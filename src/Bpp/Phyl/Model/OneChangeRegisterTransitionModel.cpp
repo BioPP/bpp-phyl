@@ -46,9 +46,14 @@
 using namespace bpp;
 using namespace std;
 
-OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, size_t numReg) :
+OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
+    unique_ptr<SubstitutionModelInterface> originalModel,
+    const SubstitutionRegisterInterface& reg,
+    size_t numReg) :
   AbstractParameterAliasable("OneChange."),
-  AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange."),
+  AbstractWrappedModel("OneChange."),
+  AbstractWrappedTransitionModel("OneChange."),
+  AbstractFromSubstitutionModelTransitionModel(move(originalModel), "OneChange."),
   noChangedStates_(getNumberOfStates(), getNumberOfStates()),
   modelChanged_(),
   registerName_(reg.getName()),
@@ -58,27 +63,32 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
     throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
 
   // new alphabet to handle pit state
-  shared_ptr<IntegerAlphabet> ialph(new IntegerAlphabet(getAlphabet()->getSize()));
+  auto ialph = make_shared<IntegerAlphabet>(alphabet().getSize());
 
-  modelChanged_.reset(new AnonymousSubstitutionModel(ialph.get(), std::shared_ptr<const StateMap>(new CanonicalStateMap(ialph.get(), false))));
+  modelChanged_.reset(new AnonymousSubstitutionModel(ialph, make_shared<CanonicalStateMap>(ialph, false)));
   modelChanged_->setScalable(false);
 
-  for (size_t i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; ++i)
   {
     vector<uint>& chS_i = noChangedStates_.getRow(i);
 
-    for (size_t j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; ++j)
     {
       chS_i[j] = (reg.getType(i, j) != numReg);
     }
   }
 
-  updateMatrices();
+  updateMatrices_();
 }
 
-OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, vector<size_t> vNumRegs) :
+OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
+    unique_ptr<SubstitutionModelInterface> originalModel,
+    const SubstitutionRegisterInterface& reg,
+    vector<size_t> vNumRegs) :
   AbstractParameterAliasable("OneChange."),
-  AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange."),
+  AbstractWrappedModel("OneChange."),
+  AbstractWrappedTransitionModel("OneChange."),
+  AbstractFromSubstitutionModelTransitionModel(move(originalModel), "OneChange."),
   noChangedStates_(getNumberOfStates(), getNumberOfStates()),
   modelChanged_(),
   registerName_(reg.getName()),
@@ -90,31 +100,31 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
       throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
   }
 
-  shared_ptr<IntegerAlphabet> ialph(new IntegerAlphabet(getAlphabet()->getSize()));
+  auto ialph = make_shared<IntegerAlphabet>(getAlphabet()->getSize());
 
-  modelChanged_.reset(new AnonymousSubstitutionModel(ialph.get(), std::shared_ptr<const StateMap>(new CanonicalStateMap(ialph.get(), false))));
+  modelChanged_.reset(new AnonymousSubstitutionModel(ialph, make_shared<CanonicalStateMap>(ialph, false)));
   modelChanged_->setScalable(false);
 
-  for (size_t i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; ++i)
   {
     vector<uint>& chS_i = noChangedStates_.getRow(i);
 
-    for (size_t j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; ++j)
     {
       chS_i[j] = (std::find(vNumRegs_.begin(), vNumRegs_.end(), reg.getType(i, j)) == vNumRegs_.end());
     }
   }
 
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void OneChangeRegisterTransitionModel::updateMatrices()
+void OneChangeRegisterTransitionModel::updateMatrices_()
 {
-  const RowMatrix<double>& gen = getSubstitutionModel().getGenerator();
+  const RowMatrix<double>& gen = substitutionModel().getGenerator();
 
-  for (size_t i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; ++i)
   {
     double si = 0;
     const vector<double>& gen_i = gen.getRow(i);
@@ -140,12 +150,12 @@ void OneChangeRegisterTransitionModel::updateMatrices()
 
 double OneChangeRegisterTransitionModel::Pij_t(size_t i, size_t j, double t) const
 {
-  double ch_ijt = modelChanged_->Pij_t(i, j, t * getTransitionModel().getRate());
-  double ch_ist = modelChanged_->Pij_t(i, size_, t * getTransitionModel().getRate());
+  double ch_ijt = modelChanged_->Pij_t(i, j, t * transitionModel().getRate());
+  double ch_ist = modelChanged_->Pij_t(i, size_, t * transitionModel().getRate());
 
   if (t == 0)
   {
-    const Matrix<double>& gen = getSubstitutionModel().getGenerator();
+    const Matrix<double>& gen = substitutionModel().getGenerator();
     if (ch_ist != 0)
       return (gen(i, j) - ch_ijt) / ch_ist;
     else
@@ -153,14 +163,14 @@ double OneChangeRegisterTransitionModel::Pij_t(size_t i, size_t j, double t) con
   }
 
   if (ch_ist == 0) // no proba from i to pit
-    return getTransitionModel().Pij_t(i, j, t);
+    return transitionModel().Pij_t(i, j, t);
   else
-    return (getTransitionModel().Pij_t(i, j, t) - ch_ijt) / ch_ist;
+    return (transitionModel().Pij_t(i, j, t) - ch_ijt) / ch_ist;
 }
 
 double OneChangeRegisterTransitionModel::dPij_dt(size_t i, size_t j, double t) const
 {
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
   const Matrix<double>& ch_t = modelChanged_->getPij_t(t * rate);
 
   if (t == 0)
@@ -176,7 +186,7 @@ double OneChangeRegisterTransitionModel::dPij_dt(size_t i, size_t j, double t) c
     MatrixTools::mult<double>(Qch, Qch, Qch2);
     double dsi = Qch2(i, size_);
 
-    const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().getGenerator();
     double q2ij(0);
 
     for (size_t k = 0; k < size_; ++k)
@@ -193,17 +203,17 @@ double OneChangeRegisterTransitionModel::dPij_dt(size_t i, size_t j, double t) c
 
   const Matrix<double>& dch_dt = modelChanged_->getdPij_dt(t * rate);
 
-  return ((getTransitionModel().dPij_dt(i, j, t) - dch_dt(i, j)) * si - dch_dt(i, size_) * (getTransitionModel().Pij_t(i, j, t) - ch_t(i, j))) / (si * si);
+  return ((transitionModel().dPij_dt(i, j, t) - dch_dt(i, j)) * si - dch_dt(i, size_) * (transitionModel().Pij_t(i, j, t) - ch_t(i, j))) / (si * si);
 }
 
 double OneChangeRegisterTransitionModel::d2Pij_dt2(size_t i, size_t j, double t) const
 {
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
   double r2 = rate * rate;
 
   if (t == 0)
   {
-    const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().getGenerator();
     const RowMatrix<double>& Qch = modelChanged_->getGenerator();
     double si = Qch(i, size_);
 
@@ -234,9 +244,9 @@ double OneChangeRegisterTransitionModel::d2Pij_dt2(size_t i, size_t j, double t)
   const Matrix<double>& dch_dt = modelChanged_->getdPij_dt(rate * t);
   const Matrix<double>& d2ch_dt2 = modelChanged_->getd2Pij_dt2(rate * t);
 
-  double d2u = getTransitionModel().d2Pij_dt2(i, j, t) - d2ch_dt2(i, j);
-  double du = getTransitionModel().dPij_dt(i, j, t) - dch_dt(i, j);
-  double u = getTransitionModel().Pij_t(i, j, t) - ch_t(i, j);
+  double d2u = transitionModel().d2Pij_dt2(i, j, t) - d2ch_dt2(i, j);
+  double du = transitionModel().dPij_dt(i, j, t) - dch_dt(i, j);
+  double u = transitionModel().Pij_t(i, j, t) - ch_t(i, j);
 
   double si = ch_t(i, size_);
   if (si == 0)
@@ -252,14 +262,14 @@ double OneChangeRegisterTransitionModel::d2Pij_dt2(size_t i, size_t j, double t)
 
 const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
 {
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
 
   if (t == 0)
   {
-    const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().getGenerator();
     const RowMatrix<double>& Qch = modelChanged_->getGenerator();
 
-    for (size_t i = 0; i < size_; i++)
+    for (size_t i = 0; i < size_; ++i)
     {
       vector<double>& pi_t = pij_t.getRow(i);
 
@@ -269,13 +279,13 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
         const vector<double>& qi = Q.getRow(i);
         const vector<double>& qchi = Qch.getRow(i);
 
-        for (size_t j = 0; j < size_; j++)
+        for (size_t j = 0; j < size_; ++j)
         {
           pi_t[j] = (qi[j] - qchi[j]) / si;
         }
       }
       else
-        for (size_t j = 0; j < size_; j++)
+        for (size_t j = 0; j < size_; ++j)
         {
           pi_t[j] = (i == j) ? 1 : 0;
         }
@@ -283,7 +293,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
     return pij_t;
   }
 
-  const RowMatrix<double>& orig_t = getTransitionModel().getPij_t(t);
+  const RowMatrix<double>& orig_t = transitionModel().getPij_t(t);
   const RowMatrix<double>& ch_t = modelChanged_->getPij_t(t * rate);
 
   for (unsigned int i = 0; i < size_; ++i)
@@ -311,11 +321,11 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
 
 const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) const
 {
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
 
   if (t == 0)
   {
-    const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().getGenerator();
     const RowMatrix<double>& Qch = modelChanged_->getGenerator();
 
     RowMatrix<double> Qch2;
@@ -338,7 +348,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
         const vector<double>& q2chi = Qch2.getRow(i);
         double dsi = q2chi[size_];
 
-        for (size_t j = 0; j < size_; j++)
+        for (size_t j = 0; j < size_; ++j)
         {
           dpi_t[j] = rate * ((-q2i[j] + q2chi[j]) / si + (qi[j] - qchi[j]) * dsi / (si * si)) / 2;
         }
@@ -352,9 +362,9 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
     return dpij_t;
   }
 
-  const RowMatrix<double>& orig_t = getTransitionModel().getPij_t(t);
+  const RowMatrix<double>& orig_t = transitionModel().getPij_t(t);
   const RowMatrix<double>& ch_t = modelChanged_->getPij_t(rate * t);
-  const RowMatrix<double>& dorig_dt = getTransitionModel().getdPij_dt(t);
+  const RowMatrix<double>& dorig_dt = transitionModel().getdPij_dt(t);
   const RowMatrix<double>& dch_dt = modelChanged_->getdPij_dt(rate * t);
 
   for (unsigned int i = 0; i < size_; ++i)
@@ -390,12 +400,12 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
 
 const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) const
 {
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
   double r2 = rate * rate;
 
   if (t == 0)
   {
-    const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().getGenerator();
     const RowMatrix<double>& Qch = modelChanged_->getGenerator();
 
     RowMatrix<double> Qch2, Qch3;
@@ -406,7 +416,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
     MatrixTools::mult<double>(Q, Q, Q2);
     MatrixTools::mult<double>(Q, Q2, Q3);
 
-    for (size_t i = 0; i < size_; i++)
+    for (size_t i = 0; i < size_; ++i)
     {
       vector<double>& d2pi_t = d2pij_t.getRow(i);
 
@@ -422,7 +432,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
         double dsi = Qch2(i, size_);
         double d2si = Qch3(i, size_);
 
-        for (size_t j = 0; j < size_; j++)
+        for (size_t j = 0; j < size_; ++j)
         {
           d2pi_t[j] = -r2 * ((qi[j] - qchi[j]) * (si * d2si / 3 - dsi * dsi / 2) + (q2i[j] - q2chi[j]) * si * dsi / 2 - (q3i[j] - q3chi[j]) * si * si / 3) / (si * si * si);
         }
@@ -436,11 +446,11 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
     return d2pij_t;
   }
 
-  const RowMatrix<double>& orig_t = getTransitionModel().getPij_t(t);
+  const RowMatrix<double>& orig_t = transitionModel().getPij_t(t);
   const RowMatrix<double>& ch_t = modelChanged_->getPij_t(rate * t);
-  const RowMatrix<double>& dorig_dt = getTransitionModel().getdPij_dt(t);
+  const RowMatrix<double>& dorig_dt = transitionModel().getdPij_dt(t);
   const RowMatrix<double>& dch_dt = modelChanged_->getdPij_dt(rate * t);
-  const RowMatrix<double>& d2orig_dt2 = getTransitionModel().getd2Pij_dt2(t);
+  const RowMatrix<double>& d2orig_dt2 = transitionModel().getd2Pij_dt2(t);
   const RowMatrix<double>& d2ch_dt2 = modelChanged_->getd2Pij_dt2(rate * t);
 
   for (unsigned int i = 0; i < size_; ++i)

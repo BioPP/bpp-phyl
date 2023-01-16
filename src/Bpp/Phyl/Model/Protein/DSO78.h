@@ -68,7 +68,7 @@ class DSO78 :
   public AbstractReversibleProteinSubstitutionModel
 {
 private:
-  std::shared_ptr<ProteinFrequencySetInterface> freqSet_;
+  std::unique_ptr<ProteinFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -87,7 +87,7 @@ public:
    * Otherwise, the values of the set will be used.
    */
   DSO78(std::shared_ptr<const ProteicAlphabet> alpha,
-        std::shared_ptr<ProteinFrequencySetInterface> freqSet,
+        std::unique_ptr<ProteinFrequencySetInterface> freqSet,
        	bool initFreqs = false);
 
   DSO78(const DSO78& model) :
@@ -144,11 +144,6 @@ public:
     throw NullPointerException("DSO78::frequencySet(). No associated FrequencySet.");
   }
   
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
-  {
-    return freqSet_;
-  }
-
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 };
 } // end of namespace bpp.

@@ -53,12 +53,6 @@ using namespace bpp;
 
 using namespace std;
 
-TreeTemplate<Node>* PGMA::getTree() const
-{
-  Node* root = TreeTemplateTools::cloneSubtree<Node>(*dynamic_cast<TreeTemplate<NodeTemplate<PGMAInfos> >*>(tree_)->getRootNode());
-  return new TreeTemplate<Node>(root);
-}
-
 vector<size_t> PGMA::getBestPair()
 {
   vector<size_t> bestPair(2);
@@ -128,7 +122,7 @@ void PGMA::finalStep(int idRoot)
   root->addSon(n2);
   n1->setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos>*>(n1)->getInfos().time);
   n2->setDistanceToFather(d - dynamic_cast<NodeTemplate<PGMAInfos>*>(n2)->getInfos().time);
-  tree_ = new TreeTemplate<NodeTemplate<PGMAInfos> >(root);
+  tree_.reset(new TreeTemplate<NodeTemplate<PGMAInfos>>(root));
 }
 
 Node* PGMA::getLeafNode(int id, const string& name)

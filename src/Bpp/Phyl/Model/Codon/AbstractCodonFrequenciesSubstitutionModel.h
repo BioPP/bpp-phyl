@@ -55,7 +55,7 @@ namespace bpp
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * If we denote @f$F@f$ the equilibrium frequency, the generator term
  * defined from inherited and inheriting classes, @f$Q_{ij})@f$, is
@@ -66,7 +66,7 @@ class AbstractCodonFrequenciesSubstitutionModel :
   public virtual AbstractParameterAliasable
 {
 private:
-  std::shared_ptr<FrequencySetInterface> pfreqset_;
+  std::unique_ptr<CodonFrequencySetInterface> pfreqset_;
   std::string freqName_;
 
 public:
@@ -78,7 +78,7 @@ public:
    * @param prefix the Namespace
    */
   AbstractCodonFrequenciesSubstitutionModel(
-      std::shared_ptr<FrequencySetInterface> pfreq,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
       const std::string& prefix);
 
   AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& model) :
@@ -90,7 +90,7 @@ public:
   AbstractCodonFrequenciesSubstitutionModel& operator=(const AbstractCodonFrequenciesSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    pfreqset_   = std::shared_ptr<FrequencySetInterface>(model.pfreqset_->clone());
+    pfreqset_   = std::unique_ptr<CodonFrequencySetInterface>(model.pfreqset_->clone());
     freqName_   = model.freqName_;
     return *this;
   }
@@ -114,15 +114,16 @@ public:
 
   double getCodonsMulRate(size_t, size_t) const override;
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
     return *pfreqset_;
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return pfreqset_;
+    return (pfreqset_ != nullptr);
   }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H

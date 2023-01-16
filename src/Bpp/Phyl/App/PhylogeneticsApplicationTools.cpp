@@ -71,6 +71,7 @@
 #include "../Likelihood/RateAcrossSitesSubstitutionProcess.h"
 #include "../Likelihood/SimpleSubstitutionProcess.h"
 #include "../Likelihood/SubstitutionProcessCollection.h"
+#include "../Likelihood/SubstitutionProcessCollectionMember.h"
 #include "../Mapping/DecompositionSubstitutionCount.h"
 #include "../Mapping/LaplaceSubstitutionCount.h"
 #include "../Mapping/NaiveSubstitutionCount.h"
@@ -130,7 +131,7 @@ using namespace std;
 
 /******************************************************************************/
 
-Tree* PhylogeneticsApplicationTools::getTree(
+unique_ptr<Tree> PhylogeneticsApplicationTools::getTree(
   const map<string, string>& params,
   const string& prefix,
   const string& suffix,
@@ -142,19 +143,18 @@ Tree* PhylogeneticsApplicationTools::getTree(
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   BppOTreeReaderFormat bppoReader(warn);
-  unique_ptr<ITree> iTree(bppoReader.readITree(format));
+  auto iTree = bppoReader.readITree(format);
   if (verbose)
   {
     ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
     ApplicationTools::displayResult("Input tree format " + suffix, iTree->getFormatName());
   }
-  Tree* tree = iTree->readTree(treeFilePath);
-  return tree;
+  return iTree->readTree(treeFilePath);
 }
 
 /******************************************************************************/
 
-vector<Tree*> PhylogeneticsApplicationTools::getTrees(
+vector<unique_ptr<Tree>> PhylogeneticsApplicationTools::getTrees(
   const map<string, string>& params,
   const string& prefix,
   const string& suffix,
@@ -166,13 +166,13 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   BppOMultiTreeReaderFormat bppoReader(warn);
-  unique_ptr<IMultiTree> iTrees(bppoReader.readIMultiTree(format));
+  auto iTrees = bppoReader.readIMultiTree(format);
   if (verbose)
   {
     ApplicationTools::displayResult("Input trees file " + suffix, treeFilePath);
     ApplicationTools::displayResult("Input trees format " + suffix, iTrees->getFormatName());
   }
-  vector<Tree*> trees;
+  vector<unique_ptr<Tree>> trees;
   iTrees->readTrees(treeFilePath, trees);
 
   if (verbose)
@@ -184,9 +184,9 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
-map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhyloTrees(
+map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloTrees(
   const map<string, string>& params,
-  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSeq,
+  const map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mSeq,
   map<string, string>& unparsedParams,
   const string& prefix,
   const string& suffix,
@@ -196,7 +196,7 @@ map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhylo
 {
   vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
-  map<size_t, std::shared_ptr<PhyloTree> > mTree;
+  map<size_t, shared_ptr<PhyloTree>> mTree;
 
   for (size_t nT = 0; nT < vTreesName.size(); nT++)
   {
@@ -254,9 +254,8 @@ map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhylo
       else
         throw Exception("Unknow format for tree reading: " + format);
 
-      vector<PhyloTree*> trees;
+      vector<unique_ptr<PhyloTree>> trees;
       treeReader->readPhyloTrees(treeFilePath, trees);
-      delete treeReader;
 
       if (verbose)
       {
@@ -281,7 +280,7 @@ map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhylo
             mTree.erase(i2 + 1);
           }
 
-          mTree[i2 + 1] = std::shared_ptr<PhyloTree>(trees[i2]);
+          mTree[i2 + 1] = move(trees[i2]);
           ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
         }
       }
@@ -297,7 +296,7 @@ map<size_t, std::shared_ptr<PhyloTree> > PhylogeneticsApplicationTools::getPhylo
             ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
             mTree.erase(num);
           }
-          mTree[num] = std::shared_ptr<PhyloTree>(trees[0]);
+          mTree[num] = move(trees[0]);
           ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
         }
       }
@@ -1252,7 +1251,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     const auto& vrdn = SubProColl.getRateDistributionNumbers();
     numRate=0;
     for (auto rdn:vrdn)
-      if (SubProColl.getRateDistribution(rdn)->getName()=="Constant")
+      if (SubProColl.rateDistribution(rdn).getName()=="Constant")
       {
         numRate=rdn;
         break;
@@ -1282,7 +1281,10 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (pp != string::npos)
     {
       size_t numSRate = static_cast<size_t>(TextTools::toInt(sRate.substr(pp + 1)));
-      SubProColl.addDistribution(std::make_shared<ConstantDistribution>(SubProColl.getRateDistribution(numRate)->getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
+      SubProColl.addDistribution(
+		     std::make_shared<ConstantDistribution>(
+			     SubProColl.rateDistribution(numRate).getCategory(numSRate)),
+		     10000 * (numRate + 1) + numSRate);
       
       numRate = 10000 * (numRate + 1) + numSRate;
     }
@@ -1336,10 +1338,10 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     map<size_t, vector<unsigned int> > mModBr;
 
     vector<uint> vNodes;
-    if (numTree!=0)
-      vNodes=SubProColl.getTree(numTree)->getAllEdgesIndexes();
+    if (numTree != 0)
+      vNodes = SubProColl.tree(numTree).getAllEdgesIndexes();
     else
-      vNodes={0};
+      vNodes = {0};
     mModBr[numModel] = vNodes;
     
     if (verbose)
@@ -1433,7 +1435,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   }
   else if (procName == "OnePerBranch")
   {
-    if (numTree==0)
+    if (numTree == 0)
       throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : missing tree number for process " + TextTools::toString(procName));
 
     if (args.find("model") == args.end())
@@ -1637,7 +1639,7 @@ unique_ptr<SubstitutionProcessCollection> PhylogeneticsApplicationTools::getSubs
 /******************************************************/
 
 map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSequenceEvolutions(
-  SubstitutionProcessCollection& SPC,
+  shared_ptr<SubstitutionProcessCollection> SPC,
   const map<string, string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -1662,7 +1664,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
 
   for (size_t mPi = 0; mPi < evolsNum.size(); ++mPi)
   {
-    if (SPC.hasSubstitutionProcessNumber(evolsNum[mPi]))
+    if (SPC->hasSubstitutionProcessNumber(evolsNum[mPi]))
       continue;
 
     unique_ptr<SequenceEvolution> nEvol;
@@ -1684,10 +1686,10 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
     if (evolName == "Simple")
     {
       size_t nproc = (size_t) ApplicationTools::getIntParameter("process", args, ',', "");
-      if (!SPC.hasSubstitutionProcessNumber(nproc))
+      if (!SPC->hasSubstitutionProcessNumber(nproc))
         throw BadIntegerException("PhylogeneticsApplicationTools::getEvolutions. Unknown process number:", (int)nproc);
 
-      nEvol = make_unique<OneProcessSequenceEvolution>(SPC.getSubstitutionProcess(nproc), nproc);
+      nEvol = make_unique<OneProcessSequenceEvolution>(SPC->getSubstitutionProcess(nproc), nproc);
       if (verbose)
       {
         ApplicationTools::displayResult("Process type", string("Simple"));
@@ -1712,7 +1714,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
 
       for (size_t i = 0; i < vproc.size(); ++i)
       {
-        if (!SPC.hasSubstitutionProcessNumber(vproc[i]))
+        if (!SPC->hasSubstitutionProcessNumber(vproc[i]))
           throw BadIntegerException("PhylogeneticsApplicationTools::getEvolutions. Unknown process number:", (int)vproc[i]);
       }
 
@@ -1753,13 +1755,13 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
         if (verbose)
           ApplicationTools::displayResult("Process type", string("Partition"));
 
-        auto pMP = make_unique<PartitionSequenceEvolution>(&SPC, vMap);
+        auto pMP = make_unique<PartitionSequenceEvolution>(SPC, vMap);
 
         nEvol = move(pMP);
       }
       else if (evolName == "Mixture")
       {
-        auto pMP = make_unique<MixtureSequenceEvolution>(&SPC, vproc);
+        auto pMP = make_unique<MixtureSequenceEvolution>(SPC, vproc);
 
         if (verbose)
           ApplicationTools::displayResult("Process type", string("Mixture"));
@@ -1779,7 +1781,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
       }
       else if (evolName == "HMM")
       {
-        auto pMP = make_unique<HmmSequenceEvolution>(&SPC, vproc);
+        auto pMP = make_unique<HmmSequenceEvolution>(SPC, vproc);
 
         if (verbose)
           ApplicationTools::displayResult("Process type", string("HMM"));
@@ -1796,7 +1798,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
 
         RowMatrix<double> mat = ApplicationTools::getMatrixParameter<double>("probas", args, ',', vvs);
 
-        FullHmmTransitionMatrix fhtm(pMP->getHmmTransitionMatrix().getHmmStateAlphabet(), pMP->getNamespace());
+        FullHmmTransitionMatrix fhtm(pMP->hmmTransitionMatrix().getHmmStateAlphabet(), pMP->getNamespace());
         fhtm.setTransitionProbabilities(mat);
 
         pMP->matchParametersValues(fhtm.getParameters());
@@ -1805,7 +1807,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
       }
       else if (evolName == "AutoCorr")
       {
-        auto pMP = make_unique<AutoCorrelationSequenceEvolution>(&SPC, vproc);
+        auto pMP = make_unique<AutoCorrelationSequenceEvolution>(SPC, vproc);
 
         size_t nbP = pMP->getNumberOfSubstitutionProcess();
 
@@ -1850,7 +1852,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
 
 std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(
   Context& context,
-  SubstitutionProcessCollection& SPC,
+  shared_ptr<SubstitutionProcessCollection> SPC,
   map<size_t, std::shared_ptr<SequenceEvolution> >& mSeqEvol,
   const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
   const map<string, string>& params,
@@ -1968,7 +1970,7 @@ std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
     // Construction
 
-    if (SPC.hasSubstitutionProcessNumber(nProcess))
+    if (SPC->hasSubstitutionProcessNumber(nProcess))
     {
       auto l = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes, data, nProcess);
       nPL = make_unique<SingleProcessPhyloLikelihood>(context, l, nProcess, nData);
@@ -2308,7 +2310,7 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
 
 /******************************************************************************/
 
-DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
+unique_ptr<DiscreteDistribution> PhylogeneticsApplicationTools::getRateDistribution(
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -2329,7 +2331,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
     ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
   }
 
-  return rDist.release();
+  return rDist;
 }
 
 
@@ -3317,7 +3319,7 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
     {
       out << "phylo" << num << "=";
 
-      auto mDP = dynamic_pointer_cast<const SetOfPhyloLikelihood>(phyloLike);
+      auto mDP = dynamic_pointer_cast<const SetOfPhyloLikelihoodInterface>(phyloLike);
       if (mDP)
       {
         if (dynamic_pointer_cast<const MixtureOfAlignedPhyloLikelihood>(phyloLike))
@@ -3399,7 +3401,7 @@ void PhylogeneticsApplicationTools::printParameters(const SingleDataPhyloLikelih
 
   try
   {
-    auto& pMP = dynamic_cast<const SequencePhyloLikelihood&>(phyloLike);
+    auto& pMP = dynamic_cast<const SequencePhyloLikelihoodInterface&>(phyloLike);
     out << "process=" << pMP.getSequenceEvolutionNumber();
     goto finish;
   } catch(Exception& e) {}
@@ -3419,17 +3421,17 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
 {
   out << "process" << TextTools::toString(nEvol) << "=";
 
-  if (dynamic_cast<const OneProcessSequenceEvolution*>(evol) != NULL)
+  if (dynamic_cast<const OneProcessSequenceEvolution*>(evol))
   {
     const OneProcessSequenceEvolution* pOP = dynamic_cast<const OneProcessSequenceEvolution*>(evol);
 
     out << "Simple(process=" <<  pOP->getSubstitutionProcessNumber() << ")";
   }
-  else if (dynamic_cast<const MultiProcessSequenceEvolution*>(evol) != NULL)
+  else if (dynamic_cast<const MultiProcessSequenceEvolution*>(evol))
   {
     const MultiProcessSequenceEvolution* pMP = dynamic_cast<const MultiProcessSequenceEvolution*>(evol);
 
-    if (dynamic_cast<const MixtureSequenceEvolution*>(evol) != NULL)
+    if (dynamic_cast<const MixtureSequenceEvolution*>(evol))
     {
       const MixtureSequenceEvolution* pM = dynamic_cast<const MixtureSequenceEvolution*>(evol);
 
@@ -3437,17 +3439,17 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
       out << "),";
     }
 
-    else if (dynamic_cast<const HmmSequenceEvolution*>(evol) != NULL)
+    else if (dynamic_cast<const HmmSequenceEvolution*>(evol))
     {
       const HmmSequenceEvolution* pM = dynamic_cast<const HmmSequenceEvolution*>(evol);
       out << "HMM(probas=";
 
-      const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
+      const Matrix<double>& tMt = pM->hmmTransitionMatrix().getPij();
       MatrixTools::print(tMt, out);
 
       out << ",";
     }
-    else if (dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol) != NULL)
+    else if (dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol))
     {
       const AutoCorrelationSequenceEvolution* pM = dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol);
 
@@ -3463,13 +3465,13 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
 
       out << "),";
     }
-    else if (dynamic_cast<const PartitionSequenceEvolution*>(evol) != NULL)
+    else if (dynamic_cast<const PartitionSequenceEvolution*>(evol))
     {
       const PartitionSequenceEvolution* pM = dynamic_cast<const PartitionSequenceEvolution*>(evol);
 
       out << "Partition(";
 
-      const map<size_t, vector<size_t> >& mProcPos = pM->getMapOfProcessSites();
+      const map<size_t, vector<size_t> >& mProcPos = pM->mapOfProcessSites();
 
       vector<size_t> vP = pMP->getSubstitutionProcessNumbers();
 
@@ -3536,7 +3538,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
       printAnalysisInformation(*dynamic_pointer_cast<const SingleDataPhyloLikelihoodInterface>(phyloLike), info_out, warn);
     else
     {
-      auto sOAP = dynamic_pointer_cast<const SetOfAlignedPhyloLikelihood>(phyloLike);
+      auto sOAP = dynamic_pointer_cast<const SetOfAlignedPhyloLikelihoodInterface>(phyloLike);
       if (sOAP)
       {
         if (num != 0)
@@ -3550,7 +3552,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
       }
       else
       {
-        auto sOAB = dynamic_pointer_cast<const SetOfPhyloLikelihood>(phyloLike);
+        auto sOAB = dynamic_pointer_cast<const SetOfPhyloLikelihoodInterface>(phyloLike);
         if (sOAB)
         {
           vector<size_t> vPN = sOAB->getNumbersOfPhyloLikelihoods();
@@ -3565,7 +3567,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
 }
 
 
-void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedPhyloLikelihood& sOAP, const string& infosFile, int warn)
+void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedPhyloLikelihoodInterface& sOAP, const string& infosFile, int warn)
 {
   const MixtureOfAlignedPhyloLikelihood* mOAP = NULL;
   const HmmOfAlignedPhyloLikelihood* hOAP = NULL;
@@ -3705,7 +3707,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
 
-      const CoreSiteInterface& currentSite = sites->getSite(i);
+      const CoreSiteInterface& currentSite = sites->site(i);
       int currentSiteCoordinate = currentSite.getCoordinate();
       string isCompl = "NA";
       string isConst = "NA";
@@ -3748,11 +3750,11 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
 
   try
   {
-    auto pPPL = dynamic_cast<const PartitionProcessPhyloLikelihood&>(phyloLike);
+    auto& pPPL = dynamic_cast<const PartitionProcessPhyloLikelihood&>(phyloLike);
 
-    auto pSE = dynamic_cast<const PartitionSequenceEvolution&>(pPPL.sequenceEvolution());
+    auto& pSE = dynamic_cast<const PartitionSequenceEvolution&>(pPPL.sequenceEvolution());
 
-    const map<size_t, vector<size_t> >& mProcPos = pSE.getMapOfProcessSites();
+    const map<size_t, vector<size_t> >& mProcPos = pSE.mapOfProcessSites();
 
     vector<size_t> nbProc = pSE.getSubstitutionProcessNumbers();
 
@@ -3804,7 +3806,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
       {
         double lnL = pSPPL->getLogLikelihoodForASite(i);
 
-        const CoreSiteInterface& currentSite = sites->getSite(i);
+        const CoreSiteInterface& currentSite = sites->site(i);
         int currentSiteCoordinate = currentSite.getCoordinate();
         string isCompl = "NA";
         string isConst = "NA";
@@ -3829,7 +3831,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
         {
           Vdouble vPP = pSPPL->getPosteriorProbabilitiesForSitePerClass(i);
 
-          for (size_t j = 0; j < nbr; j++)
+          for (size_t j = 0; j < nbr; ++j)
           {
             row[4 + j] = TextTools::toString(vPP[j]);
           }
@@ -3885,7 +3887,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
     for (size_t i = 0; i < sites->getNumberOfSites(); ++i)
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
-      const CoreSiteInterface& currentSite = sites->getSite(i);
+      const CoreSiteInterface& currentSite = sites->site(i);
       int currentSiteCoordinate = currentSite.getCoordinate();
       string isCompl = "NA";
       string isConst = "NA";

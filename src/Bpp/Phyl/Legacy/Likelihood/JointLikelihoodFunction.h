@@ -66,7 +66,7 @@ using namespace std;
 
 
 class JointLikelihoodFunction :
-  public Function,
+  public FunctionInterface,
   public AbstractParametrizable
 {
 public:
@@ -111,7 +111,7 @@ public:
   /* basic functions */
 
   // base constrcutor - let it get the character model and character data for convenience - but it will create the treeLikelihood instance nad the sotchasticMapping instnace from the constructor
-  JointLikelihoodFunction(BppApplication* bppml, const Tree* tree, const VectorSiteContainer* characterData, TransitionModel* characterModel, const VectorSiteContainer* sequenceData, MixedSubstitutionModelSet* sequenceModel, DiscreteDistribution* rDist, bool debug = false);
+  JointLikelihoodFunction(BppApplication* bppml, const Tree* tree, const VectorSiteContainer* characterData, TransitionModelInterface* characterModel, const VectorSiteContainer* sequenceData, MixedSubstitutionModelSet* sequenceModel, DiscreteDistribution* rDist, bool debug = false);
 
   // copy constructor
   JointLikelihoodFunction(const JointLikelihoodFunction& jlf) :

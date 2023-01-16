@@ -52,67 +52,70 @@ namespace bpp
 {
 /**
  * @brief Sequences simulation under a unique substitution process.
- *
  */
-
 class SimpleSubstitutionProcessSequenceSimulator :
-  public virtual SequenceSimulator
+  public virtual SequenceSimulatorInterface
 {
 private:
-  std::shared_ptr<SiteSimulator> siteSim_;
+  std::shared_ptr<SiteSimulatorInterface> siteSim_;
 
 public:
-  SimpleSubstitutionProcessSequenceSimulator(const SubstitutionProcess& process) :
+  SimpleSubstitutionProcessSequenceSimulator(std::shared_ptr<const SubstitutionProcessInterface> process) :
     siteSim_(std::make_shared<SimpleSubstitutionProcessSiteSimulator>(process))
   {}
 
-  /*
+  /**
    * @brief A posterior simulation, from a position in an alignment.
-   *
    */
-
   SimpleSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos) :
     siteSim_(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul, pos))
   {}
 
-  SimpleSubstitutionProcessSequenceSimulator(std::shared_ptr<SiteSimulator> simul) :
+  SimpleSubstitutionProcessSequenceSimulator(std::shared_ptr<SiteSimulatorInterface> simul) :
     siteSim_(simul) {}
 
 
-  virtual ~SimpleSubstitutionProcessSequenceSimulator()
-  {}
+  virtual ~SimpleSubstitutionProcessSequenceSimulator() {}
 
   SimpleSubstitutionProcessSequenceSimulator(const SimpleSubstitutionProcessSequenceSimulator& nhss) :
     siteSim_(nhss.siteSim_)
   {}
 
-  SimpleSubstitutionProcessSequenceSimulator* clone() const { return new SimpleSubstitutionProcessSequenceSimulator(*this); }
+  SimpleSubstitutionProcessSequenceSimulator* clone() const override
+  { 
+    return new SimpleSubstitutionProcessSequenceSimulator(*this);
+  }
 
 public:
   /**
    * @name The SequenceSimulator interface
    *
+   *  @{
    */
 
-  std::shared_ptr<SiteContainer> simulate(size_t numberOfSites) const;
+  std::unique_ptr<SiteContainerInterface> simulate(size_t numberOfSites) const override;
 
 
-  const SiteSimulator& getSiteSimulator(size_t pos) const
+  const SiteSimulatorInterface& siteSimulator(size_t pos) const override
   {
     return *siteSim_;
   }
 
-  std::vector<std::string> getSequenceNames() const
+  std::vector<std::string> getSequenceNames() const override
   {
     return siteSim_->getSequenceNames();
   }
+
+  /** @} */
 
   /**
    * @name SiteSimulator and SequenceSimulator interface
    *
    * @{
    */
-  const Alphabet* getAlphabet() const { return siteSim_->getAlphabet(); }
+  std::shared_ptr<const Alphabet> getAlphabet() const override { return siteSim_->getAlphabet(); }
+  
+  const Alphabet& alphabet() const override { return siteSim_->alphabet(); }
   /** @} */
 
   /**
@@ -121,7 +124,7 @@ public:
    *
    * @param yn Tell if we should output internal sequences.
    */
-  void outputInternalSequences(bool yn)
+  void outputInternalSequences(bool yn) override
   {
     siteSim_->outputInternalSites(yn);
   }

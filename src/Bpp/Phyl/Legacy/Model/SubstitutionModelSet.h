@@ -340,12 +340,12 @@ public:
 
   std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModelForNode(int nodeId) const
   {
-    return dynamic_pointer_cast<const SubstitutionModelInterface>(getModelForNode(nodeId));
+    return std::dynamic_pointer_cast<const SubstitutionModelInterface>(getModelForNode(nodeId));
   }
 
   std::shared_ptr<SubstitutionModelInterface> getSubstitutionModelForNode(int nodeId)
   {
-    return dynamic_pointer_cast<SubstitutionModelInterface>(getModelForNode(nodeId));
+    return std::dynamic_pointer_cast<SubstitutionModelInterface>(getModelForNode(nodeId));
   }
 
   /**
@@ -411,7 +411,7 @@ public:
    *
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
-  void replaceModel(size_t modelIndex, TransitionModel* model);
+  void replaceModel(size_t modelIndex, std::shared_ptr<TransitionModelInterface> model);
 
   void listModelNames(std::ostream& out = std::cout) const;
 

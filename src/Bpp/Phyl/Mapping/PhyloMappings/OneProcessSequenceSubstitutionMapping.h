@@ -1,7 +1,7 @@
 //
 // File: OneProcessSequenceSubstitutionMapping.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: dimanche 3 dÃÂ©cembre 2017, ÃÂ  13h 56
 //
 
@@ -60,21 +60,24 @@ namespace bpp
  */
 
 class OneProcessSequenceSubstitutionMapping :
-  public AbstractSinglePhyloSubstitutionMapping
+  public AbstractSinglePhyloSubstitutionMapping,
+  public std::enable_shared_from_this<OneProcessSequenceSubstitutionMapping>
 {
 private:
-  OneProcessSequencePhyloLikelihood* pOPSP_;
+  std::shared_ptr<OneProcessSequencePhyloLikelihood> pOPSP_;
 
-  /*
+  /**
    * @brief Set the models of the BranchedModelSet to the adhoc
    * branches, for normalization.
-   *
    */
-
   void setBranchedModelSet_();
 
 public:
-  OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances);
+  OneProcessSequenceSubstitutionMapping(
+      std::shared_ptr<OneProcessSequencePhyloLikelihood> spp, 
+      std::shared_ptr<SubstitutionRegisterInterface> reg,
+      std::shared_ptr<const AlphabetIndex2> weights, 
+      std::shared_ptr<const AlphabetIndex2> distances);
 
   OneProcessSequenceSubstitutionMapping(const OneProcessSequenceSubstitutionMapping& sppm) :
     AbstractSinglePhyloSubstitutionMapping(sppm),
@@ -91,20 +94,23 @@ public:
 
   virtual ~OneProcessSequenceSubstitutionMapping() {}
 
-  OneProcessSequenceSubstitutionMapping* clone() const { return new OneProcessSequenceSubstitutionMapping(*this); }
+  OneProcessSequenceSubstitutionMapping* clone() const override
+  { 
+    return new OneProcessSequenceSubstitutionMapping(*this); 
+  }
 
-  /*
+  /**
    * @brief ComputeCounts
-   *
    */
-  void computeCounts(double threshold = -1, bool verbose = true)
+  void computeCounts(double threshold = -1, bool verbose = true) override
   {
-    counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculationSingleProcess(),
-                                                          getRegister(),
-                                                          getWeights(),
-                                                          getDistances(),
-                                                          threshold,
-                                                          verbose));
+    counts_ = SubstitutionMappingTools::computeCounts(
+	          getLikelihoodCalculationSingleProcess(),
+		  getSubstitutionRegister(),
+		  getWeights(),
+		  getDistances(),
+		  threshold,
+		  verbose);
   }
 
   // void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
@@ -120,20 +126,20 @@ public:
   // }
 
   void computeNormalizations(const ParameterList& nullParams,
-                             bool verbose = true);
+                             bool verbose = true) override;
 
   // void computeNormalizationsForASite(size_t site,
   //                                    const ParameterList& nullParams,
   //                                    bool verbose = true);
 
-  size_t getNumberOfModels() const
+  size_t getNumberOfModels() const override
   {
-    return pOPSP_->getSubstitutionProcess().getNumberOfModels();
+    return pOPSP_->substitutionProcess().getNumberOfModels();
   }
 
-  std::vector<size_t> getModelNumbers() const
+  std::vector<size_t> getModelNumbers() const override
   {
-    return pOPSP_->getSubstitutionProcess().getModelNumbers();
+    return pOPSP_->substitutionProcess().getModelNumbers();
   }
 
   LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess()

@@ -58,7 +58,7 @@ using namespace std;
 
 /******************************************************************************/
 
-ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
+unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
   LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& edgeIds,
   Reward& reward,
@@ -68,24 +68,25 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   if (!rltc.isInitialized())
     throw Exception("RewardMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
 
-  const SubstitutionProcess& sp = rltc.getSubstitutionProcess();
+  const SubstitutionProcessInterface& sp = rltc.substitutionProcess();
 
   if (edgeIds.size() == 0)
-    return new ProbabilisticRewardMapping(*sp.getParametrizablePhyloTree(),
-                                          rltc.getRootArrayPositions(),
-                                          rltc.getNumberOfDistinctSites());
+    return make_unique<ProbabilisticRewardMapping>(
+        sp.parametrizablePhyloTree(),
+	rltc.getRootArrayPositions(),
+	rltc.getNumberOfDistinctSites());
 
   auto processTree = rltc.getTreeNode(0);
 
   /* First, set substitution rewards */
 
-  std::map<const SubstitutionModel*, std::shared_ptr<Reward> > mModReward;
+  std::map<const SubstitutionModelInterface*, std::shared_ptr<Reward> > mModReward;
 
-  for (auto speciesId :edgeIds)
+  for (auto speciesId : edgeIds)
   {
     const auto& dagIndexes = rltc.getEdgesIds(speciesId, 0);
 
-    for (auto id:dagIndexes)
+    for (auto id : dagIndexes)
     {
       const auto& edge = processTree->getEdge(id);
       if (edge->getBrLen()) // if edge with model on it
@@ -94,35 +95,35 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
 
         auto nMod = edge->getNMod();
 
-        auto tm = dynamic_cast<const TransitionModel*>(model->getTargetValue());
+        auto tm = dynamic_pointer_cast<const TransitionModelInterface>(model->targetValue());
 
-        const SubstitutionModel* sm(0);
+        shared_ptr<const SubstitutionModelInterface> sm = nullptr;
 
         if (nMod == 0)
         {
-          sm = dynamic_cast<const SubstitutionModel*>(tm);
+          sm = dynamic_pointer_cast<const SubstitutionModelInterface>(tm);
 
-          if (sm == NULL)
+          if (!sm)
             throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
         }
         else
         {
-          size_t nmod = nMod->getTargetValue();
+          size_t nmod = nMod->targetValue();
 
-          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
-          if (ttm == NULL)
+          auto ttm = dynamic_pointer_cast<const MixedTransitionModelInterface>(tm);
+          if (!ttm)
             throw Exception("SubstitutionMappingTools::computeCounts : Expecting Mixed model in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
 
-          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+          sm = dynamic_pointer_cast<const SubstitutionModelInterface>(ttm->getNModel(nmod));
 
-          if (sm == NULL)
+          if (!sm)
             throw Exception("SubstitutionMappingTools::computeCounts : Expecting Substitution model for submodel " + TextTools::toString(nmod) + " of mixed model " + tm->getName() + " in branch " + TextTools::toString(speciesId));
         }
 
-        if (mModReward.find(sm) == mModReward.end())
+        if (mModReward.find(sm.get()) == mModReward.end())
         {
-          mModReward[sm] = std::shared_ptr<Reward>(reward.clone());
-          mModReward[sm]->setSubstitutionModel(sm);
+          mModReward[sm.get()] = std::shared_ptr<Reward>(reward.clone());
+          mModReward[sm.get()]->setSubstitutionModel(sm);
         }
       }
     }
@@ -184,35 +185,35 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       {
         auto edge = processTree->getEdge(id);
 
-        auto tm = dynamic_cast<const TransitionModel*>(edge->getModel()->getTargetValue());
+        auto tm = dynamic_pointer_cast<const TransitionModelInterface>(edge->model().targetValue());
 
         auto nMod = edge->getNMod();
 
-        const SubstitutionModel* sm(0);
+        shared_ptr<const SubstitutionModelInterface> sm = nullptr;
 
         if (nMod == 0)
-          sm = dynamic_cast<const SubstitutionModel*>(tm);
+          sm = dynamic_pointer_cast<const SubstitutionModelInterface>(tm);
         else
         {
-          size_t nmod = nMod->getTargetValue();
+          size_t nmod = nMod->targetValue();
 
-          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
-          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+          auto ttm = dynamic_pointer_cast<const MixedTransitionModelInterface>(tm);
+          sm = dynamic_pointer_cast<const SubstitutionModelInterface>(ttm->getNModel(nmod));
         }
 
-        auto subReward = mModReward[sm];
+        auto subReward = mModReward[sm.get()];
 
-        const auto& likelihoodsTopEdge = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->getTargetValue();
+        const auto& likelihoodsTopEdge = rltc.getBackwardLikelihoodsAtEdgeForClass(id, ncl)->targetValue();
 
         auto sonid = rltc.getForwardLikelihoodTree(ncl)->getSon(id);
         auto fatid = rltc.getForwardLikelihoodTree(ncl)->getFatherOfEdge(id);
 
-        const auto& likelihoodsBotEdge = rltc.getForwardLikelihoodsAtNodeForClass(sonid, ncl)->getTargetValue();
+        const auto& likelihoodsBotEdge = rltc.getForwardLikelihoodsAtNodeForClass(sonid, ncl)->targetValue();
 
         // compute all nxy * pxy first:
 
         const Eigen::MatrixXd& pxy = edge->getTransitionMatrix()->accessValueConst();
-        const auto& likelihoodsFather = rltc.getLikelihoodsAtNodeForClass(fatid, ncl)->getTargetValue();
+        const auto& likelihoodsFather = rltc.getLikelihoodsAtNodeForClass(fatid, ncl)->targetValue();
 
 
         subReward->storeAllRewards(edge->getBrLen()->getValue(), rpxy);
@@ -247,23 +248,23 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
-  return rewards.release();
+  return rewards;
 }
 
 /**************************************************************************************************/
 
 void RewardMappingTools::writeToStream(
   const ProbabilisticRewardMapping& rewards,
-  const AlignedValuesContainer& sites,
+  const AlignmentDataInterface& sites,
   ostream& out)
 {
   if (!out)
     throw IOException("RewardMappingTools::writeToFile. Can't write to stream.");
   out << "Branches";
   out << "\tMean";
-  for (size_t i = 0; i < rewards.getNumberOfSites(); i++)
+  for (size_t i = 0; i < rewards.getNumberOfSites(); ++i)
   {
-    out << "\tSite" << sites.getSymbolListSite(i).getPosition();
+    out << "\tSite" << sites.site(i).getCoordinate();
   }
   out << endl;
 
@@ -275,7 +276,7 @@ void RewardMappingTools::writeToStream(
 
     out << rewards.getEdgeIndex(br) << "\t" << br->getLength();
 
-    for (size_t i = 0; i < rewards.getNumberOfSites(); i++)
+    for (size_t i = 0; i < rewards.getNumberOfSites(); ++i)
     {
       out << "\t" << br->getSiteReward(rewards.getSiteIndex(i));
     }
@@ -290,7 +291,7 @@ void RewardMappingTools::readFromStream(istream& in, ProbabilisticRewardMapping&
 {
   try
   {
-    DataTable* data = DataTable::read(in, "\t", true, -1);
+    auto data = DataTable::read(in, "\t", true, -1);
     vector<string> ids = data->getColumn(0);
     data->deleteColumn(0); // Remove ids
     data->deleteColumn(0); // Remove means
@@ -322,8 +323,6 @@ void RewardMappingTools::readFromStream(istream& in, ProbabilisticRewardMapping&
         site = TextTools::to<int>(siteTxt);
       rewards.setSitePosition(i, site);
     }
-
-    delete data;
   }
   catch (Exception& e)
   {

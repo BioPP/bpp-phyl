@@ -1,7 +1,7 @@
 //
 // File: SubstitutionProcessCollectionMember.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mercredi 13 mai 2015, ÃÂ  22h 32
 //
 
@@ -52,7 +52,6 @@ namespace bpp
  * The parameters are the INDEPENDENT parameters of the objects of
  * the Collection.
  */
-
 class SubstitutionProcessCollection;
 
 class SubstitutionProcessCollectionMember :
@@ -119,22 +118,69 @@ private:
    * @param nTree Number of the tree
    * @param nDist Number of the Discrete Distribution
    */
-  SubstitutionProcessCollectionMember(SubstitutionProcessCollection* pSubProColl, size_t nProc, size_t nTree, size_t nDist);
+  SubstitutionProcessCollectionMember(
+      SubstitutionProcessCollection* pSubProColl,
+      size_t nProc,
+      size_t nTree,
+      size_t nDist) :
+    AbstractParameterAliasable(""),
+    pSubProColl_(pSubProColl),
+    nProc_(nProc),
+    nodeToModel_(),
+    modelToNodes_(),
+    nTree_(nTree),
+    nDist_(nDist),
+    nRoot_(0),
+    nPath_(0)
+  {
+    updateParameters();
+  }
 
   /**
    * @brief Resets all the information contained in this object.
    */
-  void clear();
+  SubstitutionProcessCollectionMember(const SubstitutionProcessCollectionMember& set) :
+    AbstractParameterAliasable(set),
+    pSubProColl_(set.pSubProColl_),
+    nProc_(set.nProc_),
+    nodeToModel_(set.nodeToModel_),
+    modelToNodes_(set.modelToNodes_),
+    nTree_(set.nTree_),
+    nDist_(set.nDist_),
+    nRoot_(set.nRoot_),
+    nPath_(set.nPath_)
+  {}
 
-  SubstitutionProcessCollectionMember(const SubstitutionProcessCollectionMember& set);
+  SubstitutionProcessCollectionMember& operator=(const SubstitutionProcessCollectionMember& set)
+  {
+    AbstractParameterAliasable::operator=(set);
+    pSubProColl_ = set.pSubProColl_;
+    nProc_ = set.nProc_;
 
-  SubstitutionProcessCollectionMember& operator=(const SubstitutionProcessCollectionMember& set);
+    nodeToModel_ = set.nodeToModel_;
+    modelToNodes_ = set.modelToNodes_;
+    nTree_ = set.nTree_;
+    nDist_ = set.nDist_;
+    nRoot_ = set.nRoot_;
+    nPath_ = set.nPath_;
+
+    return *this;
+  }
 
   virtual ~SubstitutionProcessCollectionMember() {}
+  
+  struct Deleter
+  {
+    void operator()(SubstitutionProcessCollectionMember* sm) const
+    {
+      delete sm;
+    }
+  };
 
   SubstitutionProcessCollectionMember* clone() const override { return new SubstitutionProcessCollectionMember(*this); }
 
 public:
+
   const SubstitutionProcessCollection& collection() const
   {
     if (! pSubProColl_)
@@ -147,6 +193,13 @@ public:
     if (! pSubProColl_)
       throw NullPointerException("SubstitutionProcessCollectionMember::collection(). Member is not associated to any collection.");
     return *pSubProColl_;
+  }
+  
+  void clear()
+  {
+    nodeToModel_.clear();
+    modelToNodes_.clear();
+    nRoot_ = 0;
   }
   
   const SubstitutionProcessCollection* getCollection() const
@@ -172,7 +225,7 @@ public:
   /**
    * @return the number of the process in the collection
    */
-  size_t getNProcess() const
+  size_t getNumberOfProcesses() const
   {
     return nProc_;
   }
@@ -225,7 +278,13 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this node.
    */
-  std::shared_ptr<const BranchModelInterface> getModelForNode(unsigned int nodeId) const override;
+  std::shared_ptr<const BranchModelInterface> getModelForNode(unsigned int nodeId) const override
+  {
+    std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
+    if (i == nodeToModel_.end())
+      throw Exception("SubstitutionProcessCollectionMember::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
+    return getModel(i->second);
+  }
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -301,9 +360,7 @@ public:
 
   /**
    * @brief AbsractParametrizable interface
-   *
-   **/
-
+   */
   bool matchParametersValues(const ParameterList& parameters) override;
 
   /**
@@ -353,9 +410,15 @@ public:
 public:
   size_t getTreeNumber() const { return nTree_; }
 
-  const BranchModelInterface& model(unsigned int nodeId, size_t classIndex) const override;
+  const BranchModelInterface& model(unsigned int nodeId, size_t classIndex) const override  {
+    return model(nodeToModel_.at(nodeId));
+  }
 
-  std::shared_ptr<const BranchModelInterface> getModel(unsigned int nodeId, size_t classIndex) const override;
+  std::shared_ptr<const BranchModelInterface> getModel(unsigned int nodeId, size_t classIndex) const override
+  {
+    return getModel(nodeToModel_.at(nodeId));
+  }
+
 
   /**
    * @brief Get the parameters of the substitution models.

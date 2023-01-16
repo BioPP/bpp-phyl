@@ -53,28 +53,28 @@ using namespace std;
 /******************************************************************************/
 
 F81::F81(
-  const NucleicAlphabet* alpha,
+  shared_ptr<const NucleicAlphabet> alpha,
   double piA,
   double piC,
   double piG,
   double piT) :
   AbstractParameterAliasable("F81."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "F81."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "F81."),
   r_(),
   piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
   theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),
   exp1_(), l_(), p_(size_, size_)
 {
-  addParameter_(new Parameter("F81.theta", theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("F81.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("F81.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F81.theta", theta_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F81.theta1", theta1_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F81.theta2", theta2_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
   computeFrequencies(false);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void F81::updateMatrices()
+void F81::updateMatrices_()
 {
   theta_  = getParameterValue("theta");
   theta1_ = getParameterValue("theta1");

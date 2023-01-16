@@ -54,7 +54,7 @@ using namespace bpp;
 /******************************************************************************/
 
 TN93::TN93(
-  const NucleicAlphabet* alpha,
+  shared_ptr<const NucleicAlphabet> alpha,
   double kappa1,
   double kappa2,
   double piA,
@@ -62,7 +62,7 @@ TN93::TN93(
   double piG,
   double piT) :
   AbstractParameterAliasable("TN93."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "TN93."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "TN93."),
   kappa1_(kappa1), kappa2_(kappa2),
   piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
   r_(), k1_(), k2_(),
@@ -71,16 +71,16 @@ TN93::TN93(
 {
   addParameter_(new Parameter("TN93.kappa1", kappa1, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("TN93.kappa2", kappa2, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("TN93.theta", theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("TN93.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("TN93.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("TN93.theta", theta_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("TN93.theta1", theta1_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("TN93.theta2", theta2_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
   p_.resize(size_, size_);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void TN93::updateMatrices()
+void TN93::updateMatrices_()
 {
   kappa1_ = getParameterValue("kappa1");
   kappa2_ = getParameterValue("kappa2");

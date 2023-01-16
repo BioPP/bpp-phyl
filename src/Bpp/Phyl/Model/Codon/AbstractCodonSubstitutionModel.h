@@ -73,7 +73,7 @@ namespace bpp
  */
 class AbstractCodonSubstitutionModel :
   public virtual CodonSubstitutionModelInterface,
-  public virtual AbstractWordSubstitutionModel
+  public AbstractWordSubstitutionModel
 {
 private:
   /**
@@ -97,7 +97,7 @@ public:
    */
   AbstractCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
     const std::string& st,
     bool paramRates = false);
 
@@ -117,9 +117,9 @@ public:
    */
   AbstractCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
     const std::string& st,
     bool paramRates = false);
 
@@ -133,8 +133,6 @@ public:
 
   AbstractCodonSubstitutionModel& operator=(const AbstractCodonSubstitutionModel& model)
   {
-    AbstractParameterAliasable::operator=(model);
-    AbstractSubstitutionModel::operator=(model);
     AbstractWordSubstitutionModel::operator=(model);
     hasParametrizedRates_ = model.hasParametrizedRates_;
     gCode_ = model.gCode_;
@@ -155,10 +153,11 @@ protected:
    * This method sets the rates to/from stop codons to zero and
    * performs the multiplication by the specific codon-codon rate.
    */
-  void completeMatrices() override;
+  void completeMatrices_() override;
+
+  void updateMatrices_() override;
 
 public:
-  void updateMatrices() override;
 
   std::shared_ptr<const GeneticCode> getGeneticCode() const override { return gCode_; }
 };

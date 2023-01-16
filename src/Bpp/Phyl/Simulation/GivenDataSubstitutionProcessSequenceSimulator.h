@@ -50,11 +50,9 @@ namespace bpp
 /**
  * @brief Sequences simulation under a unique substitution process, but with site specific
  * posterior probabilities.
- *
  */
-
 class GivenDataSubstitutionProcessSequenceSimulator :
-  public virtual SequenceSimulator
+  public virtual SequenceSimulatorInterface
 {
 private:
   std::shared_ptr<LikelihoodCalculationSingleProcess> calcul_;
@@ -85,7 +83,10 @@ public:
     calcul_(nhss.calcul_), vSiteSim_(nhss.vSiteSim_)
   {}
 
-  GivenDataSubstitutionProcessSequenceSimulator* clone() const { return new GivenDataSubstitutionProcessSequenceSimulator(*this); }
+  GivenDataSubstitutionProcessSequenceSimulator* clone() const override
+  { 
+    return new GivenDataSubstitutionProcessSequenceSimulator(*this);
+  }
 
 public:
   /**
@@ -93,14 +94,14 @@ public:
    * Here the numberOfSites is unused (awkward inheritance...)
    *
    */
-  std::shared_ptr<SiteContainer> simulate() const
+  std::unique_ptr<SiteContainerInterface> simulate() const
   {
     return simulate(0);
   }
 
-  std::shared_ptr<SiteContainer> simulate(size_t numberOfSites) const;
+  std::unique_ptr<SiteContainerInterface> simulate(size_t numberOfSites) const override;
 
-  const SiteSimulator& getSiteSimulator(size_t pos) const
+  const SiteSimulatorInterface& siteSimulator(size_t pos) const override
   {
     return *vSiteSim_[calcul_->getRootArrayPosition(pos)];
   }
@@ -110,9 +111,17 @@ public:
    *
    * @{
    */
-  const Alphabet* getAlphabet() const { return vSiteSim_[0]->getAlphabet(); }
+  std::shared_ptr<const Alphabet> getAlphabet() const override
+  {
+    return vSiteSim_[0]->getAlphabet();
+  }
 
-  std::vector<std::string> getSequenceNames() const
+  const Alphabet& alphabet() const override
+  {
+    return vSiteSim_[0]->alphabet();
+  }
+
+  std::vector<std::string> getSequenceNames() const override
   {
     return vSiteSim_[0]->getSequenceNames();
   }
@@ -126,7 +135,7 @@ public:
    *
    * @param yn Tell if we should output internal sequences.
    */
-  void outputInternalSequences(bool yn)
+  void outputInternalSequences(bool yn) override
   {
     for (auto& siteSim : vSiteSim_)
     {

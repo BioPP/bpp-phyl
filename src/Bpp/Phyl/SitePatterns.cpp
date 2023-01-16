@@ -41,50 +41,41 @@
 
 #include "SitePatterns.h"
 
-// From the SeqLib library:
+// From the bpp-seq library:
 #include <Bpp/Seq/SiteTools.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
-#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
 
 using namespace bpp;
 using namespace std;
 
 /******************************************************************************/
 
-SitePatterns::SitePatterns(const AlignedValuesContainer* sequences , bool own) :
-  names_(sequences->getSequenceNames()),
-  sites_(),
-  weights_(),
-  indices_(),
-  alpha_(sequences->getAlphabet()),
-  own_(own)
-{
-  init_(sequences, names_);
-}
-  
-SitePatterns::SitePatterns(const AlignedValuesContainer* sequences , std::vector<std::string> names) :
+SitePatterns::SitePatterns(
+    const AlignmentDataInterface& sequences,
+    std::vector<std::string> names) :
   names_(),
   sites_(),
   weights_(),
   indices_(),
-  alpha_(sequences->getAlphabet()),
-  own_(false)
+  alpha_(sequences.getAlphabet())
 {
-  names_=sequences->getSequenceNames();
-  if (names.size()!=0)
-    names_=VectorTools::vectorIntersection(names_, names);
+  names_ = sequences.getSequenceNames();
+  if (names.size() != 0)
+    names_ = VectorTools::vectorIntersection(names_, names);
   init_(sequences, names_);
 }
 
-void SitePatterns::init_(const AlignedValuesContainer* sequences , std::vector<std::string> names)
+void SitePatterns::init_(
+    const AlignmentDataInterface& sequences,
+    std::vector<std::string> names)
 {
   // positions of the names in sequences list
   std::vector<size_t> posseq;
   for (const auto& n:names)
-    posseq.push_back(sequences->getSequencePosition(n));
+    posseq.push_back(sequences.getSequencePosition(n));
 
-  int nbSeq = (int)sequences->getNumberOfSequences();
+  int nbSeq = static_cast<int>(sequences.getNumberOfSequences());
   std::vector<size_t> posnseq;
 
   std::stable_sort(posseq.begin(), posseq.end());
@@ -94,24 +85,15 @@ void SitePatterns::init_(const AlignedValuesContainer* sequences , std::vector<s
       posnseq.push_back((size_t)i);
   }
 
-  own_ = own_ || (posnseq.size()!=0); // New ownership only if different Sites, ie not all sequences
-
   // Then build Sortable sites with correct sequences
-  size_t nbSites = sequences->getNumberOfSites();
+  size_t nbSites = sequences.getNumberOfSites();
 
   vector<SortableSite> ss(nbSites);
   for (size_t i = 0; i < nbSites; i++)
   {
-    const CruxSymbolListSite* currentSite;
-    if (own_)
-    {      
-      CruxSymbolListSite* currentSitetmp = sequences->getSymbolListSite(i).clone();
-      for (auto pos:posnseq)
-        currentSitetmp->deleteElement(pos);
-      currentSite = currentSitetmp;
-    }
-    else
-      currentSite = &sequences->getSymbolListSite(i);
+    CoreSiteInterface* currentSite = sequences.site(i).clone();
+    for (auto pos : posnseq)
+      currentSite->deleteElement(pos);
 
     SortableSite* ssi = &ss[i];
     ssi->siteS = currentSite->toString();
@@ -127,28 +109,27 @@ void SitePatterns::init_(const AlignedValuesContainer* sequences , std::vector<s
     // Now build patterns:
 
     SortableSite* ss0 = &ss[0];
-    const CruxSymbolListSite* previousSite = ss0->siteP;
+    auto previousSite = ss0->siteP;
     indices_.resize(Eigen::Index(nbSites));
     indices_[Eigen::Index(ss0->originalPosition)] = 0;
-    sites_.push_back(previousSite);
+    sites_.push_back(shared_ptr<const CoreSiteInterface>(previousSite));
     weights_.push_back(1);
 
     size_t currentPos = 0;
-    for (size_t i = 1; i < nbSites; i++)
+    for (size_t i = 1; i < nbSites; ++i)
     {
       SortableSite* ssi = &ss[i];
-      const CruxSymbolListSite* currentSite = ssi->siteP;
+      auto currentSite = ssi->siteP;
 
       bool siteExists = SymbolListTools::areSymbolListsIdentical(*currentSite, *previousSite);
       if (siteExists)
       {
         weights_[currentPos]++;
-        if (own_)
-          delete currentSite;
+        delete currentSite;
       }
       else
       {
-        sites_.push_back(currentSite);
+        sites_.push_back(shared_ptr<const CoreSiteInterface>(currentSite));
         weights_.push_back(1);
         currentPos++;
         previousSite = currentSite;
@@ -160,22 +141,34 @@ void SitePatterns::init_(const AlignedValuesContainer* sequences , std::vector<s
 
 /******************************************************************************/
 
-std::shared_ptr<AlignedValuesContainer> SitePatterns::getSites() const
+unique_ptr<AlignmentDataInterface> SitePatterns::getSites() const
 {
   if (sites_.size() == 0)
     throw Exception("SitePatterns::getSites : empty set.");
 
-  AlignedValuesContainer* sites;
+  unique_ptr<AlignmentDataInterface> sites;
 
-  if (dynamic_cast<const Site*>(sites_[0]))
-    sites = new VectorSiteContainer(sites_, alpha_);
-  else
-    sites = new VectorProbabilisticSiteContainer(sites_, alpha_);
+  if (dynamic_pointer_cast<const Site>(sites_[0])) {
+    //Copy the sites
+    vector<unique_ptr<Site>> vSites;
+    for (auto& s : sites_)
+      vSites.push_back(unique_ptr<Site>(dynamic_cast<Site*>(s->clone())));
+    sites.reset(new VectorSiteContainer(vSites, alpha_));
+    sites->setSequenceNames(names_, true);
+    return sites;
+  }
 
-  sites->setSequenceNames(names_, false);
+  if (dynamic_pointer_cast<const ProbabilisticSite>(sites_[0])) {
+    //Copy the sites
+    vector<unique_ptr<ProbabilisticSite>> vSites;
+    for (auto& s : sites_)
+      vSites.push_back(unique_ptr<ProbabilisticSite>(dynamic_cast<ProbabilisticSite*>(s->clone())));
+    sites.reset(new ProbabilisticVectorSiteContainer(vSites, alpha_));
+    sites->setSequenceNames(names_, true);
+    return sites;
+  }
 
-  auto ret= std::shared_ptr<AlignedValuesContainer>(sites);
-  return ret;
+  throw Exception("SitePatterns::getSites(). Unsupported site type.");
 }
 
 /******************************************************************************/

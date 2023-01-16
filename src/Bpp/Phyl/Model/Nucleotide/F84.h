@@ -211,7 +211,7 @@ public:
   void setFreq(std::map<int, double>&);
 
 protected:
-  void updateMatrices();
+  void updateMatrices_();
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_F84_H

@@ -74,7 +74,7 @@ namespace bpp
  */
 class AbstractKroneckerCodonSubstitutionModel :
   public virtual CodonSubstitutionModelInterface,
-  public AbstractKroneckerWordSubstitutionModel
+  public virtual AbstractKroneckerWordSubstitutionModel
 {
 private:
   std::shared_ptr<const GeneticCode> gCode_;
@@ -91,7 +91,7 @@ public:
    */
   AbstractKroneckerCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
     const std::string& st);
 
   /**
@@ -107,7 +107,7 @@ public:
    */
   AbstractKroneckerCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
     const std::vector<std::set<size_t> >& vPos,
     const std::string& st);
 
@@ -125,9 +125,9 @@ public:
    */
   AbstractKroneckerCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
     const std::string& st);
 
   /**
@@ -146,9 +146,9 @@ public:
    */
   AbstractKroneckerCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
     const std::vector<std::set< size_t> >& vPos,
     const std::string& st);
 
@@ -177,7 +177,7 @@ protected:
    * This method sets the rates to/from stop codons to zero and
    * performs the multiplication by the specific codon-codon rate.
    */
-  void completeMatrices() override;
+  void completeMatrices_() override;
 
 public:
   std::shared_ptr<const GeneticCode> getGeneticCode() const override { return gCode_; }

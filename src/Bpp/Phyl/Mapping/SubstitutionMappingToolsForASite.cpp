@@ -61,11 +61,11 @@ SubstitutionMappingToolsForASite::t_Sr_Sm_Sc SubstitutionMappingToolsForASite::m
 
 /******************************************************************************/
 
-ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCounts(
+unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingToolsForASite::computeCounts(
   size_t site,
   LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& edgeIds,
-  const SubstitutionRegister& reg,
+  std::shared_ptr<const SubstitutionRegisterInterface> reg,
   std::shared_ptr<const AlphabetIndex2> weights,
   std::shared_ptr<const AlphabetIndex2> distances,
   double threshold,
@@ -75,25 +75,28 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
 
-  const SubstitutionProcess& sp = rltc.getSubstitutionProcess();
+  auto& sp = rltc.substitutionProcess();
 
   if (edgeIds.size() == 0)
   {
-    return new ProbabilisticSubstitutionMapping(*sp.getParametrizablePhyloTree(), reg.getNumberOfSubstitutionTypes(), 0);
+    return make_unique<ProbabilisticSubstitutionMapping>(
+	sp.parametrizablePhyloTree(),
+       	reg->getNumberOfSubstitutionTypes(),
+       	0);
   }
 
   // Map from models to counts
-  if (m_Sr_Sm_Sc.find(&reg) == m_Sr_Sm_Sc.end())
-    m_Sr_Sm_Sc[&reg] = t_Sm_Sc();
-  t_Sm_Sc& m_Sm_Sc = m_Sr_Sm_Sc[&reg];
+  if (m_Sr_Sm_Sc.find(reg.get()) == m_Sr_Sm_Sc.end())
+    m_Sr_Sm_Sc[reg.get()] = t_Sm_Sc();
+  t_Sm_Sc& m_Sm_Sc = m_Sr_Sm_Sc[reg.get()];
 
   auto processTree = rltc.getTreeNode(0);
 
-  for (auto speciesId :edgeIds)
+  for (auto speciesId : edgeIds)
   {
     const auto& dagIndexes = rltc.getEdgesIds(speciesId, 0);
 
-    for (auto id:dagIndexes)
+    for (auto id : dagIndexes)
     {
       const auto& edge = processTree->getEdge(id);
       if (edge->getBrLen()) // if edge with model on it
@@ -102,34 +105,34 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
         auto nMod = edge->getNMod();
 
-        auto tm = dynamic_cast<const TransitionModel*>(model->getTargetValue());
+        auto tm = dynamic_pointer_cast<const TransitionModelInterface>(model->targetValue());
 
-        const SubstitutionModel* sm(0);
+        shared_ptr<const SubstitutionModelInterface> sm = nullptr;
 
         if (nMod == 0)
         {
-          sm = dynamic_cast<const SubstitutionModel*>(tm);
+          sm = dynamic_pointer_cast<const SubstitutionModelInterface>(tm);
 
-          if (sm == NULL)
+          if (!sm)
             throw Exception("SubstitutionMappingTools::computeCounts : SubstitutionVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
         }
         else
         {
-          size_t nmod = nMod->getTargetValue();
+          size_t nmod = nMod->targetValue();
 
-          auto ttm = dynamic_cast<const MixedTransitionModel*>(tm);
-          if (ttm == NULL)
+          auto ttm = dynamic_pointer_cast<const MixedTransitionModelInterface>(tm);
+          if (!ttm)
             throw Exception("SubstitutionMappingTools::computeCounts : Expecting Mixed model in branch " + TextTools::toString(speciesId) + ". Got model " + tm->getName());
 
-          sm = dynamic_cast<const SubstitutionModel*>(ttm->getNModel(nmod));
+          sm = dynamic_pointer_cast<const SubstitutionModelInterface>(ttm->getNModel(nmod));
 
-          if (sm == NULL)
+          if (!sm)
             throw Exception("SubstitutionMappingTools::computeCounts : Expecting Substitution model for submodel " + TextTools::toString(nmod) + " of mixed model " + tm->getName() + " in branch " + TextTools::toString(speciesId));
         }
 
-        if (m_Sm_Sc.find(sm) == m_Sm_Sc.end())
+        if (m_Sm_Sc.find(sm.get()) == m_Sm_Sc.end())
         {
-          m_Sm_Sc[sm] = std::make_shared<DecompositionSubstitutionCount>(sm, reg.clone(), weights, distances);
+          m_Sm_Sc[sm.get()] = make_shared<DecompositionSubstitutionCount>(sm, std::shared_ptr<SubstitutionRegisterInterface>(reg->clone()), weights, distances); //Note jdutheil 21/12/22 is cloning needed?
         }
       }
     }
@@ -144,7 +147,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 }
 
 
-ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCounts(
+unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingToolsForASite::computeCounts(
   size_t site,
   LikelihoodCalculationSingleProcess& rltc,
   t_Sm_Sc& m_Sm_Sc,
@@ -152,7 +155,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
   double threshold,
   bool verbose)
 {
-  return 0;
+  return nullptr;
   /*
      if (!rltc.isInitialized())
      throw Exception("SubstitutionMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
@@ -402,16 +405,16 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
 /**************************************************************************************************/
 
-ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNormalizations(
+unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingToolsForASite::computeNormalizations(
   size_t site,
   LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& edgeIds,
-  const BranchedModelSet* nullModels,
-  const SubstitutionRegister& reg,
-  std::shared_ptr<const AlphabetIndex2> distances,
+  shared_ptr<const BranchedModelSet> nullModels,
+  shared_ptr<const SubstitutionRegisterInterface> reg,
+  shared_ptr<const AlphabetIndex2> distances,
   bool verbose)
 {
-  return 0;
+  return nullptr;
   /*
      // Preamble:
      if (!rltc.isInitialized())
@@ -501,42 +504,39 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
 
 /************************************************************/
 
-ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNormalizedCounts(
+unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingToolsForASite::computeNormalizedCounts(
   size_t site,
   LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& edgeIds,
-  const BranchedModelSet* nullModels,
-  const SubstitutionRegister& reg,
-  std::shared_ptr<const AlphabetIndex2> weights,
-  std::shared_ptr<const AlphabetIndex2> distances,
+  shared_ptr<const BranchedModelSet> nullModels,
+  shared_ptr<const SubstitutionRegisterInterface> reg,
+  shared_ptr<const AlphabetIndex2> weights,
+  shared_ptr<const AlphabetIndex2> distances,
   bool perTimeUnit,
   uint siteSize,
   double threshold,
   bool verbose)
 {
   unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(site, rltc, edgeIds, reg, weights, distances, threshold, verbose));
-
   unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(site, rltc, edgeIds, nullModels, reg, distances, verbose));
-
-  return computeNormalizedCounts(counts.get(), factors.get(), edgeIds, perTimeUnit, siteSize);
+  return computeNormalizedCounts(*counts, *factors, edgeIds, perTimeUnit, siteSize);
 }
 
 /************************************************************/
 
-ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNormalizedCounts(
-  const ProbabilisticSubstitutionMapping* counts,
-  const ProbabilisticSubstitutionMapping* factors,
+unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingToolsForASite::computeNormalizedCounts(
+  const ProbabilisticSubstitutionMapping& counts,
+  const ProbabilisticSubstitutionMapping& factors,
   const vector<uint>& edgeIds,
   bool perTimeUnit,
   uint siteSize)
 {
-  unique_ptr<ProbabilisticSubstitutionMapping> normCounts(counts->clone());
-
-  size_t nbTypes = counts->getNumberOfSubstitutionTypes();
+  unique_ptr<ProbabilisticSubstitutionMapping> normCounts(counts.clone());
+  size_t nbTypes = counts.getNumberOfSubstitutionTypes();
 
   // Iterate on branches
 
-  unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt = normCounts->allEdgesIterator();
+  auto brIt = normCounts->allEdgesIterator();
 
   for ( ; !brIt->end(); brIt->next())
   {
@@ -553,8 +553,8 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
       continue;
     }
 
-    shared_ptr<PhyloBranchMapping> brFactor = factors->getEdge(edid);
-    shared_ptr<PhyloBranchMapping> brCount = counts->getEdge(edid);
+    shared_ptr<PhyloBranchMapping> brFactor = factors.getEdge(edid);
+    shared_ptr<PhyloBranchMapping> brCount = counts.getEdge(edid);
 
     const Vdouble& cou = brCount->getCounts()[0];
     const Vdouble& fac = brFactor->getCounts()[0];
@@ -571,5 +571,5 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
     }
   }
 
-  return normCounts.release();
+  return normCounts;
 }

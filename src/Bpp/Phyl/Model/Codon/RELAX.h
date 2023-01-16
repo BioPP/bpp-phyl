@@ -77,28 +77,17 @@ class RELAX :
   public YNGP_M
 {
 public:
-  // gc is a pointer to a constant GeneticCode instance
-  // unlike GeneticCode const* gc - gc is a constant pointer to a GeneticCode instance
-  // see: https://stackoverflow.com/questions/3984989/what-is-the-differnce-between-const-x-a-and-x-const-a-if-x-is-the-class?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-  RELAX(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
+  RELAX(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
 
-  RELAX* clone() const { return new RELAX(*this); }
-
-  RELAX(const RELAX& mod2) :
-    YNGP_M(mod2)
-  {}
-
-  RELAX& operator=(const RELAX& mod2)
-  {
-    YNGP_M::operator=(mod2);
-    return *this;
-  }
+  RELAX* clone() const override { return new RELAX(*this); }
 
 protected:
-  void updateMatrices();
+  void updateMatrices_() override;
 
 public:
-  std::string getName() const { return "RELAX"; }
+  std::string getName() const override { return "RELAX"; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_RELAX_H

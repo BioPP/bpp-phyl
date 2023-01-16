@@ -92,8 +92,8 @@ public:
     rDist_->setNamespace(getNamespace() + nestedRatePrefix_);
     addParameters_(rDist_->getIndependentParameters());
     addParameter_(new Parameter("G01.nu", nu, Parameter::R_PLUS));
-    updateRatesModel();
-    updateMatrices();
+    updateRatesModel_();
+    updateMatrices_();
   }
 
   G2001(const G2001& model) :
@@ -148,7 +148,8 @@ public:
   void addRateParameter() override {}
 
 protected:
-  void updateRatesModel() override
+  
+  void updateRatesModel_() override
   {
     double nu = getParameterValue("nu");
     for (size_t i = 0; i < nbRates_; ++i)

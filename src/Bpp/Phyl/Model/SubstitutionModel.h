@@ -153,12 +153,6 @@ public:
   virtual const FrequencySetInterface& frequencySet() const = 0;
 
   /**
-   * @return Get the FrequencySet of equilibrium of this model. May
-   * be null if not defined.
-   */
-  virtual std::shared_ptr<const FrequencySetInterface> getFrequencySet() const = 0;
-
-  /**
    * @brief Get the number of states.
    *
    * For most models, this equals the size of the alphabet.
@@ -449,13 +443,13 @@ public:
   SubstitutionModelInterface() {}
   virtual ~SubstitutionModelInterface() {}
 
-  SubstitutionModelInterface* clone() const = 0;
+  SubstitutionModelInterface* clone() const override = 0;
 
 protected:
   /**
    * @brief A method for computing all necessary matrices
    */
-  virtual void updateMatrices() = 0;
+  //virtual void updateMatrices() = 0;
 
 public:
   /**
@@ -598,7 +592,7 @@ public:
   ReversibleSubstitutionModelInterface() {}
   virtual ~ReversibleSubstitutionModelInterface() {}
 
-  ReversibleSubstitutionModelInterface* clone() const = 0;
+  ReversibleSubstitutionModelInterface* clone() const override = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_SUBSTITUTIONMODEL_H

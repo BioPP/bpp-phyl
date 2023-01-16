@@ -85,14 +85,14 @@ private:
    * @brief Protein Model which will be used to get similar AA
    * rates.
    */
-  std::shared_ptr<ProteinSubstitutionModelInterface> pAAmodel_;
+  std::unique_ptr<ProteinSubstitutionModelInterface> pAAmodel_;
 
   /**
    * @brief Codon Model which will be copied. Its possible
    * parameters are not copied in this object.
    *
    */
-  std::shared_ptr<CodonSubstitutionModelInterface> pCodonModel_;
+  std::unique_ptr<CodonSubstitutionModelInterface> pCodonModel_;
 
   /**
    * @brief Protein Model which will be used to get similar AA
@@ -100,7 +100,7 @@ private:
    *
    * May be null, if pi is the equilibrium frequency of pCodonModel_.
    */
-  std::shared_ptr<CodonFrequencySetInterface> pFreq_;
+  std::unique_ptr<CodonFrequencySetInterface> pFreq_;
 
   std::shared_ptr<const GeneticCode> pgencode_;
 
@@ -128,9 +128,9 @@ public:
    * @param pgencode the genetic code
    */
   CodonSameAARateSubstitutionModel(
-    std::shared_ptr<ProteinSubstitutionModelInterface> pAAmodel,
-    std::shared_ptr<CodonSubstitutionModelInterface> pCodonModel,
-    std::shared_ptr<CodonFrequencySetInterface> pFreq,
+    std::unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
+    std::unique_ptr<CodonSubstitutionModelInterface> pCodonModel,
+    std::unique_ptr<CodonFrequencySetInterface> pFreq,
     std::shared_ptr<const GeneticCode> pgencode);
 
   CodonSameAARateSubstitutionModel(
@@ -145,7 +145,7 @@ public:
     phi_ (model.phi_)
   {
     compute_();
-    updateMatrices();
+    updateMatrices_();
   }
 
   CodonSameAARateSubstitutionModel& operator=(
@@ -153,9 +153,9 @@ public:
   {
     AbstractSubstitutionModel::operator=(model);
 
-    pAAmodel_ = std::shared_ptr<ProteinSubstitutionModelInterface>(model.pAAmodel_->clone());
-    pCodonModel_ = std::shared_ptr<CodonSubstitutionModelInterface>(model.pCodonModel_->clone());
-    pFreq_ = model.pFreq_ ? std::shared_ptr<CodonFrequencySetInterface>(model.pFreq_->clone()) : 0;
+    pAAmodel_.reset(model.pAAmodel_->clone());
+    pCodonModel_.reset(model.pCodonModel_->clone());
+    pFreq_.reset(model.pFreq_ ? model.pFreq_->clone() : nullptr);
 
     pgencode_ = model.pgencode_;
 
@@ -183,19 +183,9 @@ public:
     return *pAAmodel_;
   }
 
-  std::shared_ptr<const ProteinSubstitutionModelInterface> getProteinModel() const
-  {
-    return pAAmodel_;
-  }
-
   const CodonSubstitutionModelInterface& codonModel() const
   {
     return *pCodonModel_;
-  }
-
-  std::shared_ptr<const CodonSubstitutionModelInterface> getCodonModel() const
-  {
-    return pCodonModel_;
   }
 
   void fireParameterChanged(const ParameterList& parameters) override;
@@ -211,14 +201,14 @@ public:
       pFreq_->setNamespace(prefix + pFreq_->getNamespace());
   }
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return dynamic_pointer_cast<CoreCodonSubstitutionModelInterface>(pCodonModel_)->frequencySet();
+    return pCodonModel_->codonFrequencySet();
   }
-
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+ 
+  bool hasCodonFrequencySet() const override
   {
-    return dynamic_pointer_cast<CoreCodonSubstitutionModelInterface>(pCodonModel_)->getFrequencySet();
+    return pCodonModel_->hasCodonFrequencySet();
   }
 
   std::shared_ptr<const GeneticCode> getGeneticCode() const override
@@ -228,7 +218,7 @@ public:
 
   void setFreq(std::map<int, double>& frequencies) override
   {
-    dynamic_pointer_cast<CoreCodonSubstitutionModelInterface>(pCodonModel_)->setFreq(frequencies);
+    dynamic_cast<CoreCodonSubstitutionModelInterface&>(*pCodonModel_).setFreq(frequencies);
     matchParametersValues(pCodonModel_->getParameters());
   }
 

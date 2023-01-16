@@ -48,7 +48,7 @@ using namespace numeric;
 
 Vdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(size_t pos) const
 {
-  auto rates = getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistribution();
+  auto rates = getLikelihoodCalculationSingleProcess()->substitutionProcess().getRateDistribution();
 
   if (!rates || rates->getNumberOfCategories() == 1)
     return Vdouble(1, 1);
@@ -74,7 +74,7 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(s
 
 VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerClass() const
 {
-  auto rates = getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistribution();
+  auto rates = getLikelihoodCalculationSingleProcess()->substitutionProcess().getRateDistribution();
 
   auto nbS = getLikelihoodCalculationSingleProcess()->getNumberOfSites();
   VVdouble vv(nbS);
@@ -132,8 +132,8 @@ vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbPerSite() co
 
 Vdouble SingleProcessPhyloLikelihood::getPosteriorRatePerSite() const
 {
-  auto probas = getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistribution()->getProbabilities();
-  auto rates = getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistribution()->getCategories();
+  auto probas = getLikelihoodCalculationSingleProcess()->substitutionProcess().getRateDistribution()->getProbabilities();
+  auto rates = getLikelihoodCalculationSingleProcess()->substitutionProcess().getRateDistribution()->getCategories();
 
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -155,7 +155,7 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRatePerSite() const
 
 Vdouble SingleProcessPhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
 {
-  auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode(nodeId)->getTargetValue();
+  auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode(nodeId)->targetValue();
 
   size_t nbSites   = getNumberOfSites();
   VVdouble pp;

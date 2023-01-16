@@ -82,18 +82,25 @@ public:
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
+protected:
   HmmProcessPhyloLikelihood(const HmmProcessPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
-    //AbstractAlignedPhyloLikelihood(mlc),
+    AbstractAlignedPhyloLikelihood(mlc),
+    AbstractSingleDataPhyloLikelihood(mlc),
+    AbstractSequencePhyloLikelihood(mlc),
+    AbstractParametrizable(mlc),
     MultiProcessSequencePhyloLikelihood(mlc),
     Hpep_(std::shared_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone())),
     hmm_(std::shared_ptr<HmmLikelihood_DF>(mlc.hmm_->clone())) {}
 
-  virtual ~HmmProcessPhyloLikelihood() {}
-
   HmmProcessPhyloLikelihood* clone() const override { return new HmmProcessPhyloLikelihood(*this); }
 
 public:
+
+  virtual ~HmmProcessPhyloLikelihood() {}
+
+public:
+
   void setNamespace(const std::string& nameSpace) override;
 
   void fireParameterChanged(const ParameterList& parameters) override;

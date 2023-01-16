@@ -48,37 +48,37 @@ using namespace bpp;
 using namespace std;
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-  const Tree& tree,
-  const SiteContainer& data,
+  shared_ptr<TreeTemplate<Node>> tree,
+  shared_ptr<const SiteContainerInterface> data,
   bool verbose,
   bool includeGaps) :
-  tree_(new TreeTemplate<Node>(tree)),
-  data_(0),
-  alphabet_(data.getAlphabet()),
-  statesMap_(0),
+  tree_(move(tree)),
+  data_(nullptr),
+  alphabet_(data->getAlphabet()),
+  statesMap_(nullptr),
   nbStates_(0)
 {
-  statesMap_ = std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet_, includeGaps));
+  statesMap_ = make_shared<CanonicalStateMap>(alphabet_, includeGaps);
   nbStates_  = statesMap_->getNumberOfModelStates();
   init_(data, verbose);
 }
 
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-  const Tree& tree,
-  const SiteContainer& data,
-  std::shared_ptr<const StateMap> statesMap,
+  shared_ptr<TreeTemplate<Node>> tree,
+  shared_ptr<const SiteContainerInterface> data,
+  std::shared_ptr<const StateMapInterface> statesMap,
   bool verbose) :
-  tree_(new TreeTemplate<Node>(tree)),
-  data_(0),
-  alphabet_(data.getAlphabet()),
+  tree_(move(tree)),
+  data_(nullptr),
+  alphabet_(data->getAlphabet()),
   statesMap_(statesMap),
   nbStates_(statesMap->getNumberOfModelStates())
 {
   init_(data, verbose);
 }
 
-void AbstractTreeParsimonyScore::init_(const SiteContainer& data, bool verbose)
+void AbstractTreeParsimonyScore::init_(shared_ptr<const SiteContainerInterface> data, bool verbose)
 {
   if (tree_->isRooted())
   {
@@ -89,7 +89,8 @@ void AbstractTreeParsimonyScore::init_(const SiteContainer& data, bool verbose)
   TreeTemplateTools::deleteBranchLengths(*tree_->getRootNode());
 
   // Sequences will be in the same order than in the tree:
-  data_ = dynamic_cast<const SiteContainer*>(PatternTools::getSequenceSubset(data, *tree_->getRootNode()));
+  shared_ptr<AlignmentDataInterface> tmp = PatternTools::getSequenceSubset(*data, *tree_->getRootNode());
+  data_ = dynamic_pointer_cast<const SiteContainerInterface>(tmp);
   if (!data_)
     throw Exception("AbstractTreeParsimonyScore::init_ : Data must be plain alignments.");
 

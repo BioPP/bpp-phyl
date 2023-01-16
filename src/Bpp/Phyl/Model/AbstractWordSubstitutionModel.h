@@ -60,7 +60,7 @@ namespace bpp
 class ModelList
 {
 protected:
-  std::vector< std::shared_ptr<SubstitutionModelInterface> > models_;
+  std::vector< std::unique_ptr<SubstitutionModelInterface> > models_;
   std::shared_ptr<WordAlphabet> wordAlphabet_;
 
 public:
@@ -69,13 +69,14 @@ public:
    *
    * @param models A vector of pointers toward substitution model objects.
    */
-  ModelList(const std::vector< std::shared_ptr<SubstitutionModelInterface> >& models) :
-    models_(models), wordAlphabet_(nullptr)
+  ModelList(std::vector< std::unique_ptr<SubstitutionModelInterface> >& models) :
+    models_(models.size()), wordAlphabet_(nullptr)
   {
     std::vector< std::shared_ptr<const Alphabet> > alphabets(models.size());
     for (size_t i = 0; i < models.size(); ++i)
     {
       alphabets[i] = models[i]->getAlphabet();
+      models_[i] = move(models[i]);
     }
     wordAlphabet_ = std::make_shared<WordAlphabet>(alphabets);
   }
@@ -88,14 +89,13 @@ public:
 public:
   size_t size() const { return models_.size(); }
 
-  std::shared_ptr<const SubstitutionModelInterface> getModel(size_t i) const
+  std::unique_ptr<SubstitutionModelInterface> getModel(size_t i)
   {
-    return models_[i];
-  }
-
-   std::shared_ptr<SubstitutionModelInterface> getModel(size_t i)
-  {
-    return models_[i];
+    if (models_[i]) {
+      return std::move(models_[i]);
+    } else {
+      throw NullPointerException("ModelList::getModel. Model was already used once.");
+    }
   }
 
   std::shared_ptr<const WordAlphabet> getWordAlphabet()
@@ -134,7 +134,7 @@ public:
  * enumerated.
  */
 class AbstractWordSubstitutionModel :
-  public virtual AbstractSubstitutionModel
+  public AbstractSubstitutionModel
 {
 private:
   /**
@@ -143,24 +143,29 @@ private:
   bool newAlphabet_;
 
 protected:
+  
+  /**
+   * Vector of shared_ptr, to allow multiple positions to share the same model.
+   */
   std::vector< std::shared_ptr<SubstitutionModelInterface> > VSubMod_;
+  
   std::vector<std::string> VnestedPrefix_;
 
   std::vector<double> Vrate_;
 
 protected:
-  void updateMatrices();
+  void updateMatrices_();
 
   /**
    * @brief Called by updateMatrices to handle specific modifications
    * for inheriting classes
    */
-  virtual void completeMatrices() = 0;
+  virtual void completeMatrices_() = 0;
 
   /**
    * @brief First fill of the generator, from the position model
    */
-  virtual void fillBasicGenerator();
+  virtual void fillBasicGenerator_();
 
 public:
   /**
@@ -189,7 +194,7 @@ public:
    * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
-    std::shared_ptr<SubstitutionModelInterface> model,
+    std::unique_ptr<SubstitutionModelInterface>& model,
     unsigned int num,
     const std::string& prefix);
 
@@ -197,7 +202,7 @@ public:
 
   AbstractWordSubstitutionModel& operator=(const AbstractWordSubstitutionModel&);
 
-  virtual ~AbstractWordSubstitutionModel();
+  virtual ~AbstractWordSubstitutionModel() {}
 
   void setNamespace(const std::string& prefix);
 
@@ -213,14 +218,14 @@ protected:
 public:
 
   /**
-   * @brief returns the ith model, or nullptr if i is not a valid number.
+   * @brief returns the ith model, or throw an exception if i is not a valid number.
    */
-  std::shared_ptr<const SubstitutionModelInterface> getNModel(size_t i) const
+  const SubstitutionModelInterface& nModel(size_t i) const
   {
     if (i < VSubMod_.size())
-      return VSubMod_[i];
+      return *VSubMod_[i];
     else
-      return nullptr;
+      throw NullPointerException("AbstractWordSubstitutionModel::nModel. Invalid model requested.");
   }
 
   size_t getNumberOfModels() const

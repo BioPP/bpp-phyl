@@ -46,11 +46,14 @@ using namespace std;
 
 /****************************************************************************************/
 
-AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(std::shared_ptr<FrequencySet> pfitset, const GeneticCode* pgencode, const string& prefix) :
+AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(
+    shared_ptr<FrequencySetInterface> pfitset,
+    shared_ptr<const GeneticCode> pgencode,
+    const string& prefix) :
   AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false)),
-  protStateMap_(pfitset->shareStateMap()), Ns_(1)
+  protStateMap_(pfitset->getStateMap()), Ns_(1)
 {
-  if (!AlphabetTools::isProteicAlphabet(pfitset_->getAlphabet()))
+  if (!AlphabetTools::isProteicAlphabet(pfitset_->getAlphabet().get()))
     throw Exception("AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel need Proteic Fitness.");
 
   fitName_ = "fit_" + pfitset_->getNamespace();

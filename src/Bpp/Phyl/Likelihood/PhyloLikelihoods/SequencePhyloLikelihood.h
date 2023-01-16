@@ -1,7 +1,7 @@
 //
 // File: SequencePhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mardi 28 avril 2015, ÃÂ  11h 41
 //
 
@@ -62,11 +62,32 @@ namespace bpp
 
 /**
  * @brief Interface
- *
  */
+class SequencePhyloLikelihoodInterface :
+  public virtual SingleDataPhyloLikelihoodInterface
+{
+protected:
 
-class SequencePhyloLikelihood :
-  public AbstractSingleDataPhyloLikelihood
+  virtual ~SequencePhyloLikelihoodInterface() {}
+
+  SequencePhyloLikelihoodInterface* clone() const override = 0;
+
+public:
+  /**
+   * @brief The Sequence Evolution
+   *
+   */
+  virtual const SequenceEvolution& sequenceEvolution() const = 0;
+
+  virtual std::shared_ptr<const SequenceEvolution> getSequenceEvolution() const = 0;
+
+  virtual const size_t getSequenceEvolutionNumber() const = 0;
+
+};
+
+class AbstractSequencePhyloLikelihood :
+  public virtual SequencePhyloLikelihoodInterface,
+  public virtual AbstractSingleDataPhyloLikelihood
 {
 protected:
   /**
@@ -80,42 +101,49 @@ protected:
   size_t nSeqEvol_;
 
 public:
-  SequencePhyloLikelihood(Context& context, SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
+  AbstractSequencePhyloLikelihood(
+      Context& context,
+      std::shared_ptr<SequenceEvolution> se,
+      size_t nSE = 0,
+      size_t nData = 0) :
     AbstractPhyloLikelihood(context),
-    //AbstractAlignedPhyloLikelihood(context, 0),
-    AbstractSingleDataPhyloLikelihood(context, 0, (se.getSubstitutionProcessNumbers().size() != 0) ? se.substitutionProcess(se.getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
-    seqEvol_(&se),
+    AbstractSingleDataPhyloLikelihood(
+	context, 0,
+       	(se->getSubstitutionProcessNumbers().size() != 0) ? se->substitutionProcess(se->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+    seqEvol_(se),
     nSeqEvol_(nSE)
   {}
 
-  SequencePhyloLikelihood(const SequencePhyloLikelihood& asd) :
-    AbstractPhyloLikelihood(asd),
-    //AbstractAlignedPhyloLikelihood(asd),
-    AbstractSingleDataPhyloLikelihood(asd),
-    seqEvol_(asd.seqEvol_),
-    nSeqEvol_(asd.nSeqEvol_)
+  AbstractSequencePhyloLikelihood(const AbstractSequencePhyloLikelihood& aspl):
+      AbstractSingleDataPhyloLikelihood(aspl),
+      seqEvol_(aspl.seqEvol_),
+      nSeqEvol_(aspl.nSeqEvol_)
   {}
 
-  virtual ~SequencePhyloLikelihood() {}
-
-  SequencePhyloLikelihood* clone() const override = 0;
+  AbstractSequencePhyloLikelihood& operator=(const AbstractSequencePhyloLikelihood& aspl)
+  {
+    AbstractSingleDataPhyloLikelihood::operator=(aspl);
+    seqEvol_ = aspl.seqEvol_;
+    nSeqEvol_ = aspl.nSeqEvol_;
+    return *this;
+  }
 
 public:
   /**
    * @brief The Sequence Evolution
    *
    */
-  const SequenceEvolution& sequenceEvolution() const
+  const SequenceEvolution& sequenceEvolution() const override
   {
     return *seqEvol_;
   }
 
-  std::shared_ptr<const SequenceEvolution> getSequenceEvolution() const
+  std::shared_ptr<const SequenceEvolution> getSequenceEvolution() const override
   {
     return seqEvol_;
   }
 
-  const size_t getSequenceEvolutionNumber() const
+  const size_t getSequenceEvolutionNumber() const override
   {
     return nSeqEvol_;
   }
@@ -133,31 +161,37 @@ public:
   }
 };
 
-class AbstractSequencePhyloLikelihood :
-  public SequencePhyloLikelihood,
-  public AbstractParametrizable
+
+
+class AbstractParametrizableSequencePhyloLikelihood :
+  public virtual AbstractSequencePhyloLikelihood,
+  public virtual AbstractParametrizable
 {
 public:
-  AbstractSequencePhyloLikelihood(Context& context, SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
+  AbstractParametrizableSequencePhyloLikelihood(
+      Context& context,
+      std::shared_ptr<SequenceEvolution> se,
+      size_t nSE = 0,
+      size_t nData = 0) :
     AbstractPhyloLikelihood(context),
-    //AbstractAlignedPhyloLikelihood(context, 0),
-    SequencePhyloLikelihood(context, se, nSE, nData),
+    AbstractSequencePhyloLikelihood(context, se, nSE, nData),
     AbstractParametrizable("")
   {
     // initialize INDEPENDENT parameters:
-    addParameters_(se.getIndependentParameters());
+    addParameters_(se->getIndependentParameters());
   }
 
-  AbstractSequencePhyloLikelihood(const AbstractSequencePhyloLikelihood& asd) :
-    AbstractPhyloLikelihood(asd),
-    //AbstractAlignedPhyloLikelihood(asd),
-    SequencePhyloLikelihood(asd),
-    AbstractParametrizable(asd)
+  AbstractParametrizableSequencePhyloLikelihood(const AbstractParametrizableSequencePhyloLikelihood& apspl):
+      AbstractSequencePhyloLikelihood(apspl),
+      AbstractParametrizable(apspl)
   {}
 
-  virtual ~AbstractSequencePhyloLikelihood() {}
-
-  AbstractSequencePhyloLikelihood* clone() const override = 0;
+  AbstractParametrizableSequencePhyloLikelihood& operator=(const AbstractParametrizableSequencePhyloLikelihood& apspl)
+  {
+    AbstractSequencePhyloLikelihood::operator=(apspl);
+    AbstractParametrizable::operator=(apspl);
+    return *this;
+  }
 
 protected:
   virtual void fireParameterChanged(const ParameterList& parameters) override

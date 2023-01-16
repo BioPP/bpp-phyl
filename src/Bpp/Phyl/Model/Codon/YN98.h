@@ -97,7 +97,7 @@ private:
 public:
   YN98(
       std::shared_ptr<const GeneticCode> gc,
-      std::shared_ptr<FrequencySetInterface> codonFreqs);
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
 
   YN98(const YN98& yn98);
 
@@ -112,13 +112,25 @@ public:
 
   const SubstitutionModelInterface& substitutionModel() const override { return *pmodel_; }
 
-  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pmodel_->getGeneticCode(); }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override
+  {
+    return pmodel_->getGeneticCode();
+  }
 
-  double getCodonsMulRate(size_t i, size_t j) const override { return pmodel_->getCodonsMulRate(i, j); }
+  double getCodonsMulRate(size_t i, size_t j) const override
+  {
+    return pmodel_->getCodonsMulRate(i, j);
+  }
 
-  const FrequencySetInterface& frequencySet() const override { return pmodel_->frequencySet();}
+  const CodonFrequencySetInterface& codonFrequencySet() const override
+  { 
+    return pmodel_->codonFrequencySet();
+  }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return pmodel_->getFrequencySet();}
+  bool hasCodonFrequencySet() const override
+  { 
+    return pmodel_->hasCodonFrequencySet();
+  }
 
   void setFreq(std::map<int, double>& frequencies) override
   {
@@ -126,7 +138,7 @@ public:
   }
 
 protected:
-  SubstitutionModelInterface& substitutionModel() override { return *pmodel_; }
+  SubstitutionModelInterface& substitutionModel_() override { return *pmodel_; }
   
 };
 } // end of namespace bpp.

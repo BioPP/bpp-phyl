@@ -132,7 +132,7 @@ public:
    *
    * @return The tree associated to this instance.
    */
-  virtual const Tree& getTopology() const = 0;
+  virtual const Tree& topology() const = 0;
 
   /**
    * @brief Get the current score of this NNISearchable object.

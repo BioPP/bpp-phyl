@@ -67,8 +67,8 @@ namespace bpp
 class SubstitutionMappingToolsForASite
 {
 public:
-  typedef std::map<const SubstitutionModel*, std::shared_ptr<SubstitutionCount > > t_Sm_Sc;
-  typedef std::map<const SubstitutionRegister*, t_Sm_Sc > t_Sr_Sm_Sc;
+  typedef std::map<const SubstitutionModelInterface*, std::shared_ptr<SubstitutionCountInterface>> t_Sm_Sc;
+  typedef std::map<const SubstitutionRegisterInterface*, t_Sm_Sc> t_Sr_Sm_Sc;
 
 private:
   static t_Sr_Sm_Sc m_Sr_Sm_Sc;
@@ -78,6 +78,7 @@ public:
   virtual ~SubstitutionMappingToolsForASite() {}
 
 public:
+  
   /**
    * @brief Methods to compute mapping Trees
    *
@@ -101,16 +102,16 @@ public:
    * @param verbose           Print info to screen.
    * @return A tree <PhyloNode, PhyloBranchMapping>
    */
-  static ProbabilisticSubstitutionMapping* computeCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeCounts(
     size_t site,
     LikelihoodCalculationSingleProcess& rltc,
-    const SubstitutionRegister& reg,
-    std::shared_ptr<const AlphabetIndex2> weights = 0,
-    std::shared_ptr<const AlphabetIndex2> distances = 0,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights = nullptr,
+    std::shared_ptr<const AlphabetIndex2> distances = nullptr,
     double threshold = -1,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.substitutionProcess().parametrizablePhyloTree().getAllEdgesIndexes();
     return computeCounts(site, rltc, edgeIds, reg, weights, distances, threshold, verbose);
   }
 
@@ -129,8 +130,7 @@ public:
    * @param verbose           Print info to screen.
    * @return A tree <PhyloNode, PhyloBranchMapping>
    */
-
-  static ProbabilisticSubstitutionMapping* computeCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeCounts(
     size_t site,
     LikelihoodCalculationSingleProcess& rltc,
     t_Sm_Sc& m_Sm_Sc,
@@ -158,14 +158,13 @@ public:
    * @param verbose           Print info to screen.
    * @return A tree <PhyloNode, PhyloBranchMapping>
    */
-
-  static ProbabilisticSubstitutionMapping* computeCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeCounts(
     size_t site,
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& edgeIds,
-    const SubstitutionRegister& reg,
-    std::shared_ptr<const AlphabetIndex2> weights = 0,
-    std::shared_ptr<const AlphabetIndex2> distances = 0,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights = nullptr,
+    std::shared_ptr<const AlphabetIndex2> distances = nullptr,
     double threshold = -1,
     bool verbose = true);
 
@@ -186,14 +185,13 @@ public:
    * @param verbose           Display progress messages.
    * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
    */
-
-  static ProbabilisticSubstitutionMapping* computeNormalizations(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizations(
     size_t site,
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& edgeIds,
-    const BranchedModelSet* nullModels,
-    const SubstitutionRegister& reg,
-    std::shared_ptr<const AlphabetIndex2> distances = 0,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> distances = nullptr,
     bool verbose = true);
 
   /**
@@ -210,15 +208,15 @@ public:
    * @param verbose           Display progress messages.
    * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
    */
-  static ProbabilisticSubstitutionMapping* computeNormalizations(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizations(
     size_t site,
     LikelihoodCalculationSingleProcess& rltc,
-    const BranchedModelSet* nullModels,
-    const SubstitutionRegister& reg,
-    std::shared_ptr<const AlphabetIndex2> distances = 0,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> distances = nullptr,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.substitutionProcess().parametrizablePhyloTree().getAllEdgesIndexes();
     return computeNormalizations(site, rltc, edgeIds, nullModels, reg, distances, verbose);
   }
 
@@ -251,56 +249,54 @@ public:
    * @param verbose           Display progress messages.
    * @return A tree <PhyloNode, PhyloBranchMapping> of normalized counts..
    */
-
-  static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizedCounts(
     size_t site,
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& edgeIds,
-    const BranchedModelSet* nullModels,
-    const SubstitutionRegister& reg,
-    std::shared_ptr<const AlphabetIndex2> weights = 0,
-    std::shared_ptr<const AlphabetIndex2> distances = 0,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights = nullptr,
+    std::shared_ptr<const AlphabetIndex2> distances = nullptr,
     bool perTimeUnit = false,
     uint siteSize = 1,
     double threshold = -1,
     bool verbose = true);
 
-  static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
-    const ProbabilisticSubstitutionMapping* counts,
-    const ProbabilisticSubstitutionMapping* factors,
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizedCounts(
+    const ProbabilisticSubstitutionMapping& counts,
+    const ProbabilisticSubstitutionMapping& factors,
     const std::vector<uint>& edgeIds,
     bool perTimeUnit = false,
     uint siteSize = 1);
 
-  static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizedCounts(
     size_t site,
     LikelihoodCalculationSingleProcess& rltc,
-    const BranchedModelSet* nullModels,
-    const SubstitutionRegister& reg,
-    std::shared_ptr<const AlphabetIndex2> weights = 0,
-    std::shared_ptr<const AlphabetIndex2> distances = 0,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights = nullptr,
+    std::shared_ptr<const AlphabetIndex2> distances = nullptr,
     bool perTimeUnit = false,
     uint siteSize = 1,
     double threshold = -1,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.substitutionProcess().parametrizablePhyloTree().getAllEdgesIndexes();
     return computeNormalizedCounts(site, rltc, edgeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
   }
 
-  static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
-    const ProbabilisticSubstitutionMapping* counts,
-    const ProbabilisticSubstitutionMapping* factors,
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizedCounts(
+    const ProbabilisticSubstitutionMapping& counts,
+    const ProbabilisticSubstitutionMapping& factors,
     bool perTimeUnit,
     uint siteSize = 1)
   {
-    std::vector<uint> edgeIds = factors->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = factors.getAllEdgesIndexes();
     return computeNormalizedCounts(counts, factors, edgeIds, perTimeUnit, siteSize);
   }
 
   /**
-   *@}
-   *
+   * @} 
    */
 };
 } // end of namespace bpp.

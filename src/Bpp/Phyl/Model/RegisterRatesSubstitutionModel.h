@@ -60,7 +60,8 @@ namespace bpp
  * @see SubstitutionRegister
  */
 class RegisterRatesSubstitutionModel :
-  public AbstractTotallyWrappedSubstitutionModel
+  public AbstractWrappedSubstitutionModel,
+  public AbstractSubstitutionModel
 {
 private:
   /**
@@ -95,17 +96,17 @@ public:
    * @param isNormalized says if model is normalized (default false)
    */
   RegisterRatesSubstitutionModel(
-      std::unique_ptr<const SubstitutionModelInterface> originalModel,
+      std::unique_ptr<SubstitutionModelInterface> originalModel,
       const SubstitutionRegisterInterface& reg,
       bool isNormalized = false);
 
 
   RegisterRatesSubstitutionModel(const RegisterRatesSubstitutionModel& fmsm) :
-      AbstractWrappedModel(fmsm),
-      AbstractWrappedTransitionModel(fmsm),
-      AbstractTotallyWrappedTransitionModel(fmsm),
-      AbstractWrappedSubstitutionModel(fmsm),
-      AbstractTotallyWrappedSubstitutionModel(fmsm),
+    AbstractParameterAliasable(fmsm),
+    AbstractWrappedModel(fmsm),
+    AbstractWrappedTransitionModel(fmsm),
+    AbstractWrappedSubstitutionModel(fmsm),
+    AbstractSubstitutionModel(fmsm),
     originalModel_(fmsm.originalModel_->clone()),
     registerName_(fmsm.registerName_),
     vRegStates_(fmsm.vRegStates_),
@@ -116,7 +117,8 @@ public:
 
   RegisterRatesSubstitutionModel& operator=(const RegisterRatesSubstitutionModel& fmsm)
   {
-    AbstractTotallyWrappedSubstitutionModel::operator=(fmsm);
+    AbstractWrappedSubstitutionModel::operator=(fmsm);
+    AbstractSubstitutionModel::operator=(fmsm);
     
     originalModel_.reset(fmsm.originalModel_->clone());
     registerName_ = fmsm.registerName_;
@@ -149,13 +151,13 @@ public:
   }
 
 protected:
-  SubstitutionModelInterface& substitutionModel() override
+  SubstitutionModelInterface& substitutionModel_() override
   {
     return *originalModel_;
   }
 
 
-  TransitionModelInterface& transitionModel() override
+  TransitionModelInterface& transitionModel_() override
   {
     return *originalModel_;
   }
@@ -163,11 +165,9 @@ protected:
 public:
   void fireParameterChanged(const ParameterList& parameters) override
   {
-    substitutionModel().matchParametersValues(parameters);
-
+    substitutionModel_().matchParametersValues(parameters);
     AbstractParameterAliasable::fireParameterChanged(parameters);
-
-    updateMatrices();
+    updateMatrices_();
   }
 
   size_t getNumberOfStates() const override
@@ -176,8 +176,6 @@ public:
   }
 
 public:
-  void updateMatrices() override;
-
   std::string getName() const override
   {
     return "FromRegister";
@@ -196,12 +194,78 @@ public:
   /**
    * @}
    */
-  void setRate(double rate) override { model().setRate(rate); }
+
+
+   /**
+    * @brief Overrides of AbstractSubstitutionModel and
+    * AbstractWrappedSubstitutionModel.
+    *
+    * @{
+    */
+   const std::vector<int>& getAlphabetStates() const override
+   {
+     return AbstractWrappedSubstitutionModel::getAlphabetStates();
+   }
+  
+   std::vector<size_t> getModelStates(int i) const override
+   {
+     return AbstractWrappedSubstitutionModel::getModelStates(i);
+   }
+  
+   std::vector<size_t> getModelStates(const std::string& s) const override
+   {
+     return AbstractWrappedSubstitutionModel::getModelStates(s);
+   }
+  
+   int getAlphabetStateAsInt(size_t i) const override
+   {
+     return AbstractWrappedSubstitutionModel::getAlphabetStateAsInt(i);
+   }
+  
+   std::string getAlphabetStateAsChar(size_t s) const override
+   {
+     return AbstractWrappedSubstitutionModel::getAlphabetStateAsChar(s);
+   }
+  
+   const Alphabet& alphabet() const override
+   {
+     return AbstractWrappedSubstitutionModel::alphabet();
+   }
+  
+   std::shared_ptr<const Alphabet> getAlphabet() const override
+   {
+     return AbstractWrappedSubstitutionModel::getAlphabet();
+   }
+  
+   const StateMapInterface& stateMap() const override
+   {
+     return AbstractWrappedSubstitutionModel::stateMap();
+   }
+  
+   std::shared_ptr<const StateMapInterface> getStateMap() const override
+   {
+     return AbstractWrappedSubstitutionModel::getStateMap();
+   }
+
+   const FrequencySetInterface& frequencySet() const override
+   {
+     return AbstractWrappedSubstitutionModel::frequencySet();
+   }
+
+   /** @} */
+
+  void setRate(double rate) override { model_().setRate(rate); }
 
   double getRate() const override { return model().getRate(); }
 
 private:
+
   void setRegStates_();
+
+protected:
+
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_REGISTERRATESSUBSTITUTIONMODEL_H

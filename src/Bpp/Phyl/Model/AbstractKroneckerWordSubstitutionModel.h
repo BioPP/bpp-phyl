@@ -50,6 +50,7 @@
 
 namespace bpp
 {
+
 /**
  * @brief Abstract Kronecker Word Model.
  *
@@ -77,7 +78,6 @@ namespace bpp
  * vectors of simultaneously changing positions can be given.
  *
  */
-
 class AbstractKroneckerWordSubstitutionModel :
   public AbstractWordSubstitutionModel
 {
@@ -87,16 +87,12 @@ private:
    *
    * Shortcut : if empty, any number of any positions can change
    * simultaneously
-   *
    */
-
   std::vector<std::set< size_t> > sChangingPos_;
 
   /**
    * @brief vector of generators for computation purposes
-   *
    */
-
   std::vector< RowMatrix<double> > vGenerators_;
 
 protected:
@@ -104,20 +100,18 @@ protected:
 
   /**
    * @brief checks that the vector of changing positions is valid
-   *
    */
-
   bool checkChangingPositions_();
 
 private:
+  
   /**
    * @brief First fill of the generator, from the position model
-   *
    */
-
-  void fillBasicGenerator();
+  void fillBasicGenerator_();
 
 public:
+
   /**
    * @brief Build a new AbstractKroneckerWordSubstitutionModel
    * object from a vector of pointers to SubstitutionModels,
@@ -130,7 +124,6 @@ public:
    *   are owned by the instance.
    * @param prefix the Namespace.
    */
-
   AbstractKroneckerWordSubstitutionModel(
     ModelList& modelList,
     const std::string& prefix);
@@ -149,7 +142,6 @@ public:
    *   positions.
    * @param prefix the Namespace.
    */
-
   AbstractKroneckerWordSubstitutionModel(
     ModelList& modelList,
     const std::vector<std::set< size_t> >& vPos,
@@ -165,9 +157,8 @@ public:
    * @param num The number of models involved.
    * @param prefix the Namespace.
    */
-
   AbstractKroneckerWordSubstitutionModel(
-    std::shared_ptr<SubstitutionModelInterface> pmodel,
+    std::unique_ptr<SubstitutionModelInterface>& pmodel,
     unsigned int num,
     const std::string& prefix);
 
@@ -183,22 +174,21 @@ public:
    *   positions.
    * @param prefix the Namespace.
    */
-
   AbstractKroneckerWordSubstitutionModel(
-    std::shared_ptr<SubstitutionModelInterface> pmodel,
+    std::unique_ptr<SubstitutionModelInterface>& pmodel,
     unsigned int num,
     const std::vector<std::set< size_t> >& vPos,
     const std::string& prefix);
 
 
-  virtual ~AbstractKroneckerWordSubstitutionModel(){}
-
+  virtual ~AbstractKroneckerWordSubstitutionModel() {}
 
   AbstractKroneckerWordSubstitutionModel(const AbstractKroneckerWordSubstitutionModel&);
 
   AbstractKroneckerWordSubstitutionModel& operator=(const AbstractKroneckerWordSubstitutionModel&);
 
 protected:
+  
   /**
    * @brief Constructor for the derived classes only
    */

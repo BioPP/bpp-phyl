@@ -95,8 +95,8 @@ public:
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
@@ -114,10 +114,10 @@ public:
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~CodonDistancePhaseFrequenciesSubstitutionModel() {}
@@ -138,15 +138,16 @@ public:
 
   void setFreq(std::map<int, double>& frequencies) override;
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return AbstractCodonPhaseFrequenciesSubstitutionModel::frequencySet();
+    return AbstractCodonPhaseFrequenciesSubstitutionModel::codonFrequencySet();
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequencySet();
+    return AbstractCodonPhaseFrequenciesSubstitutionModel::hasCodonFrequencySet();
   }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_CODONDISTANCEPHASEFREQUENCIESSUBSTITUTIONMODEL_H

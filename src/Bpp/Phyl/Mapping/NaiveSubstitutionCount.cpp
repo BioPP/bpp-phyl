@@ -42,11 +42,12 @@
 #include "NaiveSubstitutionCount.h"
 
 using namespace bpp;
+using namespace std;
 
-Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
+unique_ptr<Matrix<double>> NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
   size_t n = supportedChars_.size();
-  RowMatrix<double>* mat = new RowMatrix<double>(n, n);
+  auto mat = make_unique<RowMatrix<double>>(n, n);
   for (size_t i = 0; i < n; ++i)
   {
     for (size_t j = 0; j < n; ++j)
@@ -72,9 +73,10 @@ void NaiveSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_
 }
 
 
-LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
+LabelSubstitutionCount::LabelSubstitutionCount(
+    shared_ptr<const SubstitutionModelInterface> model) :
   AbstractSubstitutionCount(
-    new TotalSubstitutionRegister(model->getStateMap())),
+    make_shared<TotalSubstitutionRegister>(model->getStateMap())),
   label_(model->getNumberOfStates(), model->getNumberOfStates()),
   supportedChars_(model->getAlphabetStates())
 {
@@ -92,11 +94,12 @@ LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
   }
 }
 
-LabelSubstitutionCount::LabelSubstitutionCount(const StateMap& statemap) :
+LabelSubstitutionCount::LabelSubstitutionCount(
+    shared_ptr<const StateMapInterface> stateMap) :
   AbstractSubstitutionCount(
-    new TotalSubstitutionRegister(statemap)),
-  label_(statemap.getNumberOfModelStates(), statemap.getNumberOfModelStates()),
-  supportedChars_(statemap.getAlphabetStates())
+    make_shared<TotalSubstitutionRegister>(stateMap)),
+  label_(stateMap->getNumberOfModelStates(), stateMap->getNumberOfModelStates()),
+  supportedChars_(stateMap->getAlphabetStates())
 {
   size_t n = supportedChars_.size();
   double count = 0;
@@ -111,3 +114,4 @@ LabelSubstitutionCount::LabelSubstitutionCount(const StateMap& statemap) :
     }
   }
 }
+

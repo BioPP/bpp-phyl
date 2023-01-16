@@ -74,17 +74,17 @@ private:
   size_t nbSites_;
 
 public:
-  HmmPhyloAlphabet(SetOfAlignedPhyloLikelihood& soap) :
+  HmmPhyloAlphabet(SetOfAlignedPhyloLikelihoodInterface& soap) :
     AbstractParametrizable(""),
-    context_(soap.getContext()),
+    context_(soap.context()),
     vAP_(),
     nbSites_(0)
   {
     const std::vector<size_t>& nphyl = soap.getNumbersOfPhyloLikelihoods();
 
-    for (size_t i = 0; i < nphyl.size(); i++)
+    for (size_t i = 0; i < nphyl.size(); ++i)
     {
-      auto ap = soap.getPhyloLikelihood(nphyl[i]);
+      auto ap = soap.getAlignedPhyloLikelihood(nphyl[i]);
       vAP_.push_back(ap);
       includeParameters_(ap->getParameters());
     }
@@ -94,7 +94,7 @@ public:
 
   HmmPhyloAlphabet(MultiProcessSequencePhyloLikelihood& mpsp) :
     AbstractParametrizable(""),
-    context_(mpsp.getContext()),
+    context_(mpsp.context()),
     vAP_(),
     nbSites_(0)
   {
@@ -140,7 +140,12 @@ public:
     return *vAP_[stateIndex];
   }
 
-  std::shared_ptr<const AlignedPhyloLikelihoodInterface> getPhyloLikelihood(size_t stateIndex) const
+  const AlignedPhyloLikelihoodInterface& alignedPhyloLikelihood(size_t stateIndex) const
+  {
+    return *vAP_[stateIndex];
+  }
+
+  std::shared_ptr<const AlignedPhyloLikelihoodInterface> getAlignedPhyloLikelihood(size_t stateIndex) const
   {
     return vAP_[stateIndex];
   }

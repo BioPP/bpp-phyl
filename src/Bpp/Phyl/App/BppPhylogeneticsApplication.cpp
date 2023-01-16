@@ -122,7 +122,7 @@ std::unique_ptr<SubstitutionProcessCollection> BppPhylogeneticsApplication::getC
 
 
 map<size_t, std::unique_ptr<SequenceEvolution> > BppPhylogeneticsApplication::getProcesses(
-  SubstitutionProcessCollection& collection,
+  shared_ptr<SubstitutionProcessCollection> collection,
   map<string, string>& unparsedParams,
   const std::string& suffix,
   bool suffixIsOptional) const
@@ -135,7 +135,7 @@ map<size_t, std::unique_ptr<SequenceEvolution> > BppPhylogeneticsApplication::ge
 std::unique_ptr<PhyloLikelihoodContainer> BppPhylogeneticsApplication::getPhyloLikelihoods(
   Context& context,
   map<size_t, shared_ptr<SequenceEvolution> > mSeqEvol,
-  SubstitutionProcessCollection& collection,
+  shared_ptr<SubstitutionProcessCollection> collection,
   const map<size_t, shared_ptr<const AlignmentDataInterface> >& mSites,
   const std::string& suffix,
   bool suffixIsOptional) const
@@ -183,7 +183,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
       mSD[1] = dynamic_pointer_cast<SingleDataPhyloLikelihoodInterface>(phylolik);
     else
     {
-      auto sOAP = dynamic_pointer_cast<SetOfPhyloLikelihood>(phylolik);
+      auto sOAP = dynamic_pointer_cast<SetOfPhyloLikelihoodInterface>(phylolik);
       if (sOAP)
       {
         const vector<size_t>& nSD = sOAP->getNumbersOfPhyloLikelihoods();
@@ -221,20 +221,20 @@ void BppPhylogeneticsApplication::fixLikelihood(
             {
               if (vSC)
               {
-                const Site& site = vSC->getSite(i);
+                const Site& site = vSC->site(i);
                 s = site.size();
                 for (size_t j = 0; j < s; ++j)
                 {
                   if (gCode->isStop(site.getValue(j)))
                   {
-                    (*ApplicationTools::error << "Stop Codon at site " << site.getCoordinate() << " in sequence " << vData->getSequence(j).getName()).endLine();
+                    (*ApplicationTools::error << "Stop Codon at site " << site.getCoordinate() << " in sequence " << vData->sequence(j).getName()).endLine();
                     f = true;
                   }
                 }
               }
               else
               {
-                const ProbabilisticSite& site = pSC->getSite(i);
+                const ProbabilisticSite& site = pSC->site(i);
                 s = site.size();
                 for (size_t j = 0; j < s; ++j)
                 {
@@ -246,7 +246,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
 
                   if (!g)
                   {
-                    (*ApplicationTools::error << "Only stop Codons at site " << site.getCoordinate() << " in sequence " << vData->getSequence(j).getName()).endLine();
+                    (*ApplicationTools::error << "Only stop Codons at site " << site.getCoordinate() << " in sequence " << vData->sequence(j).getName()).endLine();
                     f = true;
                   }
                 }
@@ -268,7 +268,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
           {
             if (!std::isnormal(sDP->getLogLikelihoodForASite(i - 1)))
             {
-              ApplicationTools::displayResult("Ignore saturated site", vData->getSite(i - 1).getCoordinate());
+              ApplicationTools::displayResult("Ignore saturated site", vData->site(i - 1).getCoordinate());
               vData->deleteSites(i - 1, 1);
             }
           }
@@ -284,7 +284,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
           ApplicationTools::displayError("!!! Looking at each site:");
           for (unsigned int i = 0; i < vData->getNumberOfSites(); i++)
           {
-            (*ApplicationTools::error << "Site " << vData->getSite(i).getCoordinate() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
+            (*ApplicationTools::error << "Site " << vData->site(i).getCoordinate() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
           }
           ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
           exit(1);

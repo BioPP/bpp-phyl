@@ -70,7 +70,7 @@ protected:
   /**
    * redefined mixed model pointer
    */
-  std::shared_ptr<const MixtureOfASubstitutionModel> pmixsubmodel_;
+  const MixtureOfASubstitutionModel* mixedSubModelPtr_;
 
   /**
    * @brief indexes of 2 codons states between which the substitution is
@@ -81,18 +81,18 @@ protected:
 public:
   YNGP_M(const std::string& name) :
     AbstractBiblioMixedTransitionModel(name),
-    pmixsubmodel_(),
+    mixedSubModelPtr_(),
     synfrom_(),
     synto_()
   {}
 
   YNGP_M(const YNGP_M& mod2) :
     AbstractBiblioMixedTransitionModel(mod2),
-    pmixsubmodel_(),
+    mixedSubModelPtr_(),
     synfrom_(mod2.synfrom_),
     synto_(mod2.synto_)
   {
-    pmixsubmodel_ = dynamic_pointer_cast<const MixtureOfASubstitutionModel>(getMixedModel());
+    mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
   }
 
   virtual YNGP_M* clone() const override = 0;
@@ -101,7 +101,7 @@ public:
   {
     AbstractBiblioMixedTransitionModel::operator=(mod2);
 
-    pmixsubmodel_ = dynamic_pointer_cast<const MixtureOfASubstitutionModel>(getMixedModel());
+    mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
     synfrom_ = mod2.synfrom_;
     synto_ = mod2.synto_;

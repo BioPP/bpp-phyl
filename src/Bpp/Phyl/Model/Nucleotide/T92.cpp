@@ -52,9 +52,9 @@ using namespace std;
 
 /******************************************************************************/
 
-T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
+T92::T92(shared_ptr<const NucleicAlphabet> alpha, double kappa, double theta) :
   AbstractParameterAliasable("T92."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "T92."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "T92."),
   kappa_(kappa),
   theta_(theta),
   k_(),
@@ -69,14 +69,14 @@ T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
   p_(size_, size_)
 {
   addParameter_(new Parameter("T92.kappa", kappa, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("T92.theta", theta, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("T92.theta", theta, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
   p_.resize(size_, size_);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void T92::updateMatrices()
+void T92::updateMatrices_()
 {
   kappa_ = getParameterValue("kappa");
   theta_ = getParameterValue("theta");
@@ -86,7 +86,6 @@ void T92::updateMatrices()
   piT_ = (1 - theta_) / 2;
   k_ = (kappa_ + 1.) / 2.;
   r_ = isScalable() ? 2. / (1. + 2. * theta_ * kappa_ - 2. * theta_ * theta_ * kappa_) : 1;
-
 
   freq_[0] = piA_;
   freq_[1] = piC_;
@@ -445,7 +444,7 @@ void T92::setFreq(std::map<int, double>& freqs)
 {
   double f = (freqs[1] + freqs[2]) / (freqs[0] + freqs[1] + freqs[2] + freqs[3]);
   setParameterValue("theta", f);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/

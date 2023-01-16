@@ -106,8 +106,8 @@ public:
    */
   RHomogeneousTreeLikelihood(
     const Tree& tree,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true,
     bool usePatterns = true);
@@ -129,9 +129,9 @@ public:
    */
   RHomogeneousTreeLikelihood(
     const Tree& tree,
-    const AlignedValuesContainer& data,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true,
     bool usePatterns = true);
@@ -158,7 +158,7 @@ public:
    *
    * @{
    */
-  void setData(const AlignedValuesContainer& sites);
+  void setData(const AlignmentDataInterface& sites);
   double getLikelihood() const;
   double getLogLikelihood() const;
   double getLikelihoodForASite (size_t site) const;
@@ -215,8 +215,9 @@ public:
 public:
   // Specific methods:
 
-  DRASRTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
-  const DRASRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
+  DRASRTreeLikelihoodData& likelihoodData() { return *likelihoodData_; }
+
+  const DRASRTreeLikelihoodData& likelihoodData() const { return *likelihoodData_; }
 
   void computeTreeLikelihood();
 

@@ -90,20 +90,9 @@ private:
    */
   mutable Eigen::VectorXd Pi_, dPi_, d2Pi_;
 
-protected:
-
-  BranchModelInterface& getModel()
-  {
-    return *subModel_;
-  }
-
-  TransitionModelInterface& getTransitionModel()
-  {
-    return *subModel_;
-  }
-
 public:
   TransitionFromTransitionModel(const TransitionModelInterface& originalModel) :
+    AbstractParameterAliasable("TransitionFrom." + originalModel.getNamespace()),
     AbstractWrappedModel("TransitionFrom." + originalModel.getNamespace()),
     subModel_(originalModel.clone()),
     size_(originalModel.getNumberOfStates()),
@@ -114,6 +103,7 @@ public:
   }
 
   TransitionFromTransitionModel(const TransitionFromTransitionModel& fmsm) :
+    AbstractParameterAliasable(fmsm),
     AbstractWrappedModel(fmsm),
     subModel_(fmsm.subModel_->clone()),
     size_(fmsm.size_),
@@ -135,7 +125,7 @@ public:
     return *this;
   }
 
-  ~TransitionFromTransitionModel() {}
+  virtual ~TransitionFromTransitionModel() {}
 
   TransitionFromTransitionModel* clone() const override { return new TransitionFromTransitionModel(*this); }
 
@@ -143,7 +133,7 @@ public:
   void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
-    if (getModel().matchParametersValues(parameters))
+    if (model_().matchParametersValues(parameters))
       tref_ = -1;
   }
 
@@ -152,17 +142,7 @@ public:
     return *subModel_;
   }
 
-  BranchModelInterface& model() override
-  {
-    return *subModel_;
-  }
-
   const TransitionModelInterface& transitionModel() const
-  {
-    return *subModel_;
-  }
-
-  TransitionModelInterface& transitionModel()
   {
     return *subModel_;
   }
@@ -173,19 +153,22 @@ public:
 
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
   {
-    transitionModel().setFreqFromData(data, pseudoCount);
+    transitionModel_().setFreqFromData(data, pseudoCount);
   }
 
   virtual void setFreq(std::map<int, double>& m)
   {
-    transitionModel().setFreq(m);
+    transitionModel_().setFreq(m);
   }
 
   double getRate() const override { return transitionModel().getRate(); }
 
-  void setRate(double rate) override { return transitionModel().setRate(rate); }
+  void setRate(double rate) override { return transitionModel_().setRate(rate); }
 
-  double getInitValue(size_t i, int state) const override { return transitionModel().getInitValue(i, state); }
+  double getInitValue(size_t i, int state) const override
+  {
+    return transitionModel().getInitValue(i, state);
+  }
 
   std::string getName() const override
   {
@@ -194,9 +177,22 @@ public:
 
   void addRateParameter() override
   {
-    getModel().addRateParameter();
-    addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
+    model_().addRateParameter();
+    addParameter_(new Parameter(getNamespace() + "rate", model().getRate(), Parameter::R_PLUS_STAR));
   }
+
+protected:
+  
+  BranchModelInterface& model_()
+  {
+    return *subModel_;
+  }
+
+  TransitionModelInterface& transitionModel_()
+  {
+    return *subModel_;
+  }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_TRANSITIONFROMTRANSITIONMODEL_H

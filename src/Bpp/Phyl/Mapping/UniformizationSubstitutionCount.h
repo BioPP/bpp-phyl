@@ -55,7 +55,6 @@ namespace bpp
  *
  * @author Julien Dutheil
  */
-
 class UniformizationSubstitutionCount :
   public AbstractSubstitutionCount,
   public AbstractWeightedSubstitutionCount,
@@ -79,7 +78,7 @@ public:
       std::shared_ptr<const AlphabetIndex2> distances = nullptr);
 
   UniformizationSubstitutionCount(
-      std::shared_ptr<const StateMapInterface> statemap,
+      const StateMapInterface& stateMap,
       std::shared_ptr<const SubstitutionRegisterInterface> reg,
       std::shared_ptr<const AlphabetIndex2> weights = nullptr,
       std::shared_ptr<const AlphabetIndex2> distances = nullptr);

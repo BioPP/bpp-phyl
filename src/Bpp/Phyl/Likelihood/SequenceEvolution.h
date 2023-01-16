@@ -80,7 +80,7 @@ public:
   virtual const SubstitutionProcessInterface& substitutionProcess(size_t number) const = 0;
   
   virtual std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess(size_t number) const = 0;
-
+  
   const StateMapInterface& stateMap() const
   {
     return substitutionProcess(getSubstitutionProcessNumbers()[0]).stateMap();
@@ -96,7 +96,6 @@ public:
    *
    * @return A ParameterList with all branch lengths.
    */
-
   virtual ParameterList getBranchLengthParameters(bool independent) const = 0;
 
   /**
@@ -104,7 +103,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getSubstitutionModelParameters(bool independent) const = 0;
 
   /**
@@ -112,7 +110,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getSubstitutionProcessParameters(bool independent) const = 0;
 
   /**
@@ -120,7 +117,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getRateDistributionParameters(bool independent) const = 0;
 
   /**
@@ -128,7 +124,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getRootFrequenciesParameters(bool independent) const = 0;
 
 
@@ -140,7 +135,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getNonDerivableParameters() const = 0;
 };
 } // end namespace bpp

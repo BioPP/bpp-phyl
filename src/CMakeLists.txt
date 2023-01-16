@@ -60,7 +60,6 @@ set (CPP_FILES
   Bpp/Phyl/Legacy/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Legacy/Likelihood/RASTools.cpp
-  Bpp/Phyl/Legacy/Likelihood/RHomogeneousClockTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
@@ -103,7 +102,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfPhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.cpp

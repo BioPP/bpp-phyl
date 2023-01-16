@@ -126,18 +126,18 @@ protected:
     return subModel_->getFrequencies_();
   }
 
-  SubstitutionModelInterface& substitutionModel()
+  SubstitutionModelInterface& substitutionModel_()
   {
     return *subModel_;
   }
 
 
-  TransitionModelInterface& transitionModel() override
+  TransitionModelInterface& transitionModel_() override
   {
     return *subModel_;
   }
 
-  BranchModelInterface& model() override
+  BranchModelInterface& model_()
   {
     return *subModel_;
   }
@@ -145,20 +145,20 @@ protected:
 public:
   virtual void addRateParameter() override
   {
-    model().addRateParameter();
+    model_().addRateParameter();
     addParameter_(new Parameter(getNamespace() + "rate", model().getRate(), Parameter::R_PLUS_STAR));
   }
 
   virtual void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
-    model().matchParametersValues(parameters);
+    model_().matchParametersValues(parameters);
   }
 
   virtual void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix + nestedPrefix_);
-    model().setNamespace(prefix + nestedPrefix_);
+    model_().setNamespace(prefix + nestedPrefix_);
   }
 };
 } // end of namespace bpp.

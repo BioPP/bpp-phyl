@@ -77,7 +77,7 @@ const string Newick::getFormatDescription() const
 /*  INPUT */
 /**********************************************************/
 
-TreeTemplate<Node>* Newick::readTree(istream& in) const
+unique_ptr<TreeTemplate<Node>> Newick::readTreeTemplate(istream& in) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -109,7 +109,7 @@ TreeTemplate<Node>* Newick::readTree(istream& in) const
 
 /*********************************************************************************/
 
-PhyloTree* Newick::readPhyloTree(istream& in) const
+unique_ptr<PhyloTree> Newick::readPhyloTree(istream& in) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -141,7 +141,7 @@ PhyloTree* Newick::readPhyloTree(istream& in) const
 
 /******************************************************************************/
 
-void Newick::readTrees(istream& in, vector<Tree*>& trees) const
+void Newick::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -172,7 +172,7 @@ void Newick::readTrees(istream& in, vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-void Newick::readPhyloTrees(istream& in, vector<PhyloTree*>& trees) const
+void Newick::readPhyloTrees(istream& in, vector<unique_ptr<PhyloTree>>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -369,16 +369,15 @@ shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<Phy
 
 /******************************************************************************/
 
-PhyloTree* Newick::parenthesisToPhyloTree(const string& description, bool bootstrap, const string& propertyName, bool withId, bool verbose) const
+unique_ptr<PhyloTree> Newick::parenthesisToPhyloTree(const string& description, bool bootstrap, const string& propertyName, bool withId, bool verbose) const
 {
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
     throw Exception("Newick::parenthesisToTree(). Bad format: no semi-colon found.");
   string content = description.substr(0, semi);
   unsigned int nodeCounter = 0;
-  PhyloTree* tree = new PhyloTree();
-  shared_ptr<PhyloNode>  root = parenthesisToNode(*tree, 0, content, nodeCounter, bootstrap, propertyName, withId, verbose);
-
+  auto tree = make_unique<PhyloTree>();
+  shared_ptr<PhyloNode> root = parenthesisToNode(*tree, 0, content, nodeCounter, bootstrap, propertyName, withId, verbose);
   tree->rootAt(root);
 
   if (verbose)

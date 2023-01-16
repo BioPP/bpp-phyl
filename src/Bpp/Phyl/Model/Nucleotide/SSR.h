@@ -110,17 +110,21 @@ public:
 
   virtual ~SSR() {}
 
-  SSR* clone() const { return new SSR(*this); }
+  SSR* clone() const override { return new SSR(*this); }
 
 public:
-  std::string getName() const { return "SSR"; }
-
-  void updateMatrices();
+  
+  std::string getName() const override { return "SSR"; }
 
   /**
    * @brief This method is redefined to actualize the corresponding parameters theta too.
    */
-  void setFreq(std::map<int, double>&);
+  void setFreq(std::map<int, double>&) override;
+  
+protected:
+
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_SSR_H

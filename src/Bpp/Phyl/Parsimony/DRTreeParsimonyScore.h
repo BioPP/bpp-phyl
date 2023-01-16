@@ -64,13 +64,13 @@ private:
 
 public:
   DRTreeParsimonyScore(
-    std::shared_ptr< const TreeTemplate<Node> > tree,
+    std::shared_ptr<TreeTemplate<Node>> tree,
     std::shared_ptr<const SiteContainerInterface> data,
     bool verbose = true,
     bool includeGaps = false);
 
   DRTreeParsimonyScore(
-    std::shared_ptr< const TreeTemplate<Node> > tree,
+    std::shared_ptr<TreeTemplate<Node>> tree,
     std::shared_ptr<const SiteContainerInterface> data,
     std::shared_ptr<const StateMapInterface> statesMap,
     bool verbose = true);
@@ -172,7 +172,7 @@ public:
 
   void doNNI(int nodeId) override;
 
-  const Tree& getTopology() const override { return tree(); }
+  const Tree& topology() const override { return tree(); }
 
   void topologyChangeTested(const TopologyChangeEvent& event) override
   {

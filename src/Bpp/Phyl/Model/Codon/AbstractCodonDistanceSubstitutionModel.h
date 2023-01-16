@@ -145,14 +145,14 @@ public:
 
   double getCodonsMulRate(size_t i, size_t j) const override;
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
     throw NullPointerException("AbstractCodonDistanceSubstitutionModel::frequencySet. No associated FrequencySet.");
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return nullptr;
+    return false;
   }
 
   void setFreq(std::map<int, double>& frequencies) override {}

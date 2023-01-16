@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -53,7 +53,7 @@ namespace bpp
 {
 /**
  * @brief The Le et al  (2008) UL2 substitution model for proteins.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * This model is a mixture of two models built by an unsupervised
  * method (see ref). The submodels are called M1 & M2.
@@ -85,10 +85,9 @@ private:
     string name_;
 
 public:
-    EmbeddedModel(const ProteicAlphabet* alpha, string name);
-    virtual ~EmbeddedModel() {}
-    EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
-    string getName() const { return name_;}
+    EmbeddedModel(std::shared_ptr<const ProteicAlphabet> alpha, string name);
+    EmbeddedModel* clone() const override { return new EmbeddedModel(*this); }
+    string getName() const override { return name_; }
     double getProportion() const { return proportion_;}
   };
 
@@ -97,24 +96,12 @@ public:
    * @brief Build a  UL2 model, with original equilibrium frequencies, probabilities and rates.
    *
    * @param alpha A proteic alphabet.
-   *
    */
+  LLG08_UL2(std::shared_ptr<const ProteicAlphabet> alpha);
 
-  LLG08_UL2(const ProteicAlphabet* alpha);
+  LLG08_UL2* clone() const override { return new LLG08_UL2(*this); }
 
-  LLG08_UL2* clone() const { return new LLG08_UL2(*this); }
-
-  LLG08_UL2(const LLG08_UL2& mod2) :
-    AbstractBiblioMixedTransitionModel(mod2)
-  {}
-
-  LLG08_UL2& operator=(const LLG08_UL2& mod2)
-  {
-    AbstractBiblioMixedTransitionModel::operator=(mod2);
-    return *this;
-  }
-
-  std::string getName() const { return "LLG08_UL2"; }
+  std::string getName() const override { return "LLG08_UL2"; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_LLG08_UL2_H

@@ -47,6 +47,9 @@
 #include "../../Model/AbstractSubstitutionModel.h"
 #include "SubstitutionModelSet.h"
 
+//From the STL:
+#include <memory>
+
 namespace bpp
 {
 /**
@@ -114,12 +117,10 @@ namespace bpp
  * There is a method ("complete") that creates an additional
  * hypernode to ensure that all submodels belong to at least an
  * hypernode.
- *
- *
  */
-
 class MixedSubstitutionModelSet :
-  public SubstitutionModelSet
+  public SubstitutionModelSet,
+  public std::enable_shared_from_this<MixedSubstitutionModelSet>
 {
 public:
   class HyperNode
@@ -142,7 +143,7 @@ public:
         return *this;
       }
 
-      ~Node(){}
+      virtual ~Node(){}
 
       Node& operator=(const Vuint& n)
       {
@@ -159,30 +160,22 @@ public:
 
       /**
        * @brief Cumulates the elements of the given Node into this one.
-       *
        */
-
       Node& operator+=(const Node&);
 
       /**
        * @brief checks if this Node is included in another one.
-       *
        */
-
       bool operator<=(const Node&) const;
 
       /**
        * @brief checks if this HyperNode includes another one.
-       *
        */
-
       bool operator>=(const Node&) const;
 
       /**
        * @brief checks if this Node intersects another one.
-       *
        */
-
       bool intersects(const Node&) const;
 
       uint operator[](size_t i) const { return vNumb_[i]; }
@@ -193,20 +186,16 @@ private:
 
     /**
      * @brief the coordinates of the Nodes that are not used.
-     *
      */
-
     Vuint vUnused_;
 
     /**
      * @brief probability of this HyperNode.
-     *
      */
-
     double proba_;
 
 public:
-    HyperNode(const MixedSubstitutionModelSet*);
+    HyperNode(std::shared_ptr<const MixedSubstitutionModelSet>);
     HyperNode(const HyperNode&);
     HyperNode& operator=(const HyperNode&);
     ~HyperNode(){}

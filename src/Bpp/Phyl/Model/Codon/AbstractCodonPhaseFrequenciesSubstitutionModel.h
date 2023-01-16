@@ -74,7 +74,7 @@ private:
   /**
    * @brief Position dependent version of Codon Frequencies Set
    */
-  std::shared_ptr<WordFrequencySetInterface> posfreqset_;
+  std::unique_ptr<CodonFrequencySetInterface> posFreqSet_;
   std::string freqName_;
 
 public:
@@ -86,20 +86,20 @@ public:
    * @param prefix the Namespace
    */
   AbstractCodonPhaseFrequenciesSubstitutionModel(
-    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
     const std::string& prefix);
 
   AbstractCodonPhaseFrequenciesSubstitutionModel(const AbstractCodonPhaseFrequenciesSubstitutionModel& model) :
     AbstractParameterAliasable(model),
-    posfreqset_(model.posfreqset_->clone()),
+    posFreqSet_(model.posFreqSet_->clone()),
     freqName_(model.freqName_)
   {}
 
   AbstractCodonPhaseFrequenciesSubstitutionModel& operator=(const AbstractCodonPhaseFrequenciesSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    posfreqset_   = std::shared_ptr<WordFrequencySetInterface>(model.posfreqset_->clone());
-    freqName_   = model.freqName_;
+    posFreqSet_.reset(model.posFreqSet_->clone());
+    freqName_ = model.freqName_;
 
     return *this;
   }
@@ -118,30 +118,21 @@ public:
   void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
-    posfreqset_->setNamespace(prefix + freqName_);
+    posFreqSet_->setNamespace(prefix + freqName_);
   }
 
   double getCodonsMulRate(size_t, size_t) const override;
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return *posfreqset_;
+    return *posFreqSet_;
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return posfreqset_;
+    return (posFreqSet_ != nullptr);
   }
 
-  const WordFrequencySetInterface& wordFrequencySet() const
-  {
-    return *posfreqset_;
-  }
-
-  std::shared_ptr<const WordFrequencySetInterface> getWordFrequencySet() const
-  {
-    return posfreqset_;
-  }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONPHASEFREQUENCIESSUBSTITUTIONMODEL_H

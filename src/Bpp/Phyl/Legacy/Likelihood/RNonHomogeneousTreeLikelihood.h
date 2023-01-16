@@ -86,7 +86,7 @@ class RNonHomogeneousTreeLikelihood :
   public AbstractNonHomogeneousTreeLikelihood
 {
 private:
-  mutable DRASRTreeLikelihoodData* likelihoodData_;
+  mutable std::shared_ptr<DRASRTreeLikelihoodData> likelihoodData_;
   double minusLogLik_;
 
 public:
@@ -107,8 +107,8 @@ public:
    */
   RNonHomogeneousTreeLikelihood(
     const Tree& tree,
-    SubstitutionModelSet* modelSet,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool verbose = true,
     bool usePatterns = true,
     bool reparametrizeRoot = false);
@@ -129,9 +129,9 @@ public:
    */
   RNonHomogeneousTreeLikelihood(
     const Tree& tree,
-    const AlignedValuesContainer& data,
-    SubstitutionModelSet* modelSet,
-    DiscreteDistribution* rDist,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool verbose = true,
     bool usePatterns = true,
     bool reparametrizeRoot = false);
@@ -158,7 +158,7 @@ public:
    *
    * @{
    */
-  void setData(const AlignedValuesContainer& sites);
+  void setData(const AlignmentDataInterface& sites);
   double getLikelihood() const;
   double getLogLikelihood() const;
   double getLikelihoodForASite(size_t site) const;
@@ -214,8 +214,9 @@ public:
 public:
   // Specific methods:
 
-  DRASRTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
-  const DRASRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
+  DRASRTreeLikelihoodData& likelihoodData() { return *likelihoodData_; }
+
+  const DRASRTreeLikelihoodData& likelihoodData() const { return *likelihoodData_; }
 
   virtual void computeTreeLikelihood();
 

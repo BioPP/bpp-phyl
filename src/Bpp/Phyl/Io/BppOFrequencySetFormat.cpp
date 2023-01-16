@@ -258,7 +258,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       if (args.find("frequency1") == args.end())
         throw Exception("BppOFrequencySetFormat::read. Missing argument 'frequency' or 'frequency1' for frequencies set 'Word'.");
       vector<string> v_sAFS;
-      vector<std::shared_ptr<FrequencySetInterface> > v_AFS;
+      vector<unique_ptr<FrequencySetInterface>> v_AFS;
       unsigned int nbfreq = 1;
 
       while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
@@ -337,7 +337,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       if (args.find("frequency1") == args.end())
         throw Exception("BppOFrequencySetFormat::read. Missing argument 'frequency' or 'frequency1' for frequencies set.");
       vector<string> v_sAFS;
-      vector<std::shared_ptr<FrequencySetInterface> > v_AFS;
+      vector<unique_ptr<FrequencySetInterface>> v_AFS;
       unsigned int nbfreq = 1;
 
       while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
@@ -678,7 +678,7 @@ void BppOFrequencySetFormat::writeFrequencySet(
         if (i != 0)
           out << ", ";
         out << "frequency" << i + 1 << "=";
-        writeFrequencySet(*pWFI.getFrequencySetForLetter(i), out, globalAliases, writtenNames);
+        writeFrequencySet(pWFI.frequencySetForLetter(i), out, globalAliases, writtenNames);
       }
       comma = true;
     }
@@ -693,7 +693,7 @@ void BppOFrequencySetFormat::writeFrequencySet(
         if (i != 0)
           out << ", ";
         out << "frequency=";
-        writeFrequencySet(*pWFU.getFrequencySetForLetter(i), out, globalAliases, writtenNames);
+        writeFrequencySet(pWFU.frequencySetForLetter(i), out, globalAliases, writtenNames);
       }
       comma = true;
     }
@@ -717,14 +717,13 @@ void BppOFrequencySetFormat::writeFrequencySet(
   // FullPerAA
   try {
     auto pFPA = dynamic_cast<const FullPerAACodonFrequencySet&>(freqset);
-    auto ppfs = pFPA.getProteinFrequencySet();
     out << "protein_frequencies=";
 
-    if (ppfs)
-      writeFrequencySet(*ppfs, out, globalAliases, writtenNames);
-    else
+    if (pFPA.hasProteinFrequencySet()) {
+      writeFrequencySet(pFPA.proteinFrequencySet(), out, globalAliases, writtenNames);
+    } else {
       out << "None";
-
+    }
     comma = true;
 
     unsigned short meth = pFPA.getMethod();

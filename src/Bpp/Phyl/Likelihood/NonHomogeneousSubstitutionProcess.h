@@ -1,7 +1,7 @@
 //
 // File: NonHomogeneousSubstitutionProcess.h
 // Authors:
-//   Julien Dutheil, Bastien Boussau, Laurent GuÃÂ©guen
+//   Julien Dutheil, Bastien Boussau, Laurent Guéguen
 // Created: jeudi 20 juin 2013, ÃÂ  23h 08
 //
 
@@ -119,7 +119,7 @@ private:
    * @brief Contains all models used in this tree.
    */
 
-  std::vector<std::shared_ptr<BranchModelInterface> > modelSet_;
+  std::vector<std::shared_ptr<BranchModelInterface>> modelSet_;
 
   /**
    *  @brief Rate Distribution
@@ -130,7 +130,7 @@ private:
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
    */
   mutable std::map<unsigned int, size_t> nodeToModel_;
-  mutable std::map<size_t, std::vector<unsigned int> > modelToNodes_;
+  mutable std::map<size_t, std::vector<unsigned int>> modelToNodes_;
 
   /**
    * @brief Parameters for each model in the set.
@@ -509,7 +509,7 @@ public:
    *        (0 if stationary).
    * @param scenario (optional) the scenario used (in case of Mixed Models)
    */
-  static AbstractAutonomousSubstitutionProcess* createHomogeneousSubstitutionProcess(
+  static std::unique_ptr<AutonomousSubstitutionProcessInterface> createHomogeneousSubstitutionProcess(
     std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rdist,
     std::shared_ptr<PhyloTree> tree,
@@ -532,7 +532,7 @@ public:
    *
    * @param scenario (optional) the scenario used (in case of Mixed Models)
    */
-  static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
+  static std::unique_ptr<NonHomogeneousSubstitutionProcess> createNonHomogeneousSubstitutionProcess(
     std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rdist,
     std::shared_ptr<PhyloTree> tree,

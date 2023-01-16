@@ -192,57 +192,50 @@ public:
 
   size_t getNumberOfModelPaths() const { return vModelPaths_.size(); }
 
-  std::shared_ptr<ModelPath> getModelPath(size_t i) {return vModelPaths_[i]; }
+  std::shared_ptr<ModelPath> getModelPath(size_t i) { return vModelPaths_[i]; }
 
-  std::shared_ptr<const ModelPath> getModelPath(size_t i) const {return vModelPaths_[i]; }
+  std::shared_ptr<const ModelPath> getModelPath(size_t i) const { return vModelPaths_[i]; }
 
-  /*
+  /**
    * @brief return models found in several paths
-   *
    */
-
   std::vector<std::shared_ptr<MixedTransitionModelInterface> > getModels() const;
 
-  /*
-   *@brief Checks if all the path (ie hypernodes) are exclusive.
-   *
+  /**
+   * @brief Checks if all the path (ie hypernodes) are exclusive.
    */
-
   bool hasExclusivePaths() const;
 
 //  void fireParameterChanged(const ParameterList& parameters);
 
-  /*
-   *@brief compute the probabilities in all the ModelPaths
+  /**
+   * @brief compute the probabilities in all the ModelPaths
    *
    * The probabilities of the hypernodes are computed from the lead
    * mixed model of the FIRST ModelPath (and not of the others).
-   *
    */
 
   void computeModelPathsProbabilities();
 
-  /*
-   *@brief computes the probability of an ModelPath, given the
+  /**
+   * @brief computes the probability of a ModelPath, given the
    *     conditional probabilities of the submodels computed from the
    *     hypernodes of this ModelScenario object. If the
    *     ModelPath does not match the structure of allowed by this
    *     ModelScenario, an Exception is thrown.
    *
-   *     The probability of an ModelPath is the product -- on the set
+   *     The probability of a ModelPath is the product -- on the set
    *     of the mixed models -- of the sums of the conditional
    *     probabilities of the submodels that belong to this hypernode
    *     for each mixed model.
    *
-   *@param hn the ModelPath which conditional probability is computed.
+   * @param hn the ModelPath which conditional probability is computed.
    */
 
   /**
    * @brief string description
-   *
    */
-
-  std::string to_string() const;
+  std::string toString() const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_MODELSCENARIO_H

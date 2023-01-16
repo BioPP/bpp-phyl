@@ -83,7 +83,7 @@ class gBGC :
   public AbstractNucleotideSubstitutionModel
 {
 private:
-  std::unique_ptr<NucleotideSubstitutionModelInterface>  model_;
+  std::unique_ptr<NucleotideSubstitutionModelInterface> model_;
   std::string nestedPrefix_;
 
   /**
@@ -109,17 +109,23 @@ public:
   virtual ~gBGC() {}
 
 public:
-  std::string getName() const override;
+  std::string getName() const override
+  {
+    return model_->getName() + "+gBGC";
+  }
 
   size_t getNumberOfStates() const override { return model_->getNumberOfStates(); }
 
   void fireParameterChanged(const ParameterList&) override;
 
-  const SubstitutionModelInterface& nestedModel() const {return *model_; }
-
-  void updateMatrices() override;
+  const SubstitutionModelInterface& nestedModel() const { return *model_; }
 
   void setNamespace(const std::string&) override;
+  
+protected:
+
+  void updateMatrices_() override;
+
 };
 }
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_GBGC_H

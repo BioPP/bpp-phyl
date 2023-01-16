@@ -59,9 +59,6 @@ public:
 
   virtual const BranchModelInterface& model() const = 0;
 
-protected:
-  virtual BranchModelInterface& model() = 0;
-
 public:
 };
 
@@ -75,10 +72,6 @@ public:
 
   virtual const TransitionModelInterface& transitionModel() const = 0;
 
-protected:
-  virtual TransitionModelInterface& transitionModel() = 0;
-
-public:
 };
 
 
@@ -93,8 +86,6 @@ public:
 
   virtual const SubstitutionModelInterface& substitutionModel() const = 0;
 
-protected:
-  virtual SubstitutionModelInterface& substitutionModel() = 0;
 };
 
 } // end of namespace bpp.

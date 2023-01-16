@@ -42,18 +42,19 @@
 #include "OneJumpSubstitutionCount.h"
 
 using namespace bpp;
+using namespace std;
 
-Matrix<double>* OneJumpSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
+unique_ptr<Matrix<double>> OneJumpSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
   if (!model_)
     throw Exception("OneJumpSubstitutionCount::getAllNumberOfSubstitutions: model not defined.");
 
   tmp_ = model_->getPij_t(length);
   size_t n = model_->getNumberOfStates();
-  Matrix<double>* probs = new LinearMatrix<double>(n, n);
-  for (size_t i = 0; i < n; i++)
+  auto probs = make_unique<LinearMatrix<double>>(n, n);
+  for (size_t i = 0; i < n; ++i)
   {
-    for (size_t j = 0; j < n; j++)
+    for (size_t j = 0; j < n; ++j)
     {
       (*probs)(i, j) = (i == j ? 1. - tmp_(i, j) : 1.);
     }

@@ -69,8 +69,10 @@ private:
   mutable RowMatrix<double> m_;
 
 public:
-  LaplaceSubstitutionCount(std::shared_ptr<const SubstitutionModelInterface> model, size_t cutOff) :
-    AbstractSubstitutionCount(make_shared<TotalSubstitutionRegister>(model->getStateMap())),
+  LaplaceSubstitutionCount(
+      std::shared_ptr<const SubstitutionModelInterface> model,
+      size_t cutOff) :
+    AbstractSubstitutionCount(std::make_shared<TotalSubstitutionRegister>(model->getStateMap())),
     model_        (model),
     cutOff_       (cutOff),
     currentLength_(0),
@@ -78,7 +80,7 @@ public:
   {}
 
   LaplaceSubstitutionCount(std::shared_ptr<const StateMapInterface> stateMap, size_t cutOff) :
-    AbstractSubstitutionCount(make_shared<TotalSubstitutionRegister>(stateMap)),
+    AbstractSubstitutionCount(std::make_shared<TotalSubstitutionRegister>(stateMap)),
     model_        (0),
     cutOff_       (cutOff),
     currentLength_(0),

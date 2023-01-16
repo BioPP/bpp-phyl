@@ -108,8 +108,8 @@ public:
    */
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
@@ -128,9 +128,9 @@ public:
    */
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::vector<std::set< size_t> >& vPos,
-    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
@@ -151,10 +151,10 @@ public:
    */
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
@@ -175,11 +175,11 @@ public:
    */
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::vector<std::set< size_t> >& vPos,
-    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
     std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~KroneckerCodonDistanceFrequenciesSubstitutionModel() {}
@@ -200,15 +200,16 @@ public:
 
   void setFreq(std::map<int, double>& frequencies) override;
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return AbstractCodonFrequenciesSubstitutionModel::frequencySet();
+    return AbstractCodonFrequenciesSubstitutionModel::codonFrequencySet();
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return AbstractCodonFrequenciesSubstitutionModel::getFrequencySet();
+    return AbstractCodonFrequenciesSubstitutionModel::hasCodonFrequencySet();
   }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_KRONECKERCODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H

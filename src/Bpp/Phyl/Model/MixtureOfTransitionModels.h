@@ -119,7 +119,6 @@ namespace bpp
  * submodels that are prefixed by "Mixture.i_", where i is the order
  * of the model.
  */
-
 class MixtureOfTransitionModels :
   public AbstractMixedTransitionModel
 {
@@ -135,7 +134,7 @@ public:
    */
   MixtureOfTransitionModels(
     std::shared_ptr<const Alphabet> alpha,
-    std::vector<std::shared_ptr<TransitionModelInterface> > vpModel);
+    std::vector<std::unique_ptr<TransitionModelInterface>>& vpModel);
 
   /**
    * @brief Constructor of a MixtureOfTransitionModels.
@@ -152,7 +151,7 @@ public:
    */
   MixtureOfTransitionModels(
     std::shared_ptr<const Alphabet> alpha,
-    std::vector<std::shared_ptr<TransitionModelInterface> > vpModel,
+    std::vector<std::unique_ptr<TransitionModelInterface>>& vpModel,
     Vdouble& vproba, Vdouble& vrate);
 
   MixtureOfTransitionModels(const MixtureOfTransitionModels&);
@@ -170,24 +169,15 @@ public:
 
   /**
    * @brief retrieve a pointer to the submodel with the given name.
-   *
-   * @return Null if not found.
    */
-  std::shared_ptr<const TransitionModelInterface> getModel(const std::string& name) const override;
-  
   const TransitionModelInterface& model(const std::string& name) const override;
 
-  std::shared_ptr<const TransitionModelInterface> getModel(size_t i) const
+  const TransitionModelInterface& model(size_t i) const
   {
-    return AbstractMixedTransitionModel::getNModel(i);
+    return AbstractMixedTransitionModel::nModel(i);
   }
 
-  // TransitionModel* getModel(size_t i)
-  // {
-  //   return AbstractMixedTransitionModel::getModel(i);
-  // }
-
-  void updateMatrices() override;
+  void updateMatrices_() override;
 
   /**
    * @brief Sets the rates of the submodels to follow the constraint

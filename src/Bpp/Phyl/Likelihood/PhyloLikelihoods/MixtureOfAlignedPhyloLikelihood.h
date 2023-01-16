@@ -57,11 +57,9 @@ namespace bpp
  * The resulting likelihood is the mean value of
  * the AlignedPhyloLikelihoods, ponderated with parametrized probabilities
  * (through a Simplex).
- *
  */
-
 class MixtureOfAlignedPhyloLikelihood :
-  public SetOfAlignedPhyloLikelihood
+  public AbstractSetOfAlignedPhyloLikelihood
 {
 private:
   /**
@@ -81,9 +79,27 @@ public:
       const std::vector<size_t>& nPhylo,
       bool inCollection = true);
 
-  MixtureOfAlignedPhyloLikelihood(const MixtureOfAlignedPhyloLikelihood& mlc);
-
   virtual ~MixtureOfAlignedPhyloLikelihood() {}
+
+protected:
+  
+  MixtureOfAlignedPhyloLikelihood(const MixtureOfAlignedPhyloLikelihood& mlc) :
+    AbstractPhyloLikelihood(mlc),
+    AbstractParametrizable(""),
+    AbstractSetOfPhyloLikelihood(mlc),
+    AbstractAlignedPhyloLikelihood(mlc),
+    AbstractSetOfAlignedPhyloLikelihood(mlc),
+    simplex_(mlc.simplex_),
+    likCal_(mlc.likCal_)
+  {}
+
+  MixtureOfAlignedPhyloLikelihood& operator=(const MixtureOfAlignedPhyloLikelihood& mlc)
+  {
+    AbstractSetOfAlignedPhyloLikelihood::operator=(mlc);
+    simplex_ = mlc.simplex_;
+    likCal_ = mlc.likCal_;
+    return *this;
+  }
 
   MixtureOfAlignedPhyloLikelihood* clone() const override
   {

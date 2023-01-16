@@ -52,7 +52,7 @@ using namespace std;
 MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(
   const MarkovModulatedSubstitutionModel& model) :
   AbstractParameterAliasable(model),
-  model_               (dynamic_cast<ReversibleSubstitutionModel*>(model.model_->clone())),
+  model_               (model.model_->clone()),
   stateMap_            (model.stateMap_),
   nbStates_            (model.nbStates_),
   nbRates_             (model.nbRates_),
@@ -80,7 +80,7 @@ MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(
   const MarkovModulatedSubstitutionModel& model)
 {
   AbstractParametrizable::operator=(model);
-  model_                = dynamic_cast<ReversibleSubstitutionModel*>(model.model_->clone());
+  model_.reset(model.model_->clone());
   stateMap_             = model.stateMap_;
   nbStates_             = model.nbStates_;
   nbRates_              = model.nbRates_;
@@ -107,7 +107,7 @@ MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(
 
 /******************************************************************************/
 
-void MarkovModulatedSubstitutionModel::updateMatrices()
+void MarkovModulatedSubstitutionModel::updateMatrices_()
 {
   // ratesGenerator_ and rates_ must be initialized!
   nbStates_        = model_->getNumberOfStates();
@@ -223,7 +223,7 @@ double MarkovModulatedSubstitutionModel::getInitValue(size_t i, int state) const
   if (i >= (nbStates_ * nbRates_))
     throw IndexOutOfBoundsException("MarkovModulatedSubstitutionModel::getInitValue", i, 0, nbStates_ * nbRates_ - 1);
   if (state < 0 || !model_->getAlphabet()->isIntInAlphabet(state))
-    throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + model_->getAlphabet()->intToChar(state) + " is not allowed in model.");
+    throw BadIntException(state, "MarkovModulatedSubstitutionModel::getInitValue. Character " + model_->getAlphabet()->intToChar(state) + " is not allowed in model.", getAlphabet().get());
   vector<int> states = model_->getAlphabet()->getAlias(state);
   for (size_t j = 0; j < states.size(); j++)
   {

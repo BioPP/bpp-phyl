@@ -378,19 +378,21 @@ public:
   Value (NodeRefVec&& deps, Args&&... args)
     : Node_DF (std::move (deps)), value_ (std::forward<Args>(args)...) {}
 
-  /** @brief Access value, recompute if needed.
+  /** 
+   * @brief Access value, recompute if needed.
    *
    * Recompute the value if it is not up to date.
    * Then access it as const.
    * Recomputation is single threaded and not thread safe.
    */
-  const T& getTargetValue ()
+  const T& targetValue ()
   {
     this->computeRecursively ();
     return accessValueConst ();
   }
 
-  /** @brief Raw value access (const).
+  /** 
+   * @brief Raw value access (const).
    *
    * Value is not guaranteed to be valid (no recomputation).
    */
@@ -403,17 +405,17 @@ public:
     return convertRef<Value<T> >(this->derive (c, node));
   }
 
-  /** @brief General case for modification of the T object.
+  /** 
+   * @brief General case for modification of the T object.
    *
    * Takes a callable object (lamda, function pointer) that performs the modification.
    * It must take a single T& as argument, which will refer to the T object to modify.
    * The callable is called exactly once.
    *
-   *@param modifier callable to modify this object
-   *@param makeValid boolean if this object is valid after
+   * @param modifier callable to modify this object
+   * @param makeValid boolean if this object is valid after
    * modification (which means no call to this->compute()
    */
-
   template<typename Callable> void modify (Callable&& modifier, bool makeValid)
   {
     this->invalidateRecursively ();

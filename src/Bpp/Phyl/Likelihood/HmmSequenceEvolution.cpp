@@ -47,15 +47,15 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmSequenceEvolution::HmmSequenceEvolution(
-  SubstitutionProcessCollection* processColl,
-  std::vector<size_t>& nProc) :
+  shared_ptr<SubstitutionProcessCollection> processColl,
+  vector<size_t>& nProc) :
   MultiProcessSequenceEvolution(processColl, nProc),
   hmmAlph_(),
   hmmTransMat_()
 {
-  hmmAlph_ = std::shared_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
+  hmmAlph_ = make_shared<HmmProcessAlphabet>(processColl_, nProc);
 
-  hmmTransMat_ = std::shared_ptr<FullHmmTransitionMatrix>(new FullHmmTransitionMatrix(hmmAlph_.get(), "HMM."));
+  hmmTransMat_ = make_shared<FullHmmTransitionMatrix>(hmmAlph_, "HMM.");
 
   // initialize parameters:
   addParameters_(hmmAlph_->getParameters());

@@ -1,7 +1,7 @@
 //
 // File: MultiProcessSequencePhyloLikelihood.cpp
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: vendredi 12 juillet 2013, ÃÂ  00h 32
 //
 
@@ -48,21 +48,22 @@ using namespace bpp;
 /******************************************************************************/
 
 MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
-  const AlignedValuesContainer& data,
-  MultiProcessSequenceEvolution& processSeqEvol,
-  CollectionNodes& collNodes,
+  shared_ptr<const AlignmentDataInterface> data,
+  shared_ptr<MultiProcessSequenceEvolution> processSeqEvol,
+  shared_ptr<CollectionNodes> collNodes,
   size_t nSeqEvol,
   size_t nData) :
-  AbstractPhyloLikelihood(collNodes.getContext()),
-  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
-  AbstractSequencePhyloLikelihood(collNodes.getContext(), processSeqEvol, nSeqEvol, nData),
+  AbstractPhyloLikelihood(collNodes->context()),
+  AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
+  AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nSeqEvol, nData),
+  AbstractParametrizableSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nSeqEvol),
   mSeqEvol_(processSeqEvol),
   vLikCal_()
 {
   resetParameters_(); // Do not keep the original parameters to get ConfiguredParameters
   // initialize parameters:
 
-  const vector<size_t>& nProc = processSeqEvol.getSubstitutionProcessNumbers();
+  const vector<size_t>& nProc = processSeqEvol->getSubstitutionProcessNumbers();
 
   for (auto n:nProc)
   {
@@ -77,7 +78,7 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
 
 /******************************************************************************/
 
-void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& sites, size_t nData)
+void MultiProcessSequencePhyloLikelihood::setData(shared_ptr<const AlignmentDataInterface> sites, size_t nData)
 {
   AbstractSequencePhyloLikelihood::setData(sites, nData);
 

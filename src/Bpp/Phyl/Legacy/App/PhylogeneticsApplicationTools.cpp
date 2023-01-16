@@ -100,7 +100,7 @@ using namespace std;
 /******************************************************************************/
 
 
-map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
+map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
   const map<string, string>& params,
   const map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
   map<string, string>& unparsedParams,
@@ -112,7 +112,7 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 {
   vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
-  map<size_t, Tree*> mTree;
+  map<size_t, shared_ptr<Tree>> mTree;
 
   for (size_t nT = 0; nT < vTreesName.size(); nT++)
   {
@@ -159,19 +159,18 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 
       string treeFilePath = ApplicationTools::getAFilePath("file", args, true, true, suffix, suffixIsOptional, "none", warn);
 
-      IMultiTree* treeReader;
+      unique_ptr<IMultiTree> treeReader;
       if (format == "Newick")
-        treeReader = new Newick(true);
+        treeReader.reset(new Newick(true));
       else if (format == "Nexus")
-        treeReader = new NexusIOTree();
+        treeReader.reset(new NexusIOTree());
       else if (format == "NHX")
-        treeReader = new Nhx();
+        treeReader.reset(new Nhx());
       else
         throw Exception("Unknow format for tree reading: " + format);
 
-      vector<Tree*> trees;
+      vector<unique_ptr<Tree>> trees;
       treeReader->readTrees(treeFilePath, trees);
-      delete treeReader;
 
       if (verbose)
       {
@@ -193,10 +192,9 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
           if (mTree.find(i2 + 1) != mTree.end())
           {
             ApplicationTools::displayWarning("Tree " + TextTools::toString(i2 + 1) + " already assigned, replaced by new one.");
-            delete mTree[i2 + 1];
           }
 
-          mTree[i2 + 1] = trees[i2];
+          mTree[i2 + 1] = move(trees[i2]);
           ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
         }
       }
@@ -210,9 +208,8 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
           if (mTree.find(num) != mTree.end())
           {
             ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
-            delete mTree[num];
           }
-          mTree[num] = trees[0];
+          mTree[num] = move(trees[0]);
           ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
         }
       }
@@ -234,15 +231,14 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
         throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
 
       vector<string> names = mSeq.find(seqNum)->second->getSequenceNames();
-      Tree* tree = TreeTemplateTools::getRandomTree(names);
+      auto tree = TreeTemplateTools::getRandomTree(names);
       tree->setBranchLengths(1.);
 
       if (mTree.find(num) != mTree.end())
       {
         ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
-        delete mTree[num];
       }
-      mTree[num] = tree;
+      mTree[num] = move(tree);
       ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
 
@@ -306,10 +302,10 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
       {
         for (size_t i = 0; i < nbTree; i++)
         {
-          Tree* tree = mTree[i + 1];
+          auto& tree = *mTree[i + 1];
           if (grafenHeight == "input")
           {
-            h = TreeTools::getHeight(*tree, tree->getRootId());
+            h = TreeTools::getHeight(tree, tree.getRootId());
           }
           else
           {
@@ -321,17 +317,17 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 
           double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
           ApplicationTools::displayResult("Grafen's rho", rho);
-          TreeTools::computeBranchLengthsGrafen(*tree, rho);
-          double nh = TreeTools::getHeight(*tree, tree->getRootId());
-          tree->scaleTree(h / nh);
+          TreeTools::computeBranchLengthsGrafen(tree, rho);
+          double nh = TreeTools::getHeight(tree, tree.getRootId());
+          tree.scaleTree(h / nh);
         }
       }
       else
       {
-        Tree* tree = mTree[num];
+        auto& tree = *mTree[num];
         if (grafenHeight == "input")
         {
-          h = TreeTools::getHeight(*tree, tree->getRootId());
+          h = TreeTools::getHeight(tree, tree.getRootId());
         }
         else
         {
@@ -343,9 +339,9 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 
         double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
         ApplicationTools::displayResult("Grafen's rho", rho);
-        TreeTools::computeBranchLengthsGrafen(*tree, rho);
-        double nh = TreeTools::getHeight(*tree, tree->getRootId());
-        tree->scaleTree(h / nh);
+        TreeTools::computeBranchLengthsGrafen(tree, rho);
+        double nh = TreeTools::getHeight(tree, tree.getRootId());
+        tree.scaleTree(h / nh);
       }
     }
     else
@@ -576,8 +572,9 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
     if (freqDescription.substr(0, 10) == "MVAprotein")
     {
-      if (dynamic_pointer_cast<Coala>(tmp))
-        dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(dynamic_pointer_cast<CoalaCore>(tmp));
+      auto tmp2 = dynamic_pointer_cast<Coala>(tmp);
+      if (tmp2)
+        dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(*tmp2);
       else
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }

@@ -50,7 +50,7 @@
 using namespace bpp;
 using namespace std;
 
-ITree* BppOTreeReaderFormat::readITree(const std::string& description)
+unique_ptr<ITree> BppOTreeReaderFormat::readITree(const std::string& description)
 {
   unparsedArguments_.clear();
   string format = "";
@@ -74,5 +74,5 @@ ITree* BppOTreeReaderFormat::readITree(const std::string& description)
     throw Exception("Tree format '" + format + "' unknown.");
   }
 
-  return iTree.release();
+  return iTree;
 }

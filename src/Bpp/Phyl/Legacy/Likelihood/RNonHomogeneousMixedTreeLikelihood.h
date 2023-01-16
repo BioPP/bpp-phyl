@@ -47,7 +47,6 @@
 #include "../Model/MixedSubstitutionModelSet.h"
 #include "RNonHomogeneousTreeLikelihood.h"
 
-using namespace std;
 namespace bpp
 {
 /**
@@ -71,13 +70,12 @@ class RNonHomogeneousMixedTreeLikelihood :
   public RNonHomogeneousTreeLikelihood
 {
 private:
+
   /**
    * @brief the map of the branch numbers to the vectors of the
    * TreeLikelihoods for the expanded model on this branch.
-   *
    */
-
-  map<int, vector<RNonHomogeneousMixedTreeLikelihood*> > mvTreeLikelihoods_;
+  std::map<int, std::vector< std::shared_ptr<RNonHomogeneousMixedTreeLikelihood> > > mvTreeLikelihoods_;
 
   /**
    * @brief A specific HyperNode in which the computation is
@@ -88,22 +86,17 @@ private:
    * This object owns the HyperNode pointers of the owned
    * RNonHomogeneousMixedTreeLikelihood.
    */
-
   MixedSubstitutionModelSet::HyperNode hyperNode_;
 
   /**
    * @brief the number of the node under which tree the Treelikelihood
    * is computed.
-   *
    */
-
   int upperNode_;
 
   /**
    * @brief a flag to say if this object is the head of the hierarchy
-   *
-   **/
-
+   */
   bool main_;
 
   /**
@@ -126,14 +119,14 @@ private:
    * @param usePatterns Tell if recursive site compression should be performed.
    * @throw Exception in an error occured.
    */
-
-  RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                     MixedSubstitutionModelSet* modelSet,
-                                     const MixedSubstitutionModelSet::HyperNode& hyperNode,
-                                     int upperNode,
-                                     DiscreteDistribution* rDist,
-                                     bool verbose,
-                                     bool usePatterns);
+  RNonHomogeneousMixedTreeLikelihood(
+     const Tree& tree,
+     std::shared_ptr<MixedSubstitutionModelSet> modelSet,
+     const MixedSubstitutionModelSet::HyperNode& hyperNode,
+     int upperNode,
+     std::shared_ptr<DiscreteDistribution> rDist,
+     bool verbose,
+     bool usePatterns);
 
   /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
@@ -156,27 +149,25 @@ private:
    * @param usePatterns Tell if recursive site compression should be performed.
    * @throw Exception in an error occured.
    */
-
-  RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                     const AlignedValuesContainer& data,
-                                     MixedSubstitutionModelSet* modelSet,
-                                     const MixedSubstitutionModelSet::HyperNode& hyperNode,
-                                     int upperNode,
-                                     DiscreteDistribution* rDist,
-                                     bool verbose,
-                                     bool usePatterns);
+  RNonHomogeneousMixedTreeLikelihood(
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<MixedSubstitutionModelSet> modelSet,
+      const MixedSubstitutionModelSet::HyperNode& hyperNode,
+      int upperNode,
+      std::shared_ptr<DiscreteDistribution> rDist,
+      bool verbose,
+      bool usePatterns);
 
 
   /**
    * brief method where the recursive structure is built.
-   *
    */
-
   void init(bool usePatterns);
 
 public:
   /**
-   * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
+   * @brief Build a new RNonHomogeneousMixedTreeLikelihood object
    * without data.
    *
    * This constructor only initialize the parameters. To compute a
@@ -193,8 +184,8 @@ public:
    */
   RNonHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    MixedSubstitutionModelSet* modelSet,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<MixedSubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool verbose = true,
     bool usePatterns = true);
 
@@ -213,12 +204,13 @@ public:
    * @param usePatterns Tell if recursive site compression should be performed.
    * @throw Exception in an error occured.
    */
-  RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                     const AlignedValuesContainer& data,
-                                     MixedSubstitutionModelSet* modelSet,
-                                     DiscreteDistribution* rDist,
-                                     bool verbose = true,
-                                     bool usePatterns = true);
+  RNonHomogeneousMixedTreeLikelihood(
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<MixedSubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistribution> rDist,
+      bool verbose = true,
+      bool usePatterns = true);
 
   RNonHomogeneousMixedTreeLikelihood(const RNonHomogeneousMixedTreeLikelihood& lik);
 
@@ -236,28 +228,24 @@ public:
    *
    * @{
    */
-  void setData(const AlignedValuesContainer& sites);
+  void setData(const AlignmentDataInterface& sites);
 
 public:
   // Specific methods:
   void initialize();
 
-  void computeTreeDLikelihood(const string& variable);
+  void computeTreeDLikelihood(const std::string& variable);
 
-  void computeTreeD2Likelihood(const string& variable);
+  void computeTreeD2Likelihood(const std::string& variable);
 
   /**
    * @brief returns the probability of this object in the hierarchy
-   *
    */
-
   double getProbability() const;
 
   /**
    * @brief sets the probability of this object in the hierarchy
-   *
    */
-
   void setProbability(double x);
 
   /**

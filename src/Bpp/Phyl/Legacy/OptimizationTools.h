@@ -61,11 +61,11 @@ class NNITopologyListener :
   public virtual TopologyListener
 {
 private:
-  NNITopologySearch* topoSearch_;
+  std::shared_ptr<NNITopologySearch> topoSearch_;
   ParameterList parameters_;
   double tolerance_;
-  OutputStream* messenger_;
-  OutputStream* profiler_;
+  std::shared_ptr<OutputStream> messenger_;
+  std::shared_ptr<OutputStream> profiler_;
   unsigned int verbose_;
   unsigned int optimizeCounter_;
   unsigned int optimizeNumerical_;
@@ -92,15 +92,15 @@ public:
    *                          This can improve optimization, but is a bit slower.
    */
   NNITopologyListener(
-    NNITopologySearch* ts,
-    const ParameterList& parameters,
-    double tolerance,
-    OutputStream* messenger,
-    OutputStream* profiler,
-    unsigned int verbose,
-    const std::string& optMethod,
-    unsigned int nStep,
-    bool reparametrization) :
+      std::shared_ptr<NNITopologySearch> ts,
+      const ParameterList& parameters,
+      double tolerance,
+      std::shared_ptr<OutputStream> messenger,
+      std::shared_ptr<OutputStream> profiler,
+      unsigned int verbose,
+      const std::string& optMethod,
+      unsigned int nStep,
+      bool reparametrization) :
     topoSearch_(ts),
     parameters_(parameters),
     tolerance_(tolerance),
@@ -160,11 +160,11 @@ class NNITopologyListener2 :
   public TopologyListener
 {
 private:
-  NNITopologySearch* topoSearch_;
+  std::shared_ptr<NNITopologySearch> topoSearch_;
   ParameterList parameters_;
   double tolerance_;
-  OutputStream* messenger_;
-  OutputStream* profiler_;
+  std::shared_ptr<OutputStream> messenger_;
+  std::shared_ptr<OutputStream> profiler_;
   unsigned int verbose_;
   unsigned int optimizeCounter_;
   unsigned int optimizeNumerical_;
@@ -189,14 +189,14 @@ public:
    *                          This can improve optimization, but is a bit slower.
    */
   NNITopologyListener2(
-    NNITopologySearch* ts,
-    const ParameterList& parameters,
-    double tolerance,
-    OutputStream* messenger,
-    OutputStream* profiler,
-    unsigned int verbose,
-    const std::string& optMethod,
-    bool reparametrization) :
+      std::shared_ptr<NNITopologySearch> ts,
+      const ParameterList& parameters,
+      double tolerance,
+      std::shared_ptr<OutputStream> messenger,
+      std::shared_ptr<OutputStream> profiler,
+      unsigned int verbose,
+      const std::string& optMethod,
+      bool reparametrization) :
     topoSearch_(ts),
     parameters_(parameters),
     tolerance_(tolerance),
@@ -255,9 +255,8 @@ public:
  * object. Some non trivial parameters are left to the user choice (tolerance, maximum
  * number of function evaluation, output streams).
  */
-  
-  class OptimizationToolsOld :
-    public OptimizationTools
+class OptimizationToolsOld :
+  public OptimizationTools
 {
 public:
   OptimizationToolsOld();
@@ -577,9 +576,8 @@ public:
    * tp = OptimizationTools::optimizeTreeNNI(tp, ...);
    * @endcode
    */
-
-  static DRTreeParsimonyScore* optimizeTreeNNI(
-    DRTreeParsimonyScore* tp,
+  static std::shared_ptr<DRTreeParsimonyScore> optimizeTreeNNI(
+    std::shared_ptr<DRTreeParsimonyScore> tp,
     unsigned int verbose = 1);
 
 };

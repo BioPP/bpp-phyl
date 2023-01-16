@@ -64,32 +64,30 @@ class TripletSubstitutionModel :
 {
 public:
   /**
-   *@brief Build a new TripletSubstitutionModel object from
+   * @brief Build a new TripletSubstitutionModel object from
    * a pointer to a NucleotideSubstitutionModel.
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pmod  pointer to the NucleotideSubstitutionModel to be used
+   * @param palph pointer to a CodonAlphabet
+   * @param pmod  pointer to the NucleotideSubstitutionModel to be used
    *       in the three positions. It is owned by the instance.
    */
   TripletSubstitutionModel(
       std::shared_ptr<const CodonAlphabet> palph,
-      std::shared_ptr<NucleotideSubstitutionModelInterface> pmod);
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod);
 
   /**
-   *@brief Build a new TripletSubstitutionModel object
+   * @brief Build a new TripletSubstitutionModel object
    * from three pointers to NucleotideSubstitutionModels.
    *
-   *@param palph pointer to a CodonAlphabet
-   *@param pmod1, pmod2, pmod3 pointers to the
-   *   NucleotideSubstitutionModels to use in the three positions. All
-   *   the models must be different objects to avoid parameters
-   *   redundancy, otherwise only the first model is used. The used
-   *   models are owned by the instance.
+   * @param palph pointer to a CodonAlphabet
+   * @param pmod1, pmod2, pmod3 pointers to the
+   *   NucleotideSubstitutionModels to use in the three positions.
    */
-  TripletSubstitutionModel(std::shared_ptr<const CodonAlphabet> palph,
-                           std::shared_ptr<NucleotideSubstitutionModelInterface> pmod1,
-                           std::shared_ptr<NucleotideSubstitutionModelInterface> pmod2,
-                           std::shared_ptr<NucleotideSubstitutionModelInterface> pmod3);
+  TripletSubstitutionModel(
+      std::shared_ptr<const CodonAlphabet> palph,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3);
 
   virtual ~TripletSubstitutionModel() {}
 

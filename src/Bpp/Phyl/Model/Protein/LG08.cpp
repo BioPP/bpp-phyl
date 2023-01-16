@@ -52,21 +52,25 @@ using namespace std;
 
 /******************************************************************************/
 
-LG08::LG08(const ProteicAlphabet* alpha) :
+LG08::LG08(
+    shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("LG08."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "LG08."),
-  freqSet_(0)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "LG08."),
+  freqSet_(nullptr)
 {
   #include "__LG08ExchangeabilityCode"
   #include "__LG08FrequenciesCode"
   freqSet_.reset(new FixedProteinFrequencySet(alpha, freq_));
-  updateMatrices();
+  updateMatrices_();
 }
 
-LG08::LG08(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs) :
+LG08::LG08(
+    shared_ptr<const ProteicAlphabet> alpha,
+    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    bool initFreqs) :
   AbstractParameterAliasable("LG08+F."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "LG08+F."),
-  freqSet_(freqSet)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "LG08+F."),
+  freqSet_(move(freqSet))
 {
   #include "__LG08ExchangeabilityCode"
   #include "__LG08FrequenciesCode"
@@ -78,12 +82,12 @@ LG08::LG08(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> fr
 
   addParameters_(freqSet_->getParameters());
 
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void LG08::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void LG08::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   map<int, double> counts;
   SequenceContainerTools::getFrequencies(data, counts, pseudoCount);
@@ -98,3 +102,4 @@ void LG08::setFreqFromData(const SequencedValuesContainer& data, double pseudoCo
 }
 
 /******************************************************************************/
+

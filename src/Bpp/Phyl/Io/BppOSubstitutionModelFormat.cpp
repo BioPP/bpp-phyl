@@ -188,8 +188,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
     nestedReader.setGeneticCode(geneticCode_); // This uses the same instance as the o
 
-    unique_ptr<const TransitionModelInterface> nestedModelTmp = nestedReader.readTransitionModel(alphabet, modelDesc2, data, false);
-    unique_ptr<const MixedTransitionModelInterface> nestedModel(dynamic_cast<const MixedTransitionModelInterface*>(nestedModelTmp.release()));
+    unique_ptr<TransitionModelInterface> nestedModelTmp = nestedReader.readTransitionModel(alphabet, modelDesc2, data, false);
+    unique_ptr<MixedTransitionModelInterface> nestedModel(dynamic_cast<MixedTransitionModelInterface*>(nestedModelTmp.release()));
 
     // Check that nestedModel is fine and has subModel of given name
     // or number
@@ -199,8 +199,11 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
 
     if (nameMod != "")
     {
-      if (nestedModel->getModel(nameMod) == NULL)
+      try {
+	nestedModel->model(nameMod);
+      } catch (NullPointerException&) {
         throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'InMixed' has no submodel with name " + nameMod + ".");
+      }
       model = make_unique<InMixedSubstitutionModel>(move(nestedModel), nameMod, modelDesc2);
     }
     else
@@ -275,7 +278,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
 
     map<string, string> unparsedParameterValuesNested;
     // fitness
-    std::shared_ptr<FrequencySetInterface> nestedFreq(nullptr);
+    unique_ptr<FrequencySetInterface> nestedFreq(nullptr);
     
     if (args.find("fitness") != args.end())
     {
@@ -301,10 +304,10 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
                                          nestedReader.getUnparsedArguments().end());
     
 
-    model = make_unique<POMO>(allelic, move(nestedModel), nestedFreq);
+    model = make_unique<POMO>(allelic, move(nestedModel), move(nestedFreq));
 
     // Then we update the parameter set:
-    for (auto& it: unparsedParameterValuesNested)
+    for (auto& it : unparsedParameterValuesNested)
     {
       unparsedArguments_["POMO." + it.first] = it.second;
     }
@@ -345,7 +348,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (geneticCode_->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
       throw Exception("Mismatch between genetic code and codon alphabet");
 
-    shared_ptr<CodonFrequencySetInterface> codonFreqs(nullptr);
+    unique_ptr<CodonFrequencySetInterface> codonFreqs(nullptr);
 
     if (args.find("frequencies") != args.end())
     {
@@ -353,8 +356,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
       freqReader.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model.
 
-      shared_ptr<FrequencySetInterface> tmpFreqs = freqReader.readFrequencySet(pCA, freqOpt, data);
-      codonFreqs = dynamic_pointer_cast<CodonFrequencySetInterface>(tmpFreqs);
+      auto tmpFreqs = freqReader.readFrequencySet(pCA, freqOpt, data);
+      codonFreqs = unique_ptr<CodonFrequencySetInterface>(dynamic_cast<CodonFrequencySetInterface*>(tmpFreqs.release()));
       for (const auto& it : freqReader.getUnparsedArguments())
       {
         unparsedArguments_[modelName + "." + it.first] = it.second;
@@ -366,23 +369,23 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "MG94")
-      model.reset(new MG94(geneticCode_, codonFreqs));
+      model = make_unique<MG94>(geneticCode_, move(codonFreqs));
     else if (modelName == "GY94")
-      model.reset(new GY94(geneticCode_, codonFreqs));
+      model = make_unique<GY94>(geneticCode_, move(codonFreqs));
     else if ((modelName == "YN98") || (modelName == "YNGP_M0"))
-      model.reset(new YN98(geneticCode_, codonFreqs));
+      model = make_unique<YN98>(geneticCode_, move(codonFreqs));
     else if (modelName == "KCM7")
-      model.reset(new KCM(geneticCode_, true));
+      model= make_unique<KCM>(geneticCode_, true);
     else if (modelName == "KCM19")
-      model.reset(new KCM(geneticCode_, false));
+      model = make_unique<KCM>(geneticCode_, false);
     else if (modelName == "SameAARate")
     {
       if (args.find("protmodel") == args.end())
         throw Exception("Missing 'protmodel in model " + modelName + ".");
 
       BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
-      std::shared_ptr<SubstitutionModelInterface> tmpProtModel = nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], data, false);
-      auto nestedProtModel = dynamic_pointer_cast<ProteinSubstitutionModelInterface>(tmpProtModel);
+      auto tmpProtModel = nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], data, false);
+      auto nestedProtModel = unique_ptr<ProteinSubstitutionModelInterface>(dynamic_cast<ProteinSubstitutionModelInterface*>(tmpProtModel.release()));
 
       auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
       unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
@@ -393,8 +396,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       BppOSubstitutionModelFormat nestedCodonReader(CODON, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
       nestedCodonReader.setGeneticCode(geneticCode_); // This uses the same instance as the o
 
-      std::shared_ptr<SubstitutionModelInterface> tmpSubstitutionModel = nestedCodonReader.readSubstitutionModel(alphabet, args["codonmodel"], data, false);
-      auto nestedCodonModel = dynamic_pointer_cast<CodonSubstitutionModelInterface>(tmpSubstitutionModel);
+      auto tmpSubstitutionModel = nestedCodonReader.readSubstitutionModel(alphabet, args["codonmodel"], data, false);
+      auto nestedCodonModel = unique_ptr<CodonSubstitutionModelInterface>(dynamic_cast<CodonSubstitutionModelInterface*>(tmpSubstitutionModel.release()));
 
       unparsedParameterValuesNested = nestedCodonReader.getUnparsedArguments();
       for (const auto& it:unparsedParameterValuesNested)
@@ -402,7 +405,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         unparsedArguments_["SameAARate." + it.first] = it.second;
       }
 
-      model.reset(new CodonSameAARateSubstitutionModel(nestedProtModel, nestedCodonModel, codonFreqs, geneticCode_));
+      model = make_unique<CodonSameAARateSubstitutionModel>(move(nestedProtModel), move(nestedCodonModel), move(codonFreqs), geneticCode_);
     }
     else
       throw Exception("Unknown Codon model: " + modelName);
@@ -797,15 +800,15 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         }
 
         if (modelName == "JC69+F")
-          model = make_unique<JCprot>(alpha, protFreq);
+          model = make_unique<JCprot>(alpha, move(protFreq));
         else if (modelName == "DSO78+F")
-          model = make_unique<DSO78>(alpha, protFreq);
+          model = make_unique<DSO78>(alpha, move(protFreq));
         else if (modelName == "JTT92+F")
-          model = make_unique<JTT92>(alpha, protFreq);
+          model = make_unique<JTT92>(alpha, move(protFreq));
         else if (modelName == "LG08+F")
-          model = make_unique<LG08>(alpha, protFreq);
+          model = make_unique<LG08>(alpha, move(protFreq));
         else if (modelName == "WAG01+F")
-          model =make_unique<WAG01>(alpha, protFreq);
+          model =make_unique<WAG01>(alpha, move(protFreq));
         else if (modelName == "Empirical+F")
         {
           string prefix = args["name"];
@@ -814,7 +817,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
           string fname = args["file"];
           if (TextTools::isEmpty(fname))
             throw Exception("'file' argument missing for user-defined substitution model.");
-          model = make_unique<UserProteinSubstitutionModel>(alpha, args["file"], protFreq, prefix + "+F.");
+          model = make_unique<UserProteinSubstitutionModel>(alpha, args["file"], move(protFreq), prefix + "+F.");
         }
       }
       else if (modelName == "JC69")
@@ -845,11 +848,14 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         if (!nestedModel)
           throw Exception("Unknown model " + modelName + ".");
 
-        if (!nestedModel->getModel(subModelName))
+        try {
+          nestedModel->model(subModelName);
+	} catch (NullPointerException&) {
           throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromMixture' has no submodel with name " + subModelName + ".");
+	}
 
         // Now we create the FromMixture substitution model:
-        model = make_unique<FromMixtureSubstitutionModel>(nestedModel, subModelName, modelDesc2);
+        model = make_unique<FromMixtureSubstitutionModel>(*nestedModel, subModelName, modelDesc2);
       }
       else if (modelName == "Empirical")
       {
@@ -873,7 +879,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         if (TextTools::isEmpty(nbrOfParametersPerBranch))
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
         // Now we create the Coala model:
-        model = make_unique<Coala>(alpha, nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch));
+        model = make_unique<Coala>(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch));
         if (data)
           model->setFreqFromData(*data);
       }
@@ -993,7 +999,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
   vector<string> v_nestedModelDescription;
-  vector< shared_ptr<SubstitutionModelInterface> > v_pSM;
+  vector< unique_ptr<SubstitutionModelInterface> > v_pSM;
   shared_ptr<const CoreWordAlphabet> pWA;
 
   string s, nestedModelDescription;
@@ -1102,24 +1108,13 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
   if (modelName == "Word")
   {
-    vector< shared_ptr<SubstitutionModelInterface> > vsm;
-
-    for (auto mod : v_pSM)
-    {
-      auto smod = dynamic_pointer_cast<SubstitutionModelInterface>(mod);
-      if (smod)
-        vsm.push_back(smod);
-      else
-        throw Exception("Need Markov SubstitutionModel for Words");
-    }
-
     if (v_nestedModelDescription.size() != nbmodels)
     {
-      model = make_unique<WordSubstitutionModel>(vsm[0], nbmodels);
+      model = make_unique<WordSubstitutionModel>(move(v_pSM[0]), nbmodels);
     }
     else
     {
-      ModelList ml(vsm);
+      ModelList ml(v_pSM);
       model = make_unique<WordSubstitutionModel>(ml);
     }
   }
@@ -1130,26 +1125,15 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
   else if (modelName == "Kron")
   {
-    vector< shared_ptr<SubstitutionModelInterface> > vsm;
-
-    for (auto mod : v_pSM)
-    {
-      auto smod = dynamic_pointer_cast<SubstitutionModelInterface>(mod);
-      if (smod)
-        vsm.push_back(smod);
-      else
-        throw Exception("Need Markov SubstitutionModel for Krons");
-    }
-
     if (vposKron.size() == 0)
     {
       if (v_nestedModelDescription.size() != nbmodels)
       {
-        model = make_unique<KroneckerWordSubstitutionModel>(vsm[0], nbmodels);
+        model = make_unique<KroneckerWordSubstitutionModel>(move(v_pSM[0]), nbmodels);
       }
       else
       {
-        ModelList ml(vsm);
+        ModelList ml(v_pSM);
         model = make_unique<KroneckerWordSubstitutionModel>(ml);
       }
     }
@@ -1157,11 +1141,11 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     {
       if (v_nestedModelDescription.size() != nbmodels)
       {
-        model = make_unique<KroneckerWordSubstitutionModel>(vsm[0], nbmodels, vposKron);
+        model = make_unique<KroneckerWordSubstitutionModel>(move(v_pSM[0]), nbmodels, vposKron);
       }
       else
       {
-        ModelList ml(vsm);
+        ModelList ml(v_pSM);
         model = make_unique<KroneckerWordSubstitutionModel>(ml, vposKron);
       }
     }
@@ -1178,11 +1162,11 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       throw Exception("Non codon Alphabet for model" + modelName + ".");
 
     unique_ptr<AlphabetIndex2> pai2;
-    shared_ptr<FrequencySetInterface> pFS;
+    unique_ptr<CodonFrequencySetInterface> pFS;
 
-    if ((!dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0])) ||
+    if ((!dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].get())) ||
         ((v_nestedModelDescription.size() == 3) &&
-         (!dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[1]) || !dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[2]))))
+         (!dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].get()) || !dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].get()))))
       throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
 
     if (args.find("genetic_code") != args.end())
@@ -1211,7 +1195,10 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
       BppOFrequencySetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model
-      pFS = bIOFreq.readFrequencySet(pCA, args["frequencies"], data);
+      auto tmp = bIOFreq.readFrequencySet(pCA, args["frequencies"], data);
+      pFS = unique_ptr<CodonFrequencySetInterface>(dynamic_cast<CodonFrequencySetInterface*>(tmp.release()));
+      if (!pFS)
+        throw IOException("BppOSubstitutionModelFormat::readWord_(). Incorrect codon frequencies.");
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
       for (auto& it : unparsedParameterValuesNested)
@@ -1227,16 +1214,26 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       model = (v_nestedModelDescription.size() != 3)
                   ? make_unique<TripletSubstitutionModel>(
                     pCA,
-                    dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]))
+                    unique_ptr<NucleotideSubstitutionModelInterface>(
+			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+			    )
+		    )
                   : make_unique<TripletSubstitutionModel>(
                     pCA,
-                    dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
-                    dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[1]),
-                    dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[2]));
+                    unique_ptr<NucleotideSubstitutionModelInterface>(
+			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+			    ),
+                    unique_ptr<NucleotideSubstitutionModelInterface>(
+			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+			    ),
+                    unique_ptr<NucleotideSubstitutionModelInterface>(
+			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+			    )
+		    );
 
     else if (modelName.find("Codon") != string::npos)
     {
-      vector< shared_ptr<CoreCodonSubstitutionModelInterface> > vCSM;
+      vector< unique_ptr<CoreCodonSubstitutionModelInterface> > vCSM;
       string name = "Codon";
       map<string, string> unparsedParameterValuesNested;
 
@@ -1244,13 +1241,13 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       {
         name += "Dist";
 
-        vCSM.push_back(make_shared<AbstractCodonDistanceSubstitutionModel>(pai2, geneticCode_, ""));
+        vCSM.push_back(make_unique<AbstractCodonDistanceSubstitutionModel>(move(pai2), geneticCode_, ""));
       }
       else if (modelName.find("BGC") != string::npos)
       {
         name += "BGC";
 
-        vCSM.push_back(make_shared<AbstractCodonBGCSubstitutionModel>(geneticCode_, ""));
+        vCSM.push_back(make_unique<AbstractCodonBGCSubstitutionModel>(geneticCode_, ""));
       }
       else if (modelName.find("Prot") != string::npos)
       {
@@ -1267,7 +1264,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
         unparsedParameterValuesNested.insert(nestedReader.getUnparsedArguments().begin(), nestedReader.getUnparsedArguments().end());
 
-        vCSM.push_back(make_shared<AbstractCodonAARateSubstitutionModel>(nestedModel, geneticCode_, ""));
+        vCSM.push_back(make_unique<AbstractCodonAARateSubstitutionModel>(nestedModel, geneticCode_, ""));
       }
       if (modelName.find("AAClust") != string::npos)
       {
@@ -1284,11 +1281,11 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
             partition.push_back(TextTools::to<uint>(strtok.nextToken()));
         }
 
-        shared_ptr<AbstractCodonClusterAASubstitutionModel> aca = partition.size() != 0 ?
-            make_shared<AbstractCodonClusterAASubstitutionModel>(geneticCode_, "", partition) :
-            make_shared<AbstractCodonClusterAASubstitutionModel>(geneticCode_, "");
+        unique_ptr<AbstractCodonClusterAASubstitutionModel> aca = partition.size() != 0 ?
+            make_unique<AbstractCodonClusterAASubstitutionModel>(geneticCode_, "", partition) :
+            make_unique<AbstractCodonClusterAASubstitutionModel>(geneticCode_, "");
 
-        vCSM.push_back(aca);
+        vCSM.push_back(move(aca));
       }
 
       /// Default name in none used before
@@ -1298,7 +1295,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       if (modelName.find("CpG") != string::npos)
       {
         name += "CpG";
-        vCSM.push_back(make_shared<AbstractCodonCpGSubstitutionModel>(pCA, ""));
+        vCSM.push_back(make_unique<AbstractCodonCpGSubstitutionModel>(pCA, ""));
       }
 
       if (modelName.find("AAFit") != string::npos)
@@ -1318,12 +1315,12 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
         }
 
-        auto aca = make_shared<AbstractCodonAAFitnessSubstitutionModel>(nestedFreq, geneticCode_, "");
+        auto aca = make_unique<AbstractCodonAAFitnessSubstitutionModel>(move(nestedFreq), geneticCode_, "");
 
         if (args.find("Ns") != args.end())
           aca->addNsParameter();
 
-        vCSM.push_back(aca);
+        vCSM.push_back(move(aca));
       }
       else if (modelName.find("Fit") != string::npos)
       {
@@ -1341,18 +1338,18 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
         }
 
-        vCSM.push_back(make_shared<AbstractCodonFitnessSubstitutionModel>(nestedFreq, geneticCode_, ""));
+        vCSM.push_back(make_unique<AbstractCodonFitnessSubstitutionModel>(move(nestedFreq), geneticCode_, ""));
       }
 
       if (modelName.find("PhasFreq") != string::npos)
       {
         name += "PhasFreq";
-        vCSM.push_back(make_shared<AbstractCodonPhaseFrequenciesSubstitutionModel>(pFS, ""));
+        vCSM.push_back(make_unique<AbstractCodonPhaseFrequenciesSubstitutionModel>(move(pFS), ""));
       }
       else if (modelName.find("Freq") != string::npos)
       {
         name += "Freq";
-        vCSM.push_back(make_shared<AbstractCodonFrequenciesSubstitutionModel>(pFS, ""));
+        vCSM.push_back(make_unique<AbstractCodonFrequenciesSubstitutionModel>(move(pFS), ""));
       }
 
       // Then we update the parameter set:
@@ -1364,14 +1361,22 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       model = (v_nestedModelDescription.size() != 3)
                   ? make_unique<CodonAdHocSubstitutionModel>(
                     geneticCode_,
-                    dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
+                    unique_ptr<NucleotideSubstitutionModelInterface>(
+			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+			    ),
                     vCSM,
                     name)
                   : make_unique<CodonAdHocSubstitutionModel>(
                     geneticCode_,
-                    dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
-                    dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[1]),
-                    dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[2]),
+                    unique_ptr<NucleotideSubstitutionModelInterface>(
+			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+			    ),
+                    unique_ptr<NucleotideSubstitutionModelInterface>(
+			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+			    ),
+                    unique_ptr<NucleotideSubstitutionModelInterface>(
+			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+			    ),
                     vCSM,
                     name);
     }
@@ -1381,30 +1386,46 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       {
         if (vposKron.size() == 0)
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(geneticCode_,
-               dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]), pFS, pai2);
+               unique_ptr<NucleotideSubstitutionModelInterface>(
+		       dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
+		       move(pFS), move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(geneticCode_,
-               dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]), vposKron, pFS, pai2);
+               unique_ptr<NucleotideSubstitutionModelInterface>(
+		       dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
+		       vposKron, move(pFS), move(pai2));
       }
       else
       {
         if (vposKron.size() != 0)
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(
                         geneticCode_,
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[1]),
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[2]),
-                        pFS,
-                        pai2);
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+				),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+				),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+				),
+                        move(pFS),
+                        move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(
                         geneticCode_,
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[1]),
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[2]),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+				),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+				),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+				),
                         vposKron,
-                        pFS,
-                        pai2);
+                        move(pFS),
+                        move(pai2));
       }
     }
     else if (modelName == "KronDist")
@@ -1413,28 +1434,42 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       {
         if (vposKron.size() == 0)
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(geneticCode_,
-               dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]), pai2);
+               unique_ptr<NucleotideSubstitutionModelInterface>(dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
+	       move(pai2));
         else
-          model =make_unique<KroneckerCodonDistanceSubstitutionModel>(geneticCode_,
-	       dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]), vposKron, pai2);
+          model = make_unique<KroneckerCodonDistanceSubstitutionModel>(geneticCode_,
+	       unique_ptr<NucleotideSubstitutionModelInterface>(dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
+	       vposKron, move(pai2));
       }
       else
       {
         if (vposKron.size() != 0)
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(
                         geneticCode_,
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[1]),
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[2]),
-                        pai2);
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+				),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+				),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+				),
+                        move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(
                         geneticCode_,
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[1]),
-                        dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[2]),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+			        ),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+				),
+                        unique_ptr<NucleotideSubstitutionModelInterface>(
+				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+				),
                         vposKron,
-                        pai2);
+                        move(pai2));
       }
     }
 
@@ -1457,17 +1492,25 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       if (v_nestedModelDescription.size() != 3)
       {
         model = make_unique<SENCA>(geneticCode_,
-            dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
-            pFit, pai2);
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+		    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+		    ),
+            move(pFit), move(pai2));
       }
       else
         model = make_unique<SENCA>(
                       geneticCode_,
-                      dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[0]),
-                      dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[1]),
-                      dynamic_pointer_cast<NucleotideSubstitutionModelInterface>(v_pSM[2]),
-                      pFit,
-                      pai2);
+                      unique_ptr<NucleotideSubstitutionModelInterface>(
+			      dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+			      ),
+                      unique_ptr<NucleotideSubstitutionModelInterface>(
+			      dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+			      ),
+                      unique_ptr<NucleotideSubstitutionModelInterface>(
+			      dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+			      ),
+                      move(pFit),
+                      move(pai2));
     }
   }
 
@@ -1589,28 +1632,28 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   try {
     const AbstractWordSubstitutionModel& wM = dynamic_cast<const AbstractWordSubstitutionModel&>(model);
     size_t nmod = wM.getNumberOfModels();
-    shared_ptr<const TransitionModelInterface> mod0 = wM.getNModel(0);
+    const TransitionModelInterface& mod0 = wM.nModel(0);
     if (nmod == 1)
     {
       out << "model=";
-      write(*mod0, out, globalAliases, writtenNames);
+      write(mod0, out, globalAliases, writtenNames);
     }
     else
     {
-      shared_ptr<const TransitionModelInterface> mod1 = wM.getNModel(1);
-      if (mod1 == mod0)
+      const TransitionModelInterface& mod1 = wM.nModel(1);
+      if (&mod1 == &mod0)
       {
         out << "model=";
-        write(*mod0, out, globalAliases, writtenNames);
+        write(mod0, out, globalAliases, writtenNames);
       }
       else
       {
         out << "model1=";
-        write(*mod0, out, globalAliases, writtenNames);
+        write(mod0, out, globalAliases, writtenNames);
         for (unsigned int i = 1; i < nmod; ++i)
         {
           out << ",model" + TextTools::toString(i + 1) + "=";
-          write(*wM.getNModel(i), out, globalAliases, writtenNames);
+          write(wM.nModel(i), out, globalAliases, writtenNames);
         }
       }
     }
@@ -1638,33 +1681,30 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   if (pomo)
   {
     out << "model=";
-    write(*pomo->getMutationModel(), out, globalAliases, writtenNames);
+    write(pomo->mutationModel(), out, globalAliases, writtenNames);
 
-    const auto fit=pomo->getFitness();
-    if (fit)
+    if (pomo->hasFitness())
     {
       out << ", fitness=";
 
       BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-      bIOFreq.writeFrequencySet(*fit, out, globalAliases, writtenNames);
+      bIOFreq.writeFrequencySet(pomo->fitness(), out, globalAliases, writtenNames);
     }
     comma = true;
   }
 
   // Is it a model with FrequencySet?
 
-  const auto pfs = model.getFrequencySet();
-
-  if (pfs != 0)
-  {
+  try {
+    auto& pfs = model.frequencySet();
     if (comma)
       out << ",";
     out << "frequencies=";
 
     BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-    bIOFreq.writeFrequencySet(*pfs, out, globalAliases, writtenNames);
+    bIOFreq.writeFrequencySet(pfs, out, globalAliases, writtenNames);
     comma = true;
-  }
+  } catch (bad_cast&) {}
 
   // Is it a codon model with Protein Model or partition in it?
   try {
@@ -1843,17 +1883,19 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModelInterfac
     ParameterList pl = eM.getIndependentParameters();
     vector<string> vpl = pl.getParameterNames();
 
-    for (auto& pn:vpl)
+    for (auto& pn : vpl)
     {
       if (find(writtenNames.begin(), writtenNames.end(), pn) == writtenNames.end())
       {
-        auto pDD = pMS.getDistribution(pn);
-        if (pDD && !dynamic_pointer_cast<const ConstantDistribution>(pDD))
-        {
-          const BppODiscreteDistributionFormat bIO;
-          StdStr sout;
-          bIO.writeDiscreteDistribution(*pDD, sout, globalAliases, writtenNames);
-          globalAliases[pn] = sout.str();
+        if (pMS.hasDistribution(pn)) {
+	  auto& pDD = pMS.distribution(pn);
+          if (!dynamic_cast<const ConstantDistribution*>(&pDD))
+          {
+            const BppODiscreteDistributionFormat bIO;
+            StdStr sout;
+            bIO.writeDiscreteDistribution(pDD, sout, globalAliases, writtenNames);
+            globalAliases[pn] = sout.str();
+	  }
         }
       }
     }

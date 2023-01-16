@@ -120,8 +120,8 @@ protected:
 public:
   AbstractHomogeneousTreeLikelihood(
     const Tree& tree,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -146,8 +146,8 @@ private:
    * @brief Method called by constructor.
    */
   void init_(const Tree& tree,
-             TransitionModel* model,
-             DiscreteDistribution* rDist,
+             std::shared_ptr<TransitionModelInterface> model,
+             std::shared_ptr<DiscreteDistribution> rDist,
              bool checkRooted,
              bool verbose);
 
@@ -216,7 +216,10 @@ public:
    * Performs a cast operation on the pointer. Return NULL if cast failed.
    * @return A SubstitutionModel pointer toward the model associated to this instance.
    */
-  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const { return dynamic_pointer_cast<const SubstitutionModelInterface>(model_); }
+  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const
+  {
+    return std::dynamic_pointer_cast<const SubstitutionModelInterface>(model_);
+  }
 
   /**
    * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
@@ -227,7 +230,10 @@ public:
    * @param nodeId Id of the node
    * @param siteIndex Position of the site
    */
-  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel(int nodeId, size_t siteIndex) const { return dynamic_pointer_cast<const SubstitutionModelInterface>(model_); }
+  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel(int nodeId, size_t siteIndex) const
+  {
+    return std::dynamic_pointer_cast<const SubstitutionModelInterface>(model_);
+  }
 
 public:
   // Specific methods:

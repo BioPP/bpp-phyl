@@ -109,15 +109,16 @@ public:
   double getCodonsMulRate(size_t i, size_t j) const override { return pmodel_->getCodonsMulRate(i, j); }
 
 protected:
-  SubstitutionModelInterface& substitutionModel() override { return *pmodel_.get(); }
+  SubstitutionModelInterface& substitutionModel_() override { return *pmodel_; }
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    throw NullPointerException("KCM::frequencySet. No FrequencySet available for this model.");
+    throw NullPointerException("KCM::codonFrequencySet. No FrequencySet available for this model.");
   }
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+
+  bool hasCodonFrequencySet() const override
   {
-    return nullptr;
+    return false;
   }
 
   void setFreq(std::map<int, double>& frequencies) override

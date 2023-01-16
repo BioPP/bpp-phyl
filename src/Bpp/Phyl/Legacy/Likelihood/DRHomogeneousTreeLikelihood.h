@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -66,7 +66,7 @@ class DRHomogeneousTreeLikelihood :
   public virtual DRTreeLikelihoodInterface
 {
 private:
-  mutable std::shared_ptr<DRASDRTreeLikelihoodData> likelihoodData_;
+  mutable std::unique_ptr<DRASDRTreeLikelihoodData> likelihoodData_;
 
 protected:
   double minusLogLik_;
@@ -88,8 +88,8 @@ public:
    */
   DRHomogeneousTreeLikelihood(
     const Tree& tree,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -122,7 +122,7 @@ public:
 
   DRHomogeneousTreeLikelihood& operator=(const DRHomogeneousTreeLikelihood& lik);
 
-  virtual ~DRHomogeneousTreeLikelihood();
+  virtual ~DRHomogeneousTreeLikelihood() {}
 
   DRHomogeneousTreeLikelihood* clone() const override { return new DRHomogeneousTreeLikelihood(*this); }
 
@@ -140,7 +140,7 @@ public:
    *
    * @{
    */
-  void setData(std::shared_ptr<const AlignmentDataInterface> sites) override;
+  void setData(const AlignmentDataInterface& sites) override;
   double getLikelihood() const override;
   double getLogLikelihood() const override;
   double getLikelihoodForASite (size_t site) const override;

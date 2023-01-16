@@ -66,7 +66,7 @@ public:
    */
   MixtureOfSubstitutionModels(
       std::shared_ptr<const Alphabet> alpha,
-      std::vector<std::shared_ptr<TransitionModelInterface>> vpModel) :
+      std::vector< std::unique_ptr<TransitionModelInterface> >& vpModel) :
     AbstractParameterAliasable("Mixture."),
     AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
     MixtureOfTransitionModels(alpha, vpModel)
@@ -74,7 +74,7 @@ public:
     // Check that all models are substitutionmodels
     for (const auto& model : vpModel)
     {
-      if (!dynamic_pointer_cast<const SubstitutionModelInterface>(model))
+      if (!dynamic_cast<const SubstitutionModelInterface*>(model.get()))
         throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
     }
   }
@@ -94,7 +94,7 @@ public:
    */
   MixtureOfSubstitutionModels(
     std::shared_ptr<const Alphabet> alpha,
-    std::vector<std::shared_ptr<TransitionModelInterface>> vpModel,
+    std::vector< std::unique_ptr<TransitionModelInterface> >& vpModel,
     Vdouble& vproba, Vdouble& vrate) :
     AbstractParameterAliasable("Mixture."),
     AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
@@ -106,7 +106,7 @@ public:
 
     for (const auto& model : vpModel)
     {
-      if (!dynamic_pointer_cast<const SubstitutionModelInterface>(model))
+      if (!dynamic_cast<const SubstitutionModelInterface*>(model.get()))
         throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
     }
   }
@@ -130,12 +130,10 @@ public:
 public:
   /**
    * @brief retrieve a pointer to the subsitution model with the given name.
-   *
-   * @return Null if not found.
    */
-  std::shared_ptr<const SubstitutionModelInterface> getSubModel(const std::string& name) const
+  const SubstitutionModelInterface& subModel(const std::string& name) const
   {
-    return dynamic_pointer_cast<const SubstitutionModelInterface>(getModel(name));
+    return dynamic_cast<const SubstitutionModelInterface&>(model(name));
   }
 };
 } // end of namespace bpp.

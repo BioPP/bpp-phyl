@@ -58,11 +58,12 @@ class CodonFrequencySetInterface :
   public virtual FrequencySetInterface
 {
 public:
-  CodonFrequencySetInterface* clone() const = 0;
+  CodonFrequencySetInterface* clone() const override = 0;
 
   virtual std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const = 0;
 
 public:
+
   /**
    * @return The associated genetic code.
    */
@@ -118,9 +119,7 @@ protected:
 private:
   /**
    * @brief Simplex to handle the probabilities and the parameters.
-   *
    */
-
   Simplex sFreq_;
 
 public:
@@ -296,14 +295,14 @@ class FullPerAACodonFrequencySet :
 {
 private:
   std::shared_ptr<const GeneticCode> pgc_;
-  std::shared_ptr<ProteinFrequencySetInterface> ppfs_;
+  std::unique_ptr<ProteinFrequencySetInterface> ppfs_;
 
   /**
    * @brief vector of the simplexes, one for each AA
    */
   std::vector<Simplex> vS_;
 
-  void updateFrequencies();
+  void updateFrequencies_();
 
 public:
   /**
@@ -317,7 +316,7 @@ public:
    */
   FullPerAACodonFrequencySet(
       std::shared_ptr<const GeneticCode> gencode,
-      std::shared_ptr<ProteinFrequencySetInterface> ppfs,
+      std::unique_ptr<ProteinFrequencySetInterface> ppfs,
       unsigned short method = 1);
 
   /**
@@ -354,9 +353,14 @@ public:
 
   void setNamespace(const std::string& prefix) override;
 
-  const std::shared_ptr<ProteinFrequencySetInterface> getProteinFrequencySet() const
+  bool hasProteinFrequencySet() const
   {
-    return ppfs_;
+    return ppfs_ != nullptr;
+  }
+
+  const ProteinFrequencySetInterface& proteinFrequencySet() const
+  {
+    return *ppfs_;
   }
 
   unsigned short getMethod() const
@@ -409,7 +413,7 @@ public:
    */
   CodonFromIndependentFrequencySet(
       std::shared_ptr<const GeneticCode> gCode,
-      const std::vector<std::shared_ptr<FrequencySetInterface> >& freqvector,
+      std::vector<std::unique_ptr<FrequencySetInterface> >& freqvector,
       const std::string& name = "Codon",
       const std::string& mgmtStopCodon = "quadratic");
 
@@ -490,7 +494,7 @@ public:
    */
   CodonFromUniqueFrequencySet(
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<FrequencySetInterface> pfreq,
+    std::unique_ptr<FrequencySetInterface> pfreq,
     const std::string& name = "Codon",
     const std::string& mgmtStopCodon = "quadratic");
 
@@ -508,7 +512,6 @@ public:
 
   /**
    * @brief Update the frequencies given the parameters.
-   *
    */
   void updateFrequencies() override;
 

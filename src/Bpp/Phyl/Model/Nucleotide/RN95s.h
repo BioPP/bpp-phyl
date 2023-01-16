@@ -157,18 +157,21 @@ public:
 
   virtual ~RN95s() {}
 
-  RN95s* clone() const { return new RN95s(*this); }
+  RN95s* clone() const override { return new RN95s(*this); }
 
 public:
-  std::string getName() const { return "RN95s"; }
 
-  void updateMatrices();
+  std::string getName() const override { return "RN95s"; }
 
   /**
    * @brief This method takes the average value between observed @f$\pi_A@f$ and @f$\pi_T@f$.
    */
+  void setFreq(std::map<int, double>&) override;
+  
+protected:
+  
+  void updateMatrices_() override;
 
-  void setFreq(std::map<int, double>&);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_RN95S_H

@@ -220,8 +220,6 @@ public:
     throw NullPointerException("JCprot::frequencySet(). No associated FrequencySet.");
   }
     
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
-
   void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
@@ -231,12 +229,13 @@ public:
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
 protected:
+  
   /**
    * In the case of the model of Jukes & Cantor, this method is useless since
    * the generator is fixed! No matrice can be changed... This method is only
    * used in the constructor of the class.
    */
-  void updateMatrices() override;
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_JCPROT_H

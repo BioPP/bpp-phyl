@@ -1,7 +1,7 @@
 //
 // File: MultiProcessSequencePhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 11 juillet 2013, ÃÂ  21h 51
 //
 
@@ -47,7 +47,7 @@
 #include "../MultiProcessSequenceEvolution.h"
 #include "SequencePhyloLikelihood.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/AlignmentData.h>
 
 using namespace std;
@@ -65,15 +65,14 @@ namespace bpp
  * It implements the Function interface and manages the parameters of
  * all substitution processes.
  */
-
 class MultiProcessSequencePhyloLikelihood :
-  public AbstractSequencePhyloLikelihood
+  public AbstractParametrizableSequencePhyloLikelihood
 {
 private:
   /**
    * @brief to avoid the dynamic casts
    */
-  MultiProcessSequenceEvolution& mSeqEvol_;
+  std::shared_ptr<MultiProcessSequenceEvolution> mSeqEvol_;
 
 protected:
   /**
@@ -83,38 +82,51 @@ protected:
   mutable std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess> > vLikCal_;
 
 public:
+
   MultiProcessSequencePhyloLikelihood(
     std::shared_ptr<const AlignmentDataInterface> data,
-    MultiProcessSequenceEvolution& processSeqEvol,
-    CollectionNodes& collNodes,
+    std::shared_ptr<MultiProcessSequenceEvolution> processSeqEvol,
+    std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
-  MultiProcessSequencePhyloLikelihood(const MultiProcessSequencePhyloLikelihood& lik) :
-    AbstractPhyloLikelihood(lik),
-    //AbstractAlignedPhyloLikelihood(lik),
-    AbstractSequencePhyloLikelihood(lik),
-    mSeqEvol_(lik.mSeqEvol_),
-    vLikCal_(lik.vLikCal_)
+protected:
+  
+  MultiProcessSequencePhyloLikelihood(const MultiProcessSequencePhyloLikelihood& mpspl):
+      AbstractParametrizableSequencePhyloLikelihood(mpspl),
+      mSeqEvol_(mpspl.mSeqEvol_),
+      vLikCal_(mpspl.vLikCal_)
   {}
 
+  MultiProcessSequencePhyloLikelihood& operator=(const MultiProcessSequencePhyloLikelihood& mpspl)
+  {
+    AbstractParametrizableSequencePhyloLikelihood::operator=(mpspl);
+    mSeqEvol_ = mpspl.mSeqEvol_;
+    vLikCal_ = mpspl.vLikCal_;
+    return *this;
+  }
+
+public:
+
+  virtual ~MultiProcessSequencePhyloLikelihood() {}
+  
 public:
   /**
    * @name The Likelihood interface.
    *
    * @{
    */
-  std::shared_ptr<const AlignmentDataInterface> getData() const
+  std::shared_ptr<const AlignmentDataInterface> getData() const override
   {
     return vLikCal_[0]->getData();
   }
 
-  std::shared_ptr<const Alphabet> getAlphabet() const
+  std::shared_ptr<const Alphabet> getAlphabet() const override
   {
     return vLikCal_[0]->stateMap().getAlphabet();
   }
 
-  /*
+  /**
    * @}
    */
 
@@ -146,7 +158,7 @@ public:
 
   virtual VVdouble getPosteriorProbabilitiesPerSitePerProcess() const = 0;
 
-  bool isInitialized() const
+  bool isInitialized() const override
   {
     for (auto& lik : vLikCal_)
     {
@@ -164,7 +176,7 @@ public:
    * @param nData the number of the data (optionnal, default 0).
    */
 
-  void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0);
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0) override;
 
   /**
    * @brief Return the number of process used for computation.

@@ -78,16 +78,33 @@ public:
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
+protected:
   AutoCorrelationProcessPhyloLikelihood(const AutoCorrelationProcessPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
-    //AbstractAlignedPhyloLikelihood(mlc),
+    AbstractAlignedPhyloLikelihood(mlc),
+    AbstractSingleDataPhyloLikelihood(mlc),
+    AbstractSequencePhyloLikelihood(mlc),
+    AbstractParametrizable(""),
     MultiProcessSequencePhyloLikelihood(mlc),
-    Hpep_(std::shared_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone())),
-    hmm_(std::shared_ptr<HmmLikelihood_DF>(mlc.hmm_->clone())) {}
+    Hpep_(mlc.Hpep_),
+    hmm_(mlc.hmm_)
+  {}
 
+  AutoCorrelationProcessPhyloLikelihood& operator=(const AutoCorrelationProcessPhyloLikelihood& mlc)
+  { 
+    MultiProcessSequencePhyloLikelihood::operator=(mlc);
+    Hpep_ = mlc.Hpep_;
+    hmm_ = mlc.hmm_;
+    return *this;
+  }
+
+public:
   virtual ~AutoCorrelationProcessPhyloLikelihood() {}
 
-  AutoCorrelationProcessPhyloLikelihood* clone() const override { return new AutoCorrelationProcessPhyloLikelihood(*this); }
+  AutoCorrelationProcessPhyloLikelihood* clone() const override
+  { 
+    return new AutoCorrelationProcessPhyloLikelihood(*this);
+  }
 
 public:
   void setNamespace(const std::string& nameSpace) override;

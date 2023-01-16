@@ -49,7 +49,9 @@ using namespace std;
 
 /******************************************************************************/
 
-DecompositionReward::DecompositionReward(const SubstitutionModel* model, AlphabetIndex1* alphIndex) :
+DecompositionReward::DecompositionReward(
+    shared_ptr<const SubstitutionModelInterface> model,
+    shared_ptr<const AlphabetIndex1> alphIndex) :
   AbstractReward(alphIndex),
   DecompositionMethods(model),
   rewards_(nbStates_, nbStates_),
@@ -69,9 +71,11 @@ DecompositionReward::DecompositionReward(const SubstitutionModel* model, Alphabe
   computeProducts_();
 }
 
-DecompositionReward::DecompositionReward(const StateMap& statemap, AlphabetIndex1* alphIndex) :
+DecompositionReward::DecompositionReward(
+    const StateMapInterface& stateMap,
+    shared_ptr<const AlphabetIndex1> alphIndex) :
   AbstractReward(alphIndex),
-  DecompositionMethods(statemap),
+  DecompositionMethods(stateMap),
   rewards_(nbStates_, nbStates_),
   currentLength_(-1.)
 {}
@@ -173,7 +177,8 @@ double DecompositionReward::getReward(size_t initialState, size_t finalState, do
 
 /******************************************************************************/
 
-void DecompositionReward::setSubstitutionModel(const SubstitutionModel* model)
+void DecompositionReward::setSubstitutionModel(
+    shared_ptr<const SubstitutionModelInterface> model)
 {
   DecompositionMethods::setSubstitutionModel(model);
 

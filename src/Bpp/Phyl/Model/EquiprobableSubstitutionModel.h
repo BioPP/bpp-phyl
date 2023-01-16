@@ -139,7 +139,7 @@ class EquiprobableSubstitutionModel :
 private:
   mutable double exp_;
   mutable RowMatrix<double> p_;
-  std::shared_ptr<FrequencySetInterface> freqSet_;
+  std::unique_ptr<FrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -159,7 +159,7 @@ public:
    */
   EquiprobableSubstitutionModel(
      std::shared_ptr<const Alphabet> alpha,
-     std::shared_ptr<FrequencySetInterface> freqSet,
+     std::unique_ptr<FrequencySetInterface> freqSet,
      bool initFreqs = false);
 
   EquiprobableSubstitutionModel(const EquiprobableSubstitutionModel& model) :
@@ -215,8 +215,6 @@ public:
   }
 
   const FrequencySetInterface& frequencySet() const override { return *freqSet_; }
-  
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override { return freqSet_; }
 
   void setFreq(std::map<int, double>& freq) override;
 
@@ -226,7 +224,7 @@ protected:
    * the generator is fixed! No matrice can be changed... This method is only
    * used in the constructor of the class.
    */
-  void updateMatrices() override;
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_EQUIPROBABLESUBSTITUTIONMODEL_H

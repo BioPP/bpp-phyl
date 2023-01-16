@@ -66,7 +66,7 @@ class BranchLikelihood :
 {
 protected:
   const VVVdouble* array1_, * array2_;
-  std::shared_ptr<const TransitionModel> model_;
+  std::shared_ptr<const TransitionModelInterface> model_;
   std::shared_ptr<const DiscreteDistribution> rDist_;
   size_t nbStates_, nbClasses_;
   VVVdouble pxy_;
@@ -122,7 +122,9 @@ public:
   BranchLikelihood* clone() const { return new BranchLikelihood(*this); }
 
 public:
-  void initModel(const TransitionModel* model, const DiscreteDistribution* rDist);
+  void initModel(
+      std::shared_ptr<const TransitionModelInterface> model,
+      std::shared_ptr<const DiscreteDistribution> rDist);
 
   /**
    * @warning No checking on alphabet size or number of rate classes is performed,
@@ -167,11 +169,12 @@ class NNIHomogeneousTreeLikelihood :
   public virtual NNISearchable
 {
 protected:
-  BranchLikelihood* brLikFunction_;
+  std::shared_ptr<BranchLikelihood> brLikFunction_;
+
   /**
    * @brief Optimizer used for testing NNI.
    */
-  BrentOneDimension* brentOptimizer_;
+  std::unique_ptr<BrentOneDimension> brentOptimizer_;
 
   /**
    * @brief Hash used for backing up branch lengths when testing NNIs.
@@ -194,8 +197,8 @@ public:
    */
   NNIHomogeneousTreeLikelihood(
     const Tree& tree,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -213,7 +216,7 @@ public:
    */
   NNIHomogeneousTreeLikelihood(
     const Tree& tree,
-    std::shared_ptr<const AlignmentDataInterface> data,
+    const AlignmentDataInterface& data,
     std::shared_ptr<TransitionModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
@@ -231,11 +234,10 @@ public:
   NNIHomogeneousTreeLikelihood* clone() const override { return new NNIHomogeneousTreeLikelihood(*this); }
 
 public:
-  void setData(std::shared_ptr<const AlignmentDataInterface> sites) override
+  void setData(const AlignmentDataInterface& sites) override
   {
     DRHomogeneousTreeLikelihood::setData(sites);
-    if (brLikFunction_) delete brLikFunction_;
-    brLikFunction_ = new BranchLikelihood(likelihoodData().getWeights());
+    brLikFunction_ = std::make_unique<BranchLikelihood>(likelihoodData().getWeights());
   }
 
   /**
@@ -249,7 +251,7 @@ public:
    * Usually, this is achieved by calling the topologyChangePerformed() method, which call the reInit() method of the LikelihoodData object.
    * @{
    */
-  const Tree& getTopology() const override { return getTree(); }
+  const Tree& topology() const override { return tree(); }
 
   double getTopologyValue() const override { return getValue(); }
 

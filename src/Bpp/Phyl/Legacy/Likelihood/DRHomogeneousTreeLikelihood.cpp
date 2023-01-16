@@ -61,12 +61,12 @@ using namespace std;
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   const Tree& tree,
-  TransitionModel* model,
-  DiscreteDistribution* rDist,
+  shared_ptr<TransitionModelInterface> model,
+  shared_ptr<DiscreteDistribution> rDist,
   bool checkRooted,
   bool verbose) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  likelihoodData_(0),
+  likelihoodData_(),
   minusLogLik_(-1.)
 {
   init_();
@@ -76,13 +76,13 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   const Tree& tree,
-  const AlignedValuesContainer& data,
-  TransitionModel* model,
-  DiscreteDistribution* rDist,
+  const AlignmentDataInterface& data,
+  shared_ptr<TransitionModelInterface> model,
+  shared_ptr<DiscreteDistribution> rDist,
   bool checkRooted,
   bool verbose) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  likelihoodData_(0),
+  likelihoodData_(),
   minusLogLik_(-1.)
 {
   init_();
@@ -93,7 +93,7 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 
 void DRHomogeneousTreeLikelihood::init_()
 {
-  likelihoodData_ = new DRASDRTreeLikelihoodData(
+  likelihoodData_ = make_unique<DRASDRTreeLikelihoodData>(
     tree_,
     rateDistribution_->getNumberOfCategories());
 }
@@ -102,10 +102,10 @@ void DRHomogeneousTreeLikelihood::init_()
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood& lik) :
   AbstractHomogeneousTreeLikelihood(lik),
-  likelihoodData_(0),
+  likelihoodData_(),
   minusLogLik_(-1.)
 {
-  likelihoodData_ = dynamic_cast<DRASDRTreeLikelihoodData*>(lik.likelihoodData_->clone());
+  likelihoodData_ = unique_ptr<DRASDRTreeLikelihoodData>(lik.likelihoodData_->clone());
   likelihoodData_->setTree(tree_);
   minusLogLik_ = lik.minusLogLik_;
 }
@@ -115,9 +115,7 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(const DRHomogeneousTree
 DRHomogeneousTreeLikelihood& DRHomogeneousTreeLikelihood::operator=(const DRHomogeneousTreeLikelihood& lik)
 {
   AbstractHomogeneousTreeLikelihood::operator=(lik);
-  if (likelihoodData_)
-    delete likelihoodData_;
-  likelihoodData_ = dynamic_cast<DRASDRTreeLikelihoodData*>(lik.likelihoodData_->clone());
+  likelihoodData_ = unique_ptr<DRASDRTreeLikelihoodData>(lik.likelihoodData_->clone());
   likelihoodData_->setTree(tree_);
   minusLogLik_ = lik.minusLogLik_;
   return *this;
@@ -125,17 +123,8 @@ DRHomogeneousTreeLikelihood& DRHomogeneousTreeLikelihood::operator=(const DRHomo
 
 /******************************************************************************/
 
-DRHomogeneousTreeLikelihood::~DRHomogeneousTreeLikelihood()
+void DRHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites)
 {
-  delete likelihoodData_;
-}
-
-/******************************************************************************/
-
-void DRHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites)
-{
-  if (data_)
-    delete data_;
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");

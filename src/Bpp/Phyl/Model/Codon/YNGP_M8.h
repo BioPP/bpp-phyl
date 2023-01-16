@@ -82,19 +82,21 @@ private:
   bool neutral_;
 
 public:
+  
   /**
    * @brief Constructor that requires the number of classes of the
    * BetaDiscreteDistribution.
    */
   YNGP_M8(
       std::shared_ptr<const GeneticCode> gc,
-      std::shared_ptr<FrequencySetInterface> codonFreqs,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs,
       unsigned int nbclass,
       bool neutral = false);
 
   YNGP_M8* clone() const override { return new YNGP_M8(*this); }
 
   YNGP_M8(const YNGP_M8& mod2) :
+    AbstractParameterAliasable(mod2),
     AbstractWrappedModel(mod2),
     AbstractWrappedTransitionModel(mod2),
     AbstractTotallyWrappedTransitionModel(mod2),
@@ -109,12 +111,13 @@ public:
     neutral_ = mod2.neutral_;
     return *this;
   }
+  
+  std::string getName() const override { return neutral_ ? "YNGP_M8a" : "YNGP_M8"; }
 
 protected:
-  void updateMatrices() override;
 
-public:
-  std::string getName() const override { return neutral_?"YNGP_M8a":"YNGP_M8"; }
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M8_H

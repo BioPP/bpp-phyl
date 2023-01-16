@@ -100,8 +100,6 @@ public:
 public:
   std::string getName() const { return "Hierarchical clustering: " + method_; }
 
-  TreeTemplate<Node>* getTree() const;
-
 protected:
   std::vector<size_t> getBestPair();
   std::vector<double> computeBranchLengthsForPair(const std::vector<size_t>& pair);

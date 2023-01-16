@@ -129,16 +129,6 @@ public:
     return modelsContainer_[i];
   }
 
-  TransitionModelInterface& nModel(size_t i) override
-  {
-    return *modelsContainer_[i];
-  }
-
-  std::shared_ptr<TransitionModelInterface> getNModel(size_t i) override
-  {
-    return modelsContainer_[i];
-  }
-
   /**
    * @brief Returns the rate of a specific model from the mixture
    */
@@ -249,6 +239,13 @@ public:
     SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
     setFreq(freqs);
   }
+
+protected:
+  TransitionModelInterface& nModel_(size_t i) override
+  {
+    return *modelsContainer_[i];
+  }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTMIXEDTRANSITIONMODEL_H

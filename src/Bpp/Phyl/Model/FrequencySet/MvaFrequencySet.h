@@ -107,7 +107,7 @@ public:
   void fireParameterChanged(const ParameterList& parameters) override;
   void updateFrequencies();
 
-  void initSet(std::shared_ptr<CoalaCore> coala);
+  void initSet(const CoalaCore& coala);
 
   void computeReversePCA(const std::vector<double>& positions, std::vector<double>& tmpFreqs);
   void computeCoordsFirstSpacePCA(std::vector<double>& tmpFreqs, std::vector<double>& freqs);

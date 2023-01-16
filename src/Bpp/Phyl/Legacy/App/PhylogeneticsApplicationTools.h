@@ -83,7 +83,6 @@ namespace bpp
  *
  * @see ApplicationTools
  */
-
 class PhylogeneticsApplicationToolsOld
 {
 public:
@@ -108,7 +107,7 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    * @return A new vector of Tree objects according to the specified options.
    */
-  static std::map<size_t, Tree*> getTrees(
+  static std::map<size_t, std::shared_ptr<Tree>> getTrees(
     const std::map<std::string, std::string>& params,
     const std::map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
     std::map<std::string, std::string>& unparsedParams,

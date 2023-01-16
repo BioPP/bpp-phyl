@@ -95,7 +95,6 @@ public:
    * @param paramSynRate is true iff synonymous rate is parameterised
    *       (default=false).
    */
-
   AbstractCodonAARateSubstitutionModel(
     std::shared_ptr<ProteinSubstitutionModelInterface> pmodel,
     std::shared_ptr<const GeneticCode> pgencode,
@@ -162,14 +161,14 @@ public:
     return pAAmodel_;
   }
 
-  const FrequencySetInterface& frequencySet() const override
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
     throw NullPointerException("AbstractCodonAARateSubstitutionModel::frequencySet. No associated FrequencySet.");
   }
 
-  std::shared_ptr<const FrequencySetInterface> getFrequencySet() const override
+  bool hasCodonFrequencySet() const override
   {
-    return nullptr;
+    return false;
   }
 
   void setFreq(std::map<int, double>& frequencies) override {}

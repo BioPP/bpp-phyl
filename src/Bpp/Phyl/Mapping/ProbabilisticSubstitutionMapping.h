@@ -63,9 +63,7 @@ namespace bpp
  * each branch and site. The probabilistic mapping can however be
  * extended to contain a matrix will all types of substitutions,
  * instead of their total number.
- *
  */
-
 class ProbabilisticSubstitutionMapping :
   public AbstractSubstitutionMapping,
   public AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranchMapping>
@@ -74,7 +72,7 @@ public:
   typedef AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranchMapping> mapTree;
 
 private:
-  /*
+  /**
    * @brief Links between sites and patterns.
    *
    * The size of this vector is equal to the number of sites in the container,
@@ -85,7 +83,6 @@ private:
    * However, if this is not the case, some pointers may point toward the same
    * element in the likelihood array.
    */
-
   PatternType rootPatternLinks_;
 
   bool usePatterns_;
@@ -104,7 +101,6 @@ public:
    * @param nbTypes the number of types
    * @param numberOfSites The number of sites to map.
    */
-
   ProbabilisticSubstitutionMapping(const PhyloTree& tree, size_t nbTypes, size_t numberOfSites) :
     AbstractMapping(numberOfSites), AbstractSubstitutionMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(numberOfSites)
   {
@@ -119,9 +115,7 @@ public:
 
   /**
    * @brief the same with rootPatternLinks
-   *
    */
-
   ProbabilisticSubstitutionMapping(const PhyloTree& tree, size_t nbTypes, const PatternType& rootpatterns, size_t nbDistinctSites) :
     AbstractMapping(size_t(rootpatterns.size())), AbstractSubstitutionMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
   {
@@ -138,13 +132,14 @@ public:
    *
    * @param tree The tree object to use. It will be cloned for internal use.
    */
-
   ProbabilisticSubstitutionMapping(const PhyloTree& tree) :
     AbstractMapping(), AbstractSubstitutionMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(0)
   {}
 
-
-  ProbabilisticSubstitutionMapping* clone() const { return new ProbabilisticSubstitutionMapping(*this); }
+  ProbabilisticSubstitutionMapping* clone() const override
+  {
+    return new ProbabilisticSubstitutionMapping(*this); 
+  }
 
   ProbabilisticSubstitutionMapping(const ProbabilisticSubstitutionMapping& psm) :
     AbstractMapping(psm), AbstractSubstitutionMapping(psm), mapTree(psm), rootPatternLinks_(psm.rootPatternLinks_), usePatterns_(psm.usePatterns_), numberOfDistinctSites_(psm.numberOfDistinctSites_)
@@ -165,17 +160,17 @@ public:
   virtual ~ProbabilisticSubstitutionMapping() {}
 
 public:
-  const PhyloBranchMapping& getBranch(unsigned int branchIndex) const
+  const PhyloBranchMapping& getBranch(unsigned int branchIndex) const override
   {
     return *getEdge(branchIndex);
   }
 
-  PhyloBranchMapping& getBranch(unsigned int branchIndex)
+  PhyloBranchMapping& getBranch(unsigned int branchIndex) override
   {
     return *getEdge(branchIndex);
   }
 
-  size_t getNumberOfBranches() const
+  size_t getNumberOfBranches() const override
   {
     return getNumberOfEdges();
   }
@@ -187,7 +182,6 @@ public:
 
   /**
    * @brief Retrieve the counts, with REAL site positions.
-   *
    */
   double getCount(unsigned int branchId, size_t site, size_t type) const
   {
@@ -201,9 +195,9 @@ public:
 
   void setNumberOfSitesAndTypes(size_t numberOfSites, size_t numberOfTypes);
 
-  void setNumberOfSites(size_t numberOfSites);
+  void setNumberOfSites(size_t numberOfSites) override;
 
-  void setNumberOfSubstitutionTypes(size_t numberOfTypes);
+  void setNumberOfSubstitutionTypes(size_t numberOfTypes) override;
 
   /**
    * @brief Direct access to substitution numbers, with COMPRESSED
@@ -211,7 +205,7 @@ public:
    *
    * @warning No index checking is performed, use with care!
    */
-  double& operator()(unsigned int branchId, size_t siteIndex, size_t type)
+  double& operator()(unsigned int branchId, size_t siteIndex, size_t type) override
   {
     return (*getEdge(branchId))(siteIndex, type);
   }
@@ -235,7 +229,7 @@ public:
    *
    * @warning No index checking is performed, use with care!
    */
-  virtual const double& operator()(unsigned int branchId, size_t siteIndex, size_t type) const
+  virtual const double& operator()(unsigned int branchId, size_t siteIndex, size_t type) const override
   {
     return (*getEdge(branchId))(siteIndex, type);
   }

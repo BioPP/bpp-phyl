@@ -62,7 +62,6 @@ namespace bpp
  * likelihood from aligned sequences.
  *
  */
-
 class SingleDataPhyloLikelihoodInterface :
   public virtual AlignedPhyloLikelihoodInterface
 {
@@ -119,16 +118,14 @@ public:
 
 class AbstractSingleDataPhyloLikelihood :
   public virtual SingleDataPhyloLikelihoodInterface,
-  public AbstractAlignedPhyloLikelihood
+  public virtual AbstractAlignedPhyloLikelihood
 {
 protected:
   size_t nbStates_;
 
   /**
    * @brief Number of the concerned data.
-   *
-   **/
-
+   */
   size_t nData_;
 
 public:
@@ -139,17 +136,22 @@ public:
     nData_(nData)
   {}
 
-
-  AbstractSingleDataPhyloLikelihood(const AbstractSingleDataPhyloLikelihood& asd) :
-    AbstractPhyloLikelihood(asd),
-    AbstractAlignedPhyloLikelihood(asd),
-    nbStates_(asd.nbStates_),
-    nData_(asd.nData_)
+  AbstractSingleDataPhyloLikelihood(const AbstractSingleDataPhyloLikelihood& asdpl) :
+    AbstractPhyloLikelihood(asdpl),
+    AbstractAlignedPhyloLikelihood(asdpl),
+    nbStates_(asdpl.nbStates_),
+    nData_(asdpl.nData_)
   {}
 
-  virtual ~AbstractSingleDataPhyloLikelihood() {}
+  AbstractSingleDataPhyloLikelihood& operator=(const AbstractSingleDataPhyloLikelihood& asdpl)
+  {
+    AbstractAlignedPhyloLikelihood::operator=(asdpl);
+    nbStates_ = asdpl.nbStates_;
+    nData_ = asdpl.nData_;
+    return *this;
+  }
 
-  AbstractSingleDataPhyloLikelihood* clone() const = 0;
+  virtual ~AbstractSingleDataPhyloLikelihood() {}
 
   virtual void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0)
   {

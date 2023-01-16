@@ -82,6 +82,7 @@ private:
   mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
 
 public:
+
   MixtureProcessPhyloLikelihood(
     std::shared_ptr<const AlignmentDataInterface> data,
     std::shared_ptr<MixtureSequenceEvolution> processSeqEvol,
@@ -89,17 +90,34 @@ public:
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
+protected:
+
   MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
-    //AbstractAlignedPhyloLikelihood(mlc),
+    AbstractAlignedPhyloLikelihood(mlc),
+    AbstractSingleDataPhyloLikelihood(mlc),
+    AbstractSequencePhyloLikelihood(mlc),
+    AbstractParametrizable(mlc),
     MultiProcessSequencePhyloLikelihood(mlc),
     mSeqEvol_(mlc.mSeqEvol_),
     likCal_(mlc.likCal_)
   {}
 
-  MixtureProcessPhyloLikelihood* clone() const override { return new MixtureProcessPhyloLikelihood(*this); }
+  MixtureProcessPhyloLikelihood& operator=(const MixtureProcessPhyloLikelihood& mlc)
+  {
+    MultiProcessSequencePhyloLikelihood::operator=(mlc);
+    mSeqEvol_ = mlc.mSeqEvol_;
+    likCal_ = mlc.likCal_;
+    return *this;
+  }
+
+  MixtureProcessPhyloLikelihood* clone() const override
+  { 
+    return new MixtureProcessPhyloLikelihood(*this);
+  }
 
 public:
+  
   /**
    * @brief return the probability of a subprocess
    *
@@ -107,7 +125,7 @@ public:
    */
   double getSubProcessProb(size_t i) const
   {
-    return simplex_->getTargetValue()->prob(i);
+    return simplex_->targetValue()->prob(i);
   }
 
   /**

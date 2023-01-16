@@ -1,7 +1,7 @@
 //
 // File: HmmProcessPhyloLikelihood.cpp
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: lundi 23 septembre 2013, ÃÂ  22h 56
 //
 
@@ -49,13 +49,22 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
-  const AlignedValuesContainer& data,
-  HmmSequenceEvolution& processSeqEvol,
-  CollectionNodes& collNodes,
+  shared_ptr<const AlignmentDataInterface> data,
+  shared_ptr<HmmSequenceEvolution> processSeqEvol,
+  shared_ptr<CollectionNodes> collNodes,
   size_t nSeqEvol,
   size_t nData) :
-  AbstractPhyloLikelihood(collNodes.getContext()),
-  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
+  AbstractPhyloLikelihood(collNodes->context()),
+  AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
+  AbstractSingleDataPhyloLikelihood(
+      collNodes->context(),
+      data->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
+          ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates()
+	  : 0,
+      nData),
+  AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nData),
+  AbstractParametrizable(""),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nData),
   Hpep_(),
   hmm_()
@@ -64,7 +73,7 @@ HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
 
   Hpep_ = make_shared<HmmPhyloEmissionProbabilities>(alphyl);
 
-  hmm_ = make_shared<HmmLikelihood_DF>(getContext(), processSeqEvol.shareHmmProcessAlphabet(), processSeqEvol.shareHmmTransitionMatrix(), Hpep_);
+  hmm_ = make_shared<HmmLikelihood_DF>(context(), processSeqEvol->getHmmProcessAlphabet(), processSeqEvol->getHmmTransitionMatrix(), Hpep_);
 
   addParameters_(hmm_->getParameters());
 }

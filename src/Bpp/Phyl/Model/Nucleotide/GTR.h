@@ -156,19 +156,20 @@ public:
 
   virtual ~GTR() {}
 
-  GTR* clone() const { return new GTR(*this); }
+  GTR* clone() const override { return new GTR(*this); }
 
 public:
-  std::string getName() const { return "GTR"; }
 
-  void updateMatrices();
-
+  std::string getName() const override { return "GTR"; }
 
   /**
    * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
    */
+  void setFreq(std::map<int, double>& freqs) override;
 
-  void setFreq(std::map<int, double>& freqs);
+protected:
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_GTR_H

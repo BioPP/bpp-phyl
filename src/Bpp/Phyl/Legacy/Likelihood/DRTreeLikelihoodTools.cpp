@@ -47,20 +47,20 @@ using namespace bpp;
 // -----------------------------------------------------------------------------------------
 
 VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(
-  const DRTreeLikelihood& drl,
+  const DRTreeLikelihoodInterface& drl,
   int nodeId)
 {
-  size_t nSites   = drl.getLikelihoodData()->getNumberOfDistinctSites();
+  size_t nSites   = drl.likelihoodData().getNumberOfDistinctSites();
   size_t nClasses = drl.getNumberOfClasses();
   size_t nStates  = drl.getNumberOfStates();
   VVVdouble postProb(nSites);
 
-  const DiscreteDistribution* rDist = drl.getRateDistribution();
+  auto rDist = drl.getRateDistribution();
   Vdouble rcProbs = rDist->getProbabilities();
-  if (drl.getTree().isLeaf(nodeId))
+  if (drl.tree().isLeaf(nodeId))
   {
-    VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(nodeId);
-    for (size_t i = 0; i < nSites; i++)
+    VVdouble larray = drl.likelihoodData().getLeafLikelihoods(nodeId);
+    for (size_t i = 0; i < nSites; ++i)
     {
       VVdouble* postProb_i = &postProb[i];
       postProb_i->resize(nClasses);
@@ -122,7 +122,7 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(
 // -----------------------------------------------------------------------------------------
 
 Vdouble DRTreeLikelihoodTools::getPosteriorStateFrequencies(
-  const DRTreeLikelihood& drl,
+  const DRTreeLikelihoodInterface& drl,
   int nodeId)
 {
   VVVdouble probs = getPosteriorProbabilitiesPerStatePerRate(drl, nodeId);
@@ -130,7 +130,7 @@ Vdouble DRTreeLikelihoodTools::getPosteriorStateFrequencies(
   double sumw = 0, w;
   for (size_t i = 0; i < probs.size(); i++)
   {
-    w = drl.getLikelihoodData()->getWeight(i);
+    w = drl.likelihoodData().getWeight(i);
     sumw += w;
     for (size_t j = 0; j < drl.getNumberOfClasses(); j++)
     {

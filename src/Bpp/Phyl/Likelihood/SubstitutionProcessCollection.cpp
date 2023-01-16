@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or <A9> or Copr. CNRS, (November 16, 2004)
+  Copyright or <A9> or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -61,11 +61,10 @@ SubstitutionProcessCollection::SubstitutionProcessCollection(const SubstitutionP
   mTreeToSubPro_(set.mTreeToSubPro_),
   mSubProcess_()
 {
-  map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it;
-
-  for (it = set.mSubProcess_.begin(); it != set.mSubProcess_.end(); it++)
+  for (const auto& it : set.mSubProcess_)
   {
-    mSubProcess_[it->first] = dynamic_cast<SubstitutionProcessCollectionMember*>(it->second->clone());
+    SubstitutionProcessCollectionMember* x = it.second->clone();
+    mSubProcess_[it.first] = shared_ptr<SubstitutionProcessCollectionMember>(x, SubstitutionProcessCollectionMember::Deleter());
   }
 }
 
@@ -84,11 +83,9 @@ SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const Su
   treeColl_ = set.treeColl_;
   mTreeToSubPro_ = set.mTreeToSubPro_;
 
-  map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it;
-
-  for (it = set.mSubProcess_.begin(); it != set.mSubProcess_.end(); it++)
+  for (const auto & it : set.mSubProcess_)
   {
-    mSubProcess_[it->first] = dynamic_cast<SubstitutionProcessCollectionMember*>(it->second->clone());
+    mSubProcess_[it.first] = shared_ptr<SubstitutionProcessCollectionMember>(it.second->clone(), SubstitutionProcessCollectionMember::Deleter());
   }
 
   return *this;
@@ -108,13 +105,6 @@ void SubstitutionProcessCollection::clear()
   treeColl_.clear();
   mTreeToSubPro_.clear();
 
-  map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it;
-
-  for (it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
-  {
-    delete it->second;
-  }
-
   mSubProcess_.clear();
 }
 
@@ -124,14 +114,14 @@ void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametriz
     throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.",(int)parametrizableIndex);
   
   ParameterList pl;
-  if (std::dynamic_pointer_cast<BranchModel>(parametrizable))
+  if (std::dynamic_pointer_cast<BranchModelInterface>(parametrizable))
   {
-    modelColl_.addObject(std::dynamic_pointer_cast<BranchModel>(parametrizable), parametrizableIndex);
+    modelColl_.addObject(std::dynamic_pointer_cast<BranchModelInterface>(parametrizable), parametrizableIndex);
     pl = modelColl_.getParametersForObject(parametrizableIndex);
   }
-  else if (std::dynamic_pointer_cast<FrequencySet>(parametrizable))
+  else if (std::dynamic_pointer_cast<FrequencySetInterface>(parametrizable))
   {
-    freqColl_.addObject(std::dynamic_pointer_cast<FrequencySet>(parametrizable), parametrizableIndex);
+    freqColl_.addObject(std::dynamic_pointer_cast<FrequencySetInterface>(parametrizable), parametrizableIndex);
     pl = freqColl_.getParametersForObject(parametrizableIndex);
   }
   else if (std::dynamic_pointer_cast<DiscreteDistribution>(parametrizable))
@@ -241,21 +231,21 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 void SubstitutionProcessCollection::setNamespace(const string& prefix)
 {
   AbstractParameterAliasable::setNamespace(prefix);
-  for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+  for (auto& it : mSubProcess_)
   {
-    it->second->setNamespace(prefix);
+    it.second->setNamespace(prefix);
   }
 }
 
 void SubstitutionProcessCollection::aliasParameters(const std::string& p1, const std::string& p2)
 {
   AbstractParameterAliasable::aliasParameters(p1, p2);
-  for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+  for (auto& it : mSubProcess_)
   {
-    if (it->second->hasParameter(p2))
+    if (it.second->hasParameter(p2))
     {
       string p = p2;
-      it->second->deleteParameter_(p);
+      it.second->deleteParameter_(p);
     }
   }
 }
@@ -263,23 +253,23 @@ void SubstitutionProcessCollection::aliasParameters(const std::string& p1, const
 void SubstitutionProcessCollection::unaliasParameters(const std::string& p1, const std::string& p2)
 {
   AbstractParameterAliasable::unaliasParameters(p1, p2);
-  for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+  for (auto& it : mSubProcess_)
   {
-    it->second->updateParameters();
+    it.second->updateParameters();
   }
 }
 
 void SubstitutionProcessCollection::aliasParameters(std::map<std::string, std::string>& unparsedParams, bool verbose)
 {
   AbstractParameterAliasable::aliasParameters(unparsedParams, verbose);
-  for (std::map<std::string, std::string>::iterator itp = unparsedParams.begin(); itp != unparsedParams.end(); itp++)
+  for (auto& itp : unparsedParams)
   {
-    string p2 = itp->second;
+    string p2 = itp.second;
 
-    for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+    for (auto& it : mSubProcess_)
     {
-      if (it->second->hasParameter(p2))
-        it->second->deleteParameter_(p2);
+      if (it.second->hasParameter(p2))
+        it.second->deleteParameter_(p2);
     }
   }
 }
@@ -292,7 +282,7 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   if (!freqColl_.hasObject(nFreq))
     throw BadIntegerException("Wrong Root Frequencies Set number", (int)nFreq);
 
-  SubstitutionProcessCollectionMember& pSMS = dynamic_cast<SubstitutionProcessCollectionMember&>(getSubstitutionProcess(nProc));
+  SubstitutionProcessCollectionMember& pSMS = dynamic_cast<SubstitutionProcessCollectionMember&>(substitutionProcess(nProc));
   pSMS.setRootFrequencies(nFreq);
 
   mFreqToSubPro_[nFreq].push_back(nProc);
@@ -309,7 +299,10 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   if (!distColl_.hasObject(nRate))
     throw BadIntegerException("Wrong Rate distribution number", (int)nRate);
 
-  SubstitutionProcessCollectionMember* pSMS = new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate);
+  auto pSMS = shared_ptr<SubstitutionProcessCollectionMember>(
+		  new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate),
+		  SubstitutionProcessCollectionMember::Deleter()
+	      );
 
   std::map<size_t, std::vector<unsigned int> >::iterator it;
   for (it = mModBr.begin(); it != mModBr.end(); it++)
@@ -344,7 +337,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
   if (!freqColl_.hasObject(nFreq))
     throw BadIntegerException("Wrong Root Frequencies Set number", (int)nFreq);
 
-  SubstitutionProcessCollectionMember& pSMS = dynamic_cast<SubstitutionProcessCollectionMember&>(getSubstitutionProcess(nProc));
+  SubstitutionProcessCollectionMember& pSMS = dynamic_cast<SubstitutionProcessCollectionMember&>(substitutionProcess(nProc));
   pSMS.setRootFrequencies(nFreq);
 
   mFreqToSubPro_[nFreq].push_back(nProc);
@@ -378,7 +371,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
   for (auto it = ids.begin() + 1; it != ids.end(); it++)
   {
     size_t mNb = maxMod + *it;
-    addModel(std::shared_ptr<BranchModel>(model->clone()), mNb);
+    addModel(std::shared_ptr<BranchModelInterface>(model->clone()), mNb);
     mModBr[mNb] = vector<uint>(1, *it);
   }
 

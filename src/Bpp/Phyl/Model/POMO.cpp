@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
   
@@ -41,28 +41,28 @@
 #include "POMO.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
-POMO::POMO(const AllelicAlphabet* allAlph,
-           std::shared_ptr<SubstitutionModel> pmodel,
-           std::shared_ptr<FrequencySet> pfitness):
+POMO::POMO(
+    shared_ptr<const AllelicAlphabet> allAlph,
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unique_ptr<FrequencySetInterface> pfitness):
   AbstractParameterAliasable("POMO."),
-  AbstractSubstitutionModel(allAlph, std::shared_ptr<const StateMap>(new CanonicalStateMap(allAlph, false)), "POMO."),
+  AbstractSubstitutionModel(allAlph, make_shared<CanonicalStateMap>(allAlph, false), "POMO."),
   nbAlleles_(allAlph->getNbAlleles()),
-  pmodel_(pmodel),
-  pfitness_(pfitness)
+  pmodel_(move(pmodel)),
+  pfitness_(move(pfitness))
 {
 
-  const auto& alph=allAlph->getStateAlphabet();
+  const auto& alph = allAlph->stateAlphabet();
   
-  if (alph.getAlphabetType() != pmodel_->getAlphabet()->getAlphabetType())
-    throw AlphabetMismatchException("POMO mismatch state alphabet for model.", &alph, pmodel_->getAlphabet());
+  if (alph.getAlphabetType() != pmodel_->alphabet().getAlphabetType())
+    throw AlphabetMismatchException("POMO mismatch state alphabet for model.", &alph, &pmodel_->alphabet());
 
-  if (pfitness_ && alph.getAlphabetType() != pfitness_->getAlphabet()->getAlphabetType())
-    throw AlphabetMismatchException("POMO mismatch state alphabet for fitness.", &alph, pfitness_->getAlphabet());
+  if (pfitness_ && alph.getAlphabetType() != pfitness_->alphabet().getAlphabetType())
+    throw AlphabetMismatchException("POMO mismatch state alphabet for fitness.", &alph, &pfitness_->alphabet());
 
   if (pfitness_)
     pfitness_->setNamespace("POMO.fit_" + pfitness_->getNamespace());
@@ -74,17 +74,17 @@ POMO::POMO(const AllelicAlphabet* allAlph,
   addParameters_(pmodel_->getParameters());
 
   computeFrequencies(false); // freq_ analytically defined
-  updateMatrices();
+  updateMatrices_();
 }
 
-void POMO::updateMatrices()
+void POMO::updateMatrices_()
 {
-  auto nbStates=pmodel_->getNumberOfStates();
-  auto nbAlleles=dynamic_cast<const AllelicAlphabet*>(getAlphabet())->getNbAlleles();
+  auto nbStates = pmodel_->getNumberOfStates();
+  auto nbAlleles = allelicAlphabet().getNbAlleles();
 
-  const auto& Q=pmodel_->getGenerator();
+  const auto& Q = pmodel_->getGenerator();
 
-  const Vdouble* fit=pfitness_?&pfitness_->getFrequencies():0;
+  const Vdouble* fit = pfitness_ ? &pfitness_->getFrequencies() : 0;
   
   // Per couple of alleles
 
@@ -171,7 +171,7 @@ void POMO::updateMatrices()
   double s=ssnum/ssden1;
   
   // And everything for exponential
-  AbstractSubstitutionModel::updateMatrices();
+  AbstractSubstitutionModel::updateMatrices_();
 
   setScale(1/s);
 }
@@ -183,7 +183,7 @@ void POMO::fireParameterChanged(const ParameterList& parameters)
     pfitness_->matchParametersValues(parameters);
   pmodel_->matchParametersValues(parameters);
 
-  updateMatrices();
+  updateMatrices_();
 }
 
 

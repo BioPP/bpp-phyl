@@ -1,7 +1,7 @@
 //
 // File: PhyloLikelihoodContainer.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mercredi 7 octobre 2015, ÃÂ  22h 34
 //
 
@@ -58,9 +58,7 @@ namespace bpp
  * Phylolikelihoods.
  *
  * It owns the PhyloLikelihoods
- *
  */
-
 class PhyloLikelihoodContainer :
   virtual public Clonable
 {
@@ -73,7 +71,9 @@ protected:
   std::map<size_t, std::shared_ptr<PhyloLikelihoodInterface> >  mPhylo_;
 
 public:
-  PhyloLikelihoodContainer(Context& context, SubstitutionProcessCollection& sColl) :
+  PhyloLikelihoodContainer(
+      Context& context, 
+      std::shared_ptr<SubstitutionProcessCollection> sColl) :
     context_(context),
     collectionNodes_(std::make_shared<CollectionNodes>(context_, sColl)),
     mPhylo_()

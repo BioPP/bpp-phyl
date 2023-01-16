@@ -44,14 +44,20 @@
 using namespace bpp;
 using namespace std;
 
-SingleProcessSubstitutionMapping::SingleProcessSubstitutionMapping(SingleProcessPhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold, bool verbose) :
-  AbstractSinglePhyloSubstitutionMapping(spp.getTree().getGraph(), reg, weights, distances),
+SingleProcessSubstitutionMapping::SingleProcessSubstitutionMapping(
+    SingleProcessPhyloLikelihood& spp,
+    shared_ptr<SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights,
+    std::shared_ptr<const AlphabetIndex2> distances,
+    double threshold,
+    bool verbose) :
+  AbstractSinglePhyloSubstitutionMapping(spp.tree().getGraph(), reg, weights, distances),
   pSPP_(&spp)
 {
   setBranchedModelSet_();
 
   // assigns edge indexes
-  const auto& tree = spp.getTree();
+  const auto& tree = spp.tree();
 
   unique_ptr<modelTree::EdgeIterator> eIT = allEdgesIterator();
 
@@ -79,11 +85,12 @@ void SingleProcessSubstitutionMapping::computeNormalizations(const ParameterList
 {
   matchParametersValues(nullParams);
 
-  factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculationSingleProcess(),
-                                                                 this,
-                                                                 getRegister(),
-                                                                 getDistances(),
-                                                                 verbose));
+  factors_ = SubstitutionMappingTools::computeNormalizations(
+      getLikelihoodCalculationSingleProcess(),
+      shared_from_this(),
+      getSubstitutionRegister(),
+      getDistances(),
+      verbose);
 }
 
 // void SingleProcessSubstitutionMapping::computeNormalizationsForASite(
@@ -104,12 +111,12 @@ void SingleProcessSubstitutionMapping::computeNormalizations(const ParameterList
 
 void SingleProcessSubstitutionMapping::setBranchedModelSet_()
 {
-  const SubstitutionProcess& sp = pSPP_->getSubstitutionProcess();
+  const SubstitutionProcessInterface& sp = pSPP_->substitutionProcess();
 
   vector<size_t> vId = sp.getModelNumbers();
 
-  for (auto id:vId)
+  for (auto id : vId)
   {
-    addModel(id, dynamic_cast<const TransitionModel&>(*sp.getModel(id)), sp.getNodesWithModel(id));
+    addModel(id, dynamic_cast<const TransitionModelInterface&>(sp.model(id)), sp.getNodesWithModel(id));
   }
 }

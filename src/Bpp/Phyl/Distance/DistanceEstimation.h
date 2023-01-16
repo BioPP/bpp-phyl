@@ -196,7 +196,7 @@ public:
 private:
   void init_()
   {
-    auto desc = make_shared<MetaOptimizerInfos>();
+    auto desc = make_unique<MetaOptimizerInfos>();
     std::vector<std::string> name;
     name.push_back("BrLen0");
     name.push_back("BrLen1");
@@ -205,7 +205,7 @@ private:
     tmp.addParameters(rateDist_->getParameters());
     desc->addOptimizer("substitution model and rate distribution", std::make_shared<SimpleMultiDimensions>(nullptr), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
 
-    defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, desc);
+    defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, move(desc));
     defaultOptimizer_->setMessageHandler(nullptr);
     defaultOptimizer_->setProfiler(nullptr);
     defaultOptimizer_->getStopCondition()->setTolerance(0.0001);
@@ -270,6 +270,8 @@ public:
   void setData(std::shared_ptr<const AlignmentDataInterface> sites = nullptr) { sites_ = sites; }
 
   std::shared_ptr<const AlignmentDataInterface> getData() const { return sites_; }
+  
+  const AlignmentDataInterface& data() const { return *sites_; }
 
   void setOptimizer(std::shared_ptr<OptimizerInterface> optimizer)
   {

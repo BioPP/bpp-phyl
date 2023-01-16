@@ -47,43 +47,43 @@ using namespace std;
 /******************************************************************************/
 
 CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod,
-  std::vector<CoreCodonSubstitutionModel*>& vpmodel,
-  const std::string& name) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    vector<unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
+    const string& name) :
   AbstractParameterAliasable(name + "."),
   AbstractCodonSubstitutionModel(gCode, pmod, name + "."),
   vModel_(),
   name_(name),
   freqSet_()
 {
-  for (auto model : vpmodel)
+  for (auto& model : vpmodel)
   {
-    if (model != NULL)
+    if (model)
     {
       model->setNamespace(name + ".");
-      if (model->getFrequencySet())
+      if (model->hasCodonFrequencySet())
       {
         if (freqSet_)
           throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequencySet");
 
-        freqSet_ = model->getFrequencySet();
+        freqSet_ = unique_ptr<CodonFrequencySetInterface>(model->codonFrequencySet().clone());
       }
-      vModel_.push_back(unique_ptr<CoreCodonSubstitutionModel>(model));
       addParameters_(model->getParameters());
+      vModel_.push_back(move(model));
     }
   }
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3,
-  std::vector<CoreCodonSubstitutionModel*>& vpmodel,
-  const std::string& name) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    vector<unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
+    const std::string& name) :
   AbstractParameterAliasable(name + "."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, name + "."),
   vModel_(),
@@ -95,21 +95,21 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
     if (model != NULL)
     {
       model->setNamespace(name + ".");
-      if (model->getFrequencySet())
+      if (model->hasCodonFrequencySet())
       {
         if (freqSet_)
           throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequencySet");
 
-        freqSet_ = model->getFrequencySet();
+        freqSet_ = unique_ptr<CodonFrequencySetInterface>(model->codonFrequencySet().clone());
       }
 
-      vModel_.push_back(unique_ptr<CoreCodonSubstitutionModel>(model));
       addParameters_(model->getParameters());
+      vModel_.push_back(move(model));
     }
   }
 
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(const CodonAdHocSubstitutionModel& model) :
@@ -126,12 +126,12 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(const CodonAdHocSubstit
 
   for (auto& mod : vModel_)
   {
-    if (mod->getFrequencySet())
+    if (mod->hasCodonFrequencySet())
     {
       if (freqSet_)
         throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequencySet");
 
-      freqSet_ = mod->getFrequencySet();
+      freqSet_ = unique_ptr<CodonFrequencySetInterface>(mod->codonFrequencySet().clone());
     }
   }
 }
@@ -152,12 +152,12 @@ CodonAdHocSubstitutionModel& CodonAdHocSubstitutionModel::operator=(const CodonA
 
   for (auto& mod : vModel_)
   {
-    if (mod->getFrequencySet())
+    if (mod->hasCodonFrequencySet())
     {
       if (freqSet_)
         throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequencySet");
 
-      freqSet_ = mod->getFrequencySet();
+      freqSet_ = unique_ptr<CodonFrequencySetInterface>(mod->codonFrequencySet().clone());
     }
   }
 

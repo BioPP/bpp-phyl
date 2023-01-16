@@ -1,7 +1,7 @@
 //
 // File: OneProcessSequencePhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mardi 28 avril 2015, ÃÂ  12h 17
 //
 
@@ -70,11 +70,11 @@ namespace bpp
  * and implements the Function interface, dealing with parameters from
  * the associated SubstitutionProcess.
  */
-
 class OneProcessSequencePhyloLikelihood :
-  public AbstractSequencePhyloLikelihood
+  public AbstractParametrizableSequencePhyloLikelihood
 {
 private:
+
   /**
    * @brief to avoid the dynamic casts
    */
@@ -90,9 +90,11 @@ private:
   secondOrderDerivativeVectors_;
 
 protected:
+
   mutable std::shared_ptr<LikelihoodCalculationSingleProcess> likCal_;
 
 public:
+
   OneProcessSequencePhyloLikelihood(
     Context& context,
     std::shared_ptr<OneProcessSequenceEvolution> evol,
@@ -112,19 +114,38 @@ public:
     size_t nSeqEvol = 0,
     size_t nData = 0);
 
+protected:
+
   OneProcessSequencePhyloLikelihood(const OneProcessSequencePhyloLikelihood& lik) :
     AbstractPhyloLikelihood(lik),
-    //AbstractAlignedPhyloLikelihood(lik),
+    AbstractAlignedPhyloLikelihood(lik),
+    AbstractSingleDataPhyloLikelihood(lik),
     AbstractSequencePhyloLikelihood(lik),
+    AbstractParametrizable(lik),
+    AbstractParametrizableSequencePhyloLikelihood(lik),
     mSeqEvol_(lik.mSeqEvol_),
     likCal_(lik.likCal_)
   {}
 
+  OneProcessSequencePhyloLikelihood& operator=(const OneProcessSequencePhyloLikelihood& lik)
+  {
+    AbstractParametrizableSequencePhyloLikelihood::operator=(lik);
+    mSeqEvol_ = lik.mSeqEvol_;
+    likCal_ = lik.likCal_;
+    return *this;
+  }
+
+  OneProcessSequencePhyloLikelihood* clone() const override
+  { 
+    return new OneProcessSequencePhyloLikelihood(*this);
+  }
+  
+public:
+  
   virtual ~OneProcessSequencePhyloLikelihood() {}
 
-  OneProcessSequencePhyloLikelihood* clone() const override { return new OneProcessSequencePhyloLikelihood(*this); }
-
 public:
+  
   /**
    * @name Handling of data
    *
