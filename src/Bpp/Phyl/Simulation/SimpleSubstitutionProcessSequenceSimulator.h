@@ -67,7 +67,9 @@ public:
   /**
    * @brief A posterior simulation, from a position in an alignment.
    */
-  SimpleSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos) :
+  SimpleSubstitutionProcessSequenceSimulator(
+      std::shared_ptr<LikelihoodCalculationSingleProcess> calcul,
+      size_t pos) :
     siteSim_(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul, pos))
   {}
 

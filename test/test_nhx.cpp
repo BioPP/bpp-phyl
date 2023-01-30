@@ -54,7 +54,7 @@ int main() {
     leaves[i] = "leaf" + TextTools::toString(i);
   
   //Generate a random tree, without branch lengths:
-  TreeTemplate<Node>* tree = TreeTemplateTools::getRandomTree(leaves, true);
+  auto tree = TreeTemplateTools::getRandomTree(leaves, true);
 
   //Now assign random properties:
   vector<Node*> nodes = tree->getNodes();
@@ -71,12 +71,10 @@ int main() {
   ofstream out("randomTree.nhx", ios::out);
   nhxParser.writeTree(*tree, out);
   out.close();
-  TreeTemplate<Node>* tree2 = nhxParser.readTree("randomTree.nhx");
+  auto tree2 = nhxParser.readTree("randomTree.nhx");
   ofstream out2("randomTree2.nhx", ios::out);
   nhxParser.writeTree(*tree2, out2);
   out2.close();
 
-  delete tree;
-  delete tree2;
   return 0;
 }

@@ -101,7 +101,17 @@ public:
   /**
    * @return The set of substitution models associated to this instance.
    */
+  virtual const SubstitutionModelSet& substitutionModelSet() const = 0;
+
+  /**
+   * @return The set of substitution models associated to this instance.
+   */
   virtual std::shared_ptr<SubstitutionModelSet> getSubstitutionModelSet() = 0;
+
+  /**
+   * @return The set of substitution models associated to this instance.
+   */
+  virtual SubstitutionModelSet& substitutionModelSet() = 0;
 
   /**
    * @return Set the substitution models for this instance.

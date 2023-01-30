@@ -1,7 +1,7 @@
 //
 // File: ModelPath.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mardi 26 novembre 2019, ÃÂ  13h 42
 //
 
@@ -104,7 +104,6 @@ public:
 
     /**
      * @brief Remove the elements of the given PathNode from this one.
-     *
      */
     PathNode& operator-=(const PathNode& n)
     {
@@ -114,53 +113,39 @@ public:
 
     /**
      * @brief checks if this PathNode is included in another one.
-     *
      */
-
     bool operator<=(const PathNode&) const;
 
     /**
      * @brief checks if this PathNode includes another one.
-     *
      */
-
     bool operator>=(const PathNode&) const;
 
     /**
      * @brief checks if this PathNode intersects another one.
-     *
      */
-
     bool intersects(const PathNode&) const;
 
     /**
      * @brief Output
-     *
      */
-
     std::string to_string() const;
   };
 
 private:
-  /*
+  /**
    * Which submodels of MixedTransitionModels are used.
-   *
    */
-
   std::map<std::shared_ptr<MixedTransitionModelInterface>, PathNode> mModPath_;
 
-  /*
+  /**
    * The leading model (ie which that decides of the submodels probabilities).
-   *
    */
-
   std::shared_ptr<MixedTransitionModelInterface> leadMod_;
 
   /**
    * @brief probability of this ModelPath.
-   *
    */
-
   double proba_;
 
 public:
@@ -174,9 +159,8 @@ public:
     return mModPath_.size();
   }
 
-  /*
+  /**
    * @brief gets the leader model.
-   *
    */
   std::shared_ptr<MixedTransitionModelInterface> getLeadModel()
   {
@@ -188,11 +172,10 @@ public:
     return leadMod_;
   }
 
-  /*
+  /**
    * @brief sets the leader model.
    *
    * The model must be in the map before.
-   *
    */
   void setLeadModel(std::shared_ptr<MixedTransitionModelInterface> model)
   {
@@ -208,7 +191,6 @@ public:
    * @param mMod the mixed model
    * @param vnS vector of indexes of the submodels
    */
-
   void setModel(std::shared_ptr<MixedTransitionModelInterface> mMod, const Vuint& vnS);
 
   /**
@@ -218,9 +200,7 @@ public:
    * @param mMod2 the new mixed model
    *
    * if mMod1 is the lead model, mMod2 becomes the lead model
-   *
    */
-
   void changeModel(std::shared_ptr<MixedTransitionModelInterface> mMod1,
                    std::shared_ptr<MixedTransitionModelInterface> mMod2);
 
@@ -245,63 +225,48 @@ public:
    * @param mMod the mixed model
    * @param vnS vector of numbers of the submodel
    */
-
   void addToModel(std::shared_ptr<MixedTransitionModelInterface> mMod, const Vuint& vnS);
 
   /**
    * @brief Cumulates the PathNodes of the given ModelPath into this one.
-   *
    */
-
   ModelPath& operator+=(const ModelPath&);
 
   /**
    * @brief Remove from the PathNodes of this objet the matching ones of the ModelPath.
-   *
    */
-
   ModelPath& operator-=(const ModelPath&);
 
   /**
    * @brief checks if this ModelPath is included in another one.
    *  Which means that all submodels of this path are in the other part.
-   *
    */
-
   bool operator<=(const ModelPath&) const;
 
   /**
    * @brief checks if this ModelPath includes another one.
-   *
    */
-
   bool operator>=(const ModelPath&) const;
 
   /**
    * @brief checks if this ModelPath intersects another one. Which
    * means that one submodel explicitely declared in a ModelPath is
    * in the other.
-   *
    */
-
   bool intersects(const ModelPath&) const;
 
   /**
    * @brief returns the probability
-   *
    */
   double getProbability() const {return proba_; }
 
   /**
    * @brief sets the probability
-   *
    */
   void setProbability(double x) { proba_ = x; }
 
   /**
    * @brief checks if there is a pathnode associated with a model
-   *
-   *
    */
   bool hasModel(std::shared_ptr<MixedTransitionModelInterface> mMod) const
   { return mModPath_.find(mMod) != mModPath_.end(); }
@@ -318,8 +283,6 @@ public:
 
   /**
    * @brief gets the pathnode associated with a model
-   *
-   *
    */
   const PathNode& getPathNode(std::shared_ptr<MixedTransitionModelInterface> mMod) const
   { return mModPath_.at(mMod); }
@@ -336,9 +299,7 @@ public:
 
   /**
    * @brief gets the MixedTransitionModel used in the ModelPath
-   *
    */
-
   std::vector<std::shared_ptr<MixedTransitionModelInterface> > getModels() const;
 
   /**

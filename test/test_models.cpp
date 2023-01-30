@@ -61,11 +61,11 @@ using namespace bpp;
 using namespace std;
 
 class DummyFunction:
-  public virtual Function,
+  public virtual FunctionInterface,
   public AbstractParametrizable
 {
   public:
-    DummyFunction(const SubstitutionModel& model):
+    DummyFunction(const SubstitutionModelInterface& model):
       AbstractParametrizable("")
     {
       addParameters_(model.getParameters());
@@ -83,10 +83,10 @@ class DummyFunction:
 
 };
 
-bool testModel(SubstitutionModel& model) {
+bool testModel(SubstitutionModelInterface& model) {
   ParameterList pl = model.getParameters();
-  DummyFunction df(model);
-  ReparametrizationFunctionWrapper redf(&df, pl, false);
+  auto df = make_shared<DummyFunction>(model);
+  ReparametrizationFunctionWrapper redf(df, pl, false);
 
   //Try to modify randomly each parameter and check that the new parameter apply correctly:
   for (unsigned int i = 0; i < 10; ++i) {
@@ -99,7 +99,7 @@ bool testModel(SubstitutionModel& model) {
     //Apply unconstrained parameters:
     redf.setParameters(pl2);
     //Retrieve transformed parameters:
-    pl2 = df.getParameters();
+    pl2 = df->getParameters();
     //pl2.printParameters(cout);
     //Now apply the new parameters and retrieve them again:
     model.matchParametersValues(pl2);
@@ -118,37 +118,37 @@ bool testModel(SubstitutionModel& model) {
 
 int main() {
   //Nucleotide models:
-  auto gtr=std::make_shared<GTR>(&AlphabetTools::DNA_ALPHABET);
+  auto gtr = std::make_unique<GTR>(AlphabetTools::DNA_ALPHABET);
   
   if (!testModel(*gtr)) return 1;
 
   //Codon models:
-  StandardGeneticCode gc(AlphabetTools::DNA_ALPHABET);
-  auto fset = CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F3X4, &gc);
-  YN98 yn98(&gc, fset);
+  auto gc = make_shared<StandardGeneticCode>(AlphabetTools::DNA_ALPHABET);
+  auto fset = CodonFrequencySetInterface::getFrequencySetForCodons(CodonFrequencySetInterface::F3X4, gc);
+  YN98 yn98(gc, move(fset));
   
   if (!testModel(yn98)) return 1;
 
   // Allelic models
 
-   AllelicAlphabet allalph(AlphabetTools::DNA_ALPHABET, 4);
-   auto fit = std::make_shared<FullNucleotideFrequencySet>(&AlphabetTools::DNA_ALPHABET);
+  auto allalph = make_shared<AllelicAlphabet>(AlphabetTools::DNA_ALPHABET, 4);
+  auto fit = std::make_unique<FullNucleotideFrequencySet>(AlphabetTools::DNA_ALPHABET);
 
-   auto statemod = gtr;
+  auto statemod = move(gtr);
    
-   // AllelicAlphabet allalph(AlphabetTools::PROTEIN_ALPHABET, 4);
-   // auto fit = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
-   // auto freq = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
+  // AllelicAlphabet allalph(AlphabetTools::PROTEIN_ALPHABET, 4);
+  // auto fit = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
+  // auto freq = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
 
-   // auto statemod = std::make_shared<JTT92>(&AlphabetTools::PROTEIN_ALPHABET, freq);
+  // auto statemod = std::make_shared<JTT92>(&AlphabetTools::PROTEIN_ALPHABET, freq);
   
-   POMO pomo(&allalph, statemod, fit);
+  POMO pomo(allalph, move(statemod), move(fit));
 
   auto& Q = pomo.getGenerator();
 
-  MatrixTools::printForR(Q,"Q",cerr);
+  MatrixTools::printForR(Q, "Q", cerr);
 
-  VectorTools::printForR(pomo.getFrequencies(),"freq",cerr);
+  VectorTools::printForR(pomo.getFrequencies(), "freq",cerr);
   
   return 0;
 }

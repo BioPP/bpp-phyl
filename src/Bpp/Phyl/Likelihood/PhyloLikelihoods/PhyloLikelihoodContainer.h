@@ -85,7 +85,7 @@ public:
     mPhylo_()
   {}
 
-  PhyloLikelihoodContainer* clone() const
+  PhyloLikelihoodContainer* clone() const override
   {
     throw Exception("PhyloLikelihoodContainer::clone should not be called.");
   }

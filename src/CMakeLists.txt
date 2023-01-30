@@ -54,7 +54,6 @@ set (CPP_FILES
   Bpp/Phyl/Legacy/Likelihood/DRNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/DRTreeLikelihoodTools.cpp
   Bpp/Phyl/Legacy/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
-  Bpp/Phyl/Legacy/Likelihood/JointLikelihoodFunction.cpp
   Bpp/Phyl/Legacy/Likelihood/MarginalAncestralStateReconstruction.cpp
   Bpp/Phyl/Legacy/Likelihood/NNIHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/PairedSiteLikelihoods.cpp

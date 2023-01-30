@@ -50,12 +50,12 @@ using namespace std;
 int main() {
   try {
     Newick treeReader;
-    unique_ptr<Tree> tree(treeReader.readTree("example1.mp.dnd"));
+    shared_ptr<TreeTemplate<Node>> tree = treeReader.readTreeTemplate("example1.mp.dnd");
 
     Phylip alnReader(false, false);
-    unique_ptr<SiteContainer> sites(dynamic_cast<SiteContainer*>(alnReader.readAlignment("example1.ph", &AlphabetTools::DNA_ALPHABET)));
+    shared_ptr<SiteContainerInterface> sites = alnReader.readAlignment("example1.ph", AlphabetTools::DNA_ALPHABET);
 
-    DRTreeParsimonyScore pars(*tree, *sites, true, true);
+    DRTreeParsimonyScore pars(tree, sites, true, true);
   
     cout << "Parsimony score: " << pars.getScore() << endl;
 

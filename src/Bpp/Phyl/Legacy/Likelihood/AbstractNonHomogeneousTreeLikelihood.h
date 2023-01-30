@@ -225,8 +225,12 @@ public:
    * @{
    */
   std::shared_ptr<const SubstitutionModelSet> getSubstitutionModelSet() const override { return modelSet_; }
+  
+  const SubstitutionModelSet& substitutionModelSet() const override { return *modelSet_; }
 
   std::shared_ptr<SubstitutionModelSet> getSubstitutionModelSet() override { return modelSet_; }
+  
+  SubstitutionModelSet& substitutionModelSet() override { return *modelSet_; }
 
   void setSubstitutionModelSet(std::shared_ptr<SubstitutionModelSet> modelSet) override;
 

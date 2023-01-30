@@ -675,13 +675,13 @@ void CodonFromUniqueFrequencySet::updateFrequencies()
 
 /*********************************************************************/
 
-unique_ptr<FrequencySetInterface> CodonFrequencySetInterface::getFrequencySetForCodons(
+unique_ptr<CodonFrequencySetInterface> CodonFrequencySetInterface::getFrequencySetForCodons(
     short option, 
     shared_ptr<const GeneticCode> gCode,
     const string& mgmtStopCodon,
     unsigned short method)
 {
-  unique_ptr<FrequencySetInterface> codonFreqs;
+  unique_ptr<CodonFrequencySetInterface> codonFreqs;
 
   if (option == F0)
     codonFreqs.reset(new FixedCodonFrequencySet(gCode, "F0"));

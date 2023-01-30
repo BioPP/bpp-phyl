@@ -189,37 +189,37 @@ public:
   virtual void writeTree(const Tree& tree, std::ostream& out) const = 0;
 };
 
+/**
+ * @brief General interface for tree writers.
+ */
+class OPhyloTree :
+  public virtual IOTree
+{
+public:
+  OPhyloTree() {}
+  virtual ~OPhyloTree() {}
+
+public:
   /**
-   * @brief General interface for tree writers.
+   * @brief Write a tree to a file.
+   *
+   * @param tree A tree object.
+   * @param path The file path.
+   * @param overwrite Tell if existing file must be overwritten.
+   * Otherwise append to the file.
+   * @throw Exception If an error occured.
    */
-  class OPhyloTree :
-    public virtual IOTree
-  {
-  public:
-    OPhyloTree() {}
-    virtual ~OPhyloTree() {}
+  virtual void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite) const = 0;
 
-  public:
-    /**
-     * @brief Write a tree to a file.
-     *
-     * @param tree A tree object.
-     * @param path The file path.
-     * @param overwrite Tell if existing file must be overwritten.
-     * Otherwise append to the file.
-     * @throw Exception If an error occured.
-     */
-    virtual void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite) const = 0;
-
-    /**
-     * @brief Write a tree to a stream.
-     *
-     * @param tree A tree object.
-     * @param out The output stream.
-     * @throw Exception If an error occured.
-     */
-    virtual void writePhyloTree(const PhyloTree& tree, std::ostream& out) const =  0;
-  };
+  /**
+   * @brief Write a tree to a stream.
+   *
+   * @param tree A tree object.
+   * @param out The output stream.
+   * @throw Exception If an error occured.
+   */
+  virtual void writePhyloTree(const PhyloTree& tree, std::ostream& out) const =  0;
+};
 
 /**
  * @brief Partial implementation of the ITree interface.
@@ -435,7 +435,10 @@ public:
    * Otherwise append to the file.
    * @throw Exception If an error occured.
    */
-  virtual void writeTrees(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite) const = 0;
+  virtual void writeTrees(
+      const std::vector<const Tree*>& trees,
+      const std::string& path,
+      bool overwrite) const = 0;
 
   /**
    * @brief Write trees to a stream.
@@ -444,7 +447,9 @@ public:
    * @param out The output stream.
    * @throw Exception If an error occured.
    */
-  virtual void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const = 0;
+  virtual void writeTrees(
+      const std::vector<const Tree*>& trees,
+      std::ostream& out) const = 0;
 };
 
 /**
@@ -467,7 +472,10 @@ public:
    * Otherwise append to the file.
    * @throw Exception If an error occured.
    */
-  virtual void writePhyloTrees(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite) const = 0;
+  virtual void writePhyloTrees(
+      const std::vector<const PhyloTree*>& trees,
+      const std::string& path,
+      bool overwrite) const = 0;
 
   /**
    * @brief Write trees to a stream.
@@ -476,7 +484,9 @@ public:
    * @param out The output stream.
    * @throw Exception If an error occured.
    */
-  virtual void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const = 0;
+  virtual void writePhyloTrees(
+      const std::vector<const PhyloTree*>& trees,
+      std::ostream& out) const = 0;
 };
 
 /**

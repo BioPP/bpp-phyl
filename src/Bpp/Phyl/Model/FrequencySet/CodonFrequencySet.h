@@ -90,7 +90,7 @@ public:
    *
    * @see Simplex
    */
-  static std::unique_ptr<FrequencySetInterface> getFrequencySetForCodons(
+  static std::unique_ptr<CodonFrequencySetInterface> getFrequencySetForCodons(
       short option,
       std::shared_ptr<const GeneticCode> gCode,
       const std::string& mgmtStopCodon = "quadratic",

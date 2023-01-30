@@ -386,7 +386,7 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const
 
 void DRTreeParsimonyScore::doNNI(int nodeId)
 {
-  Node* son = treeTemplate().getNode(nodeId);
+  Node* son = treeTemplate_().getNode(nodeId);
   if (!son->hasFather())
     throw NodePException("DRTreeParsimonyScore::doNNI(). Node 'son' must not be the root node.", son);
   Node* parent = son->getFather();

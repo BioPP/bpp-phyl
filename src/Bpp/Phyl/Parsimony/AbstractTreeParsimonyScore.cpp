@@ -52,7 +52,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   shared_ptr<const SiteContainerInterface> data,
   bool verbose,
   bool includeGaps) :
-  tree_(move(tree)),
+  treePtr_(move(tree)),
   data_(nullptr),
   alphabet_(data->getAlphabet()),
   statesMap_(nullptr),
@@ -69,7 +69,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   shared_ptr<const SiteContainerInterface> data,
   std::shared_ptr<const StateMapInterface> statesMap,
   bool verbose) :
-  tree_(move(tree)),
+  treePtr_(move(tree)),
   data_(nullptr),
   alphabet_(data->getAlphabet()),
   statesMap_(statesMap),
@@ -80,16 +80,16 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 
 void AbstractTreeParsimonyScore::init_(shared_ptr<const SiteContainerInterface> data, bool verbose)
 {
-  if (tree_->isRooted())
+  if (treePtr_->isRooted())
   {
     if (verbose)
       ApplicationTools::displayWarning("Tree has been unrooted.");
-    tree_->unroot();
+    treePtr_->unroot();
   }
-  TreeTemplateTools::deleteBranchLengths(*tree_->getRootNode());
+  TreeTemplateTools::deleteBranchLengths(*treePtr_->getRootNode());
 
   // Sequences will be in the same order than in the tree:
-  shared_ptr<AlignmentDataInterface> tmp = PatternTools::getSequenceSubset(*data, *tree_->getRootNode());
+  shared_ptr<AlignmentDataInterface> tmp = PatternTools::getSequenceSubset(*data, *treePtr_->getRootNode());
   data_ = dynamic_pointer_cast<const SiteContainerInterface>(tmp);
   if (!data_)
     throw Exception("AbstractTreeParsimonyScore::init_ : Data must be plain alignments.");
