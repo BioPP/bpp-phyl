@@ -288,7 +288,7 @@ public:
   void setData(const AlignedValuesContainer& sites)
   {
     psites_ = &sites;
-    setPatterns_();
+    setPatterns_(); 
     if (isInitialized())
     {
       vRateCatTrees_.clear();

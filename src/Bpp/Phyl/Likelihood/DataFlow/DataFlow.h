@@ -200,9 +200,26 @@ public:
 
   // Accessors
   bool isValid () const noexcept { return isValid_; }
-  const NodeRefVec& dependencies () const noexcept { return dependencyNodes_; }
+
+  /**
+   * @brief Number of dependent nodes (ie nodes that depend on this)
+   *
+   */
+  
+  std::size_t nbDependentNodes () const noexcept { return dependentNodes_.size (); }
+
+  
   const std::vector<Node_DF*>& dependentNodes () const noexcept { return dependentNodes_; }
+
+  /**
+   * @brief Number of dependencies (ie nodes we depend on)
+   *
+   */
+  
   std::size_t nbDependencies () const noexcept { return dependencyNodes_.size (); }
+  
+  const NodeRefVec& dependencies () const noexcept { return dependencyNodes_; }
+
   const NodeRef& dependency (std::size_t i) const noexcept { return dependencyNodes_[i]; }
 
   /// Node pretty name (default = type name).
@@ -333,6 +350,8 @@ private:
   NodeRefVec dependencyNodes_{};         // Nodes that we depend on.
   std::vector<Node_DF*> dependentNodes_{}; // Nodes that depend on us.
   bool isValid_{false};
+
+  friend class Context;
 };
 
 /// Convert a node ref with runtime type check.
@@ -538,7 +557,7 @@ void checkDependencyRangeIsValue (const std::type_info& contextNodeType, const N
 class Context
 {
 public:
-  Context () = default;
+  Context ();
 
   /** For a newly created node, return its equivalent from the cache.
    * If not already present in the cache, add it and return newNode.
@@ -556,7 +575,7 @@ public:
     return nodeCache_.size();
   }
 
-  /*
+  /**
    * @brief Clear the context
    *
    */
@@ -565,8 +584,36 @@ public:
     nodeCache_.clear();
   }
 
+  /**
+   * @brief Remove an element from the map, only if it has no
+   * dependent nodes, and likewise down the graph.
+   *
+   * @param  r the upstream node to be removed
+   *
+   * @return boolean: if the node has been removed from the map.
+   */
+  
+  bool erase(const NodeRef& r);
+
+  /*
+   * @brief Get a size_t 0 NodeRef
+   *
+   */
+
+  NodeRef getZero()
+  {
+    return zero_;
+  }
+
+  /**
+   * @brief Returns the vector of all pointers to all nodes.
+   *
+   */
+
+  std::vector<const Node_DF*> getAllNodes() const;
+
 private:
-  /* NodeRef is hashable and comparable as a pointer.
+  /** NodeRef is hashable and comparable as a pointer.
    * CachedNodeRef is hashable and comparable, by comparing the node configuration:
    * - Derived class type,
    * - Dependencies,
@@ -589,6 +636,8 @@ private:
   };
 
   std::unordered_set<CachedNodeRef, CachedNodeRefHash> nodeCache_;
+
+  NodeRef zero_;
 };
 
 /// Helper: Same as Context::cached but with a shared_ptr<T> node.

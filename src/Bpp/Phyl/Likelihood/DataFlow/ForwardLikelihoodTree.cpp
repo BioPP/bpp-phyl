@@ -44,6 +44,10 @@
 #include "Parametrizable.h"
 #include "Sequence_DF.h"
 
+
+#include <string> // debug
+
+
 using namespace bpp;
 using namespace std;
 
@@ -75,7 +79,7 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
 
   ForwardLikelihoodBelowRef forwardEdge;
 
-  auto zero = NumericConstant<size_t>::create(context_, size_t(0));
+  auto zero = context_.getZero();
 
   if (brlen) // Branch with transition through a model
   {
@@ -84,6 +88,7 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
       auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel, Eigen::MatrixXd>(context_, {model, brlen, zero, nMod}, transitionMatrixDimension (size_t(nbState_)));
 
       processEdge->setTransitionMatrix(transitionMatrix);
+
       forwardEdge = ForwardTransition::create (
         context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
     }

@@ -123,7 +123,13 @@ public:
     likelihood_ = ll;
   }
 
-  /*
+  virtual void cleanAllLikelihoods()
+  {
+    if (likelihood_)
+      getContext_().erase(likelihood_);
+  }
+
+/*
    * @brief fix Factor such that valRef value becomes normal.
    *
    */
@@ -140,7 +146,6 @@ protected:
   {
     return context_;
   }
-
 
   ValueRef<DataLik> getLikelihoodNode_()
   {
@@ -254,6 +259,23 @@ public:
     VDataLik v;
     copyEigenToBpp(vLik, v);
     return v;
+  }
+
+  /*
+   * @brief Clean all the existing likelihoods (ie remove them from
+   * Context), and all unique dependencies.
+   *
+   *
+   */
+  void cleanAllLikelihoods()
+  {
+    LikelihoodCalculation::cleanAllLikelihoods();
+
+    if (siteLikelihoods_)
+      getContext_().erase(siteLikelihoods_);
+
+    if (patternedSiteLikelihoods_)
+      getContext_().erase(patternedSiteLikelihoods_);
   }
 
 protected:

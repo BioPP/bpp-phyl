@@ -51,8 +51,10 @@
 #include <type_traits> // DotOptions flags
 #include <typeinfo>
 #include <unordered_set> // debug
+#include <set>
 
 #include "DataFlow.h"
+#include "DataFlowNumeric.h"
 
 /* std::type_info::name() returns a "mangled" type name, not very readable.
  * Compilers can optionally provide an ABI header cxxabi.h.
@@ -342,6 +344,12 @@ NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
 /*****************************************************************************
  * Context.
  */
+
+Context::Context() : nodeCache_(), zero_(ConstantZero<size_t>::create(*this, Dimension<size_t>()))
+{
+}
+
+                           
 NodeRef Context::cached (NodeRef&& newNode)
 {
   assert (newNode != nullptr);
@@ -356,7 +364,7 @@ NodeRef Context::cached (NodeRef& newNode)
   // First remove this object from the set if it is already
   for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
   {
-    if (&it->ref == &newNode)
+    if (it->ref == newNode)
       it = nodeCache_.erase(it);
     else
       ++it;
@@ -365,6 +373,60 @@ NodeRef Context::cached (NodeRef& newNode)
   // Try inserting it, which will fail if already present and return the old one
   auto r = nodeCache_.emplace (newNode);
   return r.first->ref;
+}
+
+std::vector<const Node_DF*> Context::getAllNodes() const
+{
+  std::vector<const Node_DF*> ret;
+  for (const auto it : nodeCache_)
+    ret.push_back(it.ref.get());
+
+  return(ret);
+}
+    
+
+bool Context::erase(const NodeRef& node)
+{
+  if (!node)
+    return false;
+
+  std::set<NodeRef> sNodes;
+  sNodes.emplace(node);
+
+  bool flag=true;
+  bool ret=false;
+  while(flag)
+  {
+    flag=false;
+    for (auto n : sNodes)
+    {
+      if (n->nbDependentNodes()==0) {
+        for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
+        {
+          if (it->ref == n)
+          {
+            sNodes.erase(n);
+            for (auto dep:n->dependencies())
+            {
+              if (!dep)
+                continue;
+              sNodes.emplace(dep);
+              dep->unregisterNode (n.get());
+            }
+            
+            it=nodeCache_.erase(it);
+            flag=true;
+            ret=true;
+          }
+          else
+            ++it;
+        }
+      }
+      if (flag)
+        break;
+    }
+  }
+  return ret;
 }
 
 /* Compare/hash the triplet (type, deps, additionalArgs).

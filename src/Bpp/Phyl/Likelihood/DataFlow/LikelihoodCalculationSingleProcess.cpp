@@ -437,7 +437,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   {
     std::vector<std::shared_ptr<Node_DF> > vLikRoot;
 
-    auto zero = NumericConstant<size_t>::create(getContext_(), size_t(0));
+    auto zero = getContext_().getZero();
 
     for (auto& rateCat: vRateCatTrees_)
     {
@@ -461,6 +461,8 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
       getContext_(), {rFreqs_, vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, RowVectorDimension (Eigen::Index (nbDistSite)));
   }
 
+  
+  cleanAllLikelihoods();
 
   // likelihoods per distinct site
   setSiteLikelihoods(sL, true);
@@ -476,7 +478,6 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
     val = SumOfLogarithms<RowLik>::create (getContext_(), {sL}, RowVectorDimension (Eigen::Index (nbDistSite)));
 
   setLikelihoodNode(val);
-
 
 #ifdef DEBUG
   using bpp::DotOptions;
