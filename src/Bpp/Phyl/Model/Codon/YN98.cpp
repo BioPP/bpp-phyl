@@ -67,11 +67,11 @@ YN98::YN98(
   addParameter_(new Parameter("YN98.omega", 1, make_shared<IntervalConstraint>(0.001, 999, true, true)));
 
   pmodel_->setNamespace("YN98.");
-  addParameters_(codonFreqs->getParameters());
+  addParameters_(pmodel_->codonFrequencySet().getParameters());
 
   lParPmodel_.addParameters(pmodel_->getParameters());
 
-  vector<std::string> v = pmodel_->frequencySet().getParameters().getParameterNames();
+  vector<std::string> v = pmodel_->codonFrequencySet().getParameters().getParameterNames();
 
   for (auto& vi : v)
   {

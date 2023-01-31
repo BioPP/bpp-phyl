@@ -60,20 +60,20 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 {
   enableEigenDecomposition(true);
 
-  size_t i;
-  for (i = 0; i < 3; i++)
+  shared_ptr<NucleotideSubstitutionModelInterface> pmod2 = move(pmod);
+  for (size_t i = 0; i < 3; ++i)
   {
-    VSubMod_.push_back(move(pmod));
-    VnestedPrefix_.push_back(pmod->getNamespace());
+    VSubMod_.push_back(pmod2);
+    VnestedPrefix_.push_back(pmod2->getNamespace());
   }
 
-  pmod->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
-  pmod->enableEigenDecomposition(0);
+  pmod2->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
+  pmod2->enableEigenDecomposition(0);
 
-  addParameters_(pmod->getParameters());
+  addParameters_(pmod2->getParameters());
 
   Vrate_.resize(3);
-  for (i = 0; i < 3; i++)
+  for (size_t i = 0; i < 3; ++i)
   {
     Vrate_[i] = 1.0 / 3;
   }
@@ -82,7 +82,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   if (hasParametrizedRates_)
   {
     // relative rates
-    for (i = 0; i < 2; i++)
+    for (size_t i = 0; i < 2; ++i)
     {
       addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / double(3 - i), Parameter::PROP_CONSTRAINT_EX));
     }

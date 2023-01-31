@@ -100,7 +100,6 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }
-
   updateFrequencies();
 }
 
@@ -124,8 +123,8 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
 
   for (size_t i = 0; i < l; ++i)
   {
-    vFreq_.push_back(move(freqVector[i]));
     vNestedPrefix_.push_back(freqVector[i]->getNamespace());
+    vFreq_.push_back(move(freqVector[i]));
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }

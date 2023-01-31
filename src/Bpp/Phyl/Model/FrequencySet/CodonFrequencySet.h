@@ -413,7 +413,7 @@ public:
    */
   CodonFromIndependentFrequencySet(
       std::shared_ptr<const GeneticCode> gCode,
-      std::vector<std::unique_ptr<FrequencySetInterface> >& freqvector,
+      std::vector<std::unique_ptr<FrequencySetInterface>>& freqvector,
       const std::string& name = "Codon",
       const std::string& mgmtStopCodon = "quadratic");
 

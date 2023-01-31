@@ -683,12 +683,11 @@ unique_ptr<CodonFrequencySetInterface> CodonFrequencySetInterface::getFrequencyS
 {
   unique_ptr<CodonFrequencySetInterface> codonFreqs;
 
-  if (option == F0)
+  if (option == F0) {
     codonFreqs.reset(new FixedCodonFrequencySet(gCode, "F0"));
-  else if (option == F1X4)
+  } else if (option == F1X4) {
     codonFreqs.reset(new CodonFromUniqueFrequencySet(gCode, make_unique<FullNucleotideFrequencySet>(gCode->codonAlphabet().getNucleicAlphabet()), "F1X4", mgmtStopCodon));
-  else if (option == F3X4)
-  {
+  } else if (option == F3X4) {
     vector<unique_ptr<FrequencySetInterface>> v_AFS(3);
     v_AFS[0] = make_unique<FullNucleotideFrequencySet>(gCode->codonAlphabet().getNucleicAlphabet());
     v_AFS[1] = make_unique<FullNucleotideFrequencySet>(gCode->codonAlphabet().getNucleicAlphabet());

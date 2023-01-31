@@ -59,7 +59,8 @@ class AbstractWrappedModel :
 {
 public:
   AbstractWrappedModel(const std::string& prefix) :
-    AbstractParameterAliasable(prefix) {}
+    AbstractParameterAliasable(prefix)
+  {}
   
   virtual ~AbstractWrappedModel() {}
 
@@ -252,7 +253,8 @@ class AbstractTotallyWrappedSubstitutionModel :
 public:
   AbstractTotallyWrappedSubstitutionModel(const std::string& prefix):
        AbstractTotallyWrappedTransitionModel(prefix),
-       AbstractWrappedSubstitutionModel(prefix)	{}
+       AbstractWrappedSubstitutionModel(prefix)
+  {}
 
   virtual ~AbstractTotallyWrappedSubstitutionModel() {}
 

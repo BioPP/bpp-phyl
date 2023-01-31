@@ -60,7 +60,10 @@ namespace bpp
 class ModelList
 {
 protected:
-  std::vector< std::unique_ptr<SubstitutionModelInterface> > models_;
+  /**
+   * @brief Position-specific models are stored as shared_ptr to allow several positions to share the same model. The constructors, however, take unique_ptr pointers to ensure that the pointers are not shared outside the model instance.
+   */
+  std::vector<std::shared_ptr<SubstitutionModelInterface>> models_;
   std::shared_ptr<WordAlphabet> wordAlphabet_;
 
 public:
@@ -69,10 +72,10 @@ public:
    *
    * @param models A vector of pointers toward substitution model objects.
    */
-  ModelList(std::vector< std::unique_ptr<SubstitutionModelInterface> >& models) :
+  ModelList(std::vector<std::unique_ptr<SubstitutionModelInterface>>& models) :
     models_(models.size()), wordAlphabet_(nullptr)
   {
-    std::vector< std::shared_ptr<const Alphabet> > alphabets(models.size());
+    std::vector<std::shared_ptr<const Alphabet>> alphabets(models.size());
     for (size_t i = 0; i < models.size(); ++i)
     {
       alphabets[i] = models[i]->getAlphabet();
@@ -89,13 +92,9 @@ public:
 public:
   size_t size() const { return models_.size(); }
 
-  std::unique_ptr<SubstitutionModelInterface> getModel(size_t i)
+  std::shared_ptr<SubstitutionModelInterface> getModel(size_t i)
   {
-    if (models_[i]) {
-      return std::move(models_[i]);
-    } else {
-      throw NullPointerException("ModelList::getModel. Model was already used once.");
-    }
+    return models_[i];
   }
 
   std::shared_ptr<const WordAlphabet> getWordAlphabet()
@@ -147,7 +146,7 @@ protected:
   /**
    * Vector of shared_ptr, to allow multiple positions to share the same model.
    */
-  std::vector< std::shared_ptr<SubstitutionModelInterface> > VSubMod_;
+  std::vector<std::shared_ptr<SubstitutionModelInterface>> VSubMod_;
   
   std::vector<std::string> VnestedPrefix_;
 

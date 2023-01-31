@@ -153,10 +153,11 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   size_t i;
 
   string t = "";
+  shared_ptr<SubstitutionModelInterface> pmodel2 = move(pmodel);
   for (i = 0; i < num; i++)
   {
-    VSubMod_.push_back(move(pmodel));
-    VnestedPrefix_.push_back(pmodel->getNamespace());
+    VSubMod_.push_back(pmodel2);
+    VnestedPrefix_.push_back(pmodel2->getNamespace());
     t += TextTools::toString(i + 1);
   }
 
@@ -179,13 +180,13 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   if (wrsm.newAlphabet_)
     alphabet_ = make_shared<WordAlphabet>(dynamic_cast<const WordAlphabet&>(wrsm.alphabet()));
 
-  unique_ptr<SubstitutionModelInterface> pSM = nullptr;
+  shared_ptr<SubstitutionModelInterface> pSM = nullptr;
   if ((num > 1) & (wrsm.VSubMod_[0] == wrsm.VSubMod_[1]))
     pSM.reset(wrsm.VSubMod_[0]->clone());
 
   for (i = 0; i < num; ++i)
   {
-    VSubMod_.push_back(pSM ? move(pSM) : unique_ptr<SubstitutionModelInterface>(wrsm.VSubMod_[i]->clone()));
+    VSubMod_.push_back(pSM ? pSM : shared_ptr<SubstitutionModelInterface>(wrsm.VSubMod_[i]->clone()));
   }
 }
 
@@ -204,13 +205,13 @@ AbstractWordSubstitutionModel& AbstractWordSubstitutionModel::operator=(
   if (model.newAlphabet_)
     alphabet_ = make_shared<WordAlphabet>(dynamic_cast<const WordAlphabet&>(model.alphabet()));
 
-  unique_ptr<SubstitutionModelInterface> pSM = nullptr;
+  shared_ptr<SubstitutionModelInterface> pSM = nullptr;
   if ((num > 1) & (model.VSubMod_[0] == model.VSubMod_[1]))
     pSM.reset(model.VSubMod_[0]->clone());
 
   for (i = 0; i < num; ++i)
   {
-    VSubMod_[i] =  (pSM ? move(pSM) : unique_ptr<SubstitutionModelInterface>(model.VSubMod_[i]->clone()));
+    VSubMod_[i] =  (pSM ? pSM : shared_ptr<SubstitutionModelInterface>(model.VSubMod_[i]->clone()));
   }
 
   return *this;

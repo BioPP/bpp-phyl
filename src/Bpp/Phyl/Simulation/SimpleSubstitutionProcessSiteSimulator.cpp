@@ -65,7 +65,7 @@ SimpleSubstitutionProcessSiteSimulator::SimpleSubstitutionProcessSiteSimulator(
   qRates_(),
   qRoots_(),
   seqIndexes_(),
-  seqNames_(),
+  seqNames_(phyloTree_->getAllLeavesNames()),
   speciesNodes_(),
   nbNodes_(),
   nbClasses_(process_->getNumberOfClasses()),

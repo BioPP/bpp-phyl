@@ -148,7 +148,7 @@ int main() {
 
   MatrixTools::printForR(Q, "Q", cerr);
 
-  VectorTools::printForR(pomo.getFrequencies(), "freq",cerr);
+  VectorTools::printForR(pomo.getFrequencies(), "freq", cerr);
   
   return 0;
 }

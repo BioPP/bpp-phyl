@@ -49,7 +49,7 @@ namespace bpp
 {
 /**
  * @brief The Yang and Nielsen (1998) substitution model for codons.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * This model has one rate of transitions and one rate of
  * transversion. It also allows distinct equilibrium frequencies
