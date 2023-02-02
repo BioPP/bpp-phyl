@@ -422,6 +422,8 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
 
 void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
 {
+  cleanAllLikelihoods();
+
   if (vRateCatTrees_.size() == 0)
     makeForwardLikelihoodTree_();
 
@@ -432,7 +434,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
     makeRootFreqs_();
 
   ValueRef<RowLik> sL;
-
+  
   if (processNodes_.ratesNode_)
   {
     std::vector<std::shared_ptr<Node_DF> > vLikRoot;
@@ -459,11 +461,10 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   {
     sL = LikelihoodFromRootConditionalAtRoot::create (
       getContext_(), {rFreqs_, vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, RowVectorDimension (Eigen::Index (nbDistSite)));
+
   }
 
   
-  cleanAllLikelihoods();
-
   // likelihoods per distinct site
   setSiteLikelihoods(sL, true);
 

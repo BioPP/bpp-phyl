@@ -390,6 +390,8 @@ bool Context::erase(const NodeRef& node)
   if (!node)
     return false;
 
+  size_t nb=0;
+  
   std::set<NodeRef> sNodes;
   sNodes.emplace(node);
 
@@ -415,6 +417,7 @@ bool Context::erase(const NodeRef& node)
             }
             
             it=nodeCache_.erase(it);
+            nb++;
             flag=true;
             ret=true;
           }
@@ -426,6 +429,7 @@ bool Context::erase(const NodeRef& node)
         break;
     }
   }
+
   return ret;
 }
 

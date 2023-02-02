@@ -47,6 +47,7 @@
 
 #include "BppPhylogeneticsApplication.h"
 #include "PhylogeneticsApplicationTools.h"
+#include <Bpp/Seq/Container/SiteContainerTools.h>
 
 using namespace std;
 using namespace bpp;
@@ -155,7 +156,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
     // This may be due to null branch lengths, leading to null likelihood!
     ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
     ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
-    ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
+    ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.001.");
     ParameterList pl = phylolik->getBranchLengthParameters();
 
     for (size_t i = 0; i < pl.size(); i++)
@@ -275,19 +276,42 @@ void BppPhylogeneticsApplication::fixLikelihood(
 
         logL = sDP->getValue();
 
+        vector<size_t> vsiteok, vsitemin;
+        
         if (!std::isnormal(logL))
         {
-          ApplicationTools::displayError("!!! Looking at each site:");
+          ApplicationTools::displayError("!!! Removing problem sites:");
           for (unsigned int i = 0; i < vData->getNumberOfSites(); i++)
           {
-            (*ApplicationTools::error << "Site " << vData->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
+            auto x = sDP->getLogLikelihoodForASite(i);
+            if (!std::isnormal(x))
+            {
+              (*ApplicationTools::error << "Site " << vData->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << x).endLine();
+              vsitemin.push_back(i);
+            }
+            else
+              vsiteok.push_back(i);
           }
-          ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
-          exit(1);
+
+          auto vDataok = SiteContainerTools::getSelectedSites(*vData, vsiteok);
+//          auto vDatamin = SiteContainerTools::getSelectedSites(*vData, vsitemin); Not taken into account yet
+
+          sDP->setData(*vDataok);
+          logL = sDP->getValue();
+          ApplicationTools::displayResult("Filtered log likelihood", TextTools::toString(-logL, 15));
+
+          // auto phylo2 = itm.second->clone();  To be finished
+          // phylo2->setData(*vDatamin);
+          // auto logL2 = phylo2->getValue();
+
+          // ApplicationTools::displayResult("Left log likelihood", TextTools::toString(-logL2, 15));
+          
         }
         else
           ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
       }
+      else
+        ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-itm.second->getValue(), 15));
     }
   }
 }
