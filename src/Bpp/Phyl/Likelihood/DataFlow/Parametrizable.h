@@ -60,10 +60,10 @@ namespace bpp
  *   parameter of the parametrizable.
  * The map is indexed by parameter names.
  */
-std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter> >
+std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
 createParameterMap(Context& c, const Parametrizable& parametrizable);
 
-std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter> >
+std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
 createParameterMap(Context& c, const ParameterAliasable& parametrizable);
 
 
@@ -74,11 +74,11 @@ createParameterMap(Context& c, const ParameterAliasable& parametrizable);
  * If no node is found (NodeRef was null), an exception is thrown.
  * Returned nodes must be Value<double> nodes.
  */
-NodeRefVec createDependencyVector (const Parametrizable& parametrizable,
-                                   const std::function<NodeRef (const std::string&)>& getParameter);
+NodeRefVec createDependencyVector(const Parametrizable& parametrizable,
+                                  const std::function<NodeRef(const std::string&)>& getParameter);
 
-NodeRefVec createDependencyVector (const ParameterAliasable& parametrizable,
-                                   const std::function<NodeRef (const std::string&)>& getParameter);
+NodeRefVec createDependencyVector(const ParameterAliasable& parametrizable,
+                                  const std::function<NodeRef(const std::string&)>& getParameter);
 
 
 class ConfiguredParametrizable
@@ -101,8 +101,8 @@ public:
     }
     // Check dependencies
     const auto nbParameters = object->getIndependentParameters ().size ();
-    checkDependenciesNotNull (typeid (Self), deps);
-    checkDependencyVectorSize (typeid (Self), deps, nbParameters);
+    checkDependenciesNotNull(typeid (Self), deps);
+    checkDependencyVectorSize(typeid (Self), deps, nbParameters);
     checkDependencyRangeIsValue<Parameter*>(typeid (Self), deps, 0, nbParameters);
     return cachedAs<Self>(c, std::make_shared<Self>(c, std::move (deps), std::move (object)));
   }
@@ -150,9 +150,7 @@ public:
    * @param object : Object which will be cloned to the node.
    * @param parList: list of the ConfiguredParameters previously built
    * @param suff  optional suffix for the parameter name, in the context of a full DataFlow
-   *
    */
-
   template<typename Object, typename Self>
   static std::shared_ptr<Self> createConfigured(Context& context, const Object& object, ParameterList& parList, const std::string& suff = "")
   {
