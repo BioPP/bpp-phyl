@@ -79,7 +79,8 @@ inline RowVectorDimension equilibriumFrequenciesDimension (std::size_t nbState)
  *
  * The dummy value is implemented as a pointer to the internal model for simplicity.
  */
-class ConfiguredModel : public Value<std::shared_ptr<BranchModelInterface>>,
+class ConfiguredModel:
+  public Value<std::shared_ptr<BranchModelInterface>>,
   public AbstractParametrizable
 {
   // private:
@@ -125,7 +126,7 @@ private:
     model_->matchParametersValues(getParameters());
   }
 
-  std::unique_ptr<BranchModelInterface> model_;
+  std::shared_ptr<BranchModelInterface> model_;
 };
 
 /** equilibriumFrequencies = f(model).
@@ -135,7 +136,8 @@ private:
  * Node construction should be done with the create static method.
  */
 
-class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd>
+class EquilibriumFrequenciesFromModel :
+  public Value<Eigen::RowVectorXd>
 {
 public:
   using Self = EquilibriumFrequenciesFromModel;

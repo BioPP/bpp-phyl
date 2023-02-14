@@ -120,14 +120,16 @@ int main() {
     sites->addSite(site, false);
   }
   ApplicationTools::displayTaskDone();
-
+cout << "ok0" << endl;
   //-------------
   //Now build the substitution vectors with the true model:
 
   // Newlik
 
   auto tmComp = make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
+cout << "ok1" << endl;
   SingleProcessPhyloLikelihood newTl(context, tmComp);
+cout << "ok2" << endl;
   cout << "LogLik: " << newTl.getValue() << endl;
     
   

@@ -148,13 +148,15 @@ public:
   virtual void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) = 0;
 };
 
+
+
+
 /**
  * @brief Basic implementation of the the Reward interface.
  *
  * This partial implementation deals with the AlphabetIndex1
  * gestion, by owning a pointer.
  */
-
 class AbstractReward :
   public virtual Reward
 {
@@ -181,11 +183,10 @@ public:
 public:
   bool hasAlphabetIndex() const { return alphIndex_ != 0; }
 
-  /*
-   *@brief attribution of an AlphabetIndex1
+  /**
+   * @brief attribution of an AlphabetIndex1
    *
-   *@param alphIndex pointer to a AlphabetIndex1
-   *
+   * @param alphIndex pointer to a AlphabetIndex1
    */
   void setAlphabetIndex(std::shared_ptr<const AlphabetIndex1> alphIndex)
   {

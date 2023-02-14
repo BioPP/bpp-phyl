@@ -49,9 +49,15 @@ using namespace bpp;
 
 // Model node
 
-ConfiguredModel::ConfiguredModel (Context& context, NodeRefVec&& deps, std::unique_ptr<BranchModelInterface>&& model)
-  : Value<std::shared_ptr<BranchModelInterface>>(std::move(deps), model.get()), AbstractParametrizable(model->getNamespace())// , context_(context)
-  , model_(std::move(model))
+ConfiguredModel::ConfiguredModel(
+    Context& context,
+    NodeRefVec&& deps,
+    std::unique_ptr<BranchModelInterface>&& model):
+  Value<std::shared_ptr<BranchModelInterface>>(
+    std::move(deps),
+    shared_ptr<BranchModelInterface>(move(model))),
+  AbstractParametrizable(targetValue()->getNamespace()),// , context_(context)
+  model_(targetValue())
 {
   for (const auto& dep:dependencies())
   {
@@ -428,10 +434,10 @@ std::shared_ptr<ProbabilitiesFromMixedModel> ProbabilitiesFromMixedModel::create
   auto& deps0 = *deps[0];
   const auto mixmodel = dynamic_pointer_cast<const MixedTransitionModelInterface>(model.targetValue());
   if (!mixmodel)
-    failureDependencyTypeMismatch (typeid(Self), 0, typeid(MixedTransitionModelInterface), typeid(deps0));
+    failureDependencyTypeMismatch(typeid(Self), 0, typeid(MixedTransitionModelInterface), typeid(deps0));
 
   size_t nbCat = mixmodel->getNumberOfModels();
-  return cachedAs<ProbabilitiesFromMixedModel>(c, std::make_shared<ProbabilitiesFromMixedModel>(std::move(deps), RowVectorDimension(Eigen::Index(nbCat))));
+  return cachedAs<ProbabilitiesFromMixedModel>(c, make_shared<ProbabilitiesFromMixedModel>(move(deps), RowVectorDimension(Eigen::Index(nbCat))));
 }
 
 
@@ -456,7 +462,7 @@ bool ProbabilityFromMixedModel::compareAdditionalArguments (const Node_DF& other
   return derived != nullptr && nCat_ == derived->nCat_;
 }
 
-std::shared_ptr<ProbabilityFromMixedModel> ProbabilityFromMixedModel::create (Context& c, NodeRefVec&& deps, size_t nCat)
+std::shared_ptr<ProbabilityFromMixedModel> ProbabilityFromMixedModel::create(Context& c, NodeRefVec&& deps, size_t nCat)
 {
   checkDependenciesNotNull (typeid (Self), deps);
   checkDependencyVectorSize (typeid (Self), deps, 1);
@@ -465,7 +471,7 @@ std::shared_ptr<ProbabilityFromMixedModel> ProbabilityFromMixedModel::create (Co
   const auto& deps0 = *deps[0];
   const auto mixmodel = dynamic_pointer_cast<const MixedTransitionModelInterface>(model.targetValue());
   if (!mixmodel)
-    failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModelInterface), typeid (deps0));
+    failureDependencyTypeMismatch (typeid(Self), 0, typeid(MixedTransitionModelInterface), typeid(deps0));
 
   return cachedAs<ProbabilityFromMixedModel>(c, std::make_shared<ProbabilityFromMixedModel>(std::move (deps), nCat));
 }

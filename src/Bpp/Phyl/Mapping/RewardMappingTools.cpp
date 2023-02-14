@@ -80,7 +80,7 @@ unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
 
   /* First, set substitution rewards */
 
-  std::map<const SubstitutionModelInterface*, std::shared_ptr<Reward> > mModReward;
+  map<const SubstitutionModelInterface*, shared_ptr<Reward>> mModReward;
 
   for (auto speciesId : edgeIds)
   {
@@ -122,7 +122,7 @@ unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
 
         if (mModReward.find(sm.get()) == mModReward.end())
         {
-          mModReward[sm.get()] = std::shared_ptr<Reward>(reward.clone());
+          mModReward[sm.get()] = shared_ptr<Reward>(reward.clone());
           mModReward[sm.get()]->setSubstitutionModel(sm);
         }
       }
@@ -181,7 +181,7 @@ unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
       const auto& dagIndexes = rltc.getEdgesIds(speciesId, ncl);
 
       // Sum on all dag edges for this speciesId
-      for (auto id:dagIndexes)
+      for (auto id : dagIndexes)
       {
         auto edge = processTree->getEdge(id);
 

@@ -373,13 +373,13 @@ template<typename T> class Value : public Node_DF
 public:
   // Init deps
   template<typename ... Args>
-  Value (const NodeRefVec& deps, Args&&... args) : 
+  Value(const NodeRefVec& deps, Args&&... args) : 
     Node_DF(deps),
     value_(std::forward<Args>(args)...)
   {}
 
   template<typename ... Args>
-  Value (NodeRefVec&& deps, Args&&... args) :
+  Value(NodeRefVec&& deps, Args&&... args) :
     Node_DF(std::move(deps)),
     value_(std::forward<Args>(args)...)
   {}
@@ -391,7 +391,7 @@ public:
    * Then access it as const.
    * Recomputation is single threaded and not thread safe.
    */
-  const T& targetValue ()
+  const T& targetValue()
   {
     this->computeRecursively ();
     return accessValueConst ();
@@ -406,7 +406,7 @@ public:
 
   /// Derive and cast result as Value<T> (most nodes derive to the
   /// same value type).
-  ValueRef<T> deriveAsValue (Context& c, const Node_DF& node)
+  ValueRef<T> deriveAsValue(Context& c, const Node_DF& node)
   {
     return convertRef<Value<T>>(this->derive(c, node));
   }

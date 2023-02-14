@@ -264,7 +264,6 @@ int main(int argc, char** argv)
   shared_ptr<SubstitutionProcessInterface> process = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree, rootFreqs);//, scenario));
 
   process->getParameters().printParameters(cerr);
-  
   // Build likelihood value node
   auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, process);
 
@@ -287,7 +286,7 @@ int main(int argc, char** argv)
   printLik(logLik, "df_init_value");
 
   // Manual access to dbrlen
-  auto br= dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
+  auto br = dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
 
   auto dlogLik_dbrlen1 = lik->getLikelihoodNode()->deriveAsValue(context, *br->dependency(0));
 
@@ -298,10 +297,14 @@ int main(int argc, char** argv)
 
   // // Manual access to dkappa
   
-  auto kappa= dynamic_cast<ConfiguredParameter*>(llh->getLikelihoodCalculation()->getSharedParameter("K80.kappa").get());
+ cout << "ok" << endl; 
+  auto kappa = dynamic_cast<ConfiguredParameter*>(llh->likelihoodCalculation().getSharedParameter("K80.kappa").get());
+ cout << "ok1" << endl; 
   auto dlogLik_dkappa = lik->getLikelihoodNode()->deriveAsValue(context, *kappa->dependency(0));
+ cout << "ok2" << endl; 
   std::cout << "[dkappa] " << dlogLik_dkappa->targetValue() << "\n";
   dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
+ cout << "ok" << endl; 
   
   // auto d2logLik_dkappa2 = dlogLik_dkappa->deriveAsValue(context, *kappa->dependency(0));
   // std::cout << "[d2kappa] " << d2logLik_dkappa2->getTargetValue() << "\n";
@@ -326,8 +329,12 @@ int main(int argc, char** argv)
   
   l->getParameters().printParameters(cerr);
   
+ cout << "ok" << endl; 
   optimize_for_params(llh, "df_all_opt", l->getParameters());
+ cout << "ok" << endl; 
   dotOutput("likelihood_optim_value", {lik->getLikelihoodNode().get()});
+ cout << "ok" << endl; 
   llh->getParameters().printParameters(std::cerr);  
+ cout << "ok" << endl; 
 
 }
