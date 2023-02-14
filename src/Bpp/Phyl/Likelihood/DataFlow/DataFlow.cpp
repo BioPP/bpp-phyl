@@ -183,7 +183,7 @@ Node_DF::~Node_DF ()
   }
 }
 
-std::string Node_DF::description () const
+std::string Node_DF::description() const
 {
   std::string nodeType = prettyTypeName (typeid (*this));
   // Shorten displayed name by removing namespaces.
@@ -198,19 +198,19 @@ std::string Node_DF::description () const
   return nodeType;
 }
 
-std::string Node_DF::debugInfo () const { return {}; }
+std::string Node_DF::debugInfo() const { return {}; }
 
-bool Node_DF::hasNumericalProperty (NumericalProperty) const { return false; }
+bool Node_DF::hasNumericalProperty(NumericalProperty) const { return false; }
 
-bool Node_DF::compareAdditionalArguments (const Node_DF&) const { return false; }
-std::size_t Node_DF::hashAdditionalArguments () const { return 0; }
+bool Node_DF::compareAdditionalArguments(const Node_DF&) const { return false; }
+std::size_t Node_DF::hashAdditionalArguments() const { return 0; }
 
-NodeRef Node_DF::derive (Context&, const Node_DF&)
+NodeRef Node_DF::derive(Context&, const Node_DF&)
 {
   throw Exception ("Node does not support derivation: " + description ());
 }
 
-NodeRef Node_DF::recreate (Context&, NodeRefVec&&)
+NodeRef Node_DF::recreate(Context&, NodeRefVec&&)
 {
   throw Exception ("Node does not support recreate(deps): " + description ());
 }
@@ -227,26 +227,26 @@ void Node_DF::computeRecursively ()
   nodesToVisit.push (this);
   while (!nodesToVisit.empty ())
   {
-    auto* n = nodesToVisit.top ();
-    nodesToVisit.pop ();
-    if (!n->isValid ())
+    auto* n = nodesToVisit.top();
+    nodesToVisit.pop();
+    if (!n->isValid())
     {
-      nodesToRecompute.push (n);
-      for (auto& dep : n->dependencies ())
+      nodesToRecompute.push(n);
+      for (auto& dep : n->dependencies())
       {
         if (dep)
-          nodesToVisit.push (dep.get ());
+          nodesToVisit.push(dep.get());
       }
     }
   }
-  while (!nodesToRecompute.empty ())
+  while (!nodesToRecompute.empty())
   {
-    auto* n = nodesToRecompute.top ();
+    auto* n = nodesToRecompute.top();
     nodesToRecompute.pop ();
     if (!n->isValid())
     {
-      n->compute ();
-      n->makeValid ();
+      n->compute();
+      n->makeValid();
     }
   }
 }

@@ -393,8 +393,8 @@ public:
    */
   const T& targetValue()
   {
-    this->computeRecursively ();
-    return accessValueConst ();
+    this->computeRecursively();
+    return accessValueConst();
   }
 
   /** 
@@ -402,7 +402,7 @@ public:
    *
    * Value is not guaranteed to be valid (no recomputation).
    */
-  const T& accessValueConst () const noexcept { return value_; }
+  const T& accessValueConst() const noexcept { return value_; }
 
   /// Derive and cast result as Value<T> (most nodes derive to the
   /// same value type).

@@ -52,14 +52,14 @@ using namespace bpp;
 ConfiguredModel::ConfiguredModel(
     Context& context,
     NodeRefVec&& deps,
-    std::unique_ptr<BranchModelInterface>&& model):
+    shared_ptr<BranchModelInterface>&& model):
   Value<std::shared_ptr<BranchModelInterface>>(
     std::move(deps),
-    shared_ptr<BranchModelInterface>(move(model))),
-  AbstractParametrizable(targetValue()->getNamespace()),// , context_(context)
-  model_(targetValue())
+    model),
+  AbstractParametrizable(model->getNamespace()),// , context_(context)
+  model_(model)
 {
-  for (const auto& dep:dependencies())
+  for (const auto& dep : dependencies())
   {
     shareParameter_(std::dynamic_pointer_cast<ConfiguredParameter>(dep));
   }
