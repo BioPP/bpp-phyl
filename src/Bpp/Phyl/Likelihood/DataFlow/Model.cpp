@@ -229,7 +229,7 @@ void TransitionMatrixFromModel::compute ()
 
   auto& r = this->accessValueMutable ();
 
-  const auto* model1 = accessValueConstCast<const BranchModel*>(*this->dependency (0));
+  const auto* model1 = accessValueConstCast<const BranchModelInterface*>(*this->dependency (0));
 
   const auto* mixmodel = dynamic_cast<const MixedTransitionModelInterface*>(accessValueConstCast<const BranchModelInterface*>(*this->dependency (0)));
 
@@ -263,7 +263,6 @@ void TransitionMatrixFromModel::compute ()
   }
   else
   {
-    const auto* model1 = accessValueConstCast<const BranchModelInterface*>(*this->dependency (0));
     const auto model = dynamic_cast<const TransitionModelInterface*>(model1);
 
     if (!model)

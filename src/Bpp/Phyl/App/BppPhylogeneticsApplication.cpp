@@ -297,10 +297,10 @@ void BppPhylogeneticsApplication::fixLikelihood(
               vsiteok.push_back(i);
           }
 
-          auto vDataok = SiteContainerTools::getSelectedSites(*vData, vsiteok);
+          shared_ptr<AlignmentDataInterface>  vDataok = SiteContainerTools::getSelectedSites(*vData, vsiteok);
 //          auto vDatamin = SiteContainerTools::getSelectedSites(*vData, vsitemin); Not taken into account yet
 
-          sDP->setData(*vDataok);
+          sDP->setData(vDataok);
           logL = sDP->getValue();
           ApplicationTools::displayResult("Filtered log likelihood", TextTools::toString(-logL, 15));
 

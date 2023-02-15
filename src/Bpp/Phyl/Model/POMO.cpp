@@ -57,11 +57,11 @@ POMO::POMO(
 {
   const auto& alph=allAlph->getStateAlphabet();
   
-  if (alph.getAlphabetType() != pmodel_->alphabet().getAlphabetType())
-    throw AlphabetMismatchException("POMO mismatch state alphabet for model.", &alph, &pmodel_->alphabet());
+  if (alph->getAlphabetType() != pmodel_->alphabet().getAlphabetType())
+    throw AlphabetMismatchException("POMO mismatch state alphabet for model.", alph.get(), &pmodel_->alphabet());
 
-  if (pfitness_ && alph.getAlphabetType() != pfitness_->alphabet().getAlphabetType())
-    throw AlphabetMismatchException("POMO mismatch state alphabet for fitness.", &alph, &pfitness_->alphabet());
+  if (pfitness_ && alph->getAlphabetType() != pfitness_->alphabet().getAlphabetType())
+    throw AlphabetMismatchException("POMO mismatch state alphabet for fitness.", alph.get(), &pfitness_->alphabet());
 
   if (pfitness_)
     pfitness_->setNamespace("POMO.fit_" + pfitness_->getNamespace());

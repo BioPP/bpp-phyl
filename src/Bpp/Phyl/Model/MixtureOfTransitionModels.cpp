@@ -92,8 +92,8 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
-    addParameters_(vpModel[i]->getParameters());
+    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + modelsContainer_[i]->getNamespace());
+    addParameters_(modelsContainer_[i]->getParameters());
   }
 
   updateMatrices_();
@@ -169,8 +169,8 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
   for (i = 0; i < nbmod; ++i)
   {
-    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
-    addParameters_(vpModel[i]->getParameters());
+    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + modelsContainer_[i]->getNamespace());
+    addParameters_(modelsContainer_[i]->getParameters());
   }
 
   updateMatrices_();

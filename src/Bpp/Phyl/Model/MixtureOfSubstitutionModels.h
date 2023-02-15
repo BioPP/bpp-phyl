@@ -72,7 +72,7 @@ public:
     MixtureOfTransitionModels(alpha, vpModel)
   {
     // Check that all models are substitutionmodels
-    for (const auto& model : vpModel)
+    for (const auto& model : modelsContainer_)
     {
       if (!dynamic_cast<const SubstitutionModelInterface*>(model.get()))
         throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
@@ -104,7 +104,7 @@ public:
      * Check that all models are substitutionmodels
      */
 
-    for (const auto& model : vpModel)
+    for (const auto& model : modelsContainer_)
     {
       if (!dynamic_cast<const SubstitutionModelInterface*>(model.get()))
         throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
