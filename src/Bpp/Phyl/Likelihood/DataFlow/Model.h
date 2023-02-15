@@ -79,7 +79,8 @@ inline RowVectorDimension equilibriumFrequenciesDimension (std::size_t nbState)
  *
  * The dummy value is implemented as a pointer to the internal model for simplicity.
  */
-class ConfiguredModel : public Value<std::shared_ptr<BranchModelInterface>>,
+class ConfiguredModel :
+  public Value<std::shared_ptr<BranchModelInterface>>,
   public AbstractParametrizable
 {
   // private:
@@ -89,7 +90,7 @@ public:
   using Self = ConfiguredModel;
   using Target = BranchModelInterface;
 
-  ConfiguredModel(Context& context, NodeRefVec&& deps, std::unique_ptr<BranchModelInterface>&& model);
+  ConfiguredModel(Context& context, NodeRefVec&& deps, std::shared_ptr<BranchModelInterface>&& model);
   virtual ~ConfiguredModel();
 
   ConfiguredModel* clone() const override
@@ -125,10 +126,11 @@ private:
     model_->matchParametersValues(getParameters());
   }
 
-  std::unique_ptr<BranchModelInterface> model_;
+  std::shared_ptr<BranchModelInterface> model_;
 };
 
-/** equilibriumFrequencies = f(model).
+/** 
+ * equilibriumFrequencies = f(model).
  * equilibriumFrequencies: RowVector(nbState).
  * model: ConfiguredModel.
  *
@@ -235,14 +237,14 @@ private:
 
 public:
   /// Build a new TransitionMatrixFromModel node with the given output dimensions.
-  TransitionFunctionFromModel (NodeRefVec&& deps, const Dimension<T>& dim);
+  TransitionFunctionFromModel(NodeRefVec&& deps, const Dimension<T>& dim);
 
-  std::string debugInfo () const final;
+  std::string debugInfo() const final;
 
-  bool compareAdditionalArguments (const Node_DF& other) const;
+  bool compareAdditionalArguments(const Node_DF& other) const;
 
-  NodeRef derive (Context& c, const Node_DF& node) final;
-  NodeRef recreate (Context& c, NodeRefVec&& deps) final;
+  NodeRef derive(Context& c, const Node_DF& node) final;
+  NodeRef recreate(Context& c, NodeRefVec&& deps) final;
 
   std::string color () const final
   {
@@ -260,10 +262,10 @@ public:
   }
 
 private:
-  void compute () final;
+  void compute() final;
 
 public:
-  static std::shared_ptr<Self> create (Context& c, NodeRefVec&& deps, const Dimension<T>& dim);
+  static std::shared_ptr<Self> create(Context& c, NodeRefVec&& deps, const Dimension<T>& dim);
 };
 
 /** 

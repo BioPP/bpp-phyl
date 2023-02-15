@@ -137,10 +137,11 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
   cout << "NewTL D2: " << setprecision(20) << llh.getSecondOrderDerivative("BrLen2") << endl;
   
   ApplicationTools::displayResult("* initial likelihood", llh.getValue());
-  if (abs(llh.getValue() - initialValue) > 0.001)
+  if (abs(llh.getValue() - initialValue) > 0.001) {
+    cerr << "Incorrect initial value." << endl;
     throw Exception("Incorrect initial value.");
+  }
   cout << endl;
-
   for (size_t i = 0; i < n; ++i) { 
     ApplicationTools::displayGauge(i, n-1);
     llh.matchParametersValues(pl1);
@@ -245,7 +246,8 @@ int main() {
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
     fitModelHSR(model, rdist, *tree, paramphyloTree, sites, 228.6333642493463, 198.47216106233);
-  } catch (Exception& ex) {
+  } catch (exception& ex) {
+    cerr << "ERROR!!!" << endl;
     cerr << ex.what() << endl;
     return 1;
   }  
