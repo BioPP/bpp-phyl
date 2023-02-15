@@ -54,8 +54,8 @@ using namespace std;
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   const Tree& tree,
-  TransitionModel* model,
-  DiscreteDistribution* rDist,
+  shared_ptr<TransitionModelInterface> model,
+  shared_ptr<DiscreteDistribution> rDist,
   bool checkRooted,
   bool verbose,
   bool usePatterns) :
@@ -63,23 +63,29 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   treeLikelihoodsContainer_(),
   probas_()
 {
-  MixedTransitionModel* mixedmodel;
-  if ((mixedmodel = dynamic_cast<MixedTransitionModel*>(model_)) == 0)
+  shared_ptr<MixedTransitionModelInterface> mixedmodel;
+  if ((mixedmodel = dynamic_pointer_cast<MixedTransitionModelInterface>(model_)) == nullptr)
     throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedTransitionModel.");
   size_t s = mixedmodel->getNumberOfModels();
-  for (size_t i = 0; i < s; i++)
+  for (size_t i = 0; i < s; ++i)
   {
     treeLikelihoodsContainer_.push_back(
-      new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false, usePatterns));
+      make_shared<RHomogeneousTreeLikelihood>(
+	  tree,
+	  unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()),
+	  rDist,
+	  checkRooted,
+	  false,
+	  usePatterns));
     probas_.push_back(mixedmodel->getNProbability(i));
   }
 }
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   const Tree& tree,
-  const AlignedValuesContainer& data,
-  TransitionModel* model,
-  DiscreteDistribution* rDist,
+  const AlignmentDataInterface& data,
+  std::shared_ptr<TransitionModelInterface> model,
+  std::shared_ptr<DiscreteDistribution> rDist,
   bool checkRooted,
   bool verbose,
   bool usePatterns) :
@@ -87,16 +93,22 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   treeLikelihoodsContainer_(),
   probas_()
 {
-  MixedTransitionModel* mixedmodel;
+  shared_ptr<MixedTransitionModelInterface> mixedmodel;
 
-  if ((mixedmodel = dynamic_cast<MixedTransitionModel*>(model_)) == 0)
+  if ((mixedmodel = dynamic_pointer_cast<MixedTransitionModelInterface>(model_)) == nullptr)
     throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedTransitionModel.");
 
   size_t s = mixedmodel->getNumberOfModels();
   for (size_t i = 0; i < s; i++)
   {
     treeLikelihoodsContainer_.push_back(
-      new RHomogeneousTreeLikelihood(tree, mixedmodel->getNModel(i), rDist, checkRooted, false, usePatterns));
+      make_shared<RHomogeneousTreeLikelihood>(
+	  tree, 
+	  unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()),
+	  rDist,
+	  checkRooted,
+	  false,
+	  usePatterns));
     probas_.push_back(mixedmodel->getNProbability(i));
   }
   setData(data);
@@ -111,7 +123,7 @@ RHomogeneousMixedTreeLikelihood& RHomogeneousMixedTreeLikelihood::operator=(cons
 
   for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
-    treeLikelihoodsContainer_.push_back(lik.treeLikelihoodsContainer_[i]->clone());
+    treeLikelihoodsContainer_.push_back(shared_ptr<RHomogeneousTreeLikelihood>(lik.treeLikelihoodsContainer_[i]->clone()));
     probas_.push_back(lik.probas_[i]);
   }
 
@@ -124,25 +136,19 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(const RHomogene
   treeLikelihoodsContainer_(lik.treeLikelihoodsContainer_.size()),
   probas_(lik.probas_.size())
 {
-  for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
+  for (size_t i = 0; i < treeLikelihoodsContainer_.size(); ++i)
   {
-    treeLikelihoodsContainer_[i] = lik.treeLikelihoodsContainer_[i]->clone();
+    treeLikelihoodsContainer_[i] = shared_ptr<RHomogeneousTreeLikelihood>(lik.treeLikelihoodsContainer_[i]->clone());
     probas_.push_back(lik.probas_[i]);
   }
 }
 
-RHomogeneousMixedTreeLikelihood::~RHomogeneousMixedTreeLikelihood()
-{
-  for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
-  {
-    delete treeLikelihoodsContainer_[i];
-  }
-}
+RHomogeneousMixedTreeLikelihood::~RHomogeneousMixedTreeLikelihood() {}
 
 
 void RHomogeneousMixedTreeLikelihood::initialize()
 {
-  for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
+  for (size_t i = 0; i < treeLikelihoodsContainer_.size(); ++i)
   {
     treeLikelihoodsContainer_[i]->initialize();
   }
@@ -150,11 +156,11 @@ void RHomogeneousMixedTreeLikelihood::initialize()
   RHomogeneousTreeLikelihood::initialize();
 }
 
-void RHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites)
+void RHomogeneousMixedTreeLikelihood::setData(const AlignmentDataInterface& sites)
 {
   RHomogeneousTreeLikelihood::setData(sites);
 
-  for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
+  for (size_t i = 0; i < treeLikelihoodsContainer_.size(); ++i)
   {
     treeLikelihoodsContainer_[i]->setData(sites);
   }
@@ -167,15 +173,13 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
   bool modelC = model_->getParameters().testParametersValues(params);
 
   applyParameters();
-  MixedTransitionModel* mixedmodel = dynamic_cast<MixedTransitionModel*>(model_);
+  auto mixedmodel = dynamic_pointer_cast<MixedTransitionModelInterface>(model_);
   size_t s = mixedmodel->getNumberOfModels();
 
-  const TransitionModel* pm;
-  for (size_t i = 0; i < s; i++)
+  for (size_t i = 0; i < s; ++i)
   {
     ParameterList pl;
-    pm = mixedmodel->getNModel(i);
-    pl.addParameters(pm->getParameters());
+    pl.addParameters(mixedmodel->nModel(i).getParameters());
     pl.includeParameters(getParameters());
 
     if (modelC)

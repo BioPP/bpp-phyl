@@ -49,16 +49,20 @@ using namespace numeric;
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   Context& context,
-  OneProcessSequenceEvolution& evol,
+  shared_ptr<OneProcessSequenceEvolution> evol,
   size_t nSeqEvol) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
+  AbstractSingleDataPhyloLikelihood(context, 0, (evol->getSubstitutionProcessNumbers().size() != 0) ? evol->substitutionProcess(evol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, 0),
   AbstractSequencePhyloLikelihood(context, evol, nSeqEvol),
+  AbstractParametrizable(""),
+  AbstractParametrizableSequencePhyloLikelihood(context, evol, nSeqEvol),
   mSeqEvol_(evol),
   likCal_()
 {
   resetParameters_();
-  const auto& sp = evol.getSubstitutionProcess();
+
+  auto sp = evol->getSubstitutionProcess();
   likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(context, sp);
 
   shareParameters_(likCal_->getParameters());
@@ -68,19 +72,22 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   Context& context,
-  const AlignedValuesContainer& data,
-  OneProcessSequenceEvolution& evol,
+  shared_ptr<const AlignmentDataInterface> data,
+  shared_ptr<OneProcessSequenceEvolution> evol,
   size_t nSeqEvol,
   size_t nData) :
   AbstractPhyloLikelihood(context),
-  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
+  AbstractAlignedPhyloLikelihood(context, data->getNumberOfSites()),
+  AbstractSingleDataPhyloLikelihood(context, data->getNumberOfSites(), (evol->getSubstitutionProcessNumbers().size() != 0) ? evol->substitutionProcess(evol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
   AbstractSequencePhyloLikelihood(context, evol, nData),
+  AbstractParametrizable(""),
+  AbstractParametrizableSequencePhyloLikelihood(context, evol, nSeqEvol),
   mSeqEvol_(evol),
   likCal_()
 {
   resetParameters_();
 
-  const auto& sp = evol.getSubstitutionProcess();
+  const auto& sp = evol->getSubstitutionProcess();
   likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(context, data, sp);
   shareParameters_(likCal_->getParameters());
 }
@@ -88,14 +95,17 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 /******************************************************************************/
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
-  const AlignedValuesContainer& data,
-  OneProcessSequenceEvolution& evol,
-  CollectionNodes& collNodes,
+  shared_ptr<const AlignmentDataInterface> data,
+  shared_ptr<OneProcessSequenceEvolution> evol,
+  shared_ptr<CollectionNodes> collNodes,
   size_t nSeqEvol,
   size_t nData) :
-  AbstractPhyloLikelihood(collNodes.getContext()),
-  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
-  AbstractSequencePhyloLikelihood(collNodes.getContext(), evol, nData),
+  AbstractPhyloLikelihood(collNodes->context()),
+  AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
+  AbstractSingleDataPhyloLikelihood(collNodes->context(), data->getNumberOfSites(), (evol->getSubstitutionProcessNumbers().size() != 0) ? evol->substitutionProcess(evol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+  AbstractSequencePhyloLikelihood(collNodes->context(), evol, nData),
+  AbstractParametrizable(""),
+  AbstractParametrizableSequencePhyloLikelihood(collNodes->context(), evol, nSeqEvol),
   mSeqEvol_(evol),
   likCal_()
 {
@@ -121,7 +131,7 @@ VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerClass() const
 
 Vdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(size_t pos) const
 {
-  auto rates = getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistribution();
+  auto rates = getLikelihoodCalculationSingleProcess()->substitutionProcess().getRateDistribution();
 
   if (!rates || rates->getNumberOfCategories() == 1)
     return Vdouble(1, 1);
@@ -149,7 +159,7 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesForSitePerCl
 
 VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesPerSitePerClass() const
 {
-  auto rates = getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistribution();
+  auto rates = getLikelihoodCalculationSingleProcess()->substitutionProcess().getRateDistribution();
 
   auto nbS = getLikelihoodCalculationSingleProcess()->getNumberOfSites();
   VVdouble vv(nbS);
@@ -197,8 +207,8 @@ vector<size_t> OneProcessSequencePhyloLikelihood::getClassWithMaxPostProbPerSite
 
 Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRatePerSite() const
 {
-  auto probas = getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistribution()->getProbabilities();
-  auto rates = getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistribution()->getCategories();
+  auto probas = likelihoodCalculationSingleProcess().substitutionProcess().rateDistribution().getProbabilities();
+  auto rates = likelihoodCalculationSingleProcess().substitutionProcess().rateDistribution().getCategories();
 
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -220,7 +230,7 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRatePerSite() const
 
 Vdouble OneProcessSequencePhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
 {
-  auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode(nodeId)->getTargetValue();
+  auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode(nodeId)->targetValue();
 
   size_t nbSites   = getNumberOfSites();
   VVdouble pp;

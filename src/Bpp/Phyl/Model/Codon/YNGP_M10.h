@@ -72,20 +72,29 @@ class YNGP_M10 :
   public YNGP_M
 {
 private:
+	
   unsigned int nBeta_, nGamma_;
 
 public:
-  /*
-   *@brief Constructor that requires the number of classes of the
+  
+  /**
+   * @brief Constructor that requires the number of classes of the
    * BetaDiscreteDistribution and the GammaDiscreteDistribution.
-   *
    */
+  YNGP_M10(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs,
+      unsigned int nbBeta,
+      unsigned int nbGamma);
 
-  YNGP_M10(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nbBeta, unsigned int nbGamma);
-
-  YNGP_M10* clone() const { return new YNGP_M10(*this); }
+  YNGP_M10* clone() const override { return new YNGP_M10(*this); }
 
   YNGP_M10(const YNGP_M10& mod2) :
+    AbstractParameterAliasable(mod2),
+    AbstractWrappedModel(mod2),
+    AbstractWrappedTransitionModel(mod2),
+    AbstractTotallyWrappedTransitionModel(mod2),
+    AbstractBiblioTransitionModel(mod2),
     YNGP_M(mod2),
     nBeta_(mod2.nBeta_),
     nGamma_(mod2.nGamma_)
@@ -100,10 +109,12 @@ public:
   }
 
 protected:
-  void updateMatrices();
+  
+  void updateMatrices_() override;
 
 public:
-  std::string getName() const { return "YNGP_M10"; }
+
+  std::string getName() const override { return "YNGP_M10"; }
 
   unsigned int getNBeta() const
   {

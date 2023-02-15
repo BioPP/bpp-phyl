@@ -52,18 +52,17 @@
 
 namespace bpp
 {
-/**
- * @brief The AbstractSinglePhyloSubstitutionMapping class: substitution
- * mapping linked with a Single Process PhyloLikelihood
- *
- */
-
 struct ModelBranch
 {
-  TransitionModel* pMod_;
+  std::shared_ptr<TransitionModelInterface> pMod_;
 };
 
 
+	
+/**
+ * @brief The AbstractSinglePhyloSubstitutionMapping class: substitution
+ * mapping linked with a Single Process PhyloLikelihood
+ */
 class AbstractSinglePhyloSubstitutionMapping :
   virtual public BranchedModelSet,
   virtual public PhyloSubstitutionMapping,
@@ -73,20 +72,18 @@ public:
   typedef AssociationTreeGlobalGraphObserver<uint, ModelBranch> modelTree;
 
 private:
-  const SubstitutionRegister* pReg_;
+  std::shared_ptr<const SubstitutionRegisterInterface> pReg_;
 
-  /*
+  /**
    * @brief weights of the substitutions. If null, no weights are
    * used.
    */
-
   std::shared_ptr<const AlphabetIndex2> weights_;
 
-  /*
+  /**
    * @brief distances of the substitutions. If null, no distances are
    * used.
    */
-
   std::shared_ptr<const AlphabetIndex2> distances_;
 
 protected:
@@ -97,20 +94,22 @@ private:
   /**
    * @brief A collection of Transition Models
    */
-
-  ParametrizableCollection<TransitionModel> modelColl_;
+  ParametrizableCollection<TransitionModelInterface> modelColl_;
 
   /**
    *
    * @brief a map <model index, vector of branch ids>
    *
    */
-
   std::map<size_t, std::vector<uint> > mModBrid_;
 
 public:
-  AbstractSinglePhyloSubstitutionMapping(std::shared_ptr<TreeGlobalGraph> graph, const SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
-    modelTree(graph), pReg_(&reg), weights_(weights), distances_(distances), counts_(), factors_(), modelColl_(), mModBrid_()
+  AbstractSinglePhyloSubstitutionMapping(
+      std::shared_ptr<TreeGlobalGraph> graph,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      std::shared_ptr<const AlphabetIndex2> weights,
+      std::shared_ptr<const AlphabetIndex2> distances) :
+    modelTree(graph), pReg_(reg), weights_(weights), distances_(distances), counts_(), factors_(), modelColl_(), mModBrid_()
   {}
 
   AbstractSinglePhyloSubstitutionMapping(const AbstractSinglePhyloSubstitutionMapping& sppm);
@@ -119,109 +118,109 @@ public:
 
   virtual ~AbstractSinglePhyloSubstitutionMapping() {}
 
-  /*
+  /**
    * @brief From BranchedModelSet
    *
    * @{
-   *
    */
-  TransitionModel* getModelForBranch(uint branchId)
+  std::shared_ptr<TransitionModelInterface> getModelForBranch(uint branchId) override
   {
     return (*getEdge(branchId)).pMod_;
   }
 
-  const TransitionModel* getModelForBranch(uint branchId) const
+  std::shared_ptr<const TransitionModelInterface> getModelForBranch(uint branchId) const override
   {
     return (*getEdge(branchId)).pMod_;
   }
 
-  TransitionModel* getModel(unsigned int branchId, size_t classIndex) const
+  std::shared_ptr<const TransitionModelInterface> getModel(unsigned int branchId, size_t classIndex) const override
   {
     return (*getEdge(branchId)).pMod_;
   }
 
-  TransitionModel* getModel(size_t index)
+  std::shared_ptr<TransitionModelInterface> getModel(size_t index)
   {
-    return modelColl_[index].get();
+    return modelColl_[index];
   }
 
-  const TransitionModel* getModel(size_t index) const
+  std::shared_ptr<const TransitionModelInterface> getModel(size_t index) const override
   {
-    return modelColl_[index].get();
+    return modelColl_[index];
   }
 
-  std::vector<uint> getBranchesWithModel(size_t index) const
+  std::vector<uint> getBranchesWithModel(size_t index) const override
   {
     return mModBrid_.at(index);
   }
 
-  /*
+  /**
    * @}
-   *
    */
 
-  /*
+  /**
    * @brief From PhyloSubstitutionMapping.
    *
    * @{
    */
 
-  /*
+  /**
    * @brief Return the tree of factors
-   *
    */
-  bool normalizationsPerformed() const
+  bool normalizationsPerformed() const override
   {
     return factors_ != 0;
   }
 
-  ProbabilisticSubstitutionMapping& getNormalizations()
+  ProbabilisticSubstitutionMapping& normalizations() override
   {
     return *factors_;
   }
 
-  const ProbabilisticSubstitutionMapping& getNormalizations() const
+  const ProbabilisticSubstitutionMapping& normalizations() const override
   {
     return *factors_;
   }
 
-  bool countsPerformed() const
+  bool countsPerformed() const override
   {
     return counts_ != 0;
   }
 
-  ProbabilisticSubstitutionMapping& getCounts()
+  ProbabilisticSubstitutionMapping& counts() override
   {
     return *counts_;
   }
 
-  const ProbabilisticSubstitutionMapping& getCounts() const
+  const ProbabilisticSubstitutionMapping& counts() const override
   {
     return *counts_;
   }
 
 
-  /*
-   *
-   *@brief For eegisters
-   *
+  /**
+   * @brief For registers
    */
-  void setRegister(const SubstitutionRegister& reg)
+  void setSubstitutionRegister(std::shared_ptr<const SubstitutionRegisterInterface> reg)
   {
-    pReg_ = &reg;
+    pReg_ = reg;
   }
 
-  const SubstitutionRegister& getRegister() const
+  const SubstitutionRegisterInterface& substitutionRegister() const
   {
     return *pReg_;
   }
 
-  bool matchParametersValues(const ParameterList& nullParams)
+  std::shared_ptr<const SubstitutionRegisterInterface> getSubstitutionRegister() const
+  {
+    return pReg_;
+  }
+
+  bool matchParametersValues(const ParameterList& nullParams) override
   {
     return modelColl_.matchParametersValues(nullParams);
   }
 
-  const ParameterList& getParameters() const
+  const ParameterList& getParameters() const override
   {
     return modelColl_.getParameters();
   }
@@ -236,26 +235,22 @@ public:
     return distances_;
   }
 
-  /*
-   *
+  /**
    * @brief add a Substitition Model in the map, and on all branches
    * with given Ids.
    *
    * @param index the index of the model
    * @param model the model that will be COPIED.
    * @param brIds the Ids of the branches that will carry this model.
-   *
-   *
    */
-
-  void addModel(size_t index, const TransitionModel& model, Vuint brIds);
+  void addModel(size_t index, const TransitionModelInterface& model, Vuint brIds);
 
   /*
    * @brief change Distances
    *
    *  BEWARE: counts are not updated automatically
    */
-  void setDistances(const AlphabetIndex2& ndist)
+  void setDistances(const AlphabetIndex2& ndist) override
   {
     distances_.reset(ndist.clone());
   }

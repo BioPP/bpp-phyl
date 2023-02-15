@@ -48,7 +48,7 @@
 #include "SubstitutionProcessCollection.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 using namespace std;
 
@@ -64,19 +64,17 @@ class MultiProcessSequenceEvolution :
   public AbstractParameterAliasable
 {
 protected:
-  SubstitutionProcessCollection* processColl_;
+  std::shared_ptr<SubstitutionProcessCollection> processColl_;
 
-  /*
+  /**
    * @brief the vector of the substitution process numbers, as
    * they are used in this order.
-   *
    */
-
   std::vector<size_t> nProc_;
 
 public:
   MultiProcessSequenceEvolution(
-    SubstitutionProcessCollection* processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     std::vector<size_t> nProc,
     const std::string& prefix = "");
 
@@ -99,11 +97,14 @@ public:
 public:
   /**
    * @brief The collection
-   *
    */
-  const SubstitutionProcessCollection& getCollection() const { return *processColl_; }
+  const SubstitutionProcessCollection& collection() const { return *processColl_; }
+  
+  std::shared_ptr<const SubstitutionProcessCollection> getCollection() const { return processColl_; }
 
-  SubstitutionProcessCollection& getCollection() { return *processColl_; }
+  SubstitutionProcessCollection& collection() { return *processColl_; }
+  
+  std::shared_ptr<SubstitutionProcessCollection> getCollection() { return processColl_; }
 
   /**
    * @brief Return the number of process used for computation.
@@ -113,9 +114,13 @@ public:
   /**
    * @brief Return the SubstitutionProcess of a given index
    * position (in nProc_ vector).
-   *
    */
-  const SubstitutionProcess& getSubstitutionProcess(size_t number) const
+  const SubstitutionProcessInterface& substitutionProcess(size_t number) const
+  {
+    return processColl_->substitutionProcess(number);
+  }
+
+  std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess(size_t number) const
   {
     return processColl_->getSubstitutionProcess(number);
   }
@@ -143,10 +148,8 @@ public:
 
   /**
    * @brief test if data fits this model
-   *
    */
-
-  virtual bool isCompatibleWith(const AlignedValuesContainer& data) const;
+  virtual bool isCompatibleWith(const AlignmentDataInterface& data) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_MULTIPROCESSSEQUENCEEVOLUTION_H

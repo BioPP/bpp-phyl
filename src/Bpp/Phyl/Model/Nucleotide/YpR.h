@@ -44,6 +44,7 @@
 #include <Bpp/Seq/Alphabet/RNY.h>
 
 #include "../AbstractSubstitutionModel.h"
+#include "NucleotideSubstitutionModel.h"
 
 // From Utils:
 #include <Bpp/Exceptions.h>
@@ -54,7 +55,7 @@ namespace bpp
 {
 /**
  * @brief YpR  model.
- * @author Laurent GuÃ©guen
+ * @author Laurent Guéguen
  *
  * Model YpR, on RNY triplets, with independent positions.
  *
@@ -117,27 +118,24 @@ namespace bpp
  *  a substitution per site per unit of time ON THE CENTRAL POSITION
  *  of the triplet.
  * @see AbstractSubstitutionModel
- *
  */
-
 class YpR :
   public AbstractSubstitutionModel
 {
 protected:
-  SubstitutionModel* pmodel_;
+  std::unique_ptr<NucleotideSubstitutionModelInterface> pmodel_;
 
-  // Check that the model is good for YpR
-  void check_model(SubstitutionModel* const) const;
-
-  std::string _nestedPrefix;
+  std::string nestedPrefix_;
 
 protected:
   /**
    * @brief Build a new YpR substitution model, with no dependency
    *   parameters
    */
-
-  YpR(const RNY*, SubstitutionModel* const, const std::string& prefix);
+  YpR(
+      std::shared_ptr<const RNY>,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> const,
+      const std::string& prefix);
 
   YpR(const YpR&, const std::string& prefix);
 
@@ -147,45 +145,44 @@ protected:
   {
     AbstractParameterAliasable::operator=(ypr);
     AbstractSubstitutionModel::operator=(ypr);
-    _nestedPrefix = ypr._nestedPrefix;
-    pmodel_ = ypr.pmodel_->clone();
+    nestedPrefix_ = ypr.nestedPrefix_;
+    pmodel_.reset(ypr.pmodel_->clone());
     return *this;
   }
 
 public:
-  virtual ~YpR()
-  {
-    if (pmodel_)
-      delete pmodel_;
-    pmodel_ = 0;
-  }
+  virtual ~YpR() {}
 
 protected:
-  void updateMatrices(double, double, double, double,
+  void updateMatrices_(double, double, double, double,
                       double, double, double, double);
+  
+  virtual void updateMatrices_() override;
 
   string getNestedPrefix() const
   {
-    return _nestedPrefix;
+    return nestedPrefix_;
   }
 
 public:
   //  virtual std::string getName() const;
 
-  const SubstitutionModel* getNestedModel() const {return pmodel_;}
+  const NucleotideSubstitutionModelInterface& nestedModel() const { return *pmodel_; }
+  
+  size_t getNumberOfStates() const override { return 36; }
 
-  size_t getNumberOfStates() const { return 36; }
+  virtual void setNamespace(const std::string&) override;
 
-  virtual void updateMatrices();
-
-  virtual void setNamespace(const std::string&);
-
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractSubstitutionModel::fireParameterChanged(parameters);
     pmodel_->matchParametersValues(parameters);
-    updateMatrices();
+    updateMatrices_();
   }
+  
+  // Check that the model is good for YpR
+  void checkModel(const SubstitutionModelInterface& model) const;
+
 };
 }
 
@@ -217,29 +214,29 @@ public:
    * @param alph RNY alphabet
    * @param pm Substitution model.
    */
-
-  YpR_Sym(const RNY* alph,
-          SubstitutionModel* pm,
-          double CgT = 0., double TgC = 0.,
-          double CaT = 0., double TaC = 0.);
+  YpR_Sym(
+      std::shared_ptr<const RNY> alph,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pm,
+      double CgT = 0., double TgC = 0.,
+      double CaT = 0., double TaC = 0.);
 
   YpR_Sym(const YpR_Sym&);
 
   virtual ~YpR_Sym() {}
 
-  YpR_Sym* clone() const { return new YpR_Sym(*this); }
+  YpR_Sym* clone() const override { return new YpR_Sym(*this); }
 
-  std::string getName() const;
+  std::string getName() const override;
 
-  void updateMatrices();
+protected:
+
+  void updateMatrices_() override;
+  
 };
-}
 
 // //////////////////////////////////////
 // //////// YpR_general
 
-namespace bpp
-{
 /**
  * @brief General YpR  model.
  *
@@ -249,9 +246,7 @@ namespace bpp
  *  XpY -> ZpY substitution and xYZ for XpY -> XpZ substitution.
  *
  * @see YpR
- *
  */
-
 class YpR_Gen :
   public YpR
 {
@@ -263,23 +258,25 @@ public:
    * @param alph RNY alphabet
    * @param pm Substitution model.
    */
-
-  YpR_Gen(const RNY* alph,
-          SubstitutionModel* pm,
-          double CgT = 0., double cGA = 0.,
-          double TgC = 0., double tGA = 0.,
-          double CaT = 0., double cAG = 0.,
-          double TaC = 0., double tAG = 0.);
+  YpR_Gen(
+      std::shared_ptr<const RNY> alph,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pm,
+      double CgT = 0., double cGA = 0.,
+      double TgC = 0., double tGA = 0.,
+      double CaT = 0., double cAG = 0.,
+      double TaC = 0., double tAG = 0.);
 
   YpR_Gen(const YpR_Gen&);
 
   virtual ~YpR_Gen() {}
 
-  YpR_Gen* clone() const { return new YpR_Gen(*this); }
+  YpR_Gen* clone() const override { return new YpR_Gen(*this); }
 
-  std::string getName() const;
+  std::string getName() const override;
 
-  void updateMatrices();
+protected:
+
+  void updateMatrices_() override;
 };
 }
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_YPR_H

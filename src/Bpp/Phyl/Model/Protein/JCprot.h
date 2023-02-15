@@ -138,7 +138,7 @@ class JCprot :
 private:
   mutable double exp_;
   mutable RowMatrix<double> p_;
-  std::shared_ptr<ProteinFrequencySet> freqSet_;
+  std::unique_ptr<ProteinFrequencySetInterface> freqSet_;
   bool withFreq_;
 
 public:
@@ -147,7 +147,7 @@ public:
    *
    * @param alpha A proteic alphabet.
    */
-  JCprot(const ProteicAlphabet* alpha);
+  JCprot(std::shared_ptr<const ProteicAlphabet> alpha);
 
   /**
    * @brief Build a JC69 model with special equilibrium frequencies.
@@ -157,14 +157,17 @@ public:
    * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
    * Otherwise, the values of the set will be used.
    */
-  JCprot(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs = false);
+  JCprot(
+      std::shared_ptr<const ProteicAlphabet> alpha,
+      std::unique_ptr<ProteinFrequencySetInterface> freqSet,
+      bool initFreqs = false);
 
   JCprot(const JCprot& model) :
     AbstractParameterAliasable(model),
     AbstractReversibleProteinSubstitutionModel(model),
     exp_(model.exp_),
     p_(model.p_),
-    freqSet_(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone())),
+    freqSet_(model.freqSet_->clone()),
     withFreq_(model.withFreq_)
   {}
 
@@ -174,59 +177,65 @@ public:
     AbstractReversibleProteinSubstitutionModel::operator=(model);
     exp_ = model.exp_;
     p_   = model.p_;
-    freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()));
+    freqSet_.reset(model.freqSet_->clone());
     withFreq_ = model.withFreq_;
     return *this;
   }
 
   virtual ~JCprot() {}
 
-  JCprot* clone() const { return new JCprot(*this); }
+  JCprot* clone() const override { return new JCprot(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double d) const;
-  double dPij_dt  (size_t i, size_t j, double d) const;
-  double d2Pij_dt2(size_t i, size_t j, double d) const;
-  const Matrix<double>& getPij_t    (double d) const;
-  const Matrix<double>& getdPij_dt  (double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const override;
+  double dPij_dt  (size_t i, size_t j, double d) const override;
+  double d2Pij_dt2(size_t i, size_t j, double d) const override;
+  const Matrix<double>& getPij_t    (double d) const override;
+  const Matrix<double>& getdPij_dt  (double d) const override;
+  const Matrix<double>& getd2Pij_dt2(double d) const override;
 
-  std::string getName() const
+  std::string getName() const override
   {
     return withFreq_ ? "JC69+F" : "JC69";
   }
 
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     freqSet_->matchParametersValues(parameters);
     freq_ = freqSet_->getFrequencies();
     AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
   }
 
-  void setFrequencySet(const ProteinFrequencySet& freqSet)
+  void setFrequencySet(const ProteinFrequencySetInterface& freqSet)
   {
-    freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(freqSet.clone()));
+    freqSet_.reset(freqSet.clone());
     resetParameters_();
     addParameters_(freqSet_->getParameters());
   }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
-
-  void setNamespace(const std::string& prefix)
+  const FrequencySetInterface& frequencySet() const override
+  {
+    if (freqSet_)
+      return *freqSet_;
+    throw NullPointerException("JCprot::frequencySet(). No associated FrequencySet.");
+  }
+    
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
   }
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
 protected:
+  
   /**
    * In the case of the model of Jukes & Cantor, this method is useless since
    * the generator is fixed! No matrice can be changed... This method is only
    * used in the constructor of the class.
    */
-  void updateMatrices();
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_JCPROT_H

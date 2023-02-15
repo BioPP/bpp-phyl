@@ -84,42 +84,48 @@ int main() {
   vector<unsigned int> ids = tree1->getNodeIndexes(tree1->getAllNodes());
   //-------------
 
-  const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
+  shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
+  auto rootFreqs = make_shared<GCFrequencySet>(nucAlphabet);
   
-  auto model1 = std::make_shared<T92>(alphabet, 3.,0.9);
-  auto model2 = std::make_shared<T92>(alphabet, 2., 0.1);
-  auto model3 = std::make_shared<T92>(alphabet, 5., 0.5);
+  auto model1 = make_shared<T92>(nucAlphabet, 3.,0.9);
+  auto model2 = make_shared<T92>(nucAlphabet, 2., 0.1);
+  auto model3 = make_shared<T92>(nucAlphabet, 5., 0.5);
 
-  auto rdist1 = std::make_shared<ConstantRateDistribution>();//GammaDiscreteRateDistribution>(4, 2.0);
+  auto rdist1 = make_shared<ConstantRateDistribution>();//GammaDiscreteRateDistribution>(4, 2.0);
   auto rdist2 = rdist1;//std::make_shared<GammaDiscreteRateDistribution>(3, 1.0);
   
   /////////////////////////////////////////
   // First Process
 
-  NonHomogeneousSubstitutionProcess* subPro1=new NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>(rdist1->clone()), std::shared_ptr<PhyloTree>(tree1->clone()));
+  auto subPro1 = make_shared<NonHomogeneousSubstitutionProcess>(
+      shared_ptr<DiscreteDistribution>(rdist1->clone()),
+      shared_ptr<PhyloTree>(tree1->clone()));
 
   Vuint vP1m1{0, 3, 4};
   Vuint vP1m2{1, 2, 5};
 
-  subPro1->addModel(std::shared_ptr<T92>(model1->clone()),vP1m1);
-  subPro1->addModel(std::shared_ptr<T92>(model2->clone()),vP1m2);
+  subPro1->addModel(std::shared_ptr<T92>(model1->clone()), vP1m1);
+  subPro1->addModel(std::shared_ptr<T92>(model2->clone()), vP1m2);
 
   ///////////////////////////////////////////
   // Second Process
 
-  NonHomogeneousSubstitutionProcess* subPro2= new NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>(rdist2->clone()), std::shared_ptr<PhyloTree>(tree2->clone()), std::shared_ptr<FrequencySet>(rootFreqs->clone()));
+  auto subPro2 = make_shared<NonHomogeneousSubstitutionProcess>(
+      shared_ptr<DiscreteDistribution>(rdist2->clone()),
+      shared_ptr<PhyloTree>(tree2->clone()),
+      shared_ptr<FrequencySetInterface>(rootFreqs->clone()));
   
   Vuint vP2m1{0, 1, 3};
   Vuint vP2m2{2, 4, 5};
 
-  subPro2->addModel(std::shared_ptr<T92>(model1->clone()),vP2m1);
-  subPro2->addModel(std::shared_ptr<T92>(model3->clone()),vP2m2);
+  subPro2->addModel(std::shared_ptr<T92>(model1->clone()), vP2m1);
+  subPro2->addModel(std::shared_ptr<T92>(model3->clone()), vP2m2);
 
   ///////////////////////////////////////////
   // Similar Collection Processes
 
-  auto modelColl=std::make_shared<SubstitutionProcessCollection>();
+  auto modelColl = make_shared<SubstitutionProcessCollection>();
   
   modelColl->addModel(model1, 1);
   modelColl->addModel(model2, 2);
@@ -133,45 +139,43 @@ int main() {
   modelColl->addTree(parTree2, 2);
 
   map<size_t, Vuint> mModBr1;
-  mModBr1[1]=vP1m1;
-  mModBr1[2]=vP1m2;
+  mModBr1[1] = vP1m1;
+  mModBr1[2] = vP1m2;
 
   modelColl->addSubstitutionProcess(1, mModBr1, 1, 1);
                                    
   map<size_t, Vuint> mModBr2;
-  mModBr2[1]=vP2m1;
-  mModBr2[3]=vP2m2;
+  mModBr2[1] = vP2m1;
+  mModBr2[3] = vP2m2;
 
   modelColl->addSubstitutionProcess(2, mModBr2, 2, 2, 1);
 
   // Data
 
-  VectorSiteContainer sites(alphabet);
-  sites.addSequence(
-    BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet));
-  sites.addSequence(
-    BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet));
-  sites.addSequence(
-    BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
-  sites.addSequence(
-    BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
+  auto sites = make_shared<VectorSiteContainer>(alphabet);
+  auto seqA = make_unique<Sequence>("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet);
+  sites->addSequence("A", seqA);
+  auto seqB = make_unique<Sequence>("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet);
+  sites->addSequence("B", seqB);
+  auto seqC = make_unique<Sequence>("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet);
+  sites->addSequence("C", seqC);
+  auto seqD = make_unique<Sequence>("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet);
+  sites->addSequence("D", seqD);
 
   // Likelihoods
-  auto pc(std::make_shared<PhyloLikelihoodContainer>(context, *modelColl));
+  auto pc = make_shared<PhyloLikelihoodContainer>(context, modelColl);
 
-  SubstitutionProcess* sP1c=subPro1->clone();
-  SubstitutionProcess* sP2c=subPro2->clone();
+  shared_ptr<SubstitutionProcessInterface> sP1c(subPro1->clone());
+  shared_ptr<SubstitutionProcessInterface> sP2c(subPro2->clone());
 
-  auto lik1 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP1c);
-
-  pc->addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(context, lik1));
+  auto lik1 = make_shared<LikelihoodCalculationSingleProcess>(context, sites, sP1c);
+  pc->addPhyloLikelihood(1, make_shared<SingleProcessPhyloLikelihood>(context, lik1));
     
-  auto lik2 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP2c);
-
-  pc->addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(context, lik2));
+  auto lik2 = make_shared<LikelihoodCalculationSingleProcess>(context, sites, sP2c);
+  pc->addPhyloLikelihood(2, make_shared<SingleProcessPhyloLikelihood>(context, lik2));
   
-  AlignedPhyloLikelihood* spl1=dynamic_cast<AlignedPhyloLikelihood*>((*pc)[1]);
-  AlignedPhyloLikelihood* spl2=dynamic_cast<AlignedPhyloLikelihood*>((*pc)[2]);
+  auto spl1 = dynamic_pointer_cast<AlignedPhyloLikelihoodInterface>((*pc)[1]);
+  auto spl2 = dynamic_pointer_cast<AlignedPhyloLikelihoodInterface>((*pc)[2]);
 
   cerr << setprecision(10) << "TL1:"  << spl1->getValue() << "\tTL2:" << spl2->getValue() << endl;
 
@@ -182,18 +186,18 @@ int main() {
   std::vector<size_t> vp(2);
   vp[0]=1; vp[1]=2;
 
-  MixtureSequenceEvolution mse(modelColl.get(), vp);
+  auto mse = make_shared<MixtureSequenceEvolution>(modelColl, vp);
 
-  MixtureProcessPhyloLikelihood mlc(*sites.clone(), mse, *collNodes);
+  auto mlc = make_shared<MixtureProcessPhyloLikelihood>(sites, mse, collNodes);
 
   using bpp::DotOptions;
-  bpp::writeGraphToDot("mlc.dot", {mlc.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
-  cerr << "Mlc: " << mlc.getValue() << endl;
+  bpp::writeGraphToDot("mlc.dot", {mlc->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
+  cerr << "Mlc: " << mlc->getValue() << endl;
 
-  for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
-    DataLik x=spl1->getLikelihoodForASite(pos) * mlc.getSubProcessProb(0) + spl2->getLikelihoodForASite(pos) * mlc.getSubProcessProb(1);
-    if (convert(abs(x-mlc.getLikelihoodForASite(pos)))>0.001)
-      cerr << "Mixture Process : Problem on site " << pos << " : "  << x << " vs " << mlc.getLikelihoodForASite(pos) << endl;
+  for (size_t pos=0; pos < sites->getNumberOfSites(); pos++){
+    DataLik x = spl1->getLikelihoodForASite(pos) * mlc->getSubProcessProb(0) + spl2->getLikelihoodForASite(pos) * mlc->getSubProcessProb(1);
+    if (convert(abs(x-mlc->getLikelihoodForASite(pos))) > 0.001)
+      cerr << "Mixture Process : Problem on site " << x << endl;
   }
 
   //  Mixture of phylo
@@ -202,26 +206,26 @@ int main() {
   
   Context context2;
   
-  auto pc2(std::make_shared<PhyloLikelihoodContainer>(context2, *modelColl));
+  auto pc2 = make_shared<PhyloLikelihoodContainer>(context2, modelColl);
 
-  SubstitutionProcess* sP1c2=subPro1->clone();
-  SubstitutionProcess* sP2c2=subPro2->clone();
+  auto sP1c2 = shared_ptr<SubstitutionProcessInterface>(subPro1->clone());
+  auto sP2c2 = shared_ptr<SubstitutionProcessInterface>(subPro2->clone());
 
-  auto lik12 = std::make_shared<LikelihoodCalculationSingleProcess>(context2, sites, *sP1c2);
+  auto lik12 = make_shared<LikelihoodCalculationSingleProcess>(context2, sites, sP1c2);
+  pc2->addPhyloLikelihood(2, make_shared<SingleProcessPhyloLikelihood>(context2, lik12));
+  
+  auto lik22 = make_shared<LikelihoodCalculationSingleProcess>(context2, sites, sP2c2);
+  pc2->addPhyloLikelihood(1, make_shared<SingleProcessPhyloLikelihood>(context2, lik22));
 
-  auto lik22 = std::make_shared<LikelihoodCalculationSingleProcess>(context2, sites, *sP2c2);
+  vector<size_t> nPhylo = {1,2};
+  auto moap = make_shared<MixtureOfAlignedPhyloLikelihood>(context2, pc2, nPhylo, false);
 
-  pc2->addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(context2, lik22));
-  pc2->addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(context2, lik12));
+  bpp::writeGraphToDot("moap.dot", {moap->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
+  cerr << "Moap: " << moap->getValue() << endl;
 
-  MixtureOfAlignedPhyloLikelihood moap(context2, pc2, {1,2}, false);
-
-  bpp::writeGraphToDot("moap.dot", {moap.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
-  cerr << "Moap: " << moap.getValue() << endl;
-
-  for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
-    DataLik x=spl1->getLikelihoodForASite(pos) * moap.getPhyloProb(0) + spl2->getLikelihoodForASite(pos) * moap.getPhyloProb(1);
-    if (convert(abs(x-moap.getLikelihoodForASite(pos)))>0.001)
+  for (size_t pos=0; pos < sites->getNumberOfSites(); pos++){
+    DataLik x = spl1->getLikelihoodForASite(pos) * moap->getPhyloProb(0) + spl2->getLikelihoodForASite(pos) * moap->getPhyloProb(1);
+    if (convert(abs(x-moap->getLikelihoodForASite(pos))) > 0.001)
       cerr << "Mixture Alignment: Problem on site " << x << endl;
   }
 
@@ -234,12 +238,15 @@ int main() {
   cout << "Optimization : " << endl;
   cout << endl;
 
-  OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
-  OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
+  auto profiler  = make_shared<StlOutputStream>(new ofstream("profile.txt", ios::out));
+  auto messenger = make_shared<StlOutputStream>(new ofstream("messages.txt", ios::out));
 
   unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
     spl1, spl1->getParameters(), 0,
-    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    0.0001, 10000,
+    messenger, profiler,
+    false, false,
+    1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   cerr << "Opt 1: rounds " << c1 << endl;
 
@@ -261,45 +268,54 @@ int main() {
   cerr << "--------------------------------" << endl;
 
   unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
-    &mlc, mlc.getParameters(), 0,
-    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    mlc, mlc->getParameters(), 0,
+    0.0001, 10000,
+    messenger, profiler,
+    false, false,
+    1, OptimizationTools::OPTIMIZATION_NEWTON);
   
   cerr << "Opt M rounds: " << cM << endl;
 
-  cerr << "Mlc: " << mlc.getValue() << endl;
+  cerr << "Mlc: " << mlc->getValue() << endl;
 
-  mlc.getParameters().printParameters(std::cout);
+  mlc->getParameters().printParameters(std::cout);
 
   cerr << "--------------------------------" << endl;
   
   unsigned int cM2 = OptimizationTools::optimizeNumericalParameters2(
-    &moap, moap.getParameters(), 0,
-    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    moap, moap->getParameters(), 0,
+    0.0001, 10000,
+    messenger, profiler,
+    false, false,
+    1, OptimizationTools::OPTIMIZATION_NEWTON);
   
   cerr << "Opt MOAP rounds: " << cM2 << endl;
 
-  cerr << "Moap: " << moap.getValue() << endl;
+  cerr << "Moap: " << moap->getValue() << endl;
 
-  moap.getParameters().printParameters(std::cout);
+  moap->getParameters().printParameters(std::cout);
 
   
 // Formula
   
   string formula="(phylo2 - phylo1) * (phylo1 - phylo2)";      
 
-  FormulaOfPhyloLikelihood tl(context, pc, formula, false);
+  auto tl = make_shared<FormulaOfPhyloLikelihood>(context, pc, formula, false);
 
-  cerr << formula << " : " << tl.getValue() << endl;
+  cerr << formula << " : " << tl->getValue() << endl;
 
-  bpp::writeGraphToDot("formula.dot", {tl.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
+  bpp::writeGraphToDot("formula.dot", {tl->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
 
   unsigned int cMtl = OptimizationTools::optimizeNumericalParameters2(
-    &tl, tl.getParameters(), 0,
-    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    tl, tl->getParameters(), 0,
+    0.0001, 10000,
+    messenger, profiler,
+    false, false,
+    1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   cerr << "Opt tl rounds: " << cMtl << endl;
 
-  cerr << formula << " " << tl.getValue() << endl;
+  cerr << formula << " " << tl->getValue() << endl;
 
   return 0;
 }

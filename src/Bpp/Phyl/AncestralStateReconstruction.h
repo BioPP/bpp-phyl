@@ -95,14 +95,14 @@ public:
    * @param nodeId The id of the node at which the sequence must be reconstructed.
    * @return A sequence object.
    */
-  virtual Sequence* getAncestralSequenceForNode(uint nodeId) const = 0;
+  virtual std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId) const = 0;
 
   /**
    * @brief Get all the ancestral sequences for all nodes.
    *
    * @return A new SiteContainer object.
    */
-  virtual SiteContainer* getAncestralSequences() const = 0;
+  virtual std::unique_ptr<AlignmentDataInterface> getAncestralSequences() const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_ANCESTRALSTATERECONSTRUCTION_H

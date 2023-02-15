@@ -76,7 +76,9 @@ public:
    * @param rates     the rates to use, one for each site to simulate.
    * @return          A container with all simulated sites.
    */
-  static std::shared_ptr<SiteContainer> simulateSites(const SequenceSimulator& simulator, const std::vector<double>& rates);
+  static std::unique_ptr<SiteContainerInterface> simulateSites(
+      const SequenceSimulatorInterface& simulator,
+      const std::vector<double>& rates);
 
   /**
    * @brief Simulate a set of sites knowing their rate and ancestral state.
@@ -93,7 +95,10 @@ public:
    * @param states    the ancestral states to use, one for each site to simulate.
    * @return          A container with all simulated sites.
    */
-  static std::shared_ptr<SiteContainer> simulateSites(const SequenceSimulator& simulator, const std::vector<double>& rates, const std::vector<size_t>& states);
+  static std::unique_ptr<SiteContainerInterface> simulateSites(
+      const SequenceSimulatorInterface& simulator,
+      const std::vector<double>& rates,
+      const std::vector<size_t>& states);
 
   /**
    * @brief Simulate a set of sites knowing ancestral state.
@@ -103,7 +108,9 @@ public:
    * @param states    the ancestral states to use, one for each site to simulate.
    * @return          A container with all simulated sites.
    */
-  static std::shared_ptr<SiteContainer> simulateSites(const SequenceSimulator& simulator, const std::vector<size_t>& states);
+  static std::unique_ptr<SiteContainerInterface> simulateSites(
+      const SequenceSimulatorInterface& simulator,
+      const std::vector<size_t>& states);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_SIMULATION_SEQUENCESIMULATIONTOOLS_H

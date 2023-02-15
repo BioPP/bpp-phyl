@@ -57,10 +57,10 @@ using namespace std;
 /******************************************************************************/
 
 TripletSubstitutionModel::TripletSubstitutionModel(
-  const CodonAlphabet* palph,
-  NucleotideSubstitutionModel* pmod) :
+  shared_ptr<const CodonAlphabet> palph,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod) :
   AbstractParameterAliasable("Triplet."),
-  WordSubstitutionModel(palph, std::shared_ptr<const StateMap>(new CanonicalStateMap(palph, false)), "Triplet.")
+  WordSubstitutionModel(palph, make_shared<CanonicalStateMap>(palph, false), "Triplet.")
 {
   unsigned int i;
   addParameters_(pmod->getParameters());
@@ -68,7 +68,7 @@ TripletSubstitutionModel::TripletSubstitutionModel(
   Vrate_.resize(3);
   for (i = 0; i < 3; i++)
   {
-    VSubMod_.push_back(pmod);
+    VSubMod_.push_back(move(pmod));
     VnestedPrefix_.push_back(pmod->getNamespace());
     Vrate_[i] = 1. / 3.;
   }
@@ -79,72 +79,57 @@ TripletSubstitutionModel::TripletSubstitutionModel(
     addParameter_(new Parameter("Triplet.relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), Parameter::PROP_CONSTRAINT_EX));
   }
 
-  WordSubstitutionModel::updateMatrices();
+  WordSubstitutionModel::updateMatrices_();
 }
 
 TripletSubstitutionModel::TripletSubstitutionModel(
-  const CodonAlphabet* palph,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3) :
+  shared_ptr<const CodonAlphabet> palph,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod3) :
   AbstractParameterAliasable("Triplet."),
-  WordSubstitutionModel(palph, std::shared_ptr<const StateMap>(new CanonicalStateMap(palph, false)), "Triplet.")
+  WordSubstitutionModel(palph, make_shared<CanonicalStateMap>(palph, false), "Triplet.")
 {
   string st = "Triplet.";
 
-  if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
-  {
-    int i;
-    for (i = 0; i < 3; i++)
-    {
-      VSubMod_.push_back(pmod1);
-      VnestedPrefix_.push_back(pmod1->getNamespace());
-    }
+  VSubMod_.push_back(move(pmod1));
+  VnestedPrefix_.push_back(pmod1->getNamespace());
+  VSubMod_[0]->setNamespace(st + "1_" + VnestedPrefix_[0]);
+  addParameters_(pmod1->getParameters());
 
-    pmod1->setNamespace(st + "123_" + VnestedPrefix_[0]);
-    addParameters_(pmod1->getParameters());
-  }
-  else
-  {
-    VSubMod_.push_back(pmod1);
-    VnestedPrefix_.push_back(pmod1->getNamespace());
-    VSubMod_[0]->setNamespace(st + "1_" + VnestedPrefix_[0]);
-    addParameters_(pmod1->getParameters());
+  VSubMod_.push_back(move(pmod2));
+  VnestedPrefix_.push_back(pmod2->getNamespace());
+  VSubMod_[1]->setNamespace(st + "2_" + VnestedPrefix_[1]);
+  addParameters_(pmod2->getParameters());
 
-    VSubMod_.push_back(pmod2);
-    VnestedPrefix_.push_back(pmod2->getNamespace());
-    VSubMod_[1]->setNamespace(st + "2_" + VnestedPrefix_[1]);
-    addParameters_(pmod2->getParameters());
+  VSubMod_.push_back(move(pmod3));
+  VnestedPrefix_.push_back(pmod3->getNamespace());
+  VSubMod_[2]->setNamespace(st + "3_" + VnestedPrefix_[2]);
+  addParameters_(pmod3->getParameters());
 
-    VSubMod_.push_back(pmod3);
-    VnestedPrefix_.push_back(pmod3->getNamespace());
-    VSubMod_[2]->setNamespace(st + "3_" + VnestedPrefix_[2]);
-    addParameters_(pmod3->getParameters());
-  }
-
-  unsigned int i;
   Vrate_.resize(3);
-  for (i = 0; i < 3; i++)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     Vrate_[i] = 1.0 / 3;
   }
 
   // relative rates
-  for (i = 0; i < 2; i++)
+  for (unsigned int i = 0; i < 2; ++i)
   {
     addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), Parameter::PROP_CONSTRAINT_EX));
   }
 
-  WordSubstitutionModel::updateMatrices();
+  WordSubstitutionModel::updateMatrices_();
 }
 
 string TripletSubstitutionModel::getName() const
 {
   string s = "TripletSubstitutionModel model:";
-  for (unsigned int i = 0; i < VSubMod_.size(); i++)
+  for (auto& vi :  VSubMod_)
   {
-    s += " " + VSubMod_[i]->getName();
+    s += " " + vi->getName();
   }
 
   return s;
 }
+

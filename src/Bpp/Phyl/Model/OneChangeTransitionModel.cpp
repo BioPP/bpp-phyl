@@ -47,9 +47,9 @@ using namespace std;
 
 /******************************************************************************/
 
-double OneChangeTransitionModel::Pij_t    (size_t i, size_t j, double t) const
+double OneChangeTransitionModel::Pij_t(size_t i, size_t j, double t) const
 {
-  double qii = getSubstitutionModel().Qij(i, i);
+  double qii = substitutionModel().Qij(i, i);
   if (qii == 0)
   {
     return i == j ? 1 : 0;
@@ -58,28 +58,28 @@ double OneChangeTransitionModel::Pij_t    (size_t i, size_t j, double t) const
   {
     if (t != 0)
     {
-      double rate = getModel().getRate();
+      double rate = model().getRate();
       double v = exp(qii * t * rate);
-      return (getTransitionModel().Pij_t(i, j, t) - (i == j ? v : 0)) / (1 - v);
+      return (transitionModel().Pij_t(i, j, t) - (i == j ? v : 0)) / (1 - v);
     }
     else
-      return i == j ? 0 : -getSubstitutionModel().Qij(i, j) / qii;
+      return i == j ? 0 : - substitutionModel().Qij(i, j) / qii;
   }
 }
 
-double OneChangeTransitionModel::dPij_dt  (size_t i, size_t j, double t) const
+double OneChangeTransitionModel::dPij_dt(size_t i, size_t j, double t) const
 {
-  const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+  const RowMatrix<double>& Q = substitutionModel().getGenerator();
   double qii = Q(i, i);
 
   if (qii == 0)
     return 0;
 
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
   if (t != 0)
   {
     double v = exp(qii * t * rate);
-    return (getTransitionModel().dPij_dt(i, j, t) * (1 - v) + (getTransitionModel().Pij_t(i, j, t) - (i == j ? 1 : 0)) * qii * rate * v) / ((1 - v) * (1 - v));
+    return (transitionModel().dPij_dt(i, j, t) * (1 - v) + (transitionModel().Pij_t(i, j, t) - (i == j ? 1 : 0)) * qii * rate * v) / ((1 - v) * (1 - v));
   }
   else
   {
@@ -95,10 +95,10 @@ double OneChangeTransitionModel::dPij_dt  (size_t i, size_t j, double t) const
 
 double OneChangeTransitionModel::d2Pij_dt2(size_t i, size_t j, double t) const
 {
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
   if (t != 0)
   {
-    double qii = getSubstitutionModel().Qij(i, i);
+    double qii = substitutionModel().Qij(i, i);
 
     if (qii == 0)
     {
@@ -109,12 +109,12 @@ double OneChangeTransitionModel::d2Pij_dt2(size_t i, size_t j, double t) const
       double v = exp(qii * t * rate);
       double mv = 1 - v;
 
-      return -((mv * getTransitionModel().d2Pij_dt2(i, j, t) + 2 * qii * rate * v * getTransitionModel().dPij_dt(i, j, t)) * mv + (getTransitionModel().Pij_t(i, j, t) - (i == j ? 1 : 0)) * qii * qii * rate * rate * (v + v * v)) / (mv * mv * mv);
+      return -((mv * transitionModel().d2Pij_dt2(i, j, t) + 2 * qii * rate * v * transitionModel().dPij_dt(i, j, t)) * mv + (transitionModel().Pij_t(i, j, t) - (i == j ? 1 : 0)) * qii * qii * rate * rate * (v + v * v)) / (mv * mv * mv);
     }
   }
   else
   {
-    const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().getGenerator();
     double qii = Q(i, i);
 
     if (qii == 0)
@@ -141,9 +141,9 @@ double OneChangeTransitionModel::d2Pij_dt2(size_t i, size_t j, double t) const
 
 const Matrix<double>& OneChangeTransitionModel::getPij_t(double t) const
 {
-  const RowMatrix<double>& origPij = getTransitionModel().getPij_t(t);
-  const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
-  double rate = getTransitionModel().getRate();
+  const RowMatrix<double>& origPij = transitionModel().getPij_t(t);
+  const RowMatrix<double>& Q = substitutionModel().getGenerator();
+  double rate = transitionModel().getRate();
 
   for (unsigned int i = 0; i < size_; ++i)
   {
@@ -185,16 +185,16 @@ const Matrix<double>& OneChangeTransitionModel::getPij_t(double t) const
 
 const Matrix<double>& OneChangeTransitionModel::getdPij_dt(double t) const
 {
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
   if (t != 0)
   {
-    const RowMatrix<double>& origPij = getTransitionModel().getPij_t(t);
-    const RowMatrix<double>& origdPij = getTransitionModel().getdPij_dt(t);
+    const RowMatrix<double>& origPij = transitionModel().getPij_t(t);
+    const RowMatrix<double>& origdPij = transitionModel().getdPij_dt(t);
 
     for (unsigned int i = 0; i < size_; ++i)
     {
       vector<double>& dpi_t = dpij_t.getRow(i);
-      double qii = getSubstitutionModel().Qij(i, i);
+      double qii = substitutionModel().Qij(i, i);
 
       if (qii == 0)
       {
@@ -221,7 +221,7 @@ const Matrix<double>& OneChangeTransitionModel::getdPij_dt(double t) const
   }
   else
   {
-    const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().getGenerator();
     RowMatrix<double> Q2;
     MatrixTools::mult<double>(Q, Q, Q2);
 
@@ -256,18 +256,18 @@ const Matrix<double>& OneChangeTransitionModel::getdPij_dt(double t) const
 
 const Matrix<double>& OneChangeTransitionModel::getd2Pij_dt2(double t) const
 {
-  double rate = getTransitionModel().getRate();
+  double rate = transitionModel().getRate();
   double r2 = rate * rate;
 
   if (t != 0)
   {
-    const RowMatrix<double>& origPij = getTransitionModel().getPij_t(t);
-    const RowMatrix<double>& origdPij = getTransitionModel().getdPij_dt(t);
-    const RowMatrix<double>& origd2Pij = getTransitionModel().getd2Pij_dt2(t);
+    const RowMatrix<double>& origPij = transitionModel().getPij_t(t);
+    const RowMatrix<double>& origdPij = transitionModel().getdPij_dt(t);
+    const RowMatrix<double>& origd2Pij = transitionModel().getd2Pij_dt2(t);
 
     for (unsigned int i = 0; i < size_; ++i)
     {
-      double qii = getSubstitutionModel().Qij(i, i);
+      double qii = substitutionModel().Qij(i, i);
       vector<double>& d2pi_t = d2pij_t.getRow(i);
 
       if (qii == 0)
@@ -301,7 +301,7 @@ const Matrix<double>& OneChangeTransitionModel::getd2Pij_dt2(double t) const
   }
   else
   {
-    const RowMatrix<double>& Q = getSubstitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().getGenerator();
     RowMatrix<double> Q2;
     MatrixTools::mult<double>(Q, Q, Q2);
     RowMatrix<double> Q3;

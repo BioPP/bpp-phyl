@@ -42,7 +42,7 @@
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_FORWARDLIKELIHOODTREE_H
 
 #include <Bpp/Graph/AssociationDAGraphImplObserver.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "Bpp/Phyl/Likelihood/DataFlow/ProcessTree.h"
 #include "Definitions.h"
@@ -120,7 +120,6 @@ using ForwardProportion =
  *
  * @see LikelihoodNode
  */
-
 using ConditionalLikelihoodForward = Value<MatrixLik>;
 using ConditionalLikelihoodForwardRef = ValueRef<MatrixLik>;
 
@@ -139,7 +138,7 @@ private:
   Context& context_;
   std::shared_ptr<ProcessTree> processTree_;
   MatrixDimension likelihoodMatrixDim_;
-  const StateMap& statemap_;
+  const StateMapInterface& statemap_;
   Eigen::Index nbState_;
   Eigen::Index nbSites_;
 
@@ -155,12 +154,12 @@ private:
 public:
   ForwardLikelihoodTree(Context& c,
                         std::shared_ptr<ProcessTree> tree,
-                        const StateMap& statemap) :
+                        const StateMapInterface& statemap) :
     DAClass(),
     context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0)
   {}
 
-  void initialize(const AlignedValuesContainer& sites)
+  void initialize(const AlignmentDataInterface& sites)
   {
     nbSites_ = Eigen::Index(sites.getNumberOfSites ());
     likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
@@ -178,35 +177,33 @@ public:
   }
 
 private:
-  /*
+  /**
    * @brief Compute ConditionalLikelihood after reading edge on
    * the forward proces (ie at top of the edge).
-   *
    */
-
-  ForwardLikelihoodBelowRef makeForwardLikelihoodAtEdge (std::shared_ptr<ProcessEdge> edge, const AlignedValuesContainer& sites);
+  ForwardLikelihoodBelowRef makeForwardLikelihoodAtEdge(
+      std::shared_ptr<ProcessEdge> edge,
+      const AlignmentDataInterface& sites);
 
   /*
    * @brief Compute ConditionalLikelihood after reading node on
    * the forward proces (ie just above node).
-   *
    */
+  ConditionalLikelihoodForwardRef makeForwardLikelihoodAtNode(
+      std::shared_ptr<ProcessNode> node,
+      const AlignmentDataInterface& sites);
 
-  ConditionalLikelihoodForwardRef makeForwardLikelihoodAtNode (std::shared_ptr<ProcessNode> node, const AlignedValuesContainer& sites);
-
-  /*
+  /**
    * @brief Compute ConditionalLikelihood for leaf.
-   *
    */
+  ConditionalLikelihoodForwardRef makeInitialConditionalLikelihood(
+      const std::string& sequenceName,
+      const AlignmentDataInterface& sites);
 
-  ConditionalLikelihoodForwardRef makeInitialConditionalLikelihood (const std::string& sequenceName, const AlignedValuesContainer& sites);
-
-  /*
+  /**
    * @brief Map the species indexes and the likelihood DAG
    * indexes.
-   *
    */
-
   void setSpeciesMapIndexes_();
 
 protected:
@@ -287,21 +284,19 @@ public:
 public:
   double getProbaAtNode(PhyloTree::NodeIndex nodeId)
   {
-    return getNode(nodeId)->getTargetValue();
+    return getNode(nodeId)->targetValue();
   }
 
   double getProbaAtEdge(PhyloTree::EdgeIndex edgeId)
   {
-    return getEdge(edgeId)->getTargetValue();
+    return getEdge(edgeId)->targetValue();
   }
 
 private:
-  /*
-   *@brief computation of the probabilities with the same approach
+  /**
+   * @brief computation of the probabilities with the same approach
    * as for BackwardLikelihoodTree.
-   *
    */
-
   ProbaRef makeProbaAtEdge_(PhyloTree::EdgeIndex edgeIndex, std::shared_ptr<ForwardLikelihoodTree> tree);
 
   ProbaRef makeProbaAtNode_(PhyloTree::EdgeIndex edgeIndex, std::shared_ptr<ForwardLikelihoodTree> tree);

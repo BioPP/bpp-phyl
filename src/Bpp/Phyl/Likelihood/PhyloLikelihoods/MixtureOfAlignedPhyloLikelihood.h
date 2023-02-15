@@ -45,7 +45,7 @@
 #include "SetOfAlignedPhyloLikelihood.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "../DataFlow/Simplex_DF.h"
 
@@ -57,71 +57,92 @@ namespace bpp
  * The resulting likelihood is the mean value of
  * the AlignedPhyloLikelihoods, ponderated with parametrized probabilities
  * (through a Simplex).
- *
  */
-
 class MixtureOfAlignedPhyloLikelihood :
-  public SetOfAlignedPhyloLikelihood
+  public AbstractSetOfAlignedPhyloLikelihood
 {
 private:
   /**
    * DF simplex
-   *
    */
-
   std::shared_ptr<ConfiguredSimplex> simplex_;
 
   /**
    * Aligned LikelihoodCalculation to store DF nodes
    */
-
   mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
 
 public:
-  MixtureOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
+  MixtureOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      const std::vector<size_t>& nPhylo,
+      bool inCollection = true);
 
-  MixtureOfAlignedPhyloLikelihood(const MixtureOfAlignedPhyloLikelihood& mlc);
+  virtual ~MixtureOfAlignedPhyloLikelihood() {}
 
-  ~MixtureOfAlignedPhyloLikelihood() {}
+protected:
+  
+  MixtureOfAlignedPhyloLikelihood(const MixtureOfAlignedPhyloLikelihood& mlc) :
+    AbstractPhyloLikelihood(mlc),
+    AbstractParametrizable(""),
+    AbstractSetOfPhyloLikelihood(mlc),
+    AbstractAlignedPhyloLikelihood(mlc),
+    AbstractSetOfAlignedPhyloLikelihood(mlc),
+    simplex_(mlc.simplex_),
+    likCal_(mlc.likCal_)
+  {}
 
-  MixtureOfAlignedPhyloLikelihood* clone() const
+  MixtureOfAlignedPhyloLikelihood& operator=(const MixtureOfAlignedPhyloLikelihood& mlc)
+  {
+    AbstractSetOfAlignedPhyloLikelihood::operator=(mlc);
+    simplex_ = mlc.simplex_;
+    likCal_ = mlc.likCal_;
+    return *this;
+  }
+
+  MixtureOfAlignedPhyloLikelihood* clone() const override
   {
     return new MixtureOfAlignedPhyloLikelihood(*this);
   }
 
 protected:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
 public:
-  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
+  LikelihoodCalculation& likelihoodCalculation () const override
+  {
+    return *likCal_;
+  }
+
+  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const override
   {
     return likCal_;
   }
 
-  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const override
+  {
+    return *likCal_;
+  }
+
+  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const override
   {
     return likCal_;
   }
 
   /**
    * @brief Get the probabilities of the simplex
-   *
    */
-
   Vdouble getPhyloProbabilities() const;
 
   /**
    * @brief Get the probability of a phylolikelihood
-   *
    */
-
   double getPhyloProb(size_t index) const;
 
   /**
    * @brief Set the probabilities of the simplex
-   *
    */
-
   void setPhyloProb(Simplex const& simplex);
 };
 } // end of namespace bpp.

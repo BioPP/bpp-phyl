@@ -77,25 +77,18 @@ class YNGP_M1 :
   public YNGP_M
 {
 public:
-  YNGP_M1(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
+  YNGP_M1(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
 
-  YNGP_M1* clone() const { return new YNGP_M1(*this); }
-
-  YNGP_M1(const YNGP_M1& mod2) :
-    YNGP_M(mod2)
-  {}
-
-  YNGP_M1& operator=(const YNGP_M1& mod2)
-  {
-    YNGP_M::operator=(mod2);
-    return *this;
-  }
-
-protected:
-  void updateMatrices();
+  YNGP_M1* clone() const override { return new YNGP_M1(*this); }
 
 public:
-  std::string getName() const { return "YNGP_M1"; }
+  std::string getName() const override { return "YNGP_M1"; }
+
+protected:
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M1_H

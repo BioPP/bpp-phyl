@@ -50,7 +50,6 @@
 #include "../../Model/MarkovModulatedSubstitutionModel.h"
 #include "../../Model/SubstitutionModel.h"
 #include "../../Tree/Tree.h"
-#include "../Likelihood/ClockTreeLikelihood.h"
 #include "../Likelihood/HomogeneousTreeLikelihood.h"
 #include "../Model/MixedSubstitutionModelSet.h"
 #include "../Model/SubstitutionModelSet.h"
@@ -58,7 +57,6 @@
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
-#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
 #include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 #include <Bpp/Seq/Io/BppOAlphabetIndex2Format.h>
 
@@ -85,7 +83,6 @@ namespace bpp
  *
  * @see ApplicationTools
  */
-
 class PhylogeneticsApplicationToolsOld
 {
 public:
@@ -110,10 +107,9 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    * @return A new vector of Tree objects according to the specified options.
    */
-
-  static std::map<size_t, Tree*> getTrees(
+  static std::map<size_t, std::shared_ptr<Tree>> getTrees(
     const std::map<std::string, std::string>& params,
-    const std::map<size_t, AlignedValuesContainer*>& mSeq,
+    const std::map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -142,12 +138,11 @@ public:
    * @param sharedParams (out) remote parameters will be recorded here.
    * @param verbose Print some info to the 'message' output stream.
    */
-
   static void setSubstitutionModelParametersInitialValuesWithAliases(
-    BranchModel& model,
+    BranchModelInterface& model,
     std::map<std::string, std::string>& unparsedParameterValues,
     size_t modelNumber,
-    const AlignedValuesContainer* data,
+    std::shared_ptr<const AlignmentDataInterface> data,
     std::map<std::string, std::string>& sharedParams,
     bool verbose);
 
@@ -157,11 +152,10 @@ public:
    * See setSubstitutionModelSet and setMixedSubstitutionModelSet
    * methods.
    */
-
-  static SubstitutionModelSet* getSubstitutionModelSet(
-    const Alphabet* alphabet,
-    const GeneticCode* gcode,
-    const AlignedValuesContainer* data,
+  static std::unique_ptr<SubstitutionModelSet> getSubstitutionModelSet(
+    std::shared_ptr<const Alphabet> alphabet,
+    std::shared_ptr<const GeneticCode> gcode,
+    std::shared_ptr<const AlignmentDataInterface> data,
     const std::map<std::string, std::string>& params,
     const std::string& suffix = "",
     bool suffixIsOptional = true,
@@ -222,12 +216,11 @@ public:
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
-
   static void setSubstitutionModelSet(
     SubstitutionModelSet& modelSet,
-    const Alphabet* alphabet,
-    const GeneticCode* gcode,
-    const AlignedValuesContainer* data,
+    std::shared_ptr<const Alphabet> alphabet,
+    std::shared_ptr<const GeneticCode> gcode,
+    std::shared_ptr<const AlignmentDataInterface> data,
     const std::map<std::string, std::string>& params,
     const std::string& suffix = "",
     bool suffixIsOptional = true,
@@ -296,11 +289,10 @@ public:
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
-
   static void completeMixedSubstitutionModelSet(
     MixedSubstitutionModelSet& mixedModelSet,
-    const Alphabet* alphabet,
-    const AlignedValuesContainer* data,
+    std::shared_ptr<const Alphabet> alphabet,
+    std::shared_ptr<const AlignmentDataInterface> data,
     const std::map<std::string, std::string>& params,
     const std::string& suffix = "",
     bool suffixIsOptional = true,
@@ -326,9 +318,8 @@ public:
    * tl = PhylogeneticsApplicationToolsOld::optimizeParameters(tl, ...);
    * @endcode
    */
-
-  static TreeLikelihood* optimizeParameters(
-    TreeLikelihood* tl,
+  static std::shared_ptr<TreeLikelihoodInterface> optimizeParameters(
+    std::shared_ptr<TreeLikelihoodInterface> tl,
     const ParameterList& parameters,
     const std::map<std::string, std::string>& params,
     const std::string& suffix = "",
@@ -336,27 +327,6 @@ public:
     bool verbose = true,
     int warn = 1);
 
-  /**
-   * @brief Optimize parameters according to options, with a molecular clock.
-   *
-   * @param tl               The ClockTreeLikelihood function to optimize.
-   * @param parameters       The initial list of parameters to optimize.
-   *                         Use tl->getIndependentParameters() in order to estimate all parameters.
-   * @param params           The attribute map where options may be found.
-   * @param suffix           A suffix to be applied to each attribute name.
-   * @param suffixIsOptional Tell if the suffix is absolutely required.
-   * @param verbose          Print some info to the 'message' output stream.
-   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   */
-
-  static void optimizeParameters(
-    DiscreteRatesAcrossSitesClockTreeLikelihood* tl,
-    const ParameterList& parameters,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
 
   /**
    * @brief Write a tree according to options.
@@ -375,7 +345,6 @@ public:
    * @param warn Set the warning level (0: always display warnings,
    * >0 display warnings on demand).
    */
-
   static void writeTrees(
     const std::vector<const Tree*>& trees,
     const std::map<std::string, std::string>& params,

@@ -47,7 +47,7 @@
 #include "MultiProcessSequencePhyloLikelihood.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 
 namespace bpp
@@ -68,51 +68,64 @@ class MixtureProcessPhyloLikelihood :
 private:
   /**
    * @brief to avoid the dynamic casts
-   *
    */
-
-  MixtureSequenceEvolution& mSeqEvol_;
+  std::shared_ptr<MixtureSequenceEvolution> mSeqEvol_;
 
   /**
    * DF simplex for computation
-   *
    */
-
   std::shared_ptr<ConfiguredSimplex> simplex_;
 
   /**
    * Aligned LikelihoodCalculation to store DF nodes
    */
-
   mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
 
 public:
+
   MixtureProcessPhyloLikelihood(
-    const AlignedValuesContainer& data,
-    MixtureSequenceEvolution& processSeqEvol,
-    CollectionNodes& collNodes,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<MixtureSequenceEvolution> processSeqEvol,
+    std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol = 0,
     size_t nData = 0);
+
+protected:
 
   MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
     AbstractAlignedPhyloLikelihood(mlc),
+    AbstractSingleDataPhyloLikelihood(mlc),
+    AbstractSequencePhyloLikelihood(mlc),
+    AbstractParametrizable(mlc),
     MultiProcessSequencePhyloLikelihood(mlc),
     mSeqEvol_(mlc.mSeqEvol_),
     likCal_(mlc.likCal_)
   {}
 
-  MixtureProcessPhyloLikelihood* clone() const { return new MixtureProcessPhyloLikelihood(*this); }
+  MixtureProcessPhyloLikelihood& operator=(const MixtureProcessPhyloLikelihood& mlc)
+  {
+    MultiProcessSequencePhyloLikelihood::operator=(mlc);
+    mSeqEvol_ = mlc.mSeqEvol_;
+    likCal_ = mlc.likCal_;
+    return *this;
+  }
+
+  MixtureProcessPhyloLikelihood* clone() const override
+  { 
+    return new MixtureProcessPhyloLikelihood(*this);
+  }
 
 public:
+  
   /**
-   * @brief return the probability of a  subprocess
+   * @brief return the probability of a subprocess
    *
    * @param i the index of the subprocess
    */
   double getSubProcessProb(size_t i) const
   {
-    return simplex_->getTargetValue()->prob(i);
+    return simplex_->targetValue()->prob(i);
   }
 
   /**
@@ -120,25 +133,34 @@ public:
    *
    * @{
    */
-  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
+  LikelihoodCalculation& likelihoodCalculation () const override 
+  {
+    return *likCal_;
+  }
+
+  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const override
   {
     return likCal_;
   }
 
-  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const override
+  {
+    return *likCal_;
+  }
+
+  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const override
   {
     return likCal_;
   }
 
-  /*
-   *@brief return the posterior probabilities of subprocess on each site.
+  /**
+   * @brief return the posterior probabilities of subprocess on each site.
    *
-   *@return 2D-vector sites x states
+   * @return 2D-vector sites x states
    */
+  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const override;
 
-  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const;
-
-  /*
+  /**
    * @}
    */
 };

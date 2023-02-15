@@ -1,7 +1,7 @@
 //
 // File: HmmSequenceEvolution.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: vendredi 1 mai 2015, ÃÂ  21h 05
 //
 
@@ -54,9 +54,7 @@ namespace bpp
 {
 /**
  * @brief Sequence evolution framework based on a hmm
- *
  */
-
 class HmmSequenceEvolution :
   public MultiProcessSequenceEvolution
 {
@@ -66,7 +64,7 @@ private:
 
 public:
   HmmSequenceEvolution(
-    SubstitutionProcessCollection* processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     std::vector<size_t>& nProc);
 
   HmmSequenceEvolution(const HmmSequenceEvolution& mlc) :
@@ -92,32 +90,32 @@ public:
 
   void fireParameterChanged(const ParameterList& parameters);
 
-  const FullHmmTransitionMatrix& getHmmTransitionMatrix() const
+  const FullHmmTransitionMatrix& hmmTransitionMatrix() const
   {
     return *hmmTransMat_;
   }
 
-  FullHmmTransitionMatrix& getHmmTransitionMatrix()
+  FullHmmTransitionMatrix& hmmTransitionMatrix()
   {
     return *hmmTransMat_;
   }
 
-  std::shared_ptr<FullHmmTransitionMatrix> shareHmmTransitionMatrix()
+  std::shared_ptr<FullHmmTransitionMatrix> getHmmTransitionMatrix()
   {
     return hmmTransMat_;
   }
 
-  const HmmProcessAlphabet& getHmmProcessAlphabet() const
+  const HmmProcessAlphabet& hmmProcessAlphabet() const
   {
     return *hmmAlph_;
   }
 
-  HmmProcessAlphabet& getHmmProcessAlphabet()
+  HmmProcessAlphabet& hmmProcessAlphabet()
   {
     return *hmmAlph_;
   }
 
-  std::shared_ptr<HmmProcessAlphabet> shareHmmProcessAlphabet()
+  std::shared_ptr<HmmProcessAlphabet> getHmmProcessAlphabet()
   {
     return hmmAlph_;
   }

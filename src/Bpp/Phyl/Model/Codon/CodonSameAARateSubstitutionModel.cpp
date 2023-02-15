@@ -41,21 +41,20 @@
 #include "CodonSameAARateSubstitutionModel.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
 CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
-  std::shared_ptr<ProteinSubstitutionModel> pAAmodel,
-  std::shared_ptr<CodonSubstitutionModel>  pCodonModel,
-  std::shared_ptr<CodonFrequencySet> pFreq,
-  const GeneticCode* pgencode) :
+  unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
+  unique_ptr<CodonSubstitutionModelInterface> pCodonModel,
+  unique_ptr<CodonFrequencySetInterface> pFreq,
+  shared_ptr<const GeneticCode> pgencode) :
   AbstractParameterAliasable("SameAARate."),
-  AbstractSubstitutionModel(pCodonModel->getAlphabet(), pCodonModel->shareStateMap(), "SameAARate."),
-  pAAmodel_(pAAmodel),
-  pCodonModel_(pCodonModel),
-  pFreq_(pFreq),
+  AbstractSubstitutionModel(pCodonModel->getAlphabet(), pCodonModel->getStateMap(), "SameAARate."),
+  pAAmodel_(move(pAAmodel)),
+  pCodonModel_(move(pCodonModel)),
+  pFreq_(move(pFreq)),
   pgencode_(pgencode),
   X_(20, 20),
   phi_(20)
@@ -66,17 +65,19 @@ CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
   pAAmodel_->setNamespace("SameAARate." + pAAmodel_->getNamespace());
   pCodonModel_->setNamespace("SameAARate." + pCodonModel_->getNamespace());
 
-  if (pFreq_ && pFreq_ != ((CoreCodonSubstitutionModel*)(pCodonModel.get()))->getFrequencySet())
+  //TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
+  if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel.get())->codonFrequencySet()))
     pFreq_->setNamespace("SameAARate." + pFreq_->getNamespace());
 
   addParameters_(pAAmodel_->getParameters());
   addParameters_(pCodonModel_->getParameters());
 
-  if (pFreq_ && pFreq_ != ((CoreCodonSubstitutionModel*)(pCodonModel.get()))->getFrequencySet())
+  //TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
+  if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel.get())->codonFrequencySet()))
     addParameters_(pFreq_->getParameters());
 
   compute_();
-  updateMatrices();
+  updateMatrices_();
 }
 
 void CodonSameAARateSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
@@ -88,7 +89,7 @@ void CodonSameAARateSubstitutionModel::fireParameterChanged(const ParameterList&
     pFreq_->matchParametersValues(parameters);
 
   compute_();
-  updateMatrices();
+  updateMatrices_();
 }
 
 void CodonSameAARateSubstitutionModel::compute_()

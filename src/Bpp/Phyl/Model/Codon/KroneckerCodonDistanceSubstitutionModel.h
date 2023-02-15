@@ -56,7 +56,7 @@ namespace bpp
  * substitutions involved, before mgmt of selection and removing stop
  * codons.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * See description in AbstractKroneckerCodonDistanceSubstitutionModel
  * and AbstractCodonDistanceSubstitutionModel class.
@@ -75,8 +75,6 @@ namespace bpp
  * and synonymous substitutions rates is @f$\beta@f$ with positive
  * parameter \c "beta".
  */
-
-
 class KroneckerCodonDistanceSubstitutionModel :
   public AbstractKroneckerCodonSubstitutionModel,
   public AbstractCodonDistanceSubstitutionModel
@@ -95,11 +93,10 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *        distance object.
    */
-
   KroneckerCodonDistanceSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceSubstitutionModel object
@@ -114,12 +111,11 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *        distance object.
    */
-
   KroneckerCodonDistanceSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::vector<std::set< size_t> >& vPos,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceSubstitutionModel object
@@ -136,13 +132,12 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *   distance object.
    */
-
   KroneckerCodonDistanceSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceSubstitutionModel object
@@ -159,30 +154,29 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *   distance object.
    */
-
   KroneckerCodonDistanceSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::vector<std::set< size_t> >& vPos,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const AlphabetIndex2> pdist = 0);
 
   virtual ~KroneckerCodonDistanceSubstitutionModel() {}
 
-  KroneckerCodonDistanceSubstitutionModel* clone() const
+  KroneckerCodonDistanceSubstitutionModel* clone() const override
   {
     return new KroneckerCodonDistanceSubstitutionModel(*this);
   }
 
 public:
-  void fireParameterChanged(const ParameterList& parameterlist);
+  void fireParameterChanged(const ParameterList& parameterlist) override;
 
-  std::string getName() const;
+  std::string getName() const override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  void setNamespace(const std::string&);
+  void setNamespace(const std::string&) override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_KRONECKERCODONDISTANCESUBSTITUTIONMODEL_H

@@ -53,31 +53,29 @@ namespace bpp
 /**
  * @brief Specialized interface for protein substitution model.
  */
-class ProteinSubstitutionModel :
-  public virtual SubstitutionModel
+class ProteinSubstitutionModelInterface :
+  public virtual SubstitutionModelInterface
 {
 public:
-  virtual ~ProteinSubstitutionModel() {}
+  virtual ~ProteinSubstitutionModelInterface() {}
 
-  virtual ProteinSubstitutionModel* clone() const override = 0;
+  virtual ProteinSubstitutionModelInterface* clone() const override = 0;
 
-  size_t getNumberOfStates() const override { return 20; }
-
-  const ProteicAlphabet* getAlphabet() const override = 0;
+  virtual std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const = 0;
 };
 
 
 /**
  * @brief Specialized interface for protein reversible substitution model.
  */
-class ProteinReversibleSubstitutionModel :
-  public virtual ProteinSubstitutionModel,
-  public virtual ReversibleSubstitutionModel
+class ProteinReversibleSubstitutionModelInterface :
+  public virtual ProteinSubstitutionModelInterface,
+  public virtual ReversibleSubstitutionModelInterface
 {
 public:
-  virtual ~ProteinReversibleSubstitutionModel() {}
+  virtual ~ProteinReversibleSubstitutionModelInterface() {}
 
-  ProteinReversibleSubstitutionModel* clone() const = 0;
+  ProteinReversibleSubstitutionModelInterface* clone() const override = 0;
 };
 
 
@@ -86,11 +84,13 @@ public:
  */
 class AbstractProteinSubstitutionModel :
   public AbstractSubstitutionModel,
-  public virtual ProteinSubstitutionModel
+  public virtual ProteinSubstitutionModelInterface
 {
 public:
-  AbstractProteinSubstitutionModel(const ProteicAlphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
-    AbstractParameterAliasable(prefix),
+  AbstractProteinSubstitutionModel(
+      std::shared_ptr<const ProteicAlphabet> alpha,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix) :
     AbstractSubstitutionModel(alpha, stateMap, prefix) {}
 
   virtual ~AbstractProteinSubstitutionModel() {}
@@ -98,16 +98,10 @@ public:
   AbstractProteinSubstitutionModel* clone() const override = 0;
 
 public:
-  const ProteicAlphabet* getAlphabet() const override
+  std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
-    return dynamic_cast<const ProteicAlphabet*>(alphabet_);
+    return std::dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
   }
-
-  size_t getNumberOfStates() const override
-  {
-    return ProteinSubstitutionModel::getNumberOfStates();
-  }
-  
 
 };
 
@@ -116,26 +110,23 @@ public:
  */
 class AbstractReversibleProteinSubstitutionModel :
   public AbstractReversibleSubstitutionModel,
-  public virtual ProteinSubstitutionModel
+  public virtual ProteinReversibleSubstitutionModelInterface
 {
 public:
-  AbstractReversibleProteinSubstitutionModel(const ProteicAlphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
-    AbstractParameterAliasable(prefix),
+  AbstractReversibleProteinSubstitutionModel(
+      std::shared_ptr<const ProteicAlphabet> alpha,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix) :
     AbstractReversibleSubstitutionModel(alpha, stateMap, prefix) {}
 
   virtual ~AbstractReversibleProteinSubstitutionModel() {}
-
+  
   AbstractReversibleProteinSubstitutionModel* clone() const override = 0;
 
 public:
-  const ProteicAlphabet* getAlphabet() const override
+  std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
-    return dynamic_cast<const ProteicAlphabet*>(alphabet_);
-  }
-
-  size_t getNumberOfStates() const override
-  {
-    return ProteinSubstitutionModel::getNumberOfStates();
+    return std::dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
   }
 
 };

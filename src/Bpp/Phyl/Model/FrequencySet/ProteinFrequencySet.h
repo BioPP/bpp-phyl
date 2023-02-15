@@ -51,13 +51,13 @@ namespace bpp
 /**
  * @brief Parametrize a set of state frequencies for proteins.
  */
-class ProteinFrequencySet :
-  public virtual FrequencySet
+class ProteinFrequencySetInterface :
+  public virtual FrequencySetInterface
 {
 public:
-  ProteinFrequencySet* clone() const = 0;
+  ProteinFrequencySetInterface* clone() const override = 0;
 
-  const ProteicAlphabet* getAlphabet() const = 0;
+  virtual std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const = 0;
 };
 
 /**
@@ -72,21 +72,42 @@ public:
  * @see Simplex
  */
 class FullProteinFrequencySet :
-  public virtual ProteinFrequencySet,
+  public virtual ProteinFrequencySetInterface,
   public FullFrequencySet
 {
 public:
-  FullProteinFrequencySet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
-    FullFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), allowNullFreqs, method, name) {}
-  FullProteinFrequencySet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
-    FullFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), initFreqs, allowNullFreqs, method, name) {}
+  FullProteinFrequencySet(
+      std::shared_ptr<const ProteicAlphabet> alphabet,
+      bool allowNullFreqs = false,
+      unsigned short method = 1,
+      const std::string& name = "Full") :
+    FullFrequencySet(
+	std::make_shared<const CanonicalStateMap>(alphabet, false),
+	allowNullFreqs,
+	method,
+	name)
+  {}
 
-  FullProteinFrequencySet* clone() const { return new FullProteinFrequencySet(*this); }
+  FullProteinFrequencySet(
+      std::shared_ptr<const ProteicAlphabet> alphabet,
+      const std::vector<double>& initFreqs,
+      bool allowNullFreqs = false,
+      unsigned short method = 1,
+      const std::string& name = "Full") :
+    FullFrequencySet(
+        std::make_shared<const CanonicalStateMap>(alphabet, false),
+	initFreqs,
+	allowNullFreqs,
+	method,
+	name)
+  {}
+
+  FullProteinFrequencySet* clone() const override { return new FullProteinFrequencySet(*this); }
 
 public:
-  const ProteicAlphabet* getAlphabet() const
+  std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
-    return dynamic_cast<const ProteicAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const ProteicAlphabet>(getAlphabet());
   }
 };
 
@@ -96,25 +117,37 @@ public:
  * This set contains no parameter.
  */
 class FixedProteinFrequencySet :
-  public virtual ProteinFrequencySet,
+  public virtual ProteinFrequencySetInterface,
   public FixedFrequencySet
 {
 public:
-  FixedProteinFrequencySet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed") :
-    FixedFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), initFreqs, name) {}
+  FixedProteinFrequencySet(
+      std::shared_ptr<const ProteicAlphabet> alphabet,
+      const std::vector<double>& initFreqs,
+      const std::string& name = "Fixed") :
+    FixedFrequencySet(
+	std::make_shared<const CanonicalStateMap>(alphabet, false),
+       	initFreqs,
+	name)
+  {}
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
-  FixedProteinFrequencySet(const ProteicAlphabet* alphabet, const std::string& name = "Fixed") :
-    FixedFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), name) {}
+  FixedProteinFrequencySet(
+      std::shared_ptr<const ProteicAlphabet> alphabet,
+      const std::string& name = "Fixed") :
+    FixedFrequencySet(
+	std::make_shared<const CanonicalStateMap>(alphabet, false),
+       	name)
+  {}
 
-  FixedProteinFrequencySet* clone() const { return new FixedProteinFrequencySet(*this); }
+  FixedProteinFrequencySet* clone() const override { return new FixedProteinFrequencySet(*this); }
 
-  const ProteicAlphabet* getAlphabet() const
+  std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
-    return dynamic_cast<const ProteicAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const ProteicAlphabet>(getAlphabet());
   }
 };
 
@@ -125,18 +158,25 @@ public:
  */
 
 class UserProteinFrequencySet :
-  public virtual ProteinFrequencySet,
+  public virtual ProteinFrequencySetInterface,
   public UserFrequencySet
 {
 public:
-  UserProteinFrequencySet(const ProteicAlphabet* alphabet, const std::string& path, size_t nCol = 1) :
-    UserFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), path, nCol) {}
+  UserProteinFrequencySet(
+      std::shared_ptr<const ProteicAlphabet> alphabet,
+      const std::string& path,
+      size_t nCol = 1) :
+    UserFrequencySet(
+	std::make_shared<const CanonicalStateMap>(alphabet, false),
+       	path,
+       	nCol)
+  {}
 
-  UserProteinFrequencySet* clone() const { return new UserProteinFrequencySet(*this); }
+  UserProteinFrequencySet* clone() const override { return new UserProteinFrequencySet(*this); }
 
-  const ProteicAlphabet* getAlphabet() const
+  std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
-    return dynamic_cast<const ProteicAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const ProteicAlphabet>(getAlphabet());
   }
 };
 } // end of namespace bpp.

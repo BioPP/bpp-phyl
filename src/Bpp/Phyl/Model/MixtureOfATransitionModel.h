@@ -104,16 +104,16 @@ class MixtureOfATransitionModel :
   public AbstractMixedTransitionModel
 {
 private:
-  std::map<std::string, DiscreteDistribution*> distributionMap_;
+  std::map<std::string, std::unique_ptr<DiscreteDistribution> > distributionMap_;
 
 protected:
   int from_, to_;
 
 public:
   MixtureOfATransitionModel(
-    const Alphabet* alpha,
-    TransitionModel* model,
-    std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+    std::shared_ptr<const Alphabet> alpha,
+    std::unique_ptr<TransitionModelInterface> model,
+    std::map<std::string, std::unique_ptr<DiscreteDistribution> >& parametersDistributionsList,
     int ffrom = -1, int tto = -1);
 
   MixtureOfATransitionModel(const MixtureOfATransitionModel&);
@@ -122,59 +122,72 @@ public:
 
   virtual ~MixtureOfATransitionModel();
 
-  MixtureOfATransitionModel* clone() const { return new MixtureOfATransitionModel(*this); }
+  MixtureOfATransitionModel* clone() const override { return new MixtureOfATransitionModel(*this); }
 
 public:
-  std::string getName() const { return "MixedModel"; }
-
-  void updateMatrices();
+  std::string getName() const override { return "MixedModel"; }
 
   /**
    * @brief retrieve a pointer to the submodel with the given name.
-   *
-   * Return Null if not found.
-   *
    */
-
-  const TransitionModel* getModel(const std::string& name) const;
-
-  const TransitionModel* getModel(size_t i) const
+  const TransitionModelInterface& model(const std::string& name) const override
   {
-    return AbstractMixedTransitionModel::getNModel(i);
+    size_t nbmod = getNumberOfModels();
+
+    for (size_t i = 0; i < nbmod; ++i)
+    {
+      auto& model = nModel(i);
+      if (model.getName() == name)
+        return model;
+    }
+
+    throw NullPointerException("MixtureOfATransitionModel::model(). No model with the specified name.");
   }
 
-  // TransitionModel* getModel(size_t i)
-  // {
-  //   return AbstractMixedTransitionModel::getModel(i);
-  // }
-
-  /*
-   *@brief Returns the vector of numbers of the submodels in the
+  const TransitionModelInterface& model(size_t i) const
+  {
+    return AbstractMixedTransitionModel::nModel(i);
+  }
+  
+  /**
+   * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description of the parameters numbers.
    *
-   **@param desc is the description of the class indexes of the mixed
-   **parameters. Syntax is like: kappa_1,gamma_3,delta_2
-   *
+   * @param desc is the description of the class indexes of the mixed
+   * parameters. Syntax is like: kappa_1,gamma_3,delta_2
    */
-
-  Vuint getSubmodelNumbers(const std::string& desc) const;
+  Vuint getSubmodelNumbers(const std::string& desc) const override;
 
   /**
    * @brief sets the eq frequencies of the first nested model, and
    * adapts the parameters at best to it (surely there is a better way
    * to manage this).
-   *
    */
+  void setFreq(std::map<int, double>&) override;
 
-  void setFreq(std::map<int, double>&);
+  /**
+   * @brief Tells whether a DiscreteDistribution is associated with a given
+   * parameter name.
+   * @param parName name of the parameter
+   */
+  bool hasDistribution(std::string& parName) const
+  {
+    return (distributionMap_.find(parName) != distributionMap_.end());
+  }
 
   /**
    * @brief returns the DiscreteDistribution associated with a given
    * parameter name.
    * @param parName name of the parameter
-   **/
+   */
+  const DiscreteDistribution& distribution(std::string& parName) const
+  {
+    if (distributionMap_.find(parName) != distributionMap_.end())
+      return *distributionMap_.find(parName)->second;
+    else
+      throw Exception("MixtureOfATransitionModel::distribution(). No distribution with name: '" + parName + "'.");
+  }
 
-  const DiscreteDistribution* getDistribution(std::string& parName) const;
 
   /**
    *@brief Numbers of the states between which the substitution rates
@@ -183,7 +196,13 @@ public:
    *
    */
   int from() const { return from_; }
+
   int to() const { return to_; }
+
+protected:
+
+  void updateMatrices_() override;
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_MIXTUREOFATRANSITIONMODEL_H

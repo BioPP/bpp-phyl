@@ -1,12 +1,12 @@
 //
 // File: HmmProcessAlphabet.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: vendredi 20 septembre 2013, ÃÂ  23h 46
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -56,25 +56,23 @@ namespace bpp
  *
  * Implementation of HmmStateAlphabet where Alphabet States are
  * Substitution Process belonging to a collection.
- *
  */
-
 class HmmProcessAlphabet :
   public virtual HmmStateAlphabet,
   public AbstractParametrizable
 {
 private:
-  const SubstitutionProcessCollection* processColl_;
+  std::shared_ptr<const SubstitutionProcessCollection> processColl_;
 
-  /*
+  /**
    * @brief the vector of the substitution process numbers.
-   *
    */
-
   std::vector<size_t> nProc_;
 
 public:
-  HmmProcessAlphabet(const SubstitutionProcessCollection* pSub, std::vector<size_t> nProc) :
+  HmmProcessAlphabet(
+      std::shared_ptr<const SubstitutionProcessCollection> pSub,
+      std::vector<size_t> nProc) :
     AbstractParametrizable(""),
     processColl_(pSub),
     nProc_(nProc)
@@ -95,21 +93,21 @@ public:
     return *this;
   }
 
-  HmmProcessAlphabet* clone() const {return new HmmProcessAlphabet(*this);}
+  HmmProcessAlphabet* clone() const override {return new HmmProcessAlphabet(*this);}
 
-  ~HmmProcessAlphabet() {}
+  virtual ~HmmProcessAlphabet() {}
 
   /**
    * @param stateIndex The index of a hidden state.
    * @return The corresponding hidden state.
    * @see getNumberOfStates
    */
-  const Clonable& getState(size_t stateIndex) const
+  const Clonable& getState(size_t stateIndex) const override
   {
-    return processColl_->getSubstitutionProcess(nProc_[stateIndex]);
+    return processColl_->substitutionProcess(nProc_[stateIndex]);
   }
 
-  size_t getNumberOfStates() const
+  size_t getNumberOfStates() const override
   {
     return nProc_.size();
   }
@@ -122,9 +120,9 @@ public:
    * @param stateAlphabet The alphabet to check.
    * @return true if the matrix is compatible with the given alphabet.
    */
-  bool worksWith(const HmmStateAlphabet* stateAlphabet) const
+  bool worksWith(const HmmStateAlphabet& stateAlphabet) const override
   {
-    return stateAlphabet == this;
+    return &stateAlphabet == this;
   }
 };
 }

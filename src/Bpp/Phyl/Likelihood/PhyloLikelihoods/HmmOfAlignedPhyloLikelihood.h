@@ -64,7 +64,7 @@ namespace bpp
  *
  */
 class HmmOfAlignedPhyloLikelihood :
-  public SetOfAlignedPhyloLikelihood
+  public AbstractSetOfAlignedPhyloLikelihood
 {
 private:
   std::shared_ptr<HmmPhyloAlphabet> hma_;
@@ -76,30 +76,55 @@ private:
   mutable std::shared_ptr<HmmLikelihood_DF> hmm_;
 
 public:
-  HmmOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
-
-  HmmOfAlignedPhyloLikelihood(const HmmOfAlignedPhyloLikelihood& mlc) :
-    AbstractPhyloLikelihood(mlc),
-    AbstractAlignedPhyloLikelihood(mlc),
-    SetOfAlignedPhyloLikelihood(mlc),
-    hma_(std::shared_ptr<HmmPhyloAlphabet>(mlc.hma_->clone())),
-    htm_(std::shared_ptr<FullHmmTransitionMatrix>(mlc.htm_->clone())),
-    hpep_(std::shared_ptr<HmmPhyloEmissionProbabilities>(mlc.hpep_->clone())),
-    hmm_(std::shared_ptr<HmmLikelihood_DF>(mlc.hmm_->clone()))
-  {}
+  HmmOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      const std::vector<size_t>& nPhylo,
+      bool inCollection = true);
 
   virtual ~HmmOfAlignedPhyloLikelihood() {}
 
-  HmmOfAlignedPhyloLikelihood* clone() const { return new HmmOfAlignedPhyloLikelihood(*this); }
+protected:
+  HmmOfAlignedPhyloLikelihood(const HmmOfAlignedPhyloLikelihood& mlc) :
+    AbstractPhyloLikelihood(mlc),
+    AbstractParametrizable(""),
+    AbstractSetOfPhyloLikelihood(mlc),
+    AbstractAlignedPhyloLikelihood(mlc),
+    AbstractSetOfAlignedPhyloLikelihood(mlc),
+    hma_(mlc.hma_),
+    htm_(mlc.htm_),
+    hpep_(mlc.hpep_),
+    hmm_(mlc.hmm_)
+  {}
+
+  HmmOfAlignedPhyloLikelihood& operator=(const HmmOfAlignedPhyloLikelihood& mlc)
+  {
+    AbstractSetOfAlignedPhyloLikelihood::operator=(mlc);
+    hma_ = mlc.hma_;
+    htm_ = mlc.htm_;
+    hpep_ = mlc.hpep_;
+    hmm_ = mlc.hmm_;
+    return *this;
+  }
+
+  HmmOfAlignedPhyloLikelihood* clone() const override
+  { 
+    return new HmmOfAlignedPhyloLikelihood(*this); 
+  }
 
 public:
-  void setNamespace(const std::string& nameSpace);
+  void setNamespace(const std::string& nameSpace) override;
 
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  const HmmPhyloAlphabet* getHmmStateAlphabet() const
+  const HmmPhyloAlphabet hmmStateAlphabet() const
   {
-    return hma_.get();
+    return *hma_;
+  }
+
+  std::shared_ptr<const HmmPhyloAlphabet> getHmmStateAlphabet() const
+  {
+    return hma_;
   }
 
   /**
@@ -107,12 +132,22 @@ public:
    *
    * @{
    */
-  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
+  LikelihoodCalculation& likelihoodCalculation () const override
+  {
+    return *hmm_;
+  }
+
+  std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const override
   {
     return hmm_;
   }
 
-  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const override
+  {
+    return *hmm_;
+  }
+
+  std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const override
   {
     return hmm_;
   }

@@ -94,10 +94,10 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
-    std::shared_ptr<FrequencySet> pfreq,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new CodonDistancePhaseFrequenciesSubstitutionModel object
@@ -113,35 +113,41 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    std::shared_ptr<FrequencySet> pfreq,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~CodonDistancePhaseFrequenciesSubstitutionModel() {}
 
-  CodonDistancePhaseFrequenciesSubstitutionModel* clone() const
+  CodonDistancePhaseFrequenciesSubstitutionModel* clone() const override
   {
     return new CodonDistancePhaseFrequenciesSubstitutionModel(*this);
   }
 
 public:
-  void fireParameterChanged(const ParameterList& parameterlist);
+  void fireParameterChanged(const ParameterList& parameterlist) override;
 
-  std::string getName() const;
+  std::string getName() const override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  void setNamespace(const std::string&);
+  void setNamespace(const std::string&) override;
 
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequencySet();
+    return AbstractCodonPhaseFrequenciesSubstitutionModel::codonFrequencySet();
   }
+
+  bool hasCodonFrequencySet() const override
+  {
+    return AbstractCodonPhaseFrequenciesSubstitutionModel::hasCodonFrequencySet();
+  }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_CODONDISTANCEPHASEFREQUENCIESSUBSTITUTIONMODEL_H

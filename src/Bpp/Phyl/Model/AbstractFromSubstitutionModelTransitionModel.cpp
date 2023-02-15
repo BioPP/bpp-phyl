@@ -46,14 +46,16 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel, const std::string& prefix) :
-  AbstractParameterAliasable(prefix + subModel.getNamespace()),
-  subModel_(std::unique_ptr<SubstitutionModel>(subModel.clone())),
-  size_(subModel.getNumberOfStates()),
+AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTransitionModel(
+    unique_ptr<SubstitutionModelInterface> subModel,
+    const std::string& prefix) :
+  //AbstractParameterAliasable(prefix + subModel->getNamespace()),
+  subModel_(move(subModel)),
+  size_(subModel->getNumberOfStates()),
   pij_t(size_, size_),
   dpij_t(size_, size_),
   d2pij_t(size_, size_),
-  nestedPrefix_(subModel.getNamespace())
+  nestedPrefix_(subModel->getNamespace())
 {
   subModel_->setNamespace(getNamespace() + nestedPrefix_);
   addParameters_(subModel_->getParameters());
@@ -63,7 +65,7 @@ AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTrans
 /******************************************************************************/
 
 AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTransitionModel(const AbstractFromSubstitutionModelTransitionModel& fmsm) :
-  AbstractParameterAliasable(fmsm),
+  //AbstractParameterAliasable(fmsm),
   subModel_(fmsm.subModel_->clone()),
   size_(fmsm.size_),
   pij_t(fmsm.pij_t),
@@ -79,7 +81,7 @@ AbstractFromSubstitutionModelTransitionModel& AbstractFromSubstitutionModelTrans
 {
   AbstractParameterAliasable::operator=(fmsm);
 
-  subModel_ = std::unique_ptr<SubstitutionModel>(fmsm.subModel_->clone());
+  subModel_ = std::unique_ptr<SubstitutionModelInterface>(fmsm.subModel_->clone());
   size_ = fmsm.size_;
   pij_t = fmsm.pij_t;
   dpij_t = fmsm.dpij_t;

@@ -72,13 +72,12 @@ namespace bpp
  * used. Their names have a new prefix, "i_" where i stands for the
  * the phase (1,2 or 3) in the codon.
  */
-
 class AbstractKroneckerCodonSubstitutionModel :
-  public virtual CodonSubstitutionModel,
-  public AbstractKroneckerWordSubstitutionModel
+  public virtual CodonSubstitutionModelInterface,
+  public virtual AbstractKroneckerWordSubstitutionModel
 {
 private:
-  const GeneticCode* gCode_;
+  std::shared_ptr<const GeneticCode> gCode_;
 
 public:
   /**
@@ -90,10 +89,9 @@ public:
    *        the three positions. It is owned by the instance.
    * @param st string of the Namespace
    */
-
   AbstractKroneckerCodonSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
     const std::string& st);
 
   /**
@@ -107,11 +105,10 @@ public:
    *   positions.
    * @param st string of the Namespace
    */
-
   AbstractKroneckerCodonSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
-    const std::vector<std::set< size_t> >& vPos,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
+    const std::vector<std::set<size_t> >& vPos,
     const std::string& st);
 
   /**
@@ -126,12 +123,11 @@ public:
    *   parameters.  They are owned by the instance.
    * @param st string of the Namespace
    */
-
   AbstractKroneckerCodonSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
     const std::string& st);
 
   /**
@@ -148,12 +144,11 @@ public:
    *   positions.
    * @param st string of the Namespace
    */
-
   AbstractKroneckerCodonSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
     const std::vector<std::set< size_t> >& vPos,
     const std::string& st);
 
@@ -173,7 +168,7 @@ public:
     return *this;
   }
 
-  AbstractKroneckerCodonSubstitutionModel* clone() const = 0;
+  AbstractKroneckerCodonSubstitutionModel* clone() const override = 0;
 
 protected:
   /**
@@ -182,10 +177,10 @@ protected:
    * This method sets the rates to/from stop codons to zero and
    * performs the multiplication by the specific codon-codon rate.
    */
-  void completeMatrices();
+  void completeMatrices_() override;
 
 public:
-  const GeneticCode* getGeneticCode() const { return gCode_; }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return gCode_; }
 
   /**
    * @brief Method inherited from CodonSubstitutionModel
@@ -193,7 +188,7 @@ public:
    * Here this methods returns 1;
    *
    **/
-  virtual double getCodonsMulRate(size_t i, size_t j) const { return 1.; }
+  virtual double getCodonsMulRate(size_t i, size_t j) const override { return 1.; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTKRONECKERCODONSUBSTITUTIONMODEL_H

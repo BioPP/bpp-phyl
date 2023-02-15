@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -226,17 +226,17 @@ private:
   mutable VVdouble rootLikelihoodsS_;
   mutable Vdouble rootLikelihoodsSR_;
 
-  std::shared_ptr<AlignedValuesContainer> shrunkData_;
+  std::shared_ptr<AlignmentDataInterface> shrunkData_;
   size_t nbSites_;
   size_t nbStates_;
   size_t nbClasses_;
   size_t nbDistinctSites_;
 
 public:
-  DRASDRTreeLikelihoodData(const TreeTemplate<Node>* tree, size_t nbClasses) :
+  DRASDRTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node> > tree, size_t nbClasses) :
     AbstractTreeLikelihoodData(tree),
     nodeData_(), leafData_(), rootLikelihoods_(), rootLikelihoodsS_(), rootLikelihoodsSR_(),
-    shrunkData_(0), nbSites_(0), nbStates_(0), nbClasses_(nbClasses), nbDistinctSites_(0)
+    shrunkData_(nullptr), nbSites_(0), nbStates_(0), nbClasses_(nbClasses), nbDistinctSites_(0)
   {}
 
   DRASDRTreeLikelihoodData(const DRASDRTreeLikelihoodData& data) :
@@ -245,12 +245,12 @@ public:
     rootLikelihoods_(data.rootLikelihoods_),
     rootLikelihoodsS_(data.rootLikelihoodsS_),
     rootLikelihoodsSR_(data.rootLikelihoodsSR_),
-    shrunkData_(0),
+    shrunkData_(nullptr),
     nbSites_(data.nbSites_), nbStates_(data.nbStates_),
     nbClasses_(data.nbClasses_), nbDistinctSites_(data.nbDistinctSites_)
   {
     if (data.shrunkData_)
-      shrunkData_ = std::shared_ptr<AlignedValuesContainer>(dynamic_cast<AlignedValuesContainer*>(data.shrunkData_->clone()));
+      shrunkData_ = std::shared_ptr<AlignmentDataInterface>(data.shrunkData_->clone());
   }
 
   DRASDRTreeLikelihoodData& operator=(const DRASDRTreeLikelihoodData& data)
@@ -266,9 +266,9 @@ public:
     nbClasses_         = data.nbClasses_;
     nbDistinctSites_   = data.nbDistinctSites_;
     if (data.shrunkData_)
-      shrunkData_ = std::shared_ptr<AlignedValuesContainer>(dynamic_cast<AlignedValuesContainer*>(data.shrunkData_->clone()));
+      shrunkData_ = std::shared_ptr<AlignmentDataInterface>(data.shrunkData_->clone());
     else
-      shrunkData_      = 0;
+      shrunkData_      = nullptr;
     return *this;
   }
 
@@ -286,18 +286,18 @@ public:
    *
    * @param tree The tree to be associated to this data.
    */
-  void setTree(const TreeTemplate<Node>* tree)
+  void setTree(std::shared_ptr< const TreeTemplate<Node> > tree)
   {
     tree_ = tree;
-    for (std::map<int, DRASDRTreeLikelihoodNodeData>::iterator it = nodeData_.begin(); it != nodeData_.end(); it++)
+    for (auto& it : nodeData_)
     {
-      int id = it->second.getNode()->getId();
-      it->second.setNode(tree_->getNode(id));
+      int id = it.second.getNode()->getId();
+      it.second.setNode(tree_->getNode(id));
     }
-    for (std::map<int, DRASDRTreeLikelihoodLeafData>::iterator it = leafData_.begin(); it != leafData_.end(); it++)
+    for (auto& it : leafData_)
     {
-      int id = it->second.getNode()->getId();
-      it->second.setNode(tree_->getNode(id));
+      int id = it.second.getNode()->getId();
+      it.second.setNode(tree_->getNode(id));
     }
   }
 
@@ -393,7 +393,9 @@ public:
 
   size_t getNumberOfClasses() const { return nbClasses_; }
 
-  const std::shared_ptr<AlignedValuesContainer> getShrunkData() const { return shrunkData_; }
+  std::shared_ptr<const AlignmentDataInterface> getShrunkData() const { return shrunkData_; }
+  
+  const AlignmentDataInterface& shrunkData() const { return *shrunkData_; }
 
   /**
    * @brief Resize and initialize all likelihood arrays according to the given data set and substitution model.
@@ -402,7 +404,7 @@ public:
    * @param model The substitution model to use.
    * @throw Exception if an error occures.
    */
-  void initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model);
+  void initLikelihoods(const AlignmentDataInterface& sites, const TransitionModelInterface& model);
 
   /**
    * @brief Rebuild likelihood arrays at inner nodes.
@@ -432,7 +434,7 @@ protected:
    * @param sites The sequence container to use.
    * @param model The model, used for initializing leaves' likelihoods.
    */
-  void initLikelihoods(const Node* node, const AlignedValuesContainer& sites, const TransitionModel& model);
+  void initLikelihoods(const Node* node, const AlignmentDataInterface& sites, const TransitionModelInterface& model);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_DRASDRTREELIKELIHOODDATA_H

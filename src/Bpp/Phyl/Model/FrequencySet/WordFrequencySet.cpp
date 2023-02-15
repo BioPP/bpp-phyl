@@ -46,7 +46,7 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet> >& freqVector)
+size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface> >& freqVector)
 {
   size_t s = 1;
   size_t l = freqVector.size();
@@ -59,7 +59,7 @@ size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::shared
   return s;
 }
 
-AbstractWordFrequencySet::AbstractWordFrequencySet(std::shared_ptr<const StateMap> stateMap, const string& prefix, const string& name) :
+AbstractWordFrequencySet::AbstractWordFrequencySet(std::shared_ptr<const StateMapInterface> stateMap, const string& prefix, const string& name) :
   AbstractFrequencySet(stateMap, prefix, name)
 {}
 
@@ -76,10 +76,14 @@ AbstractWordFrequencySet::~AbstractWordFrequencySet()
 
 
 WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
-  const WordAlphabet* pWA,
-  const std::vector<std::shared_ptr<FrequencySet> >& freqVector,
-  const string& prefix, const string& name) :
-  AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
+    shared_ptr<const WordAlphabet> pWA,
+    vector<unique_ptr<FrequencySetInterface>>& freqVector,
+    const string& prefix,
+    const string& name) :
+  AbstractWordFrequencySet(
+    make_shared<CanonicalStateMap>(pWA, false),
+    prefix,
+    name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -89,22 +93,25 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
 
   size_t l = freqVector.size();
 
-  for (size_t i = 0; i < l; i++)
+  for (size_t i = 0; i < l; ++i)
   {
-    vFreq_.push_back(freqVector[i]);
+    vFreq_.push_back(move(freqVector[i]));
     vNestedPrefix_.push_back(freqVector[i]->getNamespace());
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }
-
   updateFrequencies();
 }
 
 WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
-  const CodonAlphabet* pWA,
-  const std::vector<std::shared_ptr<FrequencySet> >& freqVector,
-  const string& prefix, const string& name) :
-  AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
+    shared_ptr<const CodonAlphabet> pWA,
+    vector<unique_ptr<FrequencySetInterface>>& freqVector,
+    const string& prefix,
+    const string& name) :
+  AbstractWordFrequencySet(
+    make_shared<CanonicalStateMap>(pWA, false),
+    prefix,
+    name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -114,10 +121,10 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
 
   size_t l = freqVector.size();
 
-  for (size_t i = 0; i < l; i++)
+  for (size_t i = 0; i < l; ++i)
   {
-    vFreq_.push_back(freqVector[i]);
     vNestedPrefix_.push_back(freqVector[i]->getNamespace());
+    vFreq_.push_back(move(freqVector[i]));
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }
@@ -267,19 +274,22 @@ std::string WordFromIndependentFrequencySet::getDescription() const
 
 
 WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
-  const WordAlphabet* pWA,
-  std::shared_ptr<FrequencySet> pabsfreq,
-  const string& prefix,
-  const string& name) :
-  AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
-  pFreq_(pabsfreq),
+    shared_ptr<const WordAlphabet> pWA,
+    unique_ptr<FrequencySetInterface> pabsfreq,
+    const string& prefix,
+    const string& name) :
+  AbstractWordFrequencySet(
+    make_shared<CanonicalStateMap>(pWA, false),
+    prefix,
+    name),
+  pFreq_(move(pabsfreq)),
   NestedPrefix_(pabsfreq->getNamespace()),
   length_(pWA->getLength())
 {
   size_t i;
 
   string st = "";
-  for (i = 0; i < length_; i++)
+  for (i = 0; i < length_; ++i)
   {
     st += TextTools::toString(i + 1);
   }
@@ -291,19 +301,22 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
 }
 
 WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
-  const CodonAlphabet* pWA,
-  std::shared_ptr<FrequencySet> pabsfreq,
-  const string& prefix,
-  const string& name) :
-  AbstractWordFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
-  pFreq_(pabsfreq),
+    shared_ptr<const CodonAlphabet> pWA,
+    unique_ptr<FrequencySetInterface> pabsfreq,
+    const string& prefix,
+    const string& name) :
+  AbstractWordFrequencySet(
+    make_shared<CanonicalStateMap>(pWA, false),
+    prefix,
+    name),
+  pFreq_(move(pabsfreq)),
   NestedPrefix_(pabsfreq->getNamespace()),
   length_(pWA->getLength())
 {
   size_t i;
 
   string st = "";
-  for (i = 0; i < length_; i++)
+  for (i = 0; i < length_; ++i)
   {
     st += TextTools::toString(i + 1);
   }

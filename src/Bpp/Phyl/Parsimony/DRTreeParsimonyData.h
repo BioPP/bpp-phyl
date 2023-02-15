@@ -67,11 +67,11 @@ typedef std::bitset<21> Bitset; // 20AA + gaps, codon not lalowed so far :s
  * @see DRTreeParsimonyData
  */
 class DRTreeParsimonyNodeData :
-  public TreeParsimonyNodeData
+  public TreeParsimonyNodeDataInterface
 {
 private:
-  mutable std::map<int, std::vector<Bitset> > nodeBitsets_;
-  mutable std::map<int, std::vector<unsigned int> > nodeScores_;
+  mutable std::map<int, std::vector<Bitset>> nodeBitsets_;
+  mutable std::map<int, std::vector<unsigned int>> nodeScores_;
   const Node* node_;
 
 public:
@@ -141,7 +141,7 @@ public:
  * @see DRTreeParsimonyData
  */
 class DRTreeParsimonyLeafData :
-  public TreeParsimonyNodeData
+  public TreeParsimonyNodeDataInterface
 {
 private:
   mutable std::vector<Bitset> leafBitsets_;
@@ -201,19 +201,19 @@ private:
   mutable std::map<int, DRTreeParsimonyLeafData> leafData_;
   mutable std::vector<Bitset> rootBitsets_;
   mutable std::vector<unsigned int> rootScores_;
-  std::shared_ptr<SiteContainer> shrunkData_;
+  std::unique_ptr<SiteContainerInterface> shrunkData_;
   size_t nbSites_;
   size_t nbStates_;
   size_t nbDistinctSites_;
 
 public:
-  DRTreeParsimonyData(const TreeTemplate<Node>* tree) :
+  DRTreeParsimonyData(std::shared_ptr<const TreeTemplate<Node>> tree) :
     AbstractTreeParsimonyData(tree),
     nodeData_(),
     leafData_(),
     rootBitsets_(),
     rootScores_(),
-    shrunkData_(0),
+    shrunkData_(nullptr),
     nbSites_(0),
     nbStates_(0),
     nbDistinctSites_(0)
@@ -225,7 +225,7 @@ public:
 
   virtual ~DRTreeParsimonyData() {}
 
-  DRTreeParsimonyData* clone() const { return new DRTreeParsimonyData(*this); }
+  DRTreeParsimonyData* clone() const override { return new DRTreeParsimonyData(*this); }
 
 public:
   /**
@@ -237,35 +237,35 @@ public:
    *
    * @param tree The tree to be associated to this data.
    */
-  void setTree(const TreeTemplate<Node>* tree)
+  void setTree(std::shared_ptr<const TreeTemplate<Node>> tree)
   {
-    AbstractTreeParsimonyData::setTreeP_(tree);
-    for (std::map<int, DRTreeParsimonyNodeData>::iterator it = nodeData_.begin(); it != nodeData_.end(); it++)
+    AbstractTreeParsimonyData::setTree(tree);
+    for (auto& it : nodeData_)
     {
-      int id = it->second.getNode()->getId();
-      it->second.setNode(tree_->getNode(id));
+      int id = it.second.getNode()->getId();
+      it.second.setNode(tree_->getNode(id));
     }
-    for (std::map<int, DRTreeParsimonyLeafData>::iterator it = leafData_.begin(); it != leafData_.end(); it++)
+    for (auto& it : leafData_)
     {
-      int id = it->second.getNode()->getId();
-      it->second.setNode(tree_->getNode(id));
+      int id = it.second.getNode()->getId();
+      it.second.setNode(tree_->getNode(id));
     }
   }
 
-  DRTreeParsimonyNodeData& getNodeData(int nodeId)
+  DRTreeParsimonyNodeData& nodeData(int nodeId) override
   {
     return nodeData_[nodeId];
   }
-  const DRTreeParsimonyNodeData& getNodeData(int nodeId) const
+  const DRTreeParsimonyNodeData& nodeData(int nodeId) const override
   {
     return nodeData_[nodeId];
   }
 
-  DRTreeParsimonyLeafData& getLeafData(int nodeId)
+  DRTreeParsimonyLeafData& leafData(int nodeId)
   {
     return leafData_[nodeId];
   }
-  const DRTreeParsimonyLeafData& getLeafData(int nodeId) const
+  const DRTreeParsimonyLeafData& leafData(int nodeId) const
   {
     return leafData_[nodeId];
   }
@@ -288,7 +288,7 @@ public:
     return nodeData_[nodeId].getScoresArrayForNeighbor(neighborId);
   }
 
-  size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const
+  size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const override
   {
     return currentPosition;
   }
@@ -305,12 +305,16 @@ public:
   size_t getNumberOfSites() const { return nbSites_; }
   size_t getNumberOfStates() const { return nbStates_; }
 
-  void init(const SiteContainer& sites, const StateMap& stateMap);
+  void init(std::shared_ptr<const SiteContainerInterface> sites,
+	    std::shared_ptr<const StateMapInterface> stateMap);
   void reInit();
 
 protected:
-  void init(const Node* node, const SiteContainer& sites, const StateMap& stateMap);
-  void reInit(const Node* node);
+  void init_(const Node* node,
+	    std::shared_ptr<const SiteContainerInterface> sites,
+	    std::shared_ptr<const StateMapInterface> stateMap);
+
+  void reInit_(const Node* node);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PARSIMONY_DRTREEPARSIMONYDATA_H

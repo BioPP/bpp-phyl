@@ -1,7 +1,7 @@
 //
 // File: SequenceEvolution.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mardi 28 avril 2015, ÃÂ  10h 51
 //
 
@@ -50,7 +50,7 @@
 
 // From bpp-seq:
 
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 // From the STL:
 #include <memory>
@@ -65,25 +65,30 @@ namespace bpp
  * models and HMM.
  *
  * This object has the INDEPENDENT parameters of the processes.
- *
  */
-
 class SequenceEvolution :
   public virtual ParameterAliasable
 {
 public:
-  virtual SequenceEvolution* clone() const = 0;
+  virtual SequenceEvolution* clone() const override = 0;
 
 public:
-  virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
+  virtual bool isCompatibleWith(const AlignmentDataInterface& data) const = 0;
 
   virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
 
-  virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
-
-  const StateMap& getStateMap() const
+  virtual const SubstitutionProcessInterface& substitutionProcess(size_t number) const = 0;
+  
+  virtual std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess(size_t number) const = 0;
+  
+  const StateMapInterface& stateMap() const
   {
-    return getSubstitutionProcess(getSubstitutionProcessNumbers()[0]).getStateMap();
+    return substitutionProcess(getSubstitutionProcessNumbers()[0]).stateMap();
+  }
+
+  std::shared_ptr<const StateMapInterface> getStateMap() const
+  {
+    return substitutionProcess(getSubstitutionProcessNumbers()[0]).getStateMap();
   }
 
   /**
@@ -91,7 +96,6 @@ public:
    *
    * @return A ParameterList with all branch lengths.
    */
-
   virtual ParameterList getBranchLengthParameters(bool independent) const = 0;
 
   /**
@@ -99,7 +103,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getSubstitutionModelParameters(bool independent) const = 0;
 
   /**
@@ -107,7 +110,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getSubstitutionProcessParameters(bool independent) const = 0;
 
   /**
@@ -115,7 +117,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getRateDistributionParameters(bool independent) const = 0;
 
   /**
@@ -123,7 +124,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getRootFrequenciesParameters(bool independent) const = 0;
 
 
@@ -135,7 +135,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   virtual ParameterList getNonDerivableParameters() const = 0;
 };
 } // end namespace bpp

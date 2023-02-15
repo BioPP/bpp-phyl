@@ -124,7 +124,7 @@ protected:
   mutable RowMatrix<double> p_;
 
 public:
-  BinarySubstitutionModel(const BinaryAlphabet* alpha, double kappa = 1.);
+  BinarySubstitutionModel(std::shared_ptr<const BinaryAlphabet> alpha, double kappa = 1.);
 
   virtual ~BinarySubstitutionModel() {}
 

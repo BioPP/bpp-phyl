@@ -41,32 +41,31 @@
 #include "AbstractBiblioMixedTransitionModel.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
 AbstractBiblioMixedTransitionModel::AbstractBiblioMixedTransitionModel(const std::string& prefix) :
   AbstractBiblioTransitionModel(prefix),
-  pmixmodel_()
+  mixedModelPtr_()
 {}
 
 AbstractBiblioMixedTransitionModel::AbstractBiblioMixedTransitionModel(const AbstractBiblioMixedTransitionModel& mod2) :
   AbstractBiblioTransitionModel(mod2),
-  pmixmodel_(mod2.pmixmodel_->clone())
+  mixedModelPtr_(mod2.mixedModelPtr_->clone())
 {}
 
 AbstractBiblioMixedTransitionModel& AbstractBiblioMixedTransitionModel::operator=(const AbstractBiblioMixedTransitionModel& mod2)
 {
   AbstractBiblioTransitionModel::operator=(mod2);
-  pmixmodel_.reset(mod2.pmixmodel_->clone());
+  mixedModelPtr_.reset(mod2.mixedModelPtr_->clone());
   return *this;
 }
 
 AbstractBiblioMixedTransitionModel::~AbstractBiblioMixedTransitionModel()
 {}
 
-Vuint AbstractBiblioMixedTransitionModel::getSubmodelNumbers(const std::string& desc) const
+Vuint AbstractBiblioMixedTransitionModel::getSubmodelNumbers(const string& desc) const
 {
   std::string desc2;
 
@@ -80,5 +79,6 @@ Vuint AbstractBiblioMixedTransitionModel::getSubmodelNumbers(const std::string& 
       desc2 += ",";
   }
 
-  return getMixedModel().getSubmodelNumbers(desc2);
+  return mixedModel().getSubmodelNumbers(desc2);
 }
+

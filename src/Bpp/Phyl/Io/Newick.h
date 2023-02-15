@@ -119,11 +119,13 @@ public:
   virtual ~Newick() {}
 
 public:
+  
   void enableExtendedBootstrapProperty(const std::string& propertyName)
   {
     useBootstrap_ = false;
     bootstrapPropertyName_ = propertyName;
   }
+
   void disableExtendedBootstrapProperty()
   {
     useBootstrap_ = true;
@@ -135,8 +137,8 @@ public:
    *
    * @{
    */
-  const std::string getFormatName() const;
-  const std::string getFormatDescription() const;
+  const std::string getFormatName() const override;
+  const std::string getFormatDescription() const override;
   /* @} */
 
   /**
@@ -144,26 +146,34 @@ public:
    *
    * @{
    */
-  TreeTemplate<Node>* readTree(const std::string& path) const
-  {
-    return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::readTree(path));
-  }
+  using AbstractITree::readTreeTemplate;
 
-  TreeTemplate<Node>* readTree(std::istream& in) const;
+  std::unique_ptr<TreeTemplate<Node>> readTreeTemplate(std::istream& in) const override;
 
-  PhyloTree* readPhyloTree(const std::string& path) const
-  {
-    return AbstractIPhyloTree::readPhyloTree(path);
-  }
+  using AbstractIPhyloTree::readPhyloTree;
 
-  PhyloTree* readPhyloTree(std::istream& in) const;
+  std::unique_ptr<PhyloTree> readPhyloTree(std::istream& in) const override;
 
 private:
-  std::shared_ptr<PhyloNode> parenthesisToNode(PhyloTree& tree, std::shared_ptr<PhyloNode> father, const std::string& description, unsigned int& nodeCounter, bool bootstrap, const std::string& propertyName, bool withId, bool verbose) const;
+
+  std::shared_ptr<PhyloNode> parenthesisToNode(
+      PhyloTree& tree,
+      std::shared_ptr<PhyloNode> father,
+      const std::string& description,
+      unsigned int& nodeCounter,
+      bool bootstrap,
+      const std::string& propertyName,
+      bool withId,
+      bool verbose) const;
 
 public:
-  PhyloTree* parenthesisToPhyloTree(const std::string& description, bool bootstrap = false, const std::string& propertyName = "", bool withId = false, bool verbose = false) const;
 
+  std::unique_ptr<PhyloTree> parenthesisToPhyloTree(
+      const std::string& description,
+      bool bootstrap = false,
+      const std::string& propertyName = "",
+      bool withId = false,
+      bool verbose = false) const;
 
 /** @} */
 
@@ -174,20 +184,17 @@ public:
    */
 
 public:
-  void writeTree(const Tree& tree, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOTree::writeTree(tree, path, overwrite);
-  }
-  void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOPhyloTree::writePhyloTree(tree, path, overwrite);
-  }
+  
+  using AbstractOTree::writeTree;
 
-  void writeTree(const Tree& tree, std::ostream& out) const
+  void writeTree(const Tree& tree, std::ostream& out) const override
   {
     write_(tree, out);
   }
-  void writePhyloTree(const PhyloTree& tree, std::ostream& out) const
+
+  using AbstractOPhyloTree::writePhyloTree;
+
+  void writePhyloTree(const PhyloTree& tree, std::ostream& out) const override
   {
     write_(tree, out);
   }
@@ -198,17 +205,19 @@ public:
    *
    * @{
    */
-  void readTrees(const std::string& path, std::vector<Tree*>& trees) const
-  {
-    AbstractIMultiTree::readTrees(path, trees);
-  }
-  void readTrees(std::istream& in, std::vector<Tree*>& trees) const;
 
-  void readPhyloTrees(const std::string& path, std::vector<PhyloTree*>& trees) const
-  {
-    AbstractIMultiPhyloTree::readPhyloTrees(path, trees);
-  }
-  void readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& trees) const;
+  using AbstractIMultiTree::readTrees;
+  
+  void readTrees(
+      std::istream& in,
+      std::vector<std::unique_ptr<Tree>>& trees) const override;
+
+  using AbstractIMultiPhyloTree::readPhyloTrees;
+
+  void readPhyloTrees(
+      std::istream& in,
+      std::vector<std::unique_ptr<PhyloTree>>& trees) const override;
+
   /**@}*/
 
   /**
@@ -216,22 +225,17 @@ public:
    *
    * @{
    */
-  void writeTrees(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOMultiTree::writeTrees(trees, path, overwrite);
-  }
+  
+  using AbstractOMultiTree::writeTrees;
 
-  void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const
+  void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const override
   {
     write_(trees, out);
   }
 
-  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOMultiPhyloTree::writePhyloTrees(trees, path, overwrite);
-  }
+  using AbstractOMultiPhyloTree::writePhyloTrees;
 
-  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
+  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const override
   {
     write_(trees, out);
   }
@@ -252,7 +256,7 @@ protected:
   template<class N>
   void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const;
 
-  IOTree::Element getElement(const std::string& elt) const;
+  IOTree::Element getElement(const std::string& elt) const override;
 
 /**
  * @brief Get the Newick description of a subtree.

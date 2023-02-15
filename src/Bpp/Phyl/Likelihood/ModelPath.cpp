@@ -62,7 +62,7 @@ ModelPath& ModelPath::operator=(const ModelPath& hn)
   return *this;
 }
 
-void ModelPath::setModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint& vnS)
+void ModelPath::setModel(std::shared_ptr<MixedTransitionModelInterface> mMod, const Vuint& vnS)
 {
   if (vnS.size() == 0)
     return;
@@ -73,8 +73,8 @@ void ModelPath::setModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint
     throw IndexOutOfBoundsException("ModelPath::setModel. Bad submodel number in mixed model", mModPath_[mMod].back(), 0, mMod->getNumberOfModels() - 1);
 }
 
-void ModelPath::changeModel(std::shared_ptr<MixedTransitionModel> mMod1,
-                            std::shared_ptr<MixedTransitionModel> mMod2)
+void ModelPath::changeModel(shared_ptr<MixedTransitionModelInterface> mMod1,
+                            shared_ptr<MixedTransitionModelInterface> mMod2)
 {
   if (mModPath_.find(mMod1) == mModPath_.end())
     throw Exception("ModelPath::changeModel : Unknown model " + mMod1->getName());
@@ -87,7 +87,7 @@ void ModelPath::changeModel(std::shared_ptr<MixedTransitionModel> mMod1,
   mModPath_.erase(mMod1);
 }
 
-void ModelPath::addToModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint& vnS)
+void ModelPath::addToModel(std::shared_ptr<MixedTransitionModelInterface> mMod, const Vuint& vnS)
 {
   if (mModPath_.find(mMod) == mModPath_.end())
     mModPath_[mMod] = PathNode();
@@ -166,33 +166,33 @@ ModelPath& ModelPath::operator-=(const ModelPath& hn)
   return *this;
 }
 
-std::vector<std::shared_ptr<MixedTransitionModel> > ModelPath::getModels() const
+vector< shared_ptr<MixedTransitionModelInterface> > ModelPath::getModels() const
 {
-  std::vector<std::shared_ptr<MixedTransitionModel> > models;
+  vector< shared_ptr<MixedTransitionModelInterface> > models;
 
   std::transform(
     mModPath_.begin(),
     mModPath_.end(),
     std::back_inserter(models),
-    [](const std::map<std::shared_ptr<MixedTransitionModel>, PathNode>::value_type& pair){
+    [](const map<shared_ptr<MixedTransitionModelInterface>, PathNode>::value_type& pair){
     return pair.first;
   });
 
   return models;
 }
 
-std::string ModelPath::to_string() const
+std::string ModelPath::toString() const
 {
   std::string output;
   bool deb = true;
-  for (const auto& mod:mModPath_)
+  for (const auto& mod : mModPath_)
   {
     if (!deb)
       output += "&";
 
     auto model = mod.first;
 
-    if (dynamic_cast<const AbstractBiblioMixedTransitionModel*>(model.get()) == NULL)
+    if (dynamic_cast<const AbstractBiblioMixedTransitionModel*>(model.get()) == nullptr)
     {
       std::string name = "";
       auto pMS = dynamic_cast<const MixtureOfTransitionModels*>(model.get());
@@ -202,7 +202,7 @@ std::string ModelPath::to_string() const
         bool com = false;
         for (auto nb:mod.second)
         {
-          name = name + (com ? ", " : "") + pMS->AbstractMixedTransitionModel::getNModel(nb - 1)->getName();
+          name = name + (com ? ", " : "") + pMS->AbstractMixedTransitionModel::nModel(nb - 1).getName();
         }
         name += "]";
       }
@@ -211,9 +211,9 @@ std::string ModelPath::to_string() const
         auto pMT = dynamic_cast<const MixtureOfATransitionModel*>(model.get());
         name = "MixedModel";
 
-        const TransitionModel* eM = pMT->getModel(0);
+        const TransitionModelInterface& eM = pMT->model(0);
 
-        name += "." + eM->getName() + "[" + mod.second.to_string() + "]";
+        name += "." + eM.getName() + "[" + mod.second.to_string() + "]";
       }
       output += name;
     }

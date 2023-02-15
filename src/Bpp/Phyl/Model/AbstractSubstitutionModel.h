@@ -50,7 +50,79 @@
 namespace bpp
 {
 /**
- * @brief Partial implementation of the SubstitutionModel interface.
+ * @brief Partial implementation of the TransitionModel interface, with function for likelihood computations.
+ */	
+class AbstractLkTransitionModel :
+  public virtual TransitionModelInterface
+{
+private:
+
+  mutable Eigen::VectorXd lik_;
+
+public:
+  AbstractLkTransitionModel(): lik_() {}
+  virtual ~AbstractLkTransitionModel() {}
+
+public:
+  
+  const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const override
+  {
+    lik_ = Eigen::VectorXd::Zero(values.size());
+
+    const auto& pij = getPij_t(t);
+
+    for (auto i = 0; i < values.size(); ++i)
+    {
+      for (auto j = 0; j < values.size(); ++j)
+      {
+        lik_(i) += pij(size_t(i), size_t(j)) * values(j);
+      }
+    }
+
+    return lik_;
+  }
+
+  const Eigen::VectorXd& dLik_dt(const Eigen::VectorXd& values, double t) const override
+  {
+    lik_ = Eigen::VectorXd::Zero(values.size());
+
+    const auto& pij = getdPij_dt(t);
+
+    for (auto i = 0; i < values.size(); ++i)
+    {
+      for (auto j = 0; j < values.size(); ++j)
+      {
+        lik_(i) += pij(size_t(i), size_t(j)) * values(j);
+      }
+    }
+
+    return lik_;
+  }
+
+  const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& values, double t) const override
+  {
+    lik_ = Eigen::VectorXd::Zero(values.size());
+
+    const auto& pij = getd2Pij_dt2(t);
+
+    for (auto i = 0; i < values.size(); ++i)
+    {
+      for (auto j = 0; j < values.size(); ++j)
+      {
+        lik_(i) += pij(size_t(i), size_t(j)) * values(j);
+      }
+    }
+
+    return lik_;
+  }
+
+  friend class AbstractTotallyWrappedTransitionModel;
+  friend class AbstractFromSubstitutionModelTransitionModel;
+  friend class InMixedSubstitutionModel;
+};
+	
+/**
+ * @brief Partial implementation of the TransitionModel interface.
  *
  * This abstract class provides some fields, namely:
  * - alphabet_: a pointer toward the alphabet,
@@ -76,21 +148,20 @@ namespace bpp
  * @note This class is dedicated to "simple" substitution models, for which the number of states is equivalent to the number of characters in the alphabet.
  * Consider using the MarkovModulatedSubstitutionModel for more complexe cases.
  */
-
 class AbstractTransitionModel :
-  public virtual TransitionModel,
+  public virtual AbstractLkTransitionModel,
   public virtual AbstractParameterAliasable
 {
 protected:
   /**
    * @brief The alphabet relevant to this model.
    */
-  const Alphabet* alphabet_;
+  std::shared_ptr<const Alphabet> alphabet_;
 
   /**
    * @brief The map of model states with alphabet states.
    */
-  std::shared_ptr<const StateMap> stateMap_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
 
   /**
    * @brief The number of states.
@@ -117,7 +188,10 @@ protected:
   mutable RowMatrix<double> d2pijt_;
 
 public:
-  AbstractTransitionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
+  AbstractTransitionModel(
+      std::shared_ptr<const Alphabet> alpha,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix);
 
   AbstractTransitionModel(const AbstractTransitionModel& model) :
     AbstractParameterAliasable(model),
@@ -147,53 +221,58 @@ public:
 
   virtual ~AbstractTransitionModel() {}
 
-  virtual AbstractTransitionModel* clone() const = 0;
-
 public:
-  const Alphabet* getAlphabet() const { return alphabet_; }
+  const Alphabet& alphabet() const override { return *alphabet_; }
 
-  const StateMap& getStateMap() const { return *stateMap_; }
+  std::shared_ptr<const Alphabet> getAlphabet() const override { return alphabet_; }
 
-  size_t getNumberOfStates() const { return getStateMap().getNumberOfModelStates();}
+  const StateMapInterface& stateMap() const override { return *stateMap_; }
+
+  std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
+
+  size_t getNumberOfStates() const override { return stateMap_->getNumberOfModelStates();}
   
-  std::shared_ptr<const StateMap> shareStateMap() const { return stateMap_; }
+  const std::vector<int>& getAlphabetStates() const override { return stateMap_->getAlphabetStates(); }
 
-  const std::vector<int>& getAlphabetStates() const { return stateMap_->getAlphabetStates(); }
+  std::string getAlphabetStateAsChar(size_t index) const override { return stateMap_->getAlphabetStateAsChar(index); }
 
-  std::string getAlphabetStateAsChar(size_t index) const { return stateMap_->getAlphabetStateAsChar(index); }
+  int getAlphabetStateAsInt(size_t index) const override { return stateMap_->getAlphabetStateAsInt(index); }
 
-  int getAlphabetStateAsInt(size_t index) const { return stateMap_->getAlphabetStateAsInt(index); }
+  std::vector<size_t> getModelStates(int code) const override { return stateMap_->getModelStates(code); }
 
-  std::vector<size_t> getModelStates(int code) const { return stateMap_->getModelStates(code); }
+  std::vector<size_t> getModelStates(const std::string& code) const override { return stateMap_->getModelStates(code); }
 
-  std::vector<size_t> getModelStates(const std::string& code) const { return stateMap_->getModelStates(code); }
+  const Vdouble& getFrequencies() const override { return freq_; }
 
-  const Vdouble& getFrequencies() const { return freq_; }
+  bool computeFrequencies() const override { return false; }
 
-  bool computeFrequencies() const { return false; }
+  virtual const Matrix<double>& getPij_t(double t) const override = 0;
+  virtual const Matrix<double>& getdPij_dt(double t) const override = 0;
+  virtual const Matrix<double>& getd2Pij_dt2(double t) const override = 0;
 
-  virtual const Matrix<double>& getPij_t(double t) const = 0;
-  virtual const Matrix<double>& getdPij_dt(double t) const = 0;
-  virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
+  virtual double freq(size_t i) const override { return freq_[i]; }
 
-  virtual double freq(size_t i) const { return freq_[i]; }
+  virtual double Pij_t    (size_t i, size_t j, double t) const override { return getPij_t(t) (i, j); }
+  virtual double dPij_dt  (size_t i, size_t j, double t) const override { return getdPij_dt(t) (i, j); }
+  virtual double d2Pij_dt2(size_t i, size_t j, double t) const override { return getd2Pij_dt2(t) (i, j); }
 
-  virtual double Pij_t    (size_t i, size_t j, double t) const { return getPij_t(t) (i, j); }
-  virtual double dPij_dt  (size_t i, size_t j, double t) const { return getdPij_dt(t) (i, j); }
-  virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getd2Pij_dt2(t) (i, j); }
+  double getInitValue(size_t i, int state) const override;
 
-  double getInitValue(size_t i, int state) const;
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+  virtual void setFreq(std::map<int, double>& freqs) override;
 
-  virtual void setFreq(std::map<int, double>& freqs);
-
+  const FrequencySetInterface& frequencySet() const override
+  {
+    throw Exception("TransitionModel::frequencySet(). No associated FrequencySet object.");
+  }
+  
   /**
    * @brief Tells the model that a parameter value has changed.
    *
    * This updates the matrices consequently.
    */
-  virtual void fireParameterChanged(const ParameterList& parameters)
+  virtual void fireParameterChanged(const ParameterList& parameters) override
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
 
@@ -202,10 +281,10 @@ public:
       rate_ = parameters.getParameterValue(getNamespace() + "rate");
 
       if (parameters.size() != 1)
-        updateMatrices();
+        updateMatrices_();
     }
     else
-      updateMatrices();
+      updateMatrices_();
   }
 
   /**
@@ -213,7 +292,7 @@ public:
    * overall rate of the process.
    *
    */
-  void addRateParameter();
+  void addRateParameter() override;
 
 protected:
   /**
@@ -234,13 +313,13 @@ protected:
    * !! Here there is no normalization of the generator.
    *
    */
-  virtual void updateMatrices() = 0;
+  virtual void updateMatrices_() = 0;
 
   /*
    * @brief : To update the eq freq
    *
    */
-  Vdouble& getFrequencies_()
+  Vdouble& getFrequencies_() override
   {
     return freq_;
   }
@@ -250,22 +329,21 @@ public:
    * @brief The rate of the substitution process.
    *
    */
-  virtual double getRate() const;
+  virtual double getRate() const override;
 
-  virtual void setRate(double rate);
+  virtual void setRate(double rate) override;
 };
 
 
 class AbstractSubstitutionModel :
   public AbstractTransitionModel,
-  virtual public SubstitutionModel
+  public virtual SubstitutionModelInterface
 {
 protected:
   /**
    * @brief If the model is scalable (ie generator can be normalized
    * automatically).
    */
-
   bool isScalable_;
 
   /**
@@ -276,14 +354,12 @@ protected:
   /**
    * @brief if the Frequencies must be computed from the generator
    */
-
   bool computeFreq_;
 
   /**
    * @brief The exchangeability matrix \f$S\f$ of the model, defined
    * as \f$ S_{ij}=\frac{Q_{ij}}{\pi_j}\f$. When the model is
    * reversible, this matrix is symetric.
-   *
    */
   RowMatrix<double> exchangeability_;
 
@@ -335,10 +411,12 @@ protected:
   mutable RowMatrix<double> tmpMat_;
 
 public:
-  AbstractSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
+  AbstractSubstitutionModel(
+      std::shared_ptr<const Alphabet> alpha,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix);
 
   AbstractSubstitutionModel(const AbstractSubstitutionModel& model) :
-    AbstractParameterAliasable(model),
     AbstractTransitionModel(model),
     isScalable_(model.isScalable_),
     generator_(model.generator_),
@@ -375,8 +453,6 @@ public:
   }
 
   virtual ~AbstractSubstitutionModel() {}
-
-  virtual AbstractSubstitutionModel* clone() const = 0;
 
 public:
   bool computeFrequencies() const { return computeFreq_; }
@@ -428,15 +504,14 @@ protected:
    * method to prevent unnecessary computation.
    *
    * !! Here there is no normalization of the generator.
-   *
    */
-  virtual void updateMatrices();
+  virtual void updateMatrices_();
 
 public:
+
   /**
    * @brief sets if model is scalable, ie scale can be changed.
    * Default : true, set to false to avoid normalization for example.
-   *
    */
   void setScalable(bool scalable)
   {
@@ -445,7 +520,6 @@ public:
 
   /**
    * @brief returns  if model is scalable
-   *
    */
   virtual bool isScalable() const
   {
@@ -454,32 +528,25 @@ public:
 
   /**
    * @brief return scale
-   *
    */
-
   double getScale() const;
 
   /**
    * @brief Multiplies the current generator by the given scale.
    *
    * @param scale the scale by which the generator is multiplied.
-   *
    */
   void setScale(double scale);
 
   /**
    * @brief normalize the generator
-   *
    */
-
   void normalize();
 
   /**
    * @brief set the diagonal of the generator such that sum on each
    * line equals 0.
-   *
    */
-
   void setDiagonal();
 };
 
@@ -509,21 +576,23 @@ public:
  */
 class AbstractReversibleSubstitutionModel :
   public AbstractSubstitutionModel,
-  public virtual ReversibleSubstitutionModel
+  public virtual ReversibleSubstitutionModelInterface
 {
 public:
-  AbstractReversibleSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
-    AbstractParameterAliasable(prefix),
+  AbstractReversibleSubstitutionModel(
+      std::shared_ptr<const Alphabet> alpha,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix) :
     AbstractSubstitutionModel(alpha, stateMap, prefix)
   {
     isDiagonalizable_ = true;
     isNonSingular_    = true;
-    computeFreq_ = false;
+    computeFreq_      = false;
   }
 
   virtual ~AbstractReversibleSubstitutionModel() {}
 
-  virtual AbstractReversibleSubstitutionModel* clone() const = 0;
+  virtual AbstractReversibleSubstitutionModel* clone() const override = 0;
 
 protected:
   /**
@@ -547,7 +616,7 @@ protected:
    * Eigen values and vectors are computed from the scaled generator and assigned to the
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
    */
-  virtual void updateMatrices();
+  virtual void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTSUBSTITUTIONMODEL_H

@@ -55,13 +55,13 @@ using namespace std;
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   const Tree& tree,
-  TransitionModel* model,
-  DiscreteDistribution* rDist,
+  shared_ptr<TransitionModelInterface> model,
+  shared_ptr<DiscreteDistribution> rDist,
   bool checkRooted,
   bool verbose,
   bool usePatterns) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  likelihoodData_(0),
+  likelihoodData_(),
   minusLogLik_(-1.)
 {
   init_(usePatterns);
@@ -71,14 +71,14 @@ RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   const Tree& tree,
-  const AlignedValuesContainer& data,
-  TransitionModel* model,
-  DiscreteDistribution* rDist,
+  const AlignmentDataInterface& data,
+  shared_ptr<TransitionModelInterface> model,
+  shared_ptr<DiscreteDistribution> rDist,
   bool checkRooted,
   bool verbose,
   bool usePatterns) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
-  likelihoodData_(0),
+  likelihoodData_(),
   minusLogLik_(-1.)
 {
   init_(usePatterns);
@@ -130,10 +130,8 @@ RHomogeneousTreeLikelihood::~RHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void RHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites)
+void RHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites)
 {
-  if (data_)
-    delete data_;
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
 
   if (verbose_)

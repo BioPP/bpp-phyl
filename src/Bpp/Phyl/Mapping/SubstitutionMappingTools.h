@@ -108,16 +108,16 @@ public:
    * @param verbose           Print info to screen.
    * @return A tree <PhyloNode, PhyloBranchMapping>
    */
-  
-  static ProbabilisticSubstitutionMapping* computeCounts(
+
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeCounts(
     LikelihoodCalculationSingleProcess& rltc,
-    SubstitutionCount& substitutionCount,
+    SubstitutionCountInterface& substitutionCount,
     short unresolvedOption = UNRESOLVED_ZERO,
     double threshold = -1,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
-    return computeCounts(rltc, edgeIds, substitutionCount, unresolvedOption, threshold, verbose);
+    std::vector<uint> edgeIds = rltc.substitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    return computeCounts(rltc, edgeIds, substitutionCount, threshold, verbose);
   }
 
   /**
@@ -138,16 +138,16 @@ public:
    *
    * @return A tree <PhyloNode, PhyloBranchMapping>
    */
-  static ProbabilisticSubstitutionMapping* computeCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeCounts(
     LikelihoodCalculationSingleProcess& rltc,
-    const SubstitutionRegister& reg,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights = 0,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     short unresolvedOption = UNRESOLVED_ZERO,
     double threshold = -1,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.substitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
     return computeCounts(rltc, edgeIds, reg, weights, distances, unresolvedOption, threshold, verbose);
   }
 
@@ -165,11 +165,10 @@ public:
    *
    * @return A tree <PhyloNode, PhyloBranchMapping>
    */
-
-  static ProbabilisticSubstitutionMapping* computeCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeCounts(
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& speciesIds,
-    SubstitutionCount& substitutionCount,
+    SubstitutionCountInterface& substitutionCount,
     short unresolvedOption = UNRESOLVED_ZERO,
     double threshold = -1,
     bool verbose = true);
@@ -195,11 +194,10 @@ public:
    *
    * @return A tree <PhyloNode, PhyloBranchMapping>
    */
-
-  static ProbabilisticSubstitutionMapping* computeCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeCounts(
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& edgeIds,
-    const SubstitutionRegister& reg,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights = 0,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     short unresolvedOption = UNRESOLVED_ZERO,
@@ -224,12 +222,11 @@ public:
    *
    * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
    */
-
-  static ProbabilisticSubstitutionMapping* computeNormalizations(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizations(
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& edgeIds,
-    const BranchedModelSet* nullModels,
-    const SubstitutionRegister& reg,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     short unresolvedOption = UNRESOLVED_ZERO,
     bool verbose = true);
@@ -249,15 +246,15 @@ public:
    *
    * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
    */
-  static ProbabilisticSubstitutionMapping* computeNormalizations(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizations(
     LikelihoodCalculationSingleProcess& rltc,
-    const BranchedModelSet* nullModels,
-    const SubstitutionRegister& reg,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     short unresolvedOption = UNRESOLVED_ZERO,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.substitutionProcess().parametrizablePhyloTree().getAllEdgesIndexes();
     return computeNormalizations(rltc, edgeIds, nullModels, reg, distances, unresolvedOption, verbose);
   }
 
@@ -292,12 +289,11 @@ public:
    *
    * @return A tree <PhyloNode, PhyloBranchMapping> of normalized counts..
    */
-
-  static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizedCounts(
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& edgeIds,
-    const BranchedModelSet* nullModels,
-    const SubstitutionRegister& reg,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights = 0,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     bool perTimeUnit = false,
@@ -306,17 +302,17 @@ public:
     double threshold = -1,
     bool verbose = true);
 
-  static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
-    const ProbabilisticSubstitutionMapping* counts,
-    const ProbabilisticSubstitutionMapping* factors,
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizedCounts(
+    const ProbabilisticSubstitutionMapping& counts,
+    const ProbabilisticSubstitutionMapping& factors,
     const std::vector<uint>& edgeIds,
     bool perTimeUnit = false,
     uint siteSize = 1);
 
-  static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizedCounts(
     LikelihoodCalculationSingleProcess& rltc,
-    const BranchedModelSet* nullModels,
-    const SubstitutionRegister& reg,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights = 0,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     bool perTimeUnit = false,
@@ -325,17 +321,17 @@ public:
     double threshold = -1,
     bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.getSubstitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.substitutionProcess().parametrizablePhyloTree().getAllEdgesIndexes();
     return computeNormalizedCounts(rltc, edgeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, unresolvedOption, threshold, verbose);
   }
 
-  static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
-    const ProbabilisticSubstitutionMapping* counts,
-    const ProbabilisticSubstitutionMapping* factors,
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeNormalizedCounts(
+    const ProbabilisticSubstitutionMapping& counts,
+    const ProbabilisticSubstitutionMapping& factors,
     bool perTimeUnit,
     uint siteSize = 1)
   {
-    std::vector<uint> edgeIds = factors->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = factors.getAllEdgesIndexes();
     return computeNormalizedCounts(counts, factors, edgeIds, perTimeUnit, siteSize);
   }
 
@@ -348,11 +344,11 @@ public:
    * alphabet state change).
    *
    */
-  static ProbabilisticSubstitutionMapping* computeOneJumpCounts(
+  static std::unique_ptr<ProbabilisticSubstitutionMapping> computeOneJumpCounts(
     LikelihoodCalculationSingleProcess& rltc,
     bool verbose = true)
   {
-    OneJumpSubstitutionCount ojsm(0);
+    OneJumpSubstitutionCount ojsm(rltc.getStateMap());
     return computeCounts(rltc, ojsm, 0);
   }
 
@@ -381,8 +377,9 @@ public:
    * @return A PhyloTree where branch lengths carry the branch counts.
    */
 
-  static PhyloTree* getTreeForType(const ProbabilisticSubstitutionMapping& counts,
-                                   size_t type);
+  static std::unique_ptr<PhyloTree> getTreeForType(
+      const ProbabilisticSubstitutionMapping& counts,
+      size_t type);
 
   /**
    * @brief Sum all sites substitutions a given type.
@@ -393,9 +390,10 @@ public:
    *
    * @return A PhyloTree where branch lengths carry the branch counts.
    */
-  static PhyloTree* getTreeForType(const ProbabilisticSubstitutionMapping& counts,
-                                   const ProbabilisticSubstitutionMapping& factors,
-                                   size_t type);
+  static std::unique_ptr<PhyloTree> getTreeForType(
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      size_t type);
 
   /**
    *
@@ -423,9 +421,9 @@ public:
    *
    * @return A std::vector will all counts for all types of substitutions.
    */
-
   static VVVdouble getCountsPerSitePerBranchPerType(
-    const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
+      const ProbabilisticSubstitutionMapping& counts,
+      const std::vector<uint>& ids = Vuint(0));
 
 
   /**
@@ -437,14 +435,14 @@ public:
    *
    * @return A std::vector will all counts for all types of substitutions summed.
    */
+  static Vdouble getCountsForSitePerBranch(
+      const ProbabilisticSubstitutionMapping& counts,
+      size_t site);
 
   static Vdouble getCountsForSitePerBranch(
-    const ProbabilisticSubstitutionMapping& counts, size_t site);
-
-  static Vdouble getCountsForSitePerBranch(
-    const ProbabilisticSubstitutionMapping& counts,
-    const ProbabilisticSubstitutionMapping& factors,
-    size_t site);
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      size_t site);
 
   /**
    * @brief Sum all type of substitutions for each site for each branch.
@@ -455,14 +453,14 @@ public:
    *
    * @return A std::vector will all counts for all types of substitutions summed.
    */
+  static VVdouble getCountsPerSitePerBranch(
+      const ProbabilisticSubstitutionMapping& counts, 
+      const std::vector<uint>& ids = Vuint(0));
 
   static VVdouble getCountsPerSitePerBranch(
-    const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
-
-  static VVdouble getCountsPerSitePerBranch(
-    const ProbabilisticSubstitutionMapping& counts,
-    const ProbabilisticSubstitutionMapping& factors,
-    const std::vector<uint>& ids = Vuint(0));
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      const std::vector<uint>& ids = Vuint(0));
 
   /**
    * @brief Sum all sites substitutions for each type of a given branch.
@@ -471,9 +469,9 @@ public:
    * @param branchId The id of the branch of the substitution tree for which the counts should be computed.
    * @return A std::vector will all counts summed for each type of substitutions.
    */
-
   static Vdouble getCountsForBranchPerType(
-    const ProbabilisticSubstitutionMapping& counts, uint branchId);
+      const ProbabilisticSubstitutionMapping& counts,
+      uint branchId);
 
   /**
    * @brief Sum all sites substitutions for each branch for each type.
@@ -485,10 +483,13 @@ public:
    * @return A std::vector will all counts for all branches for all types
    * of substitutions summed.
    */
+  static VVdouble getCountsPerBranchPerType(
+      const ProbabilisticSubstitutionMapping& counts, 
+      const std::vector<uint>& ids = Vuint(0));
 
-  static VVdouble getCountsPerBranchPerType(const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
-
-  static VVdouble getCountsPerTypePerBranch(const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
+  static VVdouble getCountsPerTypePerBranch(
+      const ProbabilisticSubstitutionMapping& counts, 
+      const std::vector<uint>& ids = Vuint(0));
 
   /**
    * @brief Compute the sum over all branches of the counts per type
@@ -512,11 +513,10 @@ public:
    *                          saturated (default: -1 means no threshold).
    * @param verbose Display progress messages.
    */
-
   static VVdouble computeCountsPerTypePerBranch(
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& ids,
-    const SubstitutionRegister& reg,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights = 0,
     std::shared_ptr<const AlphabetIndex2> distances = 0,
     short unresolvedOption = UNRESOLVED_ZERO,
@@ -525,7 +525,6 @@ public:
 
   /**
    * @}
-   *
    */
 
   /**
@@ -534,7 +533,6 @@ public:
    * computeCounts and computeNormalizations).
    *
    * @{
-   *
    */
 
   /**
@@ -548,11 +546,10 @@ public:
    *
    * @return A std::vector will all counts for all types of substitutions summed.
    */
-
   static Vdouble getCountsForSitePerType(
-    const ProbabilisticSubstitutionMapping& counts,
-    size_t site,
-    const std::vector<uint>& ids = Vuint(0));
+      const ProbabilisticSubstitutionMapping& counts,
+      size_t site,
+      const std::vector<uint>& ids = Vuint(0));
 
   /**
    * @brief Sum and normalize all type of substitutions for each
@@ -568,13 +565,12 @@ public:
    *                          a counting unit (default = 1)
    * @return A std::vector will all counts for all types of substitutions summed.
    */
-
   static Vdouble getCountsForSitePerType(
-    const ProbabilisticSubstitutionMapping& counts,
-    const ProbabilisticSubstitutionMapping& factors,
-    size_t site,
-    bool perTimeUnit,
-    uint siteSize = 1);
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      size_t site,
+      bool perTimeUnit,
+      uint siteSize = 1);
 
   /**
    * @brief Sum and normalize all type of substitutions for each
@@ -592,14 +588,13 @@ public:
    *                          a counting unit (default = 1)
    * @return A std::vector will all counts for all types of substitutions summed.
    */
-
   static Vdouble getCountsForSitePerType(
-    const ProbabilisticSubstitutionMapping& counts,
-    const ProbabilisticSubstitutionMapping& factors,
-    size_t site,
-    const std::vector<uint>& ids,
-    bool perTimeUnit,
-    uint siteSize = 1);
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      size_t site,
+      const std::vector<uint>& ids,
+      bool perTimeUnit,
+      uint siteSize = 1);
 
   /**
    * @brief Sum all type of substitutions for each site for each type.
@@ -609,10 +604,9 @@ public:
    *        are counted (default: all ids)
    * @return A std::vector will all counts for all types of substitutions summed.
    */
-
   static VVdouble getCountsPerSitePerType(
-    const ProbabilisticSubstitutionMapping& counts,
-    const std::vector<uint>& ids = Vuint(0));
+      const ProbabilisticSubstitutionMapping& counts,
+      const std::vector<uint>& ids = Vuint(0));
 
   /**
    * @brief Sum and normalize all type of substitutions for each
@@ -627,12 +621,11 @@ public:
    *                          a counting unit (default = 1)
    * @return A std::vector will all counts for all types of substitutions summed.
    */
-
   static VVdouble getCountsPerSitePerType(
-    const ProbabilisticSubstitutionMapping& counts,
-    const ProbabilisticSubstitutionMapping& factors,
-    bool perTimeUnit,
-    uint siteSize = 1);
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      bool perTimeUnit,
+      uint siteSize = 1);
 
   /**
    * @brief Sum and normalize all type of substitutions for each
@@ -649,13 +642,12 @@ public:
    *                          a counting unit (default = 1)
    * @return A std::vector will all counts for all types of substitutions summed.
    */
-
   static VVdouble getCountsPerSitePerType(
-    const ProbabilisticSubstitutionMapping& counts,
-    const ProbabilisticSubstitutionMapping& factors,
-    const std::vector<uint>& ids,
-    bool perTimeUnit,
-    uint siteSize = 1);
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      const std::vector<uint>& ids,
+      bool perTimeUnit,
+      uint siteSize = 1);
 
   /**
    * @brief Compute the norm of a substitution std::vector for a given position.
@@ -668,24 +660,19 @@ public:
    * @param site The position for which the norm should be computed.
    * @return The norm of the substitution std::vector.
    */
-
   static double getNormForSite(
-    const ProbabilisticSubstitutionMapping& counts,
-    size_t site);
+      const ProbabilisticSubstitutionMapping& counts,
+      size_t site);
 
-  /*
-   *
+  /**
    * @}
    */
 
-  /*
-   *
+  /**
    * @}
-   *
    */
 
-  /*
-   *
+  /**
    * @brief Outputs of counts
    *
    * @{
@@ -696,15 +683,15 @@ public:
    */
   static void outputPerSitePerBranch(const std::string& filename,
                                      const std::vector<uint>& ids,
-                                     const AlignedValuesContainer& sites,
+                                     const AlignmentDataInterface& sites,
                                      const VVdouble& counts);
 
   /**
    * @brief Output Per Site Per Type
    */
   static void outputPerSitePerType(const std::string& filename,
-                                   const SubstitutionRegister& reg,
-                                   const AlignedValuesContainer& sites,
+                                   const SubstitutionRegisterInterface& reg,
+                                   const AlignmentDataInterface& sites,
                                    const VVdouble& counts);
 
   /**
@@ -712,8 +699,8 @@ public:
    */
   static void outputPerSitePerBranchPerType(const std::string& filenamePrefix,
                                             const std::vector<uint>& ids,
-                                            const SubstitutionRegister& reg,
-                                            const AlignedValuesContainer& sites,
+                                            const SubstitutionRegisterInterface& reg,
+                                            const AlignmentDataInterface& sites,
                                             const VVVdouble& counts);
 
 
@@ -728,12 +715,11 @@ public:
    * @param out           The output stream where to write the std::vectors.
    * @throw IOException If an output error happens.
    */
-
   static void writeToStream(
-    const ProbabilisticSubstitutionMapping& substitutions,
-    const AlignedValuesContainer& sites,
-    size_t type,
-    std::ostream& out);
+      const ProbabilisticSubstitutionMapping& substitutions,
+      const AlignmentDataInterface& sites,
+      size_t type,
+      std::ostream& out);
 
   /**
    * @brief Read the substitutions std::vectors from a stream.
@@ -743,18 +729,18 @@ public:
    * @param type          The type of substitutions that are read. Should be in supported by the substittuion count obect assiciated to the mapping, if any.
    * @throw IOException If an input error happens.
    */
+  static void readFromStream(
+      std::istream& in, 
+      ProbabilisticSubstitutionMapping& substitutions,
+      size_t type);
 
-  static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping & substitutions, size_t type);
-
-  /*
-   *
-   *@}
+  /**
+   * @}
    */
 
 
   /**
-   *@}
-   *
+   * @}
    */
 };
 

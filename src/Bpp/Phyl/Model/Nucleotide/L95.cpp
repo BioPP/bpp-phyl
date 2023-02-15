@@ -52,27 +52,31 @@ using namespace std;
 /******************************************************************************/
 
 L95::L95(
-  const NucleicAlphabet* alphabet,
-  double alpha, double beta, double gamma, double kappa, double theta) :
+    shared_ptr<const NucleicAlphabet> alphabet,
+    double alpha, double beta, double gamma, double kappa, double theta) :
   AbstractParameterAliasable("L95."),
-  AbstractNucleotideSubstitutionModel(alphabet, std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "L95."), alpha_(alpha), beta_(beta), gamma_(gamma), kappa_(kappa), theta_(theta)
+  AbstractNucleotideSubstitutionModel(
+    alphabet, 
+    make_shared<CanonicalStateMap>(alphabet, false),
+    "L95."),
+  alpha_(alpha), beta_(beta), gamma_(gamma), kappa_(kappa), theta_(theta)
 {
   addParameter_(new Parameter("L95.alpha", alpha, Parameter::PROP_CONSTRAINT_IN));
   addParameter_(new Parameter("L95.beta", beta, Parameter::PROP_CONSTRAINT_IN));
   addParameter_(new Parameter("L95.gamma", gamma, Parameter::PROP_CONSTRAINT_IN));
-  addParameter_(new Parameter("L95.kappa", kappa, std::make_shared<IntervalConstraint>(0, 1000, false, false, NumConstants::MILLI())));
-  addParameter_(new Parameter("L95.theta", theta, std::make_shared<IntervalConstraint>(0, 1, false, false, NumConstants::MILLI())));
+  addParameter_(new Parameter("L95.kappa", kappa, make_shared<IntervalConstraint>(0, 1000, false, false, NumConstants::MILLI())));
+  addParameter_(new Parameter("L95.theta", theta, make_shared<IntervalConstraint>(0, 1, false, false, NumConstants::MILLI())));
 
   computeFrequencies(false);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void L95::updateMatrices()
+void L95::updateMatrices_()
 {
   alpha_  = getParameterValue("alpha");
-  beta_  = getParameterValue("beta");
+  beta_   = getParameterValue("beta");
   gamma_  = getParameterValue("gamma");
   kappa_  = getParameterValue("kappa");
   theta_  = getParameterValue("theta");
@@ -102,7 +106,7 @@ void L95::updateMatrices()
 
   setScale(1. / (2 * kappa_ * theta_ * (1 - theta_) + gamma_ + theta_ - 2 * theta_ * gamma_));
 
-  AbstractSubstitutionModel::updateMatrices();
+  AbstractSubstitutionModel::updateMatrices_();
 }
 
 /******************************************************************************/
@@ -110,7 +114,7 @@ void L95::updateMatrices()
 void L95::setFreq(map<int, double>& freqs)
 {
   setParameterValue("theta", freqs[1] + freqs[2]);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/

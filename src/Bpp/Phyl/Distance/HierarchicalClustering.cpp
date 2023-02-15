@@ -52,12 +52,6 @@ const string HierarchicalClustering::MEDIAN   = "Median";
 const string HierarchicalClustering::WARD     = "Ward";
 const string HierarchicalClustering::CENTROID = "Centroid";
 
-TreeTemplate<Node>* HierarchicalClustering::getTree() const
-{
-  Node* root = TreeTemplateTools::cloneSubtree<Node>(*dynamic_cast<TreeTemplate<NodeTemplate<ClusterInfos> >*>(tree_)->getRootNode());
-  return new TreeTemplate<Node>(root);
-}
-
 vector<size_t> HierarchicalClustering::getBestPair()
 {
   vector<size_t> bestPair(2);
@@ -185,7 +179,7 @@ void HierarchicalClustering::finalStep(int idRoot)
   root->addSon(n2);
   n1->setDistanceToFather(d - dynamic_cast<NodeTemplate<ClusterInfos>*>(n1)->getInfos().length);
   n2->setDistanceToFather(d - dynamic_cast<NodeTemplate<ClusterInfos>*>(n2)->getInfos().length);
-  tree_ = new TreeTemplate<NodeTemplate<ClusterInfos> >(root);
+  tree_.reset(new TreeTemplate<NodeTemplate<ClusterInfos>>(root));
 }
 
 Node* HierarchicalClustering::getLeafNode(int id, const string& name)

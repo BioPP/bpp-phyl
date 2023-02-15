@@ -52,7 +52,11 @@ using namespace std;
 
 
 
-void checkIfMappingLegal(const StochasticMapping* stocMapping, const Tree* mapping, const TreeTemplate<Node>* baseTree, const TreeLikelihood* tl)
+void checkIfMappingLegal(
+    const StochasticMapping* stocMapping,
+    const Tree* mapping,
+    const TreeTemplate<Node>* baseTree,
+    const TreeLikelihoodInterface* tl)
 {
 /*
     vector<const Node*> origNodes = baseTree->getNodes();

@@ -78,20 +78,20 @@ int main() {
 
   auto gc = std::make_shared<StandardGeneticCode>(AlphabetTools::DNA_ALPHABET);
   
-  auto model = std::make_shared<YN98>(gc.get(), CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F0, gc.get()));
+  auto model = std::make_shared<YN98>(gc, CodonFrequencySetInterface::getFrequencySetForCodons(CodonFrequencySetInterface::F0, gc));
   auto rdist = std::make_shared<ConstantDistribution>(1.0);
   shared_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist, std::shared_ptr<PhyloTree>(new_tree->clone())));
 
-  SimpleSubstitutionProcessSiteSimulator simulator(*process);
+  SimpleSubstitutionProcessSiteSimulator simulator(process);
 
-  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model->getStateMap());
-  DnDsSubstitutionRegister* dndsReg = new DnDsSubstitutionRegister(model->getStateMap(), *gc);
+  auto totReg = make_shared<TotalSubstitutionRegister>(model->getStateMap());
+  auto dndsReg = make_shared<DnDsSubstitutionRegister>(model->getStateMap(), gc);
 
   unsigned int n = 10000;
   vector< vector<double> > realMap(n);
   vector< vector< vector<double> > > realMapTotal(n);
   vector< vector< vector<double> > > realMapDnDs(n);
-  VectorSiteContainer sites(new_tree->getAllLeavesNames(), gc->getSourceAlphabet());
+  auto sites = make_shared<VectorSiteContainer>(new_tree->getAllLeavesNames(), gc->getSourceAlphabet());
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1, '=');
     unique_ptr<SiteSimulationResult> result(simulator.dSimulateSite());
@@ -109,9 +109,10 @@ int main() {
         return 1;
       }
     }
-    unique_ptr<Site> site(result->getSite(*model));
-    site->setPosition(static_cast<int>(i));
-    sites.addSite(*site, false);
+    auto simSite = result->getSite(*model);
+    unique_ptr<Site> site(dynamic_cast<Site*>(simSite.release()));
+    site->setCoordinate(static_cast<int>(i));
+    sites->addSite(site, false);
   }
   ApplicationTools::displayTaskDone();
   
@@ -119,50 +120,45 @@ int main() {
   //Now build the substitution vectors with the true model:
 
   // Newlik
-  auto tmComp=make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
+  auto tmComp = make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   SingleProcessPhyloLikelihood newTl(context, tmComp);
   cout << "LogLik: " << newTl.getValue() << endl;
     
 
-  SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model.get(), 10);
+  auto sCountAna = make_shared<LaplaceSubstitutionCount>(model, 10);
   // Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001,1);
   // cout << "Analytical total count:" << endl;
   // MatrixTools::print(*m);
   // delete m;
-  ProbabilisticSubstitutionMapping* probMapAna = 
-    SubstitutionMappingTools::computeCounts(*tmComp, *sCountAna);
+  auto probMapAna = SubstitutionMappingTools::computeCounts(*tmComp, *sCountAna);
 
-  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model.get(), totReg);
+  auto sCountTot = make_shared<NaiveSubstitutionCount>(model, totReg);
   // m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
   // cout << "Simple total count:" << endl;
   // MatrixTools::print(*m);
   // delete m;
-  ProbabilisticSubstitutionMapping* probMapTot = 
-    SubstitutionMappingTools::computeCounts(*tmComp, *sCountTot);
+  auto probMapTot = SubstitutionMappingTools::computeCounts(*tmComp, *sCountTot);
 
-  SubstitutionCount* sCountDnDs = new NaiveSubstitutionCount(model.get(), dndsReg);
+  auto sCountDnDs = make_shared<NaiveSubstitutionCount>(model, dndsReg);
   // m = sCountDnDs->getAllNumbersOfSubstitutions(0.001,1);
   // cout << "Detailed count, type 1:" << endl;
   // MatrixTools::print(*m);
   // delete m;
-  ProbabilisticSubstitutionMapping* probMapDnDs = 
-    SubstitutionMappingTools::computeCounts(*tmComp, *sCountDnDs);
+  auto probMapDnDs = SubstitutionMappingTools::computeCounts(*tmComp, *sCountDnDs);
   
-  SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model.get(), totReg);
+  auto sCountUniTot = make_shared<UniformizationSubstitutionCount>(model, totReg);
   // m = sCountUniTot->getAllNumbersOfSubstitutions(0.001,1);
   // cout << "Total count, uniformization method:" << endl;
   // MatrixTools::print(*m);
   // delete m;
-  ProbabilisticSubstitutionMapping* probMapUniTot = 
-    SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniTot);
+  auto probMapUniTot = SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniTot);
 
-  SubstitutionCount* sCountUniDnDs = new UniformizationSubstitutionCount(model.get(), dndsReg);
+  auto sCountUniDnDs = make_shared<UniformizationSubstitutionCount>(model, dndsReg);
   // m = sCountUniDnDs->getAllNumbersOfSubstitutions(0.001,2);
   // cout << "Detailed count, uniformization method, type 2:" << endl;
   // MatrixTools::print(*m);
   // delete m;
-  ProbabilisticSubstitutionMapping* probMapUniDnDs = 
-    SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniDnDs);
+  auto probMapUniDnDs = SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniDnDs);
 
   //Check per branch:
   
@@ -210,13 +206,6 @@ int main() {
   }
 
   //-------------
-  delete sCountTot;
-  delete sCountDnDs;
-  delete probMapAna;
-  delete probMapTot;
-  delete probMapDnDs;
-  delete probMapUniTot;
-  delete probMapUniDnDs;
   //return (abs(obs - 0.001) < 0.001 ? 0 : 1);
   return 0;
 }

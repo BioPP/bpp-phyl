@@ -160,35 +160,37 @@ class T92 :
   public AbstractReversibleNucleotideSubstitutionModel
 {
 private:
+	
   double kappa_, theta_, k_, r_, piA_, piC_, piG_, piT_;
   mutable double exp1_, exp2_, l_;
   mutable RowMatrix<double> p_;
 
 public:
-  T92(const NucleicAlphabet* alpha, double kappa = 1., double theta = 0.5);
+
+  T92(std::shared_ptr<const NucleicAlphabet> alpha, double kappa = 1., double theta = 0.5);
 
   virtual ~T92() {}
 
-  T92* clone() const { return new T92(*this); }
+  T92* clone() const override { return new T92(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double d) const;
-  double dPij_dt  (size_t i, size_t j, double d) const;
-  double d2Pij_dt2(size_t i, size_t j, double d) const;
-  const Matrix<double>& getPij_t(double d) const;
-  const Matrix<double>& getdPij_dt(double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const override;
+  double dPij_dt  (size_t i, size_t j, double d) const override;
+  double d2Pij_dt2(size_t i, size_t j, double d) const override;
+  const Matrix<double>& getPij_t(double d) const override;
+  const Matrix<double>& getdPij_dt(double d) const override;
+  const Matrix<double>& getd2Pij_dt2(double d) const override;
 
-  std::string getName() const { return "T92"; }
-
+  std::string getName() const override { return "T92"; }
 
   /**
    * @brief This method is over-defined to actualize the 'theta' parameter too.
    */
-  void setFreq(std::map<int, double>& freqs);
+  void setFreq(std::map<int, double>& freqs) override;
 
 protected:
-  void updateMatrices();
+
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_T92_H

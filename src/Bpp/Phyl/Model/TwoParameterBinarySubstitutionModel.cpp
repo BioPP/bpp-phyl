@@ -52,10 +52,13 @@ using namespace std;
 
 /******************************************************************************/
 
-TwoParameterBinarySubstitutionModel::TwoParameterBinarySubstitutionModel(const BinaryAlphabet* alpha, double mu, double pi0) :
+TwoParameterBinarySubstitutionModel::TwoParameterBinarySubstitutionModel(
+    shared_ptr<const BinaryAlphabet> alpha,
+    double mu,
+    double pi0) :
   AbstractParameterAliasable("TwoParameterBinary."),
   // AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "TwoParameterBinary."),
-  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "TwoParameterBinary."),
+  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(alpha, false)), "TwoParameterBinary."),
   mu_(mu),
   pi0_(pi0),
   lambda_(0),

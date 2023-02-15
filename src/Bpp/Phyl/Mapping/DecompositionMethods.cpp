@@ -50,7 +50,9 @@ using namespace bpp;
 
 /******************************************************************************/
 
-DecompositionMethods::DecompositionMethods(const SubstitutionModel* model, SubstitutionRegister* reg) :
+DecompositionMethods::DecompositionMethods(
+    shared_ptr<const SubstitutionModelInterface> model,
+    shared_ptr<const SubstitutionRegisterInterface> reg) :
   model_(model),
   nbStates_(model->getNumberOfStates()),
   nbTypes_(reg->getNumberOfSubstitutionTypes()),
@@ -68,9 +70,10 @@ DecompositionMethods::DecompositionMethods(const SubstitutionModel* model, Subst
   setSubstitutionModel(model);
 }
 
-DecompositionMethods::DecompositionMethods(SubstitutionRegister* reg) :
+DecompositionMethods::DecompositionMethods(
+    shared_ptr<const SubstitutionRegisterInterface> reg) :
   model_(0),
-  nbStates_(reg->getStateMap().getNumberOfModelStates()),
+  nbStates_(reg->stateMap().getNumberOfModelStates()),
   nbTypes_(reg->getNumberOfSubstitutionTypes()),
   jMat_(nbStates_, nbStates_),
   jIMat_(0, 0),
@@ -85,9 +88,9 @@ DecompositionMethods::DecompositionMethods(SubstitutionRegister* reg) :
   initBMatrices_();
 }
 
-DecompositionMethods::DecompositionMethods(const StateMap& statemap) :
+DecompositionMethods::DecompositionMethods(const StateMapInterface& stateMap) :
   model_(0),
-  nbStates_(statemap.getNumberOfModelStates()),
+  nbStates_(stateMap.getNumberOfModelStates()),
   nbTypes_(1),
   jMat_(nbStates_, nbStates_),
   jIMat_(0, 0),
@@ -103,7 +106,8 @@ DecompositionMethods::DecompositionMethods(const StateMap& statemap) :
 }
 
 
-DecompositionMethods::DecompositionMethods(const SubstitutionModel* model) :
+DecompositionMethods::DecompositionMethods(
+    shared_ptr<const SubstitutionModelInterface> model) :
   model_(model),
   nbStates_(model->getNumberOfStates()),
   nbTypes_(1),
@@ -270,7 +274,8 @@ void DecompositionMethods::initStates_()
 
 /******************************************************************************/
 
-void DecompositionMethods::setSubstitutionModel(const SubstitutionModel* model)
+void DecompositionMethods::setSubstitutionModel(
+  shared_ptr<const SubstitutionModelInterface> model)
 {
   model_ = model;
   if (!model)

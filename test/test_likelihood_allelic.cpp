@@ -46,7 +46,7 @@
 #include <Bpp/Phyl/Model/FrequencySet/FrequencySet.h>
 #include <Bpp/Seq/Io/Fasta.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
-#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Phyl/Legacy/OptimizationTools.h>
 
 #include <Bpp/Phyl/OptimizationTools.h>
@@ -62,64 +62,64 @@
 using namespace bpp;
 using namespace std;
 
-
 int main() {
   
   Newick reader;
-  auto phyloTree = std::shared_ptr<PhyloTree>(reader.readPhyloTree("lysozymeLarge.dnd"));
+  std::shared_ptr<PhyloTree> phyloTree = reader.readPhyloTree("lysozymeLarge.dnd");
 
   //-------------
 
   string nameSeq = "lysozymeLarge.fasta";
   Fasta fasta;
  
-  auto alphaall = std::make_shared<AllelicAlphabet>(AlphabetTools::DNA_ALPHABET, 3);
+  auto alphaall = make_shared<AllelicAlphabet>(AlphabetTools::DNA_ALPHABET, 3);
+  auto alpha = alphaall->getStateAlphabet();
   
-  auto sites = std::shared_ptr<AlignedSequenceContainer>(fasta.readAlignment(nameSeq , &alphaall->getStateAlphabet()));
+  std::shared_ptr<SiteContainerInterface> sites = fasta.readAlignment(nameSeq, alpha);
   
   SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
-  vector<std::shared_ptr<ProbabilisticSequence>> vseq;
-  for (size_t ns=0;ns < sites->getNumberOfSequences(); ns++)
-    vseq.push_back(std::shared_ptr<ProbabilisticSequence>(alphaall->convertFromStateAlphabet(sites->getSequence(ns))));
+  vector<unique_ptr<ProbabilisticSequence>> vseq;
+  for (size_t ns = 0; ns < sites->getNumberOfSequences(); ++ns)
+    vseq.push_back(alphaall->convertFromStateAlphabet(sites->sequence(ns)));
 
-  VectorProbabilisticSiteContainer sites2(alphaall.get());
+  auto sites2 = make_shared<ProbabilisticVectorSiteContainer>(alphaall);
 
-  for (const auto& seq:vseq)
-    sites2.addSequence(*seq);
+  for (auto& seq : vseq)
+    sites2->addSequence(seq->getName(), seq);
 
-  auto t92 = std::make_shared<T92>(&AlphabetTools::DNA_ALPHABET);
+  auto t92 = make_unique<T92>(AlphabetTools::DNA_ALPHABET);
   
-  auto fitness = std::make_shared<FullNucleotideFrequencySet>(&AlphabetTools::DNA_ALPHABET);
+  auto fitness = make_unique<FullNucleotideFrequencySet>(AlphabetTools::DNA_ALPHABET);
 
-  auto model = std::make_shared<POMO>(alphaall.get(), t92, fitness);
+  auto model = make_shared<POMO>(alphaall, move(t92), move(fitness));
 
-  auto rootFreqs = std::make_shared<FullFrequencySet>(model->shareStateMap());
+  auto rootFreqs = make_shared<FullFrequencySet>(model->getStateMap());
 
-  auto distribution = std::make_shared<ConstantRateDistribution>();
+  auto distribution = make_shared<ConstantRateDistribution>();
   
-  auto process  = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, phyloTree, rootFreqs);
+  shared_ptr<SubstitutionProcessInterface> process = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, phyloTree, rootFreqs);
 
-//  auto process= std::make_shared<SimpleSubstitutionProcess>(model, phyloTree);
+//  auto process = make_shared<SimpleSubstitutionProcess>(model, phyloTree);
 
   Context context;                        
 
-  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites2, *process);
+  auto lik = make_shared<LikelihoodCalculationSingleProcess>(context, sites2, process);
 
-  SingleProcessPhyloLikelihood llh(context, lik);
+  auto llh = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
   
-  cout << "NewTL: " << setprecision(20) << llh.getValue() << endl;
+  cout << "NewTL: " << setprecision(20) << llh->getValue() << endl;
 
-  unique_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
-  unique_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
+  shared_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
+  shared_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
 
-  OptimizationTools::optimizeNumericalParameters2(llh, llh.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get(), false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
+  OptimizationTools::optimizeNumericalParameters2(llh, llh->getParameters(), 0, 0.000001, 10000, messenger, profiler, false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
 
-  llh.getParameters().printParameters(cerr);
+  llh->getParameters().printParameters(cerr);
 
-  cout << setprecision(20) << llh.getValue() << endl;
+  cout << setprecision(20) << llh->getValue() << endl;
 
   return 0;
 }

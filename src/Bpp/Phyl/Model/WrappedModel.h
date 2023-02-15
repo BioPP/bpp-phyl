@@ -48,56 +48,45 @@
 namespace bpp
 {
 /**
- * @brief Wrapping model class
- *
- *
+ * @brief Wrapping model interface
  */
-
-class WrappedModel :
-  public virtual BranchModel
+class WrappedModelInterface :
+  public virtual BranchModelInterface
 {
 public:
-  WrappedModel() {}
-  virtual ~WrappedModel() {}
+  WrappedModelInterface() {}
+  virtual ~WrappedModelInterface() {}
 
-  virtual const BranchModel& getModel() const = 0;
-
-protected:
-  virtual BranchModel& getModel() = 0;
+  virtual const BranchModelInterface& model() const = 0;
 
 public:
 };
 
-class WrappedTransitionModel :
-  public virtual WrappedModel,
-  public virtual TransitionModel
+class WrappedTransitionModelInterface :
+  public virtual WrappedModelInterface,
+  public virtual TransitionModelInterface
 {
 public:
-  WrappedTransitionModel() {}
-  virtual ~WrappedTransitionModel() {}
+  WrappedTransitionModelInterface() {}
+  virtual ~WrappedTransitionModelInterface() {}
 
-  virtual const TransitionModel& getTransitionModel() const = 0;
+  virtual const TransitionModelInterface& transitionModel() const = 0;
 
-protected:
-  virtual TransitionModel& getTransitionModel() = 0;
-
-public:
 };
 
 
-class WrappedSubstitutionModel :
-  public virtual WrappedModel,
-  public virtual SubstitutionModel
+class WrappedSubstitutionModelInterface :
+  public virtual WrappedModelInterface,
+  public virtual SubstitutionModelInterface
 {
 public:
-  WrappedSubstitutionModel() {}
+  WrappedSubstitutionModelInterface() {}
 
-  virtual ~WrappedSubstitutionModel() {}
+  virtual ~WrappedSubstitutionModelInterface() {}
 
-  virtual const SubstitutionModel& getSubstitutionModel() const = 0;
+  virtual const SubstitutionModelInterface& substitutionModel() const = 0;
 
-protected:
-  virtual SubstitutionModel& getSubstitutionModel() = 0;
 };
+
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_WRAPPEDMODEL_H

@@ -49,18 +49,32 @@ using namespace std;
 
 /******************************************************************************/
 
-KCM::KCM(const GeneticCode* gc, bool oneModel) :
+KCM::KCM(
+    shared_ptr<const GeneticCode> gc,
+    bool oneModel) :
+  AbstractParameterAliasable("KCM" + string(oneModel ? "7" : "19") + "."),
+  AbstractWrappedModel("KCM" + string(oneModel ? "7" : "19") + "."),
+  AbstractWrappedTransitionModel("KCM" + string(oneModel ? "7" : "19") + "."),
+  AbstractTotallyWrappedTransitionModel("KCM" + string(oneModel ? "7" : "19") + "."),
   AbstractBiblioTransitionModel("KCM" + string(oneModel ? "7" : "19") + "."),
+  AbstractWrappedSubstitutionModel("KCM" + string(oneModel ? "7" : "19") + "."),
+  AbstractTotallyWrappedSubstitutionModel("KCM" + string(oneModel ? "7" : "19") + "."),
   AbstractBiblioSubstitutionModel("KCM" + string(oneModel ? "7" : "19") + "."),
   pmodel_(),
   oneModel_(oneModel)
 {
-  const NucleicAlphabet* nalph = dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet();
+  shared_ptr<const NucleicAlphabet> nalph = gc->codonAlphabet().getNucleicAlphabet();
 
   if (oneModel)
-    pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(gc, new GTR(nalph)));
+    pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(
+        gc,
+       	make_unique<GTR>(nalph)));
   else
-    pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(gc, new GTR(nalph), new GTR(nalph), new GTR(nalph)));
+    pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(
+	gc,
+       	make_unique<GTR>(nalph),
+       	make_unique<GTR>(nalph),
+       	make_unique<GTR>(nalph)));
 
   string name = "KCM" + string(oneModel ? "7" : "19") + ".";
 
@@ -74,19 +88,25 @@ KCM::KCM(const GeneticCode* gc, bool oneModel) :
 
   vector<std::string> v = lParPmodel_.getParameterNames();
 
-  for (size_t i = 0; i < v.size(); i++)
+  for (auto& vi : v)
   {
-    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
+    mapParNamesFromPmodel_[vi] = getParameterNameWithoutNamespace(vi);
   }
 
   mapParNamesFromPmodel_[name + "beta"] = "omega";
 
-  updateMatrices();
+  updateMatrices_();
 }
 
 
 KCM::KCM(const KCM& kcm) :
+  AbstractParameterAliasable(kcm),
+  AbstractWrappedModel(kcm),
+  AbstractWrappedTransitionModel(kcm),
+  AbstractTotallyWrappedTransitionModel(kcm),
   AbstractBiblioTransitionModel(kcm),
+  AbstractWrappedSubstitutionModel(kcm),
+  AbstractTotallyWrappedSubstitutionModel(kcm),
   AbstractBiblioSubstitutionModel(kcm),
   pmodel_(new KroneckerCodonDistanceSubstitutionModel(*kcm.pmodel_)),
   oneModel_(kcm.oneModel_)

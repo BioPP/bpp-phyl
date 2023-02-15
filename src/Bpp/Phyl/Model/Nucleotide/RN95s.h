@@ -1,7 +1,7 @@
 //
 // File: RN95s.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: samedi 12 mars 2011, ÃÂ  06h 49
 //
 
@@ -149,7 +149,7 @@ private:
   double alpha_, beta_, gamma_, delta_;
 
 public:
-  RN95s(const NucleicAlphabet* alphabet,
+  RN95s(std::shared_ptr<const NucleicAlphabet> alphabet,
         double alpha = 0.25,
         double beta = 0.25,
         double gamma = 0.25,
@@ -157,18 +157,21 @@ public:
 
   virtual ~RN95s() {}
 
-  RN95s* clone() const { return new RN95s(*this); }
+  RN95s* clone() const override { return new RN95s(*this); }
 
 public:
-  std::string getName() const { return "RN95s"; }
 
-  void updateMatrices();
+  std::string getName() const override { return "RN95s"; }
 
   /**
    * @brief This method takes the average value between observed @f$\pi_A@f$ and @f$\pi_T@f$.
    */
+  void setFreq(std::map<int, double>&) override;
+  
+protected:
+  
+  void updateMatrices_() override;
 
-  void setFreq(std::map<int, double>&);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_RN95S_H

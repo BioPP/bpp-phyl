@@ -56,14 +56,14 @@ namespace bpp
  */
 class AbstractDiscreteRatesAcrossSitesTreeLikelihood :
   public AbstractTreeLikelihood,
-  public virtual DiscreteRatesAcrossSitesTreeLikelihood
+  public virtual DiscreteRatesAcrossSitesTreeLikelihoodInterface
 {
 protected:
-  DiscreteDistribution* rateDistribution_;
+  std::shared_ptr<DiscreteDistribution> rateDistribution_;
 
 public:
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-    DiscreteDistribution* rDist,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool verbose = true
     );
 
@@ -103,9 +103,31 @@ public:
    *
    * @{
    */
-  const DiscreteDistribution* getRateDistribution() const { return rateDistribution_; }
-  DiscreteDistribution* getRateDistribution()       { return rateDistribution_; }
-  size_t getNumberOfClasses() const { return rateDistribution_->getNumberOfCategories(); }
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
+  {
+    return rateDistribution_;
+  }
+
+  std::shared_ptr<DiscreteDistribution> getRateDistribution()
+  {
+    return rateDistribution_;
+  }
+
+  const DiscreteDistribution& rateDistribution() const
+  {
+    return *rateDistribution_;
+  }
+
+  DiscreteDistribution& rateDistribution()
+  {
+    return *rateDistribution_;
+  }
+
+  size_t getNumberOfClasses() const
+  {
+    return rateDistribution_->getNumberOfCategories();
+  }
+
   ParameterList getRateDistributionParameters() const;
   VVdouble getLikelihoodPerSitePerRateClass() const;
   VVdouble getLogLikelihoodPerSitePerRateClass() const;

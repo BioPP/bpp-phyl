@@ -74,19 +74,17 @@ namespace bpp
  * - Galtier N, Duret L, GlÃÂ©min S, Ranwez V (2009) GC-biased gene
  * conversion promotes the fixation of deleterious amino acid changes
  * in primates, Trends in Genetics, vol. 25(1) pp.1-5.
- *
  */
-
 class AbstractCodonBGCSubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
+  public virtual CoreCodonSubstitutionModelInterface,
   public virtual AbstractParameterAliasable
 {
 private:
-  const GeneticCode* pgencode_;
+  std::shared_ptr<const GeneticCode> pgencode_;
 
   double B_, S_;
 
-  std::shared_ptr<const StateMap> stateMap_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
 
 public:
   /**
@@ -96,7 +94,7 @@ public:
    * @param prefix the Namespace
    */
   AbstractCodonBGCSubstitutionModel(
-    const GeneticCode* pgencode,
+    std::shared_ptr<const GeneticCode> pgencode,
     const std::string& prefix);
 
   AbstractCodonBGCSubstitutionModel(const AbstractCodonBGCSubstitutionModel& model) :
@@ -119,7 +117,7 @@ public:
     return *this;
   }
 
-  AbstractCodonBGCSubstitutionModel* clone() const
+  AbstractCodonBGCSubstitutionModel* clone() const override
   {
     return new AbstractCodonBGCSubstitutionModel(*this);
   }
@@ -127,16 +125,22 @@ public:
   virtual ~AbstractCodonBGCSubstitutionModel() {}
 
 public:
-  void fireParameterChanged(const ParameterList& parameters);
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  double getCodonsMulRate(size_t i, size_t j) const override;
+
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return 0;
+    throw NullPointerException("AbstractCodonBGCSubstitutionModel::frequencySet. No associated FrequencySet.");
   }
 
-  void setFreq(std::map<int, double>& frequencies){}
+  bool hasCodonFrequencySet() const override
+  {
+    return false;
+  }
+
+  void setFreq(std::map<int, double>& frequencies) override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONBGCSUBSTITUTIONMODEL_H

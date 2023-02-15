@@ -66,7 +66,7 @@ private:
 
 public:
   AutoCorrelationSequenceEvolution(
-    SubstitutionProcessCollection* processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     std::vector<size_t>& nProc);
 
   AutoCorrelationSequenceEvolution(const AutoCorrelationSequenceEvolution& mlc) :
@@ -93,32 +93,42 @@ public:
 
   void fireParameterChanged(const ParameterList& parameters);
 
-  const AutoCorrelationTransitionMatrix& getHmmTransitionMatrix() const
+  const AutoCorrelationTransitionMatrix& hmmTransitionMatrix() const
   {
     return *autoCorrTransMat_.get();
   }
 
-  AutoCorrelationTransitionMatrix& getHmmTransitionMatrix()
+  AutoCorrelationTransitionMatrix& hmmTransitionMatrix()
   {
     return *autoCorrTransMat_.get();
   }
 
-  std::shared_ptr<AutoCorrelationTransitionMatrix> shareHmmTransitionMatrix()
+  std::shared_ptr<AutoCorrelationTransitionMatrix> getHmmTransitionMatrix()
   {
     return autoCorrTransMat_;
   }
 
-  const HmmProcessAlphabet& getHmmProcessAlphabet() const
+  std::shared_ptr<const AutoCorrelationTransitionMatrix> getHmmTransitionMatrix() const
+  {
+    return autoCorrTransMat_;
+  }
+
+  HmmProcessAlphabet& hmmProcessAlphabet()
   {
     return *hmmAlph_.get();
   }
 
-  HmmProcessAlphabet& getHmmProcessAlphabet()
+  const HmmProcessAlphabet& hmmProcessAlphabet() const
   {
     return *hmmAlph_.get();
   }
 
-  std::shared_ptr<HmmProcessAlphabet> shareHmmProcessAlphabet()
+  std::shared_ptr<HmmProcessAlphabet> getHmmProcessAlphabet()
+  {
+    return hmmAlph_;
+  }
+
+  std::shared_ptr<const HmmProcessAlphabet> getHmmProcessAlphabet() const
   {
     return hmmAlph_;
   }

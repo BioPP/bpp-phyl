@@ -44,9 +44,13 @@
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
 #include "TreeLikelihood.h"
+#include "../../Model/SubstitutionModel.h"
 
-// From SeqLib:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+// From bpp-seq:
+#include <Bpp/Seq/Container/AlignmentData.h>
+
+// From the STL:
+#include <memory>
 
 namespace bpp
 {
@@ -65,7 +69,7 @@ namespace bpp
  * It also adds an abstract method for recursive computations.
  */
 class AbstractTreeLikelihood :
-  public virtual TreeLikelihood,
+  public virtual TreeLikelihoodInterface,
   public AbstractParametrizable
 {
 public:
@@ -135,11 +139,11 @@ public:
     public ConstBranchModelDescription
   {
 private:
-    const TransitionModel* model_;
+    std::shared_ptr<const TransitionModelInterface> model_;
     size_t nbSites_;
 
 public:
-    ConstNoPartitionBranchModelDescription(const TransitionModel* model, size_t nbSites) :
+    ConstNoPartitionBranchModelDescription(std::shared_ptr<const TransitionModelInterface> model, size_t nbSites) :
       model_(model), nbSites_(nbSites) {}
 
     ConstNoPartitionBranchModelDescription(const ConstNoPartitionBranchModelDescription& bmd) :
@@ -155,11 +159,20 @@ public:
     }
 
 public:
-    const TransitionModel* getModel() const { return model_; }
+    std::shared_ptr<const TransitionModelInterface> getModel() const override  { return model_; }
+    const TransitionModelInterface& model() const override  { return *model_; }
 
-    const SubstitutionModel* getSubstitutionModel() const { return dynamic_cast<const SubstitutionModel*>(model_); }
+    std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const override
+    {
+      return std::dynamic_pointer_cast<const SubstitutionModelInterface>(model_);
+    }
 
-    SiteIterator* getNewSiteIterator() const { return new SimpleSiteIterator(nbSites_); }
+    const SubstitutionModelInterface& substitutionModel() const override
+    {
+      return dynamic_cast<const SubstitutionModelInterface&>(*model_);
+    }
+
+    SiteIterator* getNewSiteIterator() const override { return new SimpleSiteIterator(nbSites_); }
   };
 
   class ConstNoPartitionBranchModelIterator :
@@ -170,7 +183,7 @@ private:
     size_t index_;
 
 public:
-    ConstNoPartitionBranchModelIterator(const TransitionModel* model, size_t nbSites) :
+    ConstNoPartitionBranchModelIterator(std::shared_ptr<const TransitionModelInterface> model, size_t nbSites) :
       branchModelDescription_(model, nbSites), index_(0) {}
 
 public:
@@ -189,11 +202,11 @@ public:
     public ConstSiteModelDescription
   {
 private:
-    const TransitionModel* model_;
+    std::shared_ptr<const TransitionModelInterface> model_;
     std::vector<int> nodesId_;
 
 public:
-    ConstNoPartitionSiteModelDescription(const TransitionModel* model, const std::vector<int> nodesId) :
+    ConstNoPartitionSiteModelDescription(std::shared_ptr<const TransitionModelInterface> model, const std::vector<int> nodesId) :
       model_(model), nodesId_(nodesId) {}
 
     ConstNoPartitionSiteModelDescription(const ConstNoPartitionSiteModelDescription& smd) :
@@ -209,18 +222,27 @@ public:
     }
 
 public:
-    const TransitionModel* getModel() const { return model_; }
+    std::shared_ptr<const TransitionModelInterface> getModel() const override { return model_; }
+    const TransitionModelInterface& model() const override { return *model_; }
 
-    const SubstitutionModel* getSubstitutionModel() const { return dynamic_cast<const SubstitutionModel*>(model_); }
+    std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const override
+    {
+      return std::dynamic_pointer_cast<const SubstitutionModelInterface>(model_);
+    }
 
-    BranchIterator* getNewBranchIterator() const { return new SimpleBranchIterator(nodesId_); }
+    const SubstitutionModelInterface& substitutionModel() const override
+    {
+      return dynamic_cast<const SubstitutionModelInterface&>(*model_);
+    }
+
+    BranchIterator* getNewBranchIterator() const override { return new SimpleBranchIterator(nodesId_); }
   };
 
   /** @} */
 
 protected:
-  const AlignedValuesContainer* data_;
-  mutable TreeTemplate<Node>* tree_;
+  std::unique_ptr<const AlignmentDataInterface> data_;
+  mutable std::shared_ptr< TreeTemplate<Node> > tree_;
   bool computeFirstOrderDerivatives_;
   bool computeSecondOrderDerivatives_;
   bool initialized_;
@@ -228,32 +250,30 @@ protected:
 public:
   AbstractTreeLikelihood() :
     AbstractParametrizable(""),
-    data_(0),
-    tree_(0),
+    data_(),
+    tree_(),
     computeFirstOrderDerivatives_(true),
     computeSecondOrderDerivatives_(true),
     initialized_(false) {}
 
   AbstractTreeLikelihood(const AbstractTreeLikelihood& lik) :
     AbstractParametrizable(lik),
-    data_(0),
-    tree_(0),
+    data_(),
+    tree_(),
     computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
     computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
     initialized_(lik.initialized_)
   {
-    if (lik.data_) data_ = dynamic_cast<AlignedValuesContainer*>(lik.data_->clone());
-    if (lik.tree_) tree_ = lik.tree_->clone();
+    if (lik.data_) data_ = std::unique_ptr<AlignmentDataInterface>(lik.data_->clone());
+    if (lik.tree_) tree_ = std::unique_ptr< TreeTemplate<Node> >(lik.tree_->clone());
   }
 
   AbstractTreeLikelihood& operator=(const AbstractTreeLikelihood& lik)
   {
     AbstractParametrizable::operator=(lik);
-    if (data_) delete data_;
-    if (lik.data_) data_ = dynamic_cast<AlignedValuesContainer*>(lik.data_->clone());
+    if (lik.data_) data_ = std::unique_ptr<AlignmentDataInterface>(lik.data_->clone());
     else data_ = 0;
-    if (tree_) delete tree_;
-    if (lik.tree_) tree_ = lik.tree_->clone();
+    if (lik.tree_) tree_ = std::unique_ptr< TreeTemplate<Node> >(lik.tree_->clone());
     else tree_ = 0;
     computeFirstOrderDerivatives_ = lik.computeFirstOrderDerivatives_;
     computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
@@ -266,11 +286,7 @@ public:
    *
    * This destructor is empty.
    */
-  virtual ~AbstractTreeLikelihood()
-  {
-    if (data_) delete data_;
-    if (tree_) delete tree_;
-  }
+  virtual ~AbstractTreeLikelihood() {}
 
 public:
   /**
@@ -278,14 +294,15 @@ public:
    *
    * @{
    */
-  const AlignedValuesContainer* getData() const { return data_; }
-  const Alphabet* getAlphabet() const { return data_->getAlphabet(); }
+  bool hasLikelihoodData() const { return data_ != nullptr; }
+  const AlignmentDataInterface& data() const { return *data_; }
+  std::shared_ptr<const Alphabet> getAlphabet() const { return data_->getAlphabet(); }
   Vdouble getLikelihoodPerSite()                 const;
   Vdouble getLogLikelihoodPerSite()              const;
   VVdouble getLikelihoodPerSitePerState()    const;
   VVdouble getLogLikelihoodPerSitePerState() const;
   size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
-  const Tree& getTree() const { return *tree_; }
+  const Tree& tree() const { return *tree_; }
   void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
   void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
   void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }

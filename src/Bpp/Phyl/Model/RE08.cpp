@@ -49,10 +49,13 @@ using namespace std;
 
 /******************************************************************************/
 
-RE08::RE08(ReversibleSubstitutionModel* simpleModel, double lambda, double mu) :
+RE08::RE08(
+    unique_ptr<ReversibleSubstitutionModelInterface> simpleModel,
+    double lambda,
+    double mu) :
   AbstractParameterAliasable("RE08."),
-  AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(simpleModel->getStateMap(), true)), "RE08."),
-  simpleModel_(simpleModel),
+  AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), make_shared<CanonicalStateMap>(simpleModel->stateMap(), true), "RE08."),
+  simpleModel_(move(simpleModel)),
   simpleGenerator_(),
   simpleExchangeabilities_(),
   exp_(), p_(), lambda_(lambda), mu_(mu),
@@ -72,17 +75,17 @@ RE08::RE08(ReversibleSubstitutionModel* simpleModel, double lambda, double mu) :
   leftEigenVectors_.resize(size_, size_);
   rightEigenVectors_.resize(size_, size_);
   p_.resize(size_, size_);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void RE08::updateMatrices()
+void RE08::updateMatrices_()
 {
   double f = (lambda_ == 0 && mu_ == 0) ? 1 : lambda_ / (lambda_ + mu_);
 
   // Frequencies:
-  for (size_t i = 0; i < size_ - 1; i++)
+  for (size_t i = 0; i < size_ - 1; ++i)
   {
     freq_[i] = simpleModel_->freq(i) * f;
   }
@@ -93,9 +96,9 @@ void RE08::updateMatrices()
   simpleExchangeabilities_ = simpleModel_->getExchangeabilityMatrix();
 
   // Generator and exchangeabilities:
-  for (size_t i = 0; i < size_ - 1; i++)
+  for (size_t i = 0; i < size_ - 1; ++i)
   {
-    for (size_t j = 0; j < size_ - 1; j++)
+    for (size_t j = 0; j < size_ - 1; ++j)
     {
       generator_(i, j) = simpleGenerator_(i, j);
       exchangeability_(i, j) = simpleExchangeabilities_(i, j) / f;
@@ -115,7 +118,7 @@ void RE08::updateMatrices()
 
   // It is very likely that we are able to compute the eigen values and vector from the one of the simple model.
   // For now however, we will use a numerical diagonalization:
-  AbstractSubstitutionModel::updateMatrices();
+  AbstractSubstitutionModel::updateMatrices_();
   // We do not use the one from  AbstractReversibleSubstitutionModel, since we already computed the generator.
 }
 
@@ -303,10 +306,10 @@ double RE08::getInitValue(size_t i, int state) const
   if (i >= size_)
     throw IndexOutOfBoundsException("RE08::getInitValue", i, 0, size_ - 1);
   if (state < -1 || !getAlphabet()->isIntInAlphabet(state))
-    throw BadIntException(state, "RE08::getInitValue. Character " + getAlphabet()->intToChar(state) + " is not allowed in model.");
+    throw BadIntException(state, "RE08::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.", alphabet_.get());
   if (i == size_ - 1 && state == -1)
     return 1.;
-  vector<int> states = getAlphabet()->getAlias(state);
+  vector<int> states = alphabet_->getAlias(state);
   for (size_t j = 0; j < states.size(); j++)
   {
     if ((int)i == states[j])

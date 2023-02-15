@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or Â© or Copr. CNRS, (November 16, 2004)
+  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide
   classes for phylogenetic data analysis.
   
@@ -53,13 +53,16 @@ using namespace bpp;
 
 /******************************************************************************/
 
-YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix) :
+YpR::YpR(
+    shared_ptr<const RNY> alph,
+    unique_ptr<NucleotideSubstitutionModelInterface> pm,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(alph, std::shared_ptr<const StateMap>(new CanonicalStateMap(alph, false)), prefix),
+  AbstractSubstitutionModel(alph, make_shared<CanonicalStateMap>(alph, false), prefix),
   pmodel_(pm->clone()),
-  _nestedPrefix(pm->getNamespace())
+  nestedPrefix_(pm->getNamespace())
 {
-  pmodel_->setNamespace(prefix + _nestedPrefix);
+  pmodel_->setNamespace(prefix + nestedPrefix_);
   pmodel_->enableEigenDecomposition(0);
   pmodel_->computeFrequencies(false);
 
@@ -71,26 +74,26 @@ YpR::YpR(const YpR& ypr, const std::string& prefix) :
   AbstractParameterAliasable(ypr),
   AbstractSubstitutionModel(ypr),
   pmodel_(ypr.pmodel_->clone()),
-  _nestedPrefix(ypr.getNestedPrefix())
+  nestedPrefix_(ypr.getNestedPrefix())
 
 {
-  pmodel_->setNamespace(prefix + _nestedPrefix);
+  pmodel_->setNamespace(prefix + nestedPrefix_);
 }
 
 YpR::YpR(const YpR& ypr) :
   AbstractParameterAliasable(ypr),
   AbstractSubstitutionModel(ypr),
   pmodel_(ypr.pmodel_->clone()),
-  _nestedPrefix(ypr.getNestedPrefix())
+  nestedPrefix_(ypr.getNestedPrefix())
 {}
 
-void YpR::updateMatrices()
+void YpR::updateMatrices_()
 {
-  updateMatrices(0, 0, 0, 0, 0, 0, 0, 0);
+  updateMatrices_(0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 
-void YpR::updateMatrices(double CgT, double cGA,
+void YpR::updateMatrices_(double CgT, double cGA,
                          double TgC, double tGA,
                          double CaT, double cAG,
                          double TaC, double tAC)
@@ -98,7 +101,7 @@ void YpR::updateMatrices(double CgT, double cGA,
   //  check_model(pmodel_);
 
   // Generator:
-  const Alphabet* alph = pmodel_->getAlphabet();
+  auto alph = pmodel_->getAlphabet();
   std::vector<size_t> l(4);
 
   l[0] = alph->getStateIndex("A");
@@ -111,7 +114,7 @@ void YpR::updateMatrices(double CgT, double cGA,
   std::vector<double> a(4);  // a[A], a[G], a[C], a[T]
   std::vector<double> b(4);  // b[A], b[G], b[C], b[T]
 
-  for (i = 0; i < 2; i++)
+  for (i = 0; i < 2; ++i)
   {
     a[i] = pmodel_->Qij(l[1 - i], l[i]);
     b[i] = pmodel_->Qij(l[3 - i], l[i]);
@@ -226,10 +229,10 @@ void YpR::updateMatrices(double CgT, double cGA,
 
   double x;
 
-  for (i = 0; i < 36; i++)
+  for (i = 0; i < 36; ++i)
   {
     x = 0;
-    for (j = 0; j < 36; j++)
+    for (j = 0; j < 36; ++j)
     {
       if (j != i)
         x += generator_(i, j);
@@ -360,12 +363,9 @@ void YpR::updateMatrices(double CgT, double cGA,
   }
 }
 
-void YpR::check_model(SubstitutionModel* const pm) const
+void YpR::checkModel(const SubstitutionModelInterface& pm) const
 {
-  if (!pm)
-    throw Exception("No Model ");
-
-  const Alphabet* alph = pm->getAlphabet();
+  auto alph = pm.getAlphabet();
   if (alph->getAlphabetType() != "DNA alphabet")
     throw Exception("Need a DNA model");
 
@@ -380,13 +380,13 @@ void YpR::check_model(SubstitutionModel* const pm) const
 
   for (size_t i = 0; i < 2; ++i)
   {
-    if (pm->Qij(l[2], l[i]) != pm->Qij(l[3], l[i]))
-      throw Exception("Not R/Y Model " + pm->getName());
+    if (pm.Qij(l[2], l[i]) != pm.Qij(l[3], l[i]))
+      throw Exception("Not R/Y Model " + pm.getName());
   }
   for (size_t i = 2; i < 4; ++i)
   {
-    if (pm->Qij(l[0], l[i]) != pm->Qij(l[1], l[i]))
-      throw Exception("Not R/Y Model " + pm->getName());
+    if (pm.Qij(l[0], l[i]) != pm.Qij(l[1], l[i]))
+      throw Exception("Not R/Y Model " + pm.getName());
   }
 }
 
@@ -394,7 +394,7 @@ void YpR::setNamespace(const std::string& prefix)
 {
   AbstractSubstitutionModel::setNamespace(prefix);
   // We also need to update the namespace of the nested model:
-  pmodel_->setNamespace(prefix + _nestedPrefix);
+  pmodel_->setNamespace(prefix + nestedPrefix_);
 }
 
 // ///////////////////////////////////////////////
@@ -403,31 +403,34 @@ void YpR::setNamespace(const std::string& prefix)
 
 /******************************************************************************/
 
-YpR_Sym::YpR_Sym(const RNY* alph,
-                 SubstitutionModel* const pm,
-                 double CgT, double TgC,
-                 double CaT, double TaC) : AbstractParameterAliasable("YpR_Sym."),
-  YpR(alph, pm, "YpR_Sym.")
+YpR_Sym::YpR_Sym(
+    shared_ptr<const RNY> alph,
+    unique_ptr<NucleotideSubstitutionModelInterface> pm,
+    double CgT, double TgC,
+    double CaT, double TaC) :
+  AbstractParameterAliasable("YpR_Sym."),
+  YpR(alph, move(pm), "YpR_Sym.")
 {
   addParameter_(new Parameter("YpR_Sym.rCgT", CgT, Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Sym.rTgC", TgC, Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Sym.rCaT", CaT, Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Sym.rTaC", TaC, Parameter::R_PLUS));
 
-  updateMatrices();
+  updateMatrices_();
 }
 
-void YpR_Sym::updateMatrices()
+void YpR_Sym::updateMatrices_()
 {
   double rCgT = getParameterValue("rCgT");
   double rTgC = getParameterValue("rTgC");
   double rCaT = getParameterValue("rCaT");
   double rTaC = getParameterValue("rTaC");
 
-  YpR::updateMatrices(rCgT, rCgT, rTgC, rTgC, rCaT, rCaT, rTaC, rTaC);
+  YpR::updateMatrices_(rCgT, rCgT, rTgC, rTgC, rCaT, rCaT, rTaC, rTaC);
 }
 
-YpR_Sym::YpR_Sym(const YpR_Sym& ypr) : AbstractParameterAliasable(ypr),
+YpR_Sym::YpR_Sym(const YpR_Sym& ypr) :
+  AbstractParameterAliasable(ypr),
   YpR(ypr, "YpR_Sym.")
 {}
 
@@ -444,13 +447,15 @@ std::string YpR_Sym::getName() const
 
 /******************************************************************************/
 
-YpR_Gen::YpR_Gen(const RNY* alph,
-                 SubstitutionModel* const pm,
-                 double CgT, double cGA,
-                 double TgC, double tGA,
-                 double CaT, double cAG,
-                 double TaC, double tAG) : AbstractParameterAliasable("YpR_Gen."),
-  YpR(alph, pm, "YpR_Gen.")
+YpR_Gen::YpR_Gen(
+    shared_ptr<const RNY> alph,
+    unique_ptr<NucleotideSubstitutionModelInterface> pm,
+    double CgT, double cGA,
+    double TgC, double tGA,
+    double CaT, double cAG,
+    double TaC, double tAG) : 
+  AbstractParameterAliasable("YpR_Gen."),
+  YpR(alph, move(pm), "YpR_Gen.")
 {
   addParameter_(new Parameter("YpR_Gen.rCgT", CgT, Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Gen.rcGA", cGA, Parameter::R_PLUS));
@@ -461,10 +466,10 @@ YpR_Gen::YpR_Gen(const RNY* alph,
   addParameter_(new Parameter("YpR_Gen.rTaC", TaC, Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Gen.rtAG", tAG, Parameter::R_PLUS));
 
-  updateMatrices();
+  updateMatrices_();
 }
 
-void YpR_Gen::updateMatrices()
+void YpR_Gen::updateMatrices_()
 {
   double rCgT = getParameterValue("rCgT");
   double rcGA = getParameterValue("rcGA");
@@ -475,13 +480,14 @@ void YpR_Gen::updateMatrices()
   double rTaC = getParameterValue("rTaC");
   double rtAG = getParameterValue("rtAG");
 
-  YpR::updateMatrices(rCgT, rcGA, rTgC, rtGA, rCaT, rcAG, rTaC, rtAG);
+  YpR::updateMatrices_(rCgT, rcGA, rTgC, rtGA, rCaT, rcAG, rTaC, rtAG);
 }
 
-YpR_Gen::YpR_Gen(const YpR_Gen& ypr) : AbstractParameterAliasable(ypr),
+YpR_Gen::YpR_Gen(const YpR_Gen& ypr) :
+  AbstractParameterAliasable(ypr),
   YpR(ypr, "YpR_Gen.")
 {
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/

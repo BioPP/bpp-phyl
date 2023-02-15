@@ -71,25 +71,35 @@ namespace bpp
  *
  * @author Julien Dutheil
  */
-class SubstitutionRegister :
+class SubstitutionRegisterInterface :
   public virtual Clonable
 {
 public:
-  SubstitutionRegister() {}
-  virtual ~SubstitutionRegister() {}
+  SubstitutionRegisterInterface() {}
+  virtual ~SubstitutionRegisterInterface() {}
 
-  virtual SubstitutionRegister* clone() const = 0;
+  virtual SubstitutionRegisterInterface* clone() const = 0;
 
 public:
   /**
    * @return The alphabet associated to this instance.
    */
-  virtual const Alphabet* getAlphabet() const = 0;
+  virtual const Alphabet& alphabet() const = 0;
+
+  /**
+   * @return A shared_ptr toward the alphabet associated to this instance.
+   */
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
 
   /**
    * @return The state map associated to this instance.
    */
-  virtual const StateMap& getStateMap() const = 0;
+  virtual const StateMapInterface& stateMap() const = 0;
+
+  /**
+   * @return A shared_ptr toward the state map associated to this instance.
+   */
+  virtual std::shared_ptr<const StateMapInterface> getStateMap() const = 0;
 
   /**
    * @return The number of substitution types supported by this class.
@@ -127,15 +137,15 @@ public:
 };
 
 class AbstractSubstitutionRegister :
-  public virtual SubstitutionRegister
+  public virtual SubstitutionRegisterInterface
 {
 protected:
-  const StateMap* stateMap_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
   std::string name_;
 
 public:
-  AbstractSubstitutionRegister(const StateMap& stateMap, const std::string& name) :
-    stateMap_(&stateMap), name_(name)
+  AbstractSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap, const std::string& name) :
+    stateMap_(stateMap), name_(name)
   {}
 
   AbstractSubstitutionRegister(const AbstractSubstitutionRegister& asr) :
@@ -152,11 +162,15 @@ public:
   virtual ~AbstractSubstitutionRegister() {}
 
 public:
-  const StateMap& getStateMap() const { return *stateMap_; }
+  const StateMapInterface& stateMap() const override { return *stateMap_; }
+  
+  std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
 
-  const Alphabet* getAlphabet() const { return stateMap_->getAlphabet(); }
+  const Alphabet& alphabet() const override { return *stateMap_->getAlphabet(); }
+  
+  std::shared_ptr<const Alphabet> getAlphabet() const override { return stateMap_->getAlphabet(); }
 
-  const std::string& getName() const
+  const std::string& getName() const override
   {
     return name_;
   }
@@ -173,21 +187,21 @@ class TotalSubstitutionRegister :
   public AbstractSubstitutionRegister
 {
 public:
-  TotalSubstitutionRegister(const StateMap& stateMap) :
+  TotalSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractSubstitutionRegister(stateMap, "Total")
   {}
 
-  TotalSubstitutionRegister* clone() const { return new TotalSubstitutionRegister(*this); }
+  TotalSubstitutionRegister* clone() const override { return new TotalSubstitutionRegister(*this); }
 
 public:
-  size_t getNumberOfSubstitutionTypes() const { return 1; }
+  size_t getNumberOfSubstitutionTypes() const override { return 1; }
 
-  size_t getType(size_t fromState, size_t toState) const
+  size_t getType(size_t fromState, size_t toState) const override
   {
     return fromState == toState ? 0 : 1;
   }
 
-  std::string getTypeName(size_t type) const
+  std::string getTypeName(size_t type) const override
   {
     if (type == 0)
     {
@@ -214,22 +228,22 @@ class CompleteSubstitutionRegister :
   public AbstractSubstitutionRegister
 {
 private:
-  const SubstitutionRegister* preg_;
+  std::shared_ptr<const SubstitutionRegisterInterface> preg_;
 
   bool isRegComplete_;
 
 public:
-  CompleteSubstitutionRegister(const SubstitutionRegister& reg) :
-    AbstractSubstitutionRegister(reg.getStateMap(), reg.getName()),
-    preg_(reg.clone()),
+  CompleteSubstitutionRegister(std::shared_ptr<const SubstitutionRegisterInterface> reg) :
+    AbstractSubstitutionRegister(reg->getStateMap(), reg->getName()),
+    preg_(reg),
     isRegComplete_(true)
   {
-    size_t size = reg.getAlphabet()->getSize();
-    for (size_t i = 0; i < size; i++)
+    size_t size = reg->alphabet().getSize();
+    for (size_t i = 0; i < size; ++i)
     {
-      for (size_t j = 0; j < size; j++)
+      for (size_t j = 0; j < size; ++j)
       {
-        if ((i != j) && reg.getType(i, j) == 0)
+        if ((i != j) && reg->getType(i, j) == 0)
         {
           isRegComplete_ = false;
           return;
@@ -238,36 +252,31 @@ public:
     }
   }
 
-  CompleteSubstitutionRegister* clone() const { return new CompleteSubstitutionRegister(*this); }
+  CompleteSubstitutionRegister* clone() const override { return new CompleteSubstitutionRegister(*this); }
 
   CompleteSubstitutionRegister(const CompleteSubstitutionRegister& csr) :
     AbstractSubstitutionRegister(csr),
-    preg_(csr.preg_->clone()),
+    preg_(csr.preg_),
     isRegComplete_(csr.isRegComplete_)
   {}
 
   CompleteSubstitutionRegister& operator=(const CompleteSubstitutionRegister& csr)
   {
     AbstractSubstitutionRegister::operator=(csr);
-    preg_ = csr.preg_->clone();
+    preg_ = csr.preg_;
     isRegComplete_ = csr.isRegComplete_;
     return *this;
   }
 
-  ~CompleteSubstitutionRegister()
-  {
-    if (preg_)
-      delete preg_;
-    preg_ = 0;
-  }
+  virtual ~CompleteSubstitutionRegister() {}
 
 public:
-  size_t getNumberOfSubstitutionTypes() const
+  size_t getNumberOfSubstitutionTypes() const override
   {
     return preg_->getNumberOfSubstitutionTypes() + (isRegComplete_ ? 0 : 1);
   }
 
-  size_t getType(size_t fromState, size_t toState) const
+  size_t getType(size_t fromState, size_t toState) const override
   {
     if (fromState == toState)
       return 0;
@@ -279,7 +288,7 @@ public:
       return t;
   }
 
-  std::string getTypeName(size_t type) const
+  std::string getTypeName(size_t type) const override
   {
     try
     {
@@ -300,7 +309,7 @@ public:
  * @brief Sets a Register based on a vector of Registers. The
  * categories are intersection of categories of those Registers.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  */
 
@@ -310,81 +319,46 @@ class VectorOfSubstitionRegisters :
 private:
   /**
    * @brief the vector of pointers to SubstitutionRegisters.
-   *
-   *  These SubstitutionRegisters belong to the object.
    */
-
-  std::vector<SubstitutionRegister*> vSubReg_;
+  std::vector< std::shared_ptr<SubstitutionRegisterInterface> > vSubReg_;
 
 public:
-  VectorOfSubstitionRegisters(const StateMap& stateMap) :
+  VectorOfSubstitionRegisters(std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractSubstitutionRegister(stateMap, "Combination"),
     vSubReg_()
   {}
 
   VectorOfSubstitionRegisters(const VectorOfSubstitionRegisters& vosr) :
     AbstractSubstitutionRegister(vosr),
-    vSubReg_()
-  {
-    for (size_t i = 0; i < vosr.vSubReg_.size(); i++)
-    {
-      vSubReg_.push_back(vosr.vSubReg_[i]->clone());
-    }
-  }
+    vSubReg_(vosr.vSubReg_)
+  {}
 
-  VectorOfSubstitionRegisters& operator=(const VectorOfSubstitionRegisters& vosr)
-  {
-    AbstractSubstitutionRegister::operator=(vosr);
-
-    for (size_t i = 0; i < vSubReg_.size(); i++)
-    {
-      delete vSubReg_[i];
-    }
-
-    vSubReg_.clear();
-
-    for (size_t i = 0; i < vosr.vSubReg_.size(); i++)
-    {
-      vSubReg_.push_back(vosr.vSubReg_[i]->clone());
-    }
-
-    return *this;
-  }
-
-  VectorOfSubstitionRegisters* clone() const
+  VectorOfSubstitionRegisters* clone() const override
   {
     return new VectorOfSubstitionRegisters(*this);
   }
 
-  ~VectorOfSubstitionRegisters()
-  {
-    for (size_t i = 0; i < vSubReg_.size(); i++)
-    {
-      delete vSubReg_[i];
-    }
+  virtual ~VectorOfSubstitionRegisters() {}
 
-    vSubReg_.clear();
-  }
-
-  void addRegister(SubstitutionRegister* reg)
+  void addRegister(std::shared_ptr<SubstitutionRegisterInterface> reg)
   {
     if (reg)
     {
-      if (&reg->getStateMap() != &getStateMap())
+      if (reg->stateMap() != stateMap())
         throw Exception("VectorOfSubstitionRegisters::addRegister : mismatch between state maps");
 
       vSubReg_.push_back(reg);
     }
   }
 
-  size_t getType(size_t i, size_t j) const
+  size_t getType(size_t i, size_t j) const override
   {
     if (i == j)
       return 0;
 
     size_t x = 0;
 
-    for (size_t p = 0; p < vSubReg_.size(); p++)
+    for (size_t p = 0; p < vSubReg_.size(); ++p)
     {
       x *= vSubReg_[p]->getNumberOfSubstitutionTypes();
       size_t z = vSubReg_[p]->getType(i, j);
@@ -396,14 +370,14 @@ public:
     return x + 1;
   }
 
-  size_t getNumberOfSubstitutionTypes() const
+  size_t getNumberOfSubstitutionTypes() const override
   {
     if (vSubReg_.size() == 0)
       return 0;
 
     size_t n = 1;
 
-    for (size_t i = 0; i < vSubReg_.size(); i++)
+    for (size_t i = 0; i < vSubReg_.size(); ++i)
     {
       n *= vSubReg_[i]->getNumberOfSubstitutionTypes();
     }
@@ -415,7 +389,7 @@ public:
    * @brief names of the types are the list of their types in the
    * registers (separated with _).
    */
-  std::string getTypeName(size_t type) const
+  std::string getTypeName(size_t type) const override
   {
     if (type == 0)
       return "nosub";
@@ -442,7 +416,7 @@ public:
  *  matrix, M[i,j] is the number of the substitution type from i to j,
  *  or 0 if there is no substitution type from i to j.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
 class GeneralSubstitutionRegister :
   public AbstractSubstitutionRegister
@@ -456,7 +430,6 @@ protected:
   /**
    * @brief The matrix of the substitution register.
    */
-
   RowMatrix<size_t> matrix_;
 
   /**
@@ -464,22 +437,20 @@ protected:
    * to the vector of target states.
    *
    * This is the reverse information of matrix_
-   *
    */
-
   std::map<size_t, std::map<size_t, std::vector<size_t> > > types_;
 
 public:
-  GeneralSubstitutionRegister(const StateMap& stateMap) :
+  GeneralSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractSubstitutionRegister(stateMap, "General"),
-    size_(stateMap.getNumberOfModelStates()),
+    size_(stateMap->getNumberOfModelStates()),
     matrix_(size_, size_),
     types_()
   {}
 
-  GeneralSubstitutionRegister(const StateMap& stateMap, const RowMatrix<size_t>& matrix) :
+  GeneralSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap, const RowMatrix<size_t>& matrix) :
     AbstractSubstitutionRegister(stateMap, "General"),
-    size_(stateMap.getNumberOfModelStates()),
+    size_(stateMap->getNumberOfModelStates()),
     matrix_(matrix),
     types_()
   {
@@ -506,16 +477,19 @@ public:
     return *this;
   }
 
-  GeneralSubstitutionRegister* clone() const { return new GeneralSubstitutionRegister(*this); }
+  GeneralSubstitutionRegister* clone() const override
+  {
+    return new GeneralSubstitutionRegister(*this);
+  }
 
   virtual ~GeneralSubstitutionRegister() {}
 
-  size_t getType(size_t i, size_t j) const
+  size_t getType(size_t i, size_t j) const override
   {
     return matrix_(i, j);
   }
 
-  size_t getNumberOfSubstitutionTypes() const
+  size_t getNumberOfSubstitutionTypes() const override
   {
     return types_.find(0) == types_.end() ? types_.size() : types_.size() - 1;
   }
@@ -523,7 +497,7 @@ public:
   /**
    * @brief names of the types are their number.
    */
-  std::string getTypeName(size_t type) const
+  std::string getTypeName(size_t type) const override
   {
     if (types_.find(type) != types_.end())
       return TextTools::toString(type);
@@ -543,14 +517,13 @@ protected:
  *
  *  @author Juraj Michalik
  */
-
 class SelectedSubstitutionRegister :
   public GeneralSubstitutionRegister
 {
   std::map<size_t, std::string> categoryNames_;
 
 public:
-  SelectedSubstitutionRegister (const StateMap& stateMap, std::string selectedSubstitutions) :
+  SelectedSubstitutionRegister (std::shared_ptr<const StateMapInterface> stateMap, std::string selectedSubstitutions) :
     GeneralSubstitutionRegister(stateMap),
     categoryNames_()
   {
@@ -590,8 +563,8 @@ public:
         StringTokenizer coordinates(substitutions.nextToken(), "->");
         codon1 = coordinates.nextToken();
         codon2 = coordinates.nextToken();
-        coord1 = getStateMap().getAlphabet()->getStateIndex(codon1);
-        coord2 = getStateMap().getAlphabet()->getStateIndex(codon2);
+        coord1 = stateMap->alphabet().getStateIndex(codon1);
+        coord2 = stateMap->alphabet().getStateIndex(codon2);
         this->matrix_(coord1, coord2) = typeSubs;
       }
     }
@@ -618,18 +591,19 @@ public:
  *
  * @author Juraj Michalik
  */
-
 class AAInteriorSubstitutionRegister :
   public GeneralSubstitutionRegister
 {
   std::map<std::string, size_t> categoryCorrespondance_;
-  const GeneticCode* genCode_;
+  std::shared_ptr<const GeneticCode> genCode_;
 
 public:
-  AAInteriorSubstitutionRegister(const StateMap& stateMap, const GeneticCode& genCode) :
+  AAInteriorSubstitutionRegister(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      std::shared_ptr<const GeneticCode> genCode) :
     GeneralSubstitutionRegister(stateMap),
     categoryCorrespondance_(),
-    genCode_(&genCode)
+    genCode_(genCode)
   {
     updateMatrix_();
     updateTypes_();
@@ -672,12 +646,12 @@ protected:
   void updateMatrix_()
   {
     size_t categoryIndex = 1;
-    for (size_t i = 1; i <= getStateMap().getNumberOfModelStates(); ++i)
+    for (size_t i = 1; i <= stateMap().getNumberOfModelStates(); ++i)
     {
-      int state1 = getStateMap().getAlphabet()->getStateAt(i).getNum();
-      for (size_t j = i + 1; j <= getStateMap().getNumberOfModelStates(); ++j)
+      int state1 = stateMap().alphabet().getStateAt(i).getNum();
+      for (size_t j = i + 1; j <= stateMap().getNumberOfModelStates(); ++j)
       {
-        int state2 = getStateMap().getAlphabet()->getStateAt(j).getNum();
+        int state2 = stateMap().alphabet().getStateAt(j).getNum();
         if (!(genCode_->isStop(state1)) && !(genCode_->isStop(state2)))
         {
           if (genCode_->translate(state1) == genCode_->translate(state2))
@@ -703,18 +677,19 @@ protected:
  *
  * @author Juraj Michalik
  */
-
 class AAExteriorSubstitutionRegister :
   public GeneralSubstitutionRegister
 {
   std::map<std::string, size_t> categoryCorrespondance_;
-  const GeneticCode* genCode_;
+  std::shared_ptr<const GeneticCode> genCode_;
 
 public:
-  AAExteriorSubstitutionRegister (const StateMap& stateMap, const GeneticCode& gencod) :
+  AAExteriorSubstitutionRegister(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      std::shared_ptr<const GeneticCode> genCode) :
     GeneralSubstitutionRegister(stateMap),
     categoryCorrespondance_(),
-    genCode_(&gencod)
+    genCode_(genCode)
   {
     updateMatrix_();
     updateTypes_();
@@ -756,12 +731,12 @@ protected:
   void updateMatrix_()
   {
     size_t categoryIndex = 1;
-    for (size_t i = 1; i <= getStateMap().getNumberOfModelStates(); ++i)
+    for (size_t i = 1; i <= stateMap().getNumberOfModelStates(); ++i)
     {
-      int state1 = getStateMap().getAlphabet()->getStateAt(i).getNum();
-      for (size_t j = i + 1; j <= getStateMap().getNumberOfModelStates(); ++j)
+      int state1 = stateMap().alphabet().getStateAt(i).getNum();
+      for (size_t j = i + 1; j <= stateMap().getNumberOfModelStates(); ++j)
       {
-        int state2 = getStateMap().getAlphabet()->getStateAt(j).getNum();
+        int state2 = stateMap().alphabet().getStateAt(j).getNum();
         if (!(genCode_->isStop(state1)) && !(genCode_->isStop(state2)))
         {
           if (genCode_->translate(state1) != genCode_->translate(state2))
@@ -804,20 +779,18 @@ class TsTvSubstitutionRegister :
 private:
   /**
    *  @brief useful for codon alphabet
-   *
    */
-
-  const GeneticCode* genCode_;
+  std::shared_ptr<const GeneticCode> genCode_;
 
 public:
-  TsTvSubstitutionRegister(const StateMap& stateMap) :
+  TsTvSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractSubstitutionRegister(stateMap, "TsTv"),
     genCode_()
   {}
 
-  TsTvSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod) :
+  TsTvSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap, std::shared_ptr<const GeneticCode> genCode) :
     AbstractSubstitutionRegister(stateMap, "TsTv"),
-    genCode_(&gencod)
+    genCode_(genCode)
   {}
 
   TsTvSubstitutionRegister(const TsTvSubstitutionRegister& reg) :
@@ -839,17 +812,17 @@ public:
 
   size_t getType(size_t fromState, size_t toState) const
   {
-    int x = getStateMap().getAlphabetStateAsInt(fromState);
-    int y = getStateMap().getAlphabetStateAsInt(toState);
+    int x = stateMap().getAlphabetStateAsInt(fromState);
+    int y = stateMap().getAlphabetStateAsInt(toState);
     if (x == y)
       return 0;                                        // nothing happens
 
 
     if (genCode_)
     {
-      const CodonAlphabet* cAlpha = genCode_->getSourceAlphabet();
-      if (genCode_->getSourceAlphabet()->isGap(x)
-          || genCode_->getSourceAlphabet()->isGap(y)
+      auto cAlpha = genCode_->getCodonAlphabet();
+      if (cAlpha->isGap(x)
+          || cAlpha->isGap(y)
           || genCode_->isStop(x)
           || genCode_->isStop(y))
         return 0;
@@ -910,27 +883,26 @@ public:
  * - 3 W->S
  * - 4 W->W
  */
-
 class SWSubstitutionRegister :
   public AbstractSubstitutionRegister
 {
 private:
   /**
    *  @brief useful for codon alphabet
-   *
    */
-
-  const GeneticCode* genCode_;
+  std::shared_ptr<const GeneticCode> genCode_;
 
 public:
-  SWSubstitutionRegister(const StateMap& stateMap) :
+  SWSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractSubstitutionRegister(stateMap, "SW"),
     genCode_()
   {}
 
-  SWSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod) :
+  SWSubstitutionRegister(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      std::shared_ptr<const GeneticCode> genCode) :
     AbstractSubstitutionRegister(stateMap, "SW"),
-    genCode_(&gencod)
+    genCode_(genCode)
   {}
 
   SWSubstitutionRegister(const SWSubstitutionRegister& reg) :
@@ -952,17 +924,17 @@ public:
 
   size_t getType(size_t fromState, size_t toState) const
   {
-    int x = getStateMap().getAlphabetStateAsInt(fromState);
-    int y = getStateMap().getAlphabetStateAsInt(toState);
+    int x = stateMap().getAlphabetStateAsInt(fromState);
+    int y = stateMap().getAlphabetStateAsInt(toState);
     if (x == y)
       return 0;                                        // nothing happens
 
     int nd, na;
     if (genCode_)
     {
-      const CodonAlphabet* cAlpha = genCode_->getSourceAlphabet();
-      if (genCode_->getSourceAlphabet()->isGap(x)
-          || genCode_->getSourceAlphabet()->isGap(y)
+      auto cAlpha = genCode_->getCodonAlphabet();
+      if (cAlpha->isGap(x)
+          || cAlpha->isGap(y)
           || genCode_->isStop(x)
           || genCode_->isStop(y))
         return 0;
@@ -1045,13 +1017,16 @@ class DnDsSubstitutionRegister :
   public AbstractSubstitutionRegister
 {
 private:
-  const GeneticCode* genCode_;
+  std::shared_ptr<const GeneticCode> genCode_;
   bool countMultiple_;
 
 public:
-  DnDsSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, bool countMultiple = false) :
+  DnDsSubstitutionRegister(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      std::shared_ptr<const GeneticCode> genCode,
+      bool countMultiple = false) :
     AbstractSubstitutionRegister(stateMap, "DnDs"),
-    genCode_(&gencod),
+    genCode_(genCode),
     countMultiple_(countMultiple)
   {}
 
@@ -1076,12 +1051,12 @@ public:
 
   size_t getType(size_t fromState, size_t toState) const
   {
-    int x = getStateMap().getAlphabetStateAsInt(fromState);
-    int y = getStateMap().getAlphabetStateAsInt(toState);
+    int x = stateMap().getAlphabetStateAsInt(fromState);
+    int y = stateMap().getAlphabetStateAsInt(toState);
 
-    const CodonAlphabet* cAlpha = genCode_->getSourceAlphabet();
-    if (genCode_->getSourceAlphabet()->isGap(x)
-        || genCode_->getSourceAlphabet()->isGap(y)
+    auto cAlpha = genCode_->getCodonAlphabet();
+    if (cAlpha->isGap(x)
+        || cAlpha->isGap(y)
         || genCode_->isStop(x)
         || genCode_->isStop(y))
       return 0;
@@ -1139,10 +1114,10 @@ private:
   std::vector< std::vector<bool> > types_;
 
   // In case of codon model
-  const GeneticCode* genCode_;
+  std::shared_ptr<const GeneticCode> genCode_;
 
 public:
-  KrKcSubstitutionRegister(const StateMap& stateMap) :
+  KrKcSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractSubstitutionRegister(stateMap, "KrKc"),
     types_(20),
     genCode_()
@@ -1150,10 +1125,12 @@ public:
     init();
   }
 
-  KrKcSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod) :
+  KrKcSubstitutionRegister(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      std::shared_ptr<const GeneticCode> genCode) :
     AbstractSubstitutionRegister(stateMap, "KrKc"),
     types_(20),
-    genCode_(&gencod)
+    genCode_(genCode)
   {
     init();
   }
@@ -1284,8 +1261,8 @@ public:
   {
     if (fromState == toState)
       return 0;                     // nothing happens
-    int x = getStateMap().getAlphabetStateAsInt(fromState);
-    int y = getStateMap().getAlphabetStateAsInt(toState);
+    int x = stateMap().getAlphabetStateAsInt(fromState);
+    int y = stateMap().getAlphabetStateAsInt(toState);
 
     if (genCode_) // Codon model
     {
@@ -1298,7 +1275,7 @@ public:
         return 0;
 
       // avoid multiple substitutions
-      const CodonAlphabet* cAlpha = genCode_->getSourceAlphabet();
+      auto cAlpha = genCode_->getCodonAlphabet();
 
       size_t countPos = 0;
       if (cAlpha->getFirstPosition(x) != cAlpha->getFirstPosition(y))

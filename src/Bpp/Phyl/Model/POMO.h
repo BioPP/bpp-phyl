@@ -118,7 +118,6 @@
  * of the polymorphism-aware phylo-genetic models. Journal of
  * Theoretical Biology, 486:110074.
  */
-
 #include <Bpp/Seq/Alphabet/AllelicAlphabet.h>
 
 namespace bpp
@@ -129,46 +128,44 @@ namespace bpp
   private:
     uint nbAlleles_;
   
-    std::shared_ptr<SubstitutionModel> pmodel_;
-    std::shared_ptr<FrequencySet> pfitness_;
+    std::unique_ptr<SubstitutionModelInterface> pmodel_;
+    std::unique_ptr<FrequencySetInterface> pfitness_;
 
   public:
     /**
      * @brief Build a POMO instance
-     *
      */
-
-    POMO(const AllelicAlphabet* allAlph,
-         std::shared_ptr<SubstitutionModel> pmodel,
-         std::shared_ptr<FrequencySet> pfitness);
+    POMO(std::shared_ptr<const AllelicAlphabet> allAlph,
+         std::unique_ptr<SubstitutionModelInterface> pmodel,
+         std::unique_ptr<FrequencySetInterface> pfitness);
 
     POMO(const POMO& model) :
       AbstractParameterAliasable(model),
       AbstractSubstitutionModel(model),
       nbAlleles_(model.nbAlleles_),
       pmodel_(model.pmodel_->clone()),
-      pfitness_(model.pfitness_?model.pfitness_->clone():0)
+      pfitness_(model.pfitness_ ? model.pfitness_->clone() : nullptr)
     {}
 
     POMO& operator=(const POMO& model)
     {
       AbstractParameterAliasable::operator=(model);
       nbAlleles_ = model.nbAlleles_;
-      pmodel_ = std::shared_ptr<SubstitutionModel>(model.pmodel_->clone());
-      pfitness_ = model.pfitness_?std::shared_ptr<FrequencySet>(model.pfitness_->clone()):0;
+      pmodel_.reset(model.pmodel_->clone());
+      pfitness_.reset(model.pfitness_ ? model.pfitness_->clone() : nullptr);
       return *this;
     }
 
-    POMO* clone() const
+    POMO* clone() const override
     {
       return new POMO(*this);
     }
 
-    void fireParameterChanged(const ParameterList& parameters);
+    void fireParameterChanged(const ParameterList& parameters) override;
 
-    void setFreq(std::map<int, double>& frequencies);
+    void setFreq(std::map<int, double>& frequencies) override;
 
-    void setNamespace(const std::string& prefix)
+    void setNamespace(const std::string& prefix) override
     {
       AbstractParameterAliasable::setNamespace(prefix);
       pmodel_->setNamespace(prefix+pmodel_->getNamespace());
@@ -176,28 +173,44 @@ namespace bpp
         pfitness_->setNamespace(prefix+pfitness_->getNamespace());
     }
 
+    std::shared_ptr<const AllelicAlphabet> getAllelicAlphabet() const
+    {
+      return std::dynamic_pointer_cast<const AllelicAlphabet>(alphabet_);
+    }
+
+    const AllelicAlphabet& allelicAlphabet() const
+    {
+      return dynamic_cast<const AllelicAlphabet&>(*alphabet_);
+    }
+
     uint getNbAlleles() const
     {
       return nbAlleles_;
     }
 
-    const std::shared_ptr<FrequencySet> getFitness() const
+    bool hasFitness() const 
     {
-      return pfitness_;
+      return pfitness_ != nullptr;
     }
 
-    const std::shared_ptr<SubstitutionModel> getMutationModel() const
+    const FrequencySetInterface& fitness() const
     {
-      return pmodel_;
+      return *pfitness_;
     }
 
-    std::string getName() const
+    const SubstitutionModelInterface& mutationModel() const
+    {
+      return *pmodel_;
+    }
+
+    std::string getName() const override
     {
       return "POMO";
     }
     
   protected:
-    void updateMatrices();
+    
+    void updateMatrices_() override;
   
   };
 } // end of namespace bpp.

@@ -78,22 +78,19 @@ const string NexusIOTree::getFormatDescription() const
 /* INPUT */
 /******************************************************************************/
 
-TreeTemplate<Node>* NexusIOTree::readTree(istream& in) const
+unique_ptr<TreeTemplate<Node>> NexusIOTree::readTreeTemplate(istream& in) const
 {
-  vector<Tree*> trees;
+  vector<unique_ptr<Tree>> trees;
   readTrees(in, trees);
   if (trees.size() == 0)
     throw IOException("NexusIOTree::readTree(). No tree found in file.");
-  for (size_t i = trees.size() - 1; i > 0; i--)
-  {
-    delete trees[i];
-  }
-  return dynamic_cast<TreeTemplate<Node>*>(trees[0]);
+  unique_ptr<TreeTemplate<Node>> tree(dynamic_cast<TreeTemplate<Node>*>(trees[0].release()));
+  return tree;
 }
 
 /******************************************************************************/
 
-void NexusIOTree::readTrees(std::istream& in, std::vector<Tree*>& trees) const
+void NexusIOTree::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -150,7 +147,7 @@ void NexusIOTree::readTrees(std::istream& in, std::vector<Tree*>& trees) const
     if (pos == string::npos)
       throw Exception("NexusIOTree::readTrees(). unvalid format, should be tree-name=tree-description");
     string description = cmdArgs.substr(pos + 1);
-    TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree(description + ";", true);
+    auto tree = TreeTemplateTools::parenthesisToTree(description + ";", true);
 
     // Now translate leaf names if there is a translation:
     // (we assume that all trees share the same translation! ===> check!)
@@ -167,7 +164,7 @@ void NexusIOTree::readTrees(std::istream& in, std::vector<Tree*>& trees) const
         leaves[i]->setName(translation[name]);
       }
     }
-    trees.push_back(tree);
+    trees.push_back(move(tree));
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (cmdFound)
       cmdName = TextTools::toUpper(cmdName);
@@ -176,22 +173,18 @@ void NexusIOTree::readTrees(std::istream& in, std::vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-PhyloTree* NexusIOTree::readPhyloTree(istream& in) const
+unique_ptr<PhyloTree> NexusIOTree::readPhyloTree(istream& in) const
 {
-  vector<PhyloTree*> trees;
+  vector<unique_ptr<PhyloTree>> trees;
   readPhyloTrees(in, trees);
   if (trees.size() == 0)
     throw IOException("NexusIOTree::readPhyloTree(). No tree found in file.");
-  for (size_t i = trees.size() - 1; i > 0; i--)
-  {
-    delete trees[i];
-  }
-  return trees[0];
+  return move(trees[0]);
 }
 
 /******************************************************************************/
 
-void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& trees) const
+void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloTree>>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -252,7 +245,7 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& tree
     Newick treeReader;
 
     istringstream ss(description + ";");
-    PhyloTree* tree = treeReader.readPhyloTree(ss);
+    auto tree = treeReader.readPhyloTree(ss);
 
     // Now translate leaf names if there is a translation:
     // (we assume that all trees share the same translation! ===> check!)
@@ -269,7 +262,7 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& tree
         leaves[i]->setName(translation[name]);
       }
     }
-    trees.push_back(tree);
+    trees.push_back(move(tree));
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (cmdFound)
       cmdName = TextTools::toUpper(cmdName);

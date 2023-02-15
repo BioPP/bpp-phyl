@@ -52,18 +52,18 @@ using namespace std;
 
 /******************************************************************************/
 
-K80::K80(const NucleicAlphabet* alpha, double kappa) :
+K80::K80(shared_ptr<const NucleicAlphabet> alpha, double kappa) :
   AbstractParameterAliasable("K80."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "K80."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "K80."),
   kappa_(kappa), r_(), l_(), k_(), exp1_(), exp2_(), p_(size_, size_)
 {
   addParameter_(new Parameter("K80.kappa", kappa, Parameter::R_PLUS_STAR));
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void K80::updateMatrices()
+void K80::updateMatrices_()
 {
   kappa_ = getParameterValue("kappa");
   k_ = (kappa_ + 1.) / 2.;

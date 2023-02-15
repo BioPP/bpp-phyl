@@ -89,7 +89,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
 
   for (size_t c = 0; c < nbClasses_; c++)
   {
-    temp = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getNodeIndex(tree_.getRoot()), c)->getTargetValue().col(pos_);
+    temp = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getNodeIndex(tree_.getRoot()), c)->targetValue().col(pos_);
 
     temp /= temp.sum();
 
@@ -113,7 +113,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
     if (edge->useProb())
       continue;
 
-    const auto transmodel = dynamic_cast<const TransitionModel*>(model);
+    const auto transmodel = dynamic_pointer_cast<const TransitionModelInterface>(model);
     if (!transmodel)
       throw Exception("SubstitutionProcessSiteSimulator::init : model "  + model->getName() + " on branch " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a TransitionModel.");
 
@@ -142,16 +142,16 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
         if (vSub.size() > 1)
           throw Exception("SubstitutionProcessSiteSimulator::init : only 1 submodel can be used.");
 
-        const auto* mmodel = dynamic_cast<const MixedTransitionModel*>(transmodel);
+        const auto mmodel = dynamic_pointer_cast<const MixedTransitionModelInterface>(transmodel);
 
-        const auto* model2 = mmodel->getNModel(vSub[0]);
+        const auto model2 = mmodel->getNModel(vSub[0]);
 
         P = &model2->getPij_t(brlen);
       }
 
       /* Get likelihoods on this node for all states at this position*/
 
-      const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getSon(outid), c)->getTargetValue().col(pos_);
+      const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getSon(outid), c)->targetValue().col(pos_);
 
       for (size_t x = 0; x < size_t(nbStates_); x++)
       {
@@ -187,7 +187,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
       {
         auto outid = tree_.getEdgeIndex(edge);
 
-        auto model = dynamic_cast<const MixedTransitionModel*>(edge->getModel());
+        auto model = dynamic_pointer_cast<const MixedTransitionModelInterface>(edge->getModel());
         if (!model)
           throw Exception("SubstitutionProcessSiteSimulator::init : model in edge " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a mixture.");
 
@@ -203,7 +203,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
         // forward lik
         for (size_t c = 0; c < nbClasses_; c++)
         {
-          auto forwLik = calcul_->getForwardLikelihoodTree(c)->getEdge(outid)->getTargetValue().col(pos_).sum();
+          auto forwLik = calcul_->getForwardLikelihoodTree(c)->getEdge(outid)->targetValue().col(pos_).sum();
           vprob[c].push_back(x * forwLik);
         }
 

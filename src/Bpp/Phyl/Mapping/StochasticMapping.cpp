@@ -32,7 +32,7 @@ using namespace std;
 
 StochasticMapping::StochasticMapping(std::shared_ptr<LikelihoodCalculationSingleProcess> drl, size_t numOfMappings) :
   likelihood_(drl),
-  tree_ (make_shared<PhyloTree>(*drl->getSubstitutionProcess().getParametrizablePhyloTree())),
+  tree_(make_shared<PhyloTree>(drl->substitutionProcess().parametrizablePhyloTree())),
 //  mappingParameters_(drl->getSubstitutionProcess()),
   fractionalProbabilities_(),
   ConditionalProbabilities_(),

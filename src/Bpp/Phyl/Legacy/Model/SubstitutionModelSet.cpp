@@ -47,16 +47,16 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
   alphabet_             (set.alphabet_),
   nbStates_             (set.nbStates_),
   modelSet_(set.modelSet_.size()),
-  rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone())),
+  rootFrequencies_(set.stationarity_ ? nullptr : set.rootFrequencies_->clone()),
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
   modelParameters_      (set.modelParameters_),
   stationarity_         (set.stationarity_)
 {
   // Duplicate all model objects:
-  for (size_t i = 0; i < set.modelSet_.size(); i++)
+  for (size_t i = 0; i < set.modelSet_.size(); ++i)
   {
-    modelSet_[i] = dynamic_cast<TransitionModel*>(set.modelSet_[i]->clone());
+    modelSet_[i].reset(set.modelSet_[i]->clone());
   }
 }
 
@@ -70,15 +70,15 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
   modelParameters_     = set.modelParameters_;
   stationarity_        = set.stationarity_;
   if (set.stationarity_)
-    rootFrequencies_ = 0;
+    rootFrequencies_ = nullptr;
   else
-    rootFrequencies_.reset(dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone()));
+    rootFrequencies_.reset(set.rootFrequencies_->clone());
 
   // Duplicate all model objects:
   modelSet_.resize(set.modelSet_.size());
-  for (size_t i = 0; i < set.modelSet_.size(); i++)
+  for (size_t i = 0; i < set.modelSet_.size(); ++i)
   {
-    modelSet_[i] = dynamic_cast<TransitionModel*>(set.modelSet_[i]->clone());
+    modelSet_[i].reset(set.modelSet_[i]->clone());
   }
   return *this;
 }
@@ -87,10 +87,6 @@ void SubstitutionModelSet::clear()
 {
   resetParameters_();
   nbStates_ = 0;
-  for (size_t i = 0; i < modelSet_.size(); i++)
-  {
-    delete modelSet_[i];
-  }
   modelSet_.clear();
   rootFrequencies_.reset();
   nodeToModel_.clear();
@@ -98,7 +94,7 @@ void SubstitutionModelSet::clear()
   stationarity_ = true;
 }
 
-void SubstitutionModelSet::setRootFrequencies(std::shared_ptr<FrequencySet> rootFreqs)
+void SubstitutionModelSet::setRootFrequencies(shared_ptr<FrequencySetInterface> rootFreqs)
 {
   if (rootFreqs)
   {
@@ -131,9 +127,9 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
   return inode;
 }
 
-void SubstitutionModelSet::addModel(TransitionModel* model, const std::vector<int>& nodesId)// , const vector<string>& newParams)
+void SubstitutionModelSet::addModel(shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId)// , const vector<string>& newParams)
 {
-  if (model->getAlphabet()->getAlphabetType() != alphabet_->getAlphabetType())
+  if (model->alphabet().getAlphabetType() != alphabet_->getAlphabetType())
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != nbStates_)
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
@@ -154,7 +150,7 @@ void SubstitutionModelSet::addModel(TransitionModel* model, const std::vector<in
 
   vector<string> nplm = model->getParameters().getParameterNames();
 
-  modelParameters_.push_back(*model->getParameters().clone());
+  modelParameters_.push_back(model->getParameters());
 
   for (size_t i  = 0; i < nplm.size(); i++)
   {
@@ -182,9 +178,8 @@ void SubstitutionModelSet::setNodeToModel(size_t modelIndex, int nodeId)
   modelToNodes_[modelIndex].push_back(nodeId);
 }
 
-void SubstitutionModelSet::replaceModel(size_t modelIndex, TransitionModel* model)
+void SubstitutionModelSet::replaceModel(size_t modelIndex, shared_ptr<TransitionModelInterface> model)
 {
-  delete modelSet_[modelIndex];
   modelSet_[modelIndex] = model;
 
   // Erase all parameter references to this model
@@ -318,9 +313,9 @@ bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) con
 
 bool SubstitutionModelSet::hasMixedTransitionModel() const
 {
-  for (size_t i = 0; i < getNumberOfModels(); i++)
+  for (size_t i = 0; i < getNumberOfModels(); ++i)
   {
-    if ((dynamic_cast<const MixedTransitionModel*>(getModel(i)) != NULL) && (modelToNodes_[i].size() > 1))
+    if ((dynamic_cast<const MixedTransitionModelInterface*>(getModel(i).get()) != nullptr) && (modelToNodes_[i].size() > 1))
       return true;
   }
   return false;

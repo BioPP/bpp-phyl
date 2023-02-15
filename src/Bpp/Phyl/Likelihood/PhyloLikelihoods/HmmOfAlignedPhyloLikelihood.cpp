@@ -49,12 +49,15 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmOfAlignedPhyloLikelihood::HmmOfAlignedPhyloLikelihood(
-  Context& context,
-  std::shared_ptr<PhyloLikelihoodContainer> pC,
-  const std::vector<size_t>& nPhylo, bool inCollection) :
+    Context& context,
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    const std::vector<size_t>& nPhylo,
+    bool inCollection) :
   AbstractPhyloLikelihood(context),
+  AbstractParametrizable(""),
+  AbstractSetOfPhyloLikelihood(context, pC, {}, inCollection),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
+  AbstractSetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
   hma_(),
   htm_(),
   hpep_(),
@@ -62,7 +65,7 @@ HmmOfAlignedPhyloLikelihood::HmmOfAlignedPhyloLikelihood(
 {
   hma_ = make_shared<HmmPhyloAlphabet>(*this);
 
-  htm_ = make_shared<FullHmmTransitionMatrix>(hma_.get(), "HMM.");
+  htm_ = make_shared<FullHmmTransitionMatrix>(hma_, "HMM.");
 
   hpep_ = make_shared<HmmPhyloEmissionProbabilities>(hma_);
 
@@ -73,13 +76,14 @@ HmmOfAlignedPhyloLikelihood::HmmOfAlignedPhyloLikelihood(
 
 void HmmOfAlignedPhyloLikelihood::setNamespace(const std::string& nameSpace)
 {
-  SetOfAlignedPhyloLikelihood::setNamespace(nameSpace);
+  AbstractSetOfAlignedPhyloLikelihood::setNamespace(nameSpace);
   hmm_->setNamespace(nameSpace);
 }
 
 void HmmOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
-  SetOfAlignedPhyloLikelihood::fireParameterChanged(parameters);
+  AbstractSetOfAlignedPhyloLikelihood::fireParameterChanged(parameters);
   // hpep_->update();
   hmm_->matchParametersValues(parameters);
 }
+

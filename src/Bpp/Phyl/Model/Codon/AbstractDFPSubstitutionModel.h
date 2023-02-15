@@ -75,22 +75,23 @@ namespace bpp
  */
 
 class AbstractDFPSubstitutionModel :
-  public virtual CodonSubstitutionModel,
+  public virtual CodonSubstitutionModelInterface,
   public AbstractSubstitutionModel
 {
 private:
-  const GeneticCode* gCode_;
+	
+  std::shared_ptr<const GeneticCode> gCode_;
 
   double tr_, trr_, tvv_, trv_, tsub_;
 
 public:
-  /**
-   *@brief Build a new AbstractDFPSubstitutionModel object
-   *
-   */
 
-  AbstractDFPSubstitutionModel(const GeneticCode* gCode,
-                               const std::string& prefix = "AbstractDFP. ");
+  /**
+   * @brief Build a new AbstractDFPSubstitutionModel object
+   */
+  AbstractDFPSubstitutionModel(
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::string& prefix = "AbstractDFP. ");
 
   AbstractDFPSubstitutionModel(const AbstractDFPSubstitutionModel& mod) :
     AbstractParameterAliasable(mod),
@@ -112,34 +113,35 @@ public:
     return *this;
   }
 
-  ~AbstractDFPSubstitutionModel() {}
+  virtual ~AbstractDFPSubstitutionModel() {}
 
-  AbstractDFPSubstitutionModel* clone() const = 0;
+  AbstractDFPSubstitutionModel* clone() const override = 0;
 
 public:
-  const GeneticCode* getGeneticCode() const { return gCode_; }
+  
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return gCode_; }
 
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  using BranchModel::getNumberOfStates;
-  size_t getNumberOfStates() { return 64;}
+  using BranchModelInterface::getNumberOfStates;
+  
+  size_t getNumberOfStates() { return 64; }
+
+  /**
+   * @brief Calls  the multiplication by the specific codon-codon rate.
+   */
+  double getCodonsMulRate(size_t i, size_t j) const override;
+
+protected:
 
   /**
    * @brief Method inherited from AbstractSubstitutionModel
    *
    * This method sets the rates to/from stop codons to zero and
    * set the generator given parameters.
-   *
-   *
    */
-  void updateMatrices();
+  void updateMatrices_() override;
 
-  /*
-   * Calls  the multiplication by the specific codon-codon rate.
-   *
-   */
-
-  double getCodonsMulRate(size_t i, size_t j) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTDFPSUBSTITUTIONMODEL_H

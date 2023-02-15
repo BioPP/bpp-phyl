@@ -53,13 +53,11 @@ namespace bpp
 /**
  * @brief Basal class for words of  substitution models with multiple
  * substitutions.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * The equilibrium frequency of each word is due to the combination of
  * the multiple substitutions.
- *
  */
-
 class KroneckerWordSubstitutionModel :
   public AbstractKroneckerWordSubstitutionModel
 {
@@ -90,7 +88,6 @@ public:
    *   positions.
    * @param prefix the Namespace.
    */
-
   KroneckerWordSubstitutionModel(ModelList& modelList,
                                  const std::vector<std::set< size_t> >& vPos,
                                  const std::string& prefix = "");
@@ -105,8 +102,10 @@ public:
    * @param num The number of models involved.
    * @param prefix the Namespace.
    */
-
-  KroneckerWordSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& prefix = "");
+  KroneckerWordSubstitutionModel(
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
+      unsigned int num,
+      const std::string& prefix = "");
 
   /**
    * @brief Build a new KroneckerWordSubstitutionModel object from a
@@ -120,26 +119,32 @@ public:
    *   positions.
    * @param prefix the Namespace.
    */
-
-  KroneckerWordSubstitutionModel(SubstitutionModel* pmodel, unsigned int num,
-                                 const std::vector<std::set< size_t> >& vPos,
-                                 const std::string& prefix = "");
+  KroneckerWordSubstitutionModel(
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
+      unsigned int num,
+      const std::vector<std::set< size_t> >& vPos,
+      const std::string& prefix = "");
 
   virtual ~KroneckerWordSubstitutionModel() {}
 
-  KroneckerWordSubstitutionModel* clone() const { return new KroneckerWordSubstitutionModel(*this); }
+  KroneckerWordSubstitutionModel* clone() const override {
+    return new KroneckerWordSubstitutionModel(*this);
+  }
 
 protected:
+
   /**
    * @brief Constructor for the derived classes only
    */
+  KroneckerWordSubstitutionModel(
+      std::shared_ptr<const Alphabet> alph,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix = "");
 
-  KroneckerWordSubstitutionModel(const Alphabet* alph, std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "");
-
-  void completeMatrices() {}
+  void completeMatrices_() override {}
 
 public:
-  virtual std::string getName() const;
+  virtual std::string getName() const override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_KRONECKERWORDSUBSTITUTIONMODEL_H

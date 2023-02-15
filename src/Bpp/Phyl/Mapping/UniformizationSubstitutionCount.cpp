@@ -49,7 +49,11 @@ using namespace std;
 
 /******************************************************************************/
 
-UniformizationSubstitutionCount::UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
+UniformizationSubstitutionCount::UniformizationSubstitutionCount(
+    shared_ptr<const SubstitutionModelInterface> model,
+    shared_ptr<const SubstitutionRegisterInterface> reg,
+    shared_ptr<const AlphabetIndex2> weights,
+    shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
   AbstractSubstitutionDistance(distances),
@@ -82,12 +86,16 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
     throw Exception("UniformizationSubstitutionCount::UniformizationSubstitutionCount The maximum diagonal values of generator is above 10000. Abort, chose another mapping method");
 }
 
-UniformizationSubstitutionCount::UniformizationSubstitutionCount(const StateMap& statemap, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
+UniformizationSubstitutionCount::UniformizationSubstitutionCount(
+    const StateMapInterface& stateMap,
+    shared_ptr<const SubstitutionRegisterInterface> reg,
+    shared_ptr<const AlphabetIndex2> weights,
+    shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
   AbstractSubstitutionDistance(distances),
   model_(0),
-  nbStates_(statemap.getNumberOfModelStates()),
+  nbStates_(stateMap.getNumberOfModelStates()),
   bMatrices_(reg->getNumberOfSubstitutionTypes()),
   power_(),
   s_(reg->getNumberOfSubstitutionTypes()),
@@ -220,7 +228,7 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
 
 /******************************************************************************/
 
-Matrix<double>* UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
+unique_ptr<Matrix<double>> UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
   if (!model_)
     throw Exception("UniformizationSubstitutionCount::getAllNumbersOfSubstitutions: model not defined.");
@@ -232,7 +240,7 @@ Matrix<double>* UniformizationSubstitutionCount::getAllNumbersOfSubstitutions(do
     computeCounts_(length);
     currentLength_ = length;
   }
-  return new RowMatrix<double>(counts_[type - 1]);
+  return make_unique<RowMatrix<double>>(counts_[type - 1]);
 }
 
 /******************************************************************************/
@@ -303,7 +311,8 @@ std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsPer
 
 /******************************************************************************/
 
-void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
+void UniformizationSubstitutionCount::setSubstitutionModel(
+    shared_ptr<const SubstitutionModelInterface> model)
 {
   model_ = model;
 
@@ -311,7 +320,7 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
     return;
 
   // Check compatiblity between model and substitution register:
-  if (model->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
+  if (model->alphabet().getAlphabetType() != register_->alphabet().getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::setSubstitutionModel: alphabets do not match between register and model.");
 
   size_t n = model->getNumberOfStates();

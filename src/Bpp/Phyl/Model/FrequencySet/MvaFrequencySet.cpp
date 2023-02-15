@@ -46,8 +46,11 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-MvaFrequencySet::MvaFrequencySet(const ProteicAlphabet* alpha) :
-  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "MVA.", "MVAprotein"),
+MvaFrequencySet::MvaFrequencySet(shared_ptr<const ProteicAlphabet> alpha) :
+  AbstractFrequencySet(
+      make_shared<CanonicalStateMap>(alpha, false), 
+      "MVA.",
+      "MVAprotein"),
   tPpalAxes_(),
   rowCoords_(),
   nbrOfAxes_(0),
@@ -56,12 +59,12 @@ MvaFrequencySet::MvaFrequencySet(const ProteicAlphabet* alpha) :
   paramValues_()
 {}
 
-void MvaFrequencySet::initSet(CoalaCore* coala)
+void MvaFrequencySet::initSet(const CoalaCore& coala)
 {
-  setNbrOfAxes(coala->getNbrOfAxes());
-  setTransposeMatrixOfPpalAxes(coala->getTppalAxesMatrix());
-  setMatrixOfRowCoords(coala->getRowCoordinates());
-  setVectorOfColumnWeights(coala->getColumnWeights());
+  setNbrOfAxes(coala.getNbrOfAxes());
+  setTransposeMatrixOfPpalAxes(coala.getTppalAxesMatrix());
+  setMatrixOfRowCoords(coala.getRowCoordinates());
+  setVectorOfColumnWeights(coala.getColumnWeights());
   defineParameters();
   updateFrequencies();
 }

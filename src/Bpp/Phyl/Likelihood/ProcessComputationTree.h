@@ -63,21 +63,17 @@ namespace bpp
 class ProcessComputationNode :
   public PhyloNode
 {
-  /*
+  /**
    * @brief the index of the species in the phyloTree matching this node.
-   *
    */
-
   const uint speciesIndex_;
 
 public:
-  /*
+  /**
    * @brief Build from a node in the phylo tree, with a specific
    * speciesIndex (because indexes are not the same as in the
    * ParametrizablePhyloTree.
-   *
    */
-
   ProcessComputationNode(const PhyloNode& node, uint speciesIndex) :
     PhyloNode(node),
     speciesIndex_(speciesIndex) {}
@@ -115,47 +111,43 @@ using ProcessComputationNodeRef = std::shared_ptr<ProcessComputationNode>;
 class ProcessComputationEdge
 {
 private:
-  /*
-   * Model carried by the branch
-   *
+  /**
+   * @brief Model carried by the branch
    */
+  std::shared_ptr<const BranchModelInterface> model_;
 
-  const BranchModel* model_;
-
-  /*
-   * Number of the model carried by the branch
-   *
+  /**
+   * @brief Number of the model carried by the branch
    */
-
   uint nmodel_;
 
-  /*
+  /**
    * @brief numbers of the submodels used, if any.
    *
    * In practice, only vectors of size <=1 are implemented (ie
    * individual submodels), to be fixed later.
    */
-
   std::vector<uint> vSubNb_;
 
-  /*
+  /**
    * @brief use the probability associated to the edge in case of
    * mixture. If true, the probability is used and not the
    * transition probabilities.
-   *
    */
-
   bool useProb_;
 
-  /*
+  /**
    * @brief the index of the species in the phyloTree matching this node.
-   *
    */
-
   const uint speciesIndex_;
 
 public:
-  ProcessComputationEdge(const BranchModel* model, uint nmodel, uint speciesIndex, bool useProb = false, const std::vector<uint>& vNb = Vuint(0)) :
+  ProcessComputationEdge(
+      std::shared_ptr<const BranchModelInterface> model,
+      uint nmodel,
+      uint speciesIndex,
+      bool useProb = false,
+      const std::vector<uint>& vNb = Vuint(0)) :
     model_(model),
     nmodel_(nmodel),
     vSubNb_(vNb),
@@ -171,7 +163,7 @@ public:
     speciesIndex_(edge.speciesIndex_)
   {}
 
-  const BranchModel* getModel() const
+  std::shared_ptr<const BranchModelInterface> getModel() const
   {
     return model_;
   }
@@ -203,27 +195,31 @@ class ProcessComputationTree :
   public BaseTree
 {
 private:
-  const SubstitutionProcess& process_;
+  
+  std::shared_ptr<const SubstitutionProcessInterface> process_;
 
-  /*
-   * Build rest of the tree under given father (event on father will
+  /**
+   * @brief Build rest of the tree under given father (event on father will
    * be set in this method)
-   *
    */
+  void buildFollowingPath_(
+      std::shared_ptr<ProcessComputationNode> father,
+      const ModelPath& path);
 
-  void _build_following_path(std::shared_ptr<ProcessComputationNode> father, const ModelPath& path);
-
-  void _build_following_scenario(std::shared_ptr<ProcessComputationNode> father, const ModelScenario& scenario,  std::map<std::shared_ptr<MixedTransitionModel>, uint>& mMrca);
+  void buildFollowingScenario_(
+      std::shared_ptr<ProcessComputationNode> father,
+      const ModelScenario& scenario,
+      std::map<std::shared_ptr<MixedTransitionModelInterface>,
+      uint>& mMrca);
 
 public:
-  /*
+
+  /**
    * @brief construction of a ProcessComputationTree from a SubstitutionProcess
    *
    * @param process the SubstitutionProcess
-   *
    */
-
-  ProcessComputationTree(const SubstitutionProcess& process);
+  ProcessComputationTree(std::shared_ptr<const SubstitutionProcessInterface> process);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_PROCESSCOMPUTATIONTREE_H

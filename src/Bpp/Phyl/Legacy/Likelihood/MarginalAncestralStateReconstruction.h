@@ -66,9 +66,9 @@ class MarginalAncestralStateReconstruction :
   public virtual AncestralStateReconstruction
 {
 private:
-  const DRTreeLikelihood* likelihood_;
+  std::shared_ptr<const DRTreeLikelihoodInterface> likelihood_;
   TreeTemplate<Node> tree_;
-  const Alphabet* alphabet_;
+  mutable std::shared_ptr<const Alphabet> alphabet_;
   size_t nbSites_;
   size_t nbDistinctSites_;
   size_t nbClasses_;
@@ -78,52 +78,30 @@ private:
   std::vector<double> l_;
 
 public:
-  MarginalAncestralStateReconstruction(const DRTreeLikelihood* drl) :
+  MarginalAncestralStateReconstruction(std::shared_ptr<const DRTreeLikelihoodInterface> drl) :
     likelihood_      (drl),
-    tree_            (drl->getTree()),
+    tree_            (drl->tree()),
     alphabet_        (drl->getAlphabet()),
-    nbSites_         (drl->getLikelihoodData()->getNumberOfSites()),
-    nbDistinctSites_ (drl->getLikelihoodData()->getNumberOfDistinctSites()),
-    nbClasses_       (drl->getLikelihoodData()->getNumberOfClasses()),
-    nbStates_        (drl->getLikelihoodData()->getNumberOfStates()),
-    rootPatternLinks_(drl->getLikelihoodData()->getRootArrayPositions()),
-    r_               (drl->getRateDistribution()->getProbabilities()),
-    l_               (drl->getLikelihoodData()->getRootRateSiteLikelihoodArray())
+    nbSites_         (drl->likelihoodData().getNumberOfSites()),
+    nbDistinctSites_ (drl->likelihoodData().getNumberOfDistinctSites()),
+    nbClasses_       (drl->likelihoodData().getNumberOfClasses()),
+    nbStates_        (drl->likelihoodData().getNumberOfStates()),
+    rootPatternLinks_(drl->likelihoodData().getRootArrayPositions()),
+    r_               (drl->rateDistribution().getProbabilities()),
+    l_               (drl->likelihoodData().getRootRateSiteLikelihoodArray())
   {}
 
-  MarginalAncestralStateReconstruction(const MarginalAncestralStateReconstruction& masr) :
-    likelihood_      (masr.likelihood_),
-    tree_            (masr.tree_),
-    alphabet_        (masr.alphabet_),
-    nbSites_         (masr.nbSites_),
-    nbDistinctSites_ (masr.nbDistinctSites_),
-    nbClasses_       (masr.nbClasses_),
-    nbStates_        (masr.nbStates_),
-    rootPatternLinks_(masr.rootPatternLinks_),
-    r_               (masr.r_),
-    l_               (masr.l_)
-  {}
-
-  MarginalAncestralStateReconstruction& operator=(const MarginalAncestralStateReconstruction& masr)
-  {
-    likelihood_       = masr.likelihood_;
-    tree_             = masr.tree_;
-    alphabet_         = masr.alphabet_;
-    nbSites_          = masr.nbSites_;
-    nbDistinctSites_  = masr.nbDistinctSites_;
-    nbClasses_        = masr.nbClasses_;
-    nbStates_         = masr.nbStates_;
-    rootPatternLinks_ = masr.rootPatternLinks_;
-    r_                = masr.r_;
-    l_                = masr.l_;
-    return *this;
+  MarginalAncestralStateReconstruction* clone() const
+  { 
+    return new MarginalAncestralStateReconstruction(*this);
   }
 
-  MarginalAncestralStateReconstruction* clone() const { return new MarginalAncestralStateReconstruction(*this); }
-
-  virtual ~MarginalAncestralStateReconstruction() {}
-
 public:
+  std::shared_ptr<const Alphabet> getAlphabet() const
+  {
+    return alphabet_;
+  }
+  
   /**
    * @brief Get ancestral states for a given node as a vector of int.
    *
@@ -160,25 +138,25 @@ public:
    * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
    * @return A sequence object.
    */
-  Sequence* getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const;
+  std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const;
 
-  Sequence* getAncestralSequenceForNode(uint nodeId) const
+  std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId) const
   {
     return getAncestralSequenceForNode(nodeId, 0, false);
   }
 
-  AlignedSequenceContainer* getAncestralSequences() const
+  std::unique_ptr<AlignmentDataInterface> getAncestralSequences() const
   {
     return getAncestralSequences(false);
   }
 
-  AlignedSequenceContainer* getAncestralSequences(bool sample) const;
+  std::unique_ptr<AlignedSequenceContainer> getAncestralSequences(bool sample) const;
 
 private:
   void recursiveMarginalAncestralStates(
     const Node* node,
     std::map<uint, std::vector<size_t> >& ancestors,
-    AlignedValuesContainer& data) const;
+    const AlignmentDataInterface& data) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_MARGINALANCESTRALSTATERECONSTRUCTION_H

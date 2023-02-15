@@ -90,14 +90,14 @@ using namespace bpp;
 
 using namespace std;
 
-TransitionModel* BppOTransitionModelFormat::readTransitionModel(
-  const Alphabet* alphabet,
+unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionModel(
+  std::shared_ptr<const Alphabet> alphabet,
   const std::string& modelDescription,
-  const AlignedValuesContainer* data,
+  std::shared_ptr<const AlignmentDataInterface> data,
   bool parseArguments)
 {
   unparsedArguments_.clear();
-  unique_ptr<TransitionModel> model;
+  unique_ptr<TransitionModelInterface> model;
   string modelName = "";
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
@@ -107,7 +107,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   // ////////////////////////////////
 
   if ((modelName == "MixedModel" || (modelName == "Mixture")) && allowMixed_)
-    model.reset(readMixed_(alphabet, modelDescription, data));
+    model = readMixed_(alphabet, modelDescription, data);
   else if (modelName == "OneChange")
   {
     // We have to parse the nested model first:
@@ -118,19 +118,18 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    SubstitutionModel* nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
     if (args.find("register") == args.end())
-      model.reset(new OneChangeTransitionModel(*nestedModel));
+      model = make_unique<OneChangeTransitionModel>(move(nestedModel));
     else
     {
-      AlphabetIndex2* weights = 0;
-      AlphabetIndex2* distances = 0;
-
+      unique_ptr<AlphabetIndex2> weights;
+      unique_ptr<AlphabetIndex2> distances;
       string registerDescription = args["register"];
-      unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, weights, distances));
+      auto reg = PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, weights, distances);
 
       if (args.find("numReg") == args.end())
         throw Exception("Missing argument 'numReg' (number of event for register in model " + modelName);
@@ -152,15 +151,14 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
         }
       }
 
-      model.reset(new OneChangeRegisterTransitionModel(*nestedModel, *reg, vNumRegs));
+      model = make_unique<OneChangeRegisterTransitionModel>(move(nestedModel), *reg, vNumRegs);
     }
 
     // Then we update the parameter set:
-    for (auto&  it:unparsedParameterValuesNested)
+    for (auto& it : unparsedParameterValuesNested)
     {
       unparsedArguments_["OneChange." + it.first] = it.second;
     }
-    delete nestedModel;
   }
   // //////////////////
   // PREDEFINED CODON MODELS
@@ -171,9 +169,9 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     if (!geneticCode_)
       throw Exception("BppOTransitionModelFormat::readTransitionModel(). No genetic code specified! Consider using 'setGeneticCode'.");
 
-    if (!AlphabetTools::isCodonAlphabet(alphabet))
+    if (!AlphabetTools::isCodonAlphabet(alphabet.get()))
       throw Exception("Alphabet should be Codon Alphabet.");
-    const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(alphabet);
+    auto pCA = dynamic_pointer_cast<const CodonAlphabet>(alphabet);
 
     if (args.find("genetic_code") != args.end())
     {
@@ -185,7 +183,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       throw Exception("Mismatch between genetic code and codon alphabet");
 
 
-    shared_ptr<CodonFrequencySet> codonFreqs(0);
+    unique_ptr<CodonFrequencySetInterface> codonFreqs;
 
     if (args.find("frequencies") != args.end())
     {
@@ -193,8 +191,9 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
       freqReader.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model.
 
-      codonFreqs = std::dynamic_pointer_cast<CodonFrequencySet>(freqReader.readFrequencySet(pCA, freqOpt, data, false));
-      for (const auto& it:freqReader.getUnparsedArguments())
+      auto tmpP = freqReader.readFrequencySet(pCA, freqOpt, data, false);
+      codonFreqs = unique_ptr<CodonFrequencySetInterface>(dynamic_cast<CodonFrequencySetInterface*>(tmpP.release()));
+      for (const auto& it : freqReader.getUnparsedArguments())
       {
         unparsedArguments_[modelName + "." + it.first] = it.second;
       }
@@ -203,16 +202,16 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "YNGP_M1")
-      model.reset(new YNGP_M1(geneticCode_, codonFreqs));
+      model = make_unique<YNGP_M1>(geneticCode_, move(codonFreqs));
     else if (modelName == "YNGP_M2")
-      model.reset(new YNGP_M2(geneticCode_, codonFreqs));
+      model = make_unique<YNGP_M2>(geneticCode_, move(codonFreqs));
     else if (modelName == "RELAX")
-      model.reset(new RELAX(geneticCode_, codonFreqs));
+      model = make_unique<RELAX>(geneticCode_, move(codonFreqs));
     else if (modelName == "YNGP_M3")
       if (args.find("n") == args.end())
-        model.reset(new YNGP_M3(geneticCode_, codonFreqs));
+        model = make_unique<YNGP_M3>(geneticCode_, move(codonFreqs));
       else
-        model.reset(new YNGP_M3(geneticCode_, codonFreqs, TextTools::to<unsigned int>(args["n"])));
+        model = make_unique<YNGP_M3>(geneticCode_, move(codonFreqs), TextTools::to<unsigned int>(args["n"]));
     else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8" || modelName == "YNGP_M8a")
     {
       if (args.find("n") == args.end())
@@ -222,11 +221,11 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
         ApplicationTools::displayResult("Number of classes in model", nbClasses);
 
       if (modelName == "YNGP_M7")
-        model.reset(new YNGP_M7(geneticCode_, codonFreqs, nbClasses));
+        model = make_unique<YNGP_M7>(geneticCode_, move(codonFreqs), nbClasses);
       else if (modelName == "YNGP_M8")
-        model.reset(new YNGP_M8(geneticCode_, codonFreqs, nbClasses));
+        model = make_unique<YNGP_M8>(geneticCode_, move(codonFreqs), nbClasses);
       else if (modelName == "YNGP_M8a")
-        model.reset(new YNGP_M8(geneticCode_, codonFreqs, nbClasses, true));
+        model = make_unique<YNGP_M8>(geneticCode_, move(codonFreqs), nbClasses, true);
     }
     else if (modelName == "YNGP_M9" || modelName == "YNGP_M10")
     {
@@ -240,9 +239,9 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
         ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
 
       if (modelName == "YNGP_M9")
-        model.reset(new YNGP_M9(geneticCode_, codonFreqs, nbBeta, nbGamma));
+        model = make_unique<YNGP_M9>(geneticCode_, move(codonFreqs), nbBeta, nbGamma);
       else
-        model.reset(new YNGP_M10(geneticCode_, codonFreqs, nbBeta, nbGamma));
+        model = make_unique<YNGP_M10>(geneticCode_, move(codonFreqs), nbBeta, nbGamma);
     }
     else if (modelName == "DFP07")
     {
@@ -250,66 +249,74 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
         throw Exception("Missing 'protmodel in model " + modelName + ".");
 
       BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
-      auto nestedProtModel = std::shared_ptr<ProteinSubstitutionModel>(dynamic_cast<ProteinSubstitutionModel*>(nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], data, false)));
+      auto tmpP = nestedProtReader.readSubstitutionModel(
+				      geneticCode_->getTargetAlphabet(),
+				      args["protmodel"], data, false);
+      auto nestedProtModel = unique_ptr<ProteinSubstitutionModelInterface>(
+		      dynamic_cast<ProteinSubstitutionModelInterface*>(tmpP.release())
+		      );
 
       auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
       unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
 
-      model.reset(new DFP07(geneticCode_, nestedProtModel, codonFreqs));
+      model = make_unique<DFP07>(geneticCode_, move(nestedProtModel), move(codonFreqs));
     }
   }
-  else if (AlphabetTools::isProteicAlphabet(alphabet))
+  else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
   {
     if (!(alphabetCode_ & PROTEIN))
       throw Exception("BppOTransitionModelFormat::read. Protein alphabet not supported.");
-    const ProteicAlphabet* alpha = dynamic_cast<const ProteicAlphabet*>(alphabet);
+    auto alpha = dynamic_pointer_cast<const ProteicAlphabet>(alphabet);
 
     if (modelName == "LLG08_EHO")
-      model.reset(new LLG08_EHO(alpha));
+      model = make_unique<LLG08_EHO>(alpha);
     else if (modelName == "LLG08_EX2")
-      model.reset(new LLG08_EX2(alpha));
+      model = make_unique<LLG08_EX2>(alpha);
     else if (modelName == "LLG08_EX3")
-      model.reset(new LLG08_EX3(alpha));
+      model = make_unique<LLG08_EX3>(alpha);
     else if (modelName == "LLG08_UL2")
-      model.reset(new LLG08_UL2(alpha));
+      model = make_unique<LLG08_UL2>(alpha);
     else if (modelName == "LLG08_UL3")
-      model.reset(new LLG08_UL3(alpha));
+      model = make_unique<LLG08_UL3>(alpha);
     else if (modelName == "LG10_EX_EHO")
-      model.reset(new LG10_EX_EHO(alpha));
+      model = make_unique<LG10_EX_EHO>(alpha);
     else if (modelName == "LGL08_CAT")
     {
       if (args.find("nbCat") == args.end())
         throw Exception("'nbCat' argument is compulsory for model 'LGL08_CAT'");
 
       unsigned int nbCat = TextTools::to<unsigned int>(args["nbCat"]);
-      model.reset(new LGL08_CAT(alpha, nbCat));
+      model = make_unique<LGL08_CAT>(alpha, nbCat);
     }
   }
 
   if (!model)
-    model.reset(readSubstitutionModel(alphabet, modelDescription, data, parseArguments));
+    model = readSubstitutionModel(alphabet, modelDescription, data, parseArguments);
   else
   {
     if (verbose_)
       ApplicationTools::displayResult("Transition model", modelName);
 
-    updateParameters_(model.get(), args);
+    updateParameters_(*model, args);
 
     if (parseArguments)
       initialize_(*model, data);
   }
 
-  return model.release();
+  return model;
 }
 
-MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data)
+unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
+    std::shared_ptr<const Alphabet> alphabet,
+    const std::string& modelDescription,
+    std::shared_ptr<const AlignmentDataInterface> data)
 {
-  unique_ptr<MixedTransitionModel> model;
+  unique_ptr<MixedTransitionModelInterface> model;
 
   string modelName = "";
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
-  shared_ptr<TransitionModel> pSM;
+  unique_ptr<TransitionModelInterface> pSM;
 
   if (modelName == "MixedModel")
   {
@@ -322,21 +329,21 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
     // instance as the one
     // that will be used
     // by the model.
-    pSM.reset(nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false));
+    pSM = nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false);
 
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
-    map<string, DiscreteDistribution*> mdist;
+    map<string, unique_ptr<DiscreteDistribution> > mdist;
     map<string, string> unparsedParameterValuesNested2;
 
-    for (auto& it:unparsedParameterValuesNested)
+    for (auto& it : unparsedParameterValuesNested)
     {
       if (it.second.find("(") != string::npos)
       {
         BppODiscreteDistributionFormat bIO(false);
         mdist[pSM->getParameterNameWithoutNamespace(it.first)] = bIO.readDiscreteDistribution(it.second, false);
         map<string, string> unparsedParameterValuesNested3(bIO.getUnparsedArguments());
-        for (auto& it2:unparsedParameterValuesNested3)
+        for (auto& it2 : unparsedParameterValuesNested3)
         {
           unparsedParameterValuesNested2[it.first + "_" + it2.first] = it2.second;
         }
@@ -345,7 +352,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
         unparsedParameterValuesNested2[it.first] = it.second;
     }
 
-    for (auto& it:unparsedParameterValuesNested2)
+    for (auto& it : unparsedParameterValuesNested2)
     {
       unparsedArguments_[it.first] = it.second;
     }
@@ -359,14 +366,9 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
       ti = alphabet->charToInt(args["to"]);
 
     string sModN = pSM->getName();
-    model.reset(new MixtureOfATransitionModel(alphabet, pSM.get(), mdist, fi, ti));
+    model = make_unique<MixtureOfATransitionModel>(alphabet, move(pSM), mdist, fi, ti);
 
     vector<string> v = model->getParameters().getParameterNames();
-
-    for (auto&  it:mdist)
-    {
-      delete it.second;
-    }
 
     if (verbose_)
     {
@@ -377,7 +379,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
   else if (modelName == "Mixture")
   {
     vector<string> v_nestedModelDescription;
-    vector<std::shared_ptr<TransitionModel>> v_pSM;
+    vector< std::unique_ptr<TransitionModelInterface> > v_pSM;
 
     if (args.find("model1") == args.end())
     {
@@ -393,29 +395,29 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
     if (nbmodels < 2)
       throw Exception("Missing nested models for model " + modelName + ".");
 
-    for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
+    for (unsigned i = 0; i < v_nestedModelDescription.size(); ++i)
     {
       BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
       if (geneticCode_)
         nestedReader.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model.
 
-      pSM.reset(nestedReader.readTransitionModel(alphabet, v_nestedModelDescription[i], data, false));
+      pSM = nestedReader.readTransitionModel(alphabet, v_nestedModelDescription[i], data, false);
 
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
-      for (auto& it:unparsedParameterValuesNested)
+      for (auto& it : unparsedParameterValuesNested)
       {
         unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
       }
 
-      v_pSM.push_back(pSM);
+      v_pSM.push_back(move(pSM));
     }
 
-    model.reset(new MixtureOfTransitionModels(alphabet, v_pSM));
+    model = make_unique<MixtureOfTransitionModels>(alphabet, v_pSM);
     if (verbose_)
       ApplicationTools::displayResult("Mixture Of TransitionModel Models", modelName );
   }
   else
     throw Exception("Unknown model name for mixture " + modelName);
 
-  return model.release();
+  return model;
 }

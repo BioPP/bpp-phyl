@@ -53,12 +53,12 @@ bool ModelScenario::complete()
     nhn += *mp;
   }
 
-  auto rest = std::make_shared<ModelPath> ();
+  auto rest = make_shared<ModelPath> ();
   auto models = nhn.getModels();
   for (const auto& model:models)
   {
     Vuint v((uint)model->getNumberOfModels());
-    std::iota(v.begin(), v.end(), 0);
+    iota(v.begin(), v.end(), 0);
     rest->setModel(model, v);
   }
 
@@ -73,8 +73,8 @@ bool ModelScenario::complete()
   return false;
 }
 
-void ModelScenario::changeModel(std::shared_ptr<MixedTransitionModel> m1,
-                                std::shared_ptr<MixedTransitionModel> m2)
+void ModelScenario::changeModel(shared_ptr<MixedTransitionModelInterface> m1,
+                                shared_ptr<MixedTransitionModelInterface> m2)
 {
   for (auto& mp: vModelPaths_)
   {
@@ -119,7 +119,7 @@ void ModelScenario::computeModelPathsProbabilities()
   // Compute the probabilities of the hypernodes from the lead mixed
   // model of the first ModelPath
 
-  std::shared_ptr<MixedTransitionModel> pfSM(vModelPaths_[0]->getLeadModel());
+  shared_ptr<MixedTransitionModelInterface> pfSM(vModelPaths_[0]->getLeadModel());
 
   if (pfSM == 0)
     throw Exception("ModelScenario::computeModelPathsProbabilities: missing lead Model.");
@@ -191,30 +191,30 @@ void ModelScenario::computeModelPathsProbabilities()
   }
 }
 
-std::string ModelScenario::to_string() const
+string ModelScenario::toString() const
 {
   string output;
 
-  for (const auto& mp:vModelPaths_)
+  for (const auto& mp :vModelPaths_)
   {
-    output += "<" + mp->to_string() + ">";
+    output += "<" + mp->toString() + ">";
   }
 
   return output;
 }
 
-std::vector<std::shared_ptr<MixedTransitionModel> > ModelScenario::getModels() const
+vector<shared_ptr<MixedTransitionModelInterface> > ModelScenario::getModels() const
 {
-  std::vector<std::shared_ptr<MixedTransitionModel> > models, models2;
+  vector<shared_ptr<MixedTransitionModelInterface> > models, models2;
 
-  for (const auto& mp:vModelPaths_)
+  for (const auto& mp : vModelPaths_)
   {
     auto vmodel = mp->getModels();
     for (auto& model:vmodel)
     {
-      if (std::find(models.begin(), models.end(), model) == models.end())
+      if (find(models.begin(), models.end(), model) == models.end())
         models.push_back(model);
-      else if (std::find(models2.begin(), models2.end(), model) == models2.end())
+      else if (find(models2.begin(), models2.end(), model) == models2.end())
         models2.push_back(model);
     }
   }

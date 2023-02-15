@@ -85,27 +85,23 @@ public:
    * @return The AlphabetIndex1 object associated to this instance.
    * The alphabet index contains the value associated to each state.
    */
-  virtual const AlphabetIndex1* getAlphabetIndex() const = 0;
-
-  /**
-   * @return The AlphabetIndex1 object associated to this instance.
-   * The alphabet index contains the value associated to each state.
-   */
-
-  virtual AlphabetIndex1* getAlphabetIndex() = 0;
+  virtual std::shared_ptr<const AlphabetIndex1> getAlphabetIndex() const = 0;
 
   /**
    * @param alphind The new AlphabetIndex1 object to be associated to this instance.
    */
 
-  virtual void setAlphabetIndex(AlphabetIndex1* alphind) = 0;
+  virtual void setAlphabetIndex(std::shared_ptr<const AlphabetIndex1> alphind) = 0;
 
   /**
    * @brief Short cut function, equivalent to getSubstitutionRegister()->getAlphabet().
    *
    * @return The alphabet associated to this substitution count.
    */
-  virtual const Alphabet* getAlphabet() const { return getAlphabetIndex()->getAlphabet(); }
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const
+  {
+    return getAlphabetIndex()->getAlphabet(); 
+  }
 
   /**
    * @brief Short cut function, equivalent to getSubstitutionRegister()->getAlphabet()->getSize().
@@ -149,7 +145,7 @@ public:
    *
    * @param model The substitution model to use with this reward.
    */
-  virtual void setSubstitutionModel(const SubstitutionModel* model) = 0;
+  virtual void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) = 0;
 };
 
 /**
@@ -163,10 +159,10 @@ class AbstractReward :
   public virtual Reward
 {
 protected:
-  AlphabetIndex1* alphIndex_;
+  std::shared_ptr<const AlphabetIndex1> alphIndex_;
 
 public:
-  AbstractReward(AlphabetIndex1* alphIndex) :
+  AbstractReward(std::shared_ptr<const AlphabetIndex1> alphIndex) :
     alphIndex_(alphIndex)
   {}
 
@@ -180,10 +176,7 @@ public:
     return *this;
   }
 
-  ~AbstractReward()
-  {
-    delete alphIndex_;
-  }
+  virtual ~AbstractReward() {}
 
 public:
   bool hasAlphabetIndex() const { return alphIndex_ != 0; }
@@ -194,15 +187,15 @@ public:
    *@param alphIndex pointer to a AlphabetIndex1
    *
    */
-  void setAlphabetIndex(AlphabetIndex1* alphIndex)
+  void setAlphabetIndex(std::shared_ptr<const AlphabetIndex1> alphIndex)
   {
     alphIndex_ = alphIndex;
     alphabetIndexHasChanged();
   }
 
-  const AlphabetIndex1* getAlphabetIndex() const { return alphIndex_; }
-
-  AlphabetIndex1* getAlphabetIndex() { return alphIndex_; }
+  std::shared_ptr<const AlphabetIndex1> getAlphabetIndex() const { return alphIndex_; }
+  
+  const AlphabetIndex1& alphabetIndex() const { return *alphIndex_; }
 
 protected:
   virtual void alphabetIndexHasChanged() = 0;

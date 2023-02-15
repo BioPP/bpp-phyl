@@ -79,22 +79,22 @@ int main() {
 
   //-------------
 
-  const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
 
   Pasta pasta;
-  
-  VectorProbabilisticSiteContainer sites(alphabet);
-  pasta.readAlignment("counts.pa",sites);
+  auto sites = make_shared<ProbabilisticVectorSiteContainer>(alphabet);
+  pasta.readAlignment("counts.pa", *sites);
   
 
   // model
-  shared_ptr<SubstitutionModel> t92(new T92(alphabet, 3.));
+  auto t92 = make_shared<T92>(nucAlphabet, 3.);
 
-  auto multimodel=std::make_shared<MultinomialFromTransitionModel>(*t92); // t92 is copied there
+  auto multimodel = make_shared<MultinomialFromTransitionModel>(*t92); // t92 is copied there
 
 
   auto rdist = make_shared<ConstantRateDistribution>();
-  auto process= std::make_shared<NonHomogeneousSubstitutionProcess> (rdist, pTree);
+  auto process = make_shared<NonHomogeneousSubstitutionProcess> (rdist, pTree);
 
   
   // internal leaves
@@ -115,14 +115,17 @@ int main() {
   
   Context context;
   
-  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
-  auto newtl = std::make_shared<SingleProcessPhyloLikelihood>(context, lik);
+  auto lik = make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
+  auto newtl = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
   cerr << "StartLik: " << setprecision(20) << newtl->getValue() << endl;
   newtl->getParameters().printParameters(cout);
   dotOutput("lik_multinomial_value", {lik->getLikelihoodNode().get()});
 
-  OptimizationTools::optimizeNumericalParameters2(*newtl, newtl->getParameters(), 0, 0.000001, 1000, 0, 0);
+  OptimizationTools::optimizeNumericalParameters2(
+      newtl,
+      newtl->getParameters(),
+      0, 0.000001, 1000, 0, 0);
   cout << "NewLik: " << newtl->getValue() << endl;
   newtl->getParameters().printParameters(cout);
 

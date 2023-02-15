@@ -47,13 +47,15 @@
 #include "SimpleSubstitutionProcessSiteSimulator.h"
 #include "SubstitutionProcessSequenceSimulator.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 #include <Bpp/Phyl/Likelihood/PartitionSequenceEvolution.h>
 
 using namespace bpp;
 using namespace std;
+
+/******************************************************************************/
 
 SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const SequenceEvolution& evol) :
   mProcess_(),
@@ -63,23 +65,23 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
 {
   vector<size_t> nProc = evol.getSubstitutionProcessNumbers();
 
-  vector<shared_ptr<PhyloNode> > vpn = evol.getSubstitutionProcess(nProc[0]).getParametrizablePhyloTree()->getAllLeaves();
+  vector<shared_ptr<PhyloNode> > vpn = evol.substitutionProcess(nProc[0]).getParametrizablePhyloTree()->getAllLeaves();
 
   // set ups seqnames for all processes
-  for (size_t i = 0; i < vpn.size(); i++)
+  for (auto & vi : vpn)
   {
-    seqNames_.push_back(vpn[i]->getName());
+    seqNames_.push_back(vi->getName());
   }
 
-  for (size_t i = 0; i < nProc.size(); i++)
+  for (size_t i = 0; i < nProc.size(); ++i)
   {
-    const SubstitutionProcess& sp = evol.getSubstitutionProcess(nProc[i]);
+    const auto sp = evol.getSubstitutionProcess(nProc[i]);
 
-    mProcess_[nProc[i]] = std::make_shared<SimpleSubstitutionProcessSiteSimulator>(sp);
+    mProcess_[nProc[i]] = make_unique<SimpleSubstitutionProcessSiteSimulator>(sp);
 
     vector<string> seqNames2;
 
-    vector<shared_ptr<PhyloNode> > vpn2 = sp.getParametrizablePhyloTree()->getAllLeaves();
+    vector<shared_ptr<PhyloNode> > vpn2 = sp->getParametrizablePhyloTree()->getAllLeaves();
     for (size_t i2 = 0; i2 < vpn2.size(); i2++)
     {
       seqNames2.push_back(vpn2[i2]->getName());
@@ -107,6 +109,8 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
     throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(SequenceEvolution) not set for this type of process. Ask developpers.");
 }
 
+/******************************************************************************/
+
 SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const SubstitutionProcessSequenceSimulator& spss) :
   mProcess_(),
   vMap_(spss.vMap_),
@@ -127,6 +131,7 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
   }
 }
 
+/******************************************************************************/
 
 SubstitutionProcessSequenceSimulator& SubstitutionProcessSequenceSimulator::operator=(const SubstitutionProcessSequenceSimulator& spss)
 {
@@ -152,9 +157,7 @@ SubstitutionProcessSequenceSimulator& SubstitutionProcessSequenceSimulator::oper
   return *this;
 }
 
-
-SubstitutionProcessSequenceSimulator::~SubstitutionProcessSequenceSimulator()
-{}
+/******************************************************************************/
 
 void SubstitutionProcessSequenceSimulator::outputInternalSequences(bool yn)
 {
@@ -163,6 +166,8 @@ void SubstitutionProcessSequenceSimulator::outputInternalSequences(bool yn)
     it.second->outputInternalSites(yn);
   }
 }
+
+/******************************************************************************/
 
 void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
 {
@@ -177,17 +182,19 @@ void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
   }
 }
 
+/******************************************************************************/
 
-std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
+unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
+    size_t numberOfSites) const
 {
-  auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
-  sites->setSequenceNames(seqNames_);
+  auto sites = make_unique<VectorSiteContainer>(seqNames_, getAlphabet());
+  sites->setSequenceNames(seqNames_, true);
 
   Vint vval(seqNames_.size());
 
-  for (size_t j = 0; j < numberOfSites; j++)
+  for (size_t j = 0; j < numberOfSites; ++j)
   {
-    Site* site = mProcess_.find(vMap_[j])->second->simulateSite();
+    auto site = mProcess_.find(vMap_[j])->second->simulateSite();
 
     const vector<size_t>& vPosNames = mvPosNames_.find(vMap_[j])->second;
     for (size_t vn = 0; vn < vPosNames.size(); vn++)
@@ -195,27 +202,30 @@ std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(si
       vval[vn] = site->getValue(vPosNames[vn]);
     }
 
-    sites->addSite(*new Site(vval, sites->getAlphabet(), static_cast<int>(j)));
-    delete site;
+    auto site2 = make_unique<Site>(vval, sites->getAlphabet(), static_cast<int>(j));
+    sites->addSite(site2);
   }
   return sites;
 }
 
-std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(const vector<double>& rates) const
+/******************************************************************************/
+
+unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
+  const vector<double>& rates) const
 {
   size_t numberOfSites = rates.size();
 
   if (numberOfSites > vMap_.size())
     throw Exception("SubstitutionProcessSequenceSimulator::simulate : some sites do not have attributed process");
 
-  auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
-  sites->setSequenceNames(seqNames_);
+  auto sites = make_unique<VectorSiteContainer>(seqNames_, getAlphabet());
+  sites->setSequenceNames(seqNames_, true);
 
   Vint vval(seqNames_.size());
 
-  for (size_t j = 0; j < numberOfSites; j++)
+  for (size_t j = 0; j < numberOfSites; ++j)
   {
-    Site* site = mProcess_.find(vMap_[j])->second->simulateSite(rates[j]);
+    auto site = mProcess_.find(vMap_[j])->second->simulateSite(rates[j]);
 
     const vector<size_t>& vPosNames = mvPosNames_.find(vMap_[j])->second;
     for (size_t vn = 0; vn < vPosNames.size(); vn++)
@@ -223,24 +233,27 @@ std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(co
       vval[vn] = site->getValue(vPosNames[vn]);
     }
 
-    sites->addSite(*new Site(vval, sites->getAlphabet(), static_cast<int>(j)));
-    delete site;
+    auto site2 = make_unique<Site>(vval, sites->getAlphabet(), static_cast<int>(j));
+    sites->addSite(site2);
   }
   return sites;
 }
 
-std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(const vector<size_t>& states) const
+/******************************************************************************/
+
+unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
+  const vector<size_t>& states) const
 {
   size_t numberOfSites = states.size();
 
-  auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
-  sites->setSequenceNames(seqNames_);
+  auto sites = make_unique<VectorSiteContainer>(seqNames_, getAlphabet());
+  sites->setSequenceNames(seqNames_, true);
 
   Vint vval(seqNames_.size());
 
-  for (size_t j = 0; j < numberOfSites; j++)
+  for (size_t j = 0; j < numberOfSites; ++j)
   {
-    Site* site = mProcess_.find(vMap_[j])->second->simulateSite(states[j]);
+    auto site = mProcess_.find(vMap_[j])->second->simulateSite(states[j]);
 
     const vector<size_t>& vPosNames = mvPosNames_.find(vMap_[j])->second;
     for (size_t vn = 0; vn < vPosNames.size(); vn++)
@@ -248,26 +261,30 @@ std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(co
       vval[vn] = site->getValue(vPosNames[vn]);
     }
 
-    sites->addSite(*new Site(vval, sites->getAlphabet(), static_cast<int>(j)));
-    delete site;
+    auto site2 = make_unique<Site>(vval, sites->getAlphabet(), static_cast<int>(j));
+    sites->addSite(site2);
   }
   return sites;
 }
 
-std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(const vector<double>& rates, const vector<size_t>& states) const
+/******************************************************************************/
+
+unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
+  const vector<double>& rates,
+  const vector<size_t>& states) const
 {
   size_t numberOfSites = rates.size();
   if (states.size() != numberOfSites)
     throw Exception("SubstitutionProcessSequenceSimulator::simulate, 'rates' and 'states' must have the same length.");
 
-  auto sites = make_shared<VectorSiteContainer>(seqNames_, getAlphabet());
-  sites->setSequenceNames(seqNames_);
+  auto sites = make_unique<VectorSiteContainer>(seqNames_, getAlphabet());
+  sites->setSequenceNames(seqNames_, true);
 
   Vint vval(seqNames_.size());
 
-  for (size_t j = 0; j < numberOfSites; j++)
+  for (size_t j = 0; j < numberOfSites; ++j)
   {
-    Site* site = mProcess_.find(vMap_[j])->second->simulateSite(states[j], rates[j]);
+    auto site = mProcess_.find(vMap_[j])->second->simulateSite(states[j], rates[j]);
 
     const vector<size_t>& vPosNames = mvPosNames_.find(vMap_[j])->second;
     for (size_t vn = 0; vn < vPosNames.size(); vn++)
@@ -275,19 +292,30 @@ std::shared_ptr<SiteContainer> SubstitutionProcessSequenceSimulator::simulate(co
       vval[vn] = site->getValue(vPosNames[vn]);
     }
 
-    sites->addSite(*new Site(vval, sites->getAlphabet(), static_cast<int>(j)));
-    delete site;
+    auto site2 = make_unique<Site>(vval, sites->getAlphabet(), static_cast<int>(j));
+    sites->addSite(site2);
   }
   return sites;
 }
 
+/******************************************************************************/
 
-const Alphabet* SubstitutionProcessSequenceSimulator::getAlphabet() const
+shared_ptr<const Alphabet> SubstitutionProcessSequenceSimulator::getAlphabet() const
 {
   if (mProcess_.size() == 0)
-    return NULL;
+    return nullptr;
 
   return mProcess_.begin()->second->getAlphabet();
+}
+
+/******************************************************************************/
+
+const Alphabet& SubstitutionProcessSequenceSimulator::alphabet() const
+{
+  if (mProcess_.size() == 0)
+    throw NullPointerException("SubstitutionProcessSequenceSimulator::alphabet(). No process attached.");
+
+  return mProcess_.begin()->second->alphabet();
 }
 
 /******************************************************************************/

@@ -48,9 +48,9 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonClusterAASubstitutionModel::AbstractCodonClusterAASubstitutionModel(
-  const GeneticCode* pgencode,
-  const std::string& prefix,
-  const std::vector<uint>& assign) :
+    shared_ptr<const GeneticCode> pgencode,
+    const string& prefix,
+    const vector<uint>& assign) :
   AbstractParameterAliasable(prefix),
   pgencode_(pgencode),
   omegaR_(1),

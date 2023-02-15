@@ -181,9 +181,9 @@ public:
   void makeLikelihoods() {}
 
 public:
-  const HmmStateAlphabet& getHmmStateAlphabet() const { return *hiddenAlphabet_; }
+  const HmmStateAlphabet& hmmStateAlphabet() const { return *hiddenAlphabet_; }
 
-  HmmStateAlphabet& getHmmStateAlphabet() { return *hiddenAlphabet_; }
+  HmmStateAlphabet& hmmStateAlphabet() { return *hiddenAlphabet_; }
 
   /*
    *@ brief Access to the Transition Matrix
@@ -206,12 +206,12 @@ public:
 
   const Eigen::MatrixXd& getHiddenStatesPosteriorProbabilities() const
   {
-    return hiddenPostProb_->getTargetValue();
+    return hiddenPostProb_->targetValue();
   }
 
   Eigen::VectorXd getHiddenStatesPosteriorProbabilitiesForASite(size_t site) const
   {
-    auto& mat = hiddenPostProb_->getTargetValue();
+    auto& mat = hiddenPostProb_->targetValue();
     return mat.col(Eigen::Index(site));
   }
 

@@ -1,7 +1,7 @@
 //
 // File: RegisterRatesSubstitutionModel.cpp
 // Authors:
-//   Laurent Gueguen
+//   Laurent Guéguen
 // Created: samedi 24 octobre 2015, Ã  18h 50
 //
 
@@ -45,10 +45,16 @@
 using namespace bpp;
 using namespace std;
 
-RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, bool isNormalized) :
+RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(
+    unique_ptr<SubstitutionModelInterface> originalModel,
+    const SubstitutionRegisterInterface& reg,
+    bool isNormalized) :
   AbstractParameterAliasable("FromRegister."),
-  AbstractSubstitutionModel(originalModel.getAlphabet(), originalModel.shareStateMap(), "FromRegister."),
-  originalModel_(originalModel.clone()),
+  AbstractWrappedModel("FromRegister."),
+  AbstractWrappedTransitionModel("FromRegister."),
+  AbstractWrappedSubstitutionModel("FromRegister."),
+  AbstractSubstitutionModel(originalModel->getAlphabet(), originalModel->getStateMap(), "FromRegister."),
+  originalModel_(originalModel->clone()),
   registerName_(reg.getName()),
   vRegStates_(),
   nbTypes_(reg.getNumberOfSubstitutionTypes()),
@@ -87,30 +93,30 @@ RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(const Substitutio
     addParameter_(new Parameter("FromRegister.rho_" + reg.getTypeName(i), 1, Parameter::R_PLUS));
   }
 
-  getModel().setNamespace(getNamespace() + getModel().getNamespace());
-  addParameters_(getModel().getParameters());
-  updateMatrices();
+  model_().setNamespace(getNamespace() + model().getNamespace());
+  addParameters_(model().getParameters());
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void RegisterRatesSubstitutionModel::updateMatrices()
+void RegisterRatesSubstitutionModel::updateMatrices_()
 {
-  for (size_t i = 0; i < vRates_.size(); i++)
+  for (size_t i = 0; i < vRates_.size(); ++i)
   {
     vRates_[i] = getParameter_(i).getValue();
   }
 
   RowMatrix<double>& gen = generator_;
 
-  gen = getSubstitutionModel().getGenerator();
+  gen = substitutionModel().getGenerator();
 
-  for (size_t t = 0; t < nbTypes_; t++)
+  for (size_t t = 0; t < nbTypes_; ++t)
   {
     double rate = vRates_[t];
     const VVuint& v = vRegStates_[t];
 
-    for (size_t i = 0; i < getNumberOfStates(); i++)
+    for (size_t i = 0; i < getNumberOfStates(); ++i)
     {
       const Vuint& v2 = v[i];
       for (const auto& j : v2)
@@ -122,5 +128,5 @@ void RegisterRatesSubstitutionModel::updateMatrices()
 
   setDiagonal();
 
-  AbstractSubstitutionModel::updateMatrices();
+  AbstractSubstitutionModel::updateMatrices_();
 }

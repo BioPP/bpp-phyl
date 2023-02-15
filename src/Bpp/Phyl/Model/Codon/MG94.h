@@ -79,43 +79,52 @@ namespace bpp
  * Reference:
  * - Muse S.V. and Gaut B.S. (1994), Molecular_ Biology And Evolution_ 11(5) 715--724.
  */
-
 class MG94 :
   public AbstractBiblioSubstitutionModel,
-  virtual public CodonReversibleSubstitutionModel
+  public virtual CodonReversibleSubstitutionModelInterface
 {
 private:
   std::unique_ptr<CodonDistancePhaseFrequenciesSubstitutionModel> pmodel_;
 
 public:
-  MG94(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
+  MG94(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
 
   MG94(const MG94& mg94);
 
   MG94& operator=(const MG94& mg94);
 
-  ~MG94();
+  virtual ~MG94();
 
-  MG94* clone() const { return new MG94(*this); }
+  MG94* clone() const override { return new MG94(*this); }
 
 public:
-  std::string getName() const { return "MG94"; }
+  std::string getName() const override { return "MG94"; }
 
-  const SubstitutionModel& getSubstitutionModel() const { return *pmodel_.get(); }
+  const SubstitutionModelInterface& substitutionModel() const override { return *pmodel_; }
 
-  const GeneticCode* getGeneticCode() const { return pmodel_->getGeneticCode(); }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pmodel_->getGeneticCode(); }
 
-  double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
+  double getCodonsMulRate(size_t i, size_t j) const override { return pmodel_->getCodonsMulRate(i, j); }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return pmodel_->getFrequencySet();}
+  const CodonFrequencySetInterface& codonFrequencySet() const override
+  { 
+    return pmodel_->codonFrequencySet();
+  }
 
-  void setFreq(std::map<int, double>& frequencies)
+  bool hasCodonFrequencySet() const override
+  { 
+    return pmodel_->hasCodonFrequencySet();
+  }
+
+  void setFreq(std::map<int, double>& frequencies) override
   {
     AbstractBiblioSubstitutionModel::setFreq(frequencies);
   }
 
 protected:
-  SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
+  SubstitutionModelInterface& substitutionModel_() override { return *pmodel_; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_MG94_H

@@ -65,38 +65,39 @@ using namespace std;
 
 int main() {
 
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.15):0.25,(D:0.35,(E:0.26,F:0.05):0.12):0.16);");
+  auto tree = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.15):0.25,(D:0.35,(E:0.26,F:0.05):0.12):0.16);");
 
   Newick reader;
-  shared_ptr<PhyloTree> pTree(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.15):0.25,(D:0.35,(E:0.26,F:0.05):0.12):0.16);", false, "", false, false));
+  shared_ptr<PhyloTree> pTree = reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.15):0.25,(D:0.35,(E:0.26,F:0.05):0.12):0.16);", false, "", false, false);
 
-  vector<string> seqNames= tree->getLeavesNames();
+  vector<string> seqNames = tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
 
-  const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
   
-  auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
-  auto model = std::make_shared<T92>(alphabet, 3., .1);
-  std::map<std::string, std::vector<Vint>> globalParameterVectors;
-  globalParameterVectors["T92.kappa"]=std::vector<Vint>();
+  auto rootFreqs = make_shared<GCFrequencySet>(nucAlphabet);
+  auto model = make_shared<T92>(nucAlphabet, 3., .1);
+  map<string, vector<Vint>> globalParameterVectors;
+  globalParameterVectors["T92.kappa"] = vector<Vint>();
   
   //Very difficult to optimize on small datasets:
-  auto rdist = std::make_shared<GammaDiscreteRateDistribution>(4, 1.0);
+  auto rdist = make_shared<GammaDiscreteRateDistribution>(4, 1.0);
   
-  auto rootFreqs2 = std::shared_ptr<FrequencySet>(dynamic_cast<FrequencySet*>(rootFreqs->clone()));
+  auto rootFreqs2 = shared_ptr<FrequencySetInterface>(rootFreqs->clone());
 
-  auto rdist2 = std::shared_ptr<DiscreteDistribution>(rdist->clone());
-  std::shared_ptr<SubstitutionModel> model2(model->clone());
+  auto rdist2 = shared_ptr<DiscreteDistribution>(rdist->clone());
+  std::shared_ptr<SubstitutionModelInterface> model2(model->clone());
 
   map<string, string> alias;
 
-  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model->clone(), rootFreqs, tree, alias, globalParameterVectors);
+  shared_ptr<SubstitutionModelSet> modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(shared_ptr<SubstitutionModelInterface>(model->clone()), rootFreqs, *tree, alias, globalParameterVectors);
 
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
 
-  NonHomogeneousSubstitutionProcess* subProSim= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, pTree, rootFreqs2, globalParameterNames);
+  shared_ptr<SubstitutionProcessInterface> subProSim = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, pTree, rootFreqs2, globalParameterNames);
 
 
   // Simulation
@@ -114,51 +115,56 @@ int main() {
     thetas[i] = theta;
   }
 
-  SimpleSubstitutionProcessSequenceSimulator simulator(*subProSim);
+  SimpleSubstitutionProcessSequenceSimulator simulator(subProSim);
 
-  nrep=20;
+  nrep = 20;
   
-  for (unsigned int j = 0; j < nrep; j++) {
+  for (unsigned int j = 0; j < nrep; ++j) {
 
-    OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
-    OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
+    auto profiler  = make_shared<StlOutputStream>(new ofstream("profile.txt", ios::out));
+    auto messenger = make_shared<StlOutputStream>(new ofstream("messages.txt", ios::out));
 
     //Simulate data:
-    auto sites(simulator.simulate(nsites));
+    shared_ptr<SiteContainerInterface> sites = simulator.simulate(nsites);
 
     //Now fit model:
 
-    RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist.get(), true, true, false);
-    tl.initialize();
+    auto tl = make_shared<RNonHomogeneousTreeLikelihood>(*tree, *sites, modelSet, rdist, true, true, false);
+    tl->initialize();
 
     Context context;
-    auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *sites->clone(), *subProSim->clone());
+    auto lik = make_shared<LikelihoodCalculationSingleProcess>(context, sites, subProSim);
+    auto ntl = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
-    SingleProcessPhyloLikelihood ntl(context, lik);
-
-    cout << setprecision(10) << "OldTL init: "  << tl.getValue()  << endl;
-    cout << setprecision(10) << "NewTL init: "  << ntl.getValue()  << endl;
+    cout << setprecision(10) << "OldTL init: "  << tl->getValue()  << endl;
+    cout << setprecision(10) << "NewTL init: "  << ntl->getValue()  << endl;
 
     unsigned int c1 = OptimizationToolsOld::optimizeNumericalParameters2(
-      &tl, tl.getParameters(), 0,
-      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+      tl, tl->getParameters(), 0,
+      0.0001, 10000,
+      messenger, profiler,
+      false, false,
+      1, OptimizationTools::OPTIMIZATION_NEWTON);
     
     unsigned int nc1 = OptimizationTools::optimizeNumericalParameters2(
-      ntl, ntl.getParameters(), 0,
-      0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+      ntl, ntl->getParameters(), 0,
+      0.0001, 10000,
+      messenger, profiler,
+      false, false,
+      1, OptimizationTools::OPTIMIZATION_NEWTON);
 
 
-    cout << "OldTL optim: " << c1 << ": " << tl.getValue()  << endl;
-    cout << "NewTL optim: " << nc1 << ": " << ntl.getValue() << endl;
+    cout << "OldTL optim: " << c1 << ": " << tl->getValue()  << endl;
+    cout << "NewTL optim: " << nc1 << ": " << ntl->getValue() << endl;
 
     cout << "Thetas : " << endl;
     
     for (size_t i = 0; i < nmodels; ++i) {
-      cout << tl.getSubstitutionModelSet()->getModel(i)->getParameter("theta").getValue() << "\t" << ntl.getLikelihoodCalculation()->getParameter("T92.theta_"+to_string(i+1)).getValue() << endl;
+      cout << tl->substitutionModelSet().model(i).getParameter("theta").getValue() << "\t" << ntl->getLikelihoodCalculation()->getParameter("T92.theta_"+to_string(i+1)).getValue() << endl;
       //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
       //  return 1;
-      thetasEst1[i] += tl.getSubstitutionModelSet()->getModel(i)->getParameter("theta").getValue();
-      thetasEst1n[i] += ntl.getLikelihoodCalculation()->getParameter("T92.theta_"+to_string(i+1)).getValue();
+      thetasEst1[i] += tl->substitutionModelSet().model(i).getParameter("theta").getValue();
+      thetasEst1n[i] += ntl->likelihoodCalculation().getParameter("T92.theta_"+to_string(i+1)).getValue();
     }
   }
   thetasEst1 /= static_cast<double>(nrep);

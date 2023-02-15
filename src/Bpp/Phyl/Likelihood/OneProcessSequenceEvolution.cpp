@@ -44,16 +44,16 @@
 using namespace bpp;
 using namespace std;
 
-OneProcessSequenceEvolution::OneProcessSequenceEvolution(SubstitutionProcess& process, size_t nProc) :
+OneProcessSequenceEvolution::OneProcessSequenceEvolution(shared_ptr<SubstitutionProcessInterface> process, size_t nProc) :
   AbstractParameterAliasable(""),
-  subsProc_(&process),
+  subsProc_(process),
   nProc_(nProc),
   vProc_(std::vector<size_t>(1, nProc_))
 {
-  includeParameters_(process.getSubstitutionModelParameters(true));
-  includeParameters_(process.getRateDistributionParameters(true));
-  includeParameters_(process.getRootFrequenciesParameters(true));
-  includeParameters_(process.getBranchLengthParameters(true));
+  includeParameters_(process->getSubstitutionModelParameters(true));
+  includeParameters_(process->getRateDistributionParameters(true));
+  includeParameters_(process->getRootFrequenciesParameters(true));
+  includeParameters_(process->getBranchLengthParameters(true));
 }
 
 OneProcessSequenceEvolution::OneProcessSequenceEvolution(const OneProcessSequenceEvolution& evol) :

@@ -62,7 +62,7 @@ class RHomogeneousMixedTreeLikelihood :
   public RHomogeneousTreeLikelihood
 {
 private:
-  std::vector<RHomogeneousTreeLikelihood*> treeLikelihoodsContainer_;
+  std::vector< std::shared_ptr<RHomogeneousTreeLikelihood> > treeLikelihoodsContainer_;
   std::vector<double> probas_;
 
 public:
@@ -85,8 +85,8 @@ public:
    */
   RHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true,
     bool usePatterns = true);
@@ -108,9 +108,9 @@ public:
    */
   RHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    const AlignedValuesContainer& data,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true,
     bool usePatterns = true);
@@ -131,7 +131,7 @@ public:
    *
    * @{
    */
-  void setData(const AlignedValuesContainer& sites);
+  void setData(const AlignmentDataInterface& sites);
 
   /** @} */
 

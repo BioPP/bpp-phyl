@@ -53,33 +53,34 @@ namespace bpp
  *
  * Directly inherits from AbstractSubstitutionModel, hence uses the
  * computation methods developped in it.
- *
- *
  */
-
-
 class AnonymousSubstitutionModel :
   public AbstractSubstitutionModel
 {
 public:
-  AnonymousSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap) :
+  AnonymousSubstitutionModel(
+      std::shared_ptr<const Alphabet> alpha,
+      std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractParameterAliasable("Anonymous"),
     AbstractSubstitutionModel(alpha, stateMap, "Anonymous")
   {}
 
   virtual ~AnonymousSubstitutionModel() {}
 
-  AnonymousSubstitutionModel* clone() const { return new AnonymousSubstitutionModel(*this); }
+  AnonymousSubstitutionModel* clone() const override
+  {
+    return new AnonymousSubstitutionModel(*this);
+  }
 
 public:
-  std::string getName() const { return "Anonymous"; }
+  std::string getName() const override { return "Anonymous"; }
 
   Matrix<double>& setGenerator() { return generator_; }
 
-  void updateMatrices()
-  {
-    AbstractSubstitutionModel::updateMatrices();
+  void updateMatrices() {
+    updateMatrices_();
   }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ANONYMOUSSUBSTITUTIONMODEL_H

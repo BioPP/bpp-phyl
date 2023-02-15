@@ -49,21 +49,30 @@ using namespace numeric;
 /******************************************************************************/
 
 MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
-  const AlignedValuesContainer& data,
-  MixtureSequenceEvolution& processSeqEvol,
-  CollectionNodes& collNodes,
+  shared_ptr<const AlignmentDataInterface> data,
+  shared_ptr<MixtureSequenceEvolution> processSeqEvol,
+  shared_ptr<CollectionNodes> collNodes,
   size_t nSeqEvol,
   size_t nData) :
-  AbstractPhyloLikelihood(collNodes.getContext()),
-  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
+  AbstractPhyloLikelihood(collNodes->context()),
+  AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
+  AbstractSingleDataPhyloLikelihood(
+      collNodes->context(),
+      data->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
+          ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates()
+	  : 0,
+      nData),
+  AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nData),
+  AbstractParametrizable(""),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData),
   mSeqEvol_(processSeqEvol),
-  likCal_(new AlignedLikelihoodCalculation(collNodes.getContext()))
+  likCal_(make_shared<AlignedLikelihoodCalculation>(collNodes->context()))
 {
   if (vLikCal_.size() == 0)
     throw Exception("MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood : empty singleprocesslikelihoods set.");
 
-  auto& simplex = mSeqEvol_.getSimplex();
+  auto& simplex = mSeqEvol_->simplex();
 
   // parameters of the simplex
   const auto& param = simplex.getParameters();
@@ -71,27 +80,27 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
 
   for (size_t i = 0; i < param.size(); i++)
   {
-    paramList.shareParameter(ConfiguredParameter::create(getContext(), param[i]));
+    paramList.shareParameter(ConfiguredParameter::create(context(), param[i]));
   }
 
   shareParameters_(paramList);
 
   // make Simplex DF & Frequencies from it
-  simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(getContext(), simplex, paramList, "");
+  simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(context(), simplex, paramList, "");
 
   // for derivates
-  auto deltaNode = NumericMutable<double>::create(getContext(), 0.001);
+  auto deltaNode = NumericMutable<double>::create(context(), 0.001);
   auto config = NumericalDerivativeType::ThreePoints;
 
   simplex_->config.delta = deltaNode;
   simplex_->config.type = config;
 
-  auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex, Eigen::RowVectorXd>(getContext(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
+  auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex, Eigen::RowVectorXd>(context(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
 
   // get RowVectorXd for each single Calculation
   std::vector<std::shared_ptr<Node_DF> > vSL;
 
-  for (auto& lik: vLikCal_)
+  for (auto& lik : vLikCal_)
   {
     vSL.push_back(lik->getSiteLikelihoods(true));
   }
@@ -102,14 +111,14 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   auto single0 = vLikCal_[0];
   auto nbSite = single0->getNumberOfDistinctSites();
 
-  auto sL = CWiseMean<RowLik, ReductionOf<RowLik>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), RowVectorDimension ((int)nbSite));
+  auto sL = CWiseMean<RowLik, ReductionOf<RowLik>, Eigen::RowVectorXd>::create(context(), std::move(vSL), RowVectorDimension ((int)nbSite));
 
   likCal_->setSiteLikelihoods(sL, true);
 
   // likelihoods per site
   likCal_->setSiteLikelihoods(single0->expandVector(sL), false);
 
-  auto su = SumOfLogarithms<RowLik>::create (getContext(), {sL, single0->getRootWeights()}, RowVectorDimension ((int)nbSite));
+  auto su = SumOfLogarithms<RowLik>::create (context(), {sL, single0->getRootWeights()}, RowVectorDimension ((int)nbSite));
 
   likCal_->setLikelihoodNode(su);
 }
@@ -124,7 +133,7 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProce
   auto pb = getLikelihoodPerSitePerProcess();
   auto l = getLikelihoodPerSite();
 
-  const auto& freq = simplex_->getTargetValue()->getFrequencies();
+  const auto& freq = simplex_->targetValue()->getFrequencies();
 
   for (size_t i = 0; i < nbSites_; ++i)
   {

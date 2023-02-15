@@ -52,7 +52,7 @@ using namespace std;
 /******************************************************************************/
 
 AbstractDiscreteRatesAcrossSitesTreeLikelihood::AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-  DiscreteDistribution* rDist,
+  shared_ptr<DiscreteDistribution> rDist,
   bool verbose) :
   rateDistribution_(rDist)
 {

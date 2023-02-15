@@ -74,13 +74,13 @@ namespace bpp
  * Mol Biol Evol. 2005 Sep;22(9):1919-28. Epub 2005 Jun 8.
  */
 
-class SubstitutionCount :
+class SubstitutionCountInterface :
   public virtual Clonable
 {
 public:
-  SubstitutionCount() {}
-  virtual ~SubstitutionCount() {}
-  virtual SubstitutionCount* clone() const = 0;
+  SubstitutionCountInterface() {}
+  virtual ~SubstitutionCountInterface() {}
+  virtual SubstitutionCountInterface* clone() const = 0;
 
 public:
   /**
@@ -91,18 +91,13 @@ public:
   /**
    * @return The SubstitutionRegister object associated to this instance. The register contains the description of the various substitutions types that are mapped.
    */
-  virtual const SubstitutionRegister* getSubstitutionRegister() const = 0;
-
-  /**
-   * @return The SubstitutionRegister object associated to this instance. The register contains the description of the various substitutions types that are mapped.
-   */
-  virtual SubstitutionRegister* getSubstitutionRegister() = 0;
+  virtual std::shared_ptr<const SubstitutionRegisterInterface> getSubstitutionRegister() const = 0;
 
   /**
    * @param reg The new SubstitutionRegister object to be associated to this instance.
    * The register contains the description of the various substitutions types that are mapped.
    */
-  virtual void setSubstitutionRegister(SubstitutionRegister* reg) = 0;
+  virtual void setSubstitutionRegister(std::shared_ptr<const SubstitutionRegisterInterface> reg) = 0;
 
   /**
    * @brief Short cut function, equivalent to getSubstitutionRegister().getNumberOfSubstitutionTypes().
@@ -116,7 +111,7 @@ public:
    *
    * @return The alphabet associated to this substitution count.
    */
-  virtual const Alphabet* getAlphabet() const { return getSubstitutionRegister()->getAlphabet(); }
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const { return getSubstitutionRegister()->getAlphabet(); }
 
   /**
    * @brief Short cut function, equivalent to getSubstitutionRegister()->getAlphabet()->getSize().
@@ -145,7 +140,7 @@ public:
    * @param type         The type of susbstitution to count.
    * @return A matrix with all numbers of substitutions for each initial and final states.
    */
-  virtual Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type) const = 0;
+  virtual std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type) const = 0;
 
   /**
    * @brief Stores the numbers of susbstitutions on a branch, for
@@ -174,42 +169,27 @@ public:
    *
    * @param model The substitution model to use with this count.
    */
-  virtual void setSubstitutionModel(const SubstitutionModel* model) = 0;
+  virtual void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) = 0;
 };
 
 /**
- * @brief Basic implementation of the the SubstitutionCount interface.
- *
- * This partial implementation deals with the SubstitutionRegister gestion, by maintaining a pointer.
+ * @brief Partial implementation of the SubstitutionCount interface.
  */
 class AbstractSubstitutionCount :
-  public virtual SubstitutionCount
+  public virtual SubstitutionCountInterface
 {
 protected:
-  std::unique_ptr<SubstitutionRegister> register_;
+  std::shared_ptr<const SubstitutionRegisterInterface> register_;
 
 public:
-  AbstractSubstitutionCount(SubstitutionRegister* reg) :
+  AbstractSubstitutionCount(std::shared_ptr<const SubstitutionRegisterInterface> reg) :
     register_(reg)
   {}
 
-  AbstractSubstitutionCount(const AbstractSubstitutionCount& asc) :
-    register_(asc.register_.get() ? asc.register_->clone() : 0)
-  {}
-
-  AbstractSubstitutionCount& operator=(const AbstractSubstitutionCount& asc)
-  {
-    if (asc.register_.get())
-      register_.reset(asc.register_->clone());
-    else
-      register_.reset();
-    return *this;
-  }
-
-  ~AbstractSubstitutionCount() {}
+  virtual ~AbstractSubstitutionCount() {}
 
 public:
-  bool hasSubstitutionRegister() const { return register_.get() != 0; }
+  bool hasSubstitutionRegister() const { return register_.get() != nullptr; }
 
   /**
    * @brief attribution of a SubstitutionRegister
@@ -217,18 +197,17 @@ public:
    * @param reg pointer to a SubstitutionRegister
    *
    */
-  void setSubstitutionRegister(SubstitutionRegister* reg)
+  void setSubstitutionRegister(std::shared_ptr<const SubstitutionRegisterInterface> reg)
   {
-    register_.reset(reg);
+    register_ = reg;
     substitutionRegisterHasChanged();
   }
 
-  const SubstitutionRegister* getSubstitutionRegister() const { return register_.get(); }
-
-  SubstitutionRegister* getSubstitutionRegister() { return register_.get(); }
+  std::shared_ptr<const SubstitutionRegisterInterface> getSubstitutionRegister() const { return register_; }
 
 protected:
   virtual void substitutionRegisterHasChanged() = 0;
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MAPPING_SUBSTITUTIONCOUNT_H

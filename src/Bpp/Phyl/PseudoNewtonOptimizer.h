@@ -90,20 +90,31 @@ private:
   bool useCG_;
 
 public:
-  PseudoNewtonOptimizer(DerivableSecondOrder* function);
+  PseudoNewtonOptimizer(std::shared_ptr<SecondOrderDerivable> function);
 
   virtual ~PseudoNewtonOptimizer() {}
 
   PseudoNewtonOptimizer* clone() const { return new PseudoNewtonOptimizer(*this); }
 
 public:
-  const DerivableSecondOrder* getFunction() const
+  const SecondOrderDerivable& secondOrderDerivableFunction() const
   {
-    return dynamic_cast<const DerivableSecondOrder*>(AbstractOptimizer::getFunction());
+    return *dynamic_pointer_cast<const SecondOrderDerivable>(function_);
   }
-  DerivableSecondOrder* getFunction()
+
+  SecondOrderDerivable& secondOrderDerivableFunction()
   {
-    return dynamic_cast<DerivableSecondOrder*>(AbstractOptimizer::getFunction());
+    return *dynamic_pointer_cast<SecondOrderDerivable>(function_);
+  }
+
+  std::shared_ptr<const SecondOrderDerivable> getSecondOrderDerivableFunction() const
+  {
+    return dynamic_pointer_cast<const SecondOrderDerivable>(function_);
+  }
+
+  std::shared_ptr<SecondOrderDerivable> getSecondOrderDerivableFunction()
+  {
+    return dynamic_pointer_cast<SecondOrderDerivable>(function_);
   }
 
   /**
@@ -122,11 +133,6 @@ public:
 
   void disableCG() { useCG_ = false; }
 
-protected:
-  DerivableSecondOrder* getFunction_()
-  {
-    return dynamic_cast<DerivableSecondOrder*>(AbstractOptimizer::getFunction_());
-  }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PSEUDONEWTONOPTIMIZER_H

@@ -67,6 +67,8 @@ public:
   DistanceMethod() {}
   virtual ~DistanceMethod() {}
 
+  virtual DistanceMethod* clone() const override = 0;
+
 public:
   /**
    * @brief Set the distance matrix to use.
@@ -82,9 +84,14 @@ public:
   virtual void computeTree() = 0;
 
   /**
-   * @return The computed tree.
+   * @return True if a tree has been computed.
    */
-  virtual Tree* getTree() const = 0;
+  virtual bool hasTree() const = 0;
+
+  /**
+   * @return A reference toward the computed tree. Throws an exception if no tree was computed.
+   */
+  virtual const Tree& tree() const = 0;
 
   /**
    * @return The name of the distance method.
@@ -115,6 +122,8 @@ class AgglomerativeDistanceMethod :
 public:
   AgglomerativeDistanceMethod() {}
   virtual ~AgglomerativeDistanceMethod() {}
+  
+  virtual AgglomerativeDistanceMethod* clone() const override = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_DISTANCE_DISTANCEMETHOD_H

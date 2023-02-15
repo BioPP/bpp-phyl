@@ -49,18 +49,21 @@ using namespace std;
 
 /******************************************************************************/
 
-std::shared_ptr<SiteContainer> GivenDataSubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
+unique_ptr<SiteContainerInterface> GivenDataSubstitutionProcessSequenceSimulator::simulate(
+  size_t numberOfSites) const
 {
   auto seqNames = vSiteSim_[0]->getSequenceNames();
-  auto sites = make_shared<VectorSiteContainer>(seqNames, getAlphabet());
-  sites->setSequenceNames(seqNames);
+  auto sites = make_unique<VectorSiteContainer>(seqNames, getAlphabet());
+  sites->setSequenceNames(seqNames, true);
 
   for (size_t j = 0; j < calcul_->getNumberOfSites(); j++)
   {
-    Site* site = vSiteSim_[calcul_->getRootArrayPosition(j)]->simulateSite();
-    site->setPosition(static_cast<int>(j));
-    sites->addSite(*site);
-    delete site;
+    auto site = vSiteSim_[calcul_->getRootArrayPosition(j)]->simulateSite();
+    site->setCoordinate(static_cast<int>(j));
+    sites->addSite(site);
   }
   return sites;
 }
+
+/******************************************************************************/
+

@@ -114,7 +114,7 @@ const Eigen::VectorXd& MultinomialFromTransitionModel::Lik_t(const Eigen::Vector
   if (t != tref_)
   {
     tref_ = t;
-    Pij_t = &getTransitionModel().getPij_t(t);
+    Pij_t = &transitionModel().getPij_t(t);
     dPij_dt = 0; d2Pij_dt2 = 0;
   }
 
@@ -127,12 +127,12 @@ const Eigen::VectorXd& MultinomialFromTransitionModel::dLik_dt(const Eigen::Vect
   if (t != tref_)
   {
     tref_ = t;
-    Pij_t = &getTransitionModel().getPij_t(t);
-    dPij_dt = &getTransitionModel().getdPij_dt(t);
+    Pij_t = &transitionModel().getPij_t(t);
+    dPij_dt = &transitionModel().getdPij_dt(t);
     d2Pij_dt2 = 0;
   }
   else if (dPij_dt == 0)
-    dPij_dt = &getTransitionModel().getdPij_dt(t);
+    dPij_dt = &transitionModel().getdPij_dt(t);
 
   compute_dMultinomial_dt_(to);
 
@@ -144,12 +144,12 @@ const Eigen::VectorXd& MultinomialFromTransitionModel::d2Lik_dt2(const Eigen::Ve
   if (t != tref_)
   {
     tref_ = t;
-    Pij_t = &getTransitionModel().getPij_t(t);
+    Pij_t = &transitionModel().getPij_t(t);
     dPij_dt = 0;
-    d2Pij_dt2 = &getTransitionModel().getd2Pij_dt2(t);
+    d2Pij_dt2 = &transitionModel().getd2Pij_dt2(t);
   }
   else if (d2Pij_dt2 == 0)
-    d2Pij_dt2 = &getTransitionModel().getd2Pij_dt2(t);
+    d2Pij_dt2 = &transitionModel().getd2Pij_dt2(t);
 
   compute_d2Multinomial_dt2_(to);
 

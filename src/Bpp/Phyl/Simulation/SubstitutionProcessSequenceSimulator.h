@@ -54,30 +54,26 @@ namespace bpp
  */
 
 class SubstitutionProcessSequenceSimulator :
-  public SequenceSimulator
+  public virtual SequenceSimulatorInterface
 {
 protected:
   /**
    * @brief the map of the process simulators.
    *
    */
-
-  std::map<size_t, std::shared_ptr<SiteSimulator> > mProcess_;
+  std::map<size_t, std::shared_ptr<SiteSimulatorInterface>> mProcess_;
 
   /**
    * @brief The vector of the site specific process in mProcess_;
    * is mutable because can be changed for each simulation (for ex
    * in case of HMM).
    */
-
   mutable std::vector<size_t> vMap_;
 
   /**
    * @brief all processes trees must have at least the same sequence
    * names as the first process of the map.
-   *
    */
-
   std::vector<std::string> seqNames_;
 
   /**
@@ -87,8 +83,7 @@ protected:
    * mvPosNames[process id][i] is the position in the id_th tree
    * leaves names of the i_th name of seqName_.
    */
-
-  std::map<size_t, std::vector<size_t> > mvPosNames_;
+  std::map<size_t, std::vector<size_t>> mvPosNames_;
 
 public:
   SubstitutionProcessSequenceSimulator(const SequenceEvolution& evol);
@@ -97,18 +92,18 @@ public:
 
   SubstitutionProcessSequenceSimulator& operator=(const SubstitutionProcessSequenceSimulator&);
 
-  SubstitutionProcessSequenceSimulator* clone() const { return new SubstitutionProcessSequenceSimulator(*this); }
+  SubstitutionProcessSequenceSimulator* clone() const override { return new SubstitutionProcessSequenceSimulator(*this); }
 
-  ~SubstitutionProcessSequenceSimulator();
+  virtual ~SubstitutionProcessSequenceSimulator() {}
 
-  const SiteSimulator& getSiteSimulator(size_t pos) const
+  const SiteSimulatorInterface& siteSimulator(size_t pos) const override
   {
     if (pos > vMap_.size())
       throw BadIntegerException("Out of range position for SubstitutionProcessSequenceSimulator", (int)pos);
     return *mProcess_.at(vMap_[pos]);
   }
 
-  std::vector<std::string> getSequenceNames() const
+  std::vector<std::string> getSequenceNames() const override
   {
     return seqNames_;
   }
@@ -119,25 +114,24 @@ public:
    *
    * @param yn Tell if we should output internal sequences.
    */
-
-  void outputInternalSequences(bool yn);
+  void outputInternalSequences(bool yn) override;
 
   /**
    * @brief reset the set of processes.
-   *
    */
-
   void setMap(std::vector<size_t> vMap);
 
-  std::shared_ptr<SiteContainer> simulate(size_t numberOfSites) const;
+  std::unique_ptr<SiteContainerInterface> simulate(size_t numberOfSites) const override;
 
-  std::shared_ptr<SiteContainer> simulate(const std::vector<double>& rates) const;
+  std::unique_ptr<SiteContainerInterface> simulate(const std::vector<double>& rates) const;
 
-  std::shared_ptr<SiteContainer> simulate(const std::vector<size_t>& states) const;
+  std::unique_ptr<SiteContainerInterface> simulate(const std::vector<size_t>& states) const;
 
-  std::shared_ptr<SiteContainer> simulate(const std::vector<double>& rates, const std::vector<size_t>& states) const;
+  std::unique_ptr<SiteContainerInterface> simulate(const std::vector<double>& rates, const std::vector<size_t>& states) const;
 
-  const Alphabet* getAlphabet() const;
+  std::shared_ptr<const Alphabet> getAlphabet() const override;
+  
+  const Alphabet& alphabet() const override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_SIMULATION_SUBSTITUTIONPROCESSSEQUENCESIMULATOR_H

@@ -53,9 +53,10 @@
 
 namespace bpp
 {
-class FrequencySet;
+class FrequencySetInterface;
 
-/** @brief Data flow node representing a Frequencies Set
+/** 
+ * @brief Data flow node representing a Frequencies Set
  * configured with parameter values.
  *
  * This class wraps a bpp::FrequencySet as a data flow node.
@@ -68,8 +69,8 @@ class FrequencySet;
  * The dummy value is implemented as a pointer to the internal
  * frequencies set for simplicity.
  */
-
-class ConfiguredFrequencySet : public Value<const FrequencySet*>,
+class ConfiguredFrequencySet : 
+  public Value<const FrequencySetInterface*>,
   public AbstractParametrizable
 {
   // private:
@@ -78,11 +79,11 @@ class ConfiguredFrequencySet : public Value<const FrequencySet*>,
 
 public:
   using Self = ConfiguredFrequencySet;
-  using Target = FrequencySet;
+  using Target = FrequencySetInterface;
 
-  ConfiguredFrequencySet (const Context& context, NodeRefVec&& deps, std::unique_ptr<FrequencySet>&& freqset);
+  ConfiguredFrequencySet (const Context& context, NodeRefVec&& deps, std::unique_ptr<FrequencySetInterface>&& freqset);
 
-  ~ConfiguredFrequencySet ();
+  virtual ~ConfiguredFrequencySet ();
 
   ConfiguredFrequencySet* clone() const
   {
@@ -117,7 +118,7 @@ private:
   }
 
 
-  std::unique_ptr<FrequencySet> freqset_;
+  std::unique_ptr<FrequencySetInterface> freqset_;
 };
 
 /** Frequencies = f(FrequencySet).

@@ -80,24 +80,35 @@ public:
    * The default is "no", to be consistent with other types of substitution counts which account for multiple substitutions, in which case it does not make sense to count "X to X".
    * @param weights the weights of the counts
    */
-  NaiveSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, bool allowSelf = false, std::shared_ptr<const AlphabetIndex2> weights = 0) :
+  NaiveSubstitutionCount(
+      std::shared_ptr<const SubstitutionModelInterface> model,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      bool allowSelf = false,
+      std::shared_ptr<const AlphabetIndex2> weights = nullptr) :
     AbstractSubstitutionCount(reg),
     AbstractWeightedSubstitutionCount(weights),
     allowSelf_(allowSelf),
     supportedChars_(model->getAlphabetStates()) {}
 
-  NaiveSubstitutionCount(const StateMap& statemap, SubstitutionRegister* reg, bool allowSelf = false, std::shared_ptr<const AlphabetIndex2> weights = 0) :
+  NaiveSubstitutionCount(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      bool allowSelf = false,
+      std::shared_ptr<const AlphabetIndex2> weights = nullptr) :
     AbstractSubstitutionCount(reg),
     AbstractWeightedSubstitutionCount(weights),
     allowSelf_(allowSelf),
-    supportedChars_(statemap.getAlphabetStates()) {}
+    supportedChars_(stateMap->getAlphabetStates()) {}
 
   virtual ~NaiveSubstitutionCount() {}
 
-  NaiveSubstitutionCount* clone() const { return new NaiveSubstitutionCount(*this); }
+  NaiveSubstitutionCount* clone() const override
+  {
+    return new NaiveSubstitutionCount(*this);
+  }
 
 public:
-  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
+  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const override
   {
     if (initialState == finalState && !allowSelf_)
       return 0;
@@ -109,11 +120,11 @@ public:
     }
   }
 
-  Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
+  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
 
-  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const;
+  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override;
 
-  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
+  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const override
   {
     std::vector<double> v(getNumberOfSubstitutionTypes());
     for (size_t t = 1; t <= getNumberOfSubstitutionTypes(); ++t)
@@ -123,15 +134,15 @@ public:
     return v;
   }
 
-  void setSubstitutionModel(const SubstitutionModel* model)
+  void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) override
   {
     if (model)
       supportedChars_ = model->getAlphabetStates();
   }
 
 private:
-  void substitutionRegisterHasChanged() {}
-  void weightsHaveChanged() {}
+  void substitutionRegisterHasChanged() override {}
+  void weightsHaveChanged() override {}
 };
 
 /**
@@ -149,26 +160,26 @@ private:
   std::vector<int> supportedChars_;
 
 public:
-  LabelSubstitutionCount(const SubstitutionModel* model);
+  LabelSubstitutionCount(std::shared_ptr<const SubstitutionModelInterface> model);
 
-  LabelSubstitutionCount(const StateMap& statemap);
+  LabelSubstitutionCount(std::shared_ptr<const StateMapInterface> statemap);
 
   virtual ~LabelSubstitutionCount() {}
 
-  LabelSubstitutionCount* clone() const { return new LabelSubstitutionCount(*this); }
+  LabelSubstitutionCount* clone() const override { return new LabelSubstitutionCount(*this); }
 
 public:
-  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
+  double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const override
   {
     return label_(initialState, finalState);
   }
 
-  Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const
+  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override
   {
-    return dynamic_cast<Matrix<double>*>(label_.clone());
+    return std::unique_ptr< Matrix<double> >(label_.clone());
   }
 
-  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const
+  void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override
   {
     auto nbStates = supportedChars_.size();
 
@@ -184,26 +195,26 @@ public:
   }
 
 
-  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
+  std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const override
   {
     std::vector<double> v(1);
     v[0] = label_(initialState, finalState);
     return v;
   }
 
-  void setSubstitutionModel(const SubstitutionModel* model)
+  void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model) override
   {
     if (model)
       supportedChars_ = model->getAlphabetStates();
   }
 
-  void setSubstitutionRegister(SubstitutionRegister* reg)
+  void setSubstitutionRegister(std::shared_ptr<const SubstitutionRegisterInterface> reg) override
   {
     throw Exception("OneJumpSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
   }
 
 private:
-  void substitutionRegisterHasChanged() {}
+  void substitutionRegisterHasChanged() override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MAPPING_NAIVESUBSTITUTIONCOUNT_H

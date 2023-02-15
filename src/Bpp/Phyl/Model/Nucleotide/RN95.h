@@ -1,7 +1,7 @@
 //
 // File: RN95.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 24 fÃÂ©vrier 2011, ÃÂ  20h 43
 //
 
@@ -160,7 +160,6 @@ namespace bpp
  * - Schadt, Sinsheimer \& Lange (1998) Genome Research 8 222-233.
  *
  */
-
 class RN95 :
   public AbstractNucleotideSubstitutionModel
 {
@@ -169,7 +168,7 @@ private:
 
 public:
   RN95(
-    const NucleicAlphabet* alphabet,
+    std::shared_ptr<const NucleicAlphabet> alphabet,
     double alpha = 1,
     double beta = 1,
     double gamma = 0.25,
@@ -181,14 +180,18 @@ public:
 
   virtual ~RN95() {}
 
-  RN95* clone() const { return new RN95(*this); }
+  RN95* clone() const override { return new RN95(*this); }
 
 public:
-  std::string getName() const { return "RN95"; }
 
-  void updateMatrices();
+  std::string getName() const override { return "RN95"; }
 
-  void setFreq(std::map<int, double>&);
+  void setFreq(std::map<int, double>&) override;
+
+protected:
+
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_RN95_H

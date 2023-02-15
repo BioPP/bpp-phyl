@@ -69,7 +69,7 @@ private:
     size_t nbModels_;
 
 public:
-    ConstNonHomogeneousSiteModelIterator(const SubstitutionModelSet* modelSet) :
+    ConstNonHomogeneousSiteModelIterator(std::shared_ptr<const SubstitutionModelSet> modelSet) :
       siteModelDescriptions_(), index_(0), nbModels_(modelSet->getNumberOfModels())
     {
       for (size_t i = 0; i < nbModels_; ++i)
@@ -90,7 +90,7 @@ public:
   };
 
 protected:
-  SubstitutionModelSet* modelSet_;
+  std::shared_ptr<SubstitutionModelSet> modelSet_;
   ParameterList brLenParameters_;
 
   mutable std::map<int, VVVdouble> pxy_;
@@ -133,8 +133,8 @@ protected:
 public:
   AbstractNonHomogeneousTreeLikelihood(
     const Tree& tree,
-    SubstitutionModelSet* modelSet,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool verbose = true,
     bool reparametrizeRoot = true);
 
@@ -160,8 +160,8 @@ private:
    */
   void init_(
     const Tree& tree,
-    SubstitutionModelSet* modelSet,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool verbose);
 
 public:
@@ -172,45 +172,45 @@ public:
    *
    * @{
    */
-  size_t getNumberOfStates() const { return modelSet_->getNumberOfStates(); }
+  size_t getNumberOfStates() const override { return modelSet_->getNumberOfStates(); }
 
-  const std::vector<int>& getAlphabetStates() const { return modelSet_->getAlphabetStates(); }
+  const std::vector<int>& getAlphabetStates() const override { return modelSet_->getAlphabetStates(); }
 
-  int getAlphabetStateAsInt(size_t i) const { return modelSet_->getAlphabetStateAsInt(i); }
+  int getAlphabetStateAsInt(size_t i) const override { return modelSet_->getAlphabetStateAsInt(i); }
 
-  std::string getAlphabetStateAsChar(size_t i) const { return modelSet_->getAlphabetStateAsChar(i); }
+  std::string getAlphabetStateAsChar(size_t i) const override { return modelSet_->getAlphabetStateAsChar(i); }
 
-  void initialize();
+  void initialize() override;
 
-  ParameterList getBranchLengthsParameters() const;
+  ParameterList getBranchLengthsParameters() const override;
 
-  ParameterList getSubstitutionModelParameters() const;
+  ParameterList getSubstitutionModelParameters() const override;
 
-  ParameterList getRateDistributionParameters() const
+  ParameterList getRateDistributionParameters() const override
   {
     return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
   }
 
-  const TransitionModel* getModelForNode(int nodeId) const
+  std::shared_ptr<const TransitionModelInterface> getModelForNode(int nodeId) const override
   {
     return modelSet_->getModelForNode(nodeId);
   }
 
-  TransitionModel* getModelForNode(int nodeId)
+  std::shared_ptr<TransitionModelInterface> getModelForNode(int nodeId) override
   {
     return modelSet_->getModelForNode(nodeId);
   }
 
-  const std::vector<double>& getRootFrequencies(size_t siteIndex) const { return rootFreqs_; }
+  const std::vector<double>& getRootFrequencies(size_t siteIndex) const override { return rootFreqs_; }
 
-  VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const { return pxy_[nodeId]; }
+  VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const override { return pxy_[nodeId]; }
 
-  ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
+  ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const override
   {
     return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
   }
 
-  ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const
+  ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const override
   {
     return new ConstNonHomogeneousSiteModelIterator(modelSet_);
   }
@@ -224,13 +224,17 @@ public:
    *
    * @{
    */
-  const SubstitutionModelSet* getSubstitutionModelSet() const { return modelSet_; }
+  std::shared_ptr<const SubstitutionModelSet> getSubstitutionModelSet() const override { return modelSet_; }
+  
+  const SubstitutionModelSet& substitutionModelSet() const override { return *modelSet_; }
 
-  SubstitutionModelSet* getSubstitutionModelSet() { return modelSet_; }
+  std::shared_ptr<SubstitutionModelSet> getSubstitutionModelSet() override { return modelSet_; }
+  
+  SubstitutionModelSet& substitutionModelSet() override { return *modelSet_; }
 
-  void setSubstitutionModelSet(SubstitutionModelSet* modelSet);
+  void setSubstitutionModelSet(std::shared_ptr<SubstitutionModelSet> modelSet) override;
 
-  ParameterList getRootFrequenciesParameters() const
+  ParameterList getRootFrequenciesParameters() const override
   {
     return modelSet_->getRootFrequenciesParameters();
   }

@@ -50,7 +50,7 @@
 #include "../../Model/FrequencySet/FrequencySet.h"
 #include "../../Tree/Tree.h"
 
-// From Seqlib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
@@ -108,20 +108,20 @@ protected:
   /**
    * @brief A pointer toward the common alphabet to all models in the set.
    */
-  const Alphabet* alphabet_;
+  std::shared_ptr<const Alphabet> alphabet_;
 
   size_t nbStates_;
 
   /**
    * @brief Contains all models used in this tree.
    */
-  std::vector<TransitionModel*> modelSet_;
+  std::vector< std::shared_ptr<TransitionModelInterface> > modelSet_;
 
 private:
   /**
    * @brief Root frequencies.
    */
-  std::shared_ptr<FrequencySet> rootFrequencies_;
+  std::shared_ptr<FrequencySetInterface> rootFrequencies_;
 
   /**
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
@@ -147,7 +147,7 @@ public:
    *
    * @param alpha The alphabet to use for this set.
    */
-  SubstitutionModelSet(const Alphabet* alpha) :
+  SubstitutionModelSet(std::shared_ptr<const Alphabet> alpha) :
     AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(0),
@@ -166,7 +166,9 @@ public:
    * @param alpha The alphabet to use for this set.
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance.
    */
-  SubstitutionModelSet(const Alphabet* alpha, std::shared_ptr<FrequencySet> rootFreqs) :
+  SubstitutionModelSet(
+      std::shared_ptr<const Alphabet> alpha,
+      std::shared_ptr<FrequencySetInterface> rootFreqs) :
     AbstractParameterAliasable(""),
     alphabet_(alpha),
     nbStates_(0),
@@ -196,19 +198,13 @@ public:
    *
    * @param rootFreqs The FrequencySet for root frequencies.
    */
-  void setRootFrequencies(std::shared_ptr<FrequencySet> rootFreqs);
+  void setRootFrequencies(std::shared_ptr<FrequencySetInterface> rootFreqs);
 
   SubstitutionModelSet(const SubstitutionModelSet& set);
 
   SubstitutionModelSet& operator=(const SubstitutionModelSet& set);
 
-  virtual ~SubstitutionModelSet()
-  {
-    for (auto& model : modelSet_)
-    {
-      delete model;
-    }
-  }
+  virtual ~SubstitutionModelSet() {}
 
   SubstitutionModelSet* clone() const { return new SubstitutionModelSet(*this); }
 
@@ -248,44 +244,47 @@ public:
    * @param i Index of the model in the set.
    * @return A pointer toward the corresponding model.
    */
-  const TransitionModel* getModel(size_t i) const
+  std::shared_ptr<const TransitionModelInterface> getModel(size_t i) const
   {
     if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", i, 0, modelSet_.size() - 1);
     return modelSet_[i];
   }
 
-  TransitionModel* getModel(size_t i)
+  const TransitionModelInterface& model(size_t i) const
+  {
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::model(i).", i, 0, modelSet_.size() - 1);
+    return *modelSet_[i];
+  }
+
+  std::shared_ptr<TransitionModelInterface> getModel(size_t i)
   {
     if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", i, 0, modelSet_.size() - 1);
     return modelSet_[i];
   }
 
+  TransitionModelInterface& model(size_t i)
+  {
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::model(i).", i, 0, modelSet_.size() - 1);
+    return *modelSet_[i];
+  }
   /**
-   *@brief Return a markovian substitution model (or null)
+   * @brief Return a markovian substitution model (or null)
    */
-  const SubstitutionModel* getSubstitutionModel(size_t i) const
+  std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel(size_t i) const
   {
-    try
-    {
-      return &dynamic_cast<const SubstitutionModel&>(*getModel(i));
-    }
-    catch (std::bad_cast& bc)
-    {
+    auto model = std::dynamic_pointer_cast<const SubstitutionModelInterface>(getModel(i));
+    if (model) return model;
+    else
       throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
-    }
   }
 
 
-  SubstitutionModel* getSubstitutionModel(size_t i)
+  std::shared_ptr<SubstitutionModelInterface> getSubstitutionModel(size_t i)
   {
-    try
-    {
-      return &dynamic_cast<SubstitutionModel&>(*getModel(i));
-    }
-    catch (std::bad_cast& bc)
-    {
+    auto model = std::dynamic_pointer_cast<SubstitutionModelInterface>(getModel(i));
+    if (model) return model;
+    else
       throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
-    }
   }
 
   /*
@@ -296,10 +295,9 @@ public:
   {
     for (const auto& mod : modelSet_)
     {
-      if (dynamic_cast<const SubstitutionModel*>(mod) == 0)
-        return false;
+      auto model = std::dynamic_pointer_cast<const SubstitutionModelInterface>(mod);
+      if (!model) return false;
     }
-
     return true;
   }
 
@@ -312,7 +310,7 @@ public:
    */
   size_t getModelIndexForNode(int nodeId) const
   {
-    std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
+    auto i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return i->second;
@@ -325,29 +323,29 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this node.
    */
-  const TransitionModel* getModelForNode(int nodeId) const
+  std::shared_ptr<const TransitionModelInterface> getModelForNode(int nodeId) const
   {
-    std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
+    auto i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
   }
-  TransitionModel* getModelForNode(int nodeId)
+  std::shared_ptr<TransitionModelInterface> getModelForNode(int nodeId)
   {
-    std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
+    auto i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
   }
 
-  const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const
+  std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModelForNode(int nodeId) const
   {
-    return dynamic_cast<const SubstitutionModel*>(getModelForNode(nodeId));
+    return std::dynamic_pointer_cast<const SubstitutionModelInterface>(getModelForNode(nodeId));
   }
 
-  SubstitutionModel* getSubstitutionModelForNode(int nodeId)
+  std::shared_ptr<SubstitutionModelInterface> getSubstitutionModelForNode(int nodeId)
   {
-    return dynamic_cast<SubstitutionModel*>(getModelForNode(nodeId));
+    return std::dynamic_pointer_cast<SubstitutionModelInterface>(getModelForNode(nodeId));
   }
 
   /**
@@ -387,7 +385,7 @@ public:
    * <li>etc.</li>
    * </ul>
    */
-  void addModel(TransitionModel* model, const std::vector<int>& nodesId);// , const std::vector<std::string>& newParams);
+  void addModel(std::shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId);// , const std::vector<std::string>& newParams);
 
   /**
    * @brief Sets an assignment of a given modle index to a given onde id
@@ -413,14 +411,14 @@ public:
    *
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
-  void replaceModel(size_t modelIndex, TransitionModel* model);
+  void replaceModel(size_t modelIndex, std::shared_ptr<TransitionModelInterface> model);
 
   void listModelNames(std::ostream& out = std::cout) const;
 
   /**
    * @return The set of root frequencies.
    */
-  const std::shared_ptr<FrequencySet> getRootFrequencySet() const { return rootFrequencies_; }
+  const std::shared_ptr<FrequencySetInterface> getRootFrequencySet() const { return rootFrequencies_; }
 
   /**
    * @return The values of the root frequencies.
@@ -474,7 +472,7 @@ public:
 
   ParameterList getModelParameters(size_t modelIndex) const;
 
-  const Alphabet* getAlphabet() const { return alphabet_; }
+  std::shared_ptr<const Alphabet> getAlphabet() const { return alphabet_; }
 
   /**
    * @return The supported states of the model set, as a vector of int codes.
@@ -483,27 +481,27 @@ public:
    */
   const std::vector<int>& getAlphabetStates() const
   {
-    return getModel(0)->getAlphabetStates();
+    return model(0).getAlphabetStates();
   }
 
-  const StateMap& getStateMap() const
+  const StateMapInterface& stateMap() const
   {
-    return getModel(0)->getStateMap();
+    return model(0).stateMap();
   }
 
-  std::shared_ptr<const StateMap> shareStateMap() const
+  std::shared_ptr<const StateMapInterface> getStateMap() const
   {
-    return getModel(0)->shareStateMap();
+    return model(0).getStateMap();
   }
 
   std::vector<size_t> getModelStates(int code) const
   {
-    return getModel(0)->getModelStates(code);
+    return model(0).getModelStates(code);
   }
 
   std::vector<size_t> getModelStates(const std::string& code) const
   {
-    return getModel(0)->getModelStates(code);
+    return model(0).getModelStates(code);
   }
 
   /**
@@ -512,7 +510,7 @@ public:
    */
   int getAlphabetStateAsInt(size_t index) const
   {
-    return getModel(0)->getAlphabetStateAsInt(index);
+    return model(0).getAlphabetStateAsInt(index);
   }
 
   /**
@@ -521,7 +519,7 @@ public:
    */
   std::string getAlphabetStateAsChar(size_t index) const
   {
-    return getModel(0)->getAlphabetStateAsChar(index);
+    return model(0).getAlphabetStateAsChar(index);
   }
 
   /**

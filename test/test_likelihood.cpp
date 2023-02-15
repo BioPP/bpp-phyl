@@ -60,15 +60,16 @@
 using namespace bpp;
 using namespace std;
 
-void fitModelHSR(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<DiscreteDistribution> rdist,
+void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
+	         std::shared_ptr<DiscreteDistribution> rdist,
                  const Tree& tree,
-                 const ParametrizablePhyloTree& partree,
-                 const SiteContainer& sites,
+                 std::shared_ptr<ParametrizablePhyloTree> partree,
+                 std::shared_ptr<const SiteContainerInterface> sites,
                  double initialValue, double finalValue)
 {
   ApplicationTools::startTimer();
 
-  RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
+  RHomogeneousTreeLikelihood tl(tree, *sites, model, rdist, false, false);
   tl.initialize();
 
   ApplicationTools::displayResult("Test model", model->getName());
@@ -119,10 +120,10 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<Discr
 
   cout << "=============================" << endl;
 
-  auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<ParametrizablePhyloTree>(partree.clone()));
+  auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, partree);
 
   Context context;                        
-  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
+  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   SingleProcessPhyloLikelihood llh(context, lik);
 
   llh.getFirstOrderDerivative("BrLen0");
@@ -176,33 +177,42 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<Discr
 
   ///////////////
   
-  RHomogeneousTreeLikelihood tlop(tree, sites, model->clone(), rdist->clone(), false, false);
-  tlop.initialize();
+  auto tlop = make_shared<RHomogeneousTreeLikelihood>(
+      tree,
+      *sites,
+      shared_ptr<SubstitutionModelInterface>(model->clone()),
+      shared_ptr<DiscreteDistribution>(rdist->clone()),
+      false,
+      false);
+  tlop->initialize();
 
-  OptimizationToolsOld::optimizeNumericalParameters2(&tlop, tlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << tlop.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (old)", tlop.getValue());
-  if (abs(tlop.getValue() - finalValue) > 0.001)
+  OptimizationToolsOld::optimizeNumericalParameters2(tlop, tlop->getParameters(), 0, 0.000001, nboptim, 0, 0);
+  cout << setprecision(20) << tlop->getValue() << endl;
+  ApplicationTools::displayResult("* lnL after full optimization (old)", tlop->getValue());
+  if (abs(tlop->getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
-  tlop.getParameters().printParameters(cout);
+  tlop->getParameters().printParameters(cout);
 
   
-  process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<ParametrizablePhyloTree>(partree.clone()));
+  process = std::make_shared<RateAcrossSitesSubstitutionProcess>(
+      shared_ptr<SubstitutionModelInterface>(model->clone()),
+      shared_ptr<DiscreteDistribution>(rdist->clone()),
+      partree);
 
   Context context2;
   
-  lik.reset(new LikelihoodCalculationSingleProcess(context2, sites, *process));
+  lik.reset(new LikelihoodCalculationSingleProcess(context2, sites, process));
   
-  SingleProcessPhyloLikelihood llh2(context2, lik);
+  auto llh2 = make_shared<SingleProcessPhyloLikelihood>(context2, lik);
 
   ParameterList opln1=process->getBranchLengthParameters(true);
 
-  OptimizationTools::optimizeNumericalParameters2(llh2, llh2.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << llh2.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (new)", llh2.getValue());
-  if (abs(llh2.getValue() - finalValue) > 0.001)
+  OptimizationTools::optimizeNumericalParameters2(llh2, llh2->getParameters(), 0, 0.000001, nboptim, 0, 0);
+  cout << setprecision(20) << llh2->getValue() << endl;
+  ApplicationTools::displayResult("* lnL after full optimization (new)", llh2->getValue());
+  if (abs(llh2->getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
-  llh2.getParameters().printParameters(cout);
+  llh2->getParameters().printParameters(cout);
 }
 
 
@@ -213,20 +223,25 @@ int main() {
 
   Newick reader;
   auto pTree = unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
-  ParametrizablePhyloTree paramphyloTree(*pTree);
+  auto paramphyloTree = make_shared<ParametrizablePhyloTree>(*pTree);
 
   //-------------
 
-  const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
 
-  VectorSiteContainer sites(alphabet);
-  sites.addSequence(BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet));
-  sites.addSequence(BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet));
-  sites.addSequence(BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
-  sites.addSequence(BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
+  auto sites = make_shared<VectorSiteContainer>(alphabet);
+  auto seqA = make_unique<Sequence>("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet);
+  sites->addSequence("A", seqA);
+  auto seqB = make_unique<Sequence>("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet);
+  sites->addSequence("B", seqB);
+  auto seqC = make_unique<Sequence>("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet);
+  sites->addSequence("C", seqC);
+  auto seqD = make_unique<Sequence>("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet);
+  sites->addSequence("D", seqD);
 
-  shared_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
-  std::shared_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
+  auto model = make_shared<T92>(nucAlphabet, 3.);
+  auto rdist = make_shared<GammaDiscreteRateDistribution>(4, 1.0);
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
     fitModelHSR(model, rdist, *tree, paramphyloTree, sites, 228.6333642493463, 198.47216106233);

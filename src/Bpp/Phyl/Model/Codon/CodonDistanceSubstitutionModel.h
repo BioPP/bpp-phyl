@@ -52,7 +52,7 @@ namespace bpp
  * non-synonymous/synonymous ratios of substitution rates defined
  * through a distance between amino-acids.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * Objects of this class are built from three substitution models of
  * NucleicAlphabets. No model is directly accessible. </p>
@@ -85,9 +85,9 @@ public:
    * @param pdist optional pointer to a distance between amino-acids
    */
   CodonDistanceSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod,
-    const AlphabetIndex2* pdist);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::shared_ptr<const AlphabetIndex2> pdist);
 
   /**
    * @brief Build a new CodonDistanceSubstitutionModel object
@@ -102,11 +102,11 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistanceSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3,
-    const AlphabetIndex2* pdist);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::shared_ptr<const AlphabetIndex2> pdist);
 
   virtual ~CodonDistanceSubstitutionModel() {}
 

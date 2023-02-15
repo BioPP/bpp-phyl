@@ -59,21 +59,26 @@ namespace bpp
  */
 
 class SingleProcessSubstitutionMapping :
-  public AbstractSinglePhyloSubstitutionMapping
+  public AbstractSinglePhyloSubstitutionMapping,
+  public std::enable_shared_from_this<SingleProcessSubstitutionMapping>
 {
 private:
   SingleProcessPhyloLikelihood* pSPP_;
 
-  /*
+  /**
    * @brief Set the models of the BranchedModelSet to the adhoc
    * branches, for normalization.
-   *
    */
-
   void setBranchedModelSet_();
 
 public:
-  SingleProcessSubstitutionMapping(SingleProcessPhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1, bool verbose = true);
+  SingleProcessSubstitutionMapping(
+      SingleProcessPhyloLikelihood& spp, 
+      std::shared_ptr<SubstitutionRegisterInterface> reg,
+      std::shared_ptr<const AlphabetIndex2> weights,
+      std::shared_ptr<const AlphabetIndex2> distances,
+      double threshold = -1,
+      bool verbose = true);
 
   SingleProcessSubstitutionMapping(const SingleProcessSubstitutionMapping& sppm) :
     AbstractSinglePhyloSubstitutionMapping(sppm),
@@ -97,13 +102,14 @@ public:
    */
   void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO, double threshold = -1, bool verbose = true)
   {
-    counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculationSingleProcess(),
-                                                          getRegister(),
-                                                          getWeights(),
-                                                          getDistances(),
-                                                          unresolvedOption,
-                                                          threshold,
-                                                          verbose));
+    counts_ = SubstitutionMappingTools::computeCounts(
+        getLikelihoodCalculationSingleProcess(),
+	getSubstitutionRegister(),
+	getWeights(),
+	getDistances(),
+        unresolvedOption,
+	threshold,
+	verbose);
   }
 
   void computeNormalizations(const ParameterList& nullParams,
@@ -116,22 +122,22 @@ public:
    */
   size_t getNumberOfModels() const
   {
-    return pSPP_->getSubstitutionProcess().getNumberOfModels();
+    return pSPP_->substitutionProcess().getNumberOfModels();
   }
 
   std::vector<size_t> getModelNumbers() const
   {
-    return pSPP_->getSubstitutionProcess().getModelNumbers();
+    return pSPP_->substitutionProcess().getModelNumbers();
   }
 
   LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess()
   {
-    return *pSPP_->getLikelihoodCalculationSingleProcess();
+    return pSPP_->likelihoodCalculationSingleProcess();
   }
 
   const LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess() const
   {
-    return *pSPP_->getLikelihoodCalculationSingleProcess();
+    return pSPP_->likelihoodCalculationSingleProcess();
   }
 };
 } // end of namespace bpp.

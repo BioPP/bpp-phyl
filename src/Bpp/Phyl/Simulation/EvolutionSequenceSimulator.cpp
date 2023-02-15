@@ -107,12 +107,12 @@ void EvolutionSequenceSimulator::resetSiteSimulators(size_t numberOfSites) const
         const AutoCorrelationSequenceEvolution* ase = dynamic_cast<const AutoCorrelationSequenceEvolution*>(seqEvol_);
 
         if (ase)
-          htm = &ase->getHmmTransitionMatrix();
+          htm = &ase->hmmTransitionMatrix();
 
         const HmmSequenceEvolution* hse = dynamic_cast<const HmmSequenceEvolution*>(seqEvol_);
 
         if (hse)
-          htm = &hse->getHmmTransitionMatrix();
+          htm = &hse->hmmTransitionMatrix();
         if (htm)
         {
           vector<size_t> vInd = htm->sample(numberOfSites);

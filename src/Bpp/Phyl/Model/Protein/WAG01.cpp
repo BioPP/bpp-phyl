@@ -41,7 +41,7 @@
 
 #include "WAG01.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 using namespace bpp;
@@ -49,21 +49,24 @@ using namespace std;
 
 /******************************************************************************/
 
-WAG01::WAG01(const ProteicAlphabet* alpha) :
+WAG01::WAG01(shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("WAG01."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "WAG01."),
-  freqSet_(0)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "WAG01."),
+  freqSet_(nullptr)
 {
   #include "__WAG01ExchangeabilityCode"
   #include "__WAG01FrequenciesCode"
   freqSet_.reset(new FixedProteinFrequencySet(alpha, freq_));
-  updateMatrices();
+  updateMatrices_();
 }
 
-WAG01::WAG01(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs) :
+WAG01::WAG01(
+    shared_ptr<const ProteicAlphabet> alpha,
+    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    bool initFreqs) :
   AbstractParameterAliasable("WAG01+F."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "WAG01+F."),
-  freqSet_(freqSet)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "WAG01+F."),
+  freqSet_(move(freqSet))
 {
   #include "__WAG01ExchangeabilityCode"
   #include "__WAG01FrequenciesCode"
@@ -73,12 +76,12 @@ WAG01::WAG01(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> 
   else
     freq_ = freqSet_->getFrequencies();
   addParameters_(freqSet_->getParameters());
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void WAG01::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void WAG01::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   map<int, double> counts;
   SequenceContainerTools::getFrequencies(data, counts, pseudoCount);
@@ -93,3 +96,4 @@ void WAG01::setFreqFromData(const SequencedValuesContainer& data, double pseudoC
 }
 
 /******************************************************************************/
+

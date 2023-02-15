@@ -58,11 +58,11 @@ namespace bpp
 class NaNListener : public OptimizationListener
 {
 private:
-  Optimizer* optimizer_;
-  Function* function_;
+  OptimizerInterface* optimizer_;
+  FunctionInterface* function_;
 
 public:
-  NaNListener(Optimizer* optimizer, Function* function) : optimizer_(optimizer), function_(function) {}
+  NaNListener(OptimizerInterface* optimizer, FunctionInterface* function) : optimizer_(optimizer), function_(function) {}
 
   NaNListener(const NaNListener& lr) :
     optimizer_(lr.optimizer_),
@@ -139,18 +139,18 @@ public:
    * @throw Exception any exception thrown by the Optimizer.
    */
   static unsigned int optimizeNumericalParameters(
-    PhyloLikelihood* lik,
+    std::shared_ptr<PhyloLikelihoodInterface> lik,
     const ParameterList& parameters,
-    OptimizationListener* listener    = 0,
-    unsigned int nstep                = 1,
-    double tolerance                  = 0.000001,
-    unsigned int tlEvalMax            = 1000000,
-    OutputStream* messageHandler      = ApplicationTools::message.get(),
-    OutputStream* profiler            = ApplicationTools::message.get(),
-    bool reparametrization            = false,
-    unsigned int verbose              = 1,
-    const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
-    const std::string& optMethodModel = OPTIMIZATION_BRENT);
+    std::shared_ptr<OptimizationListener> listener = nullptr,
+    unsigned int nstep                             = 1,
+    double tolerance                               = 0.000001,
+    unsigned int tlEvalMax                         = 1000000,
+    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+    bool reparametrization                         = false,
+    unsigned int verbose                           = 1,
+    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON,
+    const std::string& optMethodModel              = OPTIMIZATION_BRENT);
 
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -176,30 +176,30 @@ public:
    */
 
   static unsigned int optimizeNumericalParameters2(
-    PhyloLikelihood* lik,
+    std::shared_ptr<PhyloLikelihoodInterface> lik,
     const ParameterList& parameters,
-    OptimizationListener* listener     = 0,
-    double tolerance                   = 0.000001,
-    unsigned int tlEvalMax             = 1000000,
-    OutputStream* messageHandler       = ApplicationTools::message.get(),
-    OutputStream* profiler             = ApplicationTools::message.get(),
-    bool reparametrization             = false,
-    bool useClock                      = false,
-    unsigned int verbose               = 1,
-    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
+    std::shared_ptr<OptimizationListener> listener = nullptr,
+    double tolerance                               = 0.000001,
+    unsigned int tlEvalMax                         = 1000000,
+    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+    bool reparametrization                         = false,
+    bool useClock                                  = false,
+    unsigned int verbose                           = 1,
+    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
   static unsigned int optimizeNumericalParameters2(
-    SingleProcessPhyloLikelihood& lik,
+    std::shared_ptr<SingleProcessPhyloLikelihood> lik,
     const ParameterList& parameters,
-    OptimizationListener* listener     = 0,
-    double tolerance                   = 0.000001,
-    unsigned int tlEvalMax             = 1000000,
-    OutputStream* messageHandler       = ApplicationTools::message.get(),
-    OutputStream* profiler             = ApplicationTools::message.get(),
-    bool reparametrization             = false,
-    bool useClock                      = false,
-    unsigned int verbose               = 1,
-    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
+    std::shared_ptr<OptimizationListener> listener = nullptr,
+    double tolerance                               = 0.000001,
+    unsigned int tlEvalMax                         = 1000000,
+    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+    bool reparametrization                         = false,
+    bool useClock                                  = false,
+    unsigned int verbose                           = 1,
+    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
   /**
    * @brief Estimate a distance matrix using maximum likelihood.
@@ -217,7 +217,7 @@ public:
    *
    * @see buildDistanceTree for a procedure to jointly estimate the distance matrix and underlying tree.
    */
-  static DistanceMatrix* estimateDistanceMatrix(
+  static std::unique_ptr<DistanceMatrix> estimateDistanceMatrix(
     DistanceEstimation& estimationMethod,
     const ParameterList& parametersToIgnore,
     const std::string& param = DISTANCEMETHOD_INIT,
@@ -247,7 +247,7 @@ public:
    * @param messenger Output stream used by optimizer. Used only with param=DISTANCEMETHOD_ITERATIONS.
    * @param verbose Verbose level.
    */
-  static TreeTemplate<Node>* buildDistanceTree(
+  static std::unique_ptr<TreeTemplate<Node>> buildDistanceTree(
     DistanceEstimation& estimationMethod,
     AgglomerativeDistanceMethod& reconstructionMethod,
     const ParameterList& parametersToIgnore,
@@ -255,8 +255,8 @@ public:
     const std::string& param = DISTANCEMETHOD_INIT,
     double tolerance = 0.000001,
     unsigned int tlEvalMax = 1000000,
-    OutputStream* profiler = 0,
-    OutputStream* messenger = 0,
+    std::shared_ptr<OutputStream> profiler = nullptr,
+    std::shared_ptr<OutputStream> messenger = nullptr,
     unsigned int verbose = 0);
 
 public:

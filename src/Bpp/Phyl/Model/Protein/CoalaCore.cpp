@@ -42,7 +42,6 @@
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/Stat/Mva/CorrespondenceAnalysis.h>
 #include <Bpp/Numeric/VectorTools.h>
-#include <Bpp/Seq/Container/ProbabilisticSequenceContainer.h>
 #include <Bpp/Seq/Container/SequenceContainer.h>
 #include <Bpp/Seq/ProbabilisticSequence.h>
 #include <Bpp/Seq/Sequence.h>
@@ -75,22 +74,22 @@ CoalaCore::CoalaCore(size_t nbAxes, const string& exch) :
 
 /******************************************************************************/
 
-ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool param)
+ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, bool param)
 {
   ParameterList pList;
   // Now we perform the Correspondence Analysis on from the matrix of observed frequencies computed on the alignment, to obtain the matrix of principal axes.
   // First, the matrix of amino acid frequencies is calculated from the alignment:
-  vector<string> names = data.getSequenceNames();
-  vector< map<int, double> > freqs(names.size()); // One map per sequence
+  vector<string> seqKeys = data.getSequenceKeys();
+  vector< map<int, double> > freqs(seqKeys.size()); // One map per sequence
   // Each map is filled with the corresponding frequencies, which are then normalized.
-  for (size_t i = 0; i < names.size(); ++i)
+  for (size_t i = 0; i < seqKeys.size(); ++i)
   {
-    const SequenceContainer* sc = dynamic_cast<const SequenceContainer*>(&data);
-    const ProbabilisticSequenceContainer* psc = dynamic_cast<const ProbabilisticSequenceContainer*>(&data);
+    const SequenceContainerInterface* sc = dynamic_cast<const SequenceContainerInterface*>(&data);
+    const ProbabilisticSequenceContainerInterface* psc = dynamic_cast<const ProbabilisticSequenceContainerInterface*>(&data);
 
-    shared_ptr<CruxSymbolList> seq(sc ?
-                                   dynamic_cast<CruxSymbolList*>(sc->getSequence(names[i]).clone()) :
-                                   dynamic_cast<CruxSymbolList*>(psc->getSequence(names[i]).clone()));
+    shared_ptr<CruxSymbolListInterface> seq(sc ?
+        dynamic_cast<CruxSymbolListInterface*>(sc->sequence(seqKeys[i]).clone()) :
+        dynamic_cast<CruxSymbolListInterface*>(psc->sequence(seqKeys[i]).clone()));
 
     SymbolListTools::changeGapsToUnknownCharacters(*seq);
     SequenceTools::getFrequencies(*seq, freqs.at(i));
@@ -100,18 +99,18 @@ ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool p
     {
       t += freqs.at(i)[k];
     }
-    for (int k = 0; k < 20; k++)
+    for (int k = 0; k < 20; ++k)
     {
       freqs.at(i)[k] /= t;
     }
   }
 
   // The matrix of observed frequencies is filled. If an amino acid is completely absent from the alignment, its frequency is set to 10^-6.
-  RowMatrix<double> freqMatrix(names.size(), 20);
-  for (size_t i = 0; i < freqs.size(); i++)
+  RowMatrix<double> freqMatrix(seqKeys.size(), 20);
+  for (size_t i = 0; i < freqs.size(); ++i)
   {
     bool normalize = false;
-    for (size_t j = 0; j < 20; j++)
+    for (size_t j = 0; j < 20; ++j)
     {
       map<int, double>::iterator it = freqs[i].find(static_cast<int>(j));
       if (it != freqs[i].end())
@@ -127,11 +126,11 @@ ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool p
     if (normalize)
     {
       double sum = 0;
-      for (size_t k = 0; k < 20; k++)
+      for (size_t k = 0; k < 20; ++k)
       {
         sum += freqMatrix(i, k);
       }
-      for (size_t l = 0; l < 20; l++)
+      for (size_t l = 0; l < 20; ++l)
       {
         freqMatrix(i, l) = freqMatrix(i, l) / sum;
       }
@@ -139,20 +138,20 @@ ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool p
   }
 
   // The COA analysis:
-  CorrespondenceAnalysis* coa = new CorrespondenceAnalysis(freqMatrix, 19);
+  CorrespondenceAnalysis coa(freqMatrix, 19);
   // Matrix of principal axes:
-  RowMatrix<double> ppalAxes = coa->getPrincipalAxes();
+  RowMatrix<double> ppalAxes = coa.getPrincipalAxes();
   // The transpose of the matrix of principal axes is computed:
   MatrixTools::transpose(ppalAxes, P_);
   // The matrix of row coordinates is stored:
-  R_ = coa->getRowCoordinates();
+  R_ = coa.getRowCoordinates();
   // The column weights are retrieved:
-  colWeights_ = coa->getColumnWeights();
+  colWeights_ = coa.getColumnWeights();
 
   if (param)
   {
     // Parameters are defined:
-    size_t nbAxesConserved = coa->getNbOfKeptAxes();
+    size_t nbAxesConserved = coa.getNbOfKeptAxes();
     if (nbrOfAxes_ > nbAxesConserved)
     {
       ApplicationTools::displayWarning("The specified number of parameters per branch (" + TextTools::toString(nbrOfAxes_) +
@@ -160,13 +159,13 @@ ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool p
                                        ")... The number of parameters per branch is now equal to the number of axes kept by the COA analysis (" + TextTools::toString(nbAxesConserved) + ")");
       nbrOfAxes_ = nbAxesConserved;
     }
-    for (unsigned int i = 0; i < nbrOfAxes_; i++)
+    for (unsigned int i = 0; i < nbrOfAxes_; ++i)
     {
       const vector<double> rCoords = R_.col(i);
       double maxCoord = VectorTools::max(rCoords);
       double minCoord = VectorTools::min(rCoords);
       double sd = VectorTools::sd<double, double>(rCoords);
-      std::shared_ptr<IntervalConstraint> constraint(new IntervalConstraint(minCoord - sd, maxCoord + sd, true, true));
+      auto constraint = make_shared<IntervalConstraint>(minCoord - sd, maxCoord + sd, true, true);
       if (paramValues_.find("AxPos" + TextTools::toString(i)) != paramValues_.end())
         pList.addParameter(Parameter("Coala.AxPos" + TextTools::toString(i), TextTools::toDouble(paramValues_["AxPos" + TextTools::toString(i)].substr(0, 8)), constraint));
       else

@@ -1,7 +1,7 @@
 //
 // File: AbstractBiblioMixedTransitionModel.h
 // Authors:
-//   Laurent Gueguen
+//   Laurent Guéguen
 // Created: lundi 18 juillet 2011, ÃÂ  15h 17
 //
 
@@ -49,15 +49,14 @@ namespace bpp
 {
 /**
  * @brief Abstract class for mixture models based on the bibliography.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
-
 class AbstractBiblioMixedTransitionModel :
-  public virtual MixedTransitionModel,
-  public AbstractBiblioTransitionModel
+  public virtual MixedTransitionModelInterface,
+  public virtual AbstractBiblioTransitionModel
 {
 protected:
-  std::unique_ptr<MixedTransitionModel> pmixmodel_;
+  std::unique_ptr<MixedTransitionModelInterface> mixedModelPtr_;
 
 public:
   AbstractBiblioMixedTransitionModel(const std::string& prefix);
@@ -68,32 +67,26 @@ public:
 
   virtual ~AbstractBiblioMixedTransitionModel();
 
-  virtual AbstractBiblioMixedTransitionModel* clone() const
-  {
-    return new AbstractBiblioMixedTransitionModel(*this);
-  }
-
 public:
-  /*
-   *@brief Returns the submodel from the mixture.
-   *
+  /**
+   * @brief Returns the submodel from the mixture.
    */
-  const TransitionModel* getNModel(size_t i) const
+  const TransitionModelInterface& nModel(size_t i) const override
   {
-    return getMixedModel().getNModel(i);
+    return mixedModel().nModel(i);
   }
 
-  TransitionModel* getNModel(size_t i)
+  std::shared_ptr<const TransitionModelInterface> getNModel(size_t i) const override
   {
-    return getMixedModel().getNModel(i);
+    return mixedModel().getNModel(i);
   }
 
   /**
    * @brief Returns the  probability of a specific model from the mixture
    */
-  double getNProbability(size_t i) const
+  double getNProbability(size_t i) const override
   {
-    return getMixedModel().getNProbability(i);
+    return mixedModel().getNProbability(i);
   }
 
   /**
@@ -101,96 +94,103 @@ public:
    * submodels of the mixture.
    *
    */
-  const std::vector<double>& getProbabilities() const
+  const std::vector<double>& getProbabilities() const override
   {
-    return getMixedModel().getProbabilities();
+    return mixedModel().getProbabilities();
   }
 
   /**
    * @brief Sets the probabilities of the submodels of the mixture.
    *
    */
-  void setNProbability(size_t i, double prob)
+  void setNProbability(size_t i, double prob) override
   {
-    getMixedModel().setNProbability(i, prob);
+    mixedModel_().setNProbability(i, prob);
   }
 
   /**
    * @brief Returns the number of submodels
-   *
    */
-  size_t getNumberOfModels() const
+  size_t getNumberOfModels() const override
   {
-    return getMixedModel().getNumberOfModels();
+    return mixedModel().getNumberOfModels();
   }
 
   /**
    * @brief sets the rates of the submodels.
    *
    **/
-  void setVRates(const Vdouble& vd)
+  void setVRates(const Vdouble& vd) override
   {
-    getMixedModel().setVRates(vd);
+    mixedModel_().setVRates(vd);
   }
 
   /**
    * @brief normalizes the rates of the submodels.
    *
    **/
-  void normalizeVRates()
+  void normalizeVRates() override
   {
-    getMixedModel().normalizeVRates();
+    mixedModel_().normalizeVRates();
   }
 
   /**
    * @brief Returns the vector of all the rates of the mixture
    */
-  const std::vector<double>& getVRates() const
+  const std::vector<double>& getVRates() const override
   {
-    return getMixedModel().getVRates();
+    return mixedModel().getVRates();
   }
 
   /**
    * @brief Returns the rate of a specific model from the mixture
    */
-  double getNRate(size_t i) const
+  double getNRate(size_t i) const override
   {
-    return getMixedModel().getNRate(i);
+    return mixedModel().getNRate(i);
   }
 
   /**
    * @brief retrieve a pointer to the submodel with the given name.
    *
    * Return Null if not found.
-   *
    */
-
-  using AbstractWrappedModel::getModel;
-  const TransitionModel* getModel(const std::string& name) const
+  using AbstractWrappedModel::model;
+  const TransitionModelInterface& model(const std::string& name) const override
   {
-    return getMixedModel().getModel(name);
+    return mixedModel().model(name);
   }
 
-  /*
-   *@brief Returns the vector of numbers of the submodels in the
+  /**
+   * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description.
-   *
    */
-  Vuint getSubmodelNumbers(const std::string& desc) const;
+  Vuint getSubmodelNumbers(const std::string& desc) const override;
 
-  const TransitionModel& getTransitionModel() const { return *pmixmodel_.get(); }
+  const TransitionModelInterface& transitionModel() const override { return *mixedModelPtr_; }
 
-  const MixedTransitionModel& getMixedModel() const { return *pmixmodel_.get(); }
+  const MixedTransitionModelInterface& mixedModel() const { return *mixedModelPtr_; }
 
 protected:
-  TransitionModel& getTransitionModel()
+  
+  TransitionModelInterface& transitionModel_() override
   {
-    return *pmixmodel_.get();
+    return *mixedModelPtr_;
   }
 
-  MixedTransitionModel& getMixedModel() { return *pmixmodel_.get(); }
+  MixedTransitionModelInterface& mixedModel_() { return *mixedModelPtr_; }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const {return pmixmodel_->getNModel(0)->getFrequencySet();}
+  const FrequencySetInterface& frequencySet_() const
+  {
+    return mixedModelPtr_->nModel(0).frequencySet();
+  }
+
+  TransitionModelInterface& nModel_(size_t i) override
+  {
+    return mixedModel_().nModel_(i);
+  }
+
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTBIBLIOMIXEDTRANSITIONMODEL_H

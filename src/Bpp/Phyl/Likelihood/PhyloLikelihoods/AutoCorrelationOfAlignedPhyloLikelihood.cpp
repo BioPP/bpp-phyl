@@ -49,11 +49,15 @@ using namespace bpp;
 /******************************************************************************/
 
 AutoCorrelationOfAlignedPhyloLikelihood::AutoCorrelationOfAlignedPhyloLikelihood(
-  Context& context,
-  std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection) :
+    Context& context,
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    const std::vector<size_t>& nPhylo,
+    bool inCollection) :
   AbstractPhyloLikelihood(context),
+  AbstractParametrizable(""),
+  AbstractSetOfPhyloLikelihood(context, pC, {}, inCollection),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
+  AbstractSetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
   hma_(),
   htm_(),
   hpep_(),
@@ -61,26 +65,27 @@ AutoCorrelationOfAlignedPhyloLikelihood::AutoCorrelationOfAlignedPhyloLikelihood
 {
   hma_ = make_shared<HmmPhyloAlphabet>(*this);
 
-  htm_ = make_shared<AutoCorrelationTransitionMatrix>(hma_.get(), "AutoCorr.");
+  htm_ = make_shared<AutoCorrelationTransitionMatrix>(hma_, "AutoCorr.");
 
   hpep_ = make_shared<HmmPhyloEmissionProbabilities>(hma_);
 
-  hmm_ = shared_ptr<HmmLikelihood_DF>(new HmmLikelihood_DF(getContext(), hma_, htm_, hpep_));
+  hmm_ = shared_ptr<HmmLikelihood_DF>(new HmmLikelihood_DF(this->context(), hma_, htm_, hpep_));
 
   addParameters_(htm_->getParameters());
 }
 
 void AutoCorrelationOfAlignedPhyloLikelihood::setNamespace(const std::string& nameSpace)
 {
-  SetOfAlignedPhyloLikelihood::setNamespace(nameSpace);
+  AbstractSetOfAlignedPhyloLikelihood::setNamespace(nameSpace);
   hmm_->setNamespace(nameSpace);
 }
 
 void AutoCorrelationOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
-  SetOfAlignedPhyloLikelihood::fireParameterChanged(parameters);
+  AbstractSetOfAlignedPhyloLikelihood::fireParameterChanged(parameters);
   hmm_->matchParametersValues(parameters);
   hma_->matchParametersValues(parameters);
   htm_->matchParametersValues(parameters);
   hpep_->matchParametersValues(parameters);
 }
+

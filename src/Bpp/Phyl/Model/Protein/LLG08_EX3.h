@@ -53,7 +53,7 @@ namespace bpp
 {
 /**
  * @brief The Le et al  (2008) EX3 substitution model for proteins.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * This model is a mixture of three models corresponding to
  * buried/intermediate/highly exposed sites in proteins. The models
@@ -77,7 +77,6 @@ namespace bpp
  *
  * Le S.Q., Lartillot N., Gascuel O. (2008) Phil. Trans. R. Soc. B 363:3965--3976.
  */
-
 class LLG08_EX3 :
   public AbstractBiblioMixedTransitionModel
 {
@@ -90,10 +89,9 @@ private:
     string name_;
 
 public:
-    EmbeddedModel(const ProteicAlphabet* alpha, string name);
-    ~EmbeddedModel(){}
-    EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
-    string getName() const { return name_;}
+    EmbeddedModel(std::shared_ptr<const ProteicAlphabet> alpha, string name);
+    EmbeddedModel* clone() const override { return new EmbeddedModel(*this); }
+    string getName() const override { return name_;}
     double getProportion() const { return proportion_;}
   };
 
@@ -102,23 +100,12 @@ public:
    * @brief Build a  EX3 model, with original equilibrium frequencies, probabilities and rates.
    *
    * @param alpha A proteic alphabet.
-   *
    */
+  LLG08_EX3(std::shared_ptr<const ProteicAlphabet> alpha);
 
-  LLG08_EX3(const ProteicAlphabet* alpha);
+  LLG08_EX3* clone() const override { return new LLG08_EX3(*this); }
 
-  LLG08_EX3* clone() const { return new LLG08_EX3(*this); }
-
-  LLG08_EX3(const LLG08_EX3& mod2) : AbstractBiblioMixedTransitionModel(mod2)
-  {}
-
-  LLG08_EX3& operator=(const LLG08_EX3& mod2)
-  {
-    AbstractBiblioMixedTransitionModel::operator=(mod2);
-    return *this;
-  }
-
-  std::string getName() const { return "LLG08_EX3"; }
+  std::string getName() const override { return "LLG08_EX3"; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_LLG08_EX3_H

@@ -170,7 +170,8 @@ MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, size_t
 
 /******************************************************************************/
 
-SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel* model) :
+SimpleMutationProcess::SimpleMutationProcess(
+  shared_ptr<const SubstitutionModelInterface> model) :
   AbstractMutationProcess(model)
 {
   size_ = model->getNumberOfStates();

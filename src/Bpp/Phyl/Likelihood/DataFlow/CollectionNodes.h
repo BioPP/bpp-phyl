@@ -60,51 +60,59 @@ class CollectionNodes :
   public AbstractParametrizable
 {
 private:
-  const SubstitutionProcessCollection& collection_;
+  std::shared_ptr<const SubstitutionProcessCollection> collection_;
 
   Context& context_;
 
   /**
-   * A collection of Branch Models
+   * @brief A collection of Branch Models
    */
-
   ParametrizableCollection<ConfiguredModel> modelColl_;
 
-  /*
-   * A collection of Frequencies Sets
+  /**
+   * @brief A collection of Frequencies Sets
    */
-
   ParametrizableCollection<ConfiguredFrequencySet> freqColl_;
 
-  /*
-   * A collection of DiscreteDistributions
+  /**
+   * @brief A collection of DiscreteDistributions
    */
-
   ParametrizableCollection<ConfiguredDistribution> distColl_;
 
-  /*
-   * A collection of trees
-   *
+  /**
+   * @brief A collection of trees
    */
-
   ParametrizableCollection<ProcessTree> treeColl_;
 
 public:
-  CollectionNodes(Context& context,
-                  const SubstitutionProcessCollection& collection);
+  CollectionNodes(
+      Context& context,
+      std::shared_ptr<const SubstitutionProcessCollection> collection);
 
   CollectionNodes* clone() const
   {
     throw Exception("CollectionNodes::clone should not be called.");
   }
 
-  Context& getContext()
+  Context& context()
   {
     return context_;
   }
 
-  const SubstitutionProcessCollection& getCollection() const
-  {return collection_;}
+  const SubstitutionProcessCollection& collection() const
+  {
+    return *collection_;
+  }
+
+  std::shared_ptr<const SubstitutionProcessCollection> getCollection() const
+  {
+    return collection_;
+  }
+
+  ConfiguredModel& model(size_t modelIndex)
+  {
+    return dynamic_cast<ConfiguredModel&>(*modelColl_[modelIndex]);
+  }
 
   std::shared_ptr<ConfiguredModel> getModel(size_t modelIndex)
   {

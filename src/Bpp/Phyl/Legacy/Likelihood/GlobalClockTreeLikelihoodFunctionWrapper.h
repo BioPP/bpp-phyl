@@ -47,14 +47,14 @@
 namespace bpp
 {
 class GlobalClockTreeLikelihoodFunctionWrapper :
-  public virtual DerivableSecondOrder,
+  public virtual SecondOrderDerivable,
   public AbstractParametrizable
 {
 private:
-  TreeLikelihood* tl_;
+  std::shared_ptr<TreeLikelihoodInterface> tl_;
 
 public:
-  GlobalClockTreeLikelihoodFunctionWrapper(TreeLikelihood* tl) :
+  GlobalClockTreeLikelihoodFunctionWrapper(std::shared_ptr<TreeLikelihoodInterface> tl) :
     AbstractParametrizable(""),
     tl_(tl)
   {

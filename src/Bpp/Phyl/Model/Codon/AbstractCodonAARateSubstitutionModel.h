@@ -70,19 +70,19 @@ namespace bpp
  */
 
 class AbstractCodonAARateSubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
+  public virtual CoreCodonSubstitutionModelInterface,
   public virtual AbstractParameterAliasable
 {
 private:
-  std::shared_ptr<ProteinSubstitutionModel> pAAmodel_;
+  std::shared_ptr<ProteinSubstitutionModelInterface> pAAmodel_;
 
-  const GeneticCode* pgencode_;
+  std::shared_ptr<const GeneticCode> pgencode_;
 
   double beta_;
 
   double gamma_;
 
-  std::shared_ptr<const StateMap> stateMap_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
 
 public:
   /**
@@ -95,10 +95,9 @@ public:
    * @param paramSynRate is true iff synonymous rate is parameterised
    *       (default=false).
    */
-
   AbstractCodonAARateSubstitutionModel(
-    std::shared_ptr<ProteinSubstitutionModel> pmodel,
-    const GeneticCode* pgencode,
+    std::shared_ptr<ProteinSubstitutionModelInterface> pmodel,
+    std::shared_ptr<const GeneticCode> pgencode,
     const std::string& prefix,
     bool paramSynRate = false);
 
@@ -125,7 +124,7 @@ public:
     return *this;
   }
 
-  AbstractCodonAARateSubstitutionModel* clone() const
+  AbstractCodonAARateSubstitutionModel* clone() const override
   {
     return new AbstractCodonAARateSubstitutionModel(*this);
   }
@@ -133,11 +132,11 @@ public:
   virtual ~AbstractCodonAARateSubstitutionModel() {}
 
 public:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
@@ -147,22 +146,32 @@ public:
    * @brief links to a new AA model
    *
    */
-  void setAAModel(std::shared_ptr<ProteinSubstitutionModel> model)
+  void setAAModel(std::shared_ptr<ProteinSubstitutionModelInterface> model)
   {
     pAAmodel_ = model;
   }
 
-  const std::shared_ptr<ProteinSubstitutionModel>  getAAModel() const
+  const ProteinSubstitutionModelInterface& aaModel() const
+  {
+    return *pAAmodel_;
+  }
+
+  const std::shared_ptr<ProteinSubstitutionModelInterface> getAAModel() const
   {
     return pAAmodel_;
   }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return 0;
+    throw NullPointerException("AbstractCodonAARateSubstitutionModel::frequencySet. No associated FrequencySet.");
   }
 
-  void setFreq(std::map<int, double>& frequencies){}
+  bool hasCodonFrequencySet() const override
+  {
+    return false;
+  }
+
+  void setFreq(std::map<int, double>& frequencies) override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONAARATESUBSTITUTIONMODEL_H

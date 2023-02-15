@@ -56,40 +56,39 @@ namespace bpp
  * The code is adapted from the original R code by Paula Tataru and
  * Asger Hobolth.
  *
- * @author Julien Dutheil, Laurent GuÃÂ©guen
+ * @author Julien Dutheil, Laurent Guéguen
  */
 
 class DecompositionMethods
 {
 protected:
-  const SubstitutionModel* model_;
+  std::shared_ptr<const SubstitutionModelInterface> model_;
   size_t nbStates_;
   size_t nbTypes_;
   mutable RowMatrix<double> jMat_, jIMat_;
 
-  /*
+  /**
    * @brief Real and imaginary eigenvectors, for non-reversible
    * computation
    */
-
   ColMatrix<double> rightEigenVectors_, rightIEigenVectors_;
   RowMatrix<double> leftEigenVectors_, leftIEigenVectors_;
 
-  /*
+  /**
    * @brief computation matrices
-   *
    */
-
   std::vector< RowMatrix<double> > bMatrices_, insideProducts_, insideIProducts_;
 
 public:
-  DecompositionMethods(const SubstitutionModel* model, SubstitutionRegister* reg);
+  DecompositionMethods(
+      std::shared_ptr<const SubstitutionModelInterface> model,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg);
 
-  DecompositionMethods(SubstitutionRegister* reg);
+  DecompositionMethods(std::shared_ptr<const SubstitutionRegisterInterface> reg);
 
-  DecompositionMethods(const SubstitutionModel* model);
+  DecompositionMethods(std::shared_ptr<const SubstitutionModelInterface> model);
 
-  DecompositionMethods(const StateMap& statemap);
+  DecompositionMethods(const StateMapInterface& stateMap);
 
   DecompositionMethods(const DecompositionMethods& dm) :
     model_(dm.model_),
@@ -135,8 +134,7 @@ public:
    *
    * @param model A pointer toward the substitution model to use.
    */
-
-  void setSubstitutionModel(const SubstitutionModel* model);
+  void setSubstitutionModel(std::shared_ptr<const SubstitutionModelInterface> model);
 
 protected:
   void initStates_();
@@ -152,7 +150,7 @@ protected:
 
   void computeExpectations(RowMatrix<double>& mapping, double length) const;
 
-  void computeExpectations(std::vector< RowMatrix<double> >& mappings, double leangth) const;
+  void computeExpectations(std::vector< RowMatrix<double> >& mappings, double length) const;
 
   /**
    * @brief Compute the integral part of the computation

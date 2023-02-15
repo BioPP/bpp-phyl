@@ -41,70 +41,73 @@
 #include "../FrequencySet/NucleotideFrequencySet.h"
 #include "AbstractCodonPhaseFrequenciesSubstitutionModel.h"
 
-using namespace bpp;
+#include <memory>
 
+using namespace bpp;
 using namespace std;
 
 /******************************************************************************/
 
 AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSubstitutionModel(
-  std::shared_ptr<FrequencySet> pfreq,
-  const std::string& prefix) :
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  posfreqset_(),
+  posFreqSet_(),
   freqName_("")
 {
-  auto pCFS = dynamic_cast<CodonFrequencySet*>(pfreq.get());
-  if (!pCFS)
-    throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
-
-  if (dynamic_cast<CodonFromUniqueFrequencySet*>(pCFS)
-      || dynamic_cast<CodonFromIndependentFrequencySet*>(pCFS))
-    posfreqset_.reset(dynamic_cast<WordFrequencySet*>(pfreq->clone()));
+  if (dynamic_cast<CodonFromUniqueFrequencySet*>(pfreq.get())
+      || dynamic_cast<CodonFromIndependentFrequencySet*>(pfreq.get()))
+    posFreqSet_.reset(pfreq->clone());
   else
   {
-    vector<std::shared_ptr<FrequencySet> > vFS;
-    if (dynamic_cast<FixedCodonFrequencySet*>(pCFS))
+    vector<unique_ptr<FrequencySetInterface>> vFS;
+    if (dynamic_cast<FixedCodonFrequencySet*>(pfreq.get()))
     {
-      for (unsigned int i = 0; i < 3; i++)
+      for (unsigned int i = 0; i < 3; ++i)
       {
-        vFS.push_back(std::make_shared<FixedNucleotideFrequencySet>(pCFS->getCodonAlphabet()->getNucleicAlphabet()));
+        vFS.push_back(make_unique<FixedNucleotideFrequencySet>(pfreq->getCodonAlphabet()->getNucleicAlphabet()));
       }
     }
     else
     {
-      for (unsigned int i = 0; i < 3; i++)
+      for (unsigned int i = 0; i < 3; ++i)
       {
-        vFS.push_back(std::make_shared<FullNucleotideFrequencySet>(pCFS->getCodonAlphabet()->getNucleicAlphabet()));
+        vFS.push_back(make_unique<FullNucleotideFrequencySet>(pfreq->getCodonAlphabet()->getNucleicAlphabet()));
       }
     }
-    posfreqset_.reset(new CodonFromIndependentFrequencySet(
-                        pCFS->getGeneticCode(),
+    posFreqSet_.reset(new CodonFromIndependentFrequencySet(
+                        pfreq->getGeneticCode(),
                         vFS, ""));
 
-    posfreqset_->setFrequencies(pfreq->getFrequencies());
+    posFreqSet_->setFrequencies(pfreq->getFrequencies());
   }
 
   freqName_ = pfreq->getNamespace();
-  posfreqset_->setNamespace(prefix + pfreq->getNamespace());
-  addParameters_(posfreqset_->getParameters());
-  fireParameterChanged(posfreqset_->getParameters());
+  posFreqSet_->setNamespace(prefix + pfreq->getNamespace());
+  addParameters_(posFreqSet_->getParameters());
+  fireParameterChanged(posFreqSet_->getParameters());
 }
 
-AbstractCodonPhaseFrequenciesSubstitutionModel::~AbstractCodonPhaseFrequenciesSubstitutionModel()
-{}
+/******************************************************************************/
+
+AbstractCodonPhaseFrequenciesSubstitutionModel::~AbstractCodonPhaseFrequenciesSubstitutionModel() {}
+
+/******************************************************************************/
 
 void AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  posfreqset_->matchParametersValues(parameters);
+  posFreqSet_->matchParametersValues(parameters);
 }
 
+/******************************************************************************/
 
 void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
-  posfreqset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
-  matchParametersValues(posfreqset_->getParameters());
+  posFreqSet_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
+  matchParametersValues(posFreqSet_->getParameters());
 }
+
+/******************************************************************************/
 
 double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
@@ -114,9 +117,12 @@ double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(size_t i
   for (size_t k = 0; k < 3; k++)
   {
     if ((i2 % 4) != (j2 % 4))
-      x *= posfreqset_->getFrequencySetForLetter(2 - k)->getFrequencies()[j2 % 4];
+      x *= dynamic_cast<WordFrequencySetInterface&>(*posFreqSet_).frequencySetForLetter(2 - k).getFrequencies()[j2 % 4];
     i2 /= 4;
     j2 /= 4;
   }
   return x;
 }
+
+/******************************************************************************/
+

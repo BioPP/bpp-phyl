@@ -53,19 +53,22 @@ using namespace std;
 
 /******************************************************************************/
 
-JCprot::JCprot(const ProteicAlphabet* alpha) :
+JCprot::JCprot(shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("JC69."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "JC69."),
-  exp_(), p_(size_, size_), freqSet_(0), withFreq_(0)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JC69."),
+  exp_(), p_(size_, size_), freqSet_(nullptr), withFreq_(false)
 {
   freqSet_.reset(new FixedProteinFrequencySet(alpha));
-  updateMatrices();
+  updateMatrices_();
 }
 
-JCprot::JCprot(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs) :
+JCprot::JCprot(
+    shared_ptr<const ProteicAlphabet> alpha,
+    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    bool initFreqs) :
   AbstractParameterAliasable("JC69+F."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "JC69+F."),
-  exp_(), p_(size_, size_), freqSet_(freqSet), withFreq_(true)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JC69+F."),
+  exp_(), p_(size_, size_), freqSet_(move(freqSet)), withFreq_(true)
 {
   freqSet_->setNamespace("JC69+F." + freqSet_->getNamespace());
   if (initFreqs)
@@ -74,17 +77,16 @@ JCprot::JCprot(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet
     freq_ = freqSet_->getFrequencies();
   addParameters_(freqSet_->getParameters());
 
-  updateMatrices();
+  updateMatrices_();
 }
-
 
 /******************************************************************************/
 
-void JCprot::updateMatrices()
+void JCprot::updateMatrices_()
 {
-  for (unsigned int i = 0; i < 20; i++)
+  for (unsigned int i = 0; i < 20; ++i)
   {
-    for (unsigned int j = 0; j < 20; j++)
+    for (unsigned int j = 0; j < 20; ++j)
     {
       exchangeability_(i, j) = (i == j) ? -20. : 20. / 19.;
     }
@@ -93,15 +95,15 @@ void JCprot::updateMatrices()
   if (!withFreq_)
   {
     // Frequencies:
-    for (unsigned int i = 0; i < 20; i++)
+    for (unsigned int i = 0; i < 20; ++i)
     {
       freq_[i] = 1. / 20.;
     }
 
     // Generator:
-    for (unsigned int i = 0; i < 20; i++)
+    for (unsigned int i = 0; i < 20; ++i)
     {
-      for (unsigned int j = 0; j < 20; j++)
+      for (unsigned int j = 0; j < 20; ++j)
       {
         generator_(i, j) = (i == j) ? -1. : 1. / 19.;
       }
@@ -109,50 +111,50 @@ void JCprot::updateMatrices()
 
     // Eigen values:
     eigenValues_[0] = 0;
-    for (unsigned int i = 1; i < 20; i++)
+    for (unsigned int i = 1; i < 20; ++i)
     {
       eigenValues_[i] = -20. / 19.;
     }
 
     // Eigen vectors:
-    for (unsigned int i = 0; i < 20; i++)
+    for (unsigned int i = 0; i < 20; ++i)
     {
       leftEigenVectors_(0, i) = 1. / 20.;
     }
-    for (unsigned int i = 1; i < 20; i++)
+    for (unsigned int i = 1; i < 20; ++i)
     {
-      for (unsigned int j = 0; j < 20; j++)
+      for (unsigned int j = 0; j < 20; ++j)
       {
         leftEigenVectors_(i, j) = -1. / 20.;
       }
     }
-    for (unsigned int i = 0; i < 19; i++)
+    for (unsigned int i = 0; i < 19; ++i)
     {
       leftEigenVectors_(19 - i, i) = 19. / 20.;
     }
 
-    for (unsigned int i = 0; i < 20; i++)
+    for (unsigned int i = 0; i < 20; ++i)
     {
       rightEigenVectors_(i, 0) = 1.;
     }
-    for (unsigned int i = 1; i < 20; i++)
+    for (unsigned int i = 1; i < 20; ++i)
     {
       rightEigenVectors_(19, i) = -1.;
     }
-    for (unsigned int i = 0; i < 19; i++)
+    for (unsigned int i = 0; i < 19; ++i)
     {
-      for (unsigned int j = 1; j < 20; j++)
+      for (unsigned int j = 1; j < 20; ++j)
       {
         rightEigenVectors_(i, j) = 0.;
       }
     }
-    for (unsigned int i = 1; i < 20; i++)
+    for (unsigned int i = 1; i < 20; ++i)
     {
       rightEigenVectors_(19 - i, i) = 1.;
     }
   }
   else
-    AbstractReversibleSubstitutionModel::updateMatrices();
+    AbstractReversibleSubstitutionModel::updateMatrices_();
 }
 
 /******************************************************************************/
@@ -258,7 +260,7 @@ const Matrix<double>& JCprot::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-void JCprot::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void JCprot::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   map<int, double> counts;
   SequenceContainerTools::getFrequencies(data, counts, pseudoCount);

@@ -6,37 +6,37 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
+
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
+
+   This software is governed by the CeCILL license under French law and
+   abiding by the rules of distribution of free software. You can use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
+
+   As a counterpart to the access to the source code and rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty and the software's author, the holder of the
+   economic rights, and the successive licensors have only limited
+   liability.
+
+   In this respect, the user's attention is drawn to the risks associated
+   with loading, using, modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean that it is complicated to manipulate, and that also
+   therefore means that it is reserved for developers and experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and, more generally, to use and operate it in the
+   same conditions as regards security.
+
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Phyl/Likelihood/DataFlow/Model.h>
@@ -49,8 +49,8 @@ using namespace bpp;
 
 // Model node
 
-ConfiguredModel::ConfiguredModel (Context& context, NodeRefVec&& deps, std::unique_ptr<BranchModel>&& model)
-  : Value<BranchModel*>(std::move (deps), model.get ()), AbstractParametrizable(model->getNamespace())// , context_(context)
+ConfiguredModel::ConfiguredModel (Context& context, NodeRefVec&& deps, std::unique_ptr<BranchModelInterface>&& model)
+  : Value<std::shared_ptr<BranchModelInterface>>(std::move(deps), model.get()), AbstractParametrizable(model->getNamespace())// , context_(context)
   , model_(std::move(model))
 {
   for (const auto& dep:dependencies())
@@ -140,17 +140,17 @@ NodeRef EquilibriumFrequenciesFromModel::recreate (Context& c, NodeRefVec&& deps
 void EquilibriumFrequenciesFromModel::compute ()
 {
   const Vdouble* freqsFromModel;
-  const auto* mixmodel = dynamic_cast<const MixedTransitionModel*>(accessValueConstCast<const BranchModel*>(*this->dependency (0)));
+  const auto* mixmodel = dynamic_cast<const MixedTransitionModelInterface*>(accessValueConstCast<const BranchModelInterface*>(*this->dependency (0)));
   if (mixmodel && nbDependencies() > 1 && dependency(1))
   {
-    auto nMod = accessValueConstCast<size_t>(*this->dependency (1));
-    freqsFromModel = &mixmodel->getNModel(nMod)->getFrequencies ();
+    auto nMod = accessValueConstCast<size_t>(*this->dependency(1));
+    freqsFromModel = &mixmodel->nModel(nMod).getFrequencies();
   }
   else
   {
-    const auto pmodel = dynamic_cast<const TransitionModel*>(accessValueConstCast<const BranchModel*>(*this->dependency (0)));
+    const auto pmodel = dynamic_cast<const TransitionModelInterface*>(accessValueConstCast<const BranchModelInterface*>(*this->dependency (0)));
     if (pmodel)
-      freqsFromModel = &pmodel->getFrequencies ();
+      freqsFromModel = &pmodel->getFrequencies();
     else
       throw Exception("EquilibriumFrequenciesFromModel::compute only possible for Transition Models.");
   }
@@ -225,7 +225,7 @@ void TransitionMatrixFromModel::compute ()
 
   const auto* model1 = accessValueConstCast<const BranchModel*>(*this->dependency (0));
 
-  const auto* mixmodel = dynamic_cast<const MixedTransitionModel*>(model1);
+  const auto* mixmodel = dynamic_cast<const MixedTransitionModelInterface*>(accessValueConstCast<const BranchModelInterface*>(*this->dependency (0)));
 
 #ifdef DEBUG
   std::cerr << "=== TransitionMatrixFromModel::compute === " << this << std::endl;
@@ -243,13 +243,13 @@ void TransitionMatrixFromModel::compute ()
     switch (nDeriv)
     {
     case 0:
-      copyBppToEigen (mixmodel->getNModel(nMod)->getPij_t (brlen), r);
+      copyBppToEigen (mixmodel->nModel(nMod).getPij_t (brlen), r);
       break;
     case 1:
-      copyBppToEigen (mixmodel->getNModel(nMod)->getdPij_dt (brlen), r);
+      copyBppToEigen (mixmodel->nModel(nMod).getdPij_dt (brlen), r);
       break;
     case 2:
-      copyBppToEigen (mixmodel->getNModel(nMod)->getd2Pij_dt2 (brlen), r);
+      copyBppToEigen (mixmodel->nModel(nMod).getd2Pij_dt2 (brlen), r);
       break;
     default:
       throw Exception("TransitionMatrixFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
@@ -257,7 +257,8 @@ void TransitionMatrixFromModel::compute ()
   }
   else
   {
-    const auto model = dynamic_cast<const TransitionModel*>(model1);
+    const auto* model1 = accessValueConstCast<const BranchModelInterface*>(*this->dependency (0));
+    const auto model = dynamic_cast<const TransitionModelInterface*>(model1);
 
     if (!model)
       throw Exception("TransitionMatrixFromModel::compute only possible for Transition Models.");
@@ -354,13 +355,13 @@ NodeRef TransitionFunctionFromModel::recreate (Context& c, NodeRefVec&& deps)
 void TransitionFunctionFromModel::compute ()
 {
   const auto brlen = accessValueConstCast<double>(*this->dependency (1)->dependency(0));
-  const auto* model = accessValueConstCast<const BranchModel*>(*this->dependency (0));
+  const auto* model = accessValueConstCast<const BranchModelInterface*>(*this->dependency(0));
   const auto nDeriv = accessValueConstCast<size_t>(*this->dependency (2));
 
   auto& r = this->accessValueMutable ();
 
-  auto dimin = VectorDimension(Eigen::Dynamic);//ttargetDimension_;
-  auto dimout = Dimension<VectorLik>(Eigen::Dynamic, 1);//ttargetDimension_;
+  auto dimin = VectorDimension(Eigen::Dynamic);// ttargetDimension_;
+  auto dimout = Dimension<VectorLik>(Eigen::Dynamic, 1);// ttargetDimension_;
 
   r = [model, brlen, nDeriv, dimin, dimout](const VectorLik& values)
       {
@@ -421,7 +422,7 @@ NodeRef ProbabilitiesFromMixedModel::recreate (Context& c, NodeRefVec&& deps)
 
 void ProbabilitiesFromMixedModel::compute ()
 {
-  const auto* mixmodel = dynamic_cast<const MixedTransitionModel*>(accessValueConstCast<const BranchModel*>(*this->dependency (0)));
+  const auto* mixmodel = dynamic_cast<const MixedTransitionModelInterface*>(accessValueConstCast<const BranchModelInterface*>(*this->dependency (0)));
   const auto& probasFromModel = mixmodel->getProbabilities ();
   auto& r = this->accessValueMutable ();
   r = Eigen::Map<const T>(probasFromModel.data(), static_cast<Eigen::Index>(probasFromModel.size ()));
@@ -434,9 +435,9 @@ std::shared_ptr<ProbabilitiesFromMixedModel> ProbabilitiesFromMixedModel::create
   checkNthDependencyIs<ConfiguredModel>(typeid (Self), deps, 0);
   auto& model = static_cast<ConfiguredModel&>(*deps[0]);
   auto& deps0 = *deps[0];
-  const auto* mixmodel = dynamic_cast<const MixedTransitionModel*>(model.getTargetValue());
+  const auto mixmodel = dynamic_pointer_cast<const MixedTransitionModelInterface>(model.targetValue());
   if (!mixmodel)
-    failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModel), typeid (deps0));
+    failureDependencyTypeMismatch (typeid(Self), 0, typeid(MixedTransitionModelInterface), typeid(deps0));
 
   size_t nbCat = mixmodel->getNumberOfModels();
   return cachedAs<ProbabilitiesFromMixedModel>(c, std::make_shared<ProbabilitiesFromMixedModel>(std::move(deps), RowVectorDimension(Eigen::Index(nbCat))));
@@ -471,9 +472,9 @@ std::shared_ptr<ProbabilityFromMixedModel> ProbabilityFromMixedModel::create (Co
   checkNthDependencyIs<ConfiguredModel>(typeid (Self), deps, 0);
   auto& model = static_cast<ConfiguredModel&>(*deps[0]);
   const auto& deps0 = *deps[0];
-  const auto* mixmodel = dynamic_cast<const MixedTransitionModel*>(model.getTargetValue());
+  const auto mixmodel = dynamic_pointer_cast<const MixedTransitionModelInterface>(model.targetValue());
   if (!mixmodel)
-    failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModel), typeid (deps0));
+    failureDependencyTypeMismatch (typeid (Self), 0, typeid (MixedTransitionModelInterface), typeid (deps0));
 
   return cachedAs<ProbabilityFromMixedModel>(c, std::make_shared<ProbabilityFromMixedModel>(std::move (deps), nCat));
 }
@@ -499,6 +500,6 @@ NodeRef ProbabilityFromMixedModel::recreate (Context& c, NodeRefVec&& deps)
 
 void ProbabilityFromMixedModel::compute ()
 {
-  const auto* mixmodel = dynamic_cast<const MixedTransitionModel*>(accessValueConstCast<const BranchModel*>(*this->dependency (0)));
+  const auto* mixmodel = dynamic_cast<const MixedTransitionModelInterface*>(accessValueConstCast<const BranchModelInterface*>(*this->dependency (0)));
   this->accessValueMutable () = mixmodel->getNProbability(nCat_);
 }

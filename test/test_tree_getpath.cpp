@@ -47,7 +47,7 @@ using namespace bpp;
 using namespace std;
 
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree ("(A:0.1, (B :0.2, C:0.4):0.1);" );
+  auto tree = TreeTemplateTools::parenthesisToTree ("(A:0.1, (B :0.2, C:0.4):0.1);" );
   vector <int> Leaves_select = tree->getLeavesId();
 
   Node* node1 = tree->getNode(Leaves_select[0]);

@@ -58,8 +58,8 @@ using namespace std;
 
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   const Tree& tree,
-  SubstitutionModelSet* modelSet,
-  DiscreteDistribution* rDist,
+  shared_ptr<SubstitutionModelSet> modelSet,
+  shared_ptr<DiscreteDistribution> rDist,
   bool verbose,
   bool reparametrizeRoot) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
@@ -162,19 +162,19 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
 
 void AbstractNonHomogeneousTreeLikelihood::init_(
   const Tree& tree,
-  SubstitutionModelSet* modelSet,
-  DiscreteDistribution* rDist,
+  shared_ptr<SubstitutionModelSet> modelSet,
+  shared_ptr<DiscreteDistribution> rDist,
   bool verbose)
 {
   TreeTools::checkIds(tree, true);
-  tree_ = new TreeTemplate<Node>(tree);
+  tree_ = make_unique< TreeTemplate<Node> >(tree);
   root1_ = tree_->getRootNode()->getSon(0)->getId();
   root2_ = tree_->getRootNode()->getSon(1)->getId();
   nodes_ = tree_->getNodes();
   nodes_.pop_back(); // Remove the root node (the last added!).
   nbNodes_ = nodes_.size();
   // Build nodes index:
-  for (unsigned int i = 0; i < nodes_.size(); i++)
+  for (size_t i = 0; i < nodes_.size(); ++i)
   {
     const Node* node = nodes_[i];
     idToNode_[node->getId()] = node;
@@ -191,7 +191,9 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
 
 /******************************************************************************/
 
-void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionModelSet* modelSet)
+void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(
+     shared_ptr<SubstitutionModelSet> modelSet
+     )
 {
   // Check:
   if (data_)
@@ -415,7 +417,7 @@ void AbstractNonHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
 
 void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
 {
-  const TransitionModel* model = modelSet_->getModelForNode(node->getId());
+  auto model = modelSet_->getModelForNode(node->getId());
   double l = node->getDistanceToFather();
 
   // Computes all pxy and pyx once for all:

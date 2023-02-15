@@ -49,18 +49,18 @@ using namespace std;
 
 /******************************************************************************/
 
-JCnuc::JCnuc(const NucleicAlphabet* alpha) :
+JCnuc::JCnuc(shared_ptr<const NucleicAlphabet> alpha) :
   AbstractParameterAliasable("JC69."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "JC69."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JC69."),
   exp_(),
   p_(size_, size_)
 {
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void JCnuc::updateMatrices()
+void JCnuc::updateMatrices_()
 {
   // Frequencies:
   freq_[0] = freq_[1] = freq_[2] = freq_[3] = 1. / 4.;

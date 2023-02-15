@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -63,10 +63,10 @@ namespace bpp
  */
 class DRHomogeneousTreeLikelihood :
   public AbstractHomogeneousTreeLikelihood,
-  public DRTreeLikelihood
+  public virtual DRTreeLikelihoodInterface
 {
 private:
-  mutable DRASDRTreeLikelihoodData* likelihoodData_;
+  mutable std::unique_ptr<DRASDRTreeLikelihoodData> likelihoodData_;
 
 protected:
   double minusLogLik_;
@@ -88,8 +88,8 @@ public:
    */
   DRHomogeneousTreeLikelihood(
     const Tree& tree,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -109,9 +109,9 @@ public:
    */
   DRHomogeneousTreeLikelihood(
     const Tree& tree,
-    const AlignedValuesContainer& data,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -122,9 +122,9 @@ public:
 
   DRHomogeneousTreeLikelihood& operator=(const DRHomogeneousTreeLikelihood& lik);
 
-  virtual ~DRHomogeneousTreeLikelihood();
+  virtual ~DRHomogeneousTreeLikelihood() {}
 
-  DRHomogeneousTreeLikelihood* clone() const { return new DRHomogeneousTreeLikelihood(*this); }
+  DRHomogeneousTreeLikelihood* clone() const override { return new DRHomogeneousTreeLikelihood(*this); }
 
 private:
   /**
@@ -140,12 +140,12 @@ public:
    *
    * @{
    */
-  void setData(const AlignedValuesContainer& sites);
-  double getLikelihood () const;
-  double getLogLikelihood() const;
-  double getLikelihoodForASite (size_t site) const;
-  double getLogLikelihoodForASite(size_t site) const;
-  size_t getSiteIndex(size_t site) const { return likelihoodData_->getRootArrayPosition(site); }
+  void setData(const AlignmentDataInterface& sites) override;
+  double getLikelihood() const override;
+  double getLogLikelihood() const override;
+  double getLikelihoodForASite (size_t site) const override;
+  double getLogLikelihoodForASite(size_t site) const override;
+  size_t getSiteIndex(size_t site) const override { return likelihoodData_->getRootArrayPosition(site); }
   /** @} */
 
   void computeTreeLikelihood();
@@ -156,10 +156,10 @@ public:
    *
    * @{
    */
-  double getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
-  double getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const;
-  double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
-  double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
+  double getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const override;
+  double getLogLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const override;
+  double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const override;
+  double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const override;
   /** @} */
 
   /**
@@ -173,19 +173,19 @@ public:
    *
    * @param parameters The parameter list to pass to the function.
    */
-  void setParameters(const ParameterList& parameters);
+  void setParameters(const ParameterList& parameters) override;
 
   /**
    * @brief Function and NNISearchable interface.
    */
-  double getValue() const;
+  double getValue() const override;
 
   /**
    * @name DerivableFirstOrder interface.
    *
    * @{
    */
-  double getFirstOrderDerivative(const std::string& variable) const;
+  double getFirstOrderDerivative(const std::string& variable) const override;
   /** @{ */
 
   /**
@@ -193,17 +193,17 @@ public:
    *
    * @{
    */
-  double getSecondOrderDerivative(const std::string& variable) const;
-  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return 0; } // Not implemented for now.
+  double getSecondOrderDerivative(const std::string& variable) const override;
+  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const override { return 0; } // Not implemented for now.
   /** @} */
 
 public:
   // Specific methods:
 
-  DRASDRTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
-  const DRASDRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
+  DRASDRTreeLikelihoodData& likelihoodData() override { return *likelihoodData_; }
+  const DRASDRTreeLikelihoodData& likelihoodData() const override { return *likelihoodData_; }
 
-  virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const
+  virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const override
   {
     computeLikelihoodAtNode_(tree_->getNode(nodeId), likelihoodArray);
   }
@@ -231,7 +231,7 @@ protected:
   virtual void computeTreeD2LikelihoodAtNode(const Node* node);
   virtual void computeTreeD2Likelihoods();
 
-  virtual void fireParameterChanged(const ParameterList& params);
+  virtual void fireParameterChanged(const ParameterList& params) override;
 
   virtual void resetLikelihoodArrays(const Node* node);
 

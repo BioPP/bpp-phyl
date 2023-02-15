@@ -978,7 +978,7 @@ public:
    * @return A pointer toward a dynamically created tree.
    * @throw Exception in case of bad format.
    */
-  static TreeTemplate<Node>* parenthesisToTree(const std::string& description, bool bootstrap = true, const std::string& propertyName = TreeTools::BOOTSTRAP, bool withId = false, bool verbose = true);
+  static std::unique_ptr<TreeTemplate<Node>> parenthesisToTree(const std::string& description, bool bootstrap = true, const std::string& propertyName = TreeTools::BOOTSTRAP, bool withId = false, bool verbose = true);
 
   /**
    * @brief Get the parenthesis description of a subtree.
@@ -1045,7 +1045,7 @@ public:
    * @param rooted Tell is the output tree should be rooted.
    * @return A random tree with all corresponding taxa.
    */
-  static TreeTemplate<Node>* getRandomTree(std::vector<std::string>& leavesNames, bool rooted = true);
+  static std::unique_ptr<TreeTemplate<Node>> getRandomTree(std::vector<std::string>& leavesNames, bool rooted = true);
 
   /** @} */
 

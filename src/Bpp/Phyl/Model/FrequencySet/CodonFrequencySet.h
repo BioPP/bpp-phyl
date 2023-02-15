@@ -54,19 +54,20 @@ namespace bpp
 /**
  * @brief Parametrize a set of state frequencies for codons.
  */
-class CodonFrequencySet :
-  public virtual FrequencySet
+class CodonFrequencySetInterface :
+  public virtual FrequencySetInterface
 {
 public:
-  CodonFrequencySet* clone() const = 0;
+  CodonFrequencySetInterface* clone() const override = 0;
 
-  virtual const CodonAlphabet* getCodonAlphabet() const = 0;
+  virtual std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const = 0;
 
 public:
+
   /**
    * @return The associated genetic code.
    */
-  virtual const GeneticCode* getGeneticCode() const = 0;
+  virtual std::shared_ptr<const GeneticCode> getGeneticCode() const = 0;
 
   /**
    * @brief A helper function that provide frequencies set for codon models
@@ -89,7 +90,11 @@ public:
    *
    * @see Simplex
    */
-  static std::shared_ptr<FrequencySet> getFrequencySetForCodons(short option, const GeneticCode* gCode, const std::string& mgmtStopCodon = "quadratic", unsigned short method = 1);
+  static std::unique_ptr<CodonFrequencySetInterface> getFrequencySetForCodons(
+      short option,
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::string& mgmtStopCodon = "quadratic",
+      unsigned short method = 1);
 
   static const short F0;
   static const short F1X4;
@@ -105,18 +110,16 @@ public:
  *   frequencies are parameterized.
  */
 class FullCodonFrequencySet :
-  public virtual CodonFrequencySet,
+  public virtual CodonFrequencySetInterface,
   public AbstractFrequencySet
 {
 protected:
-  const GeneticCode* pgc_;
+  std::shared_ptr<const GeneticCode> pgc_;
 
 private:
   /**
    * @brief Simplex to handle the probabilities and the parameters.
-   *
    */
-
   Simplex sFreq_;
 
 public:
@@ -124,30 +127,39 @@ public:
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet. The stop codon frequencies are null.
    */
-  FullCodonFrequencySet(const GeneticCode* gCode, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
-  FullCodonFrequencySet(const GeneticCode* gCode, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
+  FullCodonFrequencySet(
+      std::shared_ptr<const GeneticCode> gCode,
+      bool allowNullFreqs = false,
+      unsigned short method = 1,
+      const std::string& name = "Full");
+
+  FullCodonFrequencySet(
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::vector<double>& initFreqs,
+      bool allowNullFreqs = false,
+      unsigned short method = 1,
+      const std::string& name = "Full");
 
   FullCodonFrequencySet(const FullCodonFrequencySet& fcfs);
   FullCodonFrequencySet& operator=(const FullCodonFrequencySet& fcfs);
 
-  FullCodonFrequencySet* clone() const { return new FullCodonFrequencySet(*this); }
+  FullCodonFrequencySet* clone() const override { return new FullCodonFrequencySet(*this); }
 
 public:
-  const GeneticCode* getGeneticCode() const { return pgc_; }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pgc_; }
 
   /**
    * @brief the given frequencies are normalized such that the sum of
    * the frequencies on the non-stop codons equals 1.
-   *
    */
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
-  const CodonAlphabet* getCodonAlphabet() const
+  std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const override
   {
-    return dynamic_cast<const CodonAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const CodonAlphabet>(getAlphabet());
   }
 
-  void setNamespace(const std::string& nameSpace);
+  void setNamespace(const std::string& nameSpace) override;
 
   unsigned short getMethod() const
   {
@@ -155,7 +167,7 @@ public:
   }
 
 protected:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
   void updateFreq_();
 };
@@ -167,20 +179,25 @@ protected:
  * This set contains no parameter.
  */
 class FixedCodonFrequencySet :
-  public virtual CodonFrequencySet,
+  public virtual CodonFrequencySetInterface,
   public AbstractFrequencySet
 {
 protected:
-  const GeneticCode* pgc_;
+  std::shared_ptr<const GeneticCode> pgc_;
 
 public:
-  FixedCodonFrequencySet(const GeneticCode* gCode, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
+  FixedCodonFrequencySet(
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::vector<double>& initFreqs,
+      const std::string& name = "Fixed");
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet. The stop codon frequencies are null.
    */
-  FixedCodonFrequencySet(const GeneticCode* gCode, const std::string& name = "Fixed");
+  FixedCodonFrequencySet(
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::string& name = "Fixed");
 
   FixedCodonFrequencySet(const FixedCodonFrequencySet& fcfs) :
     AbstractFrequencySet(fcfs),
@@ -194,36 +211,38 @@ public:
     return *this;
   }
 
-  FixedCodonFrequencySet* clone() const { return new FixedCodonFrequencySet(*this); }
+  FixedCodonFrequencySet* clone() const override { return new FixedCodonFrequencySet(*this); }
 
 public:
-  const GeneticCode* getGeneticCode() const { return pgc_; }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pgc_; }
 
-  const CodonAlphabet* getCodonAlphabet() const
+  std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const override
   {
-    return dynamic_cast<const CodonAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const CodonAlphabet>(getAlphabet());
   }
 
   /**
    * @brief the given frequencies are normalized such thaat the sum of
    * the frequencies on the non-stop codons equals 1.
-   *
    */
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
 protected:
-  void fireParameterChanged(const ParameterList& parameters) {}
+  void fireParameterChanged(const ParameterList& parameters) override {}
 };
 
 class UserCodonFrequencySet :
-  public virtual CodonFrequencySet,
+  public virtual CodonFrequencySetInterface,
   public UserFrequencySet
 {
 protected:
-  const GeneticCode* pgc_;
+  std::shared_ptr<const GeneticCode> pgc_;
 
 public:
-  UserCodonFrequencySet(const GeneticCode* gCode, const std::string& path, size_t nCol = 1);
+  UserCodonFrequencySet(
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::string& path,
+      size_t nCol = 1);
 
   UserCodonFrequencySet(const UserCodonFrequencySet& fcfs) :
     UserFrequencySet(fcfs),
@@ -237,25 +256,24 @@ public:
     return *this;
   }
 
-  UserCodonFrequencySet* clone() const { return new UserCodonFrequencySet(*this); }
+  UserCodonFrequencySet* clone() const override { return new UserCodonFrequencySet(*this); }
 
 public:
-  const GeneticCode* getGeneticCode() const { return pgc_; }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pgc_; }
 
-  const CodonAlphabet* getCodonAlphabet() const
+  std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const override
   {
-    return dynamic_cast<const CodonAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const CodonAlphabet>(getAlphabet());
   }
 
   /**
    * @brief the given frequencies are normalized such thaat the sum of
    * the frequencies on the non-stop codons equals 1.
-   *
    */
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
 protected:
-  void fireParameterChanged(const ParameterList& parameters) {}
+  void fireParameterChanged(const ParameterList& parameters) override {}
 };
 
 /**
@@ -272,19 +290,19 @@ protected:
  *
  */
 class FullPerAACodonFrequencySet :
-  public virtual CodonFrequencySet,
+  public virtual CodonFrequencySetInterface,
   public AbstractFrequencySet
 {
 private:
-  const GeneticCode* pgc_;
-  std::shared_ptr<ProteinFrequencySet> ppfs_;
+  std::shared_ptr<const GeneticCode> pgc_;
+  std::unique_ptr<ProteinFrequencySetInterface> ppfs_;
 
   /**
-   * @ brief vector of the simplexes, one for each AA
+   * @brief vector of the simplexes, one for each AA
    */
   std::vector<Simplex> vS_;
 
-  void updateFrequencies();
+  void updateFrequencies_();
 
 public:
   /**
@@ -296,7 +314,10 @@ public:
    * frequencies set.
    * @param method the method used for parametrization.
    */
-  FullPerAACodonFrequencySet(const GeneticCode* gencode, std::shared_ptr<ProteinFrequencySet> ppfs, unsigned short method = 1);
+  FullPerAACodonFrequencySet(
+      std::shared_ptr<const GeneticCode> gencode,
+      std::unique_ptr<ProteinFrequencySetInterface> ppfs,
+      unsigned short method = 1);
 
   /**
    * @brief Construction with fixed uniform frequencies on the amino acids.
@@ -304,8 +325,9 @@ public:
    * @param gencode The genetic code to use.
    * @param method the method used for parametrization.
    */
-
-  FullPerAACodonFrequencySet(const GeneticCode* gencode, unsigned short method = 1);
+  FullPerAACodonFrequencySet(
+      std::shared_ptr<const GeneticCode> gencode,
+      unsigned short method = 1);
 
   FullPerAACodonFrequencySet(const FullPerAACodonFrequencySet& ffs);
 
@@ -313,28 +335,32 @@ public:
 
   virtual ~FullPerAACodonFrequencySet() {}
 
-  FullPerAACodonFrequencySet* clone() const { return new FullPerAACodonFrequencySet(*this); }
+  FullPerAACodonFrequencySet* clone() const override { return new FullPerAACodonFrequencySet(*this); }
 
 public:
-  const CodonAlphabet* getCodonAlphabet() const
+  std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const override
   {
-    return dynamic_cast<const CodonAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const CodonAlphabet>(getAlphabet());
   }
 
-  const GeneticCode* getGeneticCode() const { return pgc_; }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pgc_; }
 
   /**
    * @brief the given frequencies are normalized such thaat the sum of
    * the frequencies on the non-stop codons equals 1.
-   *
    */
-  void setFrequencies(const std::vector<double>& frequencies);
+  void setFrequencies(const std::vector<double>& frequencies) override;
 
-  void setNamespace(const std::string& prefix);
+  void setNamespace(const std::string& prefix) override;
 
-  const std::shared_ptr<ProteinFrequencySet> getProteinFrequencySet() const
+  bool hasProteinFrequencySet() const
   {
-    return ppfs_;
+    return ppfs_ != nullptr;
+  }
+
+  const ProteinFrequencySetInterface& proteinFrequencySet() const
+  {
+    return *ppfs_;
   }
 
   unsigned short getMethod() const
@@ -343,7 +369,7 @@ public:
   }
 
 protected:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 };
 
 
@@ -352,10 +378,10 @@ protected:
  * Frequencies in letters with the frequencies of stop codons set to
  * zero.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
 class CodonFromIndependentFrequencySet :
-  public virtual CodonFrequencySet,
+  public virtual CodonFrequencySetInterface,
   public WordFromIndependentFrequencySet
 {
 private:
@@ -364,7 +390,7 @@ private:
 
   unsigned short mgmtStopCodon_;
 
-  const GeneticCode* pgc_;
+  std::shared_ptr<const GeneticCode> pgc_;
 
 public:
   /**
@@ -384,9 +410,12 @@ public:
    *  - quadratic (default): each stop frequency is distributed to the
    *     neighbour codons (ie 1 substitution away), in proportion to
    *     the square of each target codon frequency.
-   *
    */
-  CodonFromIndependentFrequencySet(const GeneticCode* gCode, const std::vector<std::shared_ptr<FrequencySet> >& freqvector, const std::string& name = "Codon", const std::string& mgmtStopCodon = "quadratic");
+  CodonFromIndependentFrequencySet(
+      std::shared_ptr<const GeneticCode> gCode,
+      std::vector<std::unique_ptr<FrequencySetInterface>>& freqvector,
+      const std::string& name = "Codon",
+      const std::string& mgmtStopCodon = "quadratic");
 
   CodonFromIndependentFrequencySet(const CodonFromIndependentFrequencySet& iwfs);
 
@@ -394,16 +423,16 @@ public:
 
   CodonFromIndependentFrequencySet& operator=(const CodonFromIndependentFrequencySet& iwfs);
 
-  CodonFromIndependentFrequencySet* clone() const { return new CodonFromIndependentFrequencySet(*this); }
+  CodonFromIndependentFrequencySet* clone() const override { return new CodonFromIndependentFrequencySet(*this); }
 
-  const CodonAlphabet* getCodonAlphabet() const;
+  std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const override;
 
-  const GeneticCode* getGeneticCode() const { return pgc_; }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pgc_; }
 
   /**
    * @brief Update the frequencies given the parameters.
    */
-  void updateFrequencies();
+  void updateFrequencies() override;
 
   /**
    * @brief Retrieve the mgmt method for the stop codons.
@@ -429,11 +458,11 @@ public:
  * for a unique FrequencySet in letters, with the frequencies of
  * stop codons set to zero.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
 
 class CodonFromUniqueFrequencySet :
-  public virtual CodonFrequencySet,
+  public virtual CodonFrequencySetInterface,
   public WordFromUniqueFrequencySet
 {
 private:
@@ -442,7 +471,7 @@ private:
 
   unsigned short mgmtStopCodon_;
 
-  const GeneticCode* pgc_;
+  std::shared_ptr<const GeneticCode> pgc_;
 
 public:
   /**
@@ -464,8 +493,8 @@ public:
    *      the square of each target codon frequency.
    */
   CodonFromUniqueFrequencySet(
-    const GeneticCode* gCode,
-    std::shared_ptr<FrequencySet> pfreq,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<FrequencySetInterface> pfreq,
     const std::string& name = "Codon",
     const std::string& mgmtStopCodon = "quadratic");
 
@@ -475,17 +504,16 @@ public:
 
   CodonFromUniqueFrequencySet& operator=(const CodonFromUniqueFrequencySet& iwfs);
 
-  CodonFromUniqueFrequencySet* clone() const { return new CodonFromUniqueFrequencySet(*this); }
+  CodonFromUniqueFrequencySet* clone() const override { return new CodonFromUniqueFrequencySet(*this); }
 
-  const CodonAlphabet* getCodonAlphabet() const;
+  std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const override;
 
-  const GeneticCode* getGeneticCode() const { return pgc_; }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pgc_; }
 
   /**
    * @brief Update the frequencies given the parameters.
-   *
    */
-  void updateFrequencies();
+  void updateFrequencies() override;
 
   /**
    * @brief Retrieve the mgmt method for the stop codons.

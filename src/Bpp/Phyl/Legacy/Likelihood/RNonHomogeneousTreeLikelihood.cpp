@@ -55,13 +55,13 @@ using namespace std;
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const Tree& tree,
-  SubstitutionModelSet* modelSet,
-  DiscreteDistribution* rDist,
+  std::shared_ptr<SubstitutionModelSet> modelSet,
+  std::shared_ptr<DiscreteDistribution> rDist,
   bool verbose,
   bool usePatterns,
   bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
-  likelihoodData_(0),
+  likelihoodData_(),
   minusLogLik_(-1.)
 {
   if (!modelSet->isFullySetUpFor(tree))
@@ -73,14 +73,14 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const Tree& tree,
-  const AlignedValuesContainer& data,
-  SubstitutionModelSet* modelSet,
-  DiscreteDistribution* rDist,
+  const AlignmentDataInterface& data,
+  std::shared_ptr<SubstitutionModelSet> modelSet,
+  std::shared_ptr<DiscreteDistribution> rDist,
   bool verbose,
   bool usePatterns,
   bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
-  likelihoodData_(0),
+  likelihoodData_(),
   minusLogLik_(-1.)
 {
   if (!modelSet->isFullySetUpFor(tree))
@@ -93,7 +93,7 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 
 void RNonHomogeneousTreeLikelihood::init_(bool usePatterns)
 {
-  likelihoodData_ = new DRASRTreeLikelihoodData(
+  likelihoodData_ = make_shared<DRASRTreeLikelihoodData>(
     tree_,
     rateDistribution_->getNumberOfCategories(),
     usePatterns);
@@ -104,10 +104,10 @@ void RNonHomogeneousTreeLikelihood::init_(bool usePatterns)
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const RNonHomogeneousTreeLikelihood& lik) :
   AbstractNonHomogeneousTreeLikelihood(lik),
-  likelihoodData_(0),
+  likelihoodData_(),
   minusLogLik_(lik.minusLogLik_)
 {
-  likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData*>(lik.likelihoodData_->clone());
+  likelihoodData_ = shared_ptr<DRASRTreeLikelihoodData>(lik.likelihoodData_->clone());
   likelihoodData_->setTree(tree_);
 }
 
@@ -117,9 +117,7 @@ RNonHomogeneousTreeLikelihood& RNonHomogeneousTreeLikelihood::operator=(
   const RNonHomogeneousTreeLikelihood& lik)
 {
   AbstractNonHomogeneousTreeLikelihood::operator=(lik);
-  if (likelihoodData_)
-    delete likelihoodData_;
-  likelihoodData_ = dynamic_cast<DRASRTreeLikelihoodData*>(lik.likelihoodData_->clone());
+  likelihoodData_ = shared_ptr<DRASRTreeLikelihoodData>(lik.likelihoodData_->clone());
   likelihoodData_->setTree(tree_);
   minusLogLik_ = lik.minusLogLik_;
   return *this;
@@ -127,17 +125,12 @@ RNonHomogeneousTreeLikelihood& RNonHomogeneousTreeLikelihood::operator=(
 
 /******************************************************************************/
 
-RNonHomogeneousTreeLikelihood::~RNonHomogeneousTreeLikelihood()
-{
-  delete likelihoodData_;
-}
+RNonHomogeneousTreeLikelihood::~RNonHomogeneousTreeLikelihood() {}
 
 /******************************************************************************/
 
-void RNonHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites)
+void RNonHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites)
 {
-  if (data_)
-    delete data_;
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");

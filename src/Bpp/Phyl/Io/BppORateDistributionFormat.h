@@ -59,7 +59,6 @@ namespace bpp
  * @see BppODiscreteDistribtution for a more generic parser.
  *
  */
-
 class BppORateDistributionFormat :
   public BppODiscreteDistributionFormat
 {
@@ -80,7 +79,7 @@ public:
   virtual ~BppORateDistributionFormat() {}
 
 public:
-  DiscreteDistribution* readDiscreteDistribution(const std::string& distDescription, bool parseArguments);
+  std::unique_ptr<DiscreteDistribution> readDiscreteDistribution(const std::string& distDescription, bool parseArguments);
 
   void writeDiscreteDistribution(const DiscreteDistribution& dist,
                                  OutputStream& out,

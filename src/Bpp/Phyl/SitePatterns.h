@@ -46,7 +46,7 @@
 
 
 // From bpp-seq:
-#include <Bpp/Seq/Site.h>
+#include <Bpp/Seq/CoreSite.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 
 // From the STL:
@@ -80,7 +80,7 @@ private:
   {
 public:
     std::string siteS;
-    const CruxSymbolListSite* siteP;
+    const CoreSiteInterface* siteP;
     size_t originalPosition;
 
 public:
@@ -101,11 +101,10 @@ public:
 
 private:
   std::vector<std::string> names_;
-  std::vector<const CruxSymbolListSite* > sites_;
+  std::vector< std::shared_ptr<const CoreSiteInterface> > sites_;
   std::vector<unsigned int> weights_;
   IndicesType indices_;
-  const Alphabet* alpha_;
-  bool own_;
+  std::shared_ptr<const Alphabet> alpha_;
 
 public:
   /**
@@ -116,89 +115,20 @@ public:
    * @param sequences The container to look in.
    * @param names The vector of the names of the sequences that are
    * effectively used in the computation. If not empty, the sites are
-   * filtered with the sequences names and belong to the sequences will
-   * be deleted together with this instance.
+   * filtered with the sequences names.
    */
-  
-  SitePatterns(const AlignedValuesContainer* sequences, std::vector<std::string> names= {});
-
-  /**
-   * @brief Build a new SitePattern object.
-   *
-   * Look for patterns (unique sites) within a site container.
-   *
-   * @param sequences The container to look in.   
-   * @param own if the SitePatterns will own the sites of the
-   * sequences. In which case the sites will be deleted together with
-   * this instance.
-   */
-  
-  SitePatterns(const AlignedValuesContainer* sequences, bool own);
-
-private:
-  void init_(const AlignedValuesContainer* sequences, std::vector<std::string> names= {});
-
-  
-public:
-  
-  ~SitePatterns()
-  {
-    if (own_)
-      for (auto si : sites_)
-      {
-        delete si;
-      }
-  }
-
-  SitePatterns(const SitePatterns& patterns) :
-    names_(patterns.names_),
-    sites_(),
-    weights_(patterns.weights_),
-    indices_(patterns.indices_),
-    alpha_(patterns.alpha_),
-    own_(patterns.own_)
-  {
-    if (!patterns.own_)
-      sites_ = patterns.sites_;
-    else
-    {
-      for (auto sit : patterns.sites_)
-      {
-        sites_.push_back(sit->clone());
-      }
-    }
-  }
-
-  SitePatterns& operator=(const SitePatterns& patterns)
-  {
-    names_     = patterns.names_;
-    weights_   = patterns.weights_;
-    indices_   = patterns.indices_;
-    if (own_)
-      for (auto si : sites_)
-      {
-        delete si;
-      }
-
-    sites_.clear();
-
-    if (!patterns.own_)
-      sites_ = patterns.sites_;
-    else
-    {
-      for (auto si : patterns.sites_)
-      {
-        sites_.push_back(si->clone());
-      }
-    }
-
-    alpha_     = patterns.alpha_;
-    own_       = patterns.own_;
-    return *this;
-  }
+  SitePatterns(
+      const AlignmentDataInterface& sequences,
+      std::vector<std::string> names = {});
 
   SitePatterns* clone() const { return new SitePatterns(*this); }
 
+private:
+  void init_(
+      const AlignmentDataInterface& sequences,
+      std::vector<std::string> names= {});
+
+  
 public:
   /**
    * @return The number of times each unique site was found.
@@ -212,7 +142,7 @@ public:
   /**
    * @return A new container with each unique site.
    */
-  std::shared_ptr<AlignedValuesContainer> getSites() const;
+  std::unique_ptr<AlignmentDataInterface> getSites() const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_SITEPATTERNS_H
