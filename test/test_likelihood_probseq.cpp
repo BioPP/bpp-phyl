@@ -83,7 +83,7 @@ void fitModelHSR(
   cout << endl;
   
   Parameter p1("T92.kappa",0.1);
-  Parameter p2("T92.kappa",0.2);
+  Parameter p2("T92.kappa",3);
   
   ParameterList pl1;pl1.addParameter(p1);
   ParameterList pl2;pl2.addParameter(p2);

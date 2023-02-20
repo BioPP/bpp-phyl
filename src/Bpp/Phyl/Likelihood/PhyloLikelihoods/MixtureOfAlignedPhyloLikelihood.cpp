@@ -51,7 +51,7 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(
     bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractParametrizable(""),
-  AbstractSetOfPhyloLikelihood(context, pC, {}, inCollection),
+  AbstractSetOfPhyloLikelihood(context, pC, nPhylo, inCollection),
   AbstractAlignedPhyloLikelihood(context, 0),
   AbstractSetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection, ""),
   likCal_(make_shared<AlignedLikelihoodCalculation>(context))
@@ -72,7 +72,7 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(
   // make Simplex DF & Frequencies from it
 
   simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(this->context(), simplex, paramList, "");
-
+  
   // for derivates
   auto deltaNode = NumericMutable<double>::create(this->context(), 0.001);
   auto config = NumericalDerivativeType::ThreePoints;

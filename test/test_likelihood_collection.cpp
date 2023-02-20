@@ -221,7 +221,9 @@ int main() {
   auto moap = make_shared<MixtureOfAlignedPhyloLikelihood>(context2, pc2, nPhylo, false);
 
   bpp::writeGraphToDot("moap.dot", {moap->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
-  cerr << "Moap: " << moap->getValue() << endl;
+
+  cerr << "Moap: "  << endl;
+  cerr  << moap->getValue() << endl;
 
   for (size_t pos=0; pos < sites->getNumberOfSites(); pos++){
     DataLik x = spl1->getLikelihoodForASite(pos) * moap->getPhyloProb(0) + spl2->getLikelihoodForASite(pos) * moap->getPhyloProb(1);
