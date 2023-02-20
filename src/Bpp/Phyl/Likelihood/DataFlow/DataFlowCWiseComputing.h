@@ -912,6 +912,15 @@ private:
     using namespace numeric;
     auto& result = this->accessValueMutable ();
     auto& p = accessValueConstCast<P>(*this->dependency(this->nbDependencies() - 1));
+
+#ifdef DEBUG
+    std::cerr << "=== CWiseMean === " << this << std::endl;
+    std::cerr << this->nbDependencies() << std::endl;
+    std::cerr << this->dependency(this->nbDependencies() - 1) << std::endl;
+    std::cerr << "p= " << p << std::endl;
+    std::cerr << "=== end CWiseMean === " << this << std::endl << std::endl;
+#endif
+
     result = cwise(p)[0] * cwise (accessValueConstCast<T>(*this->dependency(0)));
     for (Eigen::Index i = 1; i < Eigen::Index(this->nbDependencies() - 1); i++)
     {
