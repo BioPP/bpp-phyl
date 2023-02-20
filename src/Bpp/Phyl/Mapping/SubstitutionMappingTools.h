@@ -117,7 +117,7 @@ public:
     bool verbose = true)
   {
     std::vector<uint> edgeIds = rltc.substitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
-    return computeCounts(rltc, edgeIds, substitutionCount, threshold, verbose);
+    return computeCounts(rltc, edgeIds, substitutionCount, unresolvedOption, threshold, verbose);
   }
 
   /**
