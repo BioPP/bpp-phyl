@@ -306,18 +306,18 @@ bool isTransitivelyDependentOn (const Node_DF& searchedDependency, const Node_DF
   return false;
 }
 
-NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
+NodeRef recreateWithSubstitution(Context& c, const NodeRef& node,
                                   const std::unordered_map<const Node_DF*, NodeRef>& substitutions)
 {
   if (node == 0)
     return node;
-  auto it = substitutions.find (node.get ());
-  if (it != substitutions.end ())
+  auto it = substitutions.find(node.get());
+  if (it != substitutions.end())
   {
     // Substitute sub tree.
     return it->second;
   }
-  else if (node->dependencies ().empty ())
+  else if (node->dependencies().empty())
   {
     // Leaves do no support rebuild: just copy them
     return node;
@@ -325,10 +325,10 @@ NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
   else
   {
     // Recursion : only rebuild if dependencies have changed
-    NodeRefVec recreatedDeps (node->nbDependencies ());
+    NodeRefVec recreatedDeps(node->nbDependencies ());
     for (std::size_t i = 0; i < recreatedDeps.size (); ++i)
     {
-      recreatedDeps[i] = recreateWithSubstitution (c, node->dependency (i), substitutions);
+      recreatedDeps[i] = recreateWithSubstitution(c, node->dependency(i), substitutions);
     }
     if (recreatedDeps == node->dependencies ())
     {
@@ -336,7 +336,7 @@ NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
     }
     else
     {
-      return node->recreate (c, std::move (recreatedDeps));
+      return node->recreate(c, std::move(recreatedDeps));
     }
   }
 }
@@ -350,11 +350,11 @@ Context::Context() : nodeCache_(), zero_(ConstantZero<size_t>::create(*this, Dim
 }
 
                            
-NodeRef Context::cached (NodeRef&& newNode)
+NodeRef Context::cached(NodeRef&& newNode)
 {
   assert (newNode != nullptr);
   // Try inserting it, which will fail if already present and return the old one
-  auto r = nodeCache_.emplace (std::move (newNode));
+  auto r = nodeCache_.emplace(std::move (newNode));
   return r.first->ref;
 }
 
@@ -378,9 +378,8 @@ NodeRef Context::cached (NodeRef& newNode)
 std::vector<const Node_DF*> Context::getAllNodes() const
 {
   std::vector<const Node_DF*> ret;
-  for (const auto it : nodeCache_)
+  for (const auto& it : nodeCache_)
     ret.push_back(it.ref.get());
-
   return(ret);
 }
     
