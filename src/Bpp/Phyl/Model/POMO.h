@@ -94,15 +94,10 @@
  * \pi_{a_i} \pi_{a_j} \rho_{a_ia_j} \sum_{n=1}^{N-1} \phi_{a_i}^{N-n}
  * \phi_{a_j}^{n-1}\frac{N}{n} @f$
  *
- * The generator is normalized to ensure one substitution per unit of
- * time, which means that it is divided per:
+ * The generator should be normalized to ensure one substitution per
+ * unit of time. See document online:
  *
- *
- * s= \frac{\sum_{i \neq j} 2 \mu_{a_ia_j} \pi_{a_i}
- * \phi_{a_i}^{N-2}\phi_{a_j}^{N}\frac{\phi_{a_i}-\phi_{a_j}}{\phi_{a_i}^{N}-\phi_{a_j}^N}}
- * {\sum_{k \neq l} \pi_{a_k} \mu_{a_ka_l} ( 2 \phi_{a_k}^{N-1} + (\phi_{a_l}
- * + \phi_{a_k})\frac{\phi_{a_l}^{N-1} - \phi_{a_k}^{N-1}}{\phi_{a_l}
- * - \phi_{a_k}})} @f$
+ * https://www.overleaf.com/project/639760f5aacdcfbde3ced551
  *
  * See:
  *
@@ -132,6 +127,15 @@ namespace bpp
     std::shared_ptr<SubstitutionModel> pmodel_;
     std::shared_ptr<FrequencySet> pfitness_;
 
+    /**
+     * @brief map of the fitness -> fixation time, given there is
+     * fixation, from a unique allele, given the fitness of the new
+     * allele compared to the ancestral allele.
+     *
+     **/
+    
+    mutable std::map<double, double> fixation_times_;
+
   public:
     /**
      * @brief Build a POMO instance
@@ -147,15 +151,17 @@ namespace bpp
       AbstractSubstitutionModel(model),
       nbAlleles_(model.nbAlleles_),
       pmodel_(model.pmodel_->clone()),
-      pfitness_(model.pfitness_?model.pfitness_->clone():0)
+      pfitness_(model.pfitness_ ? model.pfitness_->clone() : nullptr),
+      fixation_times_(model.fixation_times_)
     {}
 
     POMO& operator=(const POMO& model)
     {
       AbstractParameterAliasable::operator=(model);
       nbAlleles_ = model.nbAlleles_;
-      pmodel_ = std::shared_ptr<SubstitutionModel>(model.pmodel_->clone());
-      pfitness_ = model.pfitness_?std::shared_ptr<FrequencySet>(model.pfitness_->clone()):0;
+      pmodel_.reset(model.pmodel_->clone());
+      pfitness_.reset(model.pfitness_ ? model.pfitness_->clone() : nullptr);
+      fixation_times_ = model.fixation_times_;
       return *this;
     }
 
@@ -196,9 +202,19 @@ namespace bpp
       return "POMO";
     }
     
-  protected:
-    void updateMatrices();
-  
+  protected:    
+    void updateMatrices() override;
+
+  private:
+
+    /**
+     * @brief returns the expected fixation of a new allele with given
+     * relative fitness. This time is computed once, and stored
+     * otherwise.
+     *
+     **/
+    
+    double fixation_time(double fitness) const;
   };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_POMO_H

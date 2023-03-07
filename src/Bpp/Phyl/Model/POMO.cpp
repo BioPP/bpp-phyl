@@ -39,6 +39,7 @@
 
 
 #include "POMO.h"
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 using namespace bpp;
 
@@ -53,7 +54,8 @@ POMO::POMO(const AllelicAlphabet* allAlph,
   AbstractSubstitutionModel(allAlph, std::shared_ptr<const StateMap>(new CanonicalStateMap(allAlph, false)), "POMO."),
   nbAlleles_(allAlph->getNbAlleles()),
   pmodel_(pmodel),
-  pfitness_(pfitness)
+  pfitness_(pfitness),
+  fixation_times_()
 {
   const auto& alph=allAlph->getStateAlphabet();
   
@@ -136,26 +138,24 @@ void POMO::updateMatrices()
   
   const auto& pFreq = pmodel_->getFrequencies();
 
+  double invnbStates=1./(double)nbStates;
   Vdouble pN(nbStates), pNm(nbStates), pNm2(nbStates), p(nbStates);
   for (size_t i=0;i<nbStates;i++)
   {
-    pNm2[i]=fit?std::pow((*fit)[i],nbAlleles-2):1;
-    pNm[i]=fit?pNm2[i] * (*fit)[i]:1;
-    pN[i]=fit?pNm[i] * (*fit)[i]:1;
+    pNm2[i]=fit?std::pow((*fit)[i],nbAlleles-2):invnbStates;
+    pNm[i]=pNm2[i] * (fit? (*fit)[i]:invnbStates);
+    pN[i]=pNm[i] * (fit? (*fit)[i]:invnbStates);
     freq_[i]=pFreq[i]*pNm[i];
   }
 
   size_t k=nbStates;
-  double sden=0;
-  double snum=0;
-  
   for (size_t i = 0; i < nbStates-1; ++i)
   {
-    double phi_i = fit?(*fit)[i]:1./(double)nbStates;
+    double phi_i = fit?(*fit)[i]:invnbStates;
     // then for all couples ending with j
     for (size_t j=i+1;j<nbStates;j++)
     {
-      double phi_j = fit?(*fit)[j]:1./(double)nbStates;
+      double phi_j = fit?(*fit)[j]:invnbStates;
 
       auto mu=Q(i,j)*pFreq[i];   // alleles i & j
 
@@ -169,25 +169,57 @@ void POMO::updateMatrices()
         rfreq*=rat;
       }
 
-      snum+=2*mu*pNm2[i] * pN[j] * (pN[i]!=pN[j]?(phi_i-phi_j)/(pN[i]-pN[j]):(1./nbAlleles));
-      sden+=mu * 2 * pNm[i] + ((phi_i+phi_j)*
-                               ((phi_i!=phi_j)?((pNm[i]-pNm[j])/(phi_i-phi_j)):(nbAlleles-1)));
     }
   }
-  
-  // stationary freq
+
+
+  // normalizing stationary freq
   double x = VectorTools::sum(freq_);
   freq_ /= x;
 
+  // Compute scaling factor
+  double sden=0;
+  
+  double s = 0;
+  for (size_t i = 0; i < nbStates-1; ++i)
+  {
+    double phi_i = fit?(*fit)[i]:invnbStates;
+    // then for all couples ending with j
+    for (size_t j=i+1;j<nbStates;j++)
+    {
+      double phi_j = fit?(*fit)[j]:invnbStates;
 
-  // Specific normalization in numbers of substitutions (from appendix D of Genetics. 2019 Aug; 212(4): 1321–1336.)
-  // s is the probability of substitution on a duration of 1 generation (ie the actual scale time of the model). 
-  double s=snum/sden;
+      double rat=phi_j/phi_i;
+                            
+      double fixtij = fixation_time(rat);
+      double fixtji = fixation_time(1/rat);
+
+      auto mij = 2 * Q(i,j) * pFreq[i] * pNm[i];
+      auto mji = 2 * Q(j,i) * pFreq[j] * pNm[j];
+
+      auto hij = rat==1.?1./(int)nbAlleles:(pN[j]/(pN[i]-pN[j])*(1-rat)/rat);
+      auto hji = rat==1.?1./(int)nbAlleles:(pN[i]/(pN[j]-pN[i])*(rat-1));
+
+      s += mij*hij/fixtij + mji*hji/fixtji;
+
+      sden += Q(i,j) * pFreq[i] * (2 * pNm[i]
+                                   + (phi_i+phi_j)* ((phi_i!=phi_j)?((pNm[i]-pNm[j])/(phi_i-phi_j)):(pNm2[i]*(nbAlleles-1))));
+      sden += Q(j,i) * pFreq[j] * (2 * pNm[j]
+                                   + (phi_i+phi_j)* ((phi_i!=phi_j)?((pNm[i]-pNm[j])/(phi_i-phi_j)):(pNm2[j]*(nbAlleles-1))));    
+
+    }
+  }
+
+  // s is the probability of substitution on a duration of 1 generation (ie the actual scale time of the model).
+  s/=sden;
 
   // And everything for exponential
+  auto r=getScale();
+  
   AbstractSubstitutionModel::updateMatrices();
 
-  setScale(1/s);
+  // Finally, set correct rate
+  setScale(r/s);
 }
   
   
@@ -207,3 +239,67 @@ void POMO::setFreq(map<int, double>& frequencies)
   // matchParametersValues(pfreqset_->getParameters());
 }
 
+double POMO::fixation_time(double fitness) const
+{
+  if (fixation_times_.find(fitness)==fixation_times_.end())
+  {
+    Vdouble pN(nbAlleles_+1,1); // pN[i] = fitness^i
+
+    if (fitness!=1)
+    {
+      pN[0]=1.;
+      for (size_t i=1;i<(size_t)nbAlleles_;i++)
+      {
+        pN[i]=fitness * pN[i-1];
+      }
+    }
+
+    auto f = std::make_shared<vector<double>>(nbAlleles_);
+    auto g = std::make_shared<vector<double>>(nbAlleles_);
+
+    for (size_t i=0;i<nbAlleles_;i++)
+      (*f)[i]=double(2*nbAlleles_-i-1);
+
+    size_t cpt=0;
+
+    while(cpt++<1000)
+    {
+      (*g)[nbAlleles_-1]=0;
+      (*g)[0]=(1+(nbAlleles_-1)*fitness)/((nbAlleles_-1)*(1+fitness)) + (*f)[1];
+      for (size_t i=1;i<nbAlleles_-1;i++)
+      {
+        auto n = double(i+1);
+        if (fitness!=1)
+        {
+          double den = (1-pN[i+1])*(1+fitness);
+          (*g)[i]=(n+((double)nbAlleles_-n)*fitness)/(n*((double)nbAlleles_-n)*(1+fitness))
+            + (1-pN[i+2])/den * (*f)[i+1]
+            + (fitness-pN[i+1])/den * (*f)[i-1];
+        }
+        else
+        {
+          (*g)[i]=(double)nbAlleles_/(2*n*((double)nbAlleles_-n))
+            + (n+1)/(2*n) * (*f)[i+1]
+            + (n-1)/(2*n) * (*f)[i-1];
+        }
+      }
+      auto h=f;
+      f=g;
+      g=h;      
+
+      bool flag=true;
+      for (size_t i=0;i<f->size();i++)
+        if (abs((*f)[i]-(*g)[i])> NumConstants::NANO())
+        {
+          flag=false;          
+          break;
+        }
+      if (flag)
+        break;
+    }
+    
+    fixation_times_[fitness]=(*f)[0];
+  }
+  
+  return (fixation_times_[fitness]);
+}
