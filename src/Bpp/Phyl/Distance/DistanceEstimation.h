@@ -282,6 +282,10 @@ public:
   
   std::shared_ptr<OptimizerInterface> getOptimizer() { return optimizer_; }
 
+  const OptimizerInterface& optimizer() const { return *optimizer_; }
+  
+  OptimizerInterface& optimizer() { return *optimizer_; }
+
   void resetOptimizer() { optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_); }
 
   /**
