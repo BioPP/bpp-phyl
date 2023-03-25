@@ -2362,7 +2362,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
   shared_ptr<OutputStream> messageHandler =
     (mhPath == "none") ? nullptr :
     (mhPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(new ofstream(mhPath.c_str(), ios::out));
+    make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
@@ -2370,7 +2370,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
   shared_ptr<OutputStream> profiler =
     (prPath == "none") ? nullptr :
     (prPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(new ofstream(prPath.c_str(), ios::out));
+    make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
@@ -3569,22 +3569,22 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
 
 void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedPhyloLikelihoodInterface& sOAP, const string& infosFile, int warn)
 {
-  const MixtureOfAlignedPhyloLikelihood* mOAP = NULL;
-  const HmmOfAlignedPhyloLikelihood* hOAP = NULL;
-  const AutoCorrelationOfAlignedPhyloLikelihood* aCOAP = NULL;
+  const MixtureOfAlignedPhyloLikelihood* mOAP = nullptr;
+  const HmmOfAlignedPhyloLikelihood* hOAP = nullptr;
+  const AutoCorrelationOfAlignedPhyloLikelihood* aCOAP = nullptr;
 
   vector<size_t> phyloNum = sOAP.getNumbersOfPhyloLikelihoods();
   size_t nbP = phyloNum.size();
 
-  if (dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(&sOAP) == NULL)
+  if (dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(&sOAP) == nullptr)
   {
-    StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+    StlOutputStream out(make_unique<ofstream>(infosFile.c_str(), ios::out));
 
-    if (dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
+    if (dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP) != nullptr)
       mOAP = dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP);
-    else if (dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
+    else if (dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP) != nullptr)
       hOAP = dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP);
-    else if (dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
+    else if (dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP) != nullptr)
       aCOAP = dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP);
 
     vector<string> colNames;
@@ -3670,7 +3670,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
   {
     auto& pSPL = dynamic_cast<const SingleProcessPhyloLikelihood&>(phyloLike);
 
-    StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+    StlOutputStream out(make_unique<ofstream>(infosFile.c_str(), ios::out));
 
     std::shared_ptr<const SubstitutionProcessInterface> pSP = pSPL.getSubstitutionProcess();
 
@@ -3776,7 +3776,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
       return p1.second < p2.second;
     })->second;
 
-    StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+    StlOutputStream out(make_unique<ofstream>(infosFile.c_str(), ios::out));
 
     vector<string> colNames;
     colNames.push_back("Sites");
@@ -3859,7 +3859,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
   {
     auto& pMPL = dynamic_cast<const MultiProcessSequencePhyloLikelihood&>(phyloLike);
 
-    StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+    StlOutputStream out(make_unique<ofstream>(infosFile.c_str(), ios::out));
 
     vector<string> colNames;
     colNames.push_back("Sites");

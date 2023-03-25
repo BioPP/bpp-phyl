@@ -84,8 +84,8 @@ int main() {
   SimpleSubstitutionProcessSiteSimulator simulator(process);
 
   unsigned int n = 100000;
-  auto profiler  = make_shared<StlOutputStream>(new ofstream("profile.txt", ios::out));
-  auto messenger = make_shared<StlOutputStream>(new ofstream("messages.txt", ios::out));
+  auto profiler  = make_shared<StlOutputStream>(make_unique<ofstream>("profile.txt", ios::out));
+  auto messenger = make_shared<StlOutputStream>(make_unique<ofstream>("messages.txt", ios::out));
 
   //Check fast simulation first:
  

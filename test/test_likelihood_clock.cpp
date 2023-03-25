@@ -73,8 +73,8 @@ void fitModelH(shared_ptr<SubstitutionModelInterface> model,
   ApplicationTools::displayResult("* initial likelihood", initValue);
   if (abs(initValue - initialValue) > 0.001)
     throw Exception("Incorrect initial value:" + TextTools::toString(initValue) + "<>" + TextTools::toString(initialValue));
-  shared_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
-  shared_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
+  shared_ptr<OutputStream> messenger(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
+  shared_ptr<OutputStream> profiler(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
   profiler->setPrecision(20);
 
   
@@ -108,8 +108,8 @@ void fitModelHClock(shared_ptr<SubstitutionModelInterface> model,
   ApplicationTools::displayResult("* initial likelihood", initValue);
   if (abs(initValue - initialValue) > 0.001)
     throw Exception("Incorrect initial value:" + TextTools::toString(initValue) + "<>" + TextTools::toString(initialValue));
-  shared_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
-  shared_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
+  shared_ptr<OutputStream> messenger(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
+  shared_ptr<OutputStream> profiler(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
   profiler->setPrecision(20);
 
   OptimizationTools::optimizeNumericalParameters2(llh, llh->getParameters(), 0, 0.000001, 10000, messenger, profiler);

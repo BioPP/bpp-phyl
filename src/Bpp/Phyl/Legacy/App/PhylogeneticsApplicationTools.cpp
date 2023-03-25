@@ -760,7 +760,7 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
   shared_ptr<OutputStream> messageHandler =
     (mhPath == "none") ? nullptr :
     (mhPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(new ofstream(mhPath.c_str(), ios::out));
+    make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
@@ -768,7 +768,7 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
   shared_ptr<OutputStream> profiler =
     (prPath == "none") ? nullptr :
     (prPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(new ofstream(prPath.c_str(), ios::out));
+    make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
