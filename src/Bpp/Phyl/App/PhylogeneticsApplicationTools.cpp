@@ -607,7 +607,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTool
 /******* MODELS **********************************************/
 /*************************************************************/
 
-map<size_t, std::unique_ptr<BranchModelInterface> > PhylogeneticsApplicationTools::getBranchModels(
+map<size_t, std::unique_ptr<BranchModelInterface>> PhylogeneticsApplicationTools::getBranchModels(
   std::shared_ptr<const Alphabet> alphabet,
   std::shared_ptr<const GeneticCode> gCode,
   const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
@@ -633,19 +633,21 @@ map<size_t, std::unique_ptr<BranchModelInterface> > PhylogeneticsApplicationTool
   vector<string> modelsName = ApplicationTools::matchingParameters("model*", paramModel);
 
   vector<size_t> modelsNum;
-  for (const auto& name:modelsName)
+  for (const auto& name : modelsName)
   {
     size_t poseq = name.find("=");
-    if (name.find("nodes_id") == string::npos)
-      modelsNum.push_back((size_t) TextTools::toInt(name.substr(5, poseq - 5)));
+    if (name.find("nodes_id") == string::npos) {
+      cout << name << endl;
+      modelsNum.push_back(TextTools::to<size_t>(name.substr(5, poseq - 5)));
+    }
   }
 
-  map<size_t, std::unique_ptr<BranchModelInterface> > mModel;
+  map<size_t, std::unique_ptr<BranchModelInterface>> mModel;
 
   BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn);
   bIO.setGeneticCode(gCode);
 
-  for (size_t i = 0; i < modelsNum.size(); i++)
+  for (size_t i = 0; i < modelsNum.size(); ++i)
   {
     if (i >= 10)
     {
@@ -671,7 +673,7 @@ map<size_t, std::unique_ptr<BranchModelInterface> > PhylogeneticsApplicationTool
     size_t nData = 0;
 
     if (args.find("data") != args.end())
-      nData = (size_t) TextTools::toInt(args["data"]);
+      nData = TextTools::to<size_t>(args["data"]);
 
 
     unique_ptr<BranchModelInterface> model;
@@ -800,12 +802,12 @@ map<size_t, std::unique_ptr<FrequencySetInterface> > PhylogeneticsApplicationToo
   vector<string> vrfName = ApplicationTools::matchingParameters("root_freq*", paramRF);
 
   vector<size_t> rfNum;
-  for (const auto& rfName: vrfName)
+  for (const auto& rfName : vrfName)
   {
     size_t poseq = rfName.find("=");
     try
     {
-      rfNum.push_back((size_t) TextTools::toInt(rfName.substr(9, poseq - 9)));
+      rfNum.push_back(TextTools::to<size_t>(rfName.substr(9, poseq - 9)));
     }
     catch (Exception& e)
     {}
@@ -831,7 +833,7 @@ map<size_t, std::unique_ptr<FrequencySetInterface> > PhylogeneticsApplicationToo
     size_t nData = 0;
 
     if (args.find("data") != args.end())
-      nData = (size_t) TextTools::toInt(args["data"]);
+      nData = TextTools::to<size_t>(args["data"]);
 
     auto rFS = bIO.readFrequencySet(alphabet, freqDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true);
     rFS->setNamespace("root." + rFS->getNamespace());
@@ -1273,14 +1275,14 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     size_t pp = sRate.find(".");
 
-    numRate = static_cast<size_t>(TextTools::toInt(sRate.substr(0, pp)));
+    numRate = TextTools::to<size_t>(sRate.substr(0, pp));
   
     if (!SubProColl.hasDistributionNumber(numRate))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
     
     if (pp != string::npos)
     {
-      size_t numSRate = static_cast<size_t>(TextTools::toInt(sRate.substr(pp + 1)));
+      size_t numSRate = TextTools::to<size_t>(sRate.substr(pp + 1));
       SubProColl.addDistribution(
 		     std::make_shared<ConstantDistribution>(
 			     SubProColl.rateDistribution(numRate).getCategory(numSRate)),
@@ -1559,7 +1561,7 @@ unique_ptr<SubstitutionProcessCollection> PhylogeneticsApplicationTools::getSubs
     string suff = vProcName[nT].substr(len, poseq - len);
 
     if (TextTools::isDecimalInteger(suff, '$'))
-      num = static_cast<size_t>(TextTools::toInt(suff));
+      num = TextTools::to<size_t>(suff);
     else
       num = 1;
 
@@ -1657,7 +1659,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
   for (size_t i = 0; i < evolsName.size(); ++i)
   {
     size_t poseq = evolsName[i].find("=");
-    evolsNum.push_back((size_t) TextTools::toInt(evolsName[i].substr(7, poseq - 7)));
+    evolsNum.push_back(TextTools::to<size_t>(evolsName[i].substr(7, poseq - 7)));
   }
 
   map<size_t, unique_ptr<SequenceEvolution> > mEvol;
@@ -1878,7 +1880,7 @@ std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   for (size_t i = 0; i < phylosName.size(); ++i)
   {
     size_t poseq = phylosName[i].find("=");
-    size_t phyln = (size_t) TextTools::toInt(phylosName[i].substr(5, poseq - 5));
+    size_t phyln = TextTools::to<size_t>(phylosName[i].substr(5, poseq - 5));
 
     if (phyln == 0)
       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Forbidden Phylo Number", 0);
@@ -2292,7 +2294,7 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
     rf = args["classes"];
     StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
     while (strtok2.hasMoreToken())
-      classes.push_back(static_cast<size_t>(TextTools::toInt(strtok2.nextToken())));
+      classes.push_back(TextTools::to<size_t>(strtok2.nextToken()));
 
     pMDD = new DirichletDiscreteDistribution(classes, alphas);
     vector<string> v = pMDD->getParameters().getParameterNames();
