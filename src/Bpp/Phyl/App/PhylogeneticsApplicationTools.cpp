@@ -501,7 +501,7 @@ std::unique_ptr<SubstitutionModelInterface> PhylogeneticsApplicationTools::getSu
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  auto model = bIO.readSubstitutionModel(alphabet, modelDescription, data, true);
+  auto model = bIO.readSubstitutionModel(alphabet, modelDescription, *data, true);
 
   unparsedParams.insert(bIO.getUnparsedArguments().begin(), bIO.getUnparsedArguments().end());
 
@@ -534,7 +534,7 @@ std::unique_ptr<BranchModelInterface> PhylogeneticsApplicationTools::getBranchMo
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  auto model = bIO.readBranchModel(alphabet, modelDescription, data, true);
+  auto model = bIO.readBranchModel(alphabet, modelDescription, *data, true);
   map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
   unparsedParams.insert(tmpUnparsedParameterValues.begin(), tmpUnparsedParameterValues.end());
@@ -678,10 +678,13 @@ map<size_t, std::unique_ptr<BranchModelInterface>> PhylogeneticsApplicationTools
 
     unique_ptr<BranchModelInterface> model;
     if (args.find("data") != args.end() && mData.find(nData) != mData.end())
-      model = bIO.readBranchModel(alphabet, modelDescription, mData.find(nData)->second, true);
+      model = bIO.readBranchModel(alphabet, modelDescription, *mData.find(nData)->second, true);
     else
-      model = bIO.readBranchModel(alphabet, modelDescription, 0, true);
-
+    {
+      VectorSiteContainer data(alphabet);
+      model = bIO.readBranchModel(alphabet, modelDescription, data, true);
+    }
+    
     map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
     for (auto& it : tmpUnparsedParameterValues)
@@ -711,7 +714,7 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getFrequen
   std::shared_ptr<const Alphabet> alphabet,
   std::shared_ptr<const GeneticCode> gCode,
   const string& freqDescription,
-  std::shared_ptr<const AlignmentDataInterface> data,
+  const AlignmentDataInterface& data,
   map<string, string>& sharedparams,
   const vector<double>& rateFreqs,
   bool verbose,
@@ -744,7 +747,7 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getFrequen
 std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getRootFrequencySet(
   std::shared_ptr<const Alphabet> alphabet,
   std::shared_ptr<const GeneticCode> gCode,
-  std::shared_ptr<const AlignmentDataInterface> data,
+  const AlignmentDataInterface& data,
   const map<string, string>& params,
   map<string, string>& sharedparams,
   const vector<double>& rateFreqs,
@@ -835,8 +838,20 @@ map<size_t, std::unique_ptr<FrequencySetInterface> > PhylogeneticsApplicationToo
     if (args.find("data") != args.end())
       nData = TextTools::to<size_t>(args["data"]);
 
-    auto rFS = bIO.readFrequencySet(alphabet, freqDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true);
+    unique_ptr<FrequencySetInterface> rFS;
+
+    if (args.find("data") != args.end())
+    {
+      rFS = bIO.readFrequencySet(alphabet, freqDescription, *mData.find(nData)->second, true);
+    }
+    else
+    {
+      VectorSiteContainer data(alphabet);
+      rFS = bIO.readFrequencySet(alphabet, freqDescription, data, true);
+    }
+    
     rFS->setNamespace("root." + rFS->getNamespace());
+
     map<string, string> unparsedparam = bIO.getUnparsedArguments();
 
     for (auto& it : unparsedparam)
@@ -1110,7 +1125,6 @@ map<size_t, std::unique_ptr<ModelScenario> > PhylogeneticsApplicationTools::getM
 /******************************************************/
 /********** SUBSTITUTION PROCESS   ********************/
 /******************************************************/
-
 
 unique_ptr<AutonomousSubstitutionProcessInterface> PhylogeneticsApplicationTools::getSubstitutionProcess(
   std::shared_ptr<const Alphabet> alphabet,
@@ -1856,7 +1870,7 @@ std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   Context& context,
   shared_ptr<SubstitutionProcessCollection> SPC,
   map<size_t, std::shared_ptr<SequenceEvolution> >& mSeqEvol,
-  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
+  const map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mData,
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,

@@ -73,7 +73,7 @@ using namespace std;
 std::unique_ptr<BranchModelInterface> BppOBranchModelFormat::readBranchModel(
   shared_ptr<const Alphabet> alphabet,
   const string& modelDescription,
-  shared_ptr<const AlignmentDataInterface> data,
+  const AlignmentDataInterface& data,
   bool parseArguments)
 {
   unparsedArguments_.clear();

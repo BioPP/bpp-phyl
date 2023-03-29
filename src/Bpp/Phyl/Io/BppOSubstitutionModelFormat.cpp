@@ -152,7 +152,7 @@ unsigned char BppOSubstitutionModelFormat::ALL = 1 | 2 | 4 | 8 | 16 | 32;
 unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitutionModel(
   shared_ptr<const Alphabet> alphabet,
   const string& modelDescription,
-  shared_ptr<const AlignmentDataInterface> data,
+  const AlignmentDataInterface& data,
   bool parseArguments)
 {
   unparsedArguments_.clear();
@@ -879,8 +879,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
         // Now we create the Coala model:
         model = make_unique<Coala>(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch));
-        if (data)
-          model->setFreqFromData(*data);
+        if (data.getNumberOfSites()!=0)
+          model->setFreqFromData(data);
       }
       else
         throw Exception("Model '" + modelName + "' is unknown, or does not fit proteic alphabet.");
@@ -990,7 +990,7 @@ void BppOSubstitutionModelFormat::updateParameters_(
 unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& modelDescription,
-    std::shared_ptr<const AlignmentDataInterface> data)
+    const AlignmentDataInterface& data)
 {
   unique_ptr<SubstitutionModelInterface> model;
   string modelName = "";
@@ -1913,7 +1913,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModelInterfac
 
 void BppOSubstitutionModelFormat::initialize_(
   BranchModelInterface& model,
-  shared_ptr<const AlignmentDataInterface> data)
+  const AlignmentDataInterface& data)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedArguments_, "", "", true, warningLevel_);
   if (verbose_)
@@ -1925,10 +1925,10 @@ void BppOSubstitutionModelFormat::initialize_(
       auto& tmodel = dynamic_cast<TransitionModelInterface&>(model);
       if (initFreqs == "observed")
       {
-        if (!data)
+        if (data.getNumberOfSites()!=0)
           throw Exception("BppOSubstitutionModelFormat::initialize_(). Missing data for observed frequencies");
         unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedArguments_, 0, "", true, warningLevel_);
-        tmodel.setFreqFromData(*data, psi);
+        tmodel.setFreqFromData(data, psi);
       }
       else if (initFreqs.substr(0, 6) == "values")
       {

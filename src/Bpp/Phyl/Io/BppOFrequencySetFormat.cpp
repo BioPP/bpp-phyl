@@ -80,7 +80,7 @@ unsigned char BppOFrequencySetFormat::ALL = 1 | 2 | 4 | 8 | 16;
 std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& freqDescription,
-    std::shared_ptr<const AlignmentDataInterface> data,
+    const AlignmentDataInterface& data,
     bool parseArguments)
 {
   unparsedArguments_.clear();

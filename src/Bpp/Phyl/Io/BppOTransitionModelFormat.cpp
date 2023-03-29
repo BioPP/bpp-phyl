@@ -93,7 +93,7 @@ using namespace std;
 unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionModel(
   std::shared_ptr<const Alphabet> alphabet,
   const std::string& modelDescription,
-  std::shared_ptr<const AlignmentDataInterface> data,
+  const AlignmentDataInterface& data,
   bool parseArguments)
 {
   unparsedArguments_.clear();
@@ -309,7 +309,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
 unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& modelDescription,
-    std::shared_ptr<const AlignmentDataInterface> data)
+    const AlignmentDataInterface& data)
 {
   unique_ptr<MixedTransitionModelInterface> model;
 

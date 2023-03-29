@@ -122,7 +122,7 @@ public:
   std::unique_ptr<FrequencySetInterface> readFrequencySet(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& freqDescription,
-    std::shared_ptr<const AlignmentDataInterface> data,
+    const AlignmentDataInterface& data,
     bool parseArguments = true) override;
 
   const std::map<std::string, std::string>& getUnparsedArguments() const override

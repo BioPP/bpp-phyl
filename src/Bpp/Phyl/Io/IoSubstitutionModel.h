@@ -96,7 +96,7 @@ public:
   virtual std::unique_ptr<SubstitutionModelInterface> readSubstitutionModel(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      std::shared_ptr<const AlignmentDataInterface> data = nullptr,
+      const AlignmentDataInterface& data,
       bool parseArguments = true) = 0;
 
   /**
