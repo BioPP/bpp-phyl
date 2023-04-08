@@ -145,7 +145,7 @@ public:
     return getAncestralSequenceForNode(nodeId, 0, false);
   }
 
-  std::unique_ptr<AlignmentDataInterface> getAncestralSequences() const
+  std::unique_ptr<AlignedSequenceContainer> getAncestralSequences() const
   {
     return getAncestralSequences(false);
   }

@@ -80,7 +80,7 @@ public:
    * @brief Get the std::map of initial phylo trees
    */
   virtual std::map<size_t, std::shared_ptr<PhyloTree> > getPhyloTreesMap(
-    const std::map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mSites,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -93,7 +93,7 @@ public:
   virtual std::unique_ptr<SubstitutionProcessCollection> getCollection(
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
-    const std::map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mSites,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
     const std::map<size_t, std::shared_ptr<PhyloTree> >& mpTree,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
@@ -103,7 +103,7 @@ public:
   virtual std::unique_ptr<SubstitutionProcessCollection> getCollection(
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
-    const std::map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mSites,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -126,7 +126,7 @@ public:
     std::map<size_t, std::shared_ptr<SequenceEvolution> > mSeqEvol,
     std::shared_ptr<SubstitutionProcessCollection> collection,
     const std::map<size_t,
-                   std::unique_ptr<const AlignmentDataInterface> >& mSites,
+                   std::shared_ptr<const AlignmentDataInterface> >& mSites,
     const std::string& suffix = "",
     bool suffixIsOptional = true) const;
 

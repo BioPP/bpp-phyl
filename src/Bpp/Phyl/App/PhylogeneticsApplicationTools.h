@@ -416,8 +416,8 @@ public:
     const std::string& regTypeDesc,
     std::shared_ptr<const StateMapInterface> stateMap,
     std::shared_ptr<const GeneticCode> genCode,
-    std::unique_ptr<AlphabetIndex2>& weights,
-    std::unique_ptr<AlphabetIndex2>& distances,
+    std::shared_ptr<AlphabetIndex2>& weights,
+    std::shared_ptr<AlphabetIndex2>& distances,
     bool verbose = true);
 
   /**
@@ -541,7 +541,7 @@ public:
     Context& context,
     std::shared_ptr<SubstitutionProcessCollection> SPC,
     std::map<size_t, std::shared_ptr<SequenceEvolution> >& mSeqEvol,
-    const std::map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mData,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
     const std::map<std::string, std::string>& params,
     const string& suffix = "",
     bool suffixIsOptional = true,
@@ -650,7 +650,7 @@ public:
    */
   static std::unique_ptr<SubstitutionCountInterface> getSubstitutionCount(
     std::shared_ptr<const Alphabet> alphabet,
-    std::unique_ptr<const SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionModelInterface> model,
     const std::map<std::string, std::string>& params,
     string suffix = "",
     bool verbose = true,
@@ -803,7 +803,7 @@ public:
    * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
 
-  static void printParameters(const SequenceEvolution* evol, OutputStream& out, size_t nEvol = 1, int warn = 1);
+  static void printParameters(const SequenceEvolution& evol, OutputStream& out, size_t nEvol = 1, int warn = 1);
 
   /**
    * @brief Output a DiscreteDistribution description to a file.
@@ -814,7 +814,7 @@ public:
    *                      Parameters instead of the values (default
    *                      : true).
    */
-  static void printParameters(const DiscreteDistribution* rDist, OutputStream& out, bool withAlias = true);
+  static void printParameters(const DiscreteDistribution& rDist, OutputStream& out, bool withAlias = true);
 
   /**
    * @brief Output information on the computation to a file.

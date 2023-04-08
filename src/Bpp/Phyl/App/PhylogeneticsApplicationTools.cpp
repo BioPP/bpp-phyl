@@ -1870,7 +1870,7 @@ std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   Context& context,
   shared_ptr<SubstitutionProcessCollection> SPC,
   map<size_t, std::shared_ptr<SequenceEvolution> >& mSeqEvol,
-  const map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mData,
+  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -3433,31 +3433,31 @@ finish:
   out.endLine();
 }
 
-void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evol, OutputStream& out, size_t nEvol, int warn)
+void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution& evol, OutputStream& out, size_t nEvol, int warn)
 {
   out << "process" << TextTools::toString(nEvol) << "=";
 
-  if (dynamic_cast<const OneProcessSequenceEvolution*>(evol))
+  if (dynamic_cast<const OneProcessSequenceEvolution*>(&evol))
   {
-    const OneProcessSequenceEvolution* pOP = dynamic_cast<const OneProcessSequenceEvolution*>(evol);
+    const OneProcessSequenceEvolution* pOP = dynamic_cast<const OneProcessSequenceEvolution*>(&evol);
 
     out << "Simple(process=" <<  pOP->getSubstitutionProcessNumber() << ")";
   }
-  else if (dynamic_cast<const MultiProcessSequenceEvolution*>(evol))
+  else if (dynamic_cast<const MultiProcessSequenceEvolution*>(&evol))
   {
-    const MultiProcessSequenceEvolution* pMP = dynamic_cast<const MultiProcessSequenceEvolution*>(evol);
+    const MultiProcessSequenceEvolution* pMP = dynamic_cast<const MultiProcessSequenceEvolution*>(&evol);
 
-    if (dynamic_cast<const MixtureSequenceEvolution*>(evol))
+    if (dynamic_cast<const MixtureSequenceEvolution*>(&evol))
     {
-      const MixtureSequenceEvolution* pM = dynamic_cast<const MixtureSequenceEvolution*>(evol);
+      const MixtureSequenceEvolution* pM = dynamic_cast<const MixtureSequenceEvolution*>(&evol);
 
       out << "Mixture(probas=(" << VectorTools::paste(pM->getSubProcessProbabilities(), ",");
       out << "),";
     }
 
-    else if (dynamic_cast<const HmmSequenceEvolution*>(evol))
+    else if (dynamic_cast<const HmmSequenceEvolution*>(&evol))
     {
-      const HmmSequenceEvolution* pM = dynamic_cast<const HmmSequenceEvolution*>(evol);
+      const HmmSequenceEvolution* pM = dynamic_cast<const HmmSequenceEvolution*>(&evol);
       out << "HMM(probas=";
 
       const Matrix<double>& tMt = pM->hmmTransitionMatrix().getPij();
@@ -3465,9 +3465,9 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
 
       out << ",";
     }
-    else if (dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol))
+    else if (dynamic_cast<const AutoCorrelationSequenceEvolution*>(&evol))
     {
-      const AutoCorrelationSequenceEvolution* pM = dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol);
+      const AutoCorrelationSequenceEvolution* pM = dynamic_cast<const AutoCorrelationSequenceEvolution*>(&evol);
 
       out << "AutoCorr(lambdas=(";
 
@@ -3481,9 +3481,9 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
 
       out << "),";
     }
-    else if (dynamic_cast<const PartitionSequenceEvolution*>(evol))
+    else if (dynamic_cast<const PartitionSequenceEvolution*>(&evol))
     {
-      const PartitionSequenceEvolution* pM = dynamic_cast<const PartitionSequenceEvolution*>(evol);
+      const PartitionSequenceEvolution* pM = dynamic_cast<const PartitionSequenceEvolution*>(&evol);
 
       out << "Partition(";
 
@@ -3954,13 +3954,13 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out, bool withAlias)
+void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution& rDist, OutputStream& out, bool withAlias)
 {
   out << "rate_distribution=";
   map<string, string> globalAliases;
   vector<string> writtenNames;
   const BppORateDistributionFormat* bIO = new BppORateDistributionFormat(true);
-  bIO->writeDiscreteDistribution(*rDist, out, globalAliases, writtenNames);
+  bIO->writeDiscreteDistribution(rDist, out, globalAliases, writtenNames);
   delete bIO;
   out.endLine();
 }
@@ -4046,8 +4046,8 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
     const string& regTypeDesc,
     std::shared_ptr<const StateMapInterface> stateMap,
     std::shared_ptr<const GeneticCode> genCode,
-    std::unique_ptr<AlphabetIndex2>& weights,
-    std::unique_ptr<AlphabetIndex2>& distances,
+    std::shared_ptr<AlphabetIndex2>& weights,
+    std::shared_ptr<AlphabetIndex2>& distances,
     bool verbose)
 {
   string regType = "";
@@ -4076,8 +4076,8 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
 
   if (regType == "Combination")
   {
-    unique_ptr<AlphabetIndex2> w2;
-    unique_ptr<AlphabetIndex2> d2;
+    shared_ptr<AlphabetIndex2> w2;
+    shared_ptr<AlphabetIndex2> d2;
 
     auto vreg = make_unique<VectorOfSubstitionRegisters>(stateMap);
 

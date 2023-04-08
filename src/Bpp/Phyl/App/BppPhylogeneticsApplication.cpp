@@ -55,7 +55,7 @@ using namespace bpp;
 /******************************************************************************/
 
 map<size_t, std::shared_ptr<PhyloTree> > BppPhylogeneticsApplication::getPhyloTreesMap(
-  const map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mSites,
+  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
   map<string, string>& unparsedParams,
   const std::string& prefix,
   const std::string& suffix,
@@ -85,7 +85,7 @@ map<size_t, std::shared_ptr<PhyloTree> > BppPhylogeneticsApplication::getPhyloTr
 unique_ptr<SubstitutionProcessCollection> BppPhylogeneticsApplication::getCollection(
   std::shared_ptr<const Alphabet> alphabet,
   std::shared_ptr<const GeneticCode> gCode,
-  const map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mSites,
+  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
   map<string, string>& unparsedParams,
   const std::string& prefix,
   const std::string& suffix,
@@ -99,7 +99,7 @@ unique_ptr<SubstitutionProcessCollection> BppPhylogeneticsApplication::getCollec
 std::unique_ptr<SubstitutionProcessCollection> BppPhylogeneticsApplication::getCollection(
   std::shared_ptr<const Alphabet> alphabet,
   std::shared_ptr<const GeneticCode> gCode,
-  const map<size_t, std::unique_ptr<const AlignmentDataInterface> >& mSites,
+  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
   const map<size_t, std::shared_ptr<PhyloTree> >& mpTree,
   map<string, string>& unparsedParams,
   const std::string& prefix,
@@ -297,10 +297,10 @@ void BppPhylogeneticsApplication::fixLikelihood(
               vsiteok.push_back(i);
           }
 
-          unique_ptr<AlignmentDataInterface>  vDataok = SiteContainerTools::getSelectedSites(*vData, vsiteok);
+          shared_ptr<AlignmentDataInterface>  vDataok = SiteContainerTools::getSelectedSites(*vData, vsiteok);
 //          auto vDatamin = SiteContainerTools::getSelectedSites(*vData, vsitemin); Not taken into account yet
 
-          sDP->setData(vDataok.release());
+          sDP->setData(vDataok);
           logL = sDP->getValue();
           ApplicationTools::displayResult("Filtered log likelihood", TextTools::toString(-logL, 15));
 

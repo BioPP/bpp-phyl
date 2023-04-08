@@ -243,8 +243,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'register' for model 'FromRegister'.");
 
     string registerDescription = args["register"];
-    unique_ptr<AlphabetIndex2> weights = nullptr;
-    unique_ptr<AlphabetIndex2> distances = nullptr;
+    shared_ptr<AlphabetIndex2> weights = nullptr;
+    shared_ptr<AlphabetIndex2> distances = nullptr;
 
     auto reg = PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, weights, distances, verbose_);
 

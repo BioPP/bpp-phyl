@@ -799,42 +799,28 @@ bool TreeTools::checkIds(const Tree& tree, bool throwException)
 
 /******************************************************************************/
 
-unique_ptr<VectorSiteContainer> TreeTools::MRPEncode(const vector<Tree*>& vecTr)
+unique_ptr<VectorSiteContainer> TreeTools::MRPEncode(const vector<unique_ptr<Tree>>& vecTr)
 {
-  vector<BipartitionList*> vecBipL;
+  vector<unique_ptr<BipartitionList>> vecBipL;
   for (size_t i = 0; i < vecTr.size(); i++)
   {
-    vecBipL.push_back(new BipartitionList(*vecTr[i]));
+    vecBipL.push_back(make_unique<BipartitionList>(*vecTr[i]));
   }
 
-  auto cont = BipartitionTools::MRPEncode(vecBipL);
-
-  for (size_t i = 0; i < vecTr.size(); i++)
-  {
-    delete vecBipL[i];
-  }
-
-  return cont;
+  return BipartitionTools::MRPEncode(vecBipL);
 }
 
 /******************************************************************************/
 
-unique_ptr<VectorSiteContainer> TreeTools::MRPEncodeMultilabel(const vector<Tree*>& vecTr)
+unique_ptr<VectorSiteContainer> TreeTools::MRPEncodeMultilabel(const vector<unique_ptr<Tree>>& vecTr)
 {
-  vector<BipartitionList*> vecBipL;
+  vector<unique_ptr<BipartitionList>> vecBipL;
   for (size_t i = 0; i < vecTr.size(); i++)
   {
-    vecBipL.push_back(new BipartitionList(*vecTr[i]));
+    vecBipL.push_back(make_unique<BipartitionList>(*vecTr[i]));
   }
 
-  auto cont = BipartitionTools::MRPEncodeMultilabel(vecBipL);
-
-  for (size_t i = 0; i < vecTr.size(); i++)
-  {
-    delete vecBipL[i];
-  }
-
-  return cont;
+  return BipartitionTools::MRPEncodeMultilabel(vecBipL);
 }
 
 /******************************************************************************/
@@ -842,7 +828,7 @@ unique_ptr<VectorSiteContainer> TreeTools::MRPEncodeMultilabel(const vector<Tree
 bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
 {
   size_t jj, nbbip;
-  BipartitionList* bipL1, * bipL2;
+  unique_ptr<BipartitionList> bipL1, bipL2;
   vector<size_t> size1, size2;
 
   /* compare sets of leaves */
@@ -850,11 +836,11 @@ bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
     return false;
 
   /* construct bipartitions */
-  bipL1 = new BipartitionList(tr1, true);
+  bipL1 = make_unique<BipartitionList>(tr1, true);
   bipL1->removeTrivialBipartitions();
   bipL1->removeRedundantBipartitions();
   bipL1->sortByPartitionSize();
-  bipL2 = new BipartitionList(tr2, true);
+  bipL2 = make_unique<BipartitionList>(tr2, true);
   bipL2->removeTrivialBipartitions();
   bipL2->removeRedundantBipartitions();
   bipL2->sortByPartitionSize();
@@ -892,7 +878,7 @@ bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
 
 int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool checkNames, int* missing_in_tr2, int* missing_in_tr1)
 {
-  BipartitionList* bipL1, * bipL2;
+  unique_ptr<BipartitionList> bipL1, bipL2;
   size_t i, j;
   vector<size_t> size1, size2;
   vector<bool> bipOK2;
@@ -905,10 +891,10 @@ int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool che
   int missing1 = 0;
   int missing2 = 0;
 
-  bipL1 = new BipartitionList(tr1, true);
+  bipL1 = make_unique<BipartitionList>(tr1, true);
   bipL1->removeTrivialBipartitions();
   bipL1->sortByPartitionSize();
-  bipL2 = new BipartitionList(tr2, true);
+  bipL2 = make_unique<BipartitionList>(tr2, true);
   bipL2->removeTrivialBipartitions();
   bipL2->sortByPartitionSize();
 
@@ -956,23 +942,19 @@ int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool che
 
 /******************************************************************************/
 
-BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, vector<size_t>& bipScore)
+unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<unique_ptr<Tree> >& vecTr, vector<size_t>& bipScore)
 {
-  vector<BipartitionList*> vecBipL;
-  BipartitionList* mergedBipL;
+  vector<unique_ptr<BipartitionList>> vecBipL;
+  unique_ptr<BipartitionList> mergedBipL;
   vector<size_t> bipSize;
   size_t nbBip;
 
   /*  build and merge bipartitions */
   for (size_t i = 0; i < vecTr.size(); i++)
   {
-    vecBipL.push_back(new BipartitionList(*vecTr[i]));
+    vecBipL.push_back(make_unique<BipartitionList>(*vecTr[i]));
   }
   mergedBipL = BipartitionTools::mergeBipartitionLists(vecBipL);
-  for (size_t i = 0; i < vecTr.size(); i++)
-  {
-    delete vecBipL[i];
-  }
 
   mergedBipL->removeTrivialBipartitions();
   nbBip = mergedBipL->getNumberOfBipartitions();
@@ -1020,11 +1002,11 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, double threshold, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::thresholdConsensus(const vector<unique_ptr<Tree> >& vecTr, double threshold, bool checkNames)
 {
   vector<size_t> bipScore;
   vector<string> tr0leaves;
-  BipartitionList* bipL;
+  unique_ptr<BipartitionList> bipL;
   double score;
 
   if (vecTr.size() == 0)
@@ -1065,35 +1047,33 @@ TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, do
     }
   }
 
-  TreeTemplate<Node>* tr = bipL->toTree();
-  delete bipL;
-  return tr;
+  return bipL->toTree();
 }
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTools::fullyResolvedConsensus(const vector<Tree*>& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::fullyResolvedConsensus(const vector<unique_ptr<Tree> >& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 0., checkNames);
 }
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTools::majorityConsensus(const vector<Tree*>& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::majorityConsensus(const vector<unique_ptr<Tree > >& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 0.5, checkNames);
 }
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTools::strictConsensus(const vector<Tree*>& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::strictConsensus(const vector<unique_ptr<Tree> >& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 1., checkNames);
 }
 
 /******************************************************************************/
 
-Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
+unique_ptr<Tree> TreeTools::MRP(const vector<unique_ptr<Tree> >& vecTr)
 {
   throw Exception("TreeTools::MRP not updated.");
   
@@ -1125,12 +1105,12 @@ Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
 
 /******************************************************************************/
 
-void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, bool verbose, int format)
+void TreeTools::computeBootstrapValues(Tree& tree, const vector<unique_ptr<Tree> >& vecTr, bool verbose, int format)
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, &index);
   vector<size_t> occurences;
-  BipartitionList* bpList = bipartitionOccurrences(vecTr, occurences);
+  auto bpList = bipartitionOccurrences(vecTr, occurences);
 
   vector< Number<double> > bootstrapValues(bpTree.getNumberOfBipartitions());
 
@@ -1153,8 +1133,6 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, b
     if (!tree.isLeaf(index[i]))
       tree.setBranchProperty(index[i], BOOTSTRAP, bootstrapValues[i]);
   }
-
-  delete bpList;
 }
 
 /******************************************************************************/

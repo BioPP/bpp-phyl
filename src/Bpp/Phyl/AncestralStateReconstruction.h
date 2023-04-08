@@ -46,6 +46,7 @@
 // From SeqLib:
 #include <Bpp/Seq/Sequence.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 
 // From the STL:
 #include <vector>
@@ -102,7 +103,7 @@ public:
    *
    * @return A new SiteContainer object.
    */
-  virtual std::unique_ptr<AlignmentDataInterface> getAncestralSequences() const = 0;
+  virtual std::unique_ptr<AlignedSequenceContainer> getAncestralSequences() const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_ANCESTRALSTATERECONSTRUCTION_H

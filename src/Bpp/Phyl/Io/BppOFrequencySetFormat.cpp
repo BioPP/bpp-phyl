@@ -613,10 +613,10 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   if (args.find("values") != args.end())
   {
     unparsedArguments_["init"] = "values" + args["values"];
-    initialize_(*pFS, *data);
+    initialize_(*pFS, data);
   }
   else if (parseArguments)
-    initialize_(*pFS, *data);
+    initialize_(*pFS, data);
 
   return pFS;
 }
