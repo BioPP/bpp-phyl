@@ -60,7 +60,7 @@ private:
   std::unique_ptr<MixedTransitionModelInterface> readMixed_(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      std::shared_ptr<const AlignmentDataInterface> data);
+      const AlignmentDataInterface& data);
 
 public:
   /**
@@ -93,7 +93,7 @@ public:
   std::unique_ptr<TransitionModelInterface> readTransitionModel(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      std::shared_ptr<const AlignmentDataInterface> data = 0,
+      const AlignmentDataInterface& data,
       bool parseArguments = true);
   
 };

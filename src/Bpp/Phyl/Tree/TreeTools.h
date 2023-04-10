@@ -559,7 +559,7 @@ public:
    * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
    * according to the MRP supertree method.
    */
-  static std::unique_ptr<VectorSiteContainer> MRPEncode(const std::vector<Tree*>& vecTr);
+  static std::unique_ptr<VectorSiteContainer> MRPEncode(const std::vector<std::unique_ptr<Tree>>& vecTr);
 
   /**
    * @brief Creates a sequence data set corresponding to the Matrix Representation of the input multilabel trees
@@ -569,7 +569,7 @@ public:
    * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
    * according to the MRP supertree method.
    */
-  static std::unique_ptr<VectorSiteContainer> MRPEncodeMultilabel(const std::vector<Tree*>& vecTr);
+  static std::unique_ptr<VectorSiteContainer> MRPEncodeMultilabel(const std::vector<std::unique_ptr<Tree>>& vecTr);
 
   /**
    * @brief Tells whether two trees have the same unrooted topology
@@ -607,7 +607,7 @@ public:
    * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
    * @return A BipartitionList object including only distinct bipartitions
    */
-  static BipartitionList* bipartitionOccurrences(const std::vector<Tree*>& vecTr, std::vector<size_t>& bipScore);
+  static std::unique_ptr<BipartitionList> bipartitionOccurrences(const std::vector<std::unique_ptr<Tree> >& vecTr, std::vector<size_t>& bipScore);
 
   /**
    * @brief General greedy consensus tree method
@@ -622,7 +622,7 @@ public:
    * @param threshold Minimal acceptable score =number of occurrence of a bipartition/number of trees (0.<=threshold<=1.)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static TreeTemplate<Node>* thresholdConsensus(const std::vector<Tree*>& vecTr, double threshold, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> thresholdConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, double threshold, bool checkNames = true);
 
   /**
    * @brief Fully-resolved greedy consensus tree method
@@ -634,7 +634,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static TreeTemplate<Node>* fullyResolvedConsensus(const std::vector<Tree*>& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> fullyResolvedConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
 
   /**
    * @brief Majority consensus tree method
@@ -645,7 +645,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static TreeTemplate<Node>* majorityConsensus(const std::vector<Tree*>& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> majorityConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
 
   /**
    * @brief Strict consensus tree method
@@ -656,7 +656,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static TreeTemplate<Node>* strictConsensus(const std::vector<Tree*>& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> strictConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
 
   /** @} */
 
@@ -671,7 +671,7 @@ public:
    * @param vecTr A vector of trees.
    * @return The MRP super tree.
    */
-  static Tree* MRP(const std::vector<Tree*>& vecTr);
+  static std::unique_ptr<Tree> MRP(const std::vector<std::unique_ptr<Tree>>& vecTr);
 
   /**
    * @brief Compute bootstrap values.
@@ -682,7 +682,7 @@ public:
    * @param format The output format of the tree.
    */
 
-  static void computeBootstrapValues(Tree& tree, const std::vector<Tree*>& vecTr, bool verbose = true, int format = 0);
+  static void computeBootstrapValues(Tree& tree, const std::vector<std::unique_ptr<Tree> >& vecTr, bool verbose = true, int format = 0);
 
   /**
    * @brief Determine the mid-point position of the root along the branch that already contains the root. Consequently, the topology of the rooted tree remains identical.

@@ -93,7 +93,7 @@ using namespace std;
 unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionModel(
   std::shared_ptr<const Alphabet> alphabet,
   const std::string& modelDescription,
-  std::shared_ptr<const AlignmentDataInterface> data,
+  const AlignmentDataInterface& data,
   bool parseArguments)
 {
   unparsedArguments_.clear();
@@ -126,8 +126,8 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
       model = make_unique<OneChangeTransitionModel>(move(nestedModel));
     else
     {
-      unique_ptr<AlphabetIndex2> weights;
-      unique_ptr<AlphabetIndex2> distances;
+      shared_ptr<AlphabetIndex2> weights;
+      shared_ptr<AlphabetIndex2> distances;
       string registerDescription = args["register"];
       auto reg = PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, weights, distances);
 
@@ -309,7 +309,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
 unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& modelDescription,
-    std::shared_ptr<const AlignmentDataInterface> data)
+    const AlignmentDataInterface& data)
 {
   unique_ptr<MixedTransitionModelInterface> model;
 

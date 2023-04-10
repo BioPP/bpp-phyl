@@ -202,7 +202,7 @@ public:
   /**
    * @brief Translate into a tree
    */
-  TreeTemplate<Node>* toTree() const;
+  std::unique_ptr<TreeTemplate<Node>> toTree() const;
 
   /**
    * @brief Create a matrix representation of the bifurcations.

@@ -125,7 +125,7 @@ bool BipartitionTools::testBit(int* plist, int num)
 
 /******************************************************************************/
 
-BipartitionList* BipartitionTools::buildBipartitionPair(
+unique_ptr<BipartitionList> BipartitionTools::buildBipartitionPair(
   const BipartitionList& bipartL1, size_t i1,
   const BipartitionList& bipartL2, size_t i2,
   bool checkElements)
@@ -172,8 +172,7 @@ BipartitionList* BipartitionTools::buildBipartitionPair(
 
   twoBitBipL.push_back(bitBipL1[i1]);
   twoBitBipL.push_back(bitBipL2[i2]);
-  BipartitionList* twoBipL = new BipartitionList(elements, twoBitBipL);
-  return twoBipL;
+  return make_unique<BipartitionList>(elements, twoBitBipL);
 }
 
 /******************************************************************************/
@@ -183,10 +182,8 @@ bool BipartitionTools::areIdentical(
   const BipartitionList& bipartL2, size_t i2,
   bool checkElements)
 {
-  BipartitionList* twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
-  bool test = twoBipL->areIdentical(0, 1);
-  delete twoBipL;
-  return test;
+  auto twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
+  return twoBipL->areIdentical(0, 1);
 }
 
 /******************************************************************************/
@@ -196,22 +193,20 @@ bool BipartitionTools::areCompatible(
   const BipartitionList& bipartL2, size_t i2,
   bool checkElements)
 {
-  BipartitionList* twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
-  bool test = twoBipL->areCompatible(0, 1);
-  delete twoBipL;
-  return test;
+  auto twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
+  return twoBipL->areCompatible(0, 1);
 }
 
 /******************************************************************************/
 
-BipartitionList* BipartitionTools::mergeBipartitionLists(
-  const vector<BipartitionList*>& vecBipartL,
+std::unique_ptr<BipartitionList> BipartitionTools::mergeBipartitionLists(
+  const vector<unique_ptr<BipartitionList> >& vecBipartL,
   bool checkElements)
 {
   vector<string> elements;
   vector<int*> mergedBitBipL;
   int* provBitBip;
-  BipartitionList* mergedBipL;
+  unique_ptr<BipartitionList> mergedBipL;
 
   if (vecBipartL.size() == 0)
     throw Exception("Empty vector passed");
@@ -259,14 +254,14 @@ BipartitionList* BipartitionTools::mergeBipartitionLists(
     }
   }
 
-  mergedBipL = new BipartitionList(elements, mergedBitBipL);
+  mergedBipL = make_unique<BipartitionList>(elements, mergedBitBipL);
   return mergedBipL;
 }
 
 /******************************************************************************/
 
 unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncode(
-  const vector<BipartitionList*>& vecBipartL)
+  const vector<unique_ptr<BipartitionList> >& vecBipartL)
 {
   vector<string> all_elements;
   map<string, bool> bip;
@@ -323,7 +318,7 @@ unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncode(
 /******************************************************************************/
 
 unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncodeMultilabel(
-  const vector<BipartitionList*>& vecBipartL)
+  const vector<unique_ptr<BipartitionList> >& vecBipartL)
 {
   vector<string> all_elements;
   map<string, bool> bip;
@@ -395,9 +390,7 @@ unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncodeMultilabel(
 
   VectorSequenceContainer vec_seq_cont(alpha, vec_sequences);
 
-  auto vec_site_cont = make_unique<VectorSiteContainer>(vec_seq_cont);
-
-  return vec_site_cont;
+  return make_unique<VectorSiteContainer>(vec_seq_cont);
 }
 
 /******************************************************************************/

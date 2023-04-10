@@ -177,12 +177,12 @@ public:
     return getAncestralSequenceForNode(nodeId, 0, false);
   }
 
-  std::unique_ptr<AlignmentDataInterface> getAncestralSequences() const override
+  std::unique_ptr<AlignedSequenceContainer> getAncestralSequences() const override
   {
     return getAncestralSequences(false);
   }
 
-  std::unique_ptr<AlignmentDataInterface> getAncestralSequences(bool sample) const;
+  std::unique_ptr<AlignedSequenceContainer> getAncestralSequences(bool sample) const;
 
 private:
   void recursiveMarginalAncestralStates(

@@ -289,7 +289,7 @@ public:
   static std::unique_ptr<FrequencySetInterface> getRootFrequencySet(
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<const AlignmentDataInterface> data,
+    const AlignmentDataInterface& data,
     const std::map<std::string, std::string>& params,
     std::map<std::string, std::string>& sharedparams,
     const std::vector<double>& rateFreqs,
@@ -337,7 +337,7 @@ public:
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
     const std::string& freqDescription,
-    std::shared_ptr<const AlignmentDataInterface> data,
+    const AlignmentDataInterface& data,
     std::map<std::string, std::string>& sharedParams,
     const std::vector<double>& rateFreqs,
     bool verbose = true,
@@ -416,8 +416,8 @@ public:
     const std::string& regTypeDesc,
     std::shared_ptr<const StateMapInterface> stateMap,
     std::shared_ptr<const GeneticCode> genCode,
-    std::unique_ptr<AlphabetIndex2>& weights,
-    std::unique_ptr<AlphabetIndex2>& distances,
+    std::shared_ptr<AlphabetIndex2>& weights,
+    std::shared_ptr<AlphabetIndex2>& distances,
     bool verbose = true);
 
   /**
@@ -431,7 +431,7 @@ public:
    *              otherwise can be set to 0). If set to NULL and a
    *              codon frequencies set is requested, an Exception
    *              will be thrown.
-   * @param pData A pointer toward an AlignmentDataInterface<std::string> used for
+   * @param data an AlignmentDataInterface<std::string> used for
    *             the initialization of process set when this
    *             data is needed (typically use_observed_freq option).
    *             The alphabet associated to the data must be of the
@@ -446,16 +446,16 @@ public:
    *
    * @return A pointer to a AutonomousSubstitutionProcess.
    */
-  static std::unique_ptr<AutonomousSubstitutionProcessInterface> getSubstitutionProcess(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<const AlignmentDataInterface> pData,
-    const vector<std::shared_ptr<PhyloTree> >& vTree,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+   static std::unique_ptr<AutonomousSubstitutionProcessInterface> getSubstitutionProcess(
+     std::shared_ptr<const Alphabet> alphabet,
+     std::shared_ptr<const GeneticCode> gCode,
+     std::shared_ptr<const AlignmentDataInterface> data,
+     const vector<std::shared_ptr<PhyloTree> >& vTree,
+     const std::map<std::string, std::string>& params,
+     const std::string& suffix = "",
+     bool suffixIsOptional = true,
+     bool verbose = true,
+     int warn = 1);
 
   /**
    * @brief Builds a  SubstitutionProcessCollection from meny maps of relevant objects.
@@ -803,7 +803,7 @@ public:
    * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
 
-  static void printParameters(const SequenceEvolution* evol, OutputStream& out, size_t nEvol = 1, int warn = 1);
+  static void printParameters(const SequenceEvolution& evol, OutputStream& out, size_t nEvol = 1, int warn = 1);
 
   /**
    * @brief Output a DiscreteDistribution description to a file.
@@ -814,7 +814,7 @@ public:
    *                      Parameters instead of the values (default
    *                      : true).
    */
-  static void printParameters(const DiscreteDistribution* rDist, OutputStream& out, bool withAlias = true);
+  static void printParameters(const DiscreteDistribution& rDist, OutputStream& out, bool withAlias = true);
 
   /**
    * @brief Output information on the computation to a file.

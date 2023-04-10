@@ -97,7 +97,7 @@ void DistanceEstimation::computeMatrix()
 
       Context context;
   
-      auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("("+names[i]+":0.01,"+names[j]+":0.01);", false, "", false, false));
+      auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(" + names[i] + ":0.01," + names[j] + ":0.01);", false, "", false, false));
 
       auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model_, rateDist_, phyloTree);
       
