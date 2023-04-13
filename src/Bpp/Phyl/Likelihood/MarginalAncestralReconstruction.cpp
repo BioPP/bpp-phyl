@@ -169,5 +169,5 @@ unique_ptr<AlignedSequenceContainer> MarginalAncestralReconstruction::getAncestr
     auto seq = getAncestralSequenceForNode(tree_->getNodeIndex(inNodes[i]), nullptr, sample);
     asc->addSequence(seq->getName(), seq);
   }
-  return move(asc);
+  return asc;
 }
