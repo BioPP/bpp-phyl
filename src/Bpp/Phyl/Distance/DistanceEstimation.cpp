@@ -78,7 +78,6 @@ void DistanceEstimation::computeMatrix()
 
   // const SiteContainer* sc = dynamic_cast<const SiteContainer*>(sites_);
   // const VectorProbabilisticSiteContainer* psc = dynamic_cast<const VectorProbabilisticSiteContainer*>(sites_);
-
   Newick reader;
 
   for (size_t i = 0; i < n; ++i)
