@@ -62,7 +62,7 @@ private:
 
 public:
   MixtureSequenceEvolution(
-    SubstitutionProcessCollection* processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     std::vector<size_t>& nProc);
 
   MixtureSequenceEvolution(const MixtureSequenceEvolution& mlc) :
@@ -78,21 +78,21 @@ public:
 
   virtual ~MixtureSequenceEvolution() {}
 
-  MixtureSequenceEvolution* clone() const { return new MixtureSequenceEvolution(*this); }
+  MixtureSequenceEvolution* clone() const override { return new MixtureSequenceEvolution(*this); }
 
 public:
-  void setNamespace(const std::string& nameSpace);
+  void setNamespace(const std::string& nameSpace) override;
 
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  ParameterList getNonDerivableParameters() const;
+  ParameterList getNonDerivableParameters() const override;
 
   const std::vector<double>& getSubProcessProbabilities() const
   {
     return simplex_.getFrequencies();
   }
 
-  Simplex& getSimplex()
+  Simplex& simplex()
   {
     return simplex_;
   }
@@ -109,9 +109,7 @@ public:
 
   /**
    * @brief Set the probabilities of the subprocess
-   *
    */
-
   void setSubProcessProb(const Simplex& si);
 };
 } // end of namespace bpp.

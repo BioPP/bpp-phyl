@@ -41,40 +41,39 @@
 #include "CodonDistancePhaseFrequenciesSubstitutionModel.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
 CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod,
-  std::shared_ptr<FrequencySet> pfreq,
-  const AlphabetIndex2* pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistPhasFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistPhasFreq."),
-  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
+  AbstractCodonPhaseFrequenciesSubstitutionModel(move(pfreq), "CodonDistPhasFreq.")
 {
   computeFrequencies(true); // for init
-  updateMatrices();
+  updateMatrices_();
   computeFrequencies(false);
 }
 
 CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3,
-  std::shared_ptr<FrequencySet> pfreq,
-  const AlphabetIndex2* pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistPhasFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistPhasFreq."),
-  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
+  AbstractCodonPhaseFrequenciesSubstitutionModel(move(pfreq), "CodonDistPhasFreq.")
 {
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
   computeFrequencies(false);
 }
 
@@ -87,7 +86,7 @@ void CodonDistancePhaseFrequenciesSubstitutionModel::fireParameterChanged(const 
 {
   AbstractCodonDistanceSubstitutionModel::fireParameterChanged(parameters);
   AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(parameters);
-  getFrequencies_() = AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequencySet()->getFrequencies();
+  getFrequencies_() = AbstractCodonPhaseFrequenciesSubstitutionModel::codonFrequencySet().getFrequencies();
 
   // Beware: must be call at the end
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
@@ -110,5 +109,5 @@ void CodonDistancePhaseFrequenciesSubstitutionModel::setNamespace(const std::str
 void CodonDistancePhaseFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(frequencies);
-  getFrequencies_() = AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequencySet()->getFrequencies();
+  getFrequencies_() = AbstractCodonPhaseFrequenciesSubstitutionModel::codonFrequencySet().getFrequencies();
 }

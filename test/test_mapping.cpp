@@ -75,23 +75,24 @@ int main() {
 
   //-------------
 
-  NucleicAlphabet* alphabet = new DNA();
-  auto model = std::make_shared<GTR>(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
-//  DiscreteDistribution* rdist = new ConstantDistribution(1);
-  auto rdist = std::make_shared<GammaDiscreteDistribution>(4, 0.4, 0.4);
+  shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
 
-  shared_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<PhyloTree>(new_tree->clone())));
+  auto model = make_shared<GTR>(nucAlphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
+  auto rdist = make_shared<GammaDiscreteDistribution>(4, 0.4, 0.4);
 
-  SimpleSubstitutionProcessSiteSimulator simulator(*process);
+  auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<PhyloTree>(new_tree->clone()));
+
+  SimpleSubstitutionProcessSiteSimulator simulator(process);
   
-  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model->getStateMap());
-  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(model->getStateMap());
+  auto totReg = make_shared<TotalSubstitutionRegister>(model->getStateMap());
+  auto detReg = make_shared<ComprehensiveSubstitutionRegister>(model->getStateMap());
 
   size_t n = 50000;
-  vector< vector<double> > realMap(n);
-  vector< vector< vector<double> > > realMapTotal(n);
-  vector< vector< vector<double> > > realMapDetailed(n);
-  VectorSiteContainer sites(new_tree->getAllLeavesNames(), alphabet);
+  vector< vector<double>> realMap(n);
+  vector<vector<vector<double>>> realMapTotal(n);
+  vector<vector<vector<double>>> realMapDetailed(n);
+  auto sites = make_shared<VectorSiteContainer>(new_tree->getAllLeavesNames(), alphabet);
   for (size_t i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n - 1, '=');
     unique_ptr<SiteSimulationResult> result(simulator.dSimulateSite());
@@ -113,84 +114,81 @@ int main() {
         return 1;
       }
     }
-    unique_ptr<Site> site(result->getSite(*model));
-    site->setPosition(static_cast<int>(i));    
-    sites.addSite(*site, false);
+    auto simSite = result->getSite(*model);
+    unique_ptr<Site> site(dynamic_cast<Site*>(simSite.release()));
+    site->setCoordinate(static_cast<int>(i));    
+    sites->addSite(site, false);
   }
   ApplicationTools::displayTaskDone();
-
+cout << "ok0" << endl;
   //-------------
   //Now build the substitution vectors with the true model:
 
   // Newlik
 
-  auto tmComp=make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
+  auto tmComp = make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
+cout << "ok1" << endl;
   SingleProcessPhyloLikelihood newTl(context, tmComp);
+cout << "ok2" << endl;
   cout << "LogLik: " << newTl.getValue() << endl;
     
   
   
-  SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model.get(), 10);
-  Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001, 1);
+  auto sCountAna = make_shared<LaplaceSubstitutionCount>(model, 10);
+  auto m = sCountAna->getAllNumbersOfSubstitutions(0.001, 1);
   cout << "Analytical (Laplace) total count:" << endl;
   MatrixTools::print(*m);
-  delete m;
-  ProbabilisticSubstitutionMapping* probNEWMapAna = 
+  auto probNEWMapAna = 
     SubstitutionMappingTools::computeCounts(*tmComp, *sCountAna);
 
   cout << endl;
 
   //Simple:
-  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model.get(), totReg);
+  auto sCountTot = make_shared<NaiveSubstitutionCount>(model, totReg);
   m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Simple total count:" << endl;
   MatrixTools::print(*m);
-  delete m;
-  ProbabilisticSubstitutionMapping* probNEWMapTot = 
+  auto probNEWMapTot = 
     SubstitutionMappingTools::computeCounts(*tmComp, *sCountTot);
   cout << endl;
 
-  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(model.get(), detReg);
+  auto sCountDet = make_shared<NaiveSubstitutionCount>(model, detReg);
   m = sCountDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, type 1:" << endl;
   MatrixTools::print(*m);
-  delete m;
-  ProbabilisticSubstitutionMapping* probNEWMapDet = 
+  auto probNEWMapDet = 
     SubstitutionMappingTools::computeCounts(*tmComp, *sCountDet);
   cout << endl;
 
   //Decomposition:
-  SubstitutionCount* sCountDecTot = new DecompositionSubstitutionCount(model.get(), totReg);
+  auto sCountDecTot = make_shared<DecompositionSubstitutionCount>(model, totReg);
   m = sCountDecTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Total count, decomposition method:" << endl;
   MatrixTools::print(*m);
-  delete m;
-  ProbabilisticSubstitutionMapping* probNEWMapDecTot = 
+  auto probNEWMapDecTot = 
     SubstitutionMappingTools::computeCounts(*tmComp, *sCountDecTot);
 
-  SubstitutionCount* sCountDecDet = new DecompositionSubstitutionCount(model.get(), detReg);
+  auto sCountDecDet = make_shared<DecompositionSubstitutionCount>(model, detReg);
   m = sCountDecDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, decomposition method, type 1:" << endl;
   MatrixTools::print(*m);
-  delete m;
-  ProbabilisticSubstitutionMapping* probNEWMapDecDet = 
+  auto probNEWMapDecDet = 
     SubstitutionMappingTools::computeCounts(*tmComp, *sCountDecDet);
   cout << endl;
 
   //Uniformization
-  SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model.get(), totReg);
+  auto sCountUniTot = make_shared<UniformizationSubstitutionCount>(model, totReg);
   m = sCountUniTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
-  delete m;
-  ProbabilisticSubstitutionMapping* probNEWMapUniTot = 
+  auto probNEWMapUniTot = 
     SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniTot);  
 
-  SubstitutionCount* sCountUniDet = new UniformizationSubstitutionCount(model.get(), detReg);
+  auto sCountUniDet = make_shared<UniformizationSubstitutionCount>(model, detReg);
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, uniformization method, type 1:" << endl;
   MatrixTools::print(*m);
-  ProbabilisticSubstitutionMapping* probNEWMapUniDet = 
+  auto probNEWMapUniDet = 
     SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniDet);
   cout << endl;
   
@@ -205,7 +203,6 @@ int main() {
     cout << "Total count, uniformization method for " << d << endl;
     MatrixTools::print(*m);
     cout << MatrixTools::sumElements(*m) << endl;
-    delete m;
   }
   cout << endl;
 
@@ -280,16 +277,6 @@ int main() {
 
   
   //-------------
-  delete alphabet;
-  delete sCountTot;
-  delete sCountDet;
-  delete probNEWMapTot;
-  delete probNEWMapDet;
-  delete probNEWMapDecTot;
-  delete probNEWMapDecDet;
-  delete probNEWMapUniTot;
-  delete probNEWMapUniDet;
-  //return (abs(obs - 0.001) < 0.001 ? 0 : 1);
   } catch (exception& e) {
     cout << "Test failed. Reason:" << endl;
     cout << e.what() << endl;

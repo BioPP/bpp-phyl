@@ -57,18 +57,18 @@ namespace bpp
  * @see SubstitutionModel, SitePartitionHomogeneousTreeLikelihood.
  */
 class HomogeneousTreeLikelihood :
-  public virtual TreeLikelihood
+  public virtual TreeLikelihoodInterface
 {
 public:
   HomogeneousTreeLikelihood* clone() const = 0;
 
 public:
-  const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const
+  std::shared_ptr<const TransitionModelInterface> getModelForSite(int nodeId, size_t siteIndex) const
   {
     return getModel();
   }
 
-  TransitionModel* getModelForSite(int nodeId, size_t siteIndex)
+  std::shared_ptr<TransitionModelInterface> getModelForSite(int nodeId, size_t siteIndex)
   {
     return getModel();
   }
@@ -76,18 +76,18 @@ public:
   /**
    * @return The substitution model attached to this instance.
    */
-  virtual const TransitionModel* getModel() const = 0;
+  virtual std::shared_ptr<const TransitionModelInterface> getModel() const = 0;
 
   /**
    * @return The substitution model attached to this instance.
    */
-  virtual TransitionModel* getModel() = 0;
+  virtual std::shared_ptr<TransitionModelInterface> getModel() = 0;
 
   /**
    * @return Set the substitution model for this instance.
    * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
    */
-  virtual void setModel(TransitionModel* model) = 0;
+  virtual void setModel(std::shared_ptr<TransitionModelInterface> model) = 0;
 
   /**
    * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
@@ -95,7 +95,7 @@ public:
    * Performs a cast operation on the pointer. Return NULL if cast failed.
    * @return A SubstitutionModel pointer toward the model associated to this instance.
    */
-  virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const = 0;
 
   /**
    * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
@@ -106,7 +106,7 @@ public:
    * @param nodeId Id of the node
    * @param siteIndex Position of the site
    */
-  virtual const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const = 0;
+  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel(int nodeId, size_t siteIndex) const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_HOMOGENEOUSTREELIKELIHOOD_H

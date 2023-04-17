@@ -55,53 +55,55 @@ namespace bpp
  * It has the same parameters as the SubModel.
  */
 class FromMixtureSubstitutionModel :
-  public virtual AbstractTotallyWrappedSubstitutionModel,
-  public AbstractParameterAliasable
+  public virtual AbstractTotallyWrappedSubstitutionModel
 {
 private:
-  /*
+  /**
    * @brief The subModel taken from the AbstractTotallyWrappedSubstitutionModel.
    *
    * This subModel is normalized, even if it is not in the mixture.
-   *
    */
+  std::unique_ptr<SubstitutionModelInterface> subModel_;
 
-  std::unique_ptr<SubstitutionModel> subModel_;
-
-  /*
+  /**
    * @brief The name of the mixture model (for io purpose).
    */
-
   std::string mixtName_;
 
 public:
-  FromMixtureSubstitutionModel(const MixedTransitionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
+  FromMixtureSubstitutionModel(
+      const MixedTransitionModelInterface& mixedModel,
+      const std::string& subModelName,const std::string& mixtDesc);
 
-  FromMixtureSubstitutionModel(const MixedTransitionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
+  FromMixtureSubstitutionModel(
+      const MixedTransitionModelInterface& mixedModel,
+      size_t subModelNumber,
+      const std::string& mixtDesc);
 
   FromMixtureSubstitutionModel(const FromMixtureSubstitutionModel& fmsm);
 
   FromMixtureSubstitutionModel& operator=(const FromMixtureSubstitutionModel& fmsm);
 
-  ~FromMixtureSubstitutionModel() {}
+  virtual ~FromMixtureSubstitutionModel() {}
 
-  FromMixtureSubstitutionModel* clone() const { return new FromMixtureSubstitutionModel(*this); }
+  FromMixtureSubstitutionModel* clone() const override { return new FromMixtureSubstitutionModel(*this); }
 
 public:
-  const SubstitutionModel& getSubstitutionModel() const
+  const SubstitutionModelInterface& substitutionModel() const override
   {
     return *subModel_.get();
   }
 
 protected:
-  SubstitutionModel& getSubstitutionModel()
+  SubstitutionModelInterface& substitutionModel_() override
   {
-    return *subModel_.get();
+    return *subModel_;
   }
 
 public:
-  /*
-   *@ brief Methods to supersede AbstractSubstitutionModel methods.
+  /**
+   * @ 
+   *brief Methods to supersede AbstractSubstitutionModel methods.
    *
    * @{
    */
@@ -111,35 +113,32 @@ public:
    *
    * This updates the matrices consequently.
    */
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
-    getModel().matchParametersValues(parameters);
+    model_().matchParametersValues(parameters);
   }
 
-  virtual void setNamespace(const std::string& name)
+  virtual void setNamespace(const std::string& name) override
   {
     AbstractParameterAliasable::setNamespace(name);
-    getModel().setNamespace(name);
+    model_().setNamespace(name);
   }
 
-  virtual void addRateParameter()
+  virtual void addRateParameter() override
   {
-    getModel().addRateParameter();
-    addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
+    model_().addRateParameter();
+    addParameter_(new Parameter(getNamespace() + "rate", model().getRate(), Parameter::R_PLUS_STAR));
   }
 
   /*
    * @}
    */
-  std::string getName() const
+  std::string getName() const override
   {
     size_t posp = mixtName_.find("(");
-    return mixtName_.substr(0, posp) + "_" + getModel().getName() + mixtName_.substr(posp);
+    return mixtName_.substr(0, posp) + "_" + model().getName() + mixtName_.substr(posp);
   }
 
-protected:
-  void updateMatrices()
-  {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_FROMMIXTURESUBSTITUTIONMODEL_H

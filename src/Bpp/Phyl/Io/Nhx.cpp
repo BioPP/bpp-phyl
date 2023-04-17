@@ -105,7 +105,7 @@ const string Nhx::getFormatDescription() const
 /*  INPUT */
 /**********************************************************/
 
-TreeTemplate<Node>* Nhx::readTree(istream& in) const
+unique_ptr<TreeTemplate<Node>> Nhx::readTreeTemplate(istream& in) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -136,7 +136,7 @@ TreeTemplate<Node>* Nhx::readTree(istream& in) const
 
 /******************************************************************************/
 
-PhyloTree* Nhx::readPhyloTree(istream& in) const
+unique_ptr<PhyloTree> Nhx::readPhyloTree(istream& in) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -167,7 +167,7 @@ PhyloTree* Nhx::readPhyloTree(istream& in) const
 
 /******************************************************************************/
 
-void Nhx::readTrees(istream& in, vector<Tree*>& trees) const
+void Nhx::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -178,7 +178,7 @@ void Nhx::readTrees(istream& in, vector<Tree*>& trees) const
   // Main loop : for all file lines
   string temp, description;// Initialization
   string::size_type index;
-  vector<string > beginnings, endings;
+  vector<string> beginnings, endings;
   beginnings.push_back("[&&NHX:");
   while (!in.eof())
   {
@@ -202,7 +202,7 @@ void Nhx::readTrees(istream& in, vector<Tree*>& trees) const
 
 /******************************************************************************/
 
-void Nhx::readPhyloTrees(istream& in, vector<PhyloTree*>& trees) const
+void Nhx::readPhyloTrees(istream& in, vector<unique_ptr<PhyloTree>>& trees) const
 {
   // Checking the existence of specified file
   if (!in)
@@ -213,7 +213,7 @@ void Nhx::readPhyloTrees(istream& in, vector<PhyloTree*>& trees) const
   // Main loop : for all file lines
   string temp, description;// Initialization
   string::size_type index;
-  vector<string > beginnings, endings;
+  vector<string> beginnings, endings;
   beginnings.push_back("[&&NHX:");
   while (!in.eof())
   {
@@ -368,7 +368,7 @@ Node* Nhx::parenthesisToNode(const string& description) const
 
 /******************************************************************************/
 
-TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const
+unique_ptr<TreeTemplate<Node>> Nhx::parenthesisToTree(const string& description) const
 {
   hasIds_ = false;
   string::size_type semi = description.rfind(';');
@@ -376,7 +376,7 @@ TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const
     throw Exception("Nhx::parenthesisToTree(). Bad format: no semi-colon found.");
   string content = description.substr(0, semi);
   Node* node = parenthesisToNode(content);
-  TreeTemplate<Node>* tree = new TreeTemplate<Node>();
+  auto tree = make_unique<TreeTemplate<Node>>();
   tree->setRootNode(node);
   if (!hasIds_)
   {
@@ -441,15 +441,15 @@ shared_ptr<PhyloNode>  Nhx::parenthesisToNode(PhyloTree& tree, shared_ptr<PhyloN
 
 /******************************************************************************/
 
-PhyloTree* Nhx::parenthesisToPhyloTree(const string& description) const
+unique_ptr<PhyloTree> Nhx::parenthesisToPhyloTree(const string& description) const
 {
   hasIds_ = false;
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
     throw Exception("Nhx::parenthesisToPhyloTree(). Bad format: no semi-colon found.");
   string content = description.substr(0, semi);
-  PhyloTree* tree = new PhyloTree();
-
+  
+  auto tree = make_unique<PhyloTree>();
   shared_ptr<PhyloNode> root = parenthesisToNode(*tree, 0, content);
 
   tree->rootAt(root);

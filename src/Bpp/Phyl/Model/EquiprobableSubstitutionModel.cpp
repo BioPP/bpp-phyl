@@ -53,19 +53,23 @@ using namespace std;
 
 /******************************************************************************/
 
-EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alpha) :
+EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(
+    shared_ptr<const Alphabet> alpha) :
   AbstractParameterAliasable("Equi."),
-  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "Equi."),
-  exp_(), p_(size_, size_), freqSet_(0)
+  AbstractReversibleSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "Equi."),
+  exp_(), p_(size_, size_), freqSet_(nullptr)
 {
-  freqSet_ = std::make_shared<FixedFrequencySet>(shareStateMap(), freq_);
-  updateMatrices();
+  freqSet_ = make_unique<FixedFrequencySet>(getStateMap(), freq_);
+  updateMatrices_();
 }
 
-EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alpha, FrequencySet* freqSet, bool initFreqs) :
+EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(
+    shared_ptr<const Alphabet> alpha,
+    unique_ptr<FrequencySetInterface> freqSet,
+    bool initFreqs) :
   AbstractParameterAliasable("Equi+F."),
-  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "Equi+F."),
-  exp_(), p_(size_, size_), freqSet_(freqSet)
+  AbstractReversibleSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "Equi+F."),
+  exp_(), p_(size_, size_), freqSet_(move(freqSet))
 {
   freqSet_->setNamespace("Equi+F." + freqSet_->getNamespace());
   if (initFreqs)
@@ -73,24 +77,23 @@ EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alp
   else
     freq_ = freqSet_->getFrequencies();
   addParameters_(freqSet_->getParameters());
-  updateMatrices();
+  updateMatrices_();
 }
-
 
 /******************************************************************************/
 
-void EquiprobableSubstitutionModel::updateMatrices()
+void EquiprobableSubstitutionModel::updateMatrices_()
 {
   // Frequencies:
-  for (unsigned int i = 0; i < size_; i++)
+  for (unsigned int i = 0; i < size_; ++i)
   {
     freq_[i] = 1. / (float)size_;
   }
 
   // Generator:
-  for (unsigned int i = 0; i < size_; i++)
+  for (unsigned int i = 0; i < size_; ++i)
   {
-    for (unsigned int j = 0; j < size_; j++)
+    for (unsigned int j = 0; j < size_; ++j)
     {
       generator_(i, j) = (i == j) ? -1. : 1. / (float)(size_ - 1);
       exchangeability_(i, j) = generator_(i, j) * (float)size_;
@@ -99,44 +102,44 @@ void EquiprobableSubstitutionModel::updateMatrices()
 
   // Eigen values:
   eigenValues_[0] = 0;
-  for (unsigned int i = 1; i < size_; i++)
+  for (unsigned int i = 1; i < size_; ++i)
   {
     eigenValues_[i] = -(float)size_ / (float)(size_ - 1);
   }
 
   // Eigen vectors:
-  for (unsigned int i = 0; i < size_; i++)
+  for (unsigned int i = 0; i < size_; ++i)
   {
     leftEigenVectors_(0, i) = 1. / (float)size_;
   }
-  for (unsigned int i = 1; i < size_; i++)
+  for (unsigned int i = 1; i < size_; ++i)
   {
-    for (unsigned int j = 0; j < size_; j++)
+    for (unsigned int j = 0; j < size_; ++j)
     {
       leftEigenVectors_(i, j) = -1. / (float)size_;
     }
   }
-  for (unsigned int i = 0; i < (size_ - 1); i++)
+  for (unsigned int i = 0; i < (size_ - 1); ++i)
   {
     leftEigenVectors_((size_ - 1) - i, i) = (float)(size_ - 1) / (float)size_;
   }
 
-  for (unsigned int i = 0; i < size_; i++)
+  for (unsigned int i = 0; i < size_; ++i)
   {
     rightEigenVectors_(i, 0) = 1.;
   }
-  for (unsigned int i = 1; i < size_; i++)
+  for (unsigned int i = 1; i < size_; ++i)
   {
     rightEigenVectors_((size_ - 1), i) = -1.;
   }
-  for (unsigned int i = 0; i < (size_ - 1); i++)
+  for (unsigned int i = 0; i < (size_ - 1); ++i)
   {
-    for (unsigned int j = 1; j < size_; j++)
+    for (unsigned int j = 1; j < size_; ++j)
     {
       rightEigenVectors_(i, j) = 0.;
     }
   }
-  for (unsigned int i = 1; i < size_; i++)
+  for (unsigned int i = 1; i < size_; ++i)
   {
     rightEigenVectors_((size_ - 1) - i, i) = 1.;
   }

@@ -56,7 +56,8 @@ namespace bpp
 class MutationPath
 {
 private:
-  const Alphabet* alphabet_;
+  
+  std::shared_ptr<const Alphabet> alphabet_;
 
   /**
    * @brief The states taken, without initial state.
@@ -88,7 +89,10 @@ public:
    * @param initialState The initial state.
    * @param time         The total time of evolution.
    */
-  MutationPath(const Alphabet* alphabet, size_t initialState, double time) :
+  MutationPath(
+      std::shared_ptr<const Alphabet> alphabet,
+      size_t initialState,
+      double time) :
     alphabet_(alphabet), states_(), times_(), initialState_(initialState), totalTime_(time) {}
 
   MutationPath(const MutationPath& path) :
@@ -110,7 +114,13 @@ public:
   /**
    * @return A pointer toward the alphabet associated to this path.
    */
-  const Alphabet* getAlphabet() const { return alphabet_; }
+  std::shared_ptr<const Alphabet> getAlphabet() const { return alphabet_; }
+
+  /**
+   * @return A reference toward the alphabet associated to this path.
+   */
+  const Alphabet& alphabet() const { return *alphabet_; }
+
   /**
    * @brief Add a new mutation event.
    *
@@ -181,7 +191,7 @@ public:
    * @param reg The substitution register to use to categorize substitutions.
    */
   template<class Scalar>
-  void getEventCounts(std::vector<Scalar>& counts, const SubstitutionRegister& reg) const
+  void getEventCounts(std::vector<Scalar>& counts, const SubstitutionRegisterInterface& reg) const
   {
     if (counts.size() != reg.getNumberOfSubstitutionTypes())
       throw Exception("MutationPath::getEventCounts. Incorrect input vector, does not match alphabet size.");
@@ -276,7 +286,6 @@ public:
    * @param time         The time during which evolution must occure.
    * @return The resulting mutation path.
    */
-
   virtual MutationPath detailedEvolve(size_t initialState, size_t finalState, double time) const = 0;
 
   /**
@@ -284,7 +293,7 @@ public:
    *
    * @return The SubstitutionModel associated to this instance.
    */
-  virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+  virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const = 0;
 };
 
 /**
@@ -307,7 +316,7 @@ protected:
   /**
    * @brief The substitution model to use:
    */
-  const SubstitutionModel* model_;
+  std::shared_ptr<const SubstitutionModelInterface> model_;
 
   /**
    * @brief The number of states allowed for the character to mutate.
@@ -323,23 +332,9 @@ protected:
   VVdouble repartition_;
 
 public:
-  AbstractMutationProcess(const SubstitutionModel* model) :
+  AbstractMutationProcess(std::shared_ptr<const SubstitutionModelInterface> model) :
     model_(model), size_(), repartition_()
   {}
-
-  AbstractMutationProcess(const AbstractMutationProcess& amp) :
-    model_(amp.model_), size_(amp.size_), repartition_(amp.repartition_)
-  {}
-
-  AbstractMutationProcess& operator=(const AbstractMutationProcess& amp)
-  {
-    model_       = amp.model_;
-    size_        = amp.size_;
-    repartition_ = amp.repartition_;
-    return *this;
-  }
-
-  virtual ~AbstractMutationProcess() {}
 
 public:
   size_t mutate(size_t state) const;
@@ -348,7 +343,7 @@ public:
   size_t evolve(size_t initialState, double time) const;
   MutationPath detailedEvolve(size_t initialState, double time) const;
   MutationPath detailedEvolve(size_t initialState, size_t finalState, double time) const;
-  const SubstitutionModel* getSubstitutionModel() const { return model_; }
+  std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const { return model_; }
 };
 
 /**
@@ -364,7 +359,8 @@ public:
  * @f[ \frac{Q_{i,j}}{\sum_k Q_{i,k}}. @f]</li>
  * </ol>
  */
-class SimpleMutationProcess : public AbstractMutationProcess
+class SimpleMutationProcess : 
+  public AbstractMutationProcess
 {
 public:
   // Constructor and destructor:
@@ -374,7 +370,7 @@ public:
    *
    * @param model The substitution model to use.
    */
-  SimpleMutationProcess(const SubstitutionModel* model);
+  SimpleMutationProcess(std::shared_ptr<const SubstitutionModelInterface> model);
 
   virtual ~SimpleMutationProcess();
 

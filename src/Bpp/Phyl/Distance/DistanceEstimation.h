@@ -55,7 +55,7 @@
 #include "../Likelihood/RateAcrossSitesSubstitutionProcess.h"
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 // From the STL:
 #include <memory>
@@ -66,12 +66,12 @@ namespace bpp
   public virtual Clonable
 {
 private:
-  std::shared_ptr<BranchModel> model_;
+  std::shared_ptr<BranchModelInterface> model_;
   std::shared_ptr<DiscreteDistribution> rateDist_;
-  const AlignedValuesContainer* sites_;
+  std::shared_ptr<const AlignmentDataInterface> sites_;
   std::shared_ptr<DistanceMatrix> dist_;
-  Optimizer* optimizer_;
-  MetaOptimizer* defaultOptimizer_;
+  std::shared_ptr<OptimizerInterface> optimizer_;
+  std::shared_ptr<MetaOptimizer> defaultOptimizer_;
   size_t verbose_;
   ParameterList parameters_;
 
@@ -91,7 +91,7 @@ public:
    *  - 4=3 + likelihood object verbose enabled
    */
   DistanceEstimation(
-    std::shared_ptr<BranchModel> model,
+    std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rateDist,
     size_t verbose = 1) :
     model_(model),
@@ -124,9 +124,9 @@ public:
    *  @param computeMat if true the computeMatrix() method is called.
    */
   DistanceEstimation(
-    std::shared_ptr<BranchModel> model,
+    std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rateDist,
-    const AlignedValuesContainer* sites,
+    std::shared_ptr<const AlignmentDataInterface> sites,
     size_t verbose = 1,
     bool computeMat = true) :
     model_(model),
@@ -150,12 +150,12 @@ public:
    * @param distanceEstimation The object to copy.
    */
   DistanceEstimation(const DistanceEstimation& distanceEstimation) :
-    model_(distanceEstimation.model_->clone()),
-    rateDist_(distanceEstimation.rateDist_->clone()),
+    model_(distanceEstimation.model_),
+    rateDist_(distanceEstimation.rateDist_),
     sites_(distanceEstimation.sites_),
     dist_(0),
-    optimizer_(dynamic_cast<Optimizer*>(distanceEstimation.optimizer_->clone())),
-    defaultOptimizer_(dynamic_cast<MetaOptimizer*>(distanceEstimation.defaultOptimizer_->clone())),
+    optimizer_(distanceEstimation.optimizer_),
+    defaultOptimizer_(distanceEstimation.defaultOptimizer_),
     verbose_(distanceEstimation.verbose_),
     parameters_(distanceEstimation.parameters_)
   {
@@ -175,45 +175,41 @@ public:
    */
   DistanceEstimation& operator=(const DistanceEstimation& distanceEstimation)
   {
-    model_.reset(distanceEstimation.model_->clone());
-    rateDist_.reset(distanceEstimation.rateDist_->clone());
+    model_      = distanceEstimation.model_;
+    rateDist_   = distanceEstimation.rateDist_;
     sites_      = distanceEstimation.sites_;
-    if (distanceEstimation.dist_ != 0)
+    if (distanceEstimation.dist_)
       dist_     = std::make_shared<DistanceMatrix>(*distanceEstimation.dist_);
     else
       dist_     = 0;
-    optimizer_  = dynamic_cast<Optimizer*>(distanceEstimation.optimizer_->clone());
+    optimizer_  = distanceEstimation.optimizer_;
     // _defaultOptimizer has already been initialized since the default constructor has been called.
     verbose_    = distanceEstimation.verbose_;
     parameters_ = distanceEstimation.parameters_;
     return *this;
   }
 
-  virtual ~DistanceEstimation()
-  {
-    delete defaultOptimizer_;
-    delete optimizer_;
-  }
+  virtual ~DistanceEstimation() {}
 
-  DistanceEstimation* clone() const { return new DistanceEstimation(*this); }
+  DistanceEstimation* clone() const override { return new DistanceEstimation(*this); }
 
 private:
   void init_()
   {
-    MetaOptimizerInfos* desc = new MetaOptimizerInfos();
+    auto desc = make_unique<MetaOptimizerInfos>();
     std::vector<std::string> name;
     name.push_back("BrLen0");
     name.push_back("BrLen1");
-    desc->addOptimizer("Branch length", new PseudoNewtonOptimizer(0), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
+    desc->addOptimizer("Branch length", std::make_shared<PseudoNewtonOptimizer>(nullptr), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
     ParameterList tmp = model_->getParameters();
     tmp.addParameters(rateDist_->getParameters());
-    desc->addOptimizer("substitution model and rate distribution", new SimpleMultiDimensions(0), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    desc->addOptimizer("substitution model and rate distribution", std::make_shared<SimpleMultiDimensions>(nullptr), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
 
-    defaultOptimizer_ = new MetaOptimizer(0, desc);
-    defaultOptimizer_->setMessageHandler(0);
-    defaultOptimizer_->setProfiler(0);
+    defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, move(desc));
+    defaultOptimizer_->setMessageHandler(nullptr);
+    defaultOptimizer_->setProfiler(nullptr);
     defaultOptimizer_->getStopCondition()->setTolerance(0.0001);
-    optimizer_ = dynamic_cast<Optimizer*>(defaultOptimizer_->clone());
+    optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_);
   }
 
 public:
@@ -232,12 +228,14 @@ public:
    *
    * @return A pointer toward the computed distance matrix.
    */
-  
-  DistanceMatrix* getMatrix() const { return dist_ == 0 ? 0 : new DistanceMatrix(*dist_); }
+  std::unique_ptr<DistanceMatrix> getMatrix() const
+  {
+    return dist_ == nullptr ? nullptr : std::make_unique<DistanceMatrix>(*dist_);
+  }
 
   bool hasModel() const { return model_.get(); }
 
-  const BranchModel& getModel() const
+  const BranchModelInterface& model() const
   {
     if (hasModel())
       return *model_;
@@ -245,11 +243,16 @@ public:
       throw Exception("DistanceEstimation::getSubstitutionModel(). No model associated to this instance.");
   }
 
-  void resetSubstitutionModel(BranchModel* model = 0) { model_.reset(model); }
+  std::shared_ptr<const BranchModelInterface> getModel() const
+  {
+    return model_;
+  }
+
+  void setModel(std::shared_ptr<BranchModelInterface> model = nullptr) { model_ = model; }
 
   bool hasRateDistribution() const { return rateDist_.get(); }
 
-  const DiscreteDistribution& getRateDistribution() const
+  const DiscreteDistribution& rateDistribution() const
   {
     if (hasRateDistribution())
       return *rateDist_;
@@ -257,20 +260,33 @@ public:
       throw Exception("DistanceEstimation::getRateDistribution(). No rate distribution associated to this instance.");
   }
 
-  void resetRateDistribution(DiscreteDistribution* rateDist = 0) { rateDist_.reset(rateDist); }
-
-  void setData(const AlignedValuesContainer* sites) { sites_ = sites; }
-  const AlignedValuesContainer* getData() const { return sites_; }
-  void resetData() { sites_ = 0; }
-
-  void setOptimizer(const Optimizer* optimizer)
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
   {
-    if (optimizer_) delete optimizer_;
-    optimizer_ = dynamic_cast<Optimizer*>(optimizer->clone());
+     return rateDist_;
   }
-  const Optimizer* getOptimizer() const { return optimizer_; }
-  Optimizer* getOptimizer() { return optimizer_; }
-  void resetOptimizer() { optimizer_ = dynamic_cast<Optimizer*>(defaultOptimizer_->clone()); }
+  
+  void setRateDistribution(std::shared_ptr<DiscreteDistribution> rateDist = nullptr) { rateDist_ = rateDist; }
+
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites = nullptr) { sites_ = sites; }
+
+  std::shared_ptr<const AlignmentDataInterface> getData() const { return sites_; }
+  
+  const AlignmentDataInterface& data() const { return *sites_; }
+
+  void setOptimizer(std::shared_ptr<OptimizerInterface> optimizer)
+  {
+    optimizer_ = optimizer;
+  }
+
+  std::shared_ptr<const OptimizerInterface> getOptimizer() const { return optimizer_; }
+  
+  std::shared_ptr<OptimizerInterface> getOptimizer() { return optimizer_; }
+
+  const OptimizerInterface& optimizer() const { return *optimizer_; }
+  
+  OptimizerInterface& optimizer() { return *optimizer_; }
+
+  void resetOptimizer() { optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_); }
 
   /**
    * @brief Specify a list of parameters to be estimated.

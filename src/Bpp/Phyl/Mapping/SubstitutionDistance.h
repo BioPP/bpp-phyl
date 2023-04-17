@@ -61,7 +61,7 @@ namespace bpp
  */
 
 class SubstitutionDistance :
-  public virtual SubstitutionCount
+  public virtual SubstitutionCountInterface
 {
 public:
   virtual void setDistances(std::shared_ptr<const AlphabetIndex2> index) = 0;

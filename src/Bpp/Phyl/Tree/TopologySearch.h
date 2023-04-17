@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -105,6 +105,7 @@ public:
     topologyChangeTested(event);
     topologyChangeSuccessful(event);
   }
+
   /**
    * @brief Notify a topology change event.
    *
@@ -143,7 +144,7 @@ public:
    *
    * TopologyListeners will be notified when the topology of the tree is modified.
    */
-  virtual void addTopologyListener(TopologyListener* listener) = 0;
+  virtual void addTopologyListener(std::shared_ptr<TopologyListener> listener) = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_TREE_TOPOLOGYSEARCH_H

@@ -41,65 +41,81 @@
 #include "KroneckerCodonDistanceSubstitutionModel.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
 KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod,
-  const AlphabetIndex2* pdist) :
+  shared_ptr<const GeneticCode> gCode,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+  shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDist."),
+  AbstractKroneckerWordSubstitutionModel(
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      "KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3,
-  const AlphabetIndex2* pdist) :
+  shared_ptr<const GeneticCode> gCode,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+  shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDist."),
+  AbstractKroneckerWordSubstitutionModel(
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      "KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod,
-  const std::vector<std::set< size_t> >& vPos,
-  const AlphabetIndex2* pdist) :
+  shared_ptr<const GeneticCode> gCode,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+  const vector<std::set< size_t> >& vPos,
+  shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDist."),
+  AbstractKroneckerWordSubstitutionModel(
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      "KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3,
-  const std::vector<std::set< size_t> >& vPos,
-  const AlphabetIndex2* pdist) :
+  shared_ptr<const GeneticCode> gCode,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+  const vector<std::set<size_t>>& vPos,
+  shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDist."),
+  AbstractKroneckerWordSubstitutionModel(
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      "KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
-std::string KroneckerCodonDistanceSubstitutionModel::getName() const
+
+string KroneckerCodonDistanceSubstitutionModel::getName() const
 {
   return "KronCodonDist";
 }

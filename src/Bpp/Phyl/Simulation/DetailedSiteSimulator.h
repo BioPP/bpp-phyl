@@ -66,10 +66,13 @@ private:
   std::vector<size_t> ancestralStates_;
   std::shared_ptr<const ParametrizablePhyloTree> tree_;
   std::vector<unsigned int> leavesId_;
-  const StateMap* statemap_;
+  std::shared_ptr<const StateMapInterface> statemap_;
 
 public:
-  SiteSimulationResult(std::shared_ptr<const ParametrizablePhyloTree> tree, const StateMap* statemap, size_t ancestralState) :
+  SiteSimulationResult(
+      std::shared_ptr<const ParametrizablePhyloTree> tree, 
+      std::shared_ptr<const StateMapInterface> statemap,
+      size_t ancestralState) :
     indexes_        (),
     currentIndex_   (0),
     paths_          (),
@@ -111,7 +114,9 @@ public:
   /**
    * @return The alphabet associated to this simulation.
    */
-  const Alphabet* getAlphabet() const { return statemap_->getAlphabet(); }
+  std::shared_ptr<const Alphabet> getAlphabet() const { return statemap_->getAlphabet(); }
+  
+  const Alphabet& alphabet() const { return statemap_->alphabet(); }
 
   virtual void addNode(unsigned int nodeId, MutationPath path)
   {
@@ -131,19 +136,25 @@ public:
 
   virtual size_t getSubstitutionCount(size_t i) const { return paths_[i].getNumberOfEvents(); }
 
-  virtual void getSubstitutionCount(size_t i, const SubstitutionRegister& reg, std::vector<double>& counts) const
+  virtual void getSubstitutionCount(
+    size_t i, 
+    const SubstitutionRegisterInterface& reg,
+    std::vector<double>& counts) const
   {
     paths_[i].getEventCounts(counts, reg);
   }
 
   virtual size_t getSubstitutionCount(unsigned int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
 
-  virtual void getSubstitutionCount(unsigned int nodeId, const SubstitutionRegister& reg, std::vector<double>& counts) const
+  virtual void getSubstitutionCount(
+    unsigned int nodeId,
+    const SubstitutionRegisterInterface& reg,
+    std::vector<double>& counts) const
   {
     paths_[indexes_[nodeId]].getEventCounts(counts, reg);
   }
 
-  virtual VVdouble getSubstitutionVector(const SubstitutionRegister& reg) const
+  virtual VVdouble getSubstitutionVector(const SubstitutionRegisterInterface& reg) const
   {
     size_t n = paths_.size();
     VVdouble counts(n);
@@ -172,7 +183,7 @@ public:
   /**
    * @return The site corresponding to this simulation.
    */
-  virtual Site* getSite(const TransitionModel& model) const
+  virtual std::unique_ptr<SiteInterface> getSite(const TransitionModelInterface& model) const
   {
     std::vector<size_t> mstates = getFinalStates();
     std::vector<int> astates(mstates.size());
@@ -180,7 +191,8 @@ public:
     {
       astates[i] = statemap_->getAlphabetStateAsInt(mstates[i]);
     }
-    return new Site(astates, statemap_->getAlphabet());
+    auto alphabet = statemap_->getAlphabet();
+    return std::make_unique<Site>(astates, alphabet);
   }
 
   /**
@@ -213,7 +225,11 @@ protected:
   double rate_;
 
 public:
-  RASiteSimulationResult(std::shared_ptr<const ParametrizablePhyloTree> tree, const StateMap* stateMap, size_t ancestralStateIndex, double rate) :
+  RASiteSimulationResult(
+      std::shared_ptr<const ParametrizablePhyloTree> tree,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      size_t ancestralStateIndex,
+      double rate) :
     SiteSimulationResult(tree, stateMap, ancestralStateIndex),
     rate_(rate) {}
 
@@ -233,13 +249,15 @@ public:
  *
  * Instances of this class should be used when a detailed output of the simulation is needed.
  */
-class DetailedSiteSimulator :
-  public virtual SiteSimulator
+class DetailedSiteSimulatorInterface :
+  public virtual SiteSimulatorInterface
 {
 public:
-  DetailedSiteSimulator() {}
-  virtual ~DetailedSiteSimulator() {}
+  DetailedSiteSimulatorInterface() {}
+  virtual ~DetailedSiteSimulatorInterface() {}
 
+  DetailedSiteSimulatorInterface* clone() const override = 0;
+  
 public:
   /**
    * @brief Get a detailed simulation result for one site.
@@ -247,10 +265,10 @@ public:
    * @return A SiteSimulationResult object with all ancestral
    * states for all nodes and branches.
    */
-  virtual SiteSimulationResult* dSimulateSite() const = 0;
-  virtual SiteSimulationResult* dSimulateSite(size_t rateClass) const = 0;
-  virtual SiteSimulationResult* dSimulateSite(double rate) const = 0;
-  virtual SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const = 0;
+  virtual std::unique_ptr<SiteSimulationResult> dSimulateSite() const = 0;
+  virtual std::unique_ptr<SiteSimulationResult> dSimulateSite(size_t rateClass) const = 0;
+  virtual std::unique_ptr<SiteSimulationResult> dSimulateSite(double rate) const = 0;
+  virtual std::unique_ptr<SiteSimulationResult> dSimulateSite(size_t ancestralStateIndex, double rate) const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_SIMULATION_DETAILEDSITESIMULATOR_H

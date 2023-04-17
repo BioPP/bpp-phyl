@@ -63,12 +63,14 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
-void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* rdist,
-                 const Tree& tree, const ParametrizablePhyloTree&  new_tree,
-                 const ProbabilisticSiteContainer& sites,
-                 double initialValue, double finalValue)
+void fitModelHSR(
+    shared_ptr<SubstitutionModelInterface> model,
+    shared_ptr<DiscreteDistribution> rdist,
+    const Tree& tree, const ParametrizablePhyloTree&  new_tree,
+    shared_ptr<const ProbabilisticSiteContainerInterface> sites,
+    double initialValue, double finalValue)
 {
-  RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false, false);
+  RHomogeneousTreeLikelihood tl(tree, *sites, model, rdist, false, false, false);
   tl.initialize();
 
   ApplicationTools::displayResult("Test model", model->getName());
@@ -81,7 +83,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   cout << endl;
   
   Parameter p1("T92.kappa",0.1);
-  Parameter p2("T92.kappa",0.2);
+  Parameter p2("T92.kappa",3);
   
   ParameterList pl1;pl1.addParameter(p1);
   ParameterList pl2;pl2.addParameter(p2);
@@ -122,14 +124,17 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   
   ApplicationTools::startTimer();
   
-  auto process= std::make_shared<RateAcrossSitesSubstitutionProcess> (std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<ParametrizablePhyloTree>(new_tree.clone()));
+  auto process = make_shared<RateAcrossSitesSubstitutionProcess>(
+      shared_ptr<SubstitutionModelInterface>(model->clone()),
+      shared_ptr<DiscreteDistribution>(rdist->clone()),
+      shared_ptr<ParametrizablePhyloTree>(new_tree.clone()));
 
   Context context;                        
-  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
-  auto newTl = std::make_shared<SingleProcessPhyloLikelihood>(context, lik);
+  auto lik = make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
+  auto newTl = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
   
-  cout << "NewTL: " << setprecision(20) << newTl->getValue() << endl;
+  cout << "NewTL:    " << setprecision(20) << newTl->getValue() << endl;
   cout << "NewTL D1: " << setprecision(20) << newTl->getFirstOrderDerivative("BrLen2") << endl;
   cout << "NewTL D2: " << setprecision(20) << newTl->getSecondOrderDerivative("BrLen2") << endl;
   ApplicationTools::displayResult("* initial likelihood", newTl->getValue());
@@ -169,26 +174,33 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   cout << "Optimization : " << endl;
   cout << endl;
 
-  uint nboptim=1000;
+  uint nboptim = 1000;
   
-  RHomogeneousTreeLikelihood tlop(tree, sites, model->clone(), rdist->clone(), false, false);
-  tlop.initialize();
+  auto tlop = make_shared<RHomogeneousTreeLikelihood>(tree, *sites,
+      shared_ptr<SubstitutionModelInterface>(model->clone()),
+      shared_ptr<DiscreteDistribution>(rdist->clone()),
+      false, false);
+  tlop->initialize();
 
-  OptimizationToolsOld::optimizeNumericalParameters2(&tlop, tlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << tlop.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (old)", tlop.getValue());
-  if (abs(tlop.getValue() - finalValue) > 0.001)
+  OptimizationToolsOld::optimizeNumericalParameters2(
+      tlop, tlop->getParameters(),
+      0, 0.000001, nboptim, 0, 0);
+  cout << setprecision(20) << tlop->getValue() << endl;
+  ApplicationTools::displayResult("* lnL after full optimization (old)", tlop->getValue());
+  if (abs(tlop->getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
-  tlop.getParameters().printParameters(cout);
+  tlop->getParameters().printParameters(cout);
 
 
   process.reset(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<ParametrizablePhyloTree>(new_tree.clone())));  
-  lik.reset(new LikelihoodCalculationSingleProcess(context, sites, *process));
+  lik.reset(new LikelihoodCalculationSingleProcess(context, sites, process));
   newTl.reset(new SingleProcessPhyloLikelihood(context, lik));
 
-  ParameterList opln1=process->getBranchLengthParameters(true);
+  ParameterList opln1 = process->getBranchLengthParameters(true);
   
-  OptimizationTools::optimizeNumericalParameters2(*newTl, newTl->getParameters(), 0, 0.000001, nboptim, 0, 0);
+  OptimizationTools::optimizeNumericalParameters2(
+      newTl, newTl->getParameters(),
+      0, 0.000001, nboptim, 0, 0);
   cout << setprecision(20) << newTl->getValue() << endl;
   ApplicationTools::displayResult("* lnL after full optimization (new)", newTl->getValue());
   if (abs(newTl->getValue() - finalValue) > 0.001)
@@ -207,18 +219,19 @@ int main() {
   
   //-------------
 
-  const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
 
   Pasta pasta;
   
-  VectorProbabilisticSiteContainer sites(alphabet);
-  pasta.readAlignment("exemple1.pa",sites);
+  auto sites = make_shared<ProbabilisticVectorSiteContainer>(alphabet);
+  pasta.readAlignment("exemple1.pa", *sites);
   
-  shared_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
-  unique_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
+  auto model = make_shared<T92>(nucAlphabet, 3.);
+  auto rdist = make_shared<ConstantRateDistribution>();
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
-    fitModelHSR(model, rdist.get(), *tree, *pTree, sites, 222.26297478, 215.7976882);
+    fitModelHSR(model, rdist, *tree, *pTree, sites, 222.26297478, 215.7976882);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

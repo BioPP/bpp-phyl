@@ -43,7 +43,7 @@
 
 #include "AbstractWordSubstitutionModel.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/WordAlphabet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
@@ -66,9 +66,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(
     modelList.getWordAlphabet(),
-    std::shared_ptr<const StateMap>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
+    std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
     prefix),
-  new_alphabet_ (true),
+  newAlphabet_(true),
   VSubMod_      (),
   VnestedPrefix_(),
   Vrate_        (modelList.size())
@@ -126,37 +126,38 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  const Alphabet* alph,
-  std::shared_ptr<const StateMap> stateMap,
-  const std::string& prefix) :
+  shared_ptr<const Alphabet> alph,
+  shared_ptr<const StateMapInterface> stateMap,
+  const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(alph, stateMap, prefix),
-  new_alphabet_ (false),
+  newAlphabet_(false),
   VSubMod_      (),
   VnestedPrefix_(),
   Vrate_        (0)
 {}
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  SubstitutionModel* pmodel,
+  unique_ptr<SubstitutionModelInterface>& pmodel,
   unsigned int num,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num), 0, prefix),
-  new_alphabet_ (true),
+  AbstractSubstitutionModel(make_unique<WordAlphabet>(pmodel->getAlphabet(), num), 0, prefix),
+  newAlphabet_(true),
   VSubMod_      (),
   VnestedPrefix_(),
   Vrate_        (num, 1.0 / num)
 {
-  stateMap_ = std::shared_ptr<const StateMap>(new CanonicalStateMap(getAlphabet(), false));
+  stateMap_ = std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(getAlphabet(), false));
 
   size_t i;
 
   string t = "";
+  shared_ptr<SubstitutionModelInterface> pmodel2 = move(pmodel);
   for (i = 0; i < num; i++)
   {
-    VSubMod_.push_back(pmodel);
-    VnestedPrefix_.push_back(pmodel->getNamespace());
+    VSubMod_.push_back(pmodel2);
+    VnestedPrefix_.push_back(pmodel2->getNamespace());
     t += TextTools::toString(i + 1);
   }
 
@@ -168,7 +169,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const AbstractWordSubstitutionModel& wrsm) :
   AbstractParameterAliasable(wrsm),
   AbstractSubstitutionModel(wrsm),
-  new_alphabet_ (wrsm.new_alphabet_),
+  newAlphabet_(wrsm.newAlphabet_),
   VSubMod_      (),
   VnestedPrefix_(wrsm.VnestedPrefix_),
   Vrate_        (wrsm.Vrate_)
@@ -176,16 +177,16 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   size_t i;
   size_t num = wrsm.VSubMod_.size();
 
-  if (wrsm.new_alphabet_)
-    alphabet_ = new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(wrsm.getAlphabet())));
+  if (wrsm.newAlphabet_)
+    alphabet_ = make_shared<WordAlphabet>(dynamic_cast<const WordAlphabet&>(wrsm.alphabet()));
 
-  SubstitutionModel* pSM = 0;
+  shared_ptr<SubstitutionModelInterface> pSM = nullptr;
   if ((num > 1) & (wrsm.VSubMod_[0] == wrsm.VSubMod_[1]))
-    pSM = wrsm.VSubMod_[0]->clone();
+    pSM.reset(wrsm.VSubMod_[0]->clone());
 
-  for (i = 0; i < num; i++)
+  for (i = 0; i < num; ++i)
   {
-    VSubMod_.push_back(pSM ? pSM : wrsm.VSubMod_[i]->clone());
+    VSubMod_.push_back(pSM ? pSM : shared_ptr<SubstitutionModelInterface>(wrsm.VSubMod_[i]->clone()));
   }
 }
 
@@ -194,43 +195,26 @@ AbstractWordSubstitutionModel& AbstractWordSubstitutionModel::operator=(
 {
   AbstractParameterAliasable::operator=(model);
   AbstractSubstitutionModel::operator=(model);
-  new_alphabet_  = model.new_alphabet_;
+  newAlphabet_   = model.newAlphabet_;
   VnestedPrefix_ = model.VnestedPrefix_;
   Vrate_         = model.Vrate_;
 
   size_t i;
   size_t num = model.VSubMod_.size();
 
-  if (model.new_alphabet_)
-    alphabet_ = new WordAlphabet(*(dynamic_cast<const WordAlphabet*>(model.getAlphabet())));
+  if (model.newAlphabet_)
+    alphabet_ = make_shared<WordAlphabet>(dynamic_cast<const WordAlphabet&>(model.alphabet()));
 
-  SubstitutionModel* pSM = 0;
+  shared_ptr<SubstitutionModelInterface> pSM = nullptr;
   if ((num > 1) & (model.VSubMod_[0] == model.VSubMod_[1]))
-    pSM = model.VSubMod_[0]->clone();
+    pSM.reset(model.VSubMod_[0]->clone());
 
-  for (i = 0; i < num; i++)
+  for (i = 0; i < num; ++i)
   {
-    VSubMod_[i] =  (pSM ? pSM : model.VSubMod_[i]->clone());
+    VSubMod_[i] =  (pSM ? pSM : shared_ptr<SubstitutionModelInterface>(model.VSubMod_[i]->clone()));
   }
 
   return *this;
-}
-
-AbstractWordSubstitutionModel::~AbstractWordSubstitutionModel()
-{
-  if ((VSubMod_.size() > 1) && (VSubMod_[0] == VSubMod_[1]))
-  {
-    if (VSubMod_[0])
-      delete VSubMod_[0];
-  }
-  else
-    for (size_t i = 0; i < VSubMod_.size(); i++)
-    {
-      if (VSubMod_[i])
-        delete VSubMod_[i];
-    }
-  if (new_alphabet_)
-    delete alphabet_;
 }
 
 void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
@@ -257,7 +241,7 @@ void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
 
 /******************************************************************************/
 
-void AbstractWordSubstitutionModel::updateMatrices()
+void AbstractWordSubstitutionModel::updateMatrices_()
 {
   // First we update position specific models. This need to be done
   // here and not in fireParameterChanged, as some parameter aliases
@@ -288,11 +272,11 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   // First fill of the generator from simple position generators
 
-  this->fillBasicGenerator();
+  this->fillBasicGenerator_();
 
   // modification of generator_
 
-  this->completeMatrices();
+  this->completeMatrices_();
 
   // sets diagonal terms
 
@@ -305,7 +289,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   if (enableEigenDecomposition())
   {
-    AbstractSubstitutionModel::updateMatrices();
+    AbstractSubstitutionModel::updateMatrices_();
   }
   else  // compute freq_ if no eigenDecomposition
   {
@@ -320,13 +304,13 @@ void AbstractWordSubstitutionModel::updateMatrices()
       m = 1;
       for (k = nbmod; k > 0; k--)
       {
-        SubstitutionModel* pSM = VSubMod_[k - 1];
-        for (j = 0; j < vsize[k - 1]; j++)
+        auto& pSM = VSubMod_[k - 1];
+        for (j = 0; j < vsize[k - 1]; ++j)
         {
           n = 0;
           while (n < salph)
           { // loop on prefix
-            for (l = 0; l < m; l++)
+            for (l = 0; l < m; ++l)
             { // loop on suffix
               freq_[n + j * m + l] *=  pSM->freq(j);
             }
@@ -351,7 +335,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
 }
 
 
-void AbstractWordSubstitutionModel::fillBasicGenerator()
+void AbstractWordSubstitutionModel::fillBasicGenerator_()
 {
   size_t nbmod = VSubMod_.size();
   size_t salph = getNumberOfStates();

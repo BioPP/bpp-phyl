@@ -118,7 +118,7 @@ using NodeRef = std::shared_ptr<Node_DF>;
 using NodeRefVec = std::vector<NodeRef>;
 
 /// Shared pointer alias for Value<T>.
-template<typename T> using ValueRef = std::shared_ptr<Value<T> >;
+template<typename T> using ValueRef = std::shared_ptr<Value<T>>;
 
 /// Numerical properties for DF Node.
 enum class NumericalProperty
@@ -142,7 +142,8 @@ enum class NumericalProperty
                                                  const std::type_info& givenNodeType);
 ///@}
 
-/** @brief Base dataflow Node class.
+/**
+ * @brief Base dataflow Node class.
  *
  * All data flow nodes inherit from this class.
  * Instances of this class must be used through std::shared_ptr<T>.
@@ -200,9 +201,26 @@ public:
 
   // Accessors
   bool isValid () const noexcept { return isValid_; }
-  const NodeRefVec& dependencies () const noexcept { return dependencyNodes_; }
+
+  /**
+   * @brief Number of dependent nodes (ie nodes that depend on this)
+   *
+   */
+  
+  std::size_t nbDependentNodes () const noexcept { return dependentNodes_.size (); }
+
+  
   const std::vector<Node_DF*>& dependentNodes () const noexcept { return dependentNodes_; }
+
+  /**
+   * @brief Number of dependencies (ie nodes we depend on)
+   *
+   */
+  
   std::size_t nbDependencies () const noexcept { return dependencyNodes_.size (); }
+  
+  const NodeRefVec& dependencies () const noexcept { return dependencyNodes_; }
+
   const NodeRef& dependency (std::size_t i) const noexcept { return dependencyNodes_[i]; }
 
   /// Node pretty name (default = type name).
@@ -333,6 +351,8 @@ private:
   NodeRefVec dependencyNodes_{};         // Nodes that we depend on.
   std::vector<Node_DF*> dependentNodes_{}; // Nodes that depend on us.
   bool isValid_{false};
+
+  friend class Context;
 };
 
 /// Convert a node ref with runtime type check.
@@ -372,60 +392,67 @@ template<typename T> class Value : public Node_DF
 public:
   // Init deps
   template<typename ... Args>
-  Value (const NodeRefVec& deps, Args&&... args) : Node_DF (deps), value_ (std::forward<Args>(args)...) {}
+  Value(const NodeRefVec& deps, Args&&... args) : 
+    Node_DF(deps),
+    value_(std::forward<Args>(args)...)
+  {}
 
   template<typename ... Args>
-  Value (NodeRefVec&& deps, Args&&... args)
-    : Node_DF (std::move (deps)), value_ (std::forward<Args>(args)...) {}
+  Value(NodeRefVec&& deps, Args&&... args) :
+    Node_DF(std::move(deps)),
+    value_(std::forward<Args>(args)...)
+  {}
 
-  /** @brief Access value, recompute if needed.
+  /** 
+   * @brief Access value, recompute if needed.
    *
    * Recompute the value if it is not up to date.
    * Then access it as const.
    * Recomputation is single threaded and not thread safe.
    */
-  const T& getTargetValue ()
+  const T& targetValue()
   {
-    this->computeRecursively ();
-    return accessValueConst ();
+    this->computeRecursively();
+    return accessValueConst();
   }
 
-  /** @brief Raw value access (const).
+  /** 
+   * @brief Raw value access (const).
    *
    * Value is not guaranteed to be valid (no recomputation).
    */
-  const T& accessValueConst () const noexcept { return value_; }
+  const T& accessValueConst() const noexcept { return value_; }
 
   /// Derive and cast result as Value<T> (most nodes derive to the
   /// same value type).
-  ValueRef<T> deriveAsValue (Context& c, const Node_DF& node)
+  ValueRef<T> deriveAsValue(Context& c, const Node_DF& node)
   {
-    return convertRef<Value<T> >(this->derive (c, node));
+    return convertRef<Value<T>>(this->derive(c, node));
   }
 
-  /** @brief General case for modification of the T object.
+  /** 
+   * @brief General case for modification of the T object.
    *
    * Takes a callable object (lamda, function pointer) that performs the modification.
    * It must take a single T& as argument, which will refer to the T object to modify.
    * The callable is called exactly once.
    *
-   *@param modifier callable to modify this object
-   *@param makeValid boolean if this object is valid after
+   * @param modifier callable to modify this object
+   * @param makeValid boolean if this object is valid after
    * modification (which means no call to this->compute()
    */
-
-  template<typename Callable> void modify (Callable&& modifier, bool makeValid)
+  template<typename Callable> void modify(Callable&& modifier, bool makeValid)
   {
     this->invalidateRecursively ();
     std::forward<Callable>(modifier) (this->accessValueMutable ());
     if (makeValid)
-      this->makeValid ();
+      this->makeValid();
   }
 
 protected:
   /// Raw value access (mutable). Should only be used by
   /// subclasses to implement compute().
-  T& accessValueMutable () noexcept { return value_; }
+  T& accessValueMutable() noexcept { return value_; }
 
 private:
   T value_;
@@ -433,7 +460,7 @@ private:
 
 /// Helper: access value of Node as a Value<T> with unchecked
 /// cast.
-template<typename T> const T& accessValueConstCast (const Node_DF& node)
+template<typename T> const T& accessValueConstCast(const Node_DF& node)
 {
   // assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
   return static_cast<const Value<T>&>(node).accessValueConst (); // Fast cast access
@@ -538,35 +565,64 @@ void checkDependencyRangeIsValue (const std::type_info& contextNodeType, const N
 class Context
 {
 public:
-  Context () = default;
+  Context ();
 
-  /** For a newly created node, return its equivalent from the cache.
+  /** 
+   * @brief For a newly created node, return its equivalent from the cache.
    * If not already present in the cache, add it and return newNode.
    * If already present in the cache, return the stored one.
    *
    * The returned node is always of the same derived class than newNode.
    * It represents the same value.
    */
-  NodeRef cached (NodeRef&& newNode);
+  NodeRef cached(NodeRef&& newNode);
 
-  NodeRef cached (NodeRef& newNode);
+  NodeRef cached(NodeRef& newNode);
 
   size_t size() const
   {
     return nodeCache_.size();
   }
 
-  /*
+  /**
    * @brief Clear the context
-   *
    */
   void clear()
   {
     nodeCache_.clear();
   }
 
+  /**
+   * @brief Remove an element from the map, only if it has no
+   * dependent nodes, and likewise down the graph.
+   *
+   * @param  r the upstream node to be removed
+   *
+   * @return boolean: if the node has been removed from the map.
+   */
+  
+  bool erase(const NodeRef& r);
+
+  /*
+   * @brief Get a size_t 0 NodeRef
+   *
+   */
+
+  NodeRef getZero()
+  {
+    return zero_;
+  }
+
+  /**
+   * @brief Returns the vector of all pointers to all nodes.
+   *
+   */
+
+  std::vector<const Node_DF*> getAllNodes() const;
+
 private:
-  /* NodeRef is hashable and comparable as a pointer.
+  /**
+   * @brief NodeRef is hashable and comparable as a pointer.
    * CachedNodeRef is hashable and comparable, by comparing the node configuration:
    * - Derived class type,
    * - Dependencies,
@@ -577,31 +633,34 @@ private:
   {
     NodeRef ref;
 
-    CachedNodeRef (NodeRef&& r) : ref (std::move (r)) {}
+    CachedNodeRef(NodeRef&& r) : ref(std::move(r)) {}
 
-    CachedNodeRef (NodeRef& r) : ref (r) {}
+    CachedNodeRef(NodeRef& r) : ref(r) {}
 
     bool operator==(const CachedNodeRef& other) const;
   };
+
   struct CachedNodeRefHash
   {
     std::size_t operator()(const CachedNodeRef& ref) const;
   };
 
   std::unordered_set<CachedNodeRef, CachedNodeRefHash> nodeCache_;
+
+  NodeRef zero_;
 };
 
 /// Helper: Same as Context::cached but with a shared_ptr<T> node.
 template<typename T> std::shared_ptr<T> cachedAs (Context& c, std::shared_ptr<T>&& newNode)
 {
   // We can use the faster static_cast due to Context::cached(): node types are conserved.
-  return std::static_pointer_cast<T>(c.cached (std::move (newNode)));
+  return std::static_pointer_cast<T>(c.cached (std::move(newNode)));
 }
 
 template<typename T> std::shared_ptr<T> cachedAs (Context& c, std::shared_ptr<T>& newNode)
 {
   // We can use the faster static_cast due to Context::cached(): node types are conserved.
-  return std::static_pointer_cast<T>(c.cached (newNode));
+  return std::static_pointer_cast<T>(c.cached(newNode));
 }
 } // namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOW_H

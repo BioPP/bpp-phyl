@@ -43,6 +43,7 @@
 #include "LaplaceSubstitutionCount.h"
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
@@ -111,13 +112,13 @@ double LaplaceSubstitutionCount::getNumberOfSubstitutions(size_t initialState, s
 
 /******************************************************************************/
 
-Matrix<double>* LaplaceSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
+unique_ptr<Matrix<double>> LaplaceSubstitutionCount::getAllNumbersOfSubstitutions(double length, size_t type) const
 {
   if (!model_)
     throw Exception("LaplaceSubstitutionCount::getAllNumbersOfSubstitutions: model not defined.");
 
   if (length == currentLength_)
-    return new RowMatrix<double>(m_);
+    return make_unique<RowMatrix<double>>(m_);
   if (length < 0.000001) // Limit case!
   {
     size_t s = model_->getAlphabet()->getSize();
@@ -137,7 +138,7 @@ Matrix<double>* LaplaceSubstitutionCount::getAllNumbersOfSubstitutions(double le
 
   currentLength_ = length;
 
-  return new RowMatrix<double>(m_);
+  return make_unique<RowMatrix<double>>(m_);
 }
 
 /******************************************************************************/
@@ -182,13 +183,14 @@ void LaplaceSubstitutionCount::storeAllNumbersOfSubstitutions(double length, siz
 
 /******************************************************************************/
 
-void LaplaceSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
+void LaplaceSubstitutionCount::setSubstitutionModel(
+    shared_ptr<const SubstitutionModelInterface> model)
 {
   model_ = model;
   if (!model)
     return;
 
-  size_t n = model->getAlphabet()->getSize();
+  size_t n = model->alphabet().getSize();
   m_.resize(n, n);
   // Recompute counts:
   if (currentLength_ > 0)

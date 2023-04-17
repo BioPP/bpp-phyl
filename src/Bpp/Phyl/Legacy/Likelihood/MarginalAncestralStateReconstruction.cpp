@@ -52,9 +52,9 @@ vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(u
   probs.resize(nbDistinctSites_);
   double cumProb = 0;
   double r;
-  if (likelihood_->getTree().isLeaf((int)nodeId))
+  if (likelihood_->tree().isLeaf((int)nodeId))
   {
-    VVdouble larray = likelihood_->getLikelihoodData()->getLeafLikelihoods((int)nodeId);
+    VVdouble larray = likelihood_->likelihoodData().getLeafLikelihoods((int)nodeId);
     for (size_t i = 0; i < nbDistinctSites_; ++i)
     {
       Vdouble* probs_i = &probs[i];
@@ -107,16 +107,16 @@ map<uint, vector<size_t> > MarginalAncestralStateReconstruction::getAllAncestral
 {
   map<uint, vector<size_t> > ancestors;
   // Clone the data into a AlignedValuesContainer for more efficiency:
-  shared_ptr<AlignedValuesContainer> data(dynamic_cast<AlignedValuesContainer*>(likelihood_->getLikelihoodData()->getShrunkData()->clone()));
+  shared_ptr<AlignmentDataInterface> data(likelihood_->likelihoodData().shrunkData().clone());
   recursiveMarginalAncestralStates(tree_.getRootNode(), ancestors, *data);
   return ancestors;
 }
 
-Sequence* MarginalAncestralStateReconstruction::getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const
+unique_ptr<Sequence> MarginalAncestralStateReconstruction::getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const
 {
   string name = tree_.hasNodeName((int)nodeId) ? tree_.getNodeName((int)nodeId) : ("" + TextTools::toString(nodeId));
-  const vector<size_t>* rootPatternLinks = &likelihood_->getLikelihoodData()->getRootArrayPositions();
-  const TransitionModel* model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
+  const vector<size_t>* rootPatternLinks = &likelihood_->likelihoodData().getRootArrayPositions();
+  auto model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
   vector<size_t> states;
   vector<int> allStates(nbSites_);
   VVdouble patternedProbs;
@@ -138,55 +138,51 @@ Sequence* MarginalAncestralStateReconstruction::getAncestralSequenceForNode(uint
       allStates[i] = model->getAlphabetStateAsInt(states[(*rootPatternLinks)[i]]);
     }
   }
-  return new BasicSequence(name, allStates, alphabet_);
+  return make_unique<Sequence>(name, allStates, alphabet_);
 }
 
 void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
   const Node* node,
   map<uint, vector<size_t> >& ancestors,
-  AlignedValuesContainer& data) const
+  const AlignmentDataInterface& data) const
 {
   if (node->isLeaf())
   {
-    const SiteContainer* sc = dynamic_cast<const SiteContainer*>(&data);
-    if (sc)
-    {
-      const Sequence& seq = sc->getSequence(node->getName());
-      vector<size_t>* v = &ancestors[(uint)node->getId()];
+    try {
+      auto& sc = dynamic_cast<const SiteContainerInterface&>(data);
+      const Sequence& seq = sc.sequence(node->getName());
+      vector<size_t>* v = &ancestors[static_cast<uint>(node->getId())];
       v->resize(seq.size());
       // This is a tricky way to store the real sequence as an ancestral one...
       // In case of Markov Modulated models, we consider that the real sequences
       // Are all in the first category.
-      const TransitionModel* model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
-      for (size_t i = 0; i < seq.size(); i++)
+      auto model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
+      for (size_t i = 0; i < seq.size(); ++i)
       {
         (*v)[i] = model->getModelStates(seq[i])[0];
       }
-    }
-    else
-    {
+    } catch (bad_cast&) {
       ancestors[(uint)node->getId()] = getAncestralStatesForNode((uint)node->getId());
     }
   }
   else
   {
-    ancestors[(uint)node->getId()] = getAncestralStatesForNode((uint)node->getId());
-    for (size_t i = 0; i < node->getNumberOfSons(); i++)
+    ancestors[static_cast<uint>(node->getId())] = getAncestralStatesForNode(static_cast<uint>(node->getId()));
+    for (size_t i = 0; i < node->getNumberOfSons(); ++i)
     {
       recursiveMarginalAncestralStates(node->getSon(i), ancestors, data);
     }
   }
 }
 
-AlignedSequenceContainer* MarginalAncestralStateReconstruction::getAncestralSequences(bool sample) const
+unique_ptr<AlignedSequenceContainer> MarginalAncestralStateReconstruction::getAncestralSequences(bool sample) const
 {
-  AlignedSequenceContainer* asc = new AlignedSequenceContainer(alphabet_);
+  auto asc = make_unique<AlignedSequenceContainer>(alphabet_);
   vector<int> ids = tree_.getInnerNodesId();
-  for (auto id:ids)
+  for (auto id : ids)
   {
-    Sequence* seq = getAncestralSequenceForNode((uint)id, NULL, sample);
-    asc->addSequence(*seq);
-    delete seq;
+    auto seq = getAncestralSequenceForNode(static_cast<uint>(id), nullptr, sample);
+    asc->addSequence(seq->getName(), seq);
   }
   return asc;
 }

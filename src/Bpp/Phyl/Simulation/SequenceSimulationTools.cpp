@@ -51,69 +51,61 @@
 using namespace bpp;
 using namespace std;
 
-std::shared_ptr<SiteContainer> SequenceSimulationTools::simulateSites(const SequenceSimulator& simulator, const vector<double>& rates)
+unique_ptr<SiteContainerInterface> SequenceSimulationTools::simulateSites(
+    const SequenceSimulatorInterface& simulator,
+    const vector<double>& rates)
 {
   size_t numberOfSites = rates.size();
-  vector<const Site*> vs(numberOfSites);
-  for (size_t i = 0; i < numberOfSites; i++)
+  vector<unique_ptr<Site>> vs(numberOfSites);
+  for (size_t i = 0; i < numberOfSites; ++i)
   {
-    Site* s = simulator.getSiteSimulator(i).simulateSite(rates[i]);
-    s->setPosition(static_cast<int>(i));
-    vs[i] = s;
+    auto s = simulator.siteSimulator(i).simulateSite(rates[i]);
+    s->setCoordinate(static_cast<int>(i));
+    vs[i] = move(s);
   }
-  auto sites = make_shared<VectorSiteContainer>(vs, simulator.getAlphabet());
-  sites->setSequenceNames(simulator.getSequenceNames(), false);
-  // Freeing memory:
-  for (size_t i = 0; i < numberOfSites; i++)
-  {
-    delete vs[i];
-  }
+  auto sites = make_unique<VectorSiteContainer>(vs, simulator.getAlphabet());
+  sites->setSequenceNames(simulator.getSequenceNames(), true);
 
   return sites;
 }
 
-std::shared_ptr<SiteContainer> SequenceSimulationTools::simulateSites(const SequenceSimulator& simulator, const vector<double>& rates, const vector<size_t>& states)
+unique_ptr<SiteContainerInterface> SequenceSimulationTools::simulateSites(
+    const SequenceSimulatorInterface& simulator,
+    const vector<double>& rates,
+    const vector<size_t>& states)
 {
   size_t numberOfSites = rates.size();
   if (states.size() != numberOfSites)
     throw Exception("SequenceSimulationTools::simulateSites., 'rates' and 'states' must have the same length.");
-  vector<const Site*> vs(numberOfSites);
-  for (size_t i = 0; i < numberOfSites; i++)
+  vector<unique_ptr<Site>> vs(numberOfSites);
+  for (size_t i = 0; i < numberOfSites; ++i)
   {
-    Site* s = simulator.getSiteSimulator(i).simulateSite(states[i], rates[i]);
-    s->setPosition(static_cast<int>(i));
-    vs[i] = s;
+    auto s = simulator.siteSimulator(i).simulateSite(states[i], rates[i]);
+    s->setCoordinate(static_cast<int>(i));
+    vs[i] = move(s);
   }
 
-  auto sites = make_shared<VectorSiteContainer>(vs, simulator.getAlphabet());
-  sites->setSequenceNames(simulator.getSequenceNames(), false);
-  // Freeing memory:
-  for (size_t i = 0; i < numberOfSites; i++)
-  {
-    delete vs[i];
-  }
+  auto sites = make_unique<VectorSiteContainer>(vs, simulator.getAlphabet());
+  sites->setSequenceNames(simulator.getSequenceNames(), true);
 
   return sites;
 }
 
-std::shared_ptr<SiteContainer> SequenceSimulationTools::simulateSites(const SequenceSimulator& simulator, const vector<size_t>& states)
+unique_ptr<SiteContainerInterface> SequenceSimulationTools::simulateSites(
+    const SequenceSimulatorInterface& simulator,
+    const vector<size_t>& states)
 {
   size_t numberOfSites = states.size();
-  vector<const Site*> vs(numberOfSites);
-  for (size_t i = 0; i < numberOfSites; i++)
+  vector<unique_ptr<Site>> vs(numberOfSites);
+  for (size_t i = 0; i < numberOfSites; ++i)
   {
-    Site* s = simulator.getSiteSimulator(i).simulateSite(states[i], 1);
-    s->setPosition(static_cast<int>(i));
-    vs[i] = s;
+    auto s = simulator.siteSimulator(i).simulateSite(states[i], 1);
+    s->setCoordinate(static_cast<int>(i));
+    vs[i] = move(s);
   }
 
-  auto sites = make_shared<VectorSiteContainer>(vs, simulator.getAlphabet());
-  sites->setSequenceNames(simulator.getSequenceNames(), false);
-  // Freeing memory:
-  for (size_t i = 0; i < numberOfSites; i++)
-  {
-    delete vs[i];
-  }
+  auto sites = make_unique<VectorSiteContainer>(vs, simulator.getAlphabet());
+  sites->setSequenceNames(simulator.getSequenceNames(), true);
 
   return sites;
 }

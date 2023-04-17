@@ -47,26 +47,26 @@ using namespace bpp;
 
 using namespace std;
 
-SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
-  TransitionModel* model,
-  std::shared_ptr<FrequencySet> rootFreqs,
-  const Tree* tree
+unique_ptr<SubstitutionModelSet> SubstitutionModelSetTools::createHomogeneousModelSet(
+  shared_ptr<TransitionModelInterface> model,
+  shared_ptr<FrequencySetInterface> rootFreqs,
+  const Tree& tree
   )
 {
   // Check alphabet:
   if (model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  if (dynamic_cast<MixedTransitionModel*>(model) != NULL)
+  if (dynamic_cast<MixedTransitionModelInterface*>(model.get()) != nullptr)
     throw Exception("createHomogeneousModelSet non yet programmed for mixture models.");
 
-  SubstitutionModelSet*  modelSet = new SubstitutionModelSet(model->getAlphabet());
+  auto modelSet = make_unique<SubstitutionModelSet>(model->getAlphabet());
 
   modelSet->setRootFrequencies(rootFreqs);
   // We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
-  vector<int> ids = tree->getNodesId();
-  int rootId = tree->getRootId();
+  vector<int> ids = tree.getNodesId();
+  int rootId = tree.getRootId();
   unsigned int pos = 0;
-  for (unsigned int i = 0; i < ids.size(); i++)
+  for (unsigned int i = 0; i < ids.size(); ++i)
   {
     if (ids[i] == rootId)
     {
@@ -80,50 +80,49 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   return modelSet;
 }
 
-SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
-  TransitionModel* model,
-  std::shared_ptr<FrequencySet> rootFreqs,
-  const Tree* tree,
-  const std::map<std::string, std::string>& aliasFreqNames,
-  const std::map<std::string, std::vector<Vint> >& globalParameterNames
+unique_ptr<SubstitutionModelSet> SubstitutionModelSetTools::createNonHomogeneousModelSet(
+  shared_ptr<TransitionModelInterface> model,
+  shared_ptr<FrequencySetInterface> rootFreqs,
+  const Tree& tree,
+  const map<string, string>& aliasFreqNames,
+  const map<string, vector<Vint> >& globalParameterNames
   )
 {
   // Check alphabet:
-  if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
+  if (rootFreqs && model->alphabet().getAlphabetType() != rootFreqs->alphabet().getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
   ParameterList globalParameters;
   globalParameters = model->getParameters();
 
   vector<string> modelParamNames = globalParameters.getParameterNames();
 
-  map<string, vector<Vint> > globalParameterNames2;
+  map<string, vector<Vint>> globalParameterNames2;
 
   // First get correct parameter names
 
-  for (const auto& name: globalParameterNames)
+  for (const auto& name : globalParameterNames)
   {
     vector<string> complName = ApplicationTools::matchingParameters(name.first, modelParamNames);
 
     if (complName.size() == 0)
       throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + name.first + "' is not valid.");
     else
-      for (size_t j = 0; j < complName.size(); j++)
+      for (auto& cni : complName)
       {
-        globalParameterNames2[complName[j]] = name.second;
+        globalParameterNames2[cni] = name.second;
       }
   }
 
-  SubstitutionModelSet*  modelSet;
-  modelSet = new SubstitutionModelSet(model->getAlphabet());
+  auto modelSet = make_unique<SubstitutionModelSet>(model->getAlphabet());
 
   if (rootFreqs)
     modelSet->setRootFrequencies(rootFreqs);
 
   // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
-  vector<int> ids = tree->getNodesId();
-  int rootId = tree->getRootId();
+  vector<int> ids = tree.getNodesId();
+  int rootId = tree.getRootId();
   size_t pos = 0;
-  for (size_t i = 0; i < ids.size(); i++)
+  for (size_t i = 0; i < ids.size(); ++i)
   {
     if (ids[i] == rootId)
     {
@@ -133,13 +132,13 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   }
 
   ids.erase(ids.begin() + static_cast<ptrdiff_t>(pos));
-  for (size_t i = 0; i < ids.size(); i++)
+  for (size_t i = 0; i < ids.size(); ++i)
   {
-    modelSet->addModel(dynamic_cast<TransitionModel*>(model->clone()), vector<int>(1, ids[i]));
+    modelSet->addModel(shared_ptr<TransitionModelInterface>(model->clone()), vector<int>(1, ids[i]));
   }
 
   // Now alias all global parameters on all nodes:
-  for (size_t nn = 0; nn < globalParameters.size(); nn++)
+  for (size_t nn = 0; nn < globalParameters.size(); ++nn)
   {
     const Parameter& param = globalParameters[nn];
 
@@ -152,13 +151,13 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
       if (vvids.size() == 0)
       {
         size_t fmid = modelSet->getModelIndexForNode(ids[0]) + 1;
-        for (size_t i = 1; i < ids.size(); i++)
+        for (size_t i = 1; i < ids.size(); ++i)
         {
           modelSet->aliasParameters(pname + "_" + TextTools::toString(fmid), pname + "_" + TextTools::toString(modelSet->getModelIndexForNode(ids[i]) + 1));
         }
       }
       else
-        for (const auto& vids:vvids)
+        for (const auto& vids : vvids)
         {
           size_t fmid = modelSet->getModelIndexForNode(vids[0] + 1);
           for (size_t i = 1; i < vids.size(); i++)
@@ -170,14 +169,11 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   }
 
   // and alias on the root
-  std::map<std::string, std::string>::const_iterator it;
-
-  for (it = aliasFreqNames.begin(); it != aliasFreqNames.end(); it++)
+  for (auto& it : aliasFreqNames)
   {
-    if (globalParameterNames2.find(it->second) != globalParameterNames2.end())
-      modelSet->aliasParameters(it->second + "_1", it->first);
+    if (globalParameterNames2.find(it.second) != globalParameterNames2.end())
+      modelSet->aliasParameters(it.second + "_1", it.first);
   }
 
-  delete model; // delete template model.
   return modelSet;
 }

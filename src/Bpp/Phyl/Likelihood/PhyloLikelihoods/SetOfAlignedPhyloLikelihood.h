@@ -44,39 +44,96 @@
 
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "AlignedPhyloLikelihood.h"
-#include "SetOfAbstractPhyloLikelihood.h"
+#include "SetOfPhyloLikelihood.h"
 
 namespace bpp
 {
+/**
+ * @brief Joint interface SetOf+Aligned PhylLikelihood
+ */
+class SetOfAlignedPhyloLikelihoodInterface :
+  public virtual SetOfPhyloLikelihoodInterface,
+  public virtual AlignedPhyloLikelihoodInterface
+{
+public:
+  SetOfAlignedPhyloLikelihoodInterface* clone() const override = 0;
+
+  virtual std::shared_ptr<const AlignedPhyloLikelihoodInterface> getAlignedPhyloLikelihood(size_t nPhyl) const = 0;
+
+  virtual std::shared_ptr<AlignedPhyloLikelihoodInterface> getAlignedPhyloLikelihood(size_t nPhyl) = 0;
+
+  virtual const AlignedPhyloLikelihoodInterface& alignedPhyloLikelihood(size_t nPhyl) const = 0;
+
+  virtual AlignedPhyloLikelihoodInterface& alignedPhyloLikelihood(size_t nPhyl) = 0;
+
+  /**
+   * @brief Get the likelihood for a site for an aligned
+   * phyloLikelihood
+   *
+   * @param site The site index to analyse.
+   * @param nPhyl the phyloLikelihood index.
+   * @return The likelihood for site <i>site</i>.
+   */
+  virtual DataLik getLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const = 0;
+
+  /**
+   * @brief Get the log likelihood for a site for an aligned
+   * phyloLikelihood
+   *
+   * @param site The site index to analyse.
+   * @param nPhyl the phyloLikelihood index.
+   * @return The log likelihood for site <i>site</i>.
+   */
+  virtual double getLogLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const = 0;
+
+};
+
 /**
  * @brief The SetOfAlignedPhyloLikelihood abstract class.
  *
  * This class defines the common methods needed to compute a
  * likelihood from aligned phylogenies.
  */
-
-class SetOfAlignedPhyloLikelihood :
-  public SetOfAbstractPhyloLikelihood,
-  virtual public AbstractAlignedPhyloLikelihood
+class AbstractSetOfAlignedPhyloLikelihood :
+  public virtual SetOfAlignedPhyloLikelihoodInterface,
+  public virtual AbstractSetOfPhyloLikelihood,
+  public virtual AbstractAlignedPhyloLikelihood
 {
 public:
-  SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true, const std::string& prefix = "");
+  AbstractSetOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      bool inCollection = true,
+      const std::string& prefix = "");
 
-  SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
+  AbstractSetOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      const std::vector<size_t>& nPhylo, 
+      bool inCollection = true,
+      const std::string& prefix = "");
 
-  SetOfAlignedPhyloLikelihood(const SetOfAlignedPhyloLikelihood& soap) :
+protected:
+
+  AbstractSetOfAlignedPhyloLikelihood(const AbstractSetOfAlignedPhyloLikelihood& soap) :
     AbstractPhyloLikelihood(soap),
-    AbstractAlignedPhyloLikelihood(soap),
-    SetOfAbstractPhyloLikelihood(soap)
+    AbstractSetOfPhyloLikelihood(soap),
+    AbstractAlignedPhyloLikelihood(soap)
   {}
 
-  virtual SetOfAlignedPhyloLikelihood* clone() const = 0;
+  AbstractSetOfAlignedPhyloLikelihood& operator=(const AbstractSetOfAlignedPhyloLikelihood& soap)
+  {
+    AbstractSetOfPhyloLikelihood::operator=(soap);
+    AbstractAlignedPhyloLikelihood::operator=(soap);
+    return *this;
+  }
 
-  virtual ~SetOfAlignedPhyloLikelihood()
-  {}
+public:
+
+  virtual ~AbstractSetOfAlignedPhyloLikelihood() {}
 
   /**
    *
@@ -88,60 +145,36 @@ public:
    *
    * @return if the PhyloLikelihood has been added.
    */
+  bool addPhyloLikelihood(size_t nPhyl, const std::string& suff) override;
 
-  bool addPhyloLikelihood(size_t nPhyl, const std::string& suff);
-
-  const AbstractAlignedPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
+  std::shared_ptr<const AlignedPhyloLikelihoodInterface> getAlignedPhyloLikelihood(size_t nPhyl) const override
   {
-    return dynamic_cast<const AbstractAlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+    return std::dynamic_pointer_cast<const AlignedPhyloLikelihoodInterface>((*pPhyloCont_)[nPhyl]);
   }
 
-
-  AbstractAlignedPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl)
+  std::shared_ptr<AlignedPhyloLikelihoodInterface> getAlignedPhyloLikelihood(size_t nPhyl) override
   {
-    return dynamic_cast<AbstractAlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+    return std::dynamic_pointer_cast<AlignedPhyloLikelihoodInterface>((*pPhyloCont_)[nPhyl]);
   }
 
-  const AlignedPhyloLikelihood* getPhyloLikelihood(size_t nPhyl) const
+  const AlignedPhyloLikelihoodInterface& alignedPhyloLikelihood(size_t nPhyl) const override
   {
-    return dynamic_cast<const AlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+    return dynamic_cast<const AlignedPhyloLikelihoodInterface&>(*(*pPhyloCont_)[nPhyl]);
   }
 
-
-  AlignedPhyloLikelihood* getPhyloLikelihood(size_t nPhyl)
+  AlignedPhyloLikelihoodInterface& alignedPhyloLikelihood(size_t nPhyl) override
   {
-    return dynamic_cast<AlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+    return dynamic_cast<AlignedPhyloLikelihoodInterface&>(*(*pPhyloCont_)[nPhyl]);
   }
 
-  std::shared_ptr<AlignedPhyloLikelihood> sharePhyloLikelihood(size_t nPhyl)
+  DataLik getLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const override
   {
-    return std::dynamic_pointer_cast<AlignedPhyloLikelihood>(pPhyloCont_->getPhyloLikelihood(nPhyl));
+    return alignedPhyloLikelihood(nPhyl).getLikelihoodForASite(site);
   }
 
-  /**
-   * @brief Get the likelihood for a site for an aligned
-   * phyloLikelihood
-   *
-   * @param site The site index to analyse.
-   * @param nPhyl the phyloLikelihood index.
-   * @return The likelihood for site <i>site</i>.
-   */
-  DataLik getLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
+  double getLogLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const override
   {
-    return getPhyloLikelihood(nPhyl)->getLikelihoodForASite(site);
-  }
-
-  /**
-   * @brief Get the log likelihood for a site for an aligned
-   * phyloLikelihood
-   *
-   * @param site The site index to analyse.
-   * @param nPhyl the phyloLikelihood index.
-   * @return The log likelihood for site <i>site</i>.
-   */
-  double getLogLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
-  {
-    return getPhyloLikelihood(nPhyl)->getLogLikelihoodForASite(site);
+    return alignedPhyloLikelihood(nPhyl).getLogLikelihoodForASite(site);
   }
 };
 } // end of namespace bpp.

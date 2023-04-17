@@ -75,7 +75,7 @@ public:
    * @throw Exception In case something bad happens, like an unvalid model set.
    */
   static void getAncestralFrequencies(
-    const TreeLikelihood& tl,
+    const TreeLikelihoodInterface& tl,
     size_t site,
     std::map<int, std::vector<double> >& frequencies,
     bool alsoForLeaves = false);
@@ -94,7 +94,7 @@ public:
    * @throw Exception In case something bad happens, like an unvalid model set.
    */
   static void getAncestralFrequencies(
-    const TreeLikelihood& tl,
+    const TreeLikelihoodInterface& tl,
     std::map<int, std::vector<double> >& frequencies,
     bool alsoForLeaves = false);
 
@@ -105,7 +105,7 @@ private:
    * @see getAncestralFrequencies()
    */
   static void getAncestralFrequencies_(
-    const TreeLikelihood& tl,
+    const TreeLikelihoodInterface& tl,
     size_t siteIndex,
     int parentId,
     const std::vector<double>& ancestralFrequencies,

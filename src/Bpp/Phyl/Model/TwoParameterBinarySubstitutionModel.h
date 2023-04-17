@@ -125,7 +125,7 @@ protected:
   mutable RowMatrix<double> p_;
 
 public:
-  TwoParameterBinarySubstitutionModel(const BinaryAlphabet* alpha, double mu = 1., double pi0 = 0.5);
+  TwoParameterBinarySubstitutionModel(std::shared_ptr<const BinaryAlphabet> alpha, double mu = 1., double pi0 = 0.5);
 
   virtual ~TwoParameterBinarySubstitutionModel() {}
 

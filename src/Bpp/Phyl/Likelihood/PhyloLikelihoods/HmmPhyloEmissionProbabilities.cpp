@@ -57,9 +57,9 @@ HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(std::shared_ptr<Hmm
 
 void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(std::shared_ptr<HmmStateAlphabet> stateAlphabet)
 {
-  if (stateAlphabet == NULL)
+  if (!stateAlphabet)
     throw HmmUnvalidAlphabetException("Null alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");
-  if (dynamic_cast<const HmmPhyloAlphabet*>(stateAlphabet.get()) == NULL)
+  if (!dynamic_cast<const HmmPhyloAlphabet*>(stateAlphabet.get()))
     throw HmmUnvalidAlphabetException("Non PhyloLikelihood alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");
 
   phylAlph_ = dynamic_pointer_cast<HmmPhyloAlphabet>(stateAlphabet);
@@ -70,7 +70,7 @@ void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(std::shared_ptr<HmmState
 
   for (size_t i = 0; i < nbStates; i++)
   {
-    auto tmp = phylAlph_->getPhyloLikelihood(i).getAlignedLikelihoodCalculation()->getSiteLikelihoods(false);
+    auto tmp = phylAlph_->alignedPhyloLikelihood(i).alignedLikelihoodCalculation().getSiteLikelihoods(false);
     vEM.push_back(tmp);
   }
 

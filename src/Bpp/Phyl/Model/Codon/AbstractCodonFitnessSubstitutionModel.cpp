@@ -42,30 +42,44 @@
 # include "AbstractCodonFitnessSubstitutionModel.h"
 using namespace bpp;
 using namespace std;
+
 /****************************************************************************************/
-AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(std::shared_ptr<FrequencySet> pfitset, const GeneticCode* pgencode, const string& prefix) :
-  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_("")
+
+AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(
+    unique_ptr<FrequencySetInterface> pfitset,
+    shared_ptr<const GeneticCode> pgencode,
+    const string& prefix) :
+  AbstractParameterAliasable(prefix),
+  pfitset_(move(pfitset)),
+  pgencode_(pgencode),
+  fitName_("")
 {
-  if (dynamic_cast<CodonFrequencySet*>(pfitset.get()) == NULL)
-    throw Exception ("Bad type for fitness parameters" + pfitset->getName());
+  if (!dynamic_cast<CodonFrequencySetInterface*>(pfitset.get()))
+    throw Exception("Bad type for fitness parameters" + pfitset->getName());
   fitName_ = "fit_" + pfitset_->getNamespace();
   pfitset_->setNamespace(prefix + fitName_);
   addParameters_(pfitset_->getParameters());
 }
+/****************************************************************************************/
 
-AbstractCodonFitnessSubstitutionModel::~AbstractCodonFitnessSubstitutionModel()
-{}
+AbstractCodonFitnessSubstitutionModel::~AbstractCodonFitnessSubstitutionModel() {}
+
+/****************************************************************************************/
 
 void AbstractCodonFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters)
 {
   pfitset_->matchParametersValues(parameters);
 }
 
+/****************************************************************************************/
+
 void AbstractCodonFitnessSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   pfitset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
   matchParametersValues(pfitset_->getParameters() );
 }
+
+/****************************************************************************************/
 
 double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
@@ -84,3 +98,6 @@ double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_t 
     mu = -(log(phi_i / phi_j) / (1 - (phi_i / phi_j)));
   return mu;
 }
+
+/****************************************************************************************/
+

@@ -80,25 +80,25 @@ protected:
   bool param_;
 
 public:
-  Coala(const ProteicAlphabet* alpha,
-        const ProteinSubstitutionModel& model,
+  Coala(std::shared_ptr<const ProteicAlphabet> alpha,
+        const ProteinSubstitutionModelInterface& model,
         unsigned int nbAxes = 0,
         bool param = true);
 
   virtual ~Coala() {}
 
-  Coala* clone() const { return new Coala(*this); }
+  Coala* clone() const override { return new Coala(*this); }
 
 public:
-  std::string getName() const { return "Coala"; }
+  std::string getName() const override { return "Coala"; }
   std::string getExch() const { return exch_; }
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
   std::string getEmpiricalMatrixFile() const { return file_; }
 
 protected:
   void readFromFile(std::string& file);
   void computeEquilibriumFrequencies();
-  void updateMatrices();
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_COALA_H

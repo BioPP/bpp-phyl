@@ -66,10 +66,10 @@ public:
    * @param rootFreqs A FrequencySet object to parametrize root frequencies.
    * @param tree      The tree to use for the construction of the set.
    */
-  static SubstitutionModelSet* createHomogeneousModelSet(
-    TransitionModel* model,
-    std::shared_ptr<FrequencySet> rootFreqs,
-    const Tree* tree
+  static std::unique_ptr<SubstitutionModelSet> createHomogeneousModelSet(
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<FrequencySetInterface> rootFreqs,
+    const Tree& tree
     );
 
   /**
@@ -91,11 +91,10 @@ public:
    *
    * All other parameters will be considered distinct for all branches.
    */
-
-  static SubstitutionModelSet* createNonHomogeneousModelSet(
-    TransitionModel* model,
-    std::shared_ptr<FrequencySet> rootFreqs,
-    const Tree* tree,
+  static std::unique_ptr<SubstitutionModelSet> createNonHomogeneousModelSet(
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<FrequencySetInterface> rootFreqs,
+    const Tree& tree,
     const std::map<std::string, std::string>& aliasFreqNames,
     const std::map<std::string, std::vector<Vint> >& globalParameterNames
     );

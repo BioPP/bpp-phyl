@@ -1,7 +1,7 @@
 //
 // File: AbstractBiblioSubstitutionModel.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: vendredi 8 juillet 2011, ÃÂ  20h 17
 //
 
@@ -52,20 +52,15 @@ namespace bpp
  * @brief Partial implementation of the SubstitutionModel interface
  *   for models that are set for matching the bibliography, and are
  *   only defined through a link to a "real" model.
- *
  */
-
 class AbstractBiblioTransitionModel :
-  public virtual AbstractTotallyWrappedTransitionModel,
-  public AbstractParameterAliasable
+  public virtual AbstractTotallyWrappedTransitionModel
 {
 protected:
   /**
    * @brief Tools to make the link between the Parameters of the
    * object and those of pmixmodel_.
-   *
    */
-
   std::map<std::string, std::string> mapParNamesFromPmodel_;
 
   ParameterList lParPmodel_;
@@ -79,49 +74,44 @@ public:
 
   virtual ~AbstractBiblioTransitionModel() {}
 
-  virtual AbstractBiblioTransitionModel* clone() const = 0;
-
 protected:
-  virtual void updateMatrices();
+
+  virtual void updateMatrices_();
 
 public:
-  /*
+
+  /**
    * @brief get the name of a parameter from its name in a submodel
    *
-   * @var name the name of the parameter in the submodel
-   *
+   * @param name the name of the parameter in the submodel
    */
-
   std::string getParNameFromPmodel(const std::string& name) const;
 
-  /*
+  /**
    * @brief get the name of a parameter in the submodel from its apparent name
    *
-   * @var name the name of the parameter
-   *
+   * @param name the name of the parameter
    */
-
   std::string getPmodelParName(const std::string& name) const;
 
-  /*
-   *@ brief Methods to supersede TransitionModel methods.
+  /**
+   * @brief Methods to supersede TransitionModel methods.
    *
    * @{
    */
+  void addRateParameter() override;
 
-  void addRateParameter();
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
-
-  void setFreq(std::map<int, double>& frequ);
+  void setFreq(std::map<int, double>& frequ) override;
 
   /*
    * @}
    *
    */
 
-  /*
-   *@ brief Methods to supersede AbstractTransitionModel methods.
+  /**
+   * @brief Methods to supersede AbstractTransitionModel methods.
    *
    * @{
    */
@@ -131,19 +121,19 @@ public:
    *
    * This updates the matrices consequently.
    */
-  virtual void fireParameterChanged(const ParameterList& parameters)
+  virtual void fireParameterChanged(const ParameterList& parameters) override
   {
     if (parameters.hasParameter(getNamespace() + "rate"))
     {
-      getModel().setRate(parameters.getParameterValue(getNamespace() + "rate"));
+      model_().setRate(parameters.getParameterValue(getNamespace() + "rate"));
       if (parameters.size() != 1)
-        updateMatrices();
+        updateMatrices_();
     }
     else
-      updateMatrices();
+      updateMatrices_();
   }
 
-  void setNamespace(const std::string& name);
+  void setNamespace(const std::string& name) override;
 
   /*
    * @}
@@ -154,10 +144,11 @@ class AbstractBiblioSubstitutionModel :
   public virtual AbstractBiblioTransitionModel,
   public virtual AbstractTotallyWrappedSubstitutionModel
 {
+	
 public:
   AbstractBiblioSubstitutionModel(const std::string& prefix) :
     AbstractBiblioTransitionModel(prefix),
-    AbstractTotallyWrappedSubstitutionModel()
+    AbstractTotallyWrappedSubstitutionModel(prefix)
   {}
 
   AbstractBiblioSubstitutionModel(const AbstractBiblioSubstitutionModel& model) :
@@ -173,11 +164,11 @@ public:
 
   virtual ~AbstractBiblioSubstitutionModel() {}
 
-  virtual AbstractBiblioSubstitutionModel* clone() const = 0;
+protected:
 
-  void updateMatrices()
+  void updateMatrices_() override
   {
-    AbstractBiblioTransitionModel::updateMatrices();
+    AbstractBiblioTransitionModel::updateMatrices_();
   }
 };
 } // end of namespace bpp.

@@ -48,9 +48,9 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
-  std::shared_ptr<ProteinSubstitutionModel> pmodel,
-  const GeneticCode* pgencode,
-  const std::string& prefix,
+  shared_ptr<ProteinSubstitutionModelInterface> pmodel,
+  shared_ptr<const GeneticCode> pgencode,
+  const string& prefix,
   bool paramSynRate) :
   AbstractParameterAliasable(prefix),
   pAAmodel_(pmodel),

@@ -50,7 +50,7 @@ namespace bpp
 /**
  * @brief The Yang et al (2000) M2 substitution model for codons, with
  * the more realistic modification in Wong & al (2004).
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
  * mixture being defined on the selection parameter to allow it to
@@ -74,25 +74,18 @@ class YNGP_M2 :
   public YNGP_M
 {
 public:
-  YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
+  YNGP_M2(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
 
-  YNGP_M2* clone() const { return new YNGP_M2(*this); }
-
-  YNGP_M2(const YNGP_M2& mod2) :
-    YNGP_M(mod2)
-  {}
-
-  YNGP_M2& operator=(const YNGP_M2& mod2)
-  {
-    YNGP_M::operator=(mod2);
-    return *this;
-  }
-
-protected:
-  void updateMatrices();
+  YNGP_M2* clone() const override{ return new YNGP_M2(*this); }
 
 public:
-  std::string getName() const { return "YNGP_M2"; }
+  std::string getName() const override { return "YNGP_M2"; }
+
+protected:
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M2_H

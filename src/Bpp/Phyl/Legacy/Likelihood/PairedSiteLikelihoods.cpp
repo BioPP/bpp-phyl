@@ -99,10 +99,10 @@ void PairedSiteLikelihoods::appendModel(
   modelNames_.push_back(modelName);
 }
 
-void PairedSiteLikelihoods::appendModel(const bpp::TreeLikelihood& treeLikelihood)
+void PairedSiteLikelihoods::appendModel(const bpp::TreeLikelihoodInterface& treeLikelihood)
 {
   const vector<double>& siteLogLikelihoods = treeLikelihood.getLogLikelihoodPerSite();
-  const string& modelName = treeLikelihood.getTree().getName();
+  const string& modelName = treeLikelihood.tree().getName();
 
   PairedSiteLikelihoods::appendModel(siteLogLikelihoods, modelName);
 }

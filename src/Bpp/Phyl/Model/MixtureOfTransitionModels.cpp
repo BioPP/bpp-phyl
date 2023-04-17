@@ -48,21 +48,21 @@ using namespace bpp;
 using namespace std;
 
 MixtureOfTransitionModels::MixtureOfTransitionModels(
-  const Alphabet* alpha,
-  vector<std::shared_ptr<TransitionModel> > vpModel) :
+  shared_ptr<const Alphabet> alpha,
+  vector<unique_ptr<TransitionModelInterface>>& vpModel) :
   AbstractParameterAliasable("Mixture."),
-  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
-  AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture.")
+  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
+  AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
-  if (nbmod==0)
+  if (nbmod == 0)
     throw Exception("MixtureOfTransitionModels::MixtureOfTransitionModels : empty vector of models.");
   
-  for (i = 0; i < nbmod; i++)
+  for (i = 0; i < nbmod; ++i)
   {
     if (!vpModel[i])
       throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfTransitionModels constructor");
-    for (size_t j = i + 1; j < nbmod; j++)
+    for (size_t j = i + 1; j < nbmod; ++j)
     {
       if (vpModel[i] == vpModel[j])
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
@@ -74,7 +74,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_.push_back(vpModel[i]);
+    modelsContainer_.push_back(move(vpModel[i]));
     vProbas_.push_back(1.0 / static_cast<double>(nbmod));
     vRates_.push_back(1.0);
   }
@@ -92,29 +92,29 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
-    addParameters_(vpModel[i]->getParameters());
+    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + modelsContainer_[i]->getNamespace());
+    addParameters_(modelsContainer_[i]->getParameters());
   }
 
-  updateMatrices();
+  updateMatrices_();
 }
 
 MixtureOfTransitionModels::MixtureOfTransitionModels(
-  const Alphabet* alpha,
-  vector<std::shared_ptr<TransitionModel> > vpModel,
+  shared_ptr<const Alphabet> alpha,
+  vector<unique_ptr<TransitionModelInterface>>& vpModel,
   Vdouble& vproba,
   Vdouble& vrate) :
   AbstractParameterAliasable("Mixture."),
-  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture."),
-  AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->shareStateMap() : 0, "Mixture.")
+  AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
+  AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
 
-  for (i = 0; i < nbmod; i++)
+  for (i = 0; i < nbmod; ++i)
   {
     if (!vpModel[i])
       throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfTransitionModels constructor");
-    for (size_t j = i + 1; j < nbmod; j++)
+    for (size_t j = i + 1; j < nbmod; ++j)
     {
       if (vpModel[i] == vpModel[j])
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
@@ -143,7 +143,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_.push_back(vpModel[i]);
+    modelsContainer_.push_back(move(vpModel[i]));
   }
 
   // rates & probas
@@ -157,7 +157,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
   x = 0;
   double y = 0;
 
-  for (i = 0; i < nbmod - 1; i++)
+  for (i = 0; i < nbmod - 1; ++i)
   {
     addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i + 1), vproba[i] / (1 - x), Parameter::PROP_CONSTRAINT_EX));
     x += vproba[i];
@@ -167,13 +167,13 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
   // models parameters
 
-  for (i = 0; i < nbmod; i++)
+  for (i = 0; i < nbmod; ++i)
   {
-    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
-    addParameters_(vpModel[i]->getParameters());
+    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + modelsContainer_[i]->getNamespace());
+    addParameters_(modelsContainer_[i]->getParameters());
   }
 
-  updateMatrices();
+  updateMatrices_();
 }
 
 MixtureOfTransitionModels::MixtureOfTransitionModels(const MixtureOfTransitionModels& msm) :
@@ -193,20 +193,20 @@ MixtureOfTransitionModels& MixtureOfTransitionModels::operator=(const MixtureOfT
 MixtureOfTransitionModels::~MixtureOfTransitionModels()
 {}
 
-const TransitionModel* MixtureOfTransitionModels::getModel(const std::string& name) const
+const TransitionModelInterface& MixtureOfTransitionModels::model(const string& name) const
 {
   size_t nbmod = getNumberOfModels();
 
-  for (size_t i = 0; i < nbmod; i++)
+  for (size_t i = 0; i < nbmod; ++i)
   {
-    if (getNModel(i)->getName() == name)
-      return getNModel(i);
+    if (nModel(i).getName() == name)
+      return nModel(i);
   }
 
-  return NULL;
+  throw NullPointerException("MixtureOfTransitionModels::model. No model with name '" + name + "'.");
 }
 
-void MixtureOfTransitionModels::updateMatrices()
+void MixtureOfTransitionModels::updateMatrices_()
 {
   size_t i, j, nbmod = modelsContainer_.size();
 

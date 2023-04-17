@@ -57,23 +57,25 @@ namespace bpp
  * @brief The SequenceSimulator interface.
  * SequenceSimulator classes can simulate whole datasets.
  */
-class SequenceSimulator :
+class SequenceSimulatorInterface :
   public virtual Clonable
 {
 public:
-  SequenceSimulator() {}
-  virtual ~SequenceSimulator() {}
+  SequenceSimulatorInterface() {}
+  virtual ~SequenceSimulatorInterface() {}
 
-  SequenceSimulator* clone() const = 0;
+  SequenceSimulatorInterface* clone() const override = 0;
 
 public:
-  virtual std::shared_ptr<SiteContainer> simulate(size_t numberOfSites) const = 0;
+  virtual std::unique_ptr<SiteContainerInterface> simulate(size_t numberOfSites) const = 0;
 
-  virtual const SiteSimulator& getSiteSimulator(size_t pos) const = 0;
+  virtual const SiteSimulatorInterface& siteSimulator(size_t pos) const = 0;
 
   virtual std::vector<std::string> getSequenceNames() const = 0;
 
-  virtual const Alphabet* getAlphabet() const = 0;
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
+  
+  virtual const Alphabet& alphabet() const = 0;
 
   virtual void outputInternalSequences(bool inter) = 0;
 };

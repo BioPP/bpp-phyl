@@ -56,83 +56,120 @@ class RateAcrossSitesSubstitutionProcess :
   public AbstractAutonomousSubstitutionProcess
 {
 private:
-  std::shared_ptr<BranchModel> model_;
+  std::shared_ptr<BranchModelInterface> model_;
   std::shared_ptr<DiscreteDistribution> rDist_;
 
 public:
   RateAcrossSitesSubstitutionProcess(
-    std::shared_ptr<BranchModel> model,
+    std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rdist,
-    std::shared_ptr<const PhyloTree> tree = 0,
-    std::shared_ptr<FrequencySet> rootFrequencies = 0);
+    std::shared_ptr<const PhyloTree> tree = nullptr,
+    std::shared_ptr<FrequencySetInterface> rootFrequencies = nullptr);
 
   RateAcrossSitesSubstitutionProcess(
-    std::shared_ptr<BranchModel> model,
+    std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rdist,
     std::shared_ptr<ParametrizablePhyloTree> tree,
-    std::shared_ptr<FrequencySet> rootFrequencies = 0);
+    std::shared_ptr<FrequencySetInterface> rootFrequencies = nullptr);
 
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp);
 
   RateAcrossSitesSubstitutionProcess& operator=(const RateAcrossSitesSubstitutionProcess& rassp);
 
 public:
-  RateAcrossSitesSubstitutionProcess* clone() const { return new RateAcrossSitesSubstitutionProcess(*this); }
+  RateAcrossSitesSubstitutionProcess* clone() const override
+  { 
+    return new RateAcrossSitesSubstitutionProcess(*this);
+  }
 
-  size_t getNumberOfModels() const { return 1; }
+  size_t getNumberOfModels() const override { return 1; }
 
-  std::vector<size_t> getModelNumbers() const
+  std::vector<size_t> getModelNumbers() const override
   {
     return std::vector<size_t>(1, 1);
   }
 
-  const StateMap& getStateMap() const
+  const StateMapInterface& stateMap() const override
+  {
+    return model_->stateMap();
+  }
+
+  std::shared_ptr<const StateMapInterface> getStateMap() const override
   {
     return model_->getStateMap();
   }
 
-  std::shared_ptr<const BranchModel> getModel(size_t n) const
+  const BranchModelInterface& model(size_t n) const override
+  {
+    return *model_;
+  }
+
+  std::shared_ptr<const BranchModelInterface> getModel(size_t n) const override
   {
     return model_;
   }
 
-  std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const
+  const BranchModelInterface& model(unsigned int nodeId, size_t classIndex) const override
+  {
+    return *model_;
+  }
+
+  std::shared_ptr<const BranchModelInterface> getModel(unsigned int nodeId, size_t classIndex) const override
   {
     return model_;
   }
 
-  const std::vector<unsigned int> getNodesWithModel(size_t i) const
+  const std::vector<unsigned int> getNodesWithModel(size_t i) const override
   {
     throw Exception("RateAcrossSitesSubstitutionProcess::getNodesWithModel not finished. Ask developpers.");
     return Vuint(0);
   }
 
-  size_t getModelNumberForNode(unsigned int nodeId) const
+  size_t getModelNumberForNode(unsigned int nodeId) const override
   {
     return 1;
   }
 
-  std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const
+  std::shared_ptr<const BranchModelInterface> getModelForNode(unsigned int nodeId) const override
   {
     return model_;
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
+  const DiscreteDistribution& rateDistribution() const override
+  {
+    if (!rDist_)
+      throw NullPointerException("RateAcrossSitesSubstitutionProcess::rateDistribution. No associated rate distribution.");
+    return *rDist_;
+  }
+
+  DiscreteDistribution& rateDistribution() override
+  {
+    if (!rDist_)
+      throw NullPointerException("RateAcrossSitesSubstitutionProcess::rateDistribution. No associated rate distribution.");
+    return *rDist_;
+  }
+
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override
   {
     return rDist_;
   }
 
-  ParameterList getSubstitutionModelParameters(bool independent) const
+  std::shared_ptr<DiscreteDistribution> getRateDistribution() override
+  {
+    return rDist_;
+  }
+
+  ParameterList getSubstitutionModelParameters(bool independent) const override
   {
     return independent ? model_->getIndependentParameters() : model_->getParameters();
   }
 
-  ParameterList getRateDistributionParameters(bool independent) const
+  ParameterList getRateDistributionParameters(bool independent) const override
   {
     return independent ? rDist_->getIndependentParameters() : rDist_->getParameters();
   }
 
-  ParameterList getBranchLengthParameters(bool independent) const
+  ParameterList getBranchLengthParameters(bool independent) const override
   {
     if (getParametrizablePhyloTree())
       return getParametrizablePhyloTree()->getParameters();
@@ -140,12 +177,12 @@ public:
       return ParameterList();
   }
 
-  const std::vector<double>& getRootFrequencies() const
+  const std::vector<double>& getRootFrequencies() const override
   {
     if (!hasRootFrequencySet())
     {
-      if (std::dynamic_pointer_cast<const TransitionModel>(model_))
-        return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
+      if (std::dynamic_pointer_cast<const TransitionModelInterface>(model_))
+        return std::dynamic_pointer_cast<const TransitionModelInterface>(model_)->getFrequencies();
       else
         throw Exception("SimpleSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
     }
@@ -159,20 +196,20 @@ public:
    *
    */
 
-  void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
+  void setModelScenario(std::shared_ptr<ModelScenario> modelpath) override;
 
-  double getProbabilityForModel(size_t classIndex) const
+  double getProbabilityForModel(size_t classIndex) const override
   {
     if (classIndex >= rDist_->getNumberOfCategories())
       throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
     return rDist_->getProbability(classIndex);
   }
 
-  Vdouble getClassProbabilities() const
+  Vdouble getClassProbabilities() const override
   {
     Vdouble vProb;
 
-    for (size_t i = 0; i < rDist_->getNumberOfCategories(); i++)
+    for (size_t i = 0; i < rDist_->getNumberOfCategories(); ++i)
     {
       vProb.push_back(rDist_->getProbability(i));
     }
@@ -180,7 +217,7 @@ public:
     return vProb;
   }
 
-  double getRateForModel(size_t classIndex) const
+  double getRateForModel(size_t classIndex) const override
   {
     if (classIndex >= rDist_->getNumberOfCategories())
       throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getRateForModel.", classIndex, 0, rDist_->getNumberOfCategories());
@@ -188,7 +225,7 @@ public:
   }
 
 protected:
-  void fireParameterChanged(const ParameterList& pl); // Forward parameters and updates probabilities if needed.
+  void fireParameterChanged(const ParameterList& pl) override; // Forward parameters and updates probabilities if needed.
 };
 } // end namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_RATEACROSSSITESSUBSTITUTIONPROCESS_H

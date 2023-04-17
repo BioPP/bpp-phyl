@@ -101,8 +101,6 @@ public:
     AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
   }
 
-  TreeTemplate<Node>* getTree() const;
-
   void setWeighted(bool weighted) { weighted_ = weighted; }
   bool isWeighted() const { return weighted_; }
 

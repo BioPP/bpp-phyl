@@ -42,7 +42,7 @@
 #define BPP_PHYL_IO_IODISTANCEMATRIX_H
 
 #include <Bpp/Io/IoFormat.h>
-
+#include <Bpp/Seq/DistanceMatrix.h>
 
 // From the STL:
 #include <iostream>
@@ -50,7 +50,6 @@
 
 namespace bpp
 {
-class DistanceMatrix;
 
 /**
  * @brief General interface for distance matrix I/O.
@@ -84,7 +83,7 @@ public:
    * @return A new distance matrix object.
    * @throw Exception If an error occured.
    */
-  virtual DistanceMatrix* readDistanceMatrix(const std::string& path) const = 0;
+  virtual std::unique_ptr<DistanceMatrix> readDistanceMatrix(const std::string& path) const = 0;
   /**
    * @brief Read a distance matrix from a stream.
    *
@@ -92,7 +91,7 @@ public:
    * @return A new distance matrix object.
    * @throw Exception If an error occured.
    */
-  virtual DistanceMatrix* readDistanceMatrix(std::istream& in) const = 0;
+  virtual std::unique_ptr<DistanceMatrix> readDistanceMatrix(std::istream& in) const = 0;
 };
 
 /**
@@ -137,14 +136,14 @@ public:
   virtual ~AbstractIDistanceMatrix() {}
 
 public:
-  virtual DistanceMatrix* readDistanceMatrix(const std::string& path) const
+  virtual std::unique_ptr<DistanceMatrix> readDistanceMatrix(const std::string& path) const
   {
     std::ifstream input(path.c_str(), std::ios::in);
-    DistanceMatrix* mat = readDistanceMatrix(input);
+    auto mat = readDistanceMatrix(input);
     input.close();
     return mat;
   }
-  virtual DistanceMatrix* readDistanceMatrix(std::istream& in) const = 0;
+  virtual std::unique_ptr<DistanceMatrix> readDistanceMatrix(std::istream& in) const = 0;
 };
 
 /**

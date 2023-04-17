@@ -98,7 +98,7 @@ MixedSubstitutionModelSet& MixedSubstitutionModelSet::operator=(const MixedSubst
 
 void MixedSubstitutionModelSet::addEmptyHyperNode()
 {
-  vpHyperNodes_.push_back(new HyperNode(this));
+  vpHyperNodes_.push_back(new HyperNode(shared_from_this()));
 }
 
 void MixedSubstitutionModelSet::addHyperNode(const HyperNode& hn)
@@ -108,7 +108,7 @@ void MixedSubstitutionModelSet::addHyperNode(const HyperNode& hn)
 
 bool MixedSubstitutionModelSet::complete()
 {
-  MixedSubstitutionModelSet::HyperNode nhn(this);
+  MixedSubstitutionModelSet::HyperNode nhn(shared_from_this());
   size_t i;
   for (auto nodei:vpHyperNodes_)
   {
@@ -118,12 +118,11 @@ bool MixedSubstitutionModelSet::complete()
   size_t nbm = getNumberOfModels();
   for (i = 0; i < nbm; i++)
   {
-    const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(getModel(i));
-    if (pSM)
-    {
-      if (nhn.getNode(i).size() != pSM->getNumberOfModels())
+    try {
+      auto& pSM = dynamic_cast<const MixedTransitionModelInterface&>(model(i));
+      if (nhn.getNode(i).size() != pSM.getNumberOfModels())
         break;
-    }
+    } catch (exception&) {}
   }
 
   if (i == nbm)
@@ -132,12 +131,11 @@ bool MixedSubstitutionModelSet::complete()
   addEmptyHyperNode();
   for (i = 0; i < nbm; i++)
   {
-    const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(getModel(i));
-    if (pSM)
-    {
+    try {
+      auto& pSM = dynamic_cast<const MixedTransitionModelInterface&>(model(i));
       const MixedSubstitutionModelSet::HyperNode::Node& nd = nhn.getNode(i);
       auto snd = nd.size();
-      auto vs = pSM->getNumberOfModels();
+      auto vs = pSM.getNumberOfModels();
       Vuint an;
 
       uint j(0), k(0);
@@ -150,7 +148,7 @@ bool MixedSubstitutionModelSet::complete()
         j++;
       }
       addToHyperNode(i, an);
-    }
+    } catch (exception&) {}
   }
 
   return true;
@@ -171,7 +169,7 @@ void MixedSubstitutionModelSet::addToHyperNode(size_t nM, const Vuint& vnS, int 
 
 bool MixedSubstitutionModelSet::hasExclusivePaths() const
 {
-  HyperNode tthn(this);
+  HyperNode tthn(shared_from_this());
 
   size_t nhn = getNumberOfHyperNodes();
   for (size_t i = 0; i < nhn; i++)
@@ -202,11 +200,11 @@ void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
 
   size_t fmM = 0;
 
-  MixedTransitionModel* pfSM = 0;
+  MixedTransitionModelInterface* pfSM = nullptr;
   for (fmM = 0; fmM < nbm; fmM++)
   {
-    pfSM = dynamic_cast<MixedTransitionModel*>(getModel(fmM));
-    if (pfSM != NULL)
+    pfSM = dynamic_cast<MixedTransitionModelInterface*>(&model(fmM));
+    if (pfSM)
       break;
   }
   if (fmM == nbm)
@@ -234,7 +232,7 @@ void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
 
   for (size_t iM = fmM + 1; iM < nbm; iM++)
   {
-    pfSM = dynamic_cast<MixedTransitionModel*>(getModel(iM));
+    pfSM = dynamic_cast<MixedTransitionModelInterface*>(&model(iM));
     if (pfSM != NULL)
     {
       for (size_t nh = 0; nh < nbh; nh++)
@@ -280,18 +278,17 @@ double MixedSubstitutionModelSet::getHyperNodeProbability(const HyperNode& hn) c
   for (size_t fmM = 0; fmM < nbm; fmM++)
   {
     const MixedSubstitutionModelSet::HyperNode::Node& fnd = hn.getNode(fmM);
-    const MixedTransitionModel* pfSM = dynamic_cast<const MixedTransitionModel*>(getModel(fmM));
-    if (pfSM != NULL)
-    {
+    try {
+      auto& pfSM = dynamic_cast<const MixedTransitionModelInterface&>(model(fmM));
       double x = 0;
 
-      for (size_t i = 0; i < fnd.size(); i++)
+      for (size_t i = 0; i < fnd.size(); ++i)
       {
-        x += pfSM->getNProbability(static_cast<size_t>(fnd[i]));
+        x += pfSM.getNProbability(static_cast<size_t>(fnd[i]));
       }
 
       fprob *= x;
-    }
+    } catch (exception&) {}
   }
 
   return fprob;
@@ -302,13 +299,14 @@ double MixedSubstitutionModelSet::getHyperNodeProbability(const HyperNode& hn) c
 /***********************************************************/
 
 
-MixedSubstitutionModelSet::HyperNode::HyperNode(const MixedSubstitutionModelSet* pMSMS) : vNumbers_(pMSMS->getNumberOfModels()),
+MixedSubstitutionModelSet::HyperNode::HyperNode(shared_ptr<const MixedSubstitutionModelSet> pMSMS) :
+  vNumbers_(pMSMS->getNumberOfModels()),
   vUnused_(),
   proba_(1)
 {
   for (size_t i = 0; i < pMSMS->getNumberOfModels(); i++)
   {
-    const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(pMSMS->getModel(i));
+    auto pSM = dynamic_cast<const MixedTransitionModelInterface*>(&pMSMS->model(i));
     if (!pSM)
       vUnused_.push_back(uint(i));
   }

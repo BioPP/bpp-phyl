@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -41,6 +41,9 @@
 
 #include "PatternTools.h"
 
+// From bpp-seq:
+#include<Bpp/Seq/SiteTools.h>
+
 using namespace bpp;
 
 // From the STL:
@@ -51,200 +54,248 @@ using namespace std;
 
 /******************************************************************************/
 
-AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node)
+unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
+    const AlignmentDataInterface& sequenceSet,
+    const Node& node)
 {
+  auto alphabet = sequenceSet.getAlphabet();
   size_t nbSites = sequenceSet.getNumberOfSites();
-  AlignedValuesContainer* result;
 
-  if (dynamic_cast<const SiteContainer*>(&sequenceSet))
+  try
   {
-    const SiteContainer& sitecontainer = dynamic_cast<const SiteContainer&>(sequenceSet);
+    const auto& sitecontainer = dynamic_cast<const SiteContainerInterface&>(sequenceSet);
 
-    VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
-    result = sequenceSubset;
+    auto sequenceSubset = make_unique<VectorSiteContainer>(alphabet);
 
     vector<const Node*> leaves = TreeTemplateTools::getLeaves(node);
 
     for (auto i : leaves)
     {
-      const Sequence* newSeq = 0;
-
       if (i->hasName())
       {
+	//Use sequence name as key.
         try
         {
-          newSeq = &sitecontainer.getSequence(i->getName());
-          sequenceSubset->addSequence(*newSeq);
+          auto newSeq = make_unique<Sequence>(sitecontainer.sequence(i->getName()));
+          sequenceSubset->addSequence(i->getName(), newSeq);
         }
-        catch (std::exception const& e)
+        catch (std::exception& e)
         {
           ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
 
-          BasicSequence seq(i->getName(), "", sequenceSet.getAlphabet());
-          seq.setToSizeR(nbSites);
-          SymbolListTools::changeGapsToUnknownCharacters(seq);
-          sequenceSubset->addSequence(seq);
+          auto seq = make_unique<Sequence>(i->getName(), "", alphabet);
+          seq->setToSizeR(nbSites);
+          SymbolListTools::changeGapsToUnknownCharacters(*seq);
+          sequenceSubset->addSequence(i->getName(), seq);
         }
       }
-    }
-  }
-  else if (dynamic_cast<const VectorProbabilisticSiteContainer*>(&sequenceSet))
-  {
-    const VectorProbabilisticSiteContainer& sitecontainer = dynamic_cast<const VectorProbabilisticSiteContainer&>(sequenceSet);
+    }   
+    sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
+    return sequenceSubset;
+  } catch(std::bad_cast& e) {}
 
-    VectorProbabilisticSiteContainer* sequenceSubset = new VectorProbabilisticSiteContainer(sequenceSet.getAlphabet());
-    result = sequenceSubset;
+  try
+  {
+    const auto& sitecontainer = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequenceSet);
+
+    auto sequenceSubset = make_unique<ProbabilisticVectorSiteContainer>(alphabet);
 
     vector<const Node*> leaves = TreeTemplateTools::getLeaves(node);
 
     for (auto i : leaves)
     {
-      const ProbabilisticSequence* newSeq(0);
-
       if (i->hasName())
       {
+	//Use sequence name as key.
         try
         {
-          newSeq = &sitecontainer.getSequence(i->getName());
-          sequenceSubset->addSequence(*newSeq);
+          auto newSeq = make_unique<ProbabilisticSequence>(sitecontainer.sequence(i->getName()));
+          sequenceSubset->addSequence(i->getName(), newSeq);
         }
         catch (std::exception const& e)
         {
           ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
 
-          BasicProbabilisticSequence newSeq2(i->getName(), Table<double>(sequenceSet.getAlphabet()->getSize(), 0), sequenceSet.getAlphabet());
-
-          newSeq2.setToSizeR(nbSites);
-          SymbolListTools::changeGapsToUnknownCharacters(newSeq2);
-          sequenceSubset->addSequence(newSeq2);
+          auto newSeq = make_unique<ProbabilisticSequence>(i->getName(), Table<double>(alphabet->getSize(), 0), alphabet);
+          newSeq->setToSizeR(nbSites);
+          SymbolListTools::changeGapsToUnknownCharacters(*newSeq);
+          sequenceSubset->addSequence(i->getName(), newSeq);
         }
       }
     }
-  }
-  else
-    throw Exception("PatternTools::getSequenceSubset : this should not happen.");
+    sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
+    return sequenceSubset;
+  } catch(std::bad_cast& e) {}
 
-  result->setSitePositions(sequenceSet.getSitePositions());
-
-  return result;
+  throw Exception("PatternTools::getSequenceSubset : unsupported sequence type.");
 }
 
 /******************************************************************************/
 
-AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const vector<string>& names)
+unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
+    const AlignmentDataInterface& sequenceSet,
+    const vector<string>& names)
 {
-  AlignedValuesContainer* result;
-
-  if (dynamic_cast<const SiteContainer*>(&sequenceSet))
+  auto alphabet = sequenceSet.getAlphabet();
+  
+  try
   {
-    const SiteContainer& sitecontainer = dynamic_cast<const SiteContainer&>(sequenceSet);
+    const auto& sitecontainer = dynamic_cast<const SiteContainerInterface&>(sequenceSet);
 
-    VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
-    result = sequenceSubset;
+    auto sequenceSubset = make_unique<VectorSiteContainer>(alphabet);
 
-    for (unsigned int i = 0; i < names.size(); i++)
+    for (auto& i : names)
     {
-      const Sequence* newSeq = &sitecontainer.getSequence(names[i]);
-      if (!newSeq)
-        throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", names[i]);
-      sequenceSubset->addSequence(*newSeq);
+      if (sitecontainer.hasSequence(i))
+      {
+	auto newSeq = make_unique<Sequence>(sitecontainer.sequence(i));
+        sequenceSubset->addSequence(i, newSeq);
+      } else
+        throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", i);
     }
-  }
-  else if (dynamic_cast<const VectorProbabilisticSiteContainer*>(&sequenceSet))
+    sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
+    return sequenceSubset;
+  } catch(std::bad_cast& e) {}
+  
+  try
   {
-    const VectorProbabilisticSiteContainer& sitecontainer = dynamic_cast<const VectorProbabilisticSiteContainer&>(sequenceSet);
+    const auto& sitecontainer = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequenceSet);
 
-    VectorProbabilisticSiteContainer* sequenceSubset = new VectorProbabilisticSiteContainer(sequenceSet.getAlphabet());
-    result = sequenceSubset;
+    auto sequenceSubset = make_unique<ProbabilisticVectorSiteContainer>(alphabet);
 
-    for (unsigned int i = 0; i < names.size(); i++)
+    for (auto& i : names)
     {
-      const auto newSeq = &sitecontainer.getSequence(names[i]);
-      if (!newSeq)
-        throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", names[i]);
-      sequenceSubset->addSequence(*newSeq);
+      if (sitecontainer.hasSequence(i))
+      {
+        auto newSeq = make_unique<ProbabilisticSequence>(sitecontainer.sequence(i));
+        sequenceSubset->addSequence(i, newSeq);
+      } else
+        throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", i);
     }
-  }
-  else
-    throw Exception("PatternTools::getSequenceSubset : this should not happen.");
-
-  result->setSitePositions(sequenceSet.getSitePositions());
-  return result;
+    sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
+    return sequenceSubset;
+  } catch(std::bad_cast& e) {}
+  
+  throw Exception("PatternTools::getSequenceSubset : unsupported sequence type.");
 }
 
 /******************************************************************************/
 
-AlignedValuesContainer* PatternTools::shrinkSiteSet(const AlignedValuesContainer& siteSet)
+unique_ptr<AlignmentDataInterface> PatternTools::shrinkSiteSet(
+    const AlignmentDataInterface& siteSet)
 {
+  auto alphabet = siteSet.getAlphabet();
+  
   if (siteSet.getNumberOfSites() == 0)
     throw Exception("PatternTools::shrinkSiteSet siteSet is void.");
-  AlignedValuesContainer* result;
-
-  const SiteContainer* sc = dynamic_cast<const SiteContainer*>(&siteSet);
-  const VectorProbabilisticSiteContainer* psc = dynamic_cast<const VectorProbabilisticSiteContainer*>(&siteSet);
-
-  if (!sc && !psc)
-    throw Exception("PatternTools::shrinkSiteSet : this should not happen.");
-
-  vector<const CruxSymbolListSite*> sites;
-  for (unsigned int i = 0; i < siteSet.getNumberOfSites(); i++)
+  
+  try
   {
-    const CruxSymbolListSite* currentSite = sc ?
-                                            dynamic_cast<const CruxSymbolListSite*>(&sc->getSite(i)) :
-                                            dynamic_cast<const CruxSymbolListSite*>(psc->getSite(i).get());
+    const auto& sc = dynamic_cast<const SiteContainerInterface&>(siteSet);
 
-    bool siteExists = false;
-    for (unsigned int j = 0; !siteExists && j < sites.size(); j++)
+    vector<unique_ptr<Site>> sites;
+ 
+    for (unsigned int i = 0; i < siteSet.getNumberOfSites(); ++i)
     {
-      if (SymbolListTools::areSymbolListsIdentical(*currentSite, *sites[j]))
-        siteExists = true;
+      const auto& currentSite = sc.site(i);
+      bool siteExists = false;
+      for (unsigned int j = 0; !siteExists && j < sites.size(); ++j)
+      {
+        if (SiteTools::areSymbolListsIdentical(currentSite, *sites[j]))
+          siteExists = true;
+      }
+      if (!siteExists)
+        sites.push_back(make_unique<Site>(currentSite));
     }
-    if (!siteExists)
-      sites.push_back(currentSite);
-  }
-  result = sc ? dynamic_cast<AlignedValuesContainer*>(new VectorSiteContainer(sites, siteSet.getAlphabet(), false)) :
-           dynamic_cast<AlignedValuesContainer*>(new VectorProbabilisticSiteContainer(sites, siteSet.getAlphabet(), false)); // We do not check positions here.
-  result->setSequenceNames(siteSet.getSequenceNames(), false);
-  return result;
+    auto result = make_unique<VectorSiteContainer>(sites, alphabet, false);
+    result->setSequenceNames(siteSet.getSequenceNames(), false);
+    return result;
+  } catch(std::bad_cast& e) {}
+
+  try
+  {
+    const auto& psc = dynamic_cast<const ProbabilisticSiteContainerInterface&>(siteSet);
+    
+    vector<unique_ptr<ProbabilisticSite>> sites;
+  
+    for (unsigned int i = 0; i < siteSet.getNumberOfSites(); ++i)
+    {
+      const auto& currentSite = psc.site(i);
+      bool siteExists = false;
+      for (unsigned int j = 0; !siteExists && j < sites.size(); ++j)
+      {
+        if (SiteTools::areSymbolListsIdentical(currentSite, *sites[j]))
+          siteExists = true;
+      }
+      if (!siteExists)
+        sites.push_back(make_unique<ProbabilisticSite>(currentSite));
+    }
+    auto result = make_unique<ProbabilisticVectorSiteContainer>(sites, alphabet, false);
+    result->setSequenceNames(siteSet.getSequenceNames(), false);
+    return result;
+  } catch(std::bad_cast& e) {}
+  
+  throw Exception("PatternTools::shrinkSiteSet : unsupported sequence type.");
 }
 
 /******************************************************************************/
 
-Vint PatternTools::getIndexes(const AlignedValuesContainer& sequences1, const AlignedValuesContainer& sequences2)
+Vint PatternTools::getIndexes(
+  const AlignmentDataInterface& sequences1,
+  const AlignmentDataInterface& sequences2)
 {
   size_t nbSites = sequences1.getNumberOfSites();
   Vint indexes(nbSites);
 
-  const SiteContainer* sc1 = dynamic_cast<const SiteContainer*>(&sequences1);
-  const VectorProbabilisticSiteContainer* psc1 = dynamic_cast<const VectorProbabilisticSiteContainer*>(&sequences1);
-  const SiteContainer* sc2 = dynamic_cast<const SiteContainer*>(&sequences2);
-  const VectorProbabilisticSiteContainer* psc2 = dynamic_cast<const VectorProbabilisticSiteContainer*>(&sequences2);
-
-  if (!(sc1 && sc2) && !(psc1 && psc2))
-    throw Exception("PatternTools::getIndexes : this should not happen.");
-
-  for (size_t i = 0; i < nbSites; i++)
+  try
   {
-    // For each site in sequences1,
-    indexes[i] = -1;
-    const CruxSymbolListSite* site1 = sc1 ?
-                                      dynamic_cast<const CruxSymbolListSite*>(&sc1->getSite(i)) :
-                                      dynamic_cast<const CruxSymbolListSite*>(psc1->getSite(i).get());
+    const auto& sc1 = dynamic_cast<const SiteContainerInterface&>(sequences1);
+    const auto& sc2 = dynamic_cast<const SiteContainerInterface&>(sequences2);
 
-    for (size_t j = 0; j < sequences2.getNumberOfSites(); j++)
+    for (size_t i = 0; i < nbSites; ++i)
     {
-      const CruxSymbolListSite* site2 = sc2 ?
-                                        dynamic_cast<const CruxSymbolListSite*>(&sc2->getSite(i)) :
-                                        dynamic_cast<const CruxSymbolListSite*>(psc2->getSite(i).get());
-
-      if (SymbolListTools::areSymbolListsIdentical(*site1, *site2))
+      // For each site in sequences1,
+      indexes[i] = -1;
+      const auto& site1 = dynamic_cast<const Site&>(sc1.site(i));
+      for (size_t j = 0; j < sequences2.getNumberOfSites(); ++j)
       {
-        indexes[i] = static_cast<int>(j);
-        break;
+        const auto& site2 = dynamic_cast<const Site&>(sc2.site(i));
+        if (SiteTools::areSymbolListsIdentical(site1, site2))
+        {
+          indexes[i] = static_cast<int>(j);
+          break;
+        }
       }
     }
-  }
-  return indexes;
+    return indexes;
+  } catch(std::bad_cast& e) {}
+  
+  try
+  {
+    const auto& psc1 = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequences1);
+    const auto& psc2 = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequences2);
+
+    for (size_t i = 0; i < nbSites; ++i)
+    {
+      // For each site in sequences1,
+      indexes[i] = -1;
+      const auto& site1 = dynamic_cast<const ProbabilisticSite&>(psc1.site(i));
+      for (size_t j = 0; j < sequences2.getNumberOfSites(); ++j)
+      {
+        const auto& site2 = dynamic_cast<const ProbabilisticSite&>(psc2.site(i));
+        if (SiteTools::areSymbolListsIdentical(site1, site2))
+        {
+          indexes[i] = static_cast<int>(j);
+          break;
+        }
+      }
+    }
+    return indexes;
+  } catch(std::bad_cast& e) {}
+  
+  throw Exception("PatternTools::shrinkSiteSet : unsupported sequence type.");
+
 }
 
 /******************************************************************************/
+

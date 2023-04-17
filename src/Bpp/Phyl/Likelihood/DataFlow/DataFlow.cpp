@@ -51,8 +51,10 @@
 #include <type_traits> // DotOptions flags
 #include <typeinfo>
 #include <unordered_set> // debug
+#include <set>
 
 #include "DataFlow.h"
+#include "DataFlowNumeric.h"
 
 /* std::type_info::name() returns a "mangled" type name, not very readable.
  * Compilers can optionally provide an ABI header cxxabi.h.
@@ -183,7 +185,7 @@ Node_DF::~Node_DF ()
   }
 }
 
-std::string Node_DF::description () const
+std::string Node_DF::description() const
 {
   std::string nodeType = prettyTypeName (typeid (*this));
   // Shorten displayed name by removing namespaces.
@@ -198,19 +200,19 @@ std::string Node_DF::description () const
   return nodeType;
 }
 
-std::string Node_DF::debugInfo () const { return {}; }
+std::string Node_DF::debugInfo() const { return {}; }
 
-bool Node_DF::hasNumericalProperty (NumericalProperty) const { return false; }
+bool Node_DF::hasNumericalProperty(NumericalProperty) const { return false; }
 
-bool Node_DF::compareAdditionalArguments (const Node_DF&) const { return false; }
-std::size_t Node_DF::hashAdditionalArguments () const { return 0; }
+bool Node_DF::compareAdditionalArguments(const Node_DF&) const { return false; }
+std::size_t Node_DF::hashAdditionalArguments() const { return 0; }
 
-NodeRef Node_DF::derive (Context&, const Node_DF&)
+NodeRef Node_DF::derive(Context&, const Node_DF&)
 {
   throw Exception ("Node does not support derivation: " + description ());
 }
 
-NodeRef Node_DF::recreate (Context&, NodeRefVec&&)
+NodeRef Node_DF::recreate(Context&, NodeRefVec&&)
 {
   throw Exception ("Node does not support recreate(deps): " + description ());
 }
@@ -227,26 +229,26 @@ void Node_DF::computeRecursively ()
   nodesToVisit.push (this);
   while (!nodesToVisit.empty ())
   {
-    auto* n = nodesToVisit.top ();
-    nodesToVisit.pop ();
-    if (!n->isValid ())
+    auto* n = nodesToVisit.top();
+    nodesToVisit.pop();
+    if (!n->isValid())
     {
-      nodesToRecompute.push (n);
-      for (auto& dep : n->dependencies ())
+      nodesToRecompute.push(n);
+      for (auto& dep : n->dependencies())
       {
         if (dep)
-          nodesToVisit.push (dep.get ());
+          nodesToVisit.push(dep.get());
       }
     }
   }
-  while (!nodesToRecompute.empty ())
+  while (!nodesToRecompute.empty())
   {
-    auto* n = nodesToRecompute.top ();
+    auto* n = nodesToRecompute.top();
     nodesToRecompute.pop ();
     if (!n->isValid())
     {
-      n->compute ();
-      n->makeValid ();
+      n->compute();
+      n->makeValid();
     }
   }
 }
@@ -304,18 +306,18 @@ bool isTransitivelyDependentOn (const Node_DF& searchedDependency, const Node_DF
   return false;
 }
 
-NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
+NodeRef recreateWithSubstitution(Context& c, const NodeRef& node,
                                   const std::unordered_map<const Node_DF*, NodeRef>& substitutions)
 {
   if (node == 0)
     return node;
-  auto it = substitutions.find (node.get ());
-  if (it != substitutions.end ())
+  auto it = substitutions.find(node.get());
+  if (it != substitutions.end())
   {
     // Substitute sub tree.
     return it->second;
   }
-  else if (node->dependencies ().empty ())
+  else if (node->dependencies().empty())
   {
     // Leaves do no support rebuild: just copy them
     return node;
@@ -323,10 +325,10 @@ NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
   else
   {
     // Recursion : only rebuild if dependencies have changed
-    NodeRefVec recreatedDeps (node->nbDependencies ());
+    NodeRefVec recreatedDeps(node->nbDependencies ());
     for (std::size_t i = 0; i < recreatedDeps.size (); ++i)
     {
-      recreatedDeps[i] = recreateWithSubstitution (c, node->dependency (i), substitutions);
+      recreatedDeps[i] = recreateWithSubstitution(c, node->dependency(i), substitutions);
     }
     if (recreatedDeps == node->dependencies ())
     {
@@ -334,7 +336,7 @@ NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
     }
     else
     {
-      return node->recreate (c, std::move (recreatedDeps));
+      return node->recreate(c, std::move(recreatedDeps));
     }
   }
 }
@@ -342,11 +344,17 @@ NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
 /*****************************************************************************
  * Context.
  */
-NodeRef Context::cached (NodeRef&& newNode)
+
+Context::Context() : nodeCache_(), zero_(ConstantZero<size_t>::create(*this, Dimension<size_t>()))
+{
+}
+
+                           
+NodeRef Context::cached(NodeRef&& newNode)
 {
   assert (newNode != nullptr);
   // Try inserting it, which will fail if already present and return the old one
-  auto r = nodeCache_.emplace (std::move (newNode));
+  auto r = nodeCache_.emplace(std::move (newNode));
   return r.first->ref;
 }
 
@@ -356,7 +364,7 @@ NodeRef Context::cached (NodeRef& newNode)
   // First remove this object from the set if it is already
   for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
   {
-    if (&it->ref == &newNode)
+    if (it->ref == newNode)
       it = nodeCache_.erase(it);
     else
       ++it;
@@ -365,6 +373,63 @@ NodeRef Context::cached (NodeRef& newNode)
   // Try inserting it, which will fail if already present and return the old one
   auto r = nodeCache_.emplace (newNode);
   return r.first->ref;
+}
+
+std::vector<const Node_DF*> Context::getAllNodes() const
+{
+  std::vector<const Node_DF*> ret;
+  for (const auto& it : nodeCache_)
+    ret.push_back(it.ref.get());
+  return(ret);
+}
+    
+
+bool Context::erase(const NodeRef& node)
+{
+  if (!node)
+    return false;
+
+  size_t nb=0;
+  
+  std::set<NodeRef> sNodes;
+  sNodes.emplace(node);
+
+  bool flag=true;
+  bool ret=false;
+  while(flag)
+  {
+    flag=false;
+    for (auto n : sNodes)
+    {
+      if (n->nbDependentNodes()==0) {
+        for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
+        {
+          if (it->ref == n)
+          {
+            sNodes.erase(n);
+            for (auto dep:n->dependencies())
+            {
+              if (!dep)
+                continue;
+              sNodes.emplace(dep);
+              dep->unregisterNode (n.get());
+            }
+            
+            it=nodeCache_.erase(it);
+            nb++;
+            flag=true;
+            ret=true;
+          }
+          else
+            ++it;
+        }
+      }
+      if (flag)
+        break;
+    }
+  }
+
+  return ret;
 }
 
 /* Compare/hash the triplet (type, deps, additionalArgs).

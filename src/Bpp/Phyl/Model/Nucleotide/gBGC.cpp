@@ -51,10 +51,13 @@ using namespace bpp;
 
 /******************************************************************************/
 
-gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, double B) :
+gBGC::gBGC(
+    shared_ptr<const NucleicAlphabet> alph,
+    unique_ptr<NucleotideSubstitutionModelInterface> pm,
+    double B) :
   AbstractParameterAliasable("gBGC."),
-  AbstractNucleotideSubstitutionModel(alph, pm->shareStateMap(), "gBGC."),
-  model_(pm),
+  AbstractNucleotideSubstitutionModel(alph, pm->getStateMap(), "gBGC."),
+  model_(move(pm)),
   nestedPrefix_(pm->getNamespace()),
   B_(B)
 {
@@ -66,7 +69,7 @@ gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, d
   addParameter_(new Parameter("gBGC.B", B_, std::make_shared<IntervalConstraint>(-999, 10, true, true)));
 
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 gBGC::gBGC(const gBGC& gbgc) :
@@ -81,7 +84,7 @@ gBGC& gBGC::operator=(const gBGC& gbgc)
 {
   AbstractParameterAliasable::operator=(gbgc);
   AbstractSubstitutionModel::operator=(gbgc);
-  model_ = unique_ptr<NucleotideSubstitutionModel>(gbgc.model_.get());
+  model_.reset(gbgc.model_->clone());
   nestedPrefix_ = gbgc.nestedPrefix_;
   B_ = gbgc.B_;
   return *this;
@@ -91,18 +94,18 @@ void gBGC::fireParameterChanged(const ParameterList& parameters)
 {
   AbstractSubstitutionModel::fireParameterChanged(parameters);
   model_->matchParametersValues(parameters);
-  updateMatrices();
+  updateMatrices_();
 }
 
-void gBGC::updateMatrices()
+void gBGC::updateMatrices_()
 {
   B_ = getParameterValue("B");
   unsigned int i, j;
   // Generator:
 
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 4; ++i)
   {
-    for (j = 0; j < 4; j++)
+    for (j = 0; j < 4; ++j)
     {
       generator_(i, j) = model_->Qij(i, j);
     }
@@ -235,7 +238,7 @@ void gBGC::updateMatrices()
       MatrixTools::add(tmpMat_, generator_);
       MatrixTools::pow(tmpMat_, 4, vPowGen_[0]);
 
-      for (i = 0; i < 4; i++)
+      for (i = 0; i < 4; ++i)
       {
         freq_[i] = vPowGen_[0](0, i);
       }
@@ -260,8 +263,3 @@ void gBGC::setNamespace(const std::string& prefix)
   model_->setNamespace(prefix + nestedPrefix_);
 }
 
-
-std::string gBGC::getName() const
-{
-  return model_->getName() + "+gBGC";
-}

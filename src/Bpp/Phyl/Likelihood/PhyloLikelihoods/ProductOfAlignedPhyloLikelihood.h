@@ -45,7 +45,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 #include "SetOfAlignedPhyloLikelihood.h"
 
@@ -54,41 +54,66 @@ namespace bpp
 /**
  * @brief The ProductOfAlignedPhyloLikelihood class, for phylogenetic
  * likelihood on several independent data.
- *
  */
-
 class ProductOfAlignedPhyloLikelihood :
-  public SetOfAlignedPhyloLikelihood
+  public AbstractSetOfAlignedPhyloLikelihood
 {
   /**
    * Aligned LikelihoodCalculation to store DF nodes
    */
-
   mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
 
 public:
-  ProductOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true);
+  ProductOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      bool inCollection = true);
 
-  ProductOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
+  ProductOfAlignedPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      const std::vector<size_t>& nPhylo,
+      bool inCollection = true);
 
-  ~ProductOfAlignedPhyloLikelihood() {}
+  virtual ~ProductOfAlignedPhyloLikelihood() {}
+
+protected:
+
+  ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd) :
+    AbstractPhyloLikelihood(sd),
+    AbstractParametrizable(""),
+    AbstractSetOfPhyloLikelihood(sd),
+    AbstractAlignedPhyloLikelihood(sd),
+    AbstractSetOfAlignedPhyloLikelihood(sd),
+    likCal_(sd.likCal_)
+  {}
+
+  ProductOfAlignedPhyloLikelihood& operator=(const ProductOfAlignedPhyloLikelihood& sd)
+  {
+    AbstractSetOfAlignedPhyloLikelihood::operator=(sd);
+    likCal_ = sd.likCal_;
+    return *this;
+  }
 
   ProductOfAlignedPhyloLikelihood* clone() const
   {
     return new ProductOfAlignedPhyloLikelihood(*this);
   }
 
-  ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd) :
-    AbstractPhyloLikelihood(sd),
-    AbstractAlignedPhyloLikelihood(sd),
-    SetOfAlignedPhyloLikelihood(sd),
-    likCal_(sd.likCal_)
-  {}
-
 public:
+  LikelihoodCalculation& likelihoodCalculation () const
+  {
+    return *likCal_;
+  }
+
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
   {
     return likCal_;
+  }
+
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation () const
+  {
+    return *likCal_;
   }
 
   std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const

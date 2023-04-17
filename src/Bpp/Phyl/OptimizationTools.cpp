@@ -42,6 +42,7 @@
 #include <Bpp/Numeric/Function/BfgsMultiDimensions.h>
 #include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
 #include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
+#include <Bpp/Numeric/Function/Optimizer.h>
 #include <Bpp/Numeric/Function/MetaOptimizer.h>
 #include <Bpp/Numeric/Function/ReparametrizationFunctionWrapper.h>
 #include <Bpp/Numeric/Function/SimpleMultiDimensions.h>
@@ -56,6 +57,8 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Io/Fasta.h>
+
+#include <memory>
 
 using namespace bpp;
 using namespace std;
@@ -76,28 +79,26 @@ std::string OptimizationTools::OPTIMIZATION_BFGS = "BFGS";
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters(
-  PhyloLikelihood* lik,
+  shared_ptr<PhyloLikelihoodInterface> lik,
   const ParameterList& parameters,
-  OptimizationListener* listener,
+  shared_ptr<OptimizationListener> listener,
   unsigned int nstep,
   double tolerance,
   unsigned int tlEvalMax,
-  OutputStream* messageHandler,
-  OutputStream* profiler,
+  shared_ptr<OutputStream> messageHandler,
+  shared_ptr<OutputStream> profiler,
   bool reparametrization,
   unsigned int verbose,
   const std::string& optMethodDeriv,
   const std::string& optMethodModel)
 {
-  DerivableSecondOrder* f = lik;
+  shared_ptr<SecondOrderDerivable> f = lik;
   ParameterList pl = parameters;
 
   // Shall we reparametrize the function to remove constraints?
-  unique_ptr<DerivableSecondOrder> frep;
   if (reparametrization)
   {
-    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, parameters));
-    f = frep.get();
+    f = make_shared<ReparametrizationDerivableSecondOrderWrapper>(f, parameters);
 
     // Reset parameters to remove constraints:
     pl = f->getParameters().createSubList(parameters.getParameterNames());
@@ -108,16 +109,15 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 
   // Branch lengths
 
-  MetaOptimizerInfos* desc = new MetaOptimizerInfos();
-  MetaOptimizer* poptimizer = 0;
-  AbstractNumericalDerivative* fnum = new ThreePointsNumericalDerivative(f);
+  auto desc = make_unique<MetaOptimizerInfos>();
+  unique_ptr<MetaOptimizer> poptimizer;
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
-    desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+    desc->addOptimizer("Branch length parameters", make_shared<ConjugateGradientMultiDimensions>(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
-    desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+    desc->addOptimizer("Branch length parameters", make_shared<PseudoNewtonOptimizer>(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
-    desc->addOptimizer("Branch length parameters", new BfgsMultiDimensions(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+    desc->addOptimizer("Branch length parameters", make_shared<BfgsMultiDimensions>(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodDeriv);
 
@@ -126,16 +126,17 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   if (optMethodModel == OPTIMIZATION_BRENT)
   {
     ParameterList plsm = parameters.getCommonParametersWith(lik->getSubstitutionModelParameters());
-    desc->addOptimizer("Substitution model parameter", new SimpleMultiDimensions(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    desc->addOptimizer("Substitution model parameter", make_shared<SimpleMultiDimensions>(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
 
 
     ParameterList plrd = parameters.getCommonParametersWith(lik->getRateDistributionParameters());
-    desc->addOptimizer("Rate distribution parameter", new SimpleMultiDimensions(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-    poptimizer = new MetaOptimizer(f, desc, nstep);
+    desc->addOptimizer("Rate distribution parameter", make_shared<SimpleMultiDimensions>(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    poptimizer = make_unique<MetaOptimizer>(f, move(desc), nstep);
   }
   else if (optMethodModel == OPTIMIZATION_BFGS)
   {
     vector<string> vNameDer;
+    auto fnum = make_shared<ThreePointsNumericalDerivative>(f);
 
     ParameterList plsm = parameters.getCommonParametersWith(lik->getSubstitutionModelParameters());
     vNameDer = plsm.getParameterNames();
@@ -147,8 +148,8 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     vNameDer.insert(vNameDer.begin(), vNameDer2.begin(), vNameDer2.end());
     fnum->setParametersToDerivate(vNameDer);
 
-    desc->addOptimizer("Rate & model distribution parameters", new BfgsMultiDimensions(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
-    poptimizer = new MetaOptimizer(fnum, desc, nstep);
+    desc->addOptimizer("Rate & model distribution parameters", make_shared<BfgsMultiDimensions>(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
+    poptimizer = make_unique<MetaOptimizer>(fnum, move(desc), nstep);
   }
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);
@@ -161,7 +162,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 
   // Optimize TreeLikelihood function:
   poptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  NaNListener* nanListener = new NaNListener(poptimizer, lik);
+  auto nanListener = make_shared<NaNListener>(poptimizer.get(), lik.get());
   poptimizer->addOptimizationListener(nanListener);
   if (listener)
     poptimizer->addOptimizationListener(listener);
@@ -173,7 +174,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 
   // We're done.
   uint nb = poptimizer->getNumberOfEvaluations();
-  delete poptimizer;
   return nb;
 }
 
@@ -181,19 +181,19 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-  PhyloLikelihood* lik,
+  shared_ptr<PhyloLikelihoodInterface> lik,
   const ParameterList& parameters,
-  OptimizationListener* listener,
+  shared_ptr<OptimizationListener> listener,
   double tolerance,
   unsigned int tlEvalMax,
-  OutputStream* messageHandler,
-  OutputStream* profiler,
+  shared_ptr<OutputStream> messageHandler,
+  shared_ptr<OutputStream> profiler,
   bool reparametrization,
   bool useClock,
   unsigned int verbose,
   const std::string& optMethodDeriv)
 {
-  DerivableSecondOrder* f = lik;
+  shared_ptr<SecondOrderDerivable> f = lik;
   ParameterList pl = parameters;
 
   // Shall we use a molecular clock constraint on branch lengths?
@@ -220,34 +220,33 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   //   pl = f->getParameters().createSubList(pl.getParameterNames());
   // }
 
-  unique_ptr<AbstractNumericalDerivative> fnum;
   // Build optimizer:
-  unique_ptr<Optimizer> optimizer;
+  unique_ptr<OptimizerInterface> optimizer;
+  shared_ptr<AbstractNumericalDerivative> fnum;
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
-    fnum.reset(new TwoPointsNumericalDerivative(f));
+    fnum = make_shared<TwoPointsNumericalDerivative>(dynamic_pointer_cast<FirstOrderDerivable>(f));
     fnum->setInterval(0.0000001);
-    optimizer.reset(new ConjugateGradientMultiDimensions(fnum.get())); // Removes strict-aliasing warning with gcc 4.4
+    optimizer = make_unique<ConjugateGradientMultiDimensions>(fnum);
   }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {
-    fnum.reset(new ThreePointsNumericalDerivative(f));
+    fnum = make_shared<ThreePointsNumericalDerivative>(f);
     fnum->setInterval(0.0001);
-    optimizer.reset(new PseudoNewtonOptimizer(fnum.get()));
+    optimizer = make_unique<PseudoNewtonOptimizer>(fnum);
   }
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
   {
-    fnum.reset(new TwoPointsNumericalDerivative(f));
+    fnum = make_shared<TwoPointsNumericalDerivative>(dynamic_pointer_cast<FirstOrderDerivable>(f));
     fnum->setInterval(0.0001);
-    optimizer.reset(new BfgsMultiDimensions(fnum.get()));
+    optimizer = make_unique<BfgsMultiDimensions>(fnum);
   }
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
   // Variables not derivatived in Likelihood DF but in numerical way
-
   ParameterList tmp = lik->getParameters();
 
   // if (useClock)
@@ -263,15 +262,13 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   // Optimize TreeLikelihood function:
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  NaNListener* nanListener = new NaNListener(optimizer.get(), lik);
+  auto nanListener = make_shared<NaNListener>(optimizer.get(), lik.get());
   optimizer->addOptimizationListener(nanListener);
   if (listener)
     optimizer->addOptimizationListener(listener);
 
   optimizer->init(pl);
-
   optimizer->optimize();
-  delete nanListener;
 
   if (verbose > 0)
     ApplicationTools::displayMessage("\n");
@@ -283,18 +280,19 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-  SingleProcessPhyloLikelihood& lik,
+  shared_ptr<SingleProcessPhyloLikelihood> lik,
   const ParameterList& parameters,
-  OptimizationListener* listener,
+  shared_ptr<OptimizationListener> listener,
   double tolerance,
   unsigned int tlEvalMax,
-  OutputStream* messageHandler,
-  OutputStream* profiler,
+  shared_ptr<OutputStream> messageHandler,
+  shared_ptr<OutputStream> profiler,
   bool reparametrization,
   bool useClock,
   unsigned int verbose,
-  const std::string& optMethodDeriv)
+  const string& optMethodDeriv)
 {
+  shared_ptr<SecondOrderDerivable> f = lik;
   ParameterList pl = parameters;
   if (reparametrization)
   {
@@ -302,37 +300,37 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   }
 
   // Build optimizer:
-  unique_ptr<AbstractNumericalDerivative> fnum;
-  unique_ptr<Optimizer> optimizer;
+  shared_ptr<AbstractNumericalDerivative> fnum;
+  unique_ptr<OptimizerInterface> optimizer;
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
-    lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.00001, NumericalDerivativeType::ThreePoints);
+    lik->likelihoodCalculationSingleProcess().setNumericalDerivateConfiguration(0.00001, NumericalDerivativeType::ThreePoints);
 
-    fnum.reset(new TwoPointsNumericalDerivative(&lik));
+    fnum = make_shared<TwoPointsNumericalDerivative>(dynamic_pointer_cast<FirstOrderDerivable>(f));
     fnum->setInterval(0.0000001);
-    optimizer.reset(new ConjugateGradientMultiDimensions(fnum.get())); // Removes strict-aliasing warning with gcc 4.4
+    optimizer.reset(new ConjugateGradientMultiDimensions(fnum));
   }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {
-    lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::FivePoints);
-    fnum.reset(new ThreePointsNumericalDerivative(&lik));
+    lik->likelihoodCalculationSingleProcess().setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::FivePoints);
+    fnum = make_shared<ThreePointsNumericalDerivative>(f);
     fnum->setInterval(0.0001);
-    optimizer.reset(new PseudoNewtonOptimizer(fnum.get()));
+    optimizer.reset(new PseudoNewtonOptimizer(fnum));
   }
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
   {
-    lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
-    fnum.reset(new TwoPointsNumericalDerivative(&lik));
+    lik->likelihoodCalculationSingleProcess().setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
+    fnum = make_shared<TwoPointsNumericalDerivative>(dynamic_pointer_cast<FirstOrderDerivable>(f));
     fnum->setInterval(0.0001);
-    optimizer.reset(new BfgsMultiDimensions(fnum.get()));
+    optimizer.reset(new BfgsMultiDimensions(fnum));
   }
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
 
   // Variables not derivatived in Likelihood DF but in numerical way
-  ParameterList tmp = lik.getParameters();
+  ParameterList tmp = f->getParameters();
 
   fnum->setParametersToDerivate(tmp.getParameterNames());
 
@@ -344,15 +342,13 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   // Optimize TreeLikelihood function:
   optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-  NaNListener* nanListener = new NaNListener(optimizer.get(), &lik);
+  auto nanListener = make_shared<NaNListener>(optimizer.get(), lik.get());
   optimizer->addOptimizationListener(nanListener);
   if (listener)
     optimizer->addOptimizationListener(listener);
 
   optimizer->init(pl);
   optimizer->optimize();
-
-  delete nanListener;
 
   if (verbose > 0)
     ApplicationTools::displayMessage("\n");
@@ -371,7 +367,7 @@ std::string OptimizationTools::DISTANCEMETHOD_ITERATIONS = "iterations";
 
 /******************************************************************************/
 
-DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
+unique_ptr<DistanceMatrix> OptimizationTools::estimateDistanceMatrix(
   DistanceEstimation& estimationMethod,
   const ParameterList& parametersToIgnore,
   const std::string& param,
@@ -383,8 +379,8 @@ DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
   estimationMethod.setVerbose(verbose);
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.getModel().getIndependentParameters();
-    tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
+    ParameterList tmp = estimationMethod.model().getIndependentParameters();
+    tmp.addParameters(estimationMethod.rateDistribution().getIndependentParameters());
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
   }
@@ -392,16 +388,17 @@ DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
   if (verbose > 0)
     ApplicationTools::displayTask("Estimating distance matrix", true);
   estimationMethod.computeMatrix();
-  unique_ptr<DistanceMatrix> matrix(estimationMethod.getMatrix());
+  auto matrix = estimationMethod.getMatrix();
+  
   if (verbose > 0)
     ApplicationTools::displayTaskDone();
 
-  return matrix.release();
+  return matrix;
 }
 
 /******************************************************************************/
 
-TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
+unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
   DistanceEstimation& estimationMethod,
   AgglomerativeDistanceMethod& reconstructionMethod,
   const ParameterList& parametersToIgnore,
@@ -409,21 +406,21 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
   const std::string& param,
   double tolerance,
   unsigned int tlEvalMax,
-  OutputStream* profiler,
-  OutputStream* messenger,
+  shared_ptr<OutputStream> profiler,
+  shared_ptr<OutputStream> messenger,
   unsigned int verbose)
 {
   estimationMethod.resetAdditionalParameters();
   estimationMethod.setVerbose(verbose);
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.getModel().getIndependentParameters();
-    tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
+    ParameterList tmp = estimationMethod.model().getIndependentParameters();
+    tmp.addParameters(estimationMethod.rateDistribution().getIndependentParameters());
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
   }
-  TreeTemplate<Node>* tree = NULL;
-  TreeTemplate<Node>* previousTree = NULL;
+  unique_ptr<TreeTemplate<Node>> tree = nullptr;
+  unique_ptr<TreeTemplate<Node>> previousTree = nullptr;
   bool test = true;
   while (test)
   {
@@ -431,7 +428,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
     if (verbose > 0)
       ApplicationTools::displayTask("Estimating distance matrix", true);
     estimationMethod.computeMatrix();
-    DistanceMatrix* matrix = estimationMethod.getMatrix();
+    auto matrix = estimationMethod.getMatrix();
     if (verbose > 0)
       ApplicationTools::displayTaskDone();
 
@@ -446,7 +443,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       n3->setDistanceToFather((*matrix)(0, 0) / 2.);
       n1->addSon(n2);
       n1->addSon(n3);
-      tree = new TreeTemplate<Node>(n1);
+      tree.reset(new TreeTemplate<Node>(n1));
       break;
     }
     /* For future integration
@@ -485,10 +482,9 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       ApplicationTools::displayTask("Building tree");
     reconstructionMethod.setDistanceMatrix(*matrix);
     reconstructionMethod.computeTree();
-    previousTree = tree;
-    delete matrix;
+    previousTree = move(tree);
 
-    tree = dynamic_cast<TreeTemplate<Node>*>(reconstructionMethod.getTree());
+    tree.reset(new TreeTemplate<Node>(reconstructionMethod.tree()));
     if (verbose > 0)
       ApplicationTools::displayTaskDone();
     if (previousTree && verbose > 0)
@@ -496,7 +492,6 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       int rf = TreeTools::robinsonFouldsDistance(*previousTree, *tree, false);
       ApplicationTools::displayResult("Topo. distance with previous iteration", TextTools::toString(rf));
       test = (rf == 0);
-      delete previousTree;
     }
     if (param != DISTANCEMETHOD_ITERATIONS)
       break;                              // Ends here.
@@ -504,34 +499,30 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
     // Now, re-estimate parameters:
     Context context;
   
-    std::shared_ptr<BranchModel> model(estimationMethod.getModel().clone());
-    std::shared_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
-    auto phyloT = PhyloTreeTools::buildFromTreeTemplate(*tree);
+    shared_ptr<BranchModelInterface> model(estimationMethod.model().clone());
+    shared_ptr<DiscreteDistribution> rdist(estimationMethod.rateDistribution().clone());
+    auto phyloT  = PhyloTreeTools::buildFromTreeTemplate(*tree);
+    auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, phyloT);
+    auto lik     = make_shared<LikelihoodCalculationSingleProcess>(context, estimationMethod.getData(), process);
+    auto tl      = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
-    auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, phyloT);
-      
-    auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context,
-                                                                    *estimationMethod.getData(), *process);
-
-    SingleProcessPhyloLikelihood tl(context, lik);
-
-    ParameterList parameters = tl.getParameters();
+    ParameterList parameters = tl->getParameters();
     if (!optimizeBrLen)
     {
-      vector<string> vs = tl.getBranchLengthParameters().getParameterNames();
+      vector<string> vs = tl->getBranchLengthParameters().getParameterNames();
       parameters.deleteParameters(vs);
     }
     parameters.deleteParameters(parametersToIgnore.getParameterNames());
-    optimizeNumericalParameters(&tl, parameters, NULL, 0, tolerance, tlEvalMax, messenger, profiler, verbose > 0 ? verbose - 1 : 0);
+    optimizeNumericalParameters(tl, parameters, NULL, 0, tolerance, tlEvalMax, messenger, profiler, verbose > 0 ? verbose - 1 : 0);
     if (verbose > 0)
     {
-      ParameterList tmp = tl.getSubstitutionModelParameters();
-      for (unsigned int i = 0; i < tmp.size(); i++)
+      ParameterList tmp = tl->getSubstitutionModelParameters();
+      for (unsigned int i = 0; i < tmp.size(); ++i)
       {
         ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
       }
-      tmp = tl.getRateDistributionParameters();
-      for (unsigned int i = 0; i < tmp.size(); i++)
+      tmp = tl->getRateDistributionParameters();
+      for (unsigned int i = 0; i < tmp.size(); ++i)
       {
         ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
       }

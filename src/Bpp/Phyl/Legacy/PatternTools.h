@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -45,13 +45,12 @@
 
 #include "../Tree/Tree.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
-#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
 #include <Bpp/Seq/SymbolListTools.h>
 #include <Bpp/Seq/Site.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 // From the STL:
 #include <map>
@@ -67,6 +66,7 @@ namespace bpp
 class PatternToolsOld
 {
 public:
+
   /**
    * @brief Extract the sequences corresponding to a given set of names.
    *
@@ -75,8 +75,9 @@ public:
    * @return A new site container with corresponding sequences.
    * @throw Exception if an error occured.
    */
-
-  static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::vector<std::string>& names);
+  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
+      const AlignmentDataInterface& sequenceSet,
+      const std::vector<std::string>& names);
 
   /**
    * @brief Compress a site container by removing duplicated sites.
@@ -85,7 +86,8 @@ public:
    * @return A new site container with unique sites.
    * @throw Exception if an error occured.
    */
-  static AlignedValuesContainer* shrinkSiteSet(const AlignedValuesContainer& sequenceSet);
+  static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(
+      const AlignmentDataInterface& sequenceSet);
 
   /**
    * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
@@ -95,7 +97,9 @@ public:
    * @param sequences2 Second container.
    * @return A vecotr of positions.
    */
-  static Vint getIndexes(const AlignedValuesContainer& sequences1, const AlignedValuesContainer& sequences2);
+  static Vint getIndexes(
+      const AlignmentDataInterface& sequences1,
+      const AlignmentDataInterface& sequences2);
 };
 
 } // end of namespace bpp.

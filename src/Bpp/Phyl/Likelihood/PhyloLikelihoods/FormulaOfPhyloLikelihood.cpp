@@ -49,11 +49,16 @@
 using namespace bpp;
 using namespace std;
 
-FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::string& formula, bool inCollection) :
+FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(
+    Context& context,
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    const std::string& formula,
+    bool inCollection) :
   AbstractPhyloLikelihood(context),
-  SetOfAbstractPhyloLikelihood(context, pC, {}, inCollection),
+  AbstractParametrizable(""),
+  AbstractSetOfPhyloLikelihood(context, pC, {}, inCollection),
   compTree_(),
-  likCal_(new LikelihoodCalculation(context))
+  likCal_(make_shared<LikelihoodCalculation>(context))
 {
   readFormula(formula, inCollection);
   likCal_->setLikelihoodNode(makeLikelihoods());
@@ -64,16 +69,9 @@ FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, std::shared
 }
 
 
-FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(const FormulaOfPhyloLikelihood& sd) :
-  AbstractPhyloLikelihood(sd),
-  SetOfAbstractPhyloLikelihood(sd),
-  compTree_(sd.compTree_->clone()),
-  likCal_(sd.likCal_)
-{}
-
 void FormulaOfPhyloLikelihood::readFormula(const std::string& formula, bool inCollection)
 {
-  std::map<std::string, Function*> functionNames;
+  map<string, shared_ptr<FunctionInterface>> functionNames;
 
   const vector<size_t>& nPhyl = getPhyloContainer()->getNumbersOfPhyloLikelihoods();
 
@@ -82,7 +80,7 @@ void FormulaOfPhyloLikelihood::readFormula(const std::string& formula, bool inCo
     functionNames["phylo" + TextTools::toString(nPhyl[i])] = getPhyloLikelihood(nPhyl[i]);
   }
 
-  compTree_ = unique_ptr<ComputationTree>(new ComputationTree(formula, functionNames));
+  compTree_ = make_unique<ComputationTree>(formula, functionNames);
 
   // add used Phylolikelihoods
 
@@ -158,13 +156,13 @@ ValueRef<DataLik> FormulaOfPhyloLikelihood::makeLikelihoodsFromOperator(std::sha
   }
 
 
-  auto func = dynamic_pointer_cast<FunctionOperator<DerivableSecondOrder> >(op);
+  auto func = dynamic_pointer_cast<FunctionOperator<SecondOrderDerivable> >(op);
   if (func)
   {
     auto name = func->getName();
     if (name.substr(0, 5) == "phylo")
     {
-      auto phyl  = getAbstractPhyloLikelihood((size_t)(TextTools::toInt(name.substr(5, string::npos))));
+      auto phyl = getPhyloLikelihood(TextTools::to<size_t>(name.substr(5, string::npos)));
       shareParameters_(phyl->getParameters());
 
       return phyl->getLikelihoodNode();

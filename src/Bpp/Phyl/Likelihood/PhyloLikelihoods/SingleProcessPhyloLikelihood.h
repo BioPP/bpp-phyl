@@ -58,10 +58,9 @@
 
 namespace bpp
 {
-/* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
- *
+/**
+ * @brief Wraps a dataflow graph as a function: resultNode = f(variableNodes).
  */
-
 class SingleProcessPhyloLikelihood :
   public AbstractSingleDataPhyloLikelihood,
   public AbstractParametrizable
@@ -72,16 +71,12 @@ protected:
 
   /**
    * @brief the Substitution Process number
-   *
-   **/
-
+   */
   size_t nProc_;
 
   /**
    * @brief For Dataflow computing
-   *
    */
-
   mutable std::unordered_map<std::string, ValueRef<RowLik> > firstOrderDerivativeVectors_;
 
   mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>,
@@ -95,24 +90,22 @@ public:
                                 size_t nProc = 0, size_t nData = 0) :
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
-    AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->getStateMap().getNumberOfModelStates(), nData),
+    AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->stateMap().getNumberOfModelStates(), nData),
     AbstractParametrizable(""),
     likCal_(likCal), nProc_(nProc)
   {
     shareParameters_(variableNodes);
   }
 
-  /*
+  /**
    * @brief: the parameters the independent parameters of the LikelihoodCalculation
    */
-
   SingleProcessPhyloLikelihood (Context& context,
                                 std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-                                size_t nProc = 0, size_t nData = 0)
-    :
+                                size_t nProc = 0, size_t nData = 0) :
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
-    AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->getStateMap().getNumberOfModelStates(), nData),
+    AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->stateMap().getNumberOfModelStates(), nData),
     AbstractParametrizable(""),
     likCal_(likCal), nProc_(nProc)
   {
@@ -132,50 +125,50 @@ public:
     return new SingleProcessPhyloLikelihood (*this);
   }
 
-  void setData(const AlignedValuesContainer& sites, size_t nData = 0) override
+  void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0) override
   {
     AbstractSingleDataPhyloLikelihood::setData(sites, nData);
-    getLikelihoodCalculationSingleProcess()->setData(sites);
+    likelihoodCalculationSingleProcess().setData(sites);
   }
 
   /**
    * @brief return a pointer to the compressed data.
    *
    */
-  const AlignedValuesContainer* getShrunkData() const
+  std::shared_ptr<const AlignmentDataInterface> getShrunkData() const
   {
-    return getLikelihoodCalculationSingleProcess()->getShrunkData();
+    return likelihoodCalculationSingleProcess().getShrunkData();
   }
 
   /**
    * @brief return a pointer to the original  data.
    *
    */
-  const AlignedValuesContainer* getData() const override
+  std::shared_ptr<const AlignmentDataInterface> getData() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getData();
+    return likelihoodCalculationSingleProcess().getData();
   }
 
   size_t getNumberOfSites() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getNumberOfSites();
+    return likelihoodCalculationSingleProcess().getNumberOfSites();
   }
 
   size_t getNumberOfDistinctSites() const
   {
-    return getLikelihoodCalculationSingleProcess()->getNumberOfDistinctSites();
+    return likelihoodCalculationSingleProcess().getNumberOfDistinctSites();
   }
 
   /**
    * @brief Get the number of model classes.
    *
    */
-  size_t getNumberOfClasses() const { return getSubstitutionProcess().getNumberOfClasses(); }
+  size_t getNumberOfClasses() const { return substitutionProcess().getNumberOfClasses(); }
 
 
-  const Alphabet* getAlphabet() const override
+  std::shared_ptr<const Alphabet> getAlphabet() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getStateMap().getAlphabet();
+    return likelihoodCalculationSingleProcess().stateMap().getAlphabet();
   }
 
   /*
@@ -185,22 +178,33 @@ public:
    * the LikelihoodCalculationSingleProcess.
    *
    */
-  const ParametrizablePhyloTree& getTree() const
+  const ParametrizablePhyloTree& tree() const
   {
-    return *getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getParametrizablePhyloTree();
+    return *likelihoodCalculationSingleProcess().substitutionProcess().getParametrizablePhyloTree();
   }
 
-  /*
+  /**
    * @brief Return the ref to the SubstitutionProcess used to build
    * the phylolikelihood.
    *
    * Warning; the process parameter values may not be up to date
    * with some of the LikelihoodCalculationSingleProcess
-   *
    */
-  const SubstitutionProcess& getSubstitutionProcess() const
+  const SubstitutionProcessInterface& substitutionProcess() const
   {
-    return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess();
+    return likelihoodCalculationSingleProcess().substitutionProcess();
+  }
+
+  /**
+   * @brief Return a smarter pointer to the SubstitutionProcess used to build
+   * the phylolikelihood.
+   *
+   * Warning; the process parameter values may not be up to date
+   * with some of the LikelihoodCalculationSingleProcess
+   */
+  std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const
+  {
+    return likelihoodCalculationSingleProcess().getSubstitutionProcess();
   }
 
   size_t getSubstitutionProcessNumber() const { return nProc_; }
@@ -211,7 +215,7 @@ public:
   
   bool isInitialized() const override
   {
-    return getLikelihoodCalculationSingleProcess()->isInitialized();
+    return likelihoodCalculationSingleProcess().isInitialized();
   }
 
   /**
@@ -221,12 +225,12 @@ public:
    */
   ParameterList getNonDerivableParameters() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getNonDerivableParameters();
+    return likelihoodCalculationSingleProcess().substitutionProcess().getNonDerivableParameters();
   }
 
   ParameterList getDerivableParameters() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getBranchLengthParameters(true);
+    return likelihoodCalculationSingleProcess().substitutionProcess().getBranchLengthParameters(true);
   }
 
   /**
@@ -236,7 +240,7 @@ public:
    */
   ParameterList getBranchLengthParameters() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getBranchLengthParameters(true);
+    return likelihoodCalculationSingleProcess().substitutionProcess().getBranchLengthParameters(true);
   }
 
   /**
@@ -246,7 +250,7 @@ public:
    */
   ParameterList getSubstitutionModelParameters() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getSubstitutionModelParameters(true);
+    return likelihoodCalculationSingleProcess().substitutionProcess().getSubstitutionModelParameters(true);
   }
 
   /**
@@ -256,7 +260,7 @@ public:
    */
   ParameterList getRateDistributionParameters() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistributionParameters(true);
+    return likelihoodCalculationSingleProcess().substitutionProcess().getRateDistributionParameters(true);
   }
 
   /**
@@ -267,16 +271,27 @@ public:
    */
   ParameterList getRootFrequenciesParameters() const override
   {
-    return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRootFrequenciesParameters(true);
+    return likelihoodCalculationSingleProcess().substitutionProcess().getRootFrequenciesParameters(true);
   }
 
   /**
    *
    * @}
    */
+
+  LikelihoodCalculation& likelihoodCalculation() const override
+  {
+    return *likCal_;
+  }
+
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const override
   {
     return likCal_;
+  }
+
+  AlignedLikelihoodCalculation& alignedLikelihoodCalculation() const override
+  {
+    return *likCal_;
   }
 
   std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const override
@@ -284,6 +299,11 @@ public:
     return likCal_;
   }
 
+  LikelihoodCalculationSingleProcess& likelihoodCalculationSingleProcess() const
+  {
+    return *likCal_;
+  }
+  
   std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculationSingleProcess() const
   {
     return likCal_;

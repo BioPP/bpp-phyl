@@ -78,7 +78,7 @@ public:
    * @param stateMap The stateMap defining the states.
    * @param within Specifies if within categories substitutions should be counted as well.
    */
-  CategorySubstitutionRegister(const StateMap& stateMap, bool within = false) :
+  CategorySubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap, bool within = false) :
     AbstractSubstitutionRegister(stateMap, "Category"),
     within_(within),
     nbCategories_(0),
@@ -97,10 +97,10 @@ protected:
     std::map<size_t, T> modelCategories;
     for (typename std::map<int, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
     {
-      std::vector<size_t> states = getStateMap().getModelStates(it->first);
-      for (size_t i = 0; i < states.size(); ++i)
+      std::vector<size_t> states = stateMap().getModelStates(it->first);
+      for (auto st : states)
       {
-        modelCategories[states[i]] = it->second;
+        modelCategories[st] = it->second;
       }
     }
     // Then we forward the model categories:
@@ -113,7 +113,7 @@ protected:
     // First index categories:
     nbCategories_ = 0;
     std::map<T, size_t> cats;
-    for (typename std::map<size_t, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
+    for (auto it = categories.begin(); it != categories.end(); ++it)
     {
       if (cats.find(it->second) == cats.end())
       {
@@ -125,13 +125,13 @@ protected:
     // Now creates categories:
     categories_.clear();
     categoryNames_.resize(nbCategories_);
-    for (size_t i = 0; i < getStateMap().getNumberOfModelStates(); ++i)
+    for (size_t i = 0; i < stateMap().getNumberOfModelStates(); ++i)
     {
-      typename std::map<size_t, T>::const_iterator it = categories.find(i);
+      auto it = categories.find(i);
       if (it != categories.end())
       {
         categories_[i] = cats[it->second];
-        categoryNames_[cats[it->second] - 1] += getStateMap().getStateDescription(i);
+        categoryNames_[cats[it->second] - 1] += stateMap().getStateDescription(i);
       }
       else
       {
@@ -254,11 +254,11 @@ class ComprehensiveSubstitutionRegister :
   public CategorySubstitutionRegister
 {
 public:
-  ComprehensiveSubstitutionRegister(const StateMap& stateMap, bool within = false) :
+  ComprehensiveSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap, bool within = false) :
     CategorySubstitutionRegister(stateMap, within)
   {
     std::map<int, int> categories;
-    for (int i = 0; i < static_cast<int>(getStateMap().getNumberOfModelStates()); ++i)
+    for (int i = 0; i < static_cast<int>(stateMap->getNumberOfModelStates()); ++i)
     {
       categories[i] = i;
     }
@@ -280,7 +280,7 @@ class GCSubstitutionRegister :
   public CategorySubstitutionRegister
 {
 public:
-  GCSubstitutionRegister(const StateMap& stateMap, bool within = false) :
+  GCSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap, bool within = false) :
     CategorySubstitutionRegister(stateMap, within)
   {
     std::map<int, int> categories;
@@ -312,14 +312,14 @@ class GCSynonymousSubstitutionRegister :
   public CategorySubstitutionRegister
 {
 private:
-  const GeneticCode* genCode_;
+  std::shared_ptr<const GeneticCode> genCode_;
 
 public:
-  GCSynonymousSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, bool within = false) :
+  GCSynonymousSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap, std::shared_ptr<const GeneticCode> genCode, bool within = false) :
     CategorySubstitutionRegister(stateMap, within),
-    genCode_(&gencod)
+    genCode_(genCode)
   {
-    const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+    auto pCA = genCode_->getCodonAlphabet();
 
     std::map<int, int> categories;
     for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
@@ -357,10 +357,10 @@ public:
 public:
   size_t getType(size_t fromState, size_t toState) const
   {
-    int x = getStateMap().getAlphabetStateAsInt(fromState);
-    int y = getStateMap().getAlphabetStateAsInt(toState);
+    int x = stateMap().getAlphabetStateAsInt(fromState);
+    int y = stateMap().getAlphabetStateAsInt(toState);
 
-    const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+    auto pCA = genCode_->getCodonAlphabet();
 
     if (genCode_->isStop(x) || genCode_->isStop( y) || !genCode_->areSynonymous(x, y))
       return 0;
@@ -410,23 +410,25 @@ public:
  * - 2 a GC->AT substitution
  *
  * Multiple substitutions are forbidden.
- *
  */
-
 class GCPositionSubstitutionRegister :
   public CategorySubstitutionRegister
 {
 private:
-  const GeneticCode* genCode_;
+  std::shared_ptr<const GeneticCode> genCode_;
   size_t pos_;
 
 public:
-  GCPositionSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, size_t pos, bool within = false) :
+  GCPositionSubstitutionRegister(
+      std::shared_ptr<const StateMapInterface> stateMap,
+      std::shared_ptr<const GeneticCode> genCode,
+      size_t pos,
+      bool within = false) :
     CategorySubstitutionRegister(stateMap, within),
-    genCode_(&gencod),
+    genCode_(genCode),
     pos_(pos)
   {
-    const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+    auto pCA = genCode_->getCodonAlphabet();
 
     std::map<int, int> categories;
     for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
@@ -466,10 +468,10 @@ public:
 public:
   size_t getType(size_t fromState, size_t toState) const
   {
-    int x = getStateMap().getAlphabetStateAsInt(fromState);
-    int y = getStateMap().getAlphabetStateAsInt(toState);
+    int x = stateMap().getAlphabetStateAsInt(fromState);
+    int y = stateMap().getAlphabetStateAsInt(toState);
 
-    const CodonAlphabet* pCA = genCode_->getSourceAlphabet();
+    auto pCA = genCode_->getCodonAlphabet();
 
     if (genCode_->isStop(x) || genCode_->isStop(y))
       return 0;

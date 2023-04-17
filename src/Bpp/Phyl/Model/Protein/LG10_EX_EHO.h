@@ -84,8 +84,7 @@ private:
     string name_;
 
 public:
-    EmbeddedModel(const ProteicAlphabet* alpha, string name);
-    virtual ~EmbeddedModel() {}
+    EmbeddedModel(std::shared_ptr<const ProteicAlphabet> alpha, string name);
     EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
     string getName() const { return name_;}
     double getProportion() const { return proportion_;}
@@ -99,20 +98,9 @@ public:
    *
    */
 
-  LG10_EX_EHO(const ProteicAlphabet* alpha);
+  LG10_EX_EHO(std::shared_ptr<const ProteicAlphabet> alpha);
 
   LG10_EX_EHO* clone() const { return new LG10_EX_EHO(*this); }
-
-  LG10_EX_EHO(const LG10_EX_EHO& mod2) :
-    AbstractBiblioMixedTransitionModel(mod2)
-  {}
-
-  LG10_EX_EHO& operator=(const LG10_EX_EHO& mod2)
-  {
-    AbstractBiblioMixedTransitionModel::operator=(mod2);
-
-    return *this;
-  }
 
   std::string getName() const { return "LG10_EX_EHO"; }
 };

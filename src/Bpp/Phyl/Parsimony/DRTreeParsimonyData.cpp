@@ -56,15 +56,13 @@ DRTreeParsimonyData::DRTreeParsimonyData(const DRTreeParsimonyData& data) :
   leafData_(data.leafData_),
   rootBitsets_(data.rootBitsets_),
   rootScores_(data.rootScores_),
-  shrunkData_(0),
+  shrunkData_(nullptr),
   nbSites_(data.nbSites_),
   nbStates_(data.nbStates_),
   nbDistinctSites_(data.nbDistinctSites_)
 {
   if (data.shrunkData_)
-    shrunkData_ = shared_ptr<SiteContainer>(data.shrunkData_->clone());
-  else
-    shrunkData_ = shared_ptr<SiteContainer>(0);
+    shrunkData_.reset(data.shrunkData_->clone());
 }
 
 /******************************************************************************/
@@ -77,9 +75,9 @@ DRTreeParsimonyData& DRTreeParsimonyData::operator=(const DRTreeParsimonyData& d
   rootBitsets_     = data.rootBitsets_;
   rootScores_      = data.rootScores_;
   if (data.shrunkData_)
-    shrunkData_ = shared_ptr<SiteContainer>(data.shrunkData_->clone());
+    shrunkData_.reset(data.shrunkData_->clone());
   else
-    shrunkData_ = shared_ptr<SiteContainer>(0);
+    shrunkData_.reset(nullptr);
   nbSites_         = data.nbSites_;
   nbStates_        = data.nbStates_;
   nbDistinctSites_ = data.nbDistinctSites_;
@@ -87,14 +85,19 @@ DRTreeParsimonyData& DRTreeParsimonyData::operator=(const DRTreeParsimonyData& d
 }
 
 /******************************************************************************/
-void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& stateMap)
+
+void DRTreeParsimonyData::init(
+    shared_ptr<const SiteContainerInterface> sites,
+    shared_ptr<const StateMapInterface> stateMap)
 {
-  nbStates_         = stateMap.getNumberOfModelStates();
-  nbSites_          = sites.getNumberOfSites();
+  nbStates_         = stateMap->getNumberOfModelStates();
+  nbSites_          = sites->getNumberOfSites();
 
-  SitePatterns pattern(&sites);
+  SitePatterns pattern(*sites);
 
-  shrunkData_       = dynamic_pointer_cast<SiteContainer>(pattern.getSites());
+  auto tmp = pattern.getSites();
+  shrunkData_.reset(dynamic_cast<SiteContainerInterface*>(tmp.release()));
+  
   if (shrunkData_ == nullptr)
     throw Exception("DRTreeParsimonyData::init : Data must be plain alignments.");
 
@@ -106,9 +109,8 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
 
   // Init data:
   // Clone data for more efficiency on sequences access:
-  const SiteContainer* sequences = new AlignedSequenceContainer(*shrunkData_);
-  init(getTreeP_()->getRootNode(), *sequences, stateMap);
-  delete sequences;
+  auto sequences = make_shared<AlignedSequenceContainer>(*shrunkData_);
+  init_(tree().getRootNode(), sequences, stateMap);
 
   // Now initialize root arrays:
   rootBitsets_.resize(nbDistinctSites_);
@@ -116,15 +118,19 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
 }
 
 /******************************************************************************/
-void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, const StateMap& stateMap)
+
+void DRTreeParsimonyData::init_(
+    const Node* node, 
+    shared_ptr<const SiteContainerInterface> sites,
+    shared_ptr<const StateMapInterface> stateMap)
 {
-  const Alphabet* alphabet = sites.getAlphabet();
+  auto alphabet = sites->getAlphabet();
   if (node->isLeaf())
   {
     const Sequence* seq;
     try
     {
-      seq = &sites.getSequence(node->getName());
+      seq = &sites->sequence(node->getName());
     }
     catch (SequenceNotFoundException& snfe)
     {
@@ -147,7 +153,7 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, con
         vector<int> states = alphabet->getAlias(state);
         for (size_t j = 0; j < states.size(); j++)
         {
-          if (stateMap.getAlphabetStateAsInt(s) == states[j])
+          if (stateMap->getAlphabetStateAsInt(s) == states[j])
             (*leafData_bitsets_i)[s].flip();
         }
       }
@@ -177,18 +183,20 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, con
   for (unsigned int l = 0; l < nbSonNodes; l++)
   {
     // For each son node,
-    init(node->getSon(l), sites, stateMap);
+    init_(node->getSon(l), sites, stateMap);
   }
 }
 
 /******************************************************************************/
+
 void DRTreeParsimonyData::reInit()
 {
-  reInit(getTreeP_()->getRootNode());
+  reInit_(tree().getRootNode());
 }
 
 /******************************************************************************/
-void DRTreeParsimonyData::reInit(const Node* node)
+
+void DRTreeParsimonyData::reInit_(const Node* node)
 {
   if (node->isLeaf())
   {
@@ -218,7 +226,7 @@ void DRTreeParsimonyData::reInit(const Node* node)
   for (unsigned int l = 0; l < nbSonNodes; l++)
   {
     // For each son node,
-    reInit(node->getSon(l));
+    reInit_(node->getSon(l));
   }
 }
 

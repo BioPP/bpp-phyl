@@ -53,12 +53,12 @@ using namespace std;
 
 /******************************************************************************/
 
-D1WalkSubstitutionModel::D1WalkSubstitutionModel(const IntegerAlphabet* alpha, unsigned short method) :
+D1WalkSubstitutionModel::D1WalkSubstitutionModel(std::shared_ptr<const IntegerAlphabet> alpha, unsigned short method) :
   AbstractParameterAliasable("D1Walk."),
-  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "D1Walk."),
+  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMapInterface>(new CanonicalStateMap(alpha, false)), "D1Walk."),
   freqSet_(0)
 {
-  freqSet_ = std::make_shared<FullFrequencySet>(shareStateMap(), true, method);
+  freqSet_ = std::make_shared<FullFrequencySet>(getStateMap(), true, method);
   freqSet_->setNamespace("D1Walk.");
   computeFrequencies(false);
 
@@ -70,17 +70,17 @@ D1WalkSubstitutionModel::D1WalkSubstitutionModel(const IntegerAlphabet* alpha, u
   for (unsigned int i = 1; i < size_; i++)
     exchangeability_(i, i-1) = 1;
   
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void D1WalkSubstitutionModel::updateMatrices()
+void D1WalkSubstitutionModel::updateMatrices_()
 {
   // Frequencies:
   freq_ = freqSet_->getFrequencies();
 
-  AbstractReversibleSubstitutionModel::updateMatrices();
+  AbstractReversibleSubstitutionModel::updateMatrices_();
 }
 
 

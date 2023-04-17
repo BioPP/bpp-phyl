@@ -1,7 +1,7 @@
 //
 // File: F81.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mardi 21 avril 2015, ÃÂ  23h 32
 //
 
@@ -186,7 +186,7 @@ private:
 
 public:
   F81(
-    const NucleicAlphabet* alpha,
+    std::shared_ptr<const NucleicAlphabet> alpha,
     double piA = 0.25,
     double piC = 0.25,
     double piG = 0.25,
@@ -194,24 +194,25 @@ public:
 
   virtual ~F81() {}
 
-  F81* clone() const { return new F81(*this); }
+  F81* clone() const override { return new F81(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double d) const;
-  double dPij_dt  (size_t i, size_t j, double d) const;
-  double d2Pij_dt2(size_t i, size_t j, double d) const;
-  const Matrix<double>& getPij_t    (double d) const;
-  const Matrix<double>& getdPij_dt  (double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const override;
+  double dPij_dt  (size_t i, size_t j, double d) const override;
+  double d2Pij_dt2(size_t i, size_t j, double d) const override;
+  const Matrix<double>& getPij_t    (double d) const override;
+  const Matrix<double>& getdPij_dt  (double d) const override;
+  const Matrix<double>& getd2Pij_dt2(double d) const override;
 
-  std::string getName() const { return "F81"; }
+  std::string getName() const override { return "F81"; }
 
   /**
    * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
    */
-  void setFreq(std::map<int, double>& freqs);
+  void setFreq(std::map<int, double>& freqs) override;
 
-  void updateMatrices();
+protected:
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_F81_H

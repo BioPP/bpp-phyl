@@ -44,7 +44,10 @@
 using namespace bpp;
 using namespace std;
 
-SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies) :
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(
+    shared_ptr<BranchModelInterface> model,
+    shared_ptr<ParametrizablePhyloTree> tree,
+    shared_ptr<FrequencySetInterface> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model)
@@ -56,7 +59,10 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel
   addParameters_(model->getIndependentParameters()); // Substitution model
 }
 
-SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, std::shared_ptr<const PhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies) :
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(
+    shared_ptr<BranchModelInterface> model,
+    shared_ptr<const PhyloTree> tree,
+    shared_ptr<FrequencySetInterface> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model)
@@ -74,7 +80,7 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionPro
   model_(ssp.model_->clone())
 {
   if (modelScenario_)
-    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_), std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+    modelScenario_->changeModel(dynamic_pointer_cast<MixedTransitionModelInterface>(ssp.model_), dynamic_pointer_cast<MixedTransitionModelInterface>(model_));
 }
 
 SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubstitutionProcess& ssp)
@@ -84,12 +90,12 @@ SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubs
   model_.reset(ssp.model_->clone());
 
   if (modelScenario_)
-    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_), std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+    modelScenario_->changeModel(dynamic_pointer_cast<MixedTransitionModelInterface>(ssp.model_), dynamic_pointer_cast<MixedTransitionModelInterface>(model_));
 
   return *this;
 }
 
-void SimpleSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
+void SimpleSubstitutionProcess::setModelScenario(shared_ptr<ModelScenario> modelpath)
 {
   auto vmod = modelpath->getModels();
 

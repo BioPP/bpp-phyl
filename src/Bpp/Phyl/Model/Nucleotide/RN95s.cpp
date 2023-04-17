@@ -50,13 +50,14 @@ using namespace std;
 
 /******************************************************************************/
 
-RN95s::RN95s(const NucleicAlphabet* alphabet,
-             double alpha,
-             double beta,
-             double gamma,
-             double delta) :
+RN95s::RN95s(
+    shared_ptr<const NucleicAlphabet> alphabet,
+    double alpha,
+    double beta,
+    double gamma,
+    double delta) :
   AbstractParameterAliasable("RN95s."),
-  AbstractNucleotideSubstitutionModel(alphabet, std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "RN95s."),
+  AbstractNucleotideSubstitutionModel(alphabet, make_shared<CanonicalStateMap>(alphabet, false), "RN95s."),
   alpha_(),
   beta_(),
   gamma_(),
@@ -65,7 +66,7 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
   double f = alpha + beta + gamma + delta;
 
   alpha_ = alpha / f;
-  beta_ = beta / f;
+  beta_  = beta  / f;
   gamma_ = gamma / f;
   delta_ = delta / f;
 
@@ -74,11 +75,12 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
   addParameter_(new Parameter("RN95s.betaP", beta_/(beta_+delta_), Parameter::PROP_CONSTRAINT_EX));
 
   computeFrequencies(false);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
-void RN95s::updateMatrices()
+
+void RN95s::updateMatrices_()
 {
   double theta  = getParameterValue("theta");
   double alphaP  = getParameterValue("alphaP");
@@ -215,8 +217,7 @@ void RN95s::updateMatrices()
 void RN95s::setFreq(map<int, double>& freqs)
 {
   setParameterValue("thetaA", (freqs[0] + freqs[3]) / 2);
-
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/

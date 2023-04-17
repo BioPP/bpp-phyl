@@ -1,7 +1,7 @@
 //
 // File: AbstractPhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: lundi 25 avril 2016, ÃÂ  23h 32
 //
 
@@ -52,7 +52,7 @@ namespace bpp
 class LikelihoodCalculation;
 
 class AbstractPhyloLikelihood :
-  public virtual PhyloLikelihood
+  public virtual PhyloLikelihoodInterface
 {
 public:
   // Cache generated nodes representing derivatives, to avoid recreating them every time.
@@ -71,16 +71,12 @@ protected:
 
   /**
    * @brief the value
-   *
-   **/
-
+   */
   mutable DataLik minusLogLik_;
 
   /**
    * @brief For Dataflow computing
-   *
    */
-
   mutable std::unordered_map<std::string, ValueRef<DataLik> > firstOrderDerivativeNodes_;
 
   mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<DataLik>,
@@ -93,21 +89,26 @@ public:
     minusLogLik_(0)
   {}
 
-  AbstractPhyloLikelihood(const AbstractPhyloLikelihood& asd) :
-    context_(asd.context_),
-    minusLogLik_(asd.minusLogLik_)
+  AbstractPhyloLikelihood(const AbstractPhyloLikelihood& apl) :
+    context_(apl.context_),
+    minusLogLik_(apl.minusLogLik_)
   {
-    shareParameters(asd.getParameters());
+    shareParameters(apl.getParameters());
+  }
+
+  AbstractPhyloLikelihood& operator=(const AbstractPhyloLikelihood& apl)
+  {
+    context_ = apl.context_;
+    minusLogLik_ = apl.minusLogLik_;
+    shareParameters(apl.getParameters());
+    return *this;
   }
 
   virtual ~AbstractPhyloLikelihood() {}
 
-  AbstractPhyloLikelihood* clone() const override = 0;
-
-  Context& getContext()
-  {
-    return context_;
-  }
+  const Context& context() const override { return context_; }
+  
+  Context& context() override { return context_; }
 
   /**
    * @brief Sets the computeLikelihoods_ to true.
@@ -119,10 +120,9 @@ public:
   }
 
 public:
-  /*
-   *
-   *@ brief Share Parameters, that are DF_parameters
-   *
+
+  /**
+   * @brief Share Parameters, that are DF_parameters
    */
   void shareParameters(const ParameterList& variableNodes)
   {
@@ -134,18 +134,7 @@ public:
     setParametersValues(parameters);
   }
 
-  /*
-   *@ Return the LikelihoodCalculation.
-   *
-   */
-
-  virtual std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const = 0;
-
-  /*
-   *@ Return the LikDF node where the Likelihood is computed.
-   *
-   */
-  ValueRef<DataLik> getLikelihoodNode() const
+  ValueRef<DataLik> getLikelihoodNode() const override
   {
     return getLikelihoodCalculation()->getLikelihoodNode();
   }
@@ -171,7 +160,7 @@ public:
    */
   double getValue() const override
   {
-    minusLogLik_ = -getLikelihoodNode()->getTargetValue();
+    minusLogLik_ = -getLikelihoodNode()->targetValue();
     return convert(minusLogLik_);
   }
 
@@ -180,7 +169,7 @@ public:
   {
     using namespace std; // for isinf
     using namespace numeric; // for isinf
-    return convert(-firstOrderDerivativeNode (variable)->getTargetValue ());
+    return convert(-firstOrderDerivativeNode (variable)->targetValue ());
   }
 
   // Get nodes of derivatives directly
@@ -210,7 +199,7 @@ public:
   {
     using namespace std; // for isinf
     using namespace numeric; // for isinf
-    return convert(-secondOrderDerivativeNode (variable1, variable2)->getTargetValue ());
+    return convert(-secondOrderDerivativeNode (variable1, variable2)->targetValue ());
   }
 
   ValueRef<DataLik> secondOrderDerivativeNode (const std::string& variable1,

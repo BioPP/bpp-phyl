@@ -52,21 +52,24 @@ using namespace std;
 
 /******************************************************************************/
 
-JTT92::JTT92(const ProteicAlphabet* alpha) :
+JTT92::JTT92(shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("JTT92."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "JTT92."),
-  freqSet_(0)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JTT92."),
+  freqSet_(nullptr)
 {
   #include "__JTT92ExchangeabilityCode"
   #include "__JTT92FrequenciesCode"
   freqSet_.reset(new FixedProteinFrequencySet(alpha, freq_));
-  updateMatrices();
+  updateMatrices_();
 }
 
-JTT92::JTT92(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs) :
+JTT92::JTT92(
+    shared_ptr<const ProteicAlphabet> alpha,
+    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    bool initFreqs) :
   AbstractParameterAliasable("JTT92+F."),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "JTT92+F."),
-  freqSet_(freqSet)
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JTT92+F."),
+  freqSet_(move(freqSet))
 {
   #include "__JTT92ExchangeabilityCode"
   #include "__JTT92FrequenciesCode"
@@ -76,12 +79,12 @@ JTT92::JTT92(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> 
   else
     freq_ = freqSet_->getFrequencies();
   addParameters_(freqSet_->getParameters());
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void JTT92::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void JTT92::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   map<int, double> counts;
   SequenceContainerTools::getFrequencies(data, counts, pseudoCount);

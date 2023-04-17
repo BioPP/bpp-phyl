@@ -104,7 +104,7 @@ public:
    *
    * @throw Exception If the number of sites is not the same as in the container.
    */
-  void appendModel(const bpp::TreeLikelihood& treelikelihood);
+  void appendModel(const bpp::TreeLikelihoodInterface& treelikelihood);
 
   /**
    * @brief Append models by concatenation.

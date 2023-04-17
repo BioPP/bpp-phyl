@@ -54,7 +54,7 @@ namespace bpp
 /**
  * @brief The so-called 'Nhx - New Hampshire eXtended' parenthetic format.
  *
- * See http://www.phylosoft.org/Nhx/ for details.
+ * See http://www.phylosoft.org/NHX/ for details.
  *
  * Branch lengths and node annotations are supported:
  *
@@ -149,8 +149,8 @@ public:
    *
    * @{
    */
-  const std::string getFormatName() const;
-  const std::string getFormatDescription() const;
+  const std::string getFormatName() const override;
+  const std::string getFormatDescription() const override;
   /* @} */
 
   /**
@@ -158,19 +158,13 @@ public:
    *
    * @{
    */
-  TreeTemplate<Node>* readTree(const std::string& path) const
-  {
-    return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::readTree(path));
-  }
+  using AbstractITree::readTreeTemplate;
 
-  TreeTemplate<Node>* readTree(std::istream& in) const;
+  std::unique_ptr<TreeTemplate<Node>> readTreeTemplate(std::istream& in) const override;
 
-  PhyloTree* readPhyloTree(const std::string& path) const
-  {
-    return AbstractIPhyloTree::readPhyloTree(path);
-  }
+  using AbstractIPhyloTree::readPhyloTree;
 
-  PhyloTree* readPhyloTree(std::istream& in) const;
+  std::unique_ptr<PhyloTree> readPhyloTree(std::istream& in) const override;
 
   /** @} */
 
@@ -179,22 +173,16 @@ public:
    *
    * @{
    */
-  void writeTree(const Tree& tree, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOTree::writeTree(tree, path, overwrite);
-  }
+  using AbstractOTree::writeTree;
 
-  void writeTree(const Tree& tree, std::ostream& out) const
+  void writeTree(const Tree& tree, std::ostream& out) const override
   {
     write_(tree, out);
   }
 
-  void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOPhyloTree::writePhyloTree(tree, path, overwrite);
-  }
+  using AbstractOPhyloTree::writePhyloTree;
 
-  void writePhyloTree(const PhyloTree& tree, std::ostream& out) const
+  void writePhyloTree(const PhyloTree& tree, std::ostream& out) const override
   {
     write_(tree, out);
   }
@@ -205,18 +193,13 @@ public:
    *
    * @{
    */
-  void readTrees(const std::string& path, std::vector<Tree*>& trees) const
-  {
-    AbstractIMultiTree::readTrees(path, trees);
-  }
-  void readTrees(std::istream& in, std::vector<Tree*>& trees) const;
+  using AbstractIMultiTree::readTrees;
 
-  void readPhyloTrees(const std::string& path, std::vector<PhyloTree*>& trees) const
-  {
-    AbstractIMultiPhyloTree::readPhyloTrees(path, trees);
-  }
+  void readTrees(std::istream& in, std::vector<std::unique_ptr<Tree>>& trees) const override;
 
-  void readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& trees) const;
+  using AbstractIMultiPhyloTree::readPhyloTrees;
+
+  void readPhyloTrees(std::istream& in, std::vector<std::unique_ptr<PhyloTree>>& trees) const override;
 
   /**@}*/
 
@@ -225,27 +208,24 @@ public:
    *
    * @{
    */
-  void writeTrees(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOMultiTree::writeTrees(trees, path, overwrite);
-  }
-  void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const
+  using AbstractOMultiTree::writeTrees;
+
+  void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const override
   {
     write_(trees, out);
   }
-  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
-  {
-    AbstractOMultiPhyloTree::writePhyloTrees(trees, path, overwrite);
-  }
-  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
+
+  using AbstractOMultiPhyloTree::writePhyloTrees;
+
+  void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const override
   {
     write_(trees, out);
   }
   /** @} */
 
-  TreeTemplate<Node>* parenthesisToTree(const std::string& description) const;
+  std::unique_ptr<TreeTemplate<Node>> parenthesisToTree(const std::string& description) const;
 
-  PhyloTree* parenthesisToPhyloTree(const std::string& description) const;
+  std::unique_ptr<PhyloTree> parenthesisToPhyloTree(const std::string& description) const;
 
   std::string treeToParenthesis(const TreeTemplate<Node>& tree) const;
 
@@ -298,7 +278,7 @@ protected:
   template<class N>
   void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const;
 
-  IOTree::Element getElement(const std::string& elt) const;
+  IOTree::Element getElement(const std::string& elt) const override;
 
 private:
   Node* parenthesisToNode(const std::string& description) const;
@@ -323,11 +303,9 @@ protected:
   static std::string propertyToString_(const Clonable* pptObject, short type);
   static Clonable* stringToProperty_(const std::string& pptDesc, short type);
 
-  /*
+  /**
    * @brief check and fill all nodes ids.
-   *
    */
-
   void checkNodesId_(PhyloTree& tree) const;
 };
 } // end of namespace bpp.

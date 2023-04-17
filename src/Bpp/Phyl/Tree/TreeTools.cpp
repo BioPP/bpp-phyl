@@ -799,7 +799,7 @@ bool TreeTools::checkIds(const Tree& tree, bool throwException)
 
 /******************************************************************************/
 
-VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*>& vecTr)
+unique_ptr<VectorSiteContainer> TreeTools::MRPEncode(const vector<Tree*>& vecTr)
 {
   vector<BipartitionList*> vecBipL;
   for (size_t i = 0; i < vecTr.size(); i++)
@@ -807,7 +807,7 @@ VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*>& vecTr)
     vecBipL.push_back(new BipartitionList(*vecTr[i]));
   }
 
-  VectorSiteContainer* cont = BipartitionTools::MRPEncode(vecBipL);
+  auto cont = BipartitionTools::MRPEncode(vecBipL);
 
   for (size_t i = 0; i < vecTr.size(); i++)
   {
@@ -819,7 +819,7 @@ VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*>& vecTr)
 
 /******************************************************************************/
 
-VectorSiteContainer* TreeTools::MRPEncodeMultilabel(const vector<Tree*>& vecTr)
+unique_ptr<VectorSiteContainer> TreeTools::MRPEncodeMultilabel(const vector<Tree*>& vecTr)
 {
   vector<BipartitionList*> vecBipL;
   for (size_t i = 0; i < vecTr.size(); i++)
@@ -827,7 +827,7 @@ VectorSiteContainer* TreeTools::MRPEncodeMultilabel(const vector<Tree*>& vecTr)
     vecBipL.push_back(new BipartitionList(*vecTr[i]));
   }
 
-  VectorSiteContainer* cont = BipartitionTools::MRPEncodeMultilabel(vecBipL);
+  auto cont = BipartitionTools::MRPEncodeMultilabel(vecBipL);
 
   for (size_t i = 0; i < vecTr.size(); i++)
   {

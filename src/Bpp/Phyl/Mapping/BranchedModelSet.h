@@ -1,7 +1,7 @@
 //
 // File: BranchedModelSet.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 7 dÃÂ©cembre 2017, ÃÂ  17h 41
 //
 
@@ -48,13 +48,11 @@
 namespace bpp
 {
 /**
- *
  * @brief An interface for classes where models are assigned to branch
  * ids.
- *
  */
 
-class TransitionModel;
+class TransitionModelInterface;
 
 class BranchedModelSet
 {
@@ -64,9 +62,7 @@ public:
 
   /**
    * @return The current number of distinct substitution models in this set.
-   *
    */
-
   virtual size_t getNumberOfModels() const = 0;
 
   /**
@@ -82,8 +78,7 @@ public:
    * @param index The index of the query model.
    * @return A pointer toward the corresponding model.
    */
-
-  virtual const TransitionModel* getModel(size_t index) const = 0;
+  virtual std::shared_ptr<const TransitionModelInterface> getModel(size_t index) const = 0;
 
   /**
    * @brief Get the model associated to a particular branch id.
@@ -92,10 +87,9 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this branch.
    */
+  virtual std::shared_ptr<const TransitionModelInterface> getModelForBranch(unsigned int branchId) const = 0;
 
-  virtual const TransitionModel* getModelForBranch(unsigned int branchId) const = 0;
-
-  virtual TransitionModel* getModelForBranch(unsigned int branchId) = 0;
+  virtual std::shared_ptr<TransitionModelInterface> getModelForBranch(unsigned int branchId) = 0;
 
   /**
    * @brief Get a list of branches id for which the given model is associated.

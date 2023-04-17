@@ -216,20 +216,20 @@ public:
 
     condLik_ = CondLikelihood::create(c, {this->shared_from_this(), fname}, targetDimension_);
 
-    const auto& hmmEq = dynamic_pointer_cast<Value<Eigen::VectorXd> >(this->dependency(0))->getTargetValue();
+    const auto& hmmEq = dynamic_pointer_cast<Value<Eigen::VectorXd> >(this->dependency(0))->targetValue();
 
     if (hmmEq.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad dimension for starting vector", size_t(hmmEq.rows()), size_t(targetDimension_.rows));
 
 
-    const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd> >(this->dependency(1))->getTargetValue();
+    const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd> >(this->dependency(1))->targetValue();
 
     if (hmmTrans.cols() != hmmTrans.rows())
       throw BadSizeException("ForwardHmmLikelihood_DF: Transition matrix should be square", size_t(hmmTrans.cols()), size_t(hmmTrans.rows()));
     if (hmmTrans.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad number of rows for transition matrix", size_t(hmmTrans.rows()), size_t(targetDimension_.rows));
 
-    const auto& hmmEmis = dynamic_pointer_cast<Value<MatrixLik> >(this->dependency(2))->getTargetValue();
+    const auto& hmmEmis = dynamic_pointer_cast<Value<MatrixLik> >(this->dependency(2))->targetValue();
 
     if (hmmEmis.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad number of states for emission matrix", size_t(hmmEmis.rows()), size_t(targetDimension_.rows));

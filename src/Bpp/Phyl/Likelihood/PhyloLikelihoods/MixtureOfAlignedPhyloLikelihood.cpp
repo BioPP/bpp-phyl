@@ -1,7 +1,7 @@
 //
 // File: MixtureOfAlignedPhyloLikelihood.cpp
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: lundi 26 octobre 2015, ÃÂ  21h 56
 //
 
@@ -44,11 +44,17 @@
 using namespace bpp;
 using namespace std;
 
-MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection) :
+MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(
+    Context& context,
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    const std::vector<size_t>& nPhylo,
+    bool inCollection) :
   AbstractPhyloLikelihood(context),
+  AbstractParametrizable(""),
+  AbstractSetOfPhyloLikelihood(context, pC, nPhylo, inCollection),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection, ""),
-  likCal_(new AlignedLikelihoodCalculation(context))
+  AbstractSetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection, ""),
+  likCal_(make_shared<AlignedLikelihoodCalculation>(context))
 {
   Simplex simplex(getNumbersOfPhyloLikelihoods().size(), 1, false, "Mixture.");
 
@@ -56,54 +62,46 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& contex
   const auto& param = simplex.getParameters();
   ParameterList paramList;
 
-  for (size_t i = 0; i < param.size(); i++)
+  for (size_t i = 0; i < param.size(); ++i)
   {
-    paramList.shareParameter(ConfiguredParameter::create(getContext(), param[i]));
+    paramList.shareParameter(ConfiguredParameter::create(this->context(), param[i]));
   }
 
   shareParameters_(paramList);
 
   // make Simplex DF & Frequencies from it
 
-  simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(getContext(), simplex, paramList, "");
-
+  simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(this->context(), simplex, paramList, "");
+  
   // for derivates
-  auto deltaNode = NumericMutable<double>::create(getContext(), 0.001);
+  auto deltaNode = NumericMutable<double>::create(this->context(), 0.001);
   auto config = NumericalDerivativeType::ThreePoints;
 
   simplex_->config.delta = deltaNode;
   simplex_->config.type = config;
 
-  auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex, Eigen::RowVectorXd>(getContext(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
+  auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex, Eigen::RowVectorXd>(this->context(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
 
   // get RowVectorXd for each single Calculation
-  std::vector<std::shared_ptr<Node_DF> > vSL;
+  std::vector<std::shared_ptr<Node_DF>> vSL;
 
-  for (auto np:nPhylo)
+  for (auto np : nPhylo)
   {
-    vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods(false));
+    vSL.push_back(alignedPhyloLikelihood(np).alignedLikelihoodCalculation().getSiteLikelihoods(false));
   }
 
   // put probabilities of the simplex
 
   vSL.push_back(fsf);
 
-  auto sL = CWiseMean<RowLik, ReductionOf<RowLik>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), RowVectorDimension (Eigen::Index(nbSites_)));
+  auto sL = CWiseMean<RowLik, ReductionOf<RowLik>, Eigen::RowVectorXd>::create(this->context(), std::move(vSL), RowVectorDimension (Eigen::Index(nbSites_)));
 
   likCal_->setSiteLikelihoods(sL);
 
-  auto su = SumOfLogarithms<RowLik>::create (getContext(), {sL}, RowVectorDimension (Eigen::Index (nbSites_)));
+  auto su = SumOfLogarithms<RowLik>::create (this->context(), {sL}, RowVectorDimension (Eigen::Index (nbSites_)));
 
   likCal_->setLikelihoodNode(su);
 }
-
-MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(const MixtureOfAlignedPhyloLikelihood& sd) :
-  AbstractPhyloLikelihood(sd),
-  AbstractAlignedPhyloLikelihood(sd),
-  SetOfAlignedPhyloLikelihood(sd),
-  simplex_(sd.simplex_),
-  likCal_(sd.likCal_)
-{}
 
 Vdouble MixtureOfAlignedPhyloLikelihood::getPhyloProbabilities() const
 {

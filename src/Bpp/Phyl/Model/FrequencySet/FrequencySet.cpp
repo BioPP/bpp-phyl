@@ -54,9 +54,9 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-std::shared_ptr<IntervalConstraint> FrequencySet::FREQUENCE_CONSTRAINT_MILLI(new IntervalConstraint(NumConstants::MILLI(), 1 - NumConstants::MILLI(), false, false));
-std::shared_ptr<IntervalConstraint> FrequencySet::FREQUENCE_CONSTRAINT_CENTI(new IntervalConstraint(NumConstants::CENTI(), 1 - NumConstants::CENTI(), false, false));
-std::shared_ptr<IntervalConstraint> FrequencySet::FREQUENCE_CONSTRAINT_SMALL(new IntervalConstraint(NumConstants::SMALL(), 1 - NumConstants::SMALL(), false, false));
+shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_MILLI(new IntervalConstraint(NumConstants::MILLI(), 1 - NumConstants::MILLI(), false, false));
+shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_CENTI(new IntervalConstraint(NumConstants::CENTI(), 1 - NumConstants::CENTI(), false, false));
+shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL(new IntervalConstraint(NumConstants::SMALL(), 1 - NumConstants::SMALL(), false, false));
 
 // ///////////////////////////////////////
 // AbstractFrequencySet
@@ -104,8 +104,15 @@ const std::map<int, double> AbstractFrequencySet::getAlphabetStatesFrequencies()
 // ////////////////////////////
 // FullFrequencySet
 
-FullFrequencySet::FullFrequencySet(std::shared_ptr<const StateMap> stateMap, bool allowNullFreqs, unsigned short method, const string& name) :
-  AbstractFrequencySet(stateMap, "Full.", name),
+FullFrequencySet::FullFrequencySet(
+    shared_ptr<const StateMapInterface> stateMap,
+    bool allowNullFreqs,
+    unsigned short method,
+    const string& name) :
+  AbstractFrequencySet(
+    stateMap,
+    "Full.",
+    name),
   sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
   vector<double> vd;
@@ -121,8 +128,16 @@ FullFrequencySet::FullFrequencySet(std::shared_ptr<const StateMap> stateMap, boo
   updateFreq_();
 }
 
-FullFrequencySet::FullFrequencySet(std::shared_ptr<const StateMap> stateMap, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
-  AbstractFrequencySet(stateMap, "Full.", name),
+FullFrequencySet::FullFrequencySet(
+    shared_ptr<const StateMapInterface> stateMap, 
+    const vector<double>& initFreqs, 
+    bool allowNullFreqs, 
+    unsigned short method, 
+    const string& name) :
+  AbstractFrequencySet(
+    stateMap,
+    "Full.",
+    name),
   sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
   sFreq_.setFrequencies(initFreqs);
@@ -161,16 +176,27 @@ void FullFrequencySet::updateFreq_()
 // ///////////////////////////////////////////
 // / FixedFrequencySet
 
-FixedFrequencySet::FixedFrequencySet(std::shared_ptr<const StateMap> stateMap, const vector<double>& initFreqs, const string& name) :
-  AbstractFrequencySet(stateMap, "Fixed.", name)
+FixedFrequencySet::FixedFrequencySet(
+    shared_ptr<const StateMapInterface> stateMap,
+    const vector<double>& initFreqs,
+    const string& name) :
+  AbstractFrequencySet(
+    stateMap,
+    "Fixed.",
+    name)
 {
   if (stateMap->getNumberOfModelStates() != initFreqs.size())
     throw Exception("FixedFrequencySet::constructor. size of init vector does not match the number of states in the model.");
   setFrequencies(initFreqs);
 }
 
-FixedFrequencySet::FixedFrequencySet(std::shared_ptr<const StateMap> stateMap, const string& name) :
-  AbstractFrequencySet(stateMap, "Fixed.", name)
+FixedFrequencySet::FixedFrequencySet(
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& name) :
+  AbstractFrequencySet(
+    stateMap,
+    "Fixed.",
+    name)
 {
   size_t n = stateMap->getNumberOfModelStates();
   setFrequencies_(std::vector<double>(n , 1./(double)n));
@@ -190,9 +216,14 @@ void FixedFrequencySet::setFrequencies(const vector<double>& frequencies)
   setFrequencies_(frequencies);
 }
 
-MarkovModulatedFrequencySet::MarkovModulatedFrequencySet(std::shared_ptr<FrequencySet> freqSet, const std::vector<double>& rateFreqs) :
-  AbstractFrequencySet(std::shared_ptr<const StateMap>(new MarkovModulatedStateMap(freqSet->getStateMap(), static_cast<unsigned int>(rateFreqs.size()))), "MarkovModulated.", "MarkovModulated." + freqSet->getName()),
-  freqSet_(freqSet),
+MarkovModulatedFrequencySet::MarkovModulatedFrequencySet(
+    unique_ptr<FrequencySetInterface> freqSet,
+    const std::vector<double>& rateFreqs) :
+  AbstractFrequencySet(
+    make_shared<MarkovModulatedStateMap>(freqSet->stateMap(), static_cast<unsigned int>(rateFreqs.size())),
+    "MarkovModulated.",
+    "MarkovModulated." + freqSet->getName()),
+  freqSet_(move(freqSet)),
   rateFreqs_(rateFreqs)
 {
   freqSet_->setNamespace(std::string("MarkovModulated.") + freqSet_->getNamespace());
@@ -212,17 +243,15 @@ FromModelFrequencySet::FromModelFrequencySet(const FromModelFrequencySet& fmfs) 
 FromModelFrequencySet& FromModelFrequencySet::operator=(const FromModelFrequencySet& fmfs)
 {
   AbstractFrequencySet::operator=(fmfs);
-  model_ = fmfs.model_->clone();
+  model_.reset(fmfs.model_->clone());
   return *this;
 }
 
-FromModelFrequencySet::~FromModelFrequencySet()
-{
-  delete model_;
-}
+FromModelFrequencySet::~FromModelFrequencySet() {}
 
-FromModelFrequencySet::FromModelFrequencySet(TransitionModel* model) :
-  AbstractFrequencySet(model->shareStateMap(), "FromModel." + (model ? model->getNamespace() : ""), "FromModel"),
+FromModelFrequencySet::FromModelFrequencySet(
+    shared_ptr<TransitionModelInterface> model) :
+  AbstractFrequencySet(model->getStateMap(), "FromModel." + (model ? model->getNamespace() : ""), "FromModel"),
   model_(model)
 {
   model_->setNamespace(getNamespace());
@@ -243,7 +272,7 @@ void FromModelFrequencySet::setFrequencies(const std::vector<double>& frequencie
   std::map<int, double> freq;
   for (size_t i = 0; i < getNumberOfFrequencies(); ++i)
   {
-    freq[getStateMap().getAlphabetStateAsInt(i)] += frequencies[i];
+    freq[stateMap().getAlphabetStateAsInt(i)] += frequencies[i];
   }
   model_->setFreq(freq);
   matchParametersValues(model_->getParameters());
@@ -259,8 +288,14 @@ void FromModelFrequencySet::fireParameterChanged(const ParameterList& pl)
 //////////////////////////////////
 /// User
 
-UserFrequencySet::UserFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol) :
-  AbstractFrequencySet(stateMap, "Empirical.", "Empirical"),
+UserFrequencySet::UserFrequencySet(
+    shared_ptr<const StateMapInterface> stateMap,
+    const std::string& path,
+    size_t nCol) :
+  AbstractFrequencySet(
+    stateMap,
+    "Empirical.",
+    "Empirical"),
   path_(path),
   nCol_(nCol)
 {

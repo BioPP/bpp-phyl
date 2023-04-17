@@ -58,6 +58,52 @@
  * fixation of allele @f$i@f$ is proportional @f$F_i@f$, and follows
  * the Moran law.
  *
+ * We set the generator @f$Q@f$ of the model on set of states
+ * @f$\big\{\{na_i,(N-n)a_j\}, \forall i<j \& \forall n \in [1;N-1]
+ * \big\} \cup \{Na_i, \forall i \}@f$,\\ with @f$\mu_{ab} = \rho_{ab}
+ * \pi_a@f$ the reversible mutation rates, with @f$\pi_{a}@f$ the
+ * equilibrium distribution of this mutation model, and
+ * @f$\rho_{ab}=\rho_{ba}@f$, and @f$\phi@f$ the fitnesses of the
+ * states:
+ *
+ *@f$
+ * Q_{\{ua_i,(N-u)a_j\} \rightarrow \{va_i,(N-v)a_j\}} = \left\{
+ *\begin{array}{cl}
+ * N \mu_{a_ia_j} = N \rho_{a_ia_j}\pi_{a_j} & \text{ if } u=N, v=N-1\\
+ * N \mu_{a_ja_i} = N \rho_{a_ja_i}\pi_{a_i} & \text{ if } u=0, v=1\\
+ * \frac{n(N-n)}{n\phi_{a_i}+(N-n)\phi_{a_j}}\phi_{a_i} & \text{ if } u=n, v=n+1, 0<n<N \\
+ * \frac{n(N-n)}{n\phi_{a_i}+(N-n)\phi_{a_j}}\phi_{a_j} & \text{ if } u=n, v=n-1, 0<n<N \\
+ * 0 & \text{ if } |u-v|>1
+ * \end{array} \right. @f$
+ *
+ * (with @f$\{Na_i,0a_j\}:=Na_i@f$)
+ *
+ * The equilibrium distribution @f$\psi@f$ is:
+ *
+ * @f$
+ * \psi_x = \frac 1K \times \left\{
+ * \begin{array}{cl}
+ * \pi_{a_i} \phi_{a_i}^{N-1} & \text{ if } x = Na_i\\
+ * \pi_{a_i} \mu_{a_ia_j} \phi_{a_i}^{n-1}\phi_{a_j}^{N-n-1}(n\phi_{a_i}+(N-n)\phi_{a_j})\frac{N}{n(N-n)}
+ * & \text{ if } x = \{na_i,(N-n)a_j\} \\
+ * \end{array}
+ * \right.
+ * @f$
+ *
+ * with @f$ K = \sum_{i} \pi_{a_i} \phi_{a_i}^{N-1} + \sum_{i \neq j}
+ * \pi_{a_i} \pi_{a_j} \rho_{a_ia_j} \sum_{n=1}^{N-1} \phi_{a_i}^{N-n}
+ * \phi_{a_j}^{n-1}\frac{N}{n} @f$
+ *
+ * The generator is normalized to ensure one substitution per unit of
+ * time, which means that it is divided per:
+ *
+ *
+ * s= \frac{\sum_{i \neq j} 2 \mu_{a_ia_j} \pi_{a_i}
+ * \phi_{a_i}^{N-2}\phi_{a_j}^{N}\frac{\phi_{a_i}-\phi_{a_j}}{\phi_{a_i}^{N}-\phi_{a_j}^N}}
+ * {\sum_{k \neq l} \pi_{a_k} \mu_{a_ka_l} ( 2 \phi_{a_k}^{N-1} + (\phi_{a_l}
+ * + \phi_{a_k})\frac{\phi_{a_l}^{N-1} - \phi_{a_k}^{N-1}}{\phi_{a_l}
+ * - \phi_{a_k}})} @f$
+ *
  * See:
  *
  * De Maio, N., Schrempf, D., and Kosiol, C. (2015). PoMo: An allele
@@ -72,7 +118,6 @@
  * of the polymorphism-aware phylo-genetic models. Journal of
  * Theoretical Biology, 486:110074.
  */
-
 #include <Bpp/Seq/Alphabet/AllelicAlphabet.h>
 
 namespace bpp
@@ -83,46 +128,44 @@ namespace bpp
   private:
     uint nbAlleles_;
   
-    std::shared_ptr<SubstitutionModel> pmodel_;
-    std::shared_ptr<FrequencySet> pfitness_;
+    std::unique_ptr<SubstitutionModelInterface> pmodel_;
+    std::unique_ptr<FrequencySetInterface> pfitness_;
 
   public:
     /**
      * @brief Build a POMO instance
-     *
      */
-
-    POMO(const AllelicAlphabet* allAlph,
-         std::shared_ptr<SubstitutionModel> pmodel,
-         std::shared_ptr<FrequencySet> pfitness);
+    POMO(std::shared_ptr<const AllelicAlphabet> allAlph,
+         std::unique_ptr<SubstitutionModelInterface> pmodel,
+         std::unique_ptr<FrequencySetInterface> pfitness);
 
     POMO(const POMO& model) :
       AbstractParameterAliasable(model),
       AbstractSubstitutionModel(model),
       nbAlleles_(model.nbAlleles_),
       pmodel_(model.pmodel_->clone()),
-      pfitness_(model.pfitness_?model.pfitness_->clone():0)
+      pfitness_(model.pfitness_ ? model.pfitness_->clone() : nullptr)
     {}
 
     POMO& operator=(const POMO& model)
     {
       AbstractParameterAliasable::operator=(model);
       nbAlleles_ = model.nbAlleles_;
-      pmodel_ = std::shared_ptr<SubstitutionModel>(model.pmodel_->clone());
-      pfitness_ = model.pfitness_?std::shared_ptr<FrequencySet>(model.pfitness_->clone()):0;
+      pmodel_.reset(model.pmodel_->clone());
+      pfitness_.reset(model.pfitness_ ? model.pfitness_->clone() : nullptr);
       return *this;
     }
 
-    POMO* clone() const
+    POMO* clone() const override
     {
       return new POMO(*this);
     }
 
-    void fireParameterChanged(const ParameterList& parameters);
+    void fireParameterChanged(const ParameterList& parameters) override;
 
-    void setFreq(std::map<int, double>& frequencies);
+    void setFreq(std::map<int, double>& frequencies) override;
 
-    void setNamespace(const std::string& prefix)
+    void setNamespace(const std::string& prefix) override
     {
       AbstractParameterAliasable::setNamespace(prefix);
       pmodel_->setNamespace(prefix+pmodel_->getNamespace());
@@ -130,28 +173,44 @@ namespace bpp
         pfitness_->setNamespace(prefix+pfitness_->getNamespace());
     }
 
+    std::shared_ptr<const AllelicAlphabet> getAllelicAlphabet() const
+    {
+      return std::dynamic_pointer_cast<const AllelicAlphabet>(alphabet_);
+    }
+
+    const AllelicAlphabet& allelicAlphabet() const
+    {
+      return dynamic_cast<const AllelicAlphabet&>(*alphabet_);
+    }
+
     uint getNbAlleles() const
     {
       return nbAlleles_;
     }
 
-    const std::shared_ptr<FrequencySet> getFitness() const
+    bool hasFitness() const 
     {
-      return pfitness_;
+      return pfitness_ != nullptr;
     }
 
-    const std::shared_ptr<SubstitutionModel> getMutationModel() const
+    const FrequencySetInterface& fitness() const
     {
-      return pmodel_;
+      return *pfitness_;
     }
 
-    std::string getName() const
+    const SubstitutionModelInterface& mutationModel() const
+    {
+      return *pmodel_;
+    }
+
+    std::string getName() const override
     {
       return "POMO";
     }
     
   protected:
-    void updateMatrices();
+    
+    void updateMatrices_() override;
   
   };
 } // end of namespace bpp.

@@ -1,7 +1,7 @@
 //
 // File: AbstractWrappedModel.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: mardi 26 septembre 2017, ÃÂ  16h 18
 //
 
@@ -42,85 +42,99 @@
 #define BPP_PHYL_MODEL_ABSTRACTWRAPPEDMODEL_H
 
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
-#include <Bpp/Seq/Container/SequencedValuesContainer.h>
+#include <Bpp/Seq/Container/SequenceData.h>
 
 #include "WrappedModel.h"
+#include "AbstractSubstitutionModel.h"
 
 namespace bpp
 {
 /**
  * @brief Abstract class of Wrapping model class, where all methods
  * are redirected from getModel().
- *
- *
- *
  */
-
 class AbstractWrappedModel :
-  public virtual WrappedModel
+  public virtual AbstractParameterAliasable,
+  public virtual WrappedModelInterface
 {
 public:
-  AbstractWrappedModel() {}
+  AbstractWrappedModel(const std::string& prefix) :
+    AbstractParameterAliasable(prefix)
+  {}
+  
   virtual ~AbstractWrappedModel() {}
 
 public:
-  /*
-   *@ brief Methods to supersede TransitionModel methods.
+  /**
+   * @ brief Methods to supersede TransitionModel methods.
    *
    * @{
    */
-  const std::vector<int>& getAlphabetStates() const { return getModel().getAlphabetStates(); }
+  const std::vector<int>& getAlphabetStates() const override { return model().getAlphabetStates(); }
 
-  const StateMap& getStateMap() const { return getModel().getStateMap(); }
+  const StateMapInterface& stateMap() const override { return model().stateMap(); }
 
-  std::shared_ptr<const StateMap> shareStateMap() const { return getModel().shareStateMap(); }
+  std::shared_ptr<const StateMapInterface> getStateMap() const override { return model().getStateMap(); }
 
-  int getAlphabetStateAsInt(size_t i) const { return getModel().getAlphabetStateAsInt(i); }
+  int getAlphabetStateAsInt(size_t i) const override { return model().getAlphabetStateAsInt(i); }
 
-  std::string getAlphabetStateAsChar(size_t i) const { return getModel().getAlphabetStateAsChar(i); }
+  std::string getAlphabetStateAsChar(size_t i) const override { return model().getAlphabetStateAsChar(i); }
 
-  std::vector<size_t> getModelStates(int code) const { return getModel().getModelStates(code); }
+  std::vector<size_t> getModelStates(int code) const override { return model().getModelStates(code); }
 
-  std::vector<size_t> getModelStates(const std::string& code) const { return getModel().getModelStates(code); }
+  std::vector<size_t> getModelStates(const std::string& code) const override { return model().getModelStates(code); }
 
 
-  const Alphabet* getAlphabet() const { return getModel().getAlphabet(); }
+  const Alphabet& alphabet() const override { return model().alphabet(); }
+  
+  std::shared_ptr<const Alphabet> getAlphabet() const override { return model().getAlphabet(); }
 
-  size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
+  size_t getNumberOfStates() const override { return model().getNumberOfStates(); }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return getModel().getFrequencySet();}
-
-  /*
+  const FrequencySetInterface& frequencySet() const override { return model().frequencySet(); }
+  
+  /**
    * @}
    */
-  virtual std::string getName() const
+  virtual std::string getName() const override
   {
-    return getModel().getName();
+    return model().getName();
   }
 
-  /*
+  /**
    * @}
-   *
    */
 };
 
 class AbstractWrappedTransitionModel :
   public virtual AbstractWrappedModel,
-  public virtual WrappedTransitionModel
+  public virtual AbstractLkTransitionModel,
+  public virtual WrappedTransitionModelInterface
 {
+public:
+  AbstractWrappedTransitionModel(const std::string& prefix):
+      AbstractWrappedModel(prefix)
+  {}
+  
 protected:
-  BranchModel& getModel()
+  BranchModelInterface& model_()
   {
-    return getTransitionModel();
+    return transitionModel_();
   }
+  
+  virtual TransitionModelInterface& transitionModel_() = 0;
 
 public:
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return getTransitionModel().getFrequencySet();}
-
-  const BranchModel& getModel() const
+  const FrequencySetInterface& frequencySet() const override
   {
-    return getTransitionModel();
+    return transitionModel().frequencySet();
   }
+
+  const BranchModelInterface& model() const override
+  {
+    return transitionModel();
+  }
+  
 };
 
 
@@ -128,103 +142,108 @@ class AbstractTotallyWrappedTransitionModel :
   public virtual AbstractWrappedTransitionModel
 {
 public:
-  AbstractTotallyWrappedTransitionModel() {}
+  AbstractTotallyWrappedTransitionModel(const std::string& prefix):
+      AbstractWrappedTransitionModel(prefix) {}
+  
   virtual ~AbstractTotallyWrappedTransitionModel() {}
 
 public:
-  /*
-   *@ brief Methods to supersede TransitionModel methods.
+  /**
+   * @brief Methods to supersede TransitionModel methods.
    *
    * @{
    */
-  double freq(size_t i) const { return getTransitionModel().freq(i); }
+  double freq(size_t i) const override { return transitionModel().freq(i); }
 
-  double Pij_t    (size_t i, size_t j, double t) const { return getTransitionModel().Pij_t(i, j, t); }
-  double dPij_dt  (size_t i, size_t j, double t) const { return getTransitionModel().dPij_dt (i, j, t); }
-  double d2Pij_dt2(size_t i, size_t j, double t) const { return getTransitionModel().d2Pij_dt2(i, j, t); }
+  double Pij_t    (size_t i, size_t j, double t) const override { return transitionModel().Pij_t(i, j, t); }
+  double dPij_dt  (size_t i, size_t j, double t) const override { return transitionModel().dPij_dt (i, j, t); }
+  double d2Pij_dt2(size_t i, size_t j, double t) const override { return transitionModel().d2Pij_dt2(i, j, t); }
 
-  const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
+  const Vdouble& getFrequencies() const override { return transitionModel().getFrequencies(); }
 
-  const Matrix<double>& getPij_t(double t) const { return getTransitionModel().getPij_t(t); }
+  const Matrix<double>& getPij_t(double t) const override { return transitionModel().getPij_t(t); }
 
-  const Matrix<double>& getdPij_dt(double t) const { return getTransitionModel().getdPij_dt(t); }
+  const Matrix<double>& getdPij_dt(double t) const override { return transitionModel().getdPij_dt(t); }
 
-  const Matrix<double>& getd2Pij_dt2(double t) const { return getTransitionModel().getd2Pij_dt2(t); }
+  const Matrix<double>& getd2Pij_dt2(double t) const override { return transitionModel().getd2Pij_dt2(t); }
 
-  double getInitValue(size_t i, int state) const
+  double getInitValue(size_t i, int state) const override
   {
-    return getTransitionModel().getInitValue(i, state);
+    return transitionModel().getInitValue(i, state);
   }
 
-  double getRate() const
+  double getRate() const override
   {
-    return getTransitionModel().getRate();
+    return transitionModel().getRate();
   }
 
-  void setRate(double rate)
+  void setRate(double rate) override
   {
-    return getTransitionModel().setRate(rate);
+    return transitionModel_().setRate(rate);
   }
 
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override
   {
     std::map<int, double> freqs;
     SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
     // Re-compute generator and eigen values:
-    getTransitionModel().setFreq(freqs);
+    transitionModel_().setFreq(freqs);
   }
 
-  void setFreq(std::map<int, double>& frequencies)
+  void setFreq(std::map<int, double>& frequencies) override
   {
-    getTransitionModel().setFreq(frequencies);
+    transitionModel_().setFreq(frequencies);
   }
 
-  bool computeFrequencies() const
+  bool computeFrequencies() const override
   {
-    return getTransitionModel().computeFrequencies();
+    return transitionModel().computeFrequencies();
   }
 
   /**
    * @return Set if equilibrium frequencies should be computed from
    * the generator
    */
-  void computeFrequencies(bool yn)
+  void computeFrequencies(bool yn) override
   {
-    getTransitionModel().computeFrequencies(yn);
+    transitionModel_().computeFrequencies(yn);
   }
 
-  /*
+  /**
    * @}
-   *
    */
 
 protected:
-  Vdouble& getFrequencies_()
+  Vdouble& getFrequencies_() override
   {
-    return getTransitionModel().getFrequencies_();
+    return transitionModel_().getFrequencies_();
   }
 };
 
 
 class AbstractWrappedSubstitutionModel :
   public virtual AbstractWrappedTransitionModel,
-  public virtual WrappedSubstitutionModel
+  public virtual WrappedSubstitutionModelInterface
 {
 public:
-  AbstractWrappedSubstitutionModel() {}
+  AbstractWrappedSubstitutionModel(const std::string& prefix) :
+    AbstractWrappedTransitionModel(prefix)
+  {}
 
   virtual ~AbstractWrappedSubstitutionModel() {}
 
-  const TransitionModel& getTransitionModel() const
+  const TransitionModelInterface& transitionModel() const
   {
-    return getSubstitutionModel();
+    return substitutionModel();
   }
 
 protected:
-  TransitionModel& getTransitionModel()
+  TransitionModelInterface& transitionModel_()
   {
-    return getSubstitutionModel();
+    return substitutionModel_();
   }
+
+  virtual SubstitutionModelInterface& substitutionModel_() = 0;
 };
 
 class AbstractTotallyWrappedSubstitutionModel :
@@ -232,69 +251,77 @@ class AbstractTotallyWrappedSubstitutionModel :
   public virtual AbstractWrappedSubstitutionModel
 {
 public:
-  AbstractTotallyWrappedSubstitutionModel() {}
+  AbstractTotallyWrappedSubstitutionModel(const std::string& prefix):
+       AbstractTotallyWrappedTransitionModel(prefix),
+       AbstractWrappedSubstitutionModel(prefix)
+  {}
 
   virtual ~AbstractTotallyWrappedSubstitutionModel() {}
 
-  /*
-   *@ brief Methods to supersede SubstitutionModel methods.
+  /**
+   * @brief Methods to supersede SubstitutionModel methods.
    *
    * @{
    */
-  double Qij(size_t i, size_t j) const { return getSubstitutionModel().Qij(i, j); }
+  double Qij(size_t i, size_t j) const { return substitutionModel().Qij(i, j); }
 
-  const Matrix<double>& getGenerator() const { return getSubstitutionModel().getGenerator(); }
+  const Matrix<double>& getGenerator() const { return substitutionModel().getGenerator(); }
 
-  const Matrix<double>& getExchangeabilityMatrix() const { return getSubstitutionModel().getExchangeabilityMatrix(); }
+  const Matrix<double>& getExchangeabilityMatrix() const { return substitutionModel().getExchangeabilityMatrix(); }
 
-  double Sij(size_t i, size_t j) const { return getSubstitutionModel().Sij(i, j); }
+  double Sij(size_t i, size_t j) const { return substitutionModel().Sij(i, j); }
 
-  void enableEigenDecomposition(bool yn) { getSubstitutionModel().enableEigenDecomposition(yn); }
+  void enableEigenDecomposition(bool yn) { substitutionModel_().enableEigenDecomposition(yn); }
 
-  bool enableEigenDecomposition() { return getSubstitutionModel().enableEigenDecomposition(); }
+  bool enableEigenDecomposition() { return substitutionModel_().enableEigenDecomposition(); }
 
-  bool isDiagonalizable() const { return getSubstitutionModel().isDiagonalizable(); }
+  bool isDiagonalizable() const { return substitutionModel().isDiagonalizable(); }
 
-  bool isNonSingular() const { return getSubstitutionModel().isNonSingular(); }
+  bool isNonSingular() const { return substitutionModel().isNonSingular(); }
 
-  const Vdouble& getEigenValues() const { return getSubstitutionModel().getEigenValues(); }
+  const Vdouble& getEigenValues() const { return substitutionModel().getEigenValues(); }
 
-  const Vdouble& getIEigenValues() const { return getSubstitutionModel().getIEigenValues(); }
+  const Vdouble& getIEigenValues() const { return substitutionModel().getIEigenValues(); }
 
-  const Matrix<double>& getRowLeftEigenVectors() const { return getSubstitutionModel().getRowLeftEigenVectors(); }
+  const Matrix<double>& getRowLeftEigenVectors() const { return substitutionModel().getRowLeftEigenVectors(); }
 
-  const Matrix<double>& getColumnRightEigenVectors() const { return getSubstitutionModel().getColumnRightEigenVectors(); }
+  const Matrix<double>& getColumnRightEigenVectors() const { return substitutionModel().getColumnRightEigenVectors(); }
 
 
-  /*
+  /**
    * @}
-   *
    */
   bool isScalable() const
   {
-    return getSubstitutionModel().isScalable();
+    return substitutionModel().isScalable();
   }
 
   void setScalable(bool scalable)
   {
-    getSubstitutionModel().setScalable(scalable);
+    substitutionModel_().setScalable(scalable);
   }
 
   void normalize()
   {
-    getSubstitutionModel().normalize();
+    substitutionModel_().normalize();
   }
 
   void setDiagonal()
   {
-    getSubstitutionModel().setDiagonal();
+    substitutionModel_().setDiagonal();
   }
 
-  double getScale() const { return getSubstitutionModel().getScale(); }
+  double getScale() const
+  {
+    return substitutionModel().getScale();
+  }
 
-  void setScale(double scale) { getSubstitutionModel().setScale(scale); }
+  void setScale(double scale)
+  {
+    substitutionModel_().setScale(scale);
+  }
 
-  /*
+  /**
    * @}
    */
 };

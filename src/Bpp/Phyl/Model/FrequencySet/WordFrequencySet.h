@@ -54,48 +54,47 @@ namespace bpp
 
 
 /**
- * @brief Frequencies in words computed from the  frequencies on
+ * @brief Frequencies in words computed from the frequencies on
  * letters. The parameters are the parameters of the Frequencies on
  * letters.
  * The WordFrequencySet owns the std::shared_ptr<FrequencySet> it is built on.
  * Interface class.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
-
-class WordFrequencySet :
-  public virtual FrequencySet
+class WordFrequencySetInterface :
+  public virtual FrequencySetInterface
 {
 protected:
-  virtual size_t getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet> >& freqVector) = 0;
+  virtual size_t getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface> >& freqVector) = 0;
 
 public:
-  WordFrequencySet* clone() const = 0;
+  WordFrequencySetInterface* clone() const override = 0;
 
-  virtual const CoreWordAlphabet* getWordAlphabet() const = 0;
+  virtual std::shared_ptr<const CoreWordAlphabet> getWordAlphabet() const = 0;
 
   /**
-   *@ brief Returns the n-th FrequencySet&
+   * @brief Returns the n-th FrequencySet.
    */
-  virtual const std::shared_ptr<FrequencySet> getFrequencySetForLetter(size_t i) const = 0;
+  virtual const FrequencySetInterface& frequencySetForLetter(size_t i) const = 0;
 
   /**
-   *@ brief Returns the length of the words
+   * @brief Returns the length of the words
    */
   virtual size_t getLength() const = 0;
 };
 
 
 class AbstractWordFrequencySet :
-  public virtual WordFrequencySet,
+  public virtual WordFrequencySetInterface,
   public AbstractFrequencySet
 {
 protected:
-  size_t getSizeFromVector(const std::vector<std::shared_ptr<FrequencySet> >& freqVector);
+  size_t getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface> >& freqVector) override;
 
 public:
-  AbstractWordFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "", const std::string& name = "");
+  AbstractWordFrequencySet(std::shared_ptr<const StateMapInterface> stateMap, const std::string& prefix = "", const std::string& name = "");
 
-  AbstractWordFrequencySet* clone() const = 0;
+  AbstractWordFrequencySet* clone() const override = 0;
 
   AbstractWordFrequencySet(const AbstractWordFrequencySet& af) :
     AbstractFrequencySet(af) {}
@@ -106,9 +105,9 @@ public:
     return *this;
   }
 
-  const CoreWordAlphabet* getWordAlphabet() const
+  std::shared_ptr<const CoreWordAlphabet> getWordAlphabet() const override
   {
-    return dynamic_cast<const CoreWordAlphabet*>(AbstractFrequencySet::getAlphabet());
+    return std::dynamic_pointer_cast<const CoreWordAlphabet>(getAlphabet());
   }
 
   virtual ~AbstractWordFrequencySet();
@@ -116,20 +115,20 @@ public:
   /**
    *@ brief Return the length of the words
    */
-  size_t getLength() const;
+  size_t getLength() const override;
 };
 
 
 /**
  * @brief the Frequencies in words are the product of Independent Frequencies in letters
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
 class WordFromIndependentFrequencySet :
   public AbstractWordFrequencySet
 {
 protected:
-  std::vector<std::shared_ptr<FrequencySet> > vFreq_;
+  std::vector<std::unique_ptr<FrequencySetInterface>> vFreq_;
   std::vector<std::string> vNestedPrefix_;
 
 public:
@@ -137,43 +136,56 @@ public:
    * @brief Constructor from a WordAlphabet* and a vector of different std::shared_ptr<FrequencySet>.
    * Throws an Exception if their lengths do not match.
    */
-  WordFromIndependentFrequencySet(const WordAlphabet* pWA, const std::vector<std::shared_ptr<FrequencySet> >& freqVector, const std::string& prefix = "", const std::string& name = "WordFromIndependent");
+  WordFromIndependentFrequencySet(
+      std::shared_ptr<const WordAlphabet> pWA,
+      std::vector<std::unique_ptr<FrequencySetInterface>>& freqVector,
+      const std::string& prefix = "",
+      const std::string& name = "WordFromIndependent");
 
-  WordFromIndependentFrequencySet(const CodonAlphabet* pWA, const std::vector<std::shared_ptr<FrequencySet> >& freqVector, const std::string& prefix = "", const std::string& name = "WordFromIndependent");
+  WordFromIndependentFrequencySet(
+      std::shared_ptr<const CodonAlphabet> pWA,
+      std::vector<std::unique_ptr<FrequencySetInterface>>& freqVector,
+      const std::string& prefix = "",
+      const std::string& name = "WordFromIndependent");
 
   WordFromIndependentFrequencySet(const WordFromIndependentFrequencySet& iwfs);
 
-  ~WordFromIndependentFrequencySet();
+  virtual ~WordFromIndependentFrequencySet();
 
   WordFromIndependentFrequencySet& operator=(const WordFromIndependentFrequencySet& iwfs);
 
-  WordFromIndependentFrequencySet* clone() const { return new WordFromIndependentFrequencySet(*this); }
+  WordFromIndependentFrequencySet* clone() const override
+  {
+    return new WordFromIndependentFrequencySet(*this);
+  }
 
 public:
-  void fireParameterChanged(const ParameterList& pl);
+  void fireParameterChanged(const ParameterList& pl) override;
 
   virtual void updateFrequencies();
 
   /**
-   *@ brief Independent letter frequencies from given word frequencies.
+   * @brief Independent letter frequencies from given word frequencies.
    * The frequencies of a letter at a position is the sum of the
    *    frequencies of the words that have this letter at this
    *    position.
    */
-  virtual void setFrequencies(const std::vector<double>& frequencies);
+  virtual void setFrequencies(const std::vector<double>& frequencies) override;
 
   /**
-   *@ brief Return the n-th FrequencySet&
-   **/
-  const std::shared_ptr<FrequencySet> getFrequencySetForLetter(size_t i) const { return vFreq_[i]; }
+   * @brief Return the n-th FrequencySet&
+   */
+  const FrequencySetInterface& frequencySetForLetter(size_t i) const override
+  { 
+    return *vFreq_[i]; 
+  }
 
   /**
-   *@ brief Return the length of the words
-   **/
+   * @brief Return the length of the words
+   */
+  virtual size_t getLength() const override;
 
-  virtual size_t getLength() const;
-
-  void setNamespace(const std::string& prefix);
+  void setNamespace(const std::string& prefix) override;
 
   std::string getDescription() const;
 };
@@ -181,8 +193,9 @@ public:
 class WordFromUniqueFrequencySet :
   public AbstractWordFrequencySet
 {
+
 protected:
-  std::shared_ptr<FrequencySet> pFreq_;
+  std::unique_ptr<FrequencySetInterface> pFreq_;
   std::string NestedPrefix_;
   size_t length_;
 
@@ -191,40 +204,54 @@ public:
    * @brief Constructor from a WordAlphabet* and a std::shared_ptr<FrequencySet>
    *  repeated as many times as the length of the words.
    */
-  WordFromUniqueFrequencySet(const WordAlphabet* pWA, std::shared_ptr<FrequencySet> pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
+  WordFromUniqueFrequencySet(
+      std::shared_ptr<const WordAlphabet> pWA,
+      std::unique_ptr<FrequencySetInterface> pabsfreq,
+      const std::string& prefix = "",
+      const std::string& name = "WordFromUnique");
 
-  WordFromUniqueFrequencySet(const CodonAlphabet* pWA, std::shared_ptr<FrequencySet> pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
+  WordFromUniqueFrequencySet(
+      std::shared_ptr<const CodonAlphabet> pWA,
+      std::unique_ptr<FrequencySetInterface> pabsfreq,
+      const std::string& prefix = "",
+      const std::string& name = "WordFromUnique");
 
   WordFromUniqueFrequencySet(const WordFromUniqueFrequencySet& iwfs);
 
   WordFromUniqueFrequencySet& operator=(const WordFromUniqueFrequencySet& iwfs);
 
-  ~WordFromUniqueFrequencySet();
+  virtual ~WordFromUniqueFrequencySet();
 
-  WordFromUniqueFrequencySet* clone() const { return new WordFromUniqueFrequencySet(*this); }
+  WordFromUniqueFrequencySet* clone() const override
+  {
+    return new WordFromUniqueFrequencySet(*this);
+  }
 
 public:
-  virtual void fireParameterChanged(const ParameterList& pl);
+  virtual void fireParameterChanged(const ParameterList& pl) override;
 
   /**
-   *@ brief letter frequencies from given word frequencies. The
+   * @brief letter frequencies from given word frequencies. The
    * frequencies of a letter at a position is the sum of the
    * frequencies of the words that have this letter at this position.
    * The frequencies of each letter is the average of the frequencies
    * of that letter at all positions.
    */
-  virtual void setFrequencies(const std::vector<double>& frequencies);
+  virtual void setFrequencies(const std::vector<double>& frequencies) override;
 
   virtual void updateFrequencies();
 
   /**
-   *@ brief Return the n-th FrequencySet&
-   **/
-  const std::shared_ptr<FrequencySet> getFrequencySetForLetter(size_t i) const { return pFreq_; }
+   * @brief Return the n-th FrequencySet&
+   */
+  const FrequencySetInterface& frequencySetForLetter(size_t i) const override
+  { 
+    return *pFreq_;
+  }
 
-  size_t getLength() const { return length_; }
+  size_t getLength() const override { return length_; }
 
-  void setNamespace(const std::string& prefix);
+  void setNamespace(const std::string& prefix) override;
 
   std::string getDescription() const;
 };

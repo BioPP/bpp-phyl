@@ -305,9 +305,9 @@ public:
 
   virtual const MatType& float_part () const { return mat_; }
 
-  virtual ExtType& exponent_part ()  { return exp_; }
+  virtual ExtType& exponent_part () { return exp_; }
 
-  virtual MatType& float_part ()  { return mat_; }
+  virtual MatType& float_part () { return mat_; }
 
   // Normalization methods
 

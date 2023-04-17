@@ -55,33 +55,31 @@ namespace bpp
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * If we denote @f$F@f$ the equilibrium frequency, the generator term
  * defined from inherited and inheriting classes, @f$Q_{ij})@f$, is
  * multiplied by @f$F_{j}@f$.
- *
  */
-
 class AbstractCodonFrequenciesSubstitutionModel :
-  virtual public CoreCodonSubstitutionModel,
-  virtual public AbstractParameterAliasable
+  public virtual CoreCodonSubstitutionModelInterface,
+  public virtual AbstractParameterAliasable
 {
 private:
-  std::shared_ptr<FrequencySet> pfreqset_;
+  std::unique_ptr<CodonFrequencySetInterface> pfreqset_;
   std::string freqName_;
 
 public:
   /**
-   *@brief Build a AbstractCodonFrequenciesSubstitutionModel instance
+   * @brief Build a AbstractCodonFrequenciesSubstitutionModel instance
    *
-   *@param pfreq pointer to the AbstractFrequencySet equilibrium frequencies.
+   * @param pfreq pointer to the AbstractFrequencySet equilibrium frequencies.
    *        It is owned by the instance.
-   *@param prefix the Namespace
+   * @param prefix the Namespace
    */
-
-  AbstractCodonFrequenciesSubstitutionModel(std::shared_ptr<FrequencySet> pfreq,
-                                            const std::string& prefix);
+  AbstractCodonFrequenciesSubstitutionModel(
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      const std::string& prefix);
 
   AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -92,34 +90,40 @@ public:
   AbstractCodonFrequenciesSubstitutionModel& operator=(const AbstractCodonFrequenciesSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    pfreqset_   = std::shared_ptr<FrequencySet>(dynamic_cast<FrequencySet*>(model.pfreqset_->clone()));
+    pfreqset_   = std::unique_ptr<CodonFrequencySetInterface>(model.pfreqset_->clone());
     freqName_   = model.freqName_;
     return *this;
   }
 
-  AbstractCodonFrequenciesSubstitutionModel* clone() const
+  AbstractCodonFrequenciesSubstitutionModel* clone() const override
   {
     return new AbstractCodonFrequenciesSubstitutionModel(*this);
   }
 
   virtual ~AbstractCodonFrequenciesSubstitutionModel();
 
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     pfreqset_->setNamespace(prefix + freqName_);
   }
 
-  double getCodonsMulRate(size_t, size_t) const;
+  double getCodonsMulRate(size_t, size_t) const override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return pfreqset_;
+    return *pfreqset_;
   }
+
+  bool hasCodonFrequencySet() const override
+  {
+    return (pfreqset_ != nullptr);
+  }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H

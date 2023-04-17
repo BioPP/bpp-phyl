@@ -46,10 +46,10 @@ using namespace bpp;
 using namespace std;
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
-  shared_ptr<BranchModel> model,
+  shared_ptr<BranchModelInterface> model,
   shared_ptr<DiscreteDistribution> rdist,
   std::shared_ptr<const PhyloTree> tree,
-  std::shared_ptr<FrequencySet> rootFrequencies) :
+  std::shared_ptr<FrequencySetInterface> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model),
@@ -67,10 +67,10 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
 }
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
-  shared_ptr<BranchModel> model,
+  shared_ptr<BranchModelInterface> model,
   shared_ptr<DiscreteDistribution> rdist,
   std::shared_ptr<ParametrizablePhyloTree> tree,
-  std::shared_ptr<FrequencySet> rootFrequencies) :
+  std::shared_ptr<FrequencySetInterface> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model),
@@ -94,7 +94,7 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const Rat
   rDist_(rassp.rDist_->clone())
 {
   if (modelScenario_)
-    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_), std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModelInterface>(rassp.model_), std::dynamic_pointer_cast<MixedTransitionModelInterface>(model_));
 }
 
 
@@ -106,7 +106,7 @@ RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator
   rDist_.reset(rassp.rDist_->clone());
 
   if (modelScenario_)
-    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_), std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModelInterface>(rassp.model_), std::dynamic_pointer_cast<MixedTransitionModelInterface>(model_));
 
   return *this;
 }

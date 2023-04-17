@@ -47,7 +47,7 @@
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Seq/Container/AlignmentData.h>
 
 namespace bpp
 {
@@ -104,8 +104,8 @@ public:
   TreeLikelihoodData* clone() const = 0;
 
 public:
-  virtual const Alphabet* getAlphabet() const = 0;
-  virtual const TreeTemplate<Node>* getTree() const = 0;
+  virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
+  virtual std::shared_ptr< const TreeTemplate<Node> > getTree() const = 0;
   virtual size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const = 0;
   virtual size_t getRootArrayPosition(size_t site) const = 0;
   virtual TreeLikelihoodNodeData& getNodeData(int nodeId) = 0;

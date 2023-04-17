@@ -63,13 +63,13 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
   // Duplicate all model objects:
   for (size_t i = 0; i < set.modelSet_.size(); i++)
   {
-    modelSet_[i] = std::shared_ptr<BranchModel>(set.modelSet_[i]->clone());
+    modelSet_[i] = shared_ptr<BranchModelInterface>(set.modelSet_[i]->clone());
   }
 
   if (modelScenario_)
     for (size_t i = 0; i < modelSet_.size(); i++)
     {
-      modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(set.modelSet_[i]), std::dynamic_pointer_cast<MixedTransitionModel>(modelSet_[i]));
+      modelScenario_->changeModel(dynamic_pointer_cast<MixedTransitionModelInterface>(set.modelSet_[i]), dynamic_pointer_cast<MixedTransitionModelInterface>(modelSet_[i]));
     }
 }
 
@@ -91,13 +91,13 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
 
   for (size_t i = 0; i < set.modelSet_.size(); i++)
   {
-    modelSet_[i] = std::shared_ptr<BranchModel>(set.modelSet_[i]->clone());
+    modelSet_[i] = shared_ptr<BranchModelInterface>(set.modelSet_[i]->clone());
   }
 
   if (modelScenario_)
     for (size_t i = 0; i < modelSet_.size(); i++)
     {
-      modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(set.modelSet_[i]), std::dynamic_pointer_cast<MixedTransitionModel>(modelSet_[i]));
+      modelScenario_->changeModel(dynamic_pointer_cast<MixedTransitionModelInterface>(set.modelSet_[i]), dynamic_pointer_cast<MixedTransitionModelInterface>(modelSet_[i]));
     }
 
   return *this;
@@ -124,7 +124,7 @@ void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsign
 }
 
 
-void NonHomogeneousSubstitutionProcess::addModel(std::shared_ptr<BranchModel> model, const std::vector<unsigned int>& nodesId)
+void NonHomogeneousSubstitutionProcess::addModel(shared_ptr<BranchModelInterface> model, const vector<unsigned int>& nodesId)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
@@ -155,7 +155,7 @@ void NonHomogeneousSubstitutionProcess::addModel(std::shared_ptr<BranchModel> mo
   }
 }
 
-void NonHomogeneousSubstitutionProcess::setModel(std::shared_ptr<BranchModel> model, size_t modelIndex)
+void NonHomogeneousSubstitutionProcess::setModel(shared_ptr<BranchModelInterface> model, size_t modelIndex)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
@@ -186,7 +186,7 @@ void NonHomogeneousSubstitutionProcess::setModel(std::shared_ptr<BranchModel> mo
   }
 }
 
-void NonHomogeneousSubstitutionProcess::listModelNames(std::ostream& out) const
+void NonHomogeneousSubstitutionProcess::listModelNames(ostream& out) const
 {
   for (size_t i = 0; i < modelSet_.size(); i++)
   {
@@ -276,7 +276,7 @@ bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
   unsigned int id;
   unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
 
-  std::map<size_t, std::vector<unsigned int> >::const_iterator it;
+  map<size_t, vector<unsigned int> >::const_iterator it;
 
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
@@ -298,14 +298,14 @@ bool NonHomogeneousSubstitutionProcess::hasMixedTransitionModel() const
 {
   for (size_t i = 1; i <= getNumberOfModels(); i++)
   {
-    if (dynamic_pointer_cast<const MixedTransitionModel>(getModel(i)) != NULL)
+    if (dynamic_pointer_cast<const MixedTransitionModelInterface>(getModel(i)) != nullptr)
       return true;
   }
   return false;
 }
 
 
-void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelscenario)
+void NonHomogeneousSubstitutionProcess::setModelScenario(shared_ptr<ModelScenario> modelscenario)
 {
   auto vmod = modelscenario->getModels();
 
@@ -319,29 +319,29 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelSc
 }
 
 
-AbstractAutonomousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
-  std::shared_ptr<BranchModel> model,
-  std::shared_ptr<DiscreteDistribution> rdist,
-  std::shared_ptr<PhyloTree> tree,
-  std::shared_ptr<FrequencySet> rootFreqs,
+unique_ptr<AutonomousSubstitutionProcessInterface> NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
+  shared_ptr<BranchModelInterface> model,
+  shared_ptr<DiscreteDistribution> rdist,
+  shared_ptr<PhyloTree> tree,
+  shared_ptr<FrequencySetInterface> rootFreqs,
   shared_ptr<ModelScenario> scenario)
 {
   if (!tree)
     throw Exception("NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess: missing tree.");
   
   // Check alphabet:
-  if  (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
-    throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
+  if  (rootFreqs && model->alphabet().getAlphabetType() != rootFreqs->alphabet().getAlphabetType())
+    throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet().get(), rootFreqs->getAlphabet().get());
 
-  AbstractAutonomousSubstitutionProcess* modelSet;
+  unique_ptr<AutonomousSubstitutionProcessInterface> modelSet;
 
   if (!rdist)
-    modelSet = new SimpleSubstitutionProcess(model, tree);
+    modelSet.reset(new SimpleSubstitutionProcess(model, tree));
   else
-    modelSet = new RateAcrossSitesSubstitutionProcess(model, rdist, tree);
+    modelSet.reset(new RateAcrossSitesSubstitutionProcess(model, rdist, tree));
 
   if (rootFreqs)
-    modelSet->setRootFrequencySet(std::shared_ptr<FrequencySet>(rootFreqs->clone()));
+    modelSet->setRootFrequencySet(rootFreqs);
 
   if (scenario)
     modelSet->setModelScenario(scenario);
@@ -349,11 +349,11 @@ AbstractAutonomousSubstitutionProcess* NonHomogeneousSubstitutionProcess::create
   return modelSet;
 }
 
-NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-  std::shared_ptr<BranchModel> model,
-  std::shared_ptr<DiscreteDistribution> rdist,
-  std::shared_ptr<PhyloTree> tree,
-  std::shared_ptr<FrequencySet> rootFreqs,
+unique_ptr<NonHomogeneousSubstitutionProcess> NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
+  shared_ptr<BranchModelInterface> model,
+  shared_ptr<DiscreteDistribution> rdist,
+  shared_ptr<PhyloTree> tree,
+  shared_ptr<FrequencySetInterface> rootFreqs,
   const vector<string>& globalParameterNames,
   shared_ptr<ModelScenario> scenario)
 {
@@ -361,9 +361,9 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
     throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess: missing tree.");
 
   // Check alphabet:
-  if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
-    throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  if (dynamic_pointer_cast<MixedTransitionModel>(model) != NULL)
+  if (rootFreqs && model->alphabet().getAlphabetType() != rootFreqs->alphabet().getAlphabetType())
+    throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet()", model->getAlphabet().get(), rootFreqs->getAlphabet().get());
+  if (dynamic_pointer_cast<MixedTransitionModelInterface>(model) != nullptr)
     throw Exception("createNonHomogeneousSubstitutionProcess not yet programmed for mixture models.");
 
   ParameterList globalParameters, branchParameters;
@@ -422,13 +422,13 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
     }
   }
 
-  NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
+  auto modelSet = make_unique<NonHomogeneousSubstitutionProcess>(rdist, tree, rootFreqs);
 
   // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<unsigned int> ids = tree->getAllNodesIndexes();
   unsigned int rootId = tree->getRootIndex();
   size_t pos = 0;
-  for (i = 0; i < ids.size(); i++)
+  for (i = 0; i < ids.size(); ++i)
   {
     if (ids[i] == rootId)
     {
@@ -438,11 +438,11 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   }
 
   ids.erase(ids.begin() + (long)pos);
-  std::sort(ids.begin(), ids.end());
+  sort(ids.begin(), ids.end());
 
   for (i = 0; i < ids.size(); i++)
   {
-    modelSet->addModel(shared_ptr<BranchModel>(model->clone()), vector<unsigned int>(1, ids[i]));
+    modelSet->addModel(shared_ptr<BranchModelInterface>(model->clone()), vector<unsigned int>(1, ids[i]));
   }
 
   // Now alias all global parameters on all nodes:

@@ -76,13 +76,13 @@ WordSubstitutionModel::WordSubstitutionModel(
                                    // specific transition probabilities
 
   computeFrequencies(false); // it is done in AbstractWordSubstitutionModel
-  WordSubstitutionModel::updateMatrices();
+  WordSubstitutionModel::updateMatrices_();
 }
 
 WordSubstitutionModel::WordSubstitutionModel(
-  const Alphabet* alph,
-  std::shared_ptr<const StateMap> stateMap,
-  const std::string& prefix) :
+  shared_ptr<const Alphabet> alph,
+  shared_ptr<const StateMapInterface> stateMap,
+  const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Word." : prefix)
 {
@@ -92,7 +92,7 @@ WordSubstitutionModel::WordSubstitutionModel(
 }
 
 WordSubstitutionModel::WordSubstitutionModel(
-  SubstitutionModel* pmodel,
+  unique_ptr<SubstitutionModelInterface> pmodel,
   unsigned int num,
   const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
@@ -111,10 +111,10 @@ WordSubstitutionModel::WordSubstitutionModel(
   enableEigenDecomposition(false); // the product of the position
                                    // specific transition probabilities
   computeFrequencies(false); // it is done in AbstractWordSubstitutionModel
-  WordSubstitutionModel::updateMatrices();
+  WordSubstitutionModel::updateMatrices_();
 }
 
-void WordSubstitutionModel::updateMatrices()
+void WordSubstitutionModel::updateMatrices_()
 {
   size_t i, nbmod = VSubMod_.size();
   double x, y;
@@ -128,10 +128,10 @@ void WordSubstitutionModel::updateMatrices()
   }
   Vrate_[nbmod - 1] = x;
 
-  AbstractWordSubstitutionModel::updateMatrices();
+  AbstractWordSubstitutionModel::updateMatrices_();
 }
 
-void WordSubstitutionModel::completeMatrices()
+void WordSubstitutionModel::completeMatrices_()
 {
   size_t nbmod = VSubMod_.size();
   size_t i, p, j, m;

@@ -1,7 +1,7 @@
 //
 // File: AlignedPhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 17 septembre 2015, ÃÂ  13h 31
 //
 
@@ -64,15 +64,14 @@ namespace bpp
  * does not match for HMM phylolikelihoods).
  *
  */
-
-class AlignedPhyloLikelihood :
-  virtual public PhyloLikelihood
+class AlignedPhyloLikelihoodInterface :
+  public virtual PhyloLikelihoodInterface
 {
 public:
-  AlignedPhyloLikelihood() {}
-  virtual ~AlignedPhyloLikelihood() {}
+  AlignedPhyloLikelihoodInterface() {}
+  virtual ~AlignedPhyloLikelihoodInterface() {}
 
-  virtual AlignedPhyloLikelihood* clone() const = 0;
+  virtual AlignedPhyloLikelihoodInterface* clone() const = 0;
 
 public:
   /**
@@ -87,7 +86,6 @@ public:
    *
    * @return the number of sites in the dataset.
    */
-
   virtual size_t getNumberOfSites() const = 0;
 
   /**
@@ -100,11 +98,14 @@ public:
    * @{
    */
 
-  /*
-   *@ Return the LikelihoodCalculation.
-   *
+  /**
+   * @return The LikelihoodCalculation.
    */
+  virtual AlignedLikelihoodCalculation& alignedLikelihoodCalculation() const = 0;
 
+  /**
+   * @return A shared pointer toward the LikelihoodCalculation.
+   */
   virtual std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const = 0;
 
   /**
@@ -140,7 +141,7 @@ public:
 
 
 class AbstractAlignedPhyloLikelihood :
-  public virtual AlignedPhyloLikelihood,
+  public virtual AlignedPhyloLikelihoodInterface,
   public virtual AbstractPhyloLikelihood
 {
 protected:
@@ -152,14 +153,22 @@ public:
     nbSites_(nbSites)
   {}
 
-  AbstractAlignedPhyloLikelihood(const AbstractAlignedPhyloLikelihood& asd) :
-    AbstractPhyloLikelihood(asd),
-    nbSites_(asd.nbSites_)
+protected:
+  AbstractAlignedPhyloLikelihood(const AbstractAlignedPhyloLikelihood& aasd) :
+    AbstractPhyloLikelihood(aasd),
+    nbSites_(aasd.nbSites_)
   {}
 
-  virtual ~AbstractAlignedPhyloLikelihood() {}
+  AbstractAlignedPhyloLikelihood& operator=(const AbstractAlignedPhyloLikelihood& aasd)
+  {
+    AbstractPhyloLikelihood::operator=(aasd);
+    nbSites_ = aasd.nbSites_;
+    return *this;
+  }
 
-  AbstractAlignedPhyloLikelihood* clone() const = 0;
+public:
+  
+  virtual ~AbstractAlignedPhyloLikelihood() {}
 
   size_t getNumberOfSites() const { return nbSites_; }
 
@@ -171,7 +180,7 @@ public:
    */
   DataLik getLikelihoodForASite(size_t site) const
   {
-    return getAlignedLikelihoodCalculation()->getLikelihoodForASite(site);
+    return alignedLikelihoodCalculation().getLikelihoodForASite(site);
   }
 
   /**

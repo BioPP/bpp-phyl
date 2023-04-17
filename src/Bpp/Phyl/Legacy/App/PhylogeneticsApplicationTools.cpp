@@ -100,9 +100,9 @@ using namespace std;
 /******************************************************************************/
 
 
-map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
+map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
   const map<string, string>& params,
-  const map<size_t, AlignedValuesContainer*>& mSeq,
+  const map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
   map<string, string>& unparsedParams,
   const string& prefix,
   const string& suffix,
@@ -112,7 +112,7 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 {
   vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
-  map<size_t, Tree*> mTree;
+  map<size_t, shared_ptr<Tree>> mTree;
 
   for (size_t nT = 0; nT < vTreesName.size(); nT++)
   {
@@ -159,19 +159,18 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 
       string treeFilePath = ApplicationTools::getAFilePath("file", args, true, true, suffix, suffixIsOptional, "none", warn);
 
-      IMultiTree* treeReader;
+      unique_ptr<IMultiTree> treeReader;
       if (format == "Newick")
-        treeReader = new Newick(true);
+        treeReader.reset(new Newick(true));
       else if (format == "Nexus")
-        treeReader = new NexusIOTree();
+        treeReader.reset(new NexusIOTree());
       else if (format == "NHX")
-        treeReader = new Nhx();
+        treeReader.reset(new Nhx());
       else
         throw Exception("Unknow format for tree reading: " + format);
 
-      vector<Tree*> trees;
+      vector<unique_ptr<Tree>> trees;
       treeReader->readTrees(treeFilePath, trees);
-      delete treeReader;
 
       if (verbose)
       {
@@ -193,10 +192,9 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
           if (mTree.find(i2 + 1) != mTree.end())
           {
             ApplicationTools::displayWarning("Tree " + TextTools::toString(i2 + 1) + " already assigned, replaced by new one.");
-            delete mTree[i2 + 1];
           }
 
-          mTree[i2 + 1] = trees[i2];
+          mTree[i2 + 1] = move(trees[i2]);
           ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
         }
       }
@@ -210,9 +208,8 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
           if (mTree.find(num) != mTree.end())
           {
             ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
-            delete mTree[num];
           }
-          mTree[num] = trees[0];
+          mTree[num] = move(trees[0]);
           ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
         }
       }
@@ -234,15 +231,14 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
         throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
 
       vector<string> names = mSeq.find(seqNum)->second->getSequenceNames();
-      Tree* tree = TreeTemplateTools::getRandomTree(names);
+      auto tree = TreeTemplateTools::getRandomTree(names);
       tree->setBranchLengths(1.);
 
       if (mTree.find(num) != mTree.end())
       {
         ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
-        delete mTree[num];
       }
-      mTree[num] = tree;
+      mTree[num] = move(tree);
       ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
 
@@ -306,10 +302,10 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
       {
         for (size_t i = 0; i < nbTree; i++)
         {
-          Tree* tree = mTree[i + 1];
+          auto& tree = *mTree[i + 1];
           if (grafenHeight == "input")
           {
-            h = TreeTools::getHeight(*tree, tree->getRootId());
+            h = TreeTools::getHeight(tree, tree.getRootId());
           }
           else
           {
@@ -321,17 +317,17 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 
           double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
           ApplicationTools::displayResult("Grafen's rho", rho);
-          TreeTools::computeBranchLengthsGrafen(*tree, rho);
-          double nh = TreeTools::getHeight(*tree, tree->getRootId());
-          tree->scaleTree(h / nh);
+          TreeTools::computeBranchLengthsGrafen(tree, rho);
+          double nh = TreeTools::getHeight(tree, tree.getRootId());
+          tree.scaleTree(h / nh);
         }
       }
       else
       {
-        Tree* tree = mTree[num];
+        auto& tree = *mTree[num];
         if (grafenHeight == "input")
         {
-          h = TreeTools::getHeight(*tree, tree->getRootId());
+          h = TreeTools::getHeight(tree, tree.getRootId());
         }
         else
         {
@@ -343,9 +339,9 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 
         double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
         ApplicationTools::displayResult("Grafen's rho", rho);
-        TreeTools::computeBranchLengthsGrafen(*tree, rho);
-        double nh = TreeTools::getHeight(*tree, tree->getRootId());
-        tree->scaleTree(h / nh);
+        TreeTools::computeBranchLengthsGrafen(tree, rho);
+        double nh = TreeTools::getHeight(tree, tree.getRootId());
+        tree.scaleTree(h / nh);
       }
     }
     else
@@ -384,10 +380,10 @@ map<size_t, Tree*> PhylogeneticsApplicationToolsOld::getTrees(
 /******************************************************************************/
 
 void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValuesWithAliases(
-  BranchModel& model,
+  BranchModelInterface& model,
   map<string, string>& unparsedParameterValues,
   size_t modelNumber,
-  const AlignedValuesContainer* data,
+  std::shared_ptr<const AlignmentDataInterface> data,
   map<string, string>& sharedParams,
   bool verbose)
 {
@@ -398,17 +394,14 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValu
 
   if (initFreqs != "")
   {
-    auto tmodel = dynamic_cast<TransitionModel*>(&model);
-    if (!tmodel)
-      ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
-    else
-    {
+    try {
+      auto& tmodel = dynamic_cast<TransitionModelInterface&>(model);
       if (initFreqs == "observed")
       {
         if (!data)
           throw Exception("Missing data for observed frequencies");
         unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-        tmodel->setFreqFromData(*data, psi);
+        tmodel.setFreqFromData(*data, psi);
       }
       else if (initFreqs.substr(0, 6) == "values")
       {
@@ -420,10 +413,12 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValu
         int i = 0;
         while (strtok.hasMoreToken())
           frequencies[i++] = TextTools::toDouble(strtok.nextToken());
-        tmodel->setFreq(frequencies);
+        tmodel.setFreq(frequencies);
       }
       else
         throw Exception("Unknown initFreqs argument");
+    } catch(exception&e) {
+      ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
     }
   }
 
@@ -431,7 +426,7 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValu
   for (size_t i = 0; i < pl.size(); ++i)
   {
     AutoParameter ap(pl[i]);
-    ap.setMessageHandler(ApplicationTools::warning.get());
+    ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
   for (size_t i = 0; i < pl.size(); ++i)
@@ -468,10 +463,10 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValu
 
 /******************************************************************************/
 
-SubstitutionModelSet* PhylogeneticsApplicationToolsOld::getSubstitutionModelSet(
-  const Alphabet* alphabet,
-  const GeneticCode* gCode,
-  const AlignedValuesContainer* data,
+unique_ptr<SubstitutionModelSet> PhylogeneticsApplicationToolsOld::getSubstitutionModelSet(
+  shared_ptr<const Alphabet> alphabet,
+  shared_ptr<const GeneticCode> gCode,
+  shared_ptr<const AlignmentDataInterface> data,
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -495,17 +490,17 @@ SubstitutionModelSet* PhylogeneticsApplicationToolsOld::getSubstitutionModelSet(
       nomix = false;
   }
 
-  SubstitutionModelSet* modelSet, * modelSet1 = 0;
-  modelSet1 = new SubstitutionModelSet(alphabet);
+  unique_ptr<SubstitutionModelSet> modelSet = nullptr;
+  auto modelSet1 = make_unique<SubstitutionModelSet>(alphabet);
   setSubstitutionModelSet(*modelSet1, alphabet, gCode, data, params, suffix, suffixIsOptional, verbose, warn);
 
   if (modelSet1->hasMixedTransitionModel())
   {
-    modelSet = new MixedSubstitutionModelSet(*modelSet1);
-    completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
+    modelSet = make_unique<MixedSubstitutionModelSet>(*modelSet1);
+    completeMixedSubstitutionModelSet(dynamic_cast<MixedSubstitutionModelSet&>(*modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
   }
   else
-    modelSet = modelSet1;
+    modelSet = move(modelSet1);
 
   return modelSet;
 }
@@ -514,9 +509,9 @@ SubstitutionModelSet* PhylogeneticsApplicationToolsOld::getSubstitutionModelSet(
 
 void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
   SubstitutionModelSet& modelSet,
-  const Alphabet* alphabet,
-  const GeneticCode* gCode,
-  const AlignedValuesContainer* data,
+  shared_ptr<const Alphabet> alphabet,
+  shared_ptr<const GeneticCode> gCode,
+  shared_ptr<const AlignmentDataInterface> data,
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -540,19 +535,19 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
 
   vector<double> rateFreqs;
   string tmpDesc;
-  if (AlphabetTools::isCodonAlphabet(alphabet))
+  if (AlphabetTools::isCodonAlphabet(alphabet.get()))
   {
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instanciating a codon model.");
     bIO.setGeneticCode(gCode);
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
   }
-  else if (AlphabetTools::isWordAlphabet(alphabet))
+  else if (AlphabetTools::isWordAlphabet(alphabet.get()))
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  unique_ptr<TransitionModel> tmp(bIO.readTransitionModel(alphabet, tmpDesc, data, false));
+  shared_ptr<TransitionModelInterface> tmp = bIO.readTransitionModel(alphabet, tmpDesc, data, false);
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
@@ -569,7 +564,7 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
   map<string, string> unparsedParameters;
 
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", true, warn);
-  std::shared_ptr<FrequencySet> rootFrequencies(0);
+  std::shared_ptr<FrequencySetInterface> rootFrequencies(0);
   if (!stationarity)
   {
     rootFrequencies = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
@@ -577,8 +572,9 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
     if (freqDescription.substr(0, 10) == "MVAprotein")
     {
-      if (dynamic_cast<Coala*>(tmp.get()))
-        dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+      auto tmp2 = dynamic_pointer_cast<Coala>(tmp);
+      if (tmp2)
+        dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(*tmp2);
       else
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
@@ -595,18 +591,18 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
 
   bIO.setVerbose(true);
 
-  for (size_t i = 0; i < nbModels; i++)
+  for (size_t i = 0; i < nbModels; ++i)
   {
     string prefix = "model" + TextTools::toString(i + 1);
     string modelDesc;
-    if (AlphabetTools::isCodonAlphabet(alphabet))
+    if (AlphabetTools::isCodonAlphabet(alphabet.get()))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
-    else if (AlphabetTools::isWordAlphabet(alphabet))
+    else if (AlphabetTools::isWordAlphabet(alphabet.get()))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    unique_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDesc, data, false));
+    auto model = bIO.readTransitionModel(alphabet, modelDesc, data, false);
 
     map<string, string> unparsedModelParameters = bIO.getUnparsedArguments();
     map<string, string> sharedParameters;
@@ -625,7 +621,7 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
-    modelSet.addModel(model.release(), nodesId);
+    modelSet.addModel(move(model), nodesId);
   }
 
   // Finally check parameter aliasing:
@@ -650,8 +646,8 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
 
 void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
   MixedSubstitutionModelSet& mixedModelSet,
-  const Alphabet* alphabet,
-  const AlignedValuesContainer* data,
+  shared_ptr<const Alphabet> alphabet,
+  shared_ptr<const AlignmentDataInterface> data,
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -702,7 +698,7 @@ void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
       int num = TextTools::toInt(submodel.substr(5, indexo - 5));
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
-      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getModel(static_cast<size_t>(num - 1)));
+      auto pSM = dynamic_pointer_cast<const MixedTransitionModelInterface>(mixedModelSet.getModel(static_cast<size_t>(num - 1)));
       if (pSM == NULL)
         throw BadIntegerException("PhylogeneticsApplicationToolsOld::setMixedSubstitutionModelSet: Wrong model for number", num - 1);
       Vuint submodnb = pSM->getSubmodelNumbers(p2);
@@ -742,8 +738,8 @@ void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
 
 /******************************************************************************/
 
-TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
-  TreeLikelihood* tl,
+shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizeParameters(
+  shared_ptr<TreeLikelihoodInterface> tl,
   const ParameterList& parameters,
   const map<string, string>& params,
   const string& suffix,
@@ -761,18 +757,18 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
   unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional, warn);
 
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional);
-  OutputStream* messageHandler =
-    (mhPath == "none") ? 0 :
-    (mhPath == "std") ? ApplicationTools::message.get() :
-    new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
+  shared_ptr<OutputStream> messageHandler =
+    (mhPath == "none") ? nullptr :
+    (mhPath == "std") ? ApplicationTools::message :
+    make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
-  OutputStream* profiler =
-    (prPath == "none") ? 0 :
-    (prPath == "std") ? ApplicationTools::message.get() :
-    new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
+  shared_ptr<OutputStream> profiler =
+    (prPath == "none") ? nullptr :
+    (prPath == "std") ? ApplicationTools::message :
+    make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
@@ -822,7 +818,7 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
       }
       else if (param == "Ancient")
       {
-        NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
+        auto nhtl = dynamic_pointer_cast<NonHomogeneousTreeLikelihood>(tl);
         if (!nhtl)
           ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
         else
@@ -837,8 +833,8 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
       {
         vector<string> vs;
         vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
-        NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-        if (nhtl != NULL)
+        auto nhtl = dynamic_pointer_cast<NonHomogeneousTreeLikelihood>(tl);
+        if (nhtl)
         {
           vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
           VectorTools::diff(vs1, vs2, vs);
@@ -918,7 +914,7 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
         parNames2  = tl->getBranchLengthsParameters().getParameterNames();
       else if (param == "Ancient")
       {
-        NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
+        auto nhtl = dynamic_pointer_cast<NonHomogeneousTreeLikelihood>(tl);
         if (!nhtl)
           ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
         else
@@ -927,8 +923,8 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
       else if (param == "Model")
       {
         vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
-        NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-        if (nhtl != NULL)
+        auto nhtl = dynamic_pointer_cast<NonHomogeneousTreeLikelihood>(tl);
+        if (nhtl)
         {
           vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
           VectorTools::diff(vs1, vs2, parNames2);
@@ -943,7 +939,7 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
       else
         parNames2.push_back(param);
 
-      for (size_t i = 0; i < parNames2.size(); i++)
+      for (size_t i = 0; i < parNames2.size(); ++i)
       {
         Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
         if (par.hasConstraint())
@@ -982,7 +978,7 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
     ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 
   // Backing up or restoring?
-  unique_ptr<BackupListener> backupListener;
+  shared_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false);
   if (backupFile != "none")
   {
@@ -1102,7 +1098,7 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
       double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional, warn + 1);
       double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, warn + 1);
       tl = OptimizationToolsOld::optimizeTreeNNI(
-        dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
+        dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
         optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
         reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
     }
@@ -1111,8 +1107,8 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
       ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationToolsOld::optimizeNumericalParameters(
-      dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-      backupListener.get(), nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
+      dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
+      backupListener, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
   }
   else if (optName == "FullD")
   {
@@ -1125,30 +1121,30 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
       double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional, warn + 1);
       double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional, warn + 1);
       tl = OptimizationToolsOld::optimizeTreeNNI2(
-        dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
+        dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
         optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
         reparam, optVerbose, optMethodDeriv, nniAlgo);
     }
 
     parametersToEstimate.matchParametersValues(tl->getParameters());
     n = OptimizationToolsOld::optimizeNumericalParameters2(
-      dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(tl), parametersToEstimate,
-      backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+      dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
+      backupListener, tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
   }
   else
     throw Exception("Unknown optimization method: " + optName);
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, warn);
-  Optimizer* finalOptimizer  = 0;
+  shared_ptr<OptimizerInterface> finalOptimizer = nullptr;
   if (finalMethod == "none")
   {}
   else if (finalMethod == "simplex")
   {
-    finalOptimizer = new DownhillSimplexMethod(tl);
+    finalOptimizer = make_shared<DownhillSimplexMethod>(tl);
   }
   else if (finalMethod == "powell")
   {
-    finalOptimizer = new PowellMultiDimensions(tl);
+    finalOptimizer = make_shared<PowellMultiDimensions>(tl);
   }
   else
     throw Exception("Unknown final optimization method: " + finalMethod);
@@ -1167,7 +1163,6 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
     finalOptimizer->init(parametersToEstimate);
     finalOptimizer->optimize();
     n += finalOptimizer->getNumberOfEvaluations();
-    delete finalOptimizer;
   }
 
   if (verbose)
@@ -1178,235 +1173,6 @@ TreeLikelihood* PhylogeneticsApplicationToolsOld::optimizeParameters(
     rename(backupFile.c_str(), bf.c_str());
   }
   return tl;
-}
-
-
-/******************************************************************************/
-
-void PhylogeneticsApplicationToolsOld::optimizeParameters(
-  DiscreteRatesAcrossSitesClockTreeLikelihood* tl,
-  const ParameterList& parameters,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
-{
-  string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
-  if (optimization == "None")
-    return;
-  string optName;
-  map<string, string> optArgs;
-  KeyvalTools::parseProcedure(optimization, optName, optArgs);
-
-  unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional, warn + 1);
-
-  string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
-  OutputStream* messageHandler =
-    (mhPath == "none") ? 0 :
-    (mhPath == "std") ? ApplicationTools::message.get() :
-    new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
-  if (verbose)
-    ApplicationTools::displayResult("Message handler", mhPath);
-
-  string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
-  OutputStream* profiler =
-    (prPath == "none") ? 0 :
-    (prPath == "std") ? ApplicationTools::message.get() :
-    new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
-  if (profiler)
-    profiler->setPrecision(20);
-  if (verbose)
-    ApplicationTools::displayResult("Profiler", prPath);
-
-  ParameterList parametersToEstimate = parameters;
-
-  // Should I ignore some parameters?
-  if (params.find("optimization.ignore_parameter") != params.end())
-    throw Exception("optimization.ignore_parameter is deprecated, use optimization.ignore_parameters instead!");
-  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn + 1);
-  StringTokenizer st(paramListDesc, ",");
-  while (st.hasMoreToken())
-  {
-    try
-    {
-      string param = st.nextToken();
-      if (param == "BrLen")
-      {
-        vector<string> vs = tl->getBranchLengthsParameters().getParameterNames();
-        parametersToEstimate.deleteParameters(vs);
-        if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", string("Branch lengths"));
-      }
-      else if (param == "Ancient")
-      {
-        NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-        if (!nhtl)
-          ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
-        else
-        {
-          vector<string> vs = nhtl->getRootFrequenciesParameters().getParameterNames();
-          parametersToEstimate.deleteParameters(vs);
-        }
-        if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
-      }
-      else
-      {
-        parametersToEstimate.deleteParameter(param);
-        if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", param);
-      }
-    }
-    catch (ParameterNotFoundException& pnfe)
-    {
-      ApplicationTools::displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
-    }
-  }
-
-  unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
-  if (verbose)
-    ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
-
-  double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional, warn + 1);
-  if (verbose)
-    ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
-
-  string order  = ApplicationTools::getStringParameter("derivatives", optArgs, "Gradient", "", true, warn + 1);
-  string optMethod, derMethod;
-  if (order == "Gradient")
-  {
-    optMethod = OptimizationTools::OPTIMIZATION_GRADIENT;
-  }
-  else if (order == "Newton")
-  {
-    optMethod = OptimizationTools::OPTIMIZATION_NEWTON;
-  }
-  else
-    throw Exception("Option '" + order + "' is not known for 'optimization.method.derivatives'.");
-  if (verbose)
-    ApplicationTools::displayResult("Optimization method", optName);
-  if (verbose)
-    ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
-
-  // Backing up or restoring?
-  unique_ptr<BackupListener> backupListener;
-  string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
-  if (backupFile != "none")
-  {
-    ApplicationTools::displayResult("Parameters will be backup to", backupFile);
-    backupListener.reset(new BackupListener(backupFile));
-    if (FileTools::fileExists(backupFile))
-    {
-      ApplicationTools::displayMessage("A backup file was found! Try to restore parameters from previous run...");
-      ifstream bck(backupFile.c_str(), ios::in);
-      vector<string> lines = FileTools::putStreamIntoVectorOfStrings(bck);
-      double fval = TextTools::toDouble(lines[0].substr(5));
-      ParameterList pl = tl->getParameters();
-      for (size_t l = 1; l < lines.size(); ++l)
-      {
-        if (!TextTools::isEmpty(lines[l]))
-        {
-          StringTokenizer stp(lines[l], "=");
-          if (stp.numberOfRemainingTokens() != 2)
-          {
-            cerr << "Corrupted backup file!!!" << endl;
-            cerr << "at line " << l << ": " << lines[l] << endl;
-          }
-          string pname  = stp.nextToken();
-          string pvalue = stp.nextToken();
-          size_t p = pl.whichParameterHasName(pname);
-          pl.setParameter(p, AutoParameter(pl[p]));
-          pl[p].setValue(TextTools::toDouble(pvalue));
-        }
-      }
-      bck.close();
-      tl->setParameters(pl);
-      if (convert(abs(tl->getValue() - fval)) > 0.000001)
-        ApplicationTools::displayMessage("Changed likelihood from backup file.");
-      ApplicationTools::displayResult("Restoring log-likelihood", -tl->getValue());
-    }
-  }
-
-  size_t n = 0;
-  if (optName == "D-Brent")
-  {
-    // Uses Newton-Brent method:
-    unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, warn + 1);
-    if (verbose && nstep > 1)
-      ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
-    n = OptimizationToolsOld::optimizeNumericalParametersWithGlobalClock(
-      tl,
-      parametersToEstimate,
-      backupListener.get(),
-      nstep,
-      tolerance,
-      nbEvalMax,
-      messageHandler,
-      profiler,
-      optVerbose,
-      optMethod);
-  }
-  else if (optName == "FullD")
-  {
-    // Uses Newton-raphson alogrithm with numerical derivatives when required.
-    n = OptimizationToolsOld::optimizeNumericalParametersWithGlobalClock2(
-      tl,
-      parametersToEstimate,
-      backupListener.get(),
-      tolerance,
-      nbEvalMax,
-      messageHandler,
-      profiler,
-      optVerbose,
-      optMethod);
-  }
-  else
-    throw Exception("Unknown optimization method: " + optName);
-
-  string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, warn + 1);
-  Optimizer* finalOptimizer  = 0;
-  if (finalMethod == "none")
-  {}
-  else if (finalMethod == "simplex")
-  {
-    finalOptimizer = new DownhillSimplexMethod(tl);
-  }
-  else if (finalMethod == "powell")
-  {
-    finalOptimizer = new PowellMultiDimensions(tl);
-  }
-  else
-    throw Exception("Unknown final optimization method: " + finalMethod);
-
-  if (finalOptimizer)
-  {
-    parametersToEstimate.matchParametersValues(tl->getParameters());
-    ApplicationTools::displayResult("Final optimization step", finalMethod);
-    finalOptimizer->setProfiler(profiler);
-    finalOptimizer->setMessageHandler(messageHandler);
-    finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);
-    finalOptimizer->getStopCondition()->setTolerance(tolerance);
-    finalOptimizer->setVerbose(verbose);
-    finalOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-    finalOptimizer->init(parametersToEstimate);
-    finalOptimizer->optimize();
-    n += finalOptimizer->getNumberOfEvaluations();
-    delete finalOptimizer;
-  }
-
-  if (prPath != "none" && prPath != "std")
-    delete profiler;
-  if (mhPath != "none" && mhPath != "std")
-    delete messageHandler;
-
-  if (verbose)
-    ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
-  if (backupFile != "none")
-  {
-    string bf = backupFile + ".def";
-    rename(backupFile.c_str(), bf.c_str());
-  }
 }
 
 
@@ -1461,9 +1227,9 @@ void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSe
   vector<string> writtenNames;
 
   // Loop over all models:
-  for (size_t i = 0; i < modelSet->getNumberOfModels(); i++)
+  for (size_t i = 0; i < modelSet->getNumberOfModels(); ++i)
   {
-    const BranchModel* model = modelSet->getModel(i);
+    shared_ptr<const BranchModelInterface> model = modelSet->getModel(i);
 
     // First get the aliases for this model:
 
@@ -1522,7 +1288,7 @@ void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSe
     out << "nonhomogeneous.root_freq=";
 
     BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
-    bIO.writeFrequencySet(pFS.get(), out, aliases, writtenNames);
+    bIO.writeFrequencySet(*pFS, out, aliases, writtenNames);
   }
 }
 

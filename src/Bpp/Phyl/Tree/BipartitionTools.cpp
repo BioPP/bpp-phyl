@@ -49,6 +49,7 @@
 // From SeqLib
 #include <Bpp/Seq/Alphabet/DNA.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/Container/VectorSequenceContainer.h>
 
 using namespace bpp;
 
@@ -264,33 +265,33 @@ BipartitionList* BipartitionTools::mergeBipartitionLists(
 
 /******************************************************************************/
 
-VectorSiteContainer* BipartitionTools::MRPEncode(
+unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncode(
   const vector<BipartitionList*>& vecBipartL)
 {
   vector<string> all_elements;
   map<string, bool> bip;
   vector<string> bip_elements;
-  const DNA* alpha = &AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const Alphabet> alpha = AlphabetTools::DNA_ALPHABET;
   vector<string> sequences;
 
   if (vecBipartL.size() == 0)
     throw Exception("Empty vector passed");
 
   vector< vector<string> > vecElementLists;
-  for (size_t i = 0; i < vecBipartL.size(); i++)
+  for (auto& vi : vecBipartL)
   {
-    vecElementLists.push_back(vecBipartL[i]->getElementNames());
+    vecElementLists.push_back(vi->getElementNames());
   }
 
   all_elements = VectorTools::vectorUnion(vecElementLists);
 
   sequences.resize(all_elements.size());
 
-  for (size_t i = 0; i < vecBipartL.size(); i++)
+  for (auto& vi : vecBipartL)
   {
-    for (size_t j = 0; j < vecBipartL[i]->getNumberOfBipartitions(); j++)
+    for (size_t j = 0; j < vi->getNumberOfBipartitions(); j++)
     {
-      bip = vecBipartL[i]->getBipartition(j);
+      bip = vi->getBipartition(j);
       bip_elements = MapTools::getKeys(bip);
 
       for (size_t k = 0; k < all_elements.size(); k++)
@@ -308,66 +309,66 @@ VectorSiteContainer* BipartitionTools::MRPEncode(
     }
   }
 
-  vector<std::shared_ptr<Sequence>> vec_sequences;
+  vector<unique_ptr<Sequence>> vec_sequences;
   for (size_t i = 0; i < all_elements.size(); i++)
-    vec_sequences.push_back(std::shared_ptr<Sequence>(new BasicSequence(all_elements[i], sequences[i], alpha)));
+    vec_sequences.push_back(make_unique<Sequence>(all_elements[i], sequences[i], alpha));
 
-  VectorSequenceContainer vec_seq_cont(vec_sequences, alpha);
+  VectorSequenceContainer vec_seq_cont(alpha, vec_sequences);
 
-  VectorSiteContainer* vec_site_cont = new VectorSiteContainer(vec_seq_cont);
+  auto vec_site_cont = make_unique<VectorSiteContainer>(vec_seq_cont);
 
   return vec_site_cont;
 }
 
 /******************************************************************************/
 
-VectorSiteContainer* BipartitionTools::MRPEncodeMultilabel(
+unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncodeMultilabel(
   const vector<BipartitionList*>& vecBipartL)
 {
   vector<string> all_elements;
   map<string, bool> bip;
   vector<string> bip_elements;
-  const DNA* alpha = &AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const Alphabet> alpha = AlphabetTools::DNA_ALPHABET;
   vector<string> sequences;
 
   if (vecBipartL.size() == 0)
     throw Exception("Empty vector passed");
 
   vector< vector<string> > vecElementLists;
-  for (size_t i = 0; i < vecBipartL.size(); i++)
+  for (auto& vi : vecBipartL)
   {
-    vecElementLists.push_back(vecBipartL[i]->getElementNames());
+    vecElementLists.push_back(vi->getElementNames());
   }
 
   all_elements = VectorTools::vectorUnion(vecElementLists);
 
   sequences.resize(all_elements.size());
 
-  for (size_t i = 0; i < vecBipartL.size(); i++)
+  for (auto& vi : vecBipartL)
   {
-    for (size_t j = 0; j < vecBipartL[i]->getNumberOfBipartitions(); j++)
+    for (size_t j = 0; j < vi->getNumberOfBipartitions(); j++)
     {
-      bip = vecBipartL[i]->getBipartition(j);
+      bip = vi->getBipartition(j);
       bip_elements = MapTools::getKeys(bip);
       // Check for multilabel trees: if a taxa found on both sides, do not consider the entire bipartition
       vector< string > zeroes;
       vector< string > ones;
-      for (size_t k = 0; k < all_elements.size(); k++)
+      for (auto& element : all_elements)
       {
-        if (VectorTools::contains(bip_elements, all_elements[k]))
+        if (VectorTools::contains(bip_elements, element))
         {
-          if (bip[all_elements[k]])
-            ones.push_back(all_elements[k]);
+          if (bip[element])
+            ones.push_back(element);
           else
-            zeroes.push_back(all_elements[k]);
+            zeroes.push_back(element);
         }
       }
       vector<string> inter = VectorTools::vectorIntersection(ones, zeroes);
       if (inter.size() != 0)  // some taxa found on both sides of the bipartition
       {
-        for (size_t k = 0; k < all_elements.size(); k++)
+        for (auto& sk : sequences)
         {
-          sequences[k].push_back('N');
+          sk.push_back('N');
         }
       }
       else
@@ -388,13 +389,13 @@ VectorSiteContainer* BipartitionTools::MRPEncodeMultilabel(
     }
   }
 
-  vector<std::shared_ptr<Sequence>> vec_sequences;
+  vector<unique_ptr<Sequence>> vec_sequences;
   for (size_t i = 0; i < all_elements.size(); i++)
-    vec_sequences.push_back(std::shared_ptr<Sequence>(new BasicSequence(all_elements[i], sequences[i], alpha)));
+    vec_sequences.push_back(make_unique<Sequence>(all_elements[i], sequences[i], alpha));
 
-  VectorSequenceContainer vec_seq_cont(vec_sequences, alpha);
+  VectorSequenceContainer vec_seq_cont(alpha, vec_sequences);
 
-  VectorSiteContainer* vec_site_cont = new VectorSiteContainer(vec_seq_cont);
+  auto vec_site_cont = make_unique<VectorSiteContainer>(vec_seq_cont);
 
   return vec_site_cont;
 }

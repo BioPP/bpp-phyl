@@ -44,49 +44,60 @@
 using namespace bpp;
 using namespace std;
 
-ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection) :
+ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(
+    Context& context, 
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    bool inCollection) :
   AbstractPhyloLikelihood(context),
+  AbstractParametrizable(""),
+  AbstractSetOfPhyloLikelihood(context, pC, {}, inCollection),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC, inCollection)
+  AbstractSetOfAlignedPhyloLikelihood(context, pC, inCollection)
 {
   auto nPhylo = pC->getNumbersOfPhyloLikelihoods();
 
   // get RowVectorXd for each single Calculation
-  std::vector<std::shared_ptr<Node_DF> > vSL;
+  std::vector<std::shared_ptr<Node_DF>> vSL;
 
-  for (auto np:nPhylo)
+  for (auto np : nPhylo)
   {
-    vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods(false));
+    vSL.push_back(alignedPhyloLikelihood(np).alignedLikelihoodCalculation().getSiteLikelihoods(false));
   }
 
-  auto sL = CWiseMul<RowLik, ReductionOf<RowLik> >::create(getContext(), std::move(vSL), RowVectorDimension (nbSites_));
+  auto sL = CWiseMul<RowLik, ReductionOf<RowLik> >::create(this->context(), std::move(vSL), RowVectorDimension (nbSites_));
 
   likCal_->setSiteLikelihoods(sL);
 
-  auto su = SumOfLogarithms<RowLik>::create (getContext(), {sL}, RowVectorDimension (Eigen::Index (nbSites_)));
+  auto su = SumOfLogarithms<RowLik>::create (this->context(), {sL}, RowVectorDimension (Eigen::Index (nbSites_)));
 
   likCal_->setLikelihoodNode(su);
 }
 
-ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection) :
+ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(
+    Context& context,
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    const std::vector<size_t>& nPhylo,
+    bool inCollection) :
   AbstractPhyloLikelihood(context),
+  AbstractParametrizable(""),
+  AbstractSetOfPhyloLikelihood(context, pC, {}, inCollection),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
-  likCal_(new AlignedLikelihoodCalculation(context))
+  AbstractSetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
+  likCal_(make_shared<AlignedLikelihoodCalculation>(context))
 {
   // get RowVectorXd for each single Calculation
-  std::vector<std::shared_ptr<Node_DF> > vSL;
+  std::vector<std::shared_ptr<Node_DF>> vSL;
 
-  for (auto np:nPhylo)
+  for (auto np : nPhylo)
   {
-    vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods(false));
+    vSL.push_back(alignedPhyloLikelihood(np).alignedLikelihoodCalculation().getSiteLikelihoods(false));
   }
 
-  auto sL = CWiseMul<RowLik, ReductionOf<RowLik> >::create(getContext(), std::move(vSL), RowVectorDimension (nbSites_));
+  auto sL = CWiseMul<RowLik, ReductionOf<RowLik> >::create(this->context(), std::move(vSL), RowVectorDimension (nbSites_));
 
   likCal_->setSiteLikelihoods(sL);
 
-  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, RowVectorDimension (nbSites_));
+  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (this->context(), {sL}, RowVectorDimension (nbSites_));
 
   likCal_->setLikelihoodNode(su);
 }

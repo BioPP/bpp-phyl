@@ -1,7 +1,7 @@
 //
 // File: NonHomogeneousSubstitutionProcess.h
 // Authors:
-//   Julien Dutheil, Bastien Boussau, Laurent GuÃÂ©guen
+//   Julien Dutheil, Bastien Boussau, Laurent Guéguen
 // Created: jeudi 20 juin 2013, ÃÂ  23h 08
 //
 
@@ -119,7 +119,7 @@ private:
    * @brief Contains all models used in this tree.
    */
 
-  std::vector<std::shared_ptr<BranchModel> > modelSet_;
+  std::vector<std::shared_ptr<BranchModelInterface>> modelSet_;
 
   /**
    *  @brief Rate Distribution
@@ -130,7 +130,7 @@ private:
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
    */
   mutable std::map<unsigned int, size_t> nodeToModel_;
-  mutable std::map<size_t, std::vector<unsigned int> > modelToNodes_;
+  mutable std::map<size_t, std::vector<unsigned int>> modelToNodes_;
 
   /**
    * @brief Parameters for each model in the set.
@@ -138,6 +138,7 @@ private:
   std::vector<ParameterList> modelParameters_;
 
 public:
+
   /**
    * @brief Create a model set according to the specified alphabet and root frequencies.
    * Stationarity is not assumed.
@@ -146,8 +147,10 @@ public:
    * @param tree the phylo tree tree
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
-
-  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, std::shared_ptr<const PhyloTree> tree = 0, std::shared_ptr<FrequencySet> rootFreqs = 0) :
+  NonHomogeneousSubstitutionProcess(
+      std::shared_ptr<DiscreteDistribution> rdist,
+      std::shared_ptr<const PhyloTree> tree = 0,
+      std::shared_ptr<FrequencySetInterface> rootFreqs = 0) :
     AbstractParameterAliasable(""),
     AbstractAutonomousSubstitutionProcess(tree, rootFreqs),
     modelSet_(),
@@ -168,8 +171,10 @@ public:
    * @param tree the parametrizable tree
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
-
-  NonHomogeneousSubstitutionProcess(std::shared_ptr<DiscreteDistribution>  rdist, std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFreqs = 0) :
+  NonHomogeneousSubstitutionProcess(
+      std::shared_ptr<DiscreteDistribution> rdist,
+      std::shared_ptr<ParametrizablePhyloTree> tree,
+      std::shared_ptr<FrequencySetInterface> rootFreqs = 0) :
     AbstractParameterAliasable(""),
     AbstractAutonomousSubstitutionProcess(tree, rootFreqs),
     modelSet_(),
@@ -191,7 +196,7 @@ public:
     clear();
   }
 
-  NonHomogeneousSubstitutionProcess* clone() const { return new NonHomogeneousSubstitutionProcess(*this); }
+  NonHomogeneousSubstitutionProcess* clone() const override { return new NonHomogeneousSubstitutionProcess(*this); }
 
   /**
    * @brief Resets all the information contained in this object.
@@ -207,9 +212,17 @@ public:
    *
    * @param parameters The modified parameters.
    */
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  const StateMap& getStateMap() const
+  const StateMapInterface& stateMap() const override
+  {
+    if (modelSet_.size() == 0)
+      throw Exception("NonHomogeneousSubstitutionProcess::getStateMap : no model associated");
+    else
+      return modelSet_[0]->stateMap();
+  }
+
+  std::shared_ptr<const StateMapInterface> getStateMap() const override
   {
     if (modelSet_.size() == 0)
       throw Exception("NonHomogeneousSubstitutionProcess::getStateMap : no model associated");
@@ -220,7 +233,7 @@ public:
   /**
    * @return The current number of distinct substitution models in this set.
    */
-  size_t getNumberOfModels() const { return modelSet_.size(); }
+  size_t getNumberOfModels() const override { return modelSet_.size(); }
 
   /**
    * @return True iff there is a MixedTransitionModel in the NonHomogeneousSubstitutionProcess
@@ -234,28 +247,28 @@ public:
    *
    */
 
-  void setModelScenario(std::shared_ptr<ModelScenario> modelscenario);
+  void setModelScenario(std::shared_ptr<ModelScenario> modelscenario) override;
 
-  std::vector<size_t> getModelNumbers() const
+  std::vector<size_t> getModelNumbers() const override
   {
     std::vector<size_t> v(getNumberOfModels());
     std::iota(std::begin(v), std::end(v), 1);
     return v;
   }
 
-  /**
-   * @brief Get one model from the set knowing its NUMBER.
-   *
-   * @param n number of the model.
-   * @return A pointer toward the corresponding model.
-   */
-  std::shared_ptr<const BranchModel> getModel(size_t n) const
+  const BranchModelInterface& model(size_t n) const override
+  {
+    if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::model().", 1, modelSet_.size(), n);
+    return *modelSet_[n - 1];
+  }
+
+  std::shared_ptr<const BranchModelInterface> getModel(size_t n) const override
   {
     if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), n);
     return modelSet_[n - 1];
   }
 
-  std::shared_ptr<const BranchModel> getModel(size_t n)
+  std::shared_ptr<const BranchModelInterface> getModel(size_t n)
   {
     if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), n);
     return modelSet_[n - 1];
@@ -269,7 +282,7 @@ public:
    * @return The index of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-  size_t getModelNumberForNode(unsigned int nodeId) const
+  size_t getModelNumberForNode(unsigned int nodeId) const override
   {
     const auto i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
@@ -284,7 +297,7 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this node.
    */
-  std::shared_ptr<const BranchModel> getModelForNode(unsigned int nodeId) const
+  std::shared_ptr<const BranchModelInterface> getModelForNode(unsigned int nodeId) const override
   {
     std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
@@ -299,7 +312,7 @@ public:
    * @return A vector with the ids of the node associated to this model.
    * @throw IndexOutOfBoundsException If the index is not valid.
    */
-  const std::vector<unsigned int> getNodesWithModel(size_t i) const
+  const std::vector<unsigned int> getNodesWithModel(size_t i) const override
   {
     if (i > modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNodesWithModel().", i, 0, modelSet_.size());
     return modelToNodes_[i - 1];
@@ -320,8 +333,7 @@ public:
    * <li>etc.</li>
    * </ul>
    */
-
-  void addModel(std::shared_ptr<BranchModel> model, const std::vector<unsigned int>& nodesId);
+  void addModel(std::shared_ptr<BranchModelInterface> model, const std::vector<unsigned int>& nodesId);
 
   /**
    * @brief Change a given model.
@@ -333,8 +345,7 @@ public:
    * Copy the model first if you don't want it to be lost!
    * @param modelIndex The index of the existing model to replace.
    */
-
-  void setModel(std::shared_ptr<BranchModel> model, size_t modelIndex);
+  void setModel(std::shared_ptr<BranchModelInterface> model, size_t modelIndex);
 
   /**
    * @brief Associate an existing model with a given node.
@@ -345,17 +356,14 @@ public:
    * @param modelIndex The position of the model in the set.
    * @param nodeNumber The id of the corresponding node.
    */
-
   void setModelToNode(size_t modelIndex, unsigned int nodeNumber);
 
   /**
    * @brief list all model names.
-   *
    */
-
   void listModelNames(std::ostream& out = std::cout) const;
 
-  ParameterList getBranchLengthParameters(bool independent) const
+  ParameterList getBranchLengthParameters(bool independent) const override
   {
     if (getParametrizablePhyloTree())
       return getParametrizablePhyloTree()->getParameters();
@@ -365,24 +373,40 @@ public:
 
   /**
    * @brief Get the parameters attached to the rate distribution.
-   *
    */
-  ParameterList getRateDistributionParameters(bool independent) const
+  ParameterList getRateDistributionParameters(bool independent) const override
   {
     return rDist_.get() ? (independent ? rDist_->getIndependentParameters() : rDist_->getParameters()) : ParameterList();
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
+  const DiscreteDistribution& rateDistribution() const override
   {
-    return rDist_ ? rDist_ : 0;
+    if (!rDist_)
+      throw NullPointerException("NonHomogeneousSubstitutionProcess::rateDistribution. No associated rate distribution.");
+    return *rDist_;
+  }
+
+  DiscreteDistribution& rateDistribution() override
+  {
+    if (!rDist_)
+      throw NullPointerException("NonHomogeneousSubstitutionProcess::rateDistribution. No associated rate distribution.");
+    return *rDist_;
+  }
+
+  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override
+  {
+    return rDist_ ? rDist_ : nullptr;
+  }
+
+  std::shared_ptr<DiscreteDistribution> getRateDistribution() override
+  {
+    return rDist_ ? rDist_ : nullptr;
   }
 
   /**
    * @brief Get the INDEPENDENT parameters corresponding to the models.
-   *
    */
-
-  ParameterList getSubstitutionModelParameters(bool independent) const;
+  ParameterList getSubstitutionModelParameters(bool independent) const override;
 
   /**
    * @brief Check if the model set is fully specified for a given tree.
@@ -415,38 +439,37 @@ public:
   /**
    * @return The values of the root frequencies.
    */
-  const std::vector<double>& getRootFrequencies() const
+  const std::vector<double>& getRootFrequencies() const override
   {
     if (!hasRootFrequencySet())
     {
-      if (std::dynamic_pointer_cast<const TransitionModel>(modelSet_[0]))
-        return std::dynamic_pointer_cast<const TransitionModel>(modelSet_[0])->getFrequencies();
+      if (std::dynamic_pointer_cast<const TransitionModelInterface>(modelSet_[0]))
+        return std::dynamic_pointer_cast<const TransitionModelInterface>(modelSet_[0])->getFrequencies();
       else
         throw Exception("NonHomogeneousSubstitutionProcess::getRootFrequencies not callable.");
     }
     else
-      return getRootFrequencySet()->getFrequencies();
+      return rootFrequencySet().getFrequencies();
   }
 
-  /**
-   * @brief Get the substitution model corresponding to a certain branch, site pattern, and model class.
-   *
-   * @param nodeId The id of the node.
-   * @param classIndex The model class index.
-   */
-  std::shared_ptr<const BranchModel> getModel(unsigned int nodeId, size_t classIndex) const
+  const BranchModelInterface& model(unsigned int nodeId, size_t classIndex) const override
+  {
+    return *modelSet_[nodeToModel_[nodeId]];
+  }
+
+  std::shared_ptr<const BranchModelInterface> getModel(unsigned int nodeId, size_t classIndex) const override
   {
     return modelSet_[nodeToModel_[nodeId]];
   }
 
-  double getProbabilityForModel(size_t classIndex) const
+  double getProbabilityForModel(size_t classIndex) const override
   {
     if (classIndex >= (rDist_ ? rDist_->getNumberOfCategories() : 1))
       throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
     return rDist_ ? rDist_->getProbability(classIndex) : 1.;
   }
 
-  Vdouble getClassProbabilities() const
+  Vdouble getClassProbabilities() const override
   {
     Vdouble vProb;
 
@@ -461,7 +484,7 @@ public:
     return vProb;
   }
 
-  double getRateForModel(size_t classIndex) const
+  double getRateForModel(size_t classIndex) const override
   {
     if (classIndex >= (rDist_ ? rDist_->getNumberOfCategories() : 1))
       throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getRateForModel.", classIndex, 0, (rDist_ ? rDist_->getNumberOfCategories() : 1));
@@ -486,12 +509,11 @@ public:
    *        (0 if stationary).
    * @param scenario (optional) the scenario used (in case of Mixed Models)
    */
-
-  static AbstractAutonomousSubstitutionProcess* createHomogeneousSubstitutionProcess(
-    std::shared_ptr<BranchModel> model,
+  static std::unique_ptr<AutonomousSubstitutionProcessInterface> createHomogeneousSubstitutionProcess(
+    std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rdist,
     std::shared_ptr<PhyloTree> tree,
-    std::shared_ptr<FrequencySet> rootFreqs = 0,
+    std::shared_ptr<FrequencySetInterface> rootFreqs = 0,
     std::shared_ptr<ModelScenario> scenario = 0
     );
 
@@ -510,12 +532,11 @@ public:
    *
    * @param scenario (optional) the scenario used (in case of Mixed Models)
    */
-
-  static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
-    std::shared_ptr<BranchModel> model,
+  static std::unique_ptr<NonHomogeneousSubstitutionProcess> createNonHomogeneousSubstitutionProcess(
+    std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistribution> rdist,
     std::shared_ptr<PhyloTree> tree,
-    std::shared_ptr<FrequencySet> rootFreqs,
+    std::shared_ptr<FrequencySetInterface> rootFreqs,
     const std::vector<std::string>& globalParameterNames,
     std::shared_ptr<ModelScenario> scenario = 0
     );

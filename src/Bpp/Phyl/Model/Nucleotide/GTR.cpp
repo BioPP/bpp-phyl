@@ -52,7 +52,7 @@ using namespace std;
 /******************************************************************************/
 
 GTR::GTR(
-  const NucleicAlphabet* alpha,
+  shared_ptr<const NucleicAlphabet> alpha,
   double a,
   double b,
   double c,
@@ -63,7 +63,7 @@ GTR::GTR(
   double piG,
   double piT) :
   AbstractParameterAliasable("GTR."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "GTR."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "GTR."),
   a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()
 {
   addParameter_(new Parameter("GTR.a", a, Parameter::R_PLUS_STAR));
@@ -71,15 +71,15 @@ GTR::GTR(
   addParameter_(new Parameter("GTR.c", c, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("GTR.d", d, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("GTR.e", e, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.theta", theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("GTR.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("GTR.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
-  updateMatrices();
+  addParameter_(new Parameter("GTR.theta", theta_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta1", theta1_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta2", theta2_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void GTR::updateMatrices()
+void GTR::updateMatrices_()
 {
   a_ = getParameterValue("a");
   b_ = getParameterValue("b");
@@ -118,7 +118,7 @@ void GTR::updateMatrices()
   exchangeability_(3, 2) = c_ / p_;
   exchangeability_(3, 3) = (-c_ * piG_ - a_ * piC_ - b_ * piA_) / (piT_ * p_);
 
-  AbstractReversibleSubstitutionModel::updateMatrices();
+  AbstractReversibleSubstitutionModel::updateMatrices_();
 }
 
 /******************************************************************************/

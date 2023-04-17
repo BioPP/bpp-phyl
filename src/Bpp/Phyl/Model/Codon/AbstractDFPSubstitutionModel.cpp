@@ -41,16 +41,18 @@
 #include "AbstractDFPSubstitutionModel.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
 AbstractDFPSubstitutionModel::AbstractDFPSubstitutionModel(
-  const GeneticCode* gCode,
-  const std::string& prefix) :
+    shared_ptr<const GeneticCode> gCode,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), prefix),
+  AbstractSubstitutionModel(
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      prefix),
   gCode_(gCode),
   tr_(1), trr_(1), tvv_(1), trv_(1), tsub_(1)
 {
@@ -62,6 +64,7 @@ AbstractDFPSubstitutionModel::AbstractDFPSubstitutionModel(
   addParameter_(new Parameter(prefix + "tsub", 1, Parameter::R_PLUS_STAR));
 }
 
+/******************************************************************************/
 
 void AbstractDFPSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
@@ -71,17 +74,18 @@ void AbstractDFPSubstitutionModel::fireParameterChanged(const ParameterList& par
   trv_ = getParameterValue("trv");
   tsub_ = getParameterValue("tsub");
 
-  updateMatrices();
+  updateMatrices_();
 }
 
+/******************************************************************************/
 
-void AbstractDFPSubstitutionModel::updateMatrices()
+void AbstractDFPSubstitutionModel::updateMatrices_()
 {
   size_t i, j;
 
-  for (i = 0; i < 64; i++)
+  for (i = 0; i < 64; ++i)
   {
-    for (j = 0; j < 64; j++)
+    for (j = 0; j < 64; ++j)
     {
       if (i == j || gCode_->isStop(static_cast<int>(i)) || gCode_->isStop(static_cast<int>(j)))
       {
@@ -95,9 +99,10 @@ void AbstractDFPSubstitutionModel::updateMatrices()
   }
 
   setDiagonal();
-  AbstractSubstitutionModel::updateMatrices();
+  AbstractSubstitutionModel::updateMatrices_();
 }
 
+/******************************************************************************/
 
 double AbstractDFPSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
@@ -143,3 +148,6 @@ double AbstractDFPSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 
   return 1.;
 }
+
+/******************************************************************************/
+

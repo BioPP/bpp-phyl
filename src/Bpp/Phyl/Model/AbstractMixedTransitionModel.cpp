@@ -47,7 +47,9 @@ using namespace std;
 
 
 AbstractMixedTransitionModel::AbstractMixedTransitionModel(
-  const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
+    shared_ptr<const Alphabet> alpha,
+    shared_ptr<const StateMapInterface> stateMap,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractTransitionModel(alpha, stateMap, prefix),
   modelsContainer_(),
@@ -62,9 +64,9 @@ AbstractMixedTransitionModel::AbstractMixedTransitionModel(const AbstractMixedTr
   vProbas_(),
   vRates_()
 {
-  for (unsigned int i = 0; i < msm.modelsContainer_.size(); i++)
+  for (size_t i = 0; i < msm.modelsContainer_.size(); ++i)
   {
-    modelsContainer_.push_back(std::shared_ptr<TransitionModel>(msm.modelsContainer_[i]->clone()));
+    modelsContainer_.push_back(std::shared_ptr<TransitionModelInterface>(msm.modelsContainer_[i]->clone()));
     vProbas_.push_back(msm.vProbas_[i]);
     vRates_.push_back(msm.vRates_[i]);
   }
@@ -79,9 +81,9 @@ AbstractMixedTransitionModel& AbstractMixedTransitionModel::operator=(const Abst
   vProbas_.clear();
   vRates_.clear();
 
-  for (unsigned int i = 0; i < model.modelsContainer_.size(); i++)
+  for (size_t i = 0; i < model.modelsContainer_.size(); ++i)
   {
-    modelsContainer_.push_back(std::shared_ptr<TransitionModel>(model.modelsContainer_[i]->clone()));
+    modelsContainer_.push_back(std::shared_ptr<TransitionModelInterface>(model.modelsContainer_[i]->clone()));
     vProbas_.push_back(model.vProbas_[i]);
     vRates_.push_back(model.vRates_[i]);
   }

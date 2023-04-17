@@ -46,7 +46,7 @@
 #include "../FrequencySet/ProteinFrequencySet.h"
 #include "ProteinSubstitutionModel.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 
 namespace bpp
@@ -66,7 +66,7 @@ class LG08 :
   public AbstractReversibleProteinSubstitutionModel
 {
 private:
-  std::shared_ptr<ProteinFrequencySet> freqSet_;
+  std::unique_ptr<ProteinFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -74,7 +74,7 @@ public:
    *
    * @param alpha A proteic alphabet.
    */
-  LG08(const ProteicAlphabet* alpha);
+  LG08(std::shared_ptr<const ProteicAlphabet> alpha);
 
   /**
    * @brief Build a LG08 model with special equilibrium frequencies.
@@ -84,28 +84,31 @@ public:
    * @param initFreqs Tell if the frequency set should be initialized with the original LG08 values.
    * Otherwise, the values of the set will be used.
    */
-  LG08(const ProteicAlphabet* alpha, std::shared_ptr<ProteinFrequencySet> freqSet, bool initFreqs = false);
+  LG08(
+      std::shared_ptr<const ProteicAlphabet> alpha,
+      std::unique_ptr<ProteinFrequencySetInterface> freqSet,
+      bool initFreqs = false);
 
   LG08(const LG08& model) :
     AbstractParameterAliasable(model),
     AbstractReversibleProteinSubstitutionModel(model),
-    freqSet_(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()))
+    freqSet_(model.freqSet_->clone())
   {}
 
   LG08& operator=(const LG08& model)
   {
     AbstractParameterAliasable::operator=(model);
     AbstractReversibleProteinSubstitutionModel::operator=(model);
-    freqSet_ = std::shared_ptr<ProteinFrequencySet>(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()));
+    freqSet_.reset(model.freqSet_->clone());
     return *this;
   }
 
   virtual ~LG08() {}
 
-  LG08* clone() const { return new LG08(*this); }
+  LG08* clone() const override { return new LG08(*this); }
 
 public:
-  std::string getName() const
+  std::string getName() const override
   {
     if (freqSet_->getNamespace().find("LG08+F.") != std::string::npos)
       return "LG08+F";
@@ -113,29 +116,34 @@ public:
       return "LG08";
   }
 
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     freqSet_->matchParametersValues(parameters);
     freq_ = freqSet_->getFrequencies();
     AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
   }
 
-  void setFrequencySet(const ProteinFrequencySet& freqSet)
+  void setFrequencySet(const ProteinFrequencySetInterface& freqSet)
   {
-    freqSet_ = std::shared_ptr<ProteinFrequencySet>(dynamic_cast<ProteinFrequencySet*>(freqSet.clone()));
+    freqSet_.reset(dynamic_cast<ProteinFrequencySetInterface*>(freqSet.clone()));
     resetParameters_();
     addParameters_(freqSet_->getParameters());
   }
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
   }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
-
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+  const FrequencySetInterface& frequencySet() const override
+  {
+    if (freqSet_)
+      return *freqSet_;
+    throw NullPointerException("LG08::frequencySet(). No associated FrequencySet.");
+  }
+    
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_LG08_H

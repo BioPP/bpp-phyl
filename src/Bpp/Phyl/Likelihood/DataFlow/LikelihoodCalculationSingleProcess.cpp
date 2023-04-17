@@ -1,16 +1,16 @@
 //
 // File: LikelihoodCalculationSingleProcess.cpp
 // Authors:
-//   FranÃÂ§ois Gindraud, Laurent GuÃÂ©guen (2018)
-// Created: jeudi 28 fÃÂ©vrier 2019, ÃÂ  07h 22
+//   François Gindraud, Laurent Guéguen (2018)
+// Created: jeudi 28 février 2019, à 07h 22
 //
 
-#include <Bpp/Phyl/Model/MixedTransitionModel.h>
-#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <list>
 #include <numeric>
 #include <unordered_map>
 
+#include "Bpp/Phyl/Model/MixedTransitionModel.h"
+#include "Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h"
 #include "Bpp/Phyl/Likelihood/DataFlow/BackwardLikelihoodTree.h"
 #include "Bpp/Phyl/Likelihood/DataFlow/ForwardLikelihoodTree.h"
 #include "Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
@@ -21,15 +21,16 @@ using namespace bpp;
 using namespace numeric;
 using namespace Eigen;
 
-LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
-                                                                       const AlignedValuesContainer& sites,
-                                                                       const SubstitutionProcess& process) :
-  AlignedLikelihoodCalculation(context), process_(process), psites_(&sites),
+LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
+    Context& context,
+    shared_ptr<const AlignmentDataInterface> sites,
+    shared_ptr<const SubstitutionProcessInterface> process) :
+  AlignedLikelihoodCalculation(context), process_(process), psites_(sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
-  if (!process_.getParametrizablePhyloTree())
+  if (!process_->getParametrizablePhyloTree())
     throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
   setPatterns_();
   makeProcessNodes_();
@@ -38,15 +39,16 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
-LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
-                                                                       const SubstitutionProcess& process) :
+LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
+    Context& context,
+    shared_ptr<const SubstitutionProcessInterface> process) :
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
-  if (!process_.getParametrizablePhyloTree())
+  if (!process_->getParametrizablePhyloTree())
     throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
 
   makeProcessNodes_();
@@ -55,33 +57,39 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
-LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                                                       const AlignedValuesContainer& sites,
-                                                                       size_t nProcess) :
-  AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(&sites),
+LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
+    shared_ptr<CollectionNodes> collection,
+    shared_ptr<const AlignmentDataInterface> sites,
+    size_t nProcess) :
+  AlignedLikelihoodCalculation(collection->context()),
+  process_(collection->collection().getSubstitutionProcess(nProcess)),
+  psites_(sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
-  if (!process_.getParametrizablePhyloTree())
+  if (!process_->getParametrizablePhyloTree())
     throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
 
   setPatterns_();
-  makeProcessNodes_(collection, nProcess);
+  makeProcessNodes_(*collection, nProcess);
 
   // Default Derivate
   setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
 }
 
 
-LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
-                                                                       size_t nProcess) :
-  AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(),
+LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
+    shared_ptr<CollectionNodes> collection,
+    size_t nProcess) :
+  AlignedLikelihoodCalculation(collection->context()),
+  process_(collection->collection().getSubstitutionProcess(nProcess)),
+  psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
-  makeProcessNodes_(collection, nProcess);
+  makeProcessNodes_(*collection, nProcess);
 
   // Default Derivate
   setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
@@ -104,7 +112,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
 
 void LikelihoodCalculationSingleProcess::setPatterns_()
 {
-  SitePatterns patterns(psites_, process_.getParametrizablePhyloTree()->getAllLeavesNames());
+  SitePatterns patterns(*psites_, process_->getParametrizablePhyloTree()->getAllLeavesNames());
   shrunkData_       = patterns.getSites();
   rootPatternLinks_ = NumericConstant<PatternType>::create(getContext_(), patterns.getIndices());
   size_t nbSites    = shrunkData_->getNumberOfSites();
@@ -122,9 +130,9 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
   cerr << "LikelihoodCalculationSingleProcess::makeProcessNodes_(){" << endl;
 #endif
   // add Independent Parameters
-  const auto& paramProc = process_.getIndependentParameters();
+  const auto& paramProc = process_->getIndependentParameters();
 
-  for (size_t i = 0; i < paramProc.size(); i++)
+  for (size_t i = 0; i < paramProc.size(); ++i)
   {
     shareParameter_(ConfiguredParameter::create(getContext_(), paramProc[i]));
   }
@@ -133,18 +141,18 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
   for (size_t i = 0; i < paramProc.size(); i++)
   {
     auto name = paramProc[i].getName();
-    auto vs = process_.getAlias(name);
+    auto vs = process_->getAlias(name);
 
     auto dep = dynamic_cast<const ConfiguredParameter*>(&getParameters_()[i])->dependency(0);
     for (const auto& s:vs)
     {
-      auto newacp = ConfiguredParameter::create(getContext_(), {dep}, process_.getParameter(s));
+      auto newacp = ConfiguredParameter::create(getContext_(), {dep}, process_->getParameter(s));
       shareParameter_(newacp);
       aliasParameters(name, s);
     }
   }
 
-  const auto spcm = dynamic_cast<const SubstitutionProcessCollectionMember*>(&process_);
+  auto spcm = dynamic_pointer_cast<const SubstitutionProcessCollectionMember>(process_);
 
 
   auto& pl2(getParameters_());
@@ -152,7 +160,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
   // rates node
   std::string suff = spcm ? ("_" + TextTools::toString(spcm->getRateDistributionNumber())) : "";
 
-  auto rates = process_.getRateDistribution();
+  auto rates = process_->getRateDistribution();
   if (rates && dynamic_pointer_cast<const ConstantRateDistribution>(rates) == nullptr)
     processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext_(), *rates, pl2, suff);
 
@@ -164,11 +172,11 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
   ///////////////////////////
   // rootFrequencies node
 
-  auto root = process_.getRootFrequencySet();
+  auto root = process_->getRootFrequencySet();
   if (root)
   {
     suff = spcm ? ("_" + TextTools::toString(spcm->getRootFrequenciesNumber())) : "";
-    processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequencySet, ConfiguredFrequencySet>(getContext_(), *root, pl2, suff);
+    processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequencySetInterface, ConfiguredFrequencySet>(getContext_(), *root, pl2, suff);
   }
 
   auto itE = processNodes_.treeNode_->allEdgesIterator();
@@ -191,7 +199,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
 
 void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& collection, size_t nProc)
 {
-  auto& spcm = collection.getCollection().getSubstitutionProcess(nProc);
+  auto& spcm = collection.collection().substitutionProcess(nProc);
 
   // share process parameters with those of the collection
   const auto& paramProc = spcm.getIndependentParameters();
@@ -339,9 +347,9 @@ void LikelihoodCalculationSingleProcess::setClockLike(double rate)
 RowLik LikelihoodCalculationSingleProcess::getSiteLikelihoodsForAClass(size_t nCat, bool shrunk)
 {
   if (shrunk)
-    return getSiteLikelihoodsTree_(nCat)->getRoot()->getTargetValue();
+    return getSiteLikelihoodsTree_(nCat)->getRoot()->targetValue();
   else
-    return expandVector(getSiteLikelihoodsTree_(nCat)->getRoot())->getTargetValue();
+    return expandVector(getSiteLikelihoodsTree_(nCat)->getRoot())->targetValue();
 }
 
 AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsForAllClasses(bool shrunk)
@@ -365,7 +373,7 @@ void LikelihoodCalculationSingleProcess::makeRootFreqs_()
 {
 // Set root frequencies
 
-  size_t nbState = getStateMap().getNumberOfModelStates();
+  size_t nbState = stateMap().getNumberOfModelStates();
   rFreqs_ = processNodes_.rootFreqsNode_ ? ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet, Eigen::RowVectorXd>(
     getContext_(), {processNodes_.rootFreqsNode_}, RowVectorDimension (Eigen::Index (nbState))) :
             ConfiguredParametrizable::createRowVector<ConfiguredModel, EquilibriumFrequenciesFromModel, Eigen::RowVectorXd>(
@@ -383,7 +391,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
 
   if (processNodes_.ratesNode_)
   {
-    uint nbCat = (uint)processNodes_.ratesNode_->getTargetValue()->getNumberOfCategories();
+    uint nbCat = (uint)processNodes_.ratesNode_->targetValue()->getNumberOfCategories();
 
     vRateCatTrees_.resize(nbCat);
 
@@ -395,7 +403,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
 
       vRateCatTrees_[nCat].phyloTree = treeCat;
 
-      auto flt = std::make_shared<ForwardLikelihoodTree>(getContext_(), treeCat, getStateMap());
+      auto flt = std::make_shared<ForwardLikelihoodTree>(getContext_(), treeCat, stateMap());
 
       if (getShrunkData())
         flt->initialize(*getShrunkData());
@@ -409,7 +417,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
     vRateCatTrees_.resize(1);
     vRateCatTrees_[0].phyloTree = processNodes_.treeNode_;
 
-    auto flt = std::make_shared<ForwardLikelihoodTree >(getContext_(), processNodes_.treeNode_, processNodes_.modelNode_->getTargetValue()->getStateMap());
+    auto flt = std::make_shared<ForwardLikelihoodTree >(getContext_(), processNodes_.treeNode_, processNodes_.modelNode_->targetValue()->stateMap());
 
     if (getShrunkData())
       flt->initialize(*getShrunkData());
@@ -422,6 +430,8 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
 
 void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
 {
+  cleanAllLikelihoods();
+
   if (vRateCatTrees_.size() == 0)
     makeForwardLikelihoodTree_();
 
@@ -432,12 +442,12 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
     makeRootFreqs_();
 
   ValueRef<RowLik> sL;
-
+  
   if (processNodes_.ratesNode_)
   {
     std::vector<std::shared_ptr<Node_DF> > vLikRoot;
 
-    auto zero = NumericConstant<size_t>::create(getContext_(), size_t(0));
+    auto zero = getContext_().getZero();
 
     for (auto& rateCat: vRateCatTrees_)
     {
@@ -459,9 +469,10 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   {
     sL = LikelihoodFromRootConditionalAtRoot::create (
       getContext_(), {rFreqs_, vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, RowVectorDimension (Eigen::Index (nbDistSite)));
+
   }
 
-
+  
   // likelihoods per distinct site
   setSiteLikelihoods(sL, true);
 
@@ -476,7 +487,6 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
     val = SumOfLogarithms<RowLik>::create (getContext_(), {sL}, RowVectorDimension (Eigen::Index (nbDistSite)));
 
   setLikelihoodNode(val);
-
 
 #ifdef DEBUG
   using bpp::DotOptions;
@@ -498,12 +508,11 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   if (rFreqs_ == 0)
     makeRootFreqs_();
 
-  const auto& stateMap = getStateMap();
   auto nbDistSite = Eigen::Index(getNumberOfDistinctSites());
-  auto nbState = Eigen::Index(stateMap.getNumberOfModelStates());
+  auto nbState = Eigen::Index(stateMap().getNumberOfModelStates());
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbDistSite);
 
-  const auto phylotree = process_.getParametrizablePhyloTree();
+  const auto phylotree = process_->getParametrizablePhyloTree();
 
   ValueRef<RowLik> siteLikelihoodsNode;
 
@@ -524,7 +533,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   for (auto& rateCat: vRateCatTrees_)
   {
     if (!rateCat.blt)
-      rateCat.blt = std::make_shared<BackwardLikelihoodTree>(getContext_(), rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbDistSite);
+      rateCat.blt = std::make_shared<BackwardLikelihoodTree>(getContext_(), rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap(), nbDistSite);
 
     if (!rateCat.clt)
       rateCat.clt = std::make_shared<ConditionalLikelihoodDAG>(rateCat.flt->getGraph());
@@ -633,9 +642,8 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtDAGNode_(uint nodeId)
   if (rFreqs_ == 0)
     makeRootFreqs_();
 
-  const auto& stateMap = getStateMap();
   auto nbDistSite = Eigen::Index(getNumberOfDistinctSites());
-  auto nbState = Eigen::Index(stateMap.getNumberOfModelStates());
+  auto nbState = Eigen::Index(stateMap().getNumberOfModelStates());
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbDistSite);
 
   ValueRef<RowLik> siteLikelihoodsNode;
@@ -651,7 +659,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtDAGNode_(uint nodeId)
       continue;
 
     if (!rateCat.blt)
-      rateCat.blt = std::make_shared<BackwardLikelihoodTree>(getContext_(), rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbDistSite);
+      rateCat.blt = std::make_shared<BackwardLikelihoodTree>(getContext_(), rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap(), nbDistSite);
 
     if (!rateCat.lt)
       rateCat.lt = std::make_shared<SiteLikelihoodsDAG>(rateCat.flt->getGraph());

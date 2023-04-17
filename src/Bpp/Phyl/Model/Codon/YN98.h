@@ -49,7 +49,7 @@ namespace bpp
 {
 /**
  * @brief The Yang and Nielsen (1998) substitution model for codons.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * This model has one rate of transitions and one rate of
  * transversion. It also allows distinct equilibrium frequencies
@@ -89,13 +89,15 @@ namespace bpp
  */
 class YN98 :
   public AbstractBiblioSubstitutionModel,
-  public virtual CodonReversibleSubstitutionModel
+  public virtual CodonReversibleSubstitutionModelInterface
 {
 private:
   std::unique_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
 public:
-  YN98(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
+  YN98(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
 
   YN98(const YN98& yn98);
 
@@ -103,26 +105,41 @@ public:
 
   virtual ~YN98() {}
 
-  YN98* clone() const { return new YN98(*this); }
+  YN98* clone() const override { return new YN98(*this); }
 
 public:
-  std::string getName() const { return "YN98"; }
+  std::string getName() const override { return "YN98"; }
 
-  const SubstitutionModel& getSubstitutionModel() const { return *pmodel_.get(); }
+  const SubstitutionModelInterface& substitutionModel() const override { return *pmodel_; }
 
-  const GeneticCode* getGeneticCode() const { return pmodel_->getGeneticCode(); }
+  std::shared_ptr<const GeneticCode> getGeneticCode() const override
+  {
+    return pmodel_->getGeneticCode();
+  }
 
-  double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
+  double getCodonsMulRate(size_t i, size_t j) const override
+  {
+    return pmodel_->getCodonsMulRate(i, j);
+  }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return pmodel_->getFrequencySet();}
+  const CodonFrequencySetInterface& codonFrequencySet() const override
+  { 
+    return pmodel_->codonFrequencySet();
+  }
 
-  void setFreq(std::map<int, double>& frequencies)
+  bool hasCodonFrequencySet() const override
+  { 
+    return pmodel_->hasCodonFrequencySet();
+  }
+
+  void setFreq(std::map<int, double>& frequencies) override
   {
     AbstractBiblioSubstitutionModel::setFreq(frequencies);
   }
 
 protected:
-  SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
+  SubstitutionModelInterface& substitutionModel_() override { return *pmodel_; }
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YN98_H

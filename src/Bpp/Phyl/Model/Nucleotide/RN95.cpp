@@ -51,7 +51,7 @@ using namespace std;
 /******************************************************************************/
 
 RN95::RN95(
-  const NucleicAlphabet* alphabet,
+  shared_ptr<const NucleicAlphabet> alphabet,
   double alpha,
   double beta,
   double gamma,
@@ -61,7 +61,7 @@ RN95::RN95(
   double lambda,
   double sigma) :
   AbstractParameterAliasable("RN95."),
-  AbstractNucleotideSubstitutionModel(alphabet, std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "RN95."),
+  AbstractNucleotideSubstitutionModel(alphabet, make_shared<CanonicalStateMap>(alphabet, false), "RN95."),
   alpha_(),
   beta_(),
   gamma_(),
@@ -73,14 +73,14 @@ RN95::RN95(
 {
   double f = gamma + lambda + delta + kappa;
 
-  alpha_  = alpha / f;
-  beta_   = beta / f;
-  gamma_  = gamma / f;
-  delta_  = delta / f;
+  alpha_   = alpha / f;
+  beta_    = beta / f;
+  gamma_   = gamma / f;
+  delta_   = delta / f;
   epsilon_ = epsilon / f;
-  kappa_  = kappa / f;
-  lambda_ = lambda / f;
-  sigma_  = sigma / f;
+  kappa_   = kappa / f;
+  lambda_  = lambda / f;
+  sigma_   = sigma / f;
 
   double thetaR = delta_ + kappa_;
   double kappaP = kappa_ / thetaR;
@@ -90,17 +90,18 @@ RN95::RN95(
   addParameter_(new Parameter("RN95.gammaP", gammaP, Parameter::PROP_CONSTRAINT_EX));
   addParameter_(new Parameter("RN95.kappaP", kappaP, Parameter::PROP_CONSTRAINT_EX));
 
-  addParameter_(new Parameter("RN95.alpha", alpha_, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("RN95.sigma", sigma_, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("RN95.beta", beta_, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("RN95.alpha"  , alpha_  , Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("RN95.sigma"  , sigma_  , Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("RN95.beta"   , beta_   , Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("RN95.epsilon", epsilon_, Parameter::R_PLUS_STAR));
 
   computeFrequencies(false);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
-void RN95::updateMatrices()
+
+void RN95::updateMatrices_()
 {
   double thetaR  = getParameterValue("thetaR");
   double gammaP  = getParameterValue("gammaP");
@@ -233,9 +234,9 @@ void RN95::updateMatrices()
   }
 
   // and the exchangeability_
-  for (unsigned int i = 0; i < size_; i++)
+  for (unsigned int i = 0; i < size_; ++i)
   {
-    for (unsigned int j = 0; j < size_; j++)
+    for (unsigned int j = 0; j < size_; ++j)
     {
       exchangeability_(i, j) = generator_(i, j) / freq_[j];
     }
@@ -251,7 +252,7 @@ void RN95::setFreq(map<int, double>& freqs)
   setParameterValue("gammaP", gamma_ / (1 - thetaR));
   setParameterValue("kappaP", kappa_ / thetaR);
   
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/

@@ -53,8 +53,8 @@ namespace bpp
  * ParametrizablePhyloTree & Scenario.
  *
  */
-  class AutonomousSubstitutionProcess :
-    public virtual SubstitutionProcess
+  class AutonomousSubstitutionProcessInterface :
+    public virtual SubstitutionProcessInterface
   {
   public:
 
@@ -72,7 +72,7 @@ namespace bpp
      *
      * @param rootfrequency The root frequencies to be associated with this instance.
      */
-    virtual void setRootFrequencySet(std::shared_ptr<FrequencySet> rootfrequency) = 0;
+    virtual void setRootFrequencySet(std::shared_ptr<FrequencySetInterface> rootfrequency) = 0;
 
     /**
      * @brief set the ModelScenario.

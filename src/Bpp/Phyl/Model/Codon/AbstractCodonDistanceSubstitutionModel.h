@@ -55,7 +55,7 @@ namespace bpp
  * @brief Abstract class for modelling of non-synonymous and
  *  synonymous substitution rates in codon models.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * If a distance @f$d@f$ between amino-acids is defined, the
  *  non-synonymous rate is multiplied with, if the coded amino-acids
@@ -78,21 +78,20 @@ namespace bpp
  * - Mayrose, I. and Doron-Faigenboim, A. and Bacharach, E. and Pupko T.
  *   (2007), Bioinformatics, 23, i319--i327.
  */
-
 class AbstractCodonDistanceSubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
+  public virtual CoreCodonSubstitutionModelInterface,
   public virtual AbstractParameterAliasable
 {
 private:
-  const AlphabetIndex2* pdistance_;
+  std::shared_ptr<const AlphabetIndex2> pdistance_;
 
-  const GeneticCode* pgencode_;
+  std::shared_ptr<const GeneticCode> pgencode_;
 
   double alpha_, beta_;
 
   double gamma_;
 
-  std::shared_ptr<const StateMap> stateMap_;
+  std::shared_ptr<const StateMapInterface> stateMap_;
 
 public:
   /**
@@ -104,10 +103,9 @@ public:
    * @param paramSynRate is true iff synonymous rate is parametrised
    *       (default=false).
    */
-
   AbstractCodonDistanceSubstitutionModel(
-    const AlphabetIndex2* pdist,
-    const GeneticCode* pgencode,
+    std::shared_ptr<const AlphabetIndex2> pdist,
+    std::shared_ptr<const GeneticCode> pgencode,
     const std::string& prefix,
     bool paramSynRate = false);
 
@@ -135,7 +133,7 @@ public:
     return *this;
   }
 
-  AbstractCodonDistanceSubstitutionModel* clone() const
+  AbstractCodonDistanceSubstitutionModel* clone() const override
   {
     return new AbstractCodonDistanceSubstitutionModel(*this);
   }
@@ -143,16 +141,21 @@ public:
   virtual ~AbstractCodonDistanceSubstitutionModel() {}
 
 public:
-  void fireParameterChanged(const ParameterList& parameters);
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return 0;
+    throw NullPointerException("AbstractCodonDistanceSubstitutionModel::frequencySet. No associated FrequencySet.");
   }
 
-  void setFreq(std::map<int, double>& frequencies){}
+  bool hasCodonFrequencySet() const override
+  {
+    return false;
+  }
+
+  void setFreq(std::map<int, double>& frequencies) override {}
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONDISTANCESUBSTITUTIONMODEL_H

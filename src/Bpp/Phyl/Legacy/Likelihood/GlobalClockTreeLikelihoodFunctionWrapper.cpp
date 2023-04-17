@@ -57,7 +57,7 @@ void GlobalClockTreeLikelihoodFunctionWrapper::fireParameterChanged(const bpp::P
   }
   if (recomputeHeights)
   {
-    TreeTemplate<Node> tree(tl_->getTree());
+    TreeTemplate<Node> tree(tl_->tree());
     computeBranchLengthsFromHeights_(tree.getRootNode(), getParameter("TotalHeight").getValue(), pl2);
   }
   tl_->setParameters(pl2);
@@ -79,7 +79,7 @@ ParameterList GlobalClockTreeLikelihoodFunctionWrapper::getHeightParameters() co
 void GlobalClockTreeLikelihoodFunctionWrapper::initParameters_()
 {
   // Check if the tree is rooted:
-  TreeTemplate<Node> tree(tl_->getTree());
+  TreeTemplate<Node> tree(tl_->tree());
   if (!tree.isRooted())
     throw Exception("GlobalClockTreeLikelihoodFunctionWrapper::initParameters_(). Tree is unrooted!");
   if (TreeTemplateTools::isMultifurcating(*(tree.getRootNode())))

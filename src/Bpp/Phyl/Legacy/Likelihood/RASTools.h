@@ -65,8 +65,8 @@ public:
    * @param treeLikelihood A Likelihood calculation implmenting the RAS model interface.
    * @return The posterior distribution of rate classes.
    */
-  static DiscreteDistribution* getPosteriorRateDistribution(
-    const DiscreteRatesAcrossSitesTreeLikelihood& treeLikelihood);
+  static std::unique_ptr<DiscreteDistribution> getPosteriorRateDistribution(
+    const DiscreteRatesAcrossSitesTreeLikelihoodInterface& treeLikelihood);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_RASTOOLS_H

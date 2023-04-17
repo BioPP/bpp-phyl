@@ -52,87 +52,100 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
-void fitModelH(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<DiscreteDistribution> rdist,
-               std::shared_ptr<PhyloTree> tree, const VectorSiteContainer& sites,
+void fitModelH(shared_ptr<SubstitutionModelInterface> model,
+	       shared_ptr<DiscreteDistribution> rdist,
+               shared_ptr<PhyloTree> tree,
+	       shared_ptr<const SiteContainerInterface> sites,
                double initialValue, double finalValue)
 {
-  RateAcrossSitesSubstitutionProcess process(model, rdist, tree);
+  auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, tree);
 
   Context context;
   
-  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
+  auto lik = make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   
-  SingleProcessPhyloLikelihood llh(context, lik);
+  auto llh = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
   ApplicationTools::displayResult("Test model", model->getName());
-  double initValue=llh.getValue();
+  double initValue = llh->getValue();
 
   cout << setprecision(20) << initValue << endl;  
   ApplicationTools::displayResult("* initial likelihood", initValue);
   if (abs(initValue - initialValue) > 0.001)
     throw Exception("Incorrect initial value:" + TextTools::toString(initValue) + "<>" + TextTools::toString(initialValue));
-  unique_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
-  unique_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
+  shared_ptr<OutputStream> messenger(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
+  shared_ptr<OutputStream> profiler(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
   profiler->setPrecision(20);
 
   
-  OptimizationTools::optimizeNumericalParameters2(llh, llh.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get(), false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
-  cout << setprecision(20) << llh.getValue() << endl;
-  ApplicationTools::displayResult("* likelihood after full optimization", llh.getValue());
-  llh.getParameters().printParameters(cout);
-  if (abs(llh.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value:" + TextTools::toString(llh.getValue()) + "<>" + TextTools::toString(finalValue));
+  OptimizationTools::optimizeNumericalParameters2(llh, llh->getParameters(), 0, 0.000001, 10000, messenger, profiler, false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
+  cout << setprecision(20) << llh->getValue() << endl;
+  ApplicationTools::displayResult("* likelihood after full optimization", llh->getValue());
+  llh->getParameters().printParameters(cout);
+  if (abs(llh->getValue() - finalValue) > 0.001)
+    throw Exception("Incorrect final value:" + TextTools::toString(llh->getValue()) + "<>" + TextTools::toString(finalValue));
 }
 
-void fitModelHClock(std::shared_ptr<SubstitutionModel> model, std::shared_ptr<DiscreteDistribution> rdist,
-                    std::shared_ptr<PhyloTree> tree, const VectorSiteContainer& sites,
-
+void fitModelHClock(shared_ptr<SubstitutionModelInterface> model,
+	            shared_ptr<DiscreteDistribution> rdist,
+                    shared_ptr<PhyloTree> tree,
+		    shared_ptr<const SiteContainerInterface> sites,
                     double initialValue, double finalValue)
 {
-  RateAcrossSitesSubstitutionProcess process(model, rdist, tree);
+  auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, tree);
 
   Context context;
   
-  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
+  auto lik = make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   lik->setClockLike();
   
-  SingleProcessPhyloLikelihood llh(context, lik);
+  auto llh = make_shared<SingleProcessPhyloLikelihood>(context, lik);
     
   ApplicationTools::displayResult("Test model", model->getName());
-  double initValue=llh.getValue();
+  double initValue = llh->getValue();
 
   cout << setprecision(20) << initValue << endl;  
   ApplicationTools::displayResult("* initial likelihood", initValue);
   if (abs(initValue - initialValue) > 0.001)
     throw Exception("Incorrect initial value:" + TextTools::toString(initValue) + "<>" + TextTools::toString(initialValue));
-  unique_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
-  unique_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
+  shared_ptr<OutputStream> messenger(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
+  shared_ptr<OutputStream> profiler(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
   profiler->setPrecision(20);
 
-  OptimizationTools::optimizeNumericalParameters2(llh, llh.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get());
-  cout << setprecision(20) << llh.getValue() << endl;
-  ApplicationTools::displayResult("* likelihood after full optimization", llh.getValue());
-  llh.getParameters().printParameters(cout);
-  if (abs(llh.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value:" + TextTools::toString(llh.getValue()) + "<>" + TextTools::toString(finalValue));
+  OptimizationTools::optimizeNumericalParameters2(llh, llh->getParameters(), 0, 0.000001, 10000, messenger, profiler);
+  cout << setprecision(20) << llh->getValue() << endl;
+  ApplicationTools::displayResult("* likelihood after full optimization", llh->getValue());
+  llh->getParameters().printParameters(cout);
+  if (abs(llh->getValue() - finalValue) > 0.001)
+    throw Exception("Incorrect final value:" + TextTools::toString(llh->getValue()) + "<>" + TextTools::toString(finalValue));
 }
 
 int main() {
   bpp::Newick reader;
   auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);", false, "", false, false));
   
-  const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  shared_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
-  DiscreteDistribution* rdist = new ConstantRateDistribution();
+  shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
+  auto model = make_shared<T92>(nucAlphabet, 3.);
+  auto rdist = make_shared<ConstantRateDistribution>();
 
-  VectorSiteContainer sites(alphabet);
-  sites.addSequence(BasicSequence("A", "AAATGGCTGTGCACGTC", alphabet));
-  sites.addSequence(BasicSequence("B", "AACTGGATCTGCATGTC", alphabet));
-  sites.addSequence(BasicSequence("C", "ATCTGGACGTGCACGTG", alphabet));
-  sites.addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTA", alphabet));
+  auto sites = make_shared<VectorSiteContainer> (alphabet);
+  auto seqA = make_unique<Sequence>("A", "AAATGGCTGTGCACGTC", alphabet);
+  sites->addSequence("A", seqA);
+  auto seqB = make_unique<Sequence>("B", "AACTGGATCTGCATGTC", alphabet);
+  sites->addSequence("B", seqB);
+  auto seqC = make_unique<Sequence>("C", "ATCTGGACGTGCACGTG", alphabet);
+  sites->addSequence("C", seqC);
+  auto seqD = make_unique<Sequence>("D", "CAACGGGAGTGCGCCTA", alphabet);
+  sites->addSequence("D", seqD);
 
   try {
-    fitModelH(std::shared_ptr<SubstitutionModel>(model->clone()), std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<PhyloTree>(phyloTree->clone()), sites, 94.3957, 71.0564);
+    fitModelH(
+	std::shared_ptr<SubstitutionModelInterface>(model->clone()),
+	std::shared_ptr<DiscreteDistribution>(rdist->clone()),
+       	std::shared_ptr<PhyloTree>(phyloTree->clone()),
+       	sites,
+       	94.3957, 71.0564);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
@@ -141,14 +154,18 @@ int main() {
   cout << endl << endl;
   
   try {
-    fitModelHClock(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<PhyloTree>(phyloTree->clone()), sites, 94.395699, 72.7196);
+    fitModelHClock(
+	model,
+        std::shared_ptr<DiscreteDistribution>(rdist->clone()),
+       	std::shared_ptr<PhyloTree>(phyloTree->clone()),
+       	sites,
+       	94.395699, 72.7196);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
   }
 
   //-------------
-  delete rdist;
 
   return 0;
 }

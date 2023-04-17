@@ -65,37 +65,44 @@ class AbstractAgglomerativeDistanceMethod :
 {
 protected:
   DistanceMatrix matrix_;
-  Tree* tree_;
+  std::unique_ptr<Tree> tree_;
 
   std::map<size_t, Node*> currentNodes_;
   bool verbose_;
   bool rootTree_;
 
 public:
-  // AbstractAgglomerativeDistanceMethod() :
-  //  matrix_(0), tree_(0), currentNodes_(), verbose_(true), rootTree_(false) {}
 
-  AbstractAgglomerativeDistanceMethod(bool verbose = true, bool rootTree = false) :
-    matrix_(0), tree_(0), currentNodes_(), verbose_(verbose), rootTree_(rootTree) {}
+  AbstractAgglomerativeDistanceMethod(
+      bool verbose = true,
+      bool rootTree = false) :
+    matrix_(0),
+    tree_(nullptr),
+    currentNodes_(),
+    verbose_(verbose),
+    rootTree_(rootTree) {}
 
-  AbstractAgglomerativeDistanceMethod(const DistanceMatrix& matrix, bool verbose = true, bool rootTree = false) :
-    matrix_(0), tree_(0), currentNodes_(), verbose_(verbose), rootTree_(rootTree)
+  AbstractAgglomerativeDistanceMethod(
+      const DistanceMatrix& matrix,
+      bool verbose = true,
+      bool rootTree = false) :
+    matrix_(0),
+    tree_(nullptr),
+    currentNodes_(),
+    verbose_(verbose),
+    rootTree_(rootTree)
   {
     setDistanceMatrix(matrix);
   }
 
-  virtual ~AbstractAgglomerativeDistanceMethod()
-  {
-    if (tree_)
-      delete tree_;
-  }
+  virtual ~AbstractAgglomerativeDistanceMethod() {}
 
   AbstractAgglomerativeDistanceMethod(const AbstractAgglomerativeDistanceMethod& a) :
-    matrix_(a.matrix_), tree_(0), currentNodes_(), verbose_(a.verbose_), rootTree_(a.rootTree_)
+    matrix_(a.matrix_), tree_(nullptr), currentNodes_(), verbose_(a.verbose_), rootTree_(a.rootTree_)
   {
     // Hard copy of inner tree:
     if (a.tree_)
-      tree_ = new TreeTemplate<Node>(*a.tree_);
+      tree_.reset(new TreeTemplate<Node>(*a.tree_));
   }
 
   AbstractAgglomerativeDistanceMethod& operator=(const AbstractAgglomerativeDistanceMethod& a)
@@ -103,7 +110,7 @@ public:
     matrix_ = a.matrix_;
     // Hard copy of inner tree:
     if (a.tree_)
-      tree_ = new TreeTemplate<Node>(*a.tree_);
+      tree_.reset(new TreeTemplate<Node>(*a.tree_));
     else tree_ = 0;
     currentNodes_.clear();
     verbose_ = a.verbose_;
@@ -112,20 +119,19 @@ public:
   }
 
 public:
-  virtual void setDistanceMatrix(const DistanceMatrix& matrix);
+  virtual void setDistanceMatrix(const DistanceMatrix& matrix) override;
 
-  /**
-   * @brief Get the computed tree, if there is one.
-   *
-   * @return A copy of the computed tree if there is one, 0 otherwise.
-   */
-  virtual
-
-  TreeTemplate<Node>* getTree() const
+  bool hasTree() const override
   {
-    // Node * root = TreeTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<Node> *>(tree_) -> getRootNode());
-    // return new TreeTemplate<Node>(* root);
-    return tree_ == 0 ? 0 : new TreeTemplate<Node>(*tree_);
+    return (tree_ != nullptr);
+  }
+
+  const Tree& tree() const override
+  {
+    if (tree_)
+      return *tree_;
+    
+    throw NullPointerException("AbstractAgglomerativeDistanceMethod::tree(). No tree was computed.");
   }
 
   /**
@@ -140,10 +146,10 @@ public:
    * 6) Return to step 2 while there are more than 3 remaining nodes.
    * 7) Perform the final step, and send a rooted or unrooted tree.
    */
-  virtual void computeTree();
+  void computeTree() override;
 
-  void setVerbose(bool yn) { verbose_ = yn; }
-  bool isVerbose() const { return verbose_; }
+  void setVerbose(bool yn) override { verbose_ = yn; }
+  bool isVerbose() const override { return verbose_; }
 
 protected:
   /**

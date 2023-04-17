@@ -559,7 +559,7 @@ public:
    * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
    * according to the MRP supertree method.
    */
-  static VectorSiteContainer* MRPEncode(const std::vector<Tree*>& vecTr);
+  static std::unique_ptr<VectorSiteContainer> MRPEncode(const std::vector<Tree*>& vecTr);
 
   /**
    * @brief Creates a sequence data set corresponding to the Matrix Representation of the input multilabel trees
@@ -569,7 +569,7 @@ public:
    * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
    * according to the MRP supertree method.
    */
-  static VectorSiteContainer* MRPEncodeMultilabel(const std::vector<Tree*>& vecTr);
+  static std::unique_ptr<VectorSiteContainer> MRPEncodeMultilabel(const std::vector<Tree*>& vecTr);
 
   /**
    * @brief Tells whether two trees have the same unrooted topology

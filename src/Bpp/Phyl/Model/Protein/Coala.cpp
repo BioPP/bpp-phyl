@@ -62,12 +62,12 @@ using namespace std;
 /******************************************************************************/
 
 Coala::Coala(
-  const ProteicAlphabet* alpha,
-  const ProteinSubstitutionModel& model,
+  shared_ptr<const ProteicAlphabet> alpha,
+  const ProteinSubstitutionModelInterface& model,
   unsigned int nbAxes,
   bool param) :
   AbstractParameterAliasable("Coala."),
-  AbstractReversibleProteinSubstitutionModel(alpha, model.shareStateMap(), "Coala."),
+  AbstractReversibleProteinSubstitutionModel(alpha, model.getStateMap(), "Coala."),
   CoalaCore(nbAxes, model.getName()),
   init_(true),
   nbrOfAxes_(nbAxes),
@@ -79,7 +79,7 @@ Coala::Coala(
 
   // Setting the exchangeability matrix
   exchangeability_ = model.getExchangeabilityMatrix();
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
@@ -88,11 +88,11 @@ void Coala::readFromFile(string& file)
 {
   ifstream in(file.c_str(), ios::in);
   // Read exchangeability matrix:
-  for (unsigned int i = 1; i < 20; i++)
+  for (unsigned int i = 1; i < 20; ++i)
   {
     string line = FileTools::getNextLine(in);
     StringTokenizer st(line);
-    for (unsigned int j = 0; j < i; j++)
+    for (unsigned int j = 0; j < i; ++j)
     {
       double s = TextTools::toDouble(st.nextToken());
       exchangeability_(i, j) = exchangeability_(j, i) = s;
@@ -100,10 +100,10 @@ void Coala::readFromFile(string& file)
   }
 
   // Now build diagonal of the exchangeability matrix:
-  for (unsigned int i = 0; i < 20; i++)
+  for (unsigned int i = 0; i < 20; ++i)
   {
     double sum = 0;
-    for (unsigned int j = 0; j < 20; j++)
+    for (unsigned int j = 0; j < 20; ++j)
     {
       if (j != i)
         sum += exchangeability_(i, j);
@@ -117,6 +117,7 @@ void Coala::readFromFile(string& file)
 
 
 /******************************************************************************/
+
 void Coala::computeEquilibriumFrequencies()
 {
   // Computes the equilibrium frequencies from a set of coordinates along the principal axes of the COA.
@@ -126,7 +127,7 @@ void Coala::computeEquilibriumFrequencies()
   {
     // We get the coordinates:
     vector<double> coord;
-    for (unsigned int i = 0; i < nbrOfAxes_; i++)
+    for (unsigned int i = 0; i < nbrOfAxes_; ++i)
     {
       coord.push_back(getParameter("AxPos" + TextTools::toString(i)).getValue());
     }
@@ -134,7 +135,7 @@ void Coala::computeEquilibriumFrequencies()
     // Now, frequencies are computed from the vector of coordinates and the transpose of the principal axes matrix (P_):
     vector<double> tmpFreqs;
     tmpFreqs = prodMatrixVector(P_, coord);
-    for (unsigned int i = 0; i < tmpFreqs.size(); i++)
+    for (unsigned int i = 0; i < tmpFreqs.size(); ++i)
     {
       tmpFreqs[i] = (tmpFreqs[i] + 1) * colWeights_[i];
     }
@@ -142,7 +143,7 @@ void Coala::computeEquilibriumFrequencies()
 
     // Frequencies are not allowed to be lower than 10^-3 or higher than 0.5:
     bool norm = false;
-    for (unsigned int i = 0; i < 20; i++)
+    for (unsigned int i = 0; i < 20; ++i)
     {
       if (freq_[i] < 0.001)
       {
@@ -168,20 +169,20 @@ void Coala::computeEquilibriumFrequencies()
 
 /******************************************************************************/
 
-void Coala::updateMatrices()
+void Coala::updateMatrices_()
 {
   computeEquilibriumFrequencies();
-  AbstractReversibleSubstitutionModel::updateMatrices();
+  AbstractReversibleSubstitutionModel::updateMatrices_();
 }
 
 /******************************************************************************/
 
-void Coala::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void Coala::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   // Compute the COA from the observed frequencies, add the axis position parameters and update the Markov matrix
   ParameterList pList = computeCOA(data, param_);
   addParameters_(pList);
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/

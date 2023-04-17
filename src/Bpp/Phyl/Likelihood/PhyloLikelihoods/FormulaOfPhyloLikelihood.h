@@ -1,7 +1,7 @@
 //
 // File: FormulaOfPhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 8 dÃÂ©cembre 2016, ÃÂ  10h 35
 //
 
@@ -43,7 +43,7 @@
 
 #include <Bpp/Numeric/Function/Operators/ComputationTree.h>
 
-#include "SetOfAbstractPhyloLikelihood.h"
+#include "SetOfPhyloLikelihood.h"
 
 namespace bpp
 {
@@ -54,9 +54,8 @@ namespace bpp
  * WARNING: This formula applies on the log-likelihoods (ie getValues())
  *
  */
-
 class FormulaOfPhyloLikelihood :
-  public SetOfAbstractPhyloLikelihood
+  public AbstractSetOfPhyloLikelihood
 {
 private:
   std::unique_ptr<ComputationTree> compTree_;
@@ -66,14 +65,31 @@ private:
 public:
   FormulaOfPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::string& formula, bool inCollection = true);
 
-  ~FormulaOfPhyloLikelihood() {}
+  virtual ~FormulaOfPhyloLikelihood() {}
+
+protected:
+
+  FormulaOfPhyloLikelihood(const FormulaOfPhyloLikelihood& sd):
+    AbstractPhyloLikelihood(sd),
+    AbstractParametrizable(sd),
+    AbstractSetOfPhyloLikelihood(sd),
+    compTree_(sd.compTree_->clone()),
+    likCal_(sd.likCal_)
+  {}
+
+  FormulaOfPhyloLikelihood& operator=(const FormulaOfPhyloLikelihood& sd)
+  {
+    AbstractSetOfPhyloLikelihood::operator=(sd);
+    compTree_.reset(sd.compTree_->clone());
+    likCal_ = sd.likCal_;
+    return *this;
+  }
+
 
   FormulaOfPhyloLikelihood* clone() const
   {
     return new FormulaOfPhyloLikelihood(*this);
   }
-
-  FormulaOfPhyloLikelihood(const FormulaOfPhyloLikelihood& sd);
 
 public:
   /**
@@ -92,14 +108,12 @@ public:
 
   /**
    * @name The likelihood functions.
-   *
    */
+  LikelihoodCalculation& likelihoodCalculation() const
+  {
+    return *likCal_;
+  }
 
-  /**
-   * @brief Get the logarithm of the likelihood for the whole dataset.
-   *
-   * @return The logarithm of the likelihood of the dataset.
-   */
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
   {
     return likCal_;

@@ -67,10 +67,10 @@ namespace bpp
  */
 class DRNonHomogeneousTreeLikelihood :
   public AbstractNonHomogeneousTreeLikelihood,
-  public DRTreeLikelihood
+  public DRTreeLikelihoodInterface
 {
 protected:
-  mutable DRASDRTreeLikelihoodData* likelihoodData_;
+  mutable std::unique_ptr<DRASDRTreeLikelihoodData> likelihoodData_;
   double minusLogLik_;
 
 public:
@@ -90,8 +90,8 @@ public:
    */
   DRNonHomogeneousTreeLikelihood(
     const Tree& tree,
-    SubstitutionModelSet* modelSet,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool verbose = true,
     bool reparametrizeRoot = false);
 
@@ -111,9 +111,9 @@ public:
    */
   DRNonHomogeneousTreeLikelihood(
     const Tree& tree,
-    const AlignedValuesContainer& data,
-    SubstitutionModelSet* modelSet,
-    DiscreteDistribution* rDist,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool verbose = true,
     bool reparametrizeRoot = false);
 
@@ -124,7 +124,7 @@ public:
 
   DRNonHomogeneousTreeLikelihood& operator=(const DRNonHomogeneousTreeLikelihood& lik);
 
-  virtual ~DRNonHomogeneousTreeLikelihood();
+  virtual ~DRNonHomogeneousTreeLikelihood() {}
 
   DRNonHomogeneousTreeLikelihood* clone() const { return new DRNonHomogeneousTreeLikelihood(*this); }
 
@@ -142,7 +142,7 @@ public:
    *
    * @{
    */
-  void setData(const AlignedValuesContainer& sites);
+  void setData(const AlignmentDataInterface& sites);
   double getLikelihood () const;
   double getLogLikelihood() const;
   double getLikelihoodForASite (size_t site) const;
@@ -202,8 +202,9 @@ public:
 public:
   // Specific methods:
 
-  DRASDRTreeLikelihoodData* getLikelihoodData() { return likelihoodData_; }
-  const DRASDRTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_; }
+  DRASDRTreeLikelihoodData& likelihoodData() { return *likelihoodData_; }
+  
+  const DRASDRTreeLikelihoodData& likelihoodData() const { return *likelihoodData_; }
 
   virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const
   {

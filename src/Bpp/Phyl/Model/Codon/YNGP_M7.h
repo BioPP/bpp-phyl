@@ -49,7 +49,7 @@ namespace bpp
 {
 /**
  * @brief The Yang et al (2000) M7 substitution model for codons.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
  * mixture being defined on the selection parameter to allow it to
@@ -63,23 +63,28 @@ namespace bpp
  *
  * Yang, Z., R. Nielsen, N. Goldman, and A.-M. K. Pedersen (2000)
  * Genetics 155:431-449.
- *
  */
 class YNGP_M7 :
   public YNGP_M
 {
 public:
-  /*
-   *@brief Constructor that requires the number of classes of the
+  /**
+   * @brief Constructor that requires the number of classes of the
    * BetaDiscreteDistribution.
-   *
    */
+  YNGP_M7(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs,
+      unsigned int nclass);
 
-  YNGP_M7(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs, unsigned int nclass);
-
-  YNGP_M7* clone() const { return new YNGP_M7(*this); }
+  YNGP_M7* clone() const override { return new YNGP_M7(*this); }
 
   YNGP_M7(const YNGP_M7& mod2) :
+    AbstractParameterAliasable(mod2),
+    AbstractWrappedModel(mod2),
+    AbstractWrappedTransitionModel(mod2),
+    AbstractTotallyWrappedTransitionModel(mod2),
+    AbstractBiblioTransitionModel(mod2),
     YNGP_M(mod2)
   {}
 
@@ -88,12 +93,13 @@ public:
     YNGP_M::operator=(mod2);
     return *this;
   }
+  
+  std::string getName() const override { return "YNGP_M7"; }
 
 protected:
-  void updateMatrices();
+  
+  void updateMatrices_() override;
 
-public:
-  std::string getName() const { return "YNGP_M7"; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M7_H

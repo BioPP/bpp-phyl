@@ -54,11 +54,9 @@ namespace bpp
  * This class OWNS a pointer toward a ParametrizableTree object, as
  * well as convenient arrays for storing previously computed
  * probabilities.
- *
  */
-  
 class AbstractAutonomousSubstitutionProcess :
-  public virtual AutonomousSubstitutionProcess,
+  public virtual AutonomousSubstitutionProcessInterface,
   public virtual AbstractSubstitutionProcess
 {
 protected:
@@ -67,12 +65,13 @@ protected:
   /**
    * @brief Root frequencies.
    */
-  std::shared_ptr<FrequencySet> rootFrequencies_;
+  std::shared_ptr<FrequencySetInterface> rootFrequencies_;
   
   std::shared_ptr<ModelScenario> modelScenario_;
 
 protected:
-  /*
+  
+  /**
    * @brief Builds using an optional pointer towards a PhyloTree.
    *
    * If the pointer is non-null, a ParametrizablePhyloTree will be
@@ -80,16 +79,20 @@ protected:
    * AbstractAutonomousSubstitutionProcess.
    *
    */
-  AbstractAutonomousSubstitutionProcess(std::shared_ptr<const PhyloTree> tree = 0, std::shared_ptr<FrequencySet> rootFrequencies = 0, const std::string& prefix = "");
+  AbstractAutonomousSubstitutionProcess(
+      std::shared_ptr<const PhyloTree> tree = 0,
+      std::shared_ptr<FrequencySetInterface> rootFrequencies = 0,
+      const std::string& prefix = "");
 
-  /*
+  /**
    * @brief Builds using a pointer towards a ParametrizablePhyloTree.
    * This pointer will be owned by the
    * AbstractAutonomousSubstitutionProcess.
-   *
    */
-  
-  AbstractAutonomousSubstitutionProcess(std::shared_ptr<ParametrizablePhyloTree> tree, std::shared_ptr<FrequencySet> rootFrequencies = 0, const std::string& prefix = "");
+  AbstractAutonomousSubstitutionProcess(
+      std::shared_ptr<ParametrizablePhyloTree> tree,
+      std::shared_ptr<FrequencySetInterface> rootFrequencies = 0,
+      const std::string& prefix = "");
 
   AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp);
 
@@ -101,10 +104,13 @@ public:
    * @brief sets the ParametrizablePhyloTree.
    *
    * Will build a unique_ptr<ParametrizablePhyloTree> from the given PhyloTree
-   *
-   **/
-
+   */
   void setPhyloTree(const PhyloTree& phyloTree);
+
+  const ParametrizablePhyloTree& parametrizablePhyloTree() const
+  {
+    return *pTree_;
+  }
 
   std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const
   {
@@ -119,22 +125,36 @@ public:
     return rootFrequencies_!=0;
   }
 
-  std::shared_ptr<const FrequencySet> getRootFrequencySet() const
+  const FrequencySetInterface& rootFrequencySet() const
+  {
+    return *rootFrequencies_;
+  }
+
+  std::shared_ptr<const FrequencySetInterface> getRootFrequencySet() const
   {
     return rootFrequencies_;
   }
 
+  FrequencySetInterface& rootFrequencySet()
+  {
+    return *rootFrequencies_;
+  }
+
+  std::shared_ptr<FrequencySetInterface> getRootFrequencySet()
+  {
+    return rootFrequencies_;
+  }
+  
   /**
    * @brief set the RootFrequency.
    *
    * @param rootfrequency The root frequencies to be associated with this instance.
    */
-
-  void setRootFrequencySet(std::shared_ptr<FrequencySet> rootfrequency)
+  void setRootFrequencySet(std::shared_ptr<FrequencySetInterface> rootfrequency)
   {
     if (rootFrequencies_)
       getParameters_().deleteParameters(rootFrequencies_->getParameters().getParameterNames(),false);
-    rootFrequencies_=rootfrequency;
+    rootFrequencies_ = rootfrequency;
     if (rootFrequencies_)
       addParameters_(rootFrequencies_->getParameters());
   }

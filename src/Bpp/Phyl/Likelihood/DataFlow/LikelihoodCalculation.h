@@ -1,7 +1,7 @@
 //
 // File: LikelihoodCalculation.h
 // Authors:
-//   FranÃÂ§ois Gindraud, Laurent GuÃÂ©guen (2018)
+//   François Gindraud, Laurent Guéguen (2018)
 // Created: jeudi 28 fÃÂ©vrier 2019, ÃÂ  07h 22
 //
 
@@ -123,7 +123,13 @@ public:
     likelihood_ = ll;
   }
 
-  /*
+  virtual void cleanAllLikelihoods()
+  {
+    if (likelihood_)
+      getContext_().erase(likelihood_);
+  }
+
+/*
    * @brief fix Factor such that valRef value becomes normal.
    *
    */
@@ -140,7 +146,6 @@ protected:
   {
     return context_;
   }
-
 
   ValueRef<DataLik> getLikelihoodNode_()
   {
@@ -231,9 +236,9 @@ public:
       makeLikelihoods();
 
     if (shrunk && patternedSiteLikelihoods_)
-      return patternedSiteLikelihoods_->getTargetValue()(Eigen::Index(pos));
+      return patternedSiteLikelihoods_->targetValue()(Eigen::Index(pos));
     else
-      return siteLikelihoods_->getTargetValue()(Eigen::Index(pos));
+      return siteLikelihoods_->targetValue()(Eigen::Index(pos));
   }
 
   DataLik getLogLikelihoodForASite(size_t pos, bool shrunk = false)
@@ -250,10 +255,27 @@ public:
    */
   VDataLik getLikelihoodPerSite()
   {
-    auto vLik = getSiteLikelihoods(false)->getTargetValue();
+    auto vLik = getSiteLikelihoods(false)->targetValue();
     VDataLik v;
     copyEigenToBpp(vLik, v);
     return v;
+  }
+
+  /*
+   * @brief Clean all the existing likelihoods (ie remove them from
+   * Context), and all unique dependencies.
+   *
+   *
+   */
+  void cleanAllLikelihoods()
+  {
+    LikelihoodCalculation::cleanAllLikelihoods();
+
+    if (siteLikelihoods_)
+      getContext_().erase(siteLikelihoods_);
+
+    if (patternedSiteLikelihoods_)
+      getContext_().erase(patternedSiteLikelihoods_);
   }
 
 protected:

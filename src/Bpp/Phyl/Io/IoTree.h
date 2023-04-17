@@ -50,6 +50,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Io/IoFormat.h>
@@ -105,6 +106,7 @@ public:
   virtual ~ITree() {}
 
 public:
+
   /**
    * @brief Read a tree from a file.
    *
@@ -112,8 +114,8 @@ public:
    * @return A new tree object.
    * @throw Exception If an error occured.
    */
+  virtual std::unique_ptr<Tree> readTree(const std::string& path) const = 0;
 
-  virtual Tree* readTree(const std::string& path) const = 0;
   /**
    * @brief Read a tree from a stream.
    *
@@ -121,8 +123,7 @@ public:
    * @return A new tree object.
    * @throw Exception If an error occured.
    */
-
-  virtual Tree* readTree(std::istream& in) const = 0;
+  virtual std::unique_ptr<Tree> readTree(std::istream& in) const = 0;
 };
 
   /**
@@ -143,8 +144,8 @@ public:
      * @return A new tree object.
      * @throw Exception If an error occured.
      */
+    virtual std::unique_ptr<PhyloTree> readPhyloTree(const std::string& path) const = 0;
 
-    virtual PhyloTree* readPhyloTree(const std::string& path) const = 0;
     /**
      * @brief Read a tree from a stream.
      *
@@ -152,8 +153,7 @@ public:
      * @return A new tree object.
      * @throw Exception If an error occured.
      */
-
-    virtual PhyloTree* readPhyloTree(std::istream& in) const = 0;
+    virtual std::unique_ptr<PhyloTree> readPhyloTree(std::istream& in) const = 0;
   };
 
   
@@ -178,65 +178,80 @@ public:
    * @throw Exception If an error occured.
    */
   virtual void writeTree(const Tree& tree, const std::string& path, bool overwrite) const = 0;
-/**
- * @brief Write a tree to a stream.
- *
- * @param tree A tree object.
- * @param out The output stream.
- * @throw Exception If an error occured.
- */
+
+   /**
+    * @brief Write a tree to a stream.
+    *
+    * @param tree A tree object.
+    * @param out The output stream.
+    * @throw Exception If an error occured.
+    */
   virtual void writeTree(const Tree& tree, std::ostream& out) const = 0;
 };
 
-  /**
-   * @brief General interface for tree writers.
-   */
-  class OPhyloTree :
-    public virtual IOTree
-  {
-  public:
-    OPhyloTree() {}
-    virtual ~OPhyloTree() {}
-
-  public:
-    /**
-     * @brief Write a tree to a file.
-     *
-     * @param tree A tree object.
-     * @param path The file path.
-     * @param overwrite Tell if existing file must be overwritten.
-     * Otherwise append to the file.
-     * @throw Exception If an error occured.
-     */
-    virtual void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite) const = 0;
 /**
- * @brief Write a tree to a stream.
- *
- * @param tree A tree object.
- * @param out The output stream.
- * @throw Exception If an error occured.
+ * @brief General interface for tree writers.
  */
-    virtual void writePhyloTree(const PhyloTree& tree, std::ostream& out) const =  0;
-  };
+class OPhyloTree :
+  public virtual IOTree
+{
+public:
+  OPhyloTree() {}
+  virtual ~OPhyloTree() {}
+
+public:
+  /**
+   * @brief Write a tree to a file.
+   *
+   * @param tree A tree object.
+   * @param path The file path.
+   * @param overwrite Tell if existing file must be overwritten.
+   * Otherwise append to the file.
+   * @throw Exception If an error occured.
+   */
+  virtual void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite) const = 0;
+
+  /**
+   * @brief Write a tree to a stream.
+   *
+   * @param tree A tree object.
+   * @param out The output stream.
+   * @throw Exception If an error occured.
+   */
+  virtual void writePhyloTree(const PhyloTree& tree, std::ostream& out) const =  0;
+};
 
 /**
  * @brief Partial implementation of the ITree interface.
  */
-
-  class AbstractITree :
+class AbstractITree :
   public virtual ITree
-  {
+{
   public:
   AbstractITree() {}
   virtual ~AbstractITree() {}
 
 public:
-  virtual Tree* readTree(std::istream& in) const = 0;
-  virtual Tree* readTree(const std::string& path) const
+  std::unique_ptr<Tree> readTree(std::istream& in) const override
+  {
+    auto tree = readTreeTemplate(in);
+    return std::unique_ptr<Tree>(tree.release());
+  }
+
+  std::unique_ptr<Tree> readTree(const std::string& path) const override
   {
     std::ifstream input(path.c_str(), std::ios::in);
+    auto tree = readTree(input);
+    input.close();
+    return tree;
+  }
 
-    Tree* tree = readTree(input);
+  virtual std::unique_ptr<TreeTemplate<Node>> readTreeTemplate(std::istream& in) const = 0;
+
+  virtual std::unique_ptr<TreeTemplate<Node>> readTreeTemplate(const std::string& path) const
+  {
+    std::ifstream input(path.c_str(), std::ios::in);
+    auto tree = readTreeTemplate(input);
     input.close();
     return tree;
   }
@@ -245,33 +260,34 @@ public:
   {
     return Element();
   }
-  };
+};
 
-  class AbstractIPhyloTree :
-    public virtual IPhyloTree
-  {
+class AbstractIPhyloTree :
+  public virtual IPhyloTree
+{
     
-  public:
-    AbstractIPhyloTree() {}
-    virtual ~AbstractIPhyloTree() {}
+public:
+  AbstractIPhyloTree() {}
+  virtual ~AbstractIPhyloTree() {}
 
-  public:
-    virtual PhyloTree* readPhyloTree(std::istream& in) const = 0;
-    virtual PhyloTree* readPhyloTree(const std::string& path) const
-    {
-      std::ifstream input(path.c_str(), std::ios::in);
-      if (!input)
-        throw IOException ("AbstractIPhyloTree::readPhyloTree(path): failed to read from path " + path);
-      PhyloTree* tree = readPhyloTree(input);
-      input.close();
-      return tree;
-    }
+public:
+  std::unique_ptr<PhyloTree> readPhyloTree(std::istream& in) const override = 0;
 
-    virtual Element getElement(const std::string& elt) const
-    {
-      return Element();
-    }
-  };
+  std::unique_ptr<PhyloTree> readPhyloTree(const std::string& path) const override
+  {
+    std::ifstream input(path.c_str(), std::ios::in);
+    if (!input)
+      throw IOException ("AbstractIPhyloTree::readPhyloTree(path): failed to read from path " + path);
+    auto tree = readPhyloTree(input);
+    input.close();
+    return tree;
+  }
+
+  Element getElement(const std::string& elt) const
+  {
+    return Element();
+  }
+};
 
 /**
  * @brief Partial implementation of the OTree interface.
@@ -360,7 +376,8 @@ public:
    * @param trees The output trees container.
    * @throw Exception If an error occured.
    */
-  virtual void readTrees(const std::string& path, std::vector<Tree*>& trees) const = 0;
+  virtual void readTrees(const std::string& path, std::vector<std::unique_ptr<Tree>>& trees) const = 0;
+
   /**
    * @brief Read trees from a stream.
    *
@@ -368,7 +385,7 @@ public:
    * @param trees The output trees container.
    * @throw Exception If an error occured.
    */
-  virtual void readTrees(std::istream& in, std::vector<Tree*>& trees) const = 0;
+  virtual void readTrees(std::istream& in, std::vector<std::unique_ptr<Tree>>& trees) const = 0;
 };
 
 class IMultiPhyloTree :
@@ -386,7 +403,8 @@ public:
    * @param trees The output trees container.
    * @throw Exception If an error occured.
    */
-  virtual void readPhyloTrees(const std::string& path, std::vector<PhyloTree*>& trees) const = 0;
+  virtual void readPhyloTrees(const std::string& path, std::vector<std::unique_ptr<PhyloTree>>& trees) const = 0;
+
   /**
    * @brief Read trees from a stream.
    *
@@ -394,7 +412,7 @@ public:
    * @param trees The output trees container.
    * @throw Exception If an error occured.
    */
-  virtual void readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& trees) const = 0;
+  virtual void readPhyloTrees(std::istream& in, std::vector<std::unique_ptr<PhyloTree>>& trees) const = 0;
 };
 
 /**
@@ -417,8 +435,10 @@ public:
    * Otherwise append to the file.
    * @throw Exception If an error occured.
    */
-
-  virtual void writeTrees(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite) const = 0;
+  virtual void writeTrees(
+      const std::vector<const Tree*>& trees,
+      const std::string& path,
+      bool overwrite) const = 0;
 
   /**
    * @brief Write trees to a stream.
@@ -427,8 +447,9 @@ public:
    * @param out The output stream.
    * @throw Exception If an error occured.
    */
-
-  virtual void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const = 0;
+  virtual void writeTrees(
+      const std::vector<const Tree*>& trees,
+      std::ostream& out) const = 0;
 };
 
 /**
@@ -451,8 +472,10 @@ public:
    * Otherwise append to the file.
    * @throw Exception If an error occured.
    */
-
-  virtual void writePhyloTrees(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite) const = 0;
+  virtual void writePhyloTrees(
+      const std::vector<const PhyloTree*>& trees,
+      const std::string& path,
+      bool overwrite) const = 0;
 
   /**
    * @brief Write trees to a stream.
@@ -461,8 +484,9 @@ public:
    * @param out The output stream.
    * @throw Exception If an error occured.
    */
-
-  virtual void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const = 0;
+  virtual void writePhyloTrees(
+      const std::vector<const PhyloTree*>& trees,
+      std::ostream& out) const = 0;
 };
 
 /**
@@ -476,8 +500,9 @@ public:
   virtual ~AbstractIMultiTree() {}
 
 public:
-  virtual void readTrees(std::istream& in, std::vector<Tree*>& trees) const = 0;
-  virtual void readTrees(const std::string& path, std::vector<Tree*>& trees) const
+  virtual void readTrees(std::istream& in, std::vector<std::unique_ptr<Tree>>& trees) const override= 0;
+
+  virtual void readTrees(const std::string& path, std::vector<std::unique_ptr<Tree>>& trees) const override
   {
     std::ifstream input(path.c_str(), std::ios::in);
     readTrees(input, trees);
@@ -497,8 +522,9 @@ public:
   virtual ~AbstractIMultiPhyloTree() {}
 
 public:
-  virtual void readPhyloTrees(std::istream& in, std::vector<PhyloTree*>& trees) const = 0;
-  virtual void readPhyloTrees(const std::string& path, std::vector<PhyloTree*>& trees) const
+  virtual void readPhyloTrees(std::istream& in, std::vector<std::unique_ptr<PhyloTree>>& trees) const override = 0;
+
+  virtual void readPhyloTrees(const std::string& path, std::vector<std::unique_ptr<PhyloTree>>& trees) const override
   {
     std::ifstream input(path.c_str(), std::ios::in);
     readPhyloTrees(input, trees);

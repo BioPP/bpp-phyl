@@ -59,7 +59,7 @@ namespace bpp
  * Fast, accurate and simulation-free stochastic mapping
  * Philosophical Transactions of the Royal Society B 2008 363:3985-95.
  *
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  */
 class RewardMappingTools
 {
@@ -81,8 +81,7 @@ public:
    * @return A vector of reward vectors (one for each site).
    * @throw Exception If the likelihood object is not initialized.
    */
-
-  static ProbabilisticRewardMapping* computeRewardVectors(
+  static std::unique_ptr<ProbabilisticRewardMapping> computeRewardVectors(
     LikelihoodCalculationSingleProcess& rltc,
     const std::vector<uint>& edgeIds,
     Reward& reward,
@@ -99,10 +98,9 @@ public:
    * @param out           The output stream where to write the vectors.
    * @throw IOException If an output error happens.
    */
-
   static void writeToStream(
     const ProbabilisticRewardMapping& rewards,
-    const AlignedValuesContainer& sites,
+    const AlignmentDataInterface& sites,
     std::ostream& out);
 
 
@@ -113,7 +111,7 @@ public:
    * @param rewards       The mapping object to fill.
    * @throw IOException If an input error happens.
    */
-  static void readFromStream(std::istream& in, ProbabilisticRewardMapping & rewards);
+  static void readFromStream(std::istream& in, ProbabilisticRewardMapping& rewards);
 
   /**
    * @brief Sum all rewards of a given branch (specified by its index).
@@ -122,7 +120,6 @@ public:
    * @param branchIndex The index of the reward vector for which the counts should be computed.
    * @return A vector will all rewards summed.
    */
-
   static double computeSumForBranch(const ProbabilisticRewardMapping& smap, size_t branchIndex);
 
   /**
@@ -132,7 +129,6 @@ public:
    * @param siteIndex The index of the substitution vector for which the counts should be computed.
    * @return A vector will all counts summed for each types of substitutions.
    */
-
   static double computeSumForSite(const ProbabilisticRewardMapping& smap, size_t siteIndex);
 };
 } // end of namespace bpp.

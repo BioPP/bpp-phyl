@@ -101,7 +101,7 @@ class RE08 :
   public AbstractReversibleSubstitutionModel
 {
 private:
-  std::unique_ptr<ReversibleSubstitutionModel> simpleModel_;
+  std::unique_ptr<ReversibleSubstitutionModelInterface> simpleModel_;
   RowMatrix<double> simpleGenerator_;
   RowMatrix<double> simpleExchangeabilities_;
   mutable double exp_;
@@ -122,28 +122,29 @@ public:
    * @param lambda Insertion rate.
    * @param mu     Deletion rate.
    */
-  RE08(ReversibleSubstitutionModel* simpleModel, double lambda = 0.1, double mu = 0.1);
+  RE08(
+      std::unique_ptr<ReversibleSubstitutionModelInterface> simpleModel,
+      double lambda = 0.1,
+      double mu = 0.1);
 
   RE08(const RE08& model) :
     AbstractParameterAliasable(model),
-  // AbstractSubstitutionModel(model),
-  AbstractReversibleSubstitutionModel(model),
-  simpleModel_(dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone())),
-  simpleGenerator_(model.simpleGenerator_),
-  simpleExchangeabilities_(model.simpleExchangeabilities_),
-  exp_(model.exp_),
-  p_(model.p_),
-  lambda_(model.lambda_),
-  mu_(model.mu_),
-  nestedPrefix_(model.nestedPrefix_)
+    AbstractReversibleSubstitutionModel(model),
+    simpleModel_(model.simpleModel_->clone()),
+    simpleGenerator_(model.simpleGenerator_),
+    simpleExchangeabilities_(model.simpleExchangeabilities_),
+    exp_(model.exp_),
+    p_(model.p_),
+    lambda_(model.lambda_),
+    mu_(model.mu_),
+    nestedPrefix_(model.nestedPrefix_)
   {}
 
   RE08& operator=(const RE08& model)
   {
     AbstractParameterAliasable::operator=(model);
-    AbstractSubstitutionModel::operator=(model);
     AbstractReversibleSubstitutionModel::operator=(model);
-    simpleModel_.reset(dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone()));
+    simpleModel_.reset(model.simpleModel_->clone());
     simpleGenerator_         = model.simpleGenerator_;
     simpleExchangeabilities_ = model.simpleExchangeabilities_;
     exp_                     = model.exp_;
@@ -156,17 +157,17 @@ public:
 
   virtual ~RE08() {}
 
-  RE08* clone() const { return new RE08(*this); }
+  RE08* clone() const override { return new RE08(*this); }
 
 public:
-  double Pij_t    (size_t i, size_t j, double d) const;
-  double dPij_dt  (size_t i, size_t j, double d) const;
-  double d2Pij_dt2(size_t i, size_t j, double d) const;
-  const Matrix<double>& getPij_t    (double d) const;
-  const Matrix<double>& getdPij_dt  (double d) const;
-  const Matrix<double>& getd2Pij_dt2(double d) const;
+  double Pij_t    (size_t i, size_t j, double d) const override;
+  double dPij_dt  (size_t i, size_t j, double d) const override;
+  double d2Pij_dt2(size_t i, size_t j, double d) const override;
+  const Matrix<double>& getPij_t    (double d) const override;
+  const Matrix<double>& getdPij_dt  (double d) const override;
+  const Matrix<double>& getd2Pij_dt2(double d) const override;
 
-  std::string getName() const { return "RE08"; }
+  std::string getName() const override { return "RE08"; }
 
   /**
    * @brief This method is forwarded to the simple model.
@@ -174,32 +175,38 @@ public:
    * @param data The data to be passed to the simple model (gaps will be ignored).
    * @param pseudoCount A (typically small) value to add to each count to avoid 0 estimates.
    */
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override
   {
     simpleModel_->setFreqFromData(data, pseudoCount);
   }
 
-  void setFreq(std::map<int, double>& frequencies)
+  void setFreq(std::map<int, double>& frequencies) override
   {
     simpleModel_->setFreq(frequencies);
   }
 
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     simpleModel_->matchParametersValues(parameters);
     lambda_ = getParameter_(0).getValue();
     mu_     = getParameter_(1).getValue();
-    updateMatrices();
+    updateMatrices_();
   }
 
-  double getInitValue(size_t i, int state) const;
+  double getInitValue(size_t i, int state) const override;
 
-  void setNamespace(const std::string& prefix);
+  void setNamespace(const std::string& prefix) override;
 
-  const ReversibleSubstitutionModel* getNestedModel() const { return simpleModel_.get(); }
+  const ReversibleSubstitutionModelInterface& nestedModel() const
+  { 
+    return *simpleModel_; 
+  }
 
 protected:
-  void updateMatrices();
+  
+  void updateMatrices_() override;
+  
+  ReversibleSubstitutionModelInterface& nestedModel_() { return *simpleModel_; }
 };
 
 
@@ -208,7 +215,7 @@ protected:
  */
 class RE08Nucleotide :
   public RE08,
-  public virtual NucleotideSubstitutionModel
+  public virtual NucleotideSubstitutionModelInterface
 {
 public:
   /**
@@ -227,23 +234,29 @@ public:
    * @param lambda Insertion rate.
    * @param mu     Deletion rate.
    */
-
-  RE08Nucleotide(NucleotideReversibleSubstitutionModel* nucleotideModel, double lambda = 0.1, double mu = 0.1) :
+  RE08Nucleotide(
+      std::unique_ptr<NucleotideReversibleSubstitutionModelInterface> nucleotideModel,
+      double lambda = 0.1,
+      double mu = 0.1) :
     AbstractParameterAliasable("RE08."),
-    RE08(nucleotideModel, lambda, mu) {}
+    RE08(std::move(nucleotideModel), lambda, mu) {}
 
   virtual ~RE08Nucleotide() {}
 
-  RE08Nucleotide* clone() const { return new RE08Nucleotide(*this); }
+  RE08Nucleotide* clone() const override { return new RE08Nucleotide(*this); }
 
 public:
-  const NucleicAlphabet* getAlphabet() const { return dynamic_cast<const NucleicAlphabet*>(alphabet_); }
-  const NucleotideReversibleSubstitutionModel* getNestedModel() const
+  std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const override
   {
-    return dynamic_cast<const NucleotideReversibleSubstitutionModel*>(RE08::getNestedModel());
+    return std::dynamic_pointer_cast<const NucleicAlphabet>(alphabet_);
   }
 
-  size_t getNumberOfStates() const { return RE08::getNumberOfStates(); }
+  const NucleotideReversibleSubstitutionModelInterface& nestedModel() const
+  {
+    return dynamic_cast<const NucleotideReversibleSubstitutionModelInterface&>(RE08::nestedModel());
+  }
+
+  size_t getNumberOfStates() const override { return RE08::getNumberOfStates(); }
 };
 
 /**
@@ -251,7 +264,7 @@ public:
  */
 class RE08Protein :
   public RE08,
-  public virtual ProteinSubstitutionModel
+  public virtual ProteinSubstitutionModelInterface
 {
 public:
   /**
@@ -265,22 +278,29 @@ public:
    * @param lambda Insertion rate.
    * @param mu     Deletion rate.
    */
-  RE08Protein(ProteinReversibleSubstitutionModel* proteinModel, double lambda = 0.1, double mu = 0.1) :
+  RE08Protein(
+      std::unique_ptr<ProteinReversibleSubstitutionModelInterface> proteinModel,
+      double lambda = 0.1,
+      double mu = 0.1) :
     AbstractParameterAliasable("RE08."),
-    RE08(proteinModel, lambda, mu) {}
+    RE08(std::move(proteinModel), lambda, mu) {}
 
   virtual ~RE08Protein() {}
 
-  RE08Protein* clone() const { return new RE08Protein(*this); }
+  RE08Protein* clone() const override{ return new RE08Protein(*this); }
 
 public:
-  const ProteicAlphabet* getAlphabet() const { return dynamic_cast<const ProteicAlphabet*>(alphabet_); }
-  const ProteinReversibleSubstitutionModel* getNestedModel() const
+  std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
-    return dynamic_cast<const ProteinReversibleSubstitutionModel*>(RE08::getNestedModel());
+    return std::dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
+  }
+  
+  const ProteinReversibleSubstitutionModelInterface& nestedModel() const
+  {
+    return dynamic_cast<const ProteinReversibleSubstitutionModelInterface&>(RE08::nestedModel());
   }
 
-  size_t getNumberOfStates() const { return RE08::getNumberOfStates(); }
+  size_t getNumberOfStates() const override { return RE08::getNumberOfStates(); }
 };
 
 
@@ -289,7 +309,7 @@ public:
  */
 class RE08Codon :
   public RE08,
-  public virtual CodonSubstitutionModel
+  public virtual CodonSubstitutionModelInterface
 {
 public:
   /**
@@ -303,40 +323,48 @@ public:
    * @param lambda Insertion rate.
    * @param mu     Deletion rate.
    */
-  RE08Codon(CodonReversibleSubstitutionModel* codonModel, double lambda = 0.1, double mu = 0.1) :
+  RE08Codon(
+      std::unique_ptr<CodonReversibleSubstitutionModelInterface> codonModel,
+      double lambda = 0.1,
+      double mu = 0.1) :
     AbstractParameterAliasable("RE08."),
-    RE08(codonModel, lambda, mu) {}
+    RE08(std::move(codonModel), lambda, mu) {}
 
   virtual ~RE08Codon() {}
 
-  RE08Codon* clone() const { return new RE08Codon(*this); }
+  RE08Codon* clone() const override { return new RE08Codon(*this); }
 
 public:
-  const CodonReversibleSubstitutionModel* getNestedModel() const
+  const CodonReversibleSubstitutionModelInterface& nestedModel() const
   {
-    return dynamic_cast<const CodonReversibleSubstitutionModel*>(RE08::getNestedModel());
+    return dynamic_cast<const CodonReversibleSubstitutionModelInterface&>(RE08::nestedModel());
   }
 
-  const GeneticCode* getGeneticCode () const
+  std::shared_ptr<const GeneticCode> getGeneticCode () const override
   {
-    return getNestedModel()->getGeneticCode();
+    return nestedModel().getGeneticCode();
   }
 
-  double  getCodonsMulRate (size_t i, size_t j) const
+  double getCodonsMulRate(size_t i, size_t j) const override
   {
-    return getNestedModel()->getCodonsMulRate(i, j);
+    return nestedModel().getCodonsMulRate(i, j);
   }
 
-  size_t getNumberOfStates() const { return RE08::getNumberOfStates(); }
+  size_t getNumberOfStates() const override { return RE08::getNumberOfStates(); }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return ((AbstractSubstitutionModel*)getNestedModel())->getFrequencySet();
+    return dynamic_cast<const CodonFrequencySetInterface&>(RE08::nestedModel().frequencySet());
   }
 
-  void setFreq(std::map<int, double>& frequencies)
+  bool hasCodonFrequencySet() const override
   {
-    ((AbstractSubstitutionModel*)getNestedModel())->setFreq(frequencies);
+    return true;
+  }
+
+  void setFreq(std::map<int, double>& frequencies) override
+  {
+    RE08::nestedModel_().setFreq(frequencies);
   }
 };
 } // end of namespace bpp.

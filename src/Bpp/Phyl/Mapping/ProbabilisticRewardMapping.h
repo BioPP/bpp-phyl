@@ -1,7 +1,7 @@
 //
 // File: ProbabilisticRewardMapping.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: lundi 20 novembre 2017, ÃÂ  16h 55
 //
 
@@ -71,7 +71,7 @@ public:
   typedef AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranchReward> mapTree;
 
 private:
-  /*
+  /**
    * @brief Links between sites and patterns.
    *
    * The size of this vector is equal to the number of sites in the container,
@@ -82,7 +82,6 @@ private:
    * However, if this is not the case, some pointers may point toward the same
    * element in the likelihood array.
    */
-
   PatternType rootPatternLinks_;
 
   bool usePatterns_;
@@ -100,7 +99,6 @@ public:
    * @param tree The tree object to use. It will be cloned for internal use.
    * @param numberOfSites The number of sites to map.
    */
-
   ProbabilisticRewardMapping(const PhyloTree& tree, size_t numberOfSites) :
     AbstractMapping(numberOfSites), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(numberOfSites)
   {
@@ -113,9 +111,7 @@ public:
 
   /**
    * @brief the same with rootPatternLinks
-   *
    */
-
   ProbabilisticRewardMapping(const PhyloTree& tree, const PatternType& rootpatterns, size_t nbDistinctSites) :
     AbstractMapping(size_t(rootpatterns.size())), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
   {
@@ -131,7 +127,6 @@ public:
    *
    * @param tree The tree object to use. It will be cloned for internal use.
    */
-
   ProbabilisticRewardMapping(const PhyloTree& tree) :
     AbstractMapping(), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(0)
   {}
@@ -221,7 +216,6 @@ public:
 
   /**
    * @brief Does it use site patterns?
-   *
    */
   bool usePatterns() const
   {
@@ -230,7 +224,6 @@ public:
 
   /**
    * @brief returns the vector of site patterns
-   *
    */
   const PatternType& getPatterns() const
   {

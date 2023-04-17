@@ -255,11 +255,11 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
 }
 
 
-std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& collection, size_t pNum)
+shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& collection, size_t pNum)
 {
-  auto& process = collection.getCollection().getSubstitutionProcess(pNum);
+  auto process = collection.collection().getSubstitutionProcess(pNum);
 
-  auto& pt = *collection.getProcessTree(process.getTreeNumber());
+  auto& pt = *collection.getProcessTree(process->getTreeNumber());
 
   ProcessComputationTree tree(process);
 
@@ -268,14 +268,18 @@ std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& colle
   return std::make_shared<ProcessTree>(tree, collection.getModelCollection(), pt);
 }
 
-std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(Context& context, const SubstitutionProcess& process, ParameterList& parList, const std::string& suff)
+shared_ptr<ProcessTree> ProcessTree::makeProcessTree(
+    Context& context,
+    shared_ptr<const SubstitutionProcessInterface> process,
+    ParameterList& parList,
+    const std::string& suff)
 {
-  auto parTree = process.getParametrizablePhyloTree();
+  auto parTree = process->getParametrizablePhyloTree();
 
   if (!parTree)
     throw Exception("ProcessTree::makeProcessTree: missing Tree in process.");
   
-  auto modelColl = makeConfiguredModelCollection(context, process, parList);
+  auto modelColl = makeConfiguredModelCollection(context, *process, parList);
 
   ProcessTree pt(context, *parTree, parList, suff); // tree with only branches
 

@@ -182,7 +182,7 @@ protected:
 private:
 
   VecType tmp_;
-
+  
 public:
   ExtendedFloatRow(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index nrow) :
     efMat_(der), nrow_(nrow), tmp_(efMat_.float_part().row(nrow_)) {}

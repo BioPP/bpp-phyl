@@ -126,7 +126,7 @@ namespace bpp
      */
 
     
-    D1WalkSubstitutionModel(const IntegerAlphabet* alpha, unsigned short method = 1);
+    D1WalkSubstitutionModel(std::shared_ptr<const IntegerAlphabet> alpha, unsigned short method = 1);
 
     D1WalkSubstitutionModel(const D1WalkSubstitutionModel& model) :
       AbstractParameterAliasable(model),
@@ -159,7 +159,7 @@ namespace bpp
       AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
     }
 
-    const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
+    const std::shared_ptr<FrequencySetInterface> getFrequencySet() const { return freqSet_; }
 
     void setFreq(std::map<int, double>& freq);
 
@@ -169,7 +169,7 @@ namespace bpp
      * the generator is fixed! No matrice can be changed... This method is only
      * used in the constructor of the class.
      */
-    void updateMatrices();
+    void updateMatrices_();
   };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_D1WALKSUBSTITUTIONMODEL_H

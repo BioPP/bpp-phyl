@@ -53,7 +53,7 @@ namespace bpp
  * @brief Abstract class for modelling of ratios of substitution
  * rates between codons, whatever they are synonymous or not.
  *
- * @author Fanny Pouyet, Laurent GuÃÂ©guen
+ * @author Fanny Pouyet, Laurent Guéguen
  *
  * The fitness of a codon is a value between 0 and 1 defining the
  * relative advantage of a codon, compared to others. If a codon
@@ -66,23 +66,21 @@ namespace bpp
  * FrequencySet object. The parameters are named \c
  * "fit_NameOfTheParameterInTheFrequencySet".
  */
-
-
 class AbstractCodonFitnessSubstitutionModel :
-  public virtual CoreCodonSubstitutionModel,
+  public virtual CoreCodonSubstitutionModelInterface,
   public virtual AbstractParameterAliasable
 {
 private:
-  std::shared_ptr<FrequencySet> pfitset_;
+  std::unique_ptr<FrequencySetInterface> pfitset_;
 
-  const GeneticCode* pgencode_;
+  std::shared_ptr<const GeneticCode> pgencode_;
 
   std::string fitName_;
 
 public:
   AbstractCodonFitnessSubstitutionModel(
-    std::shared_ptr<FrequencySet> pfitset,
-    const GeneticCode* pgencode,
+    std::unique_ptr<FrequencySetInterface> pfitset,
+    std::shared_ptr<const GeneticCode> pgencode,
     const std::string& prefix);
 
   AbstractCodonFitnessSubstitutionModel(const AbstractCodonFitnessSubstitutionModel& model) :
@@ -95,13 +93,13 @@ public:
   AbstractCodonFitnessSubstitutionModel& operator=(const AbstractCodonFitnessSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    pfitset_ = std::shared_ptr<FrequencySet>(model.pfitset_->clone());
+    pfitset_.reset(model.pfitset_->clone());
     pgencode_ = model.pgencode_;
     fitName_ = model.fitName_;
     return *this;
   }
 
-  AbstractCodonFitnessSubstitutionModel* clone() const
+  AbstractCodonFitnessSubstitutionModel* clone() const override
   {
     return new AbstractCodonFitnessSubstitutionModel(*this);
   }
@@ -109,26 +107,35 @@ public:
   virtual ~AbstractCodonFitnessSubstitutionModel();
 
 public:
-  void fireParameterChanged (const ParameterList& parameters);
+  void fireParameterChanged (const ParameterList& parameters) override;
 
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  const FrequencySet& getFreq() const { return *pfitset_; }
+  //const FrequencySet& getFreq() const { return *pfitset_; }
 
-  void setNamespace (const std::string& prefix)
+  void setNamespace (const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     pfitset_->setNamespace(prefix + fitName_);
   }
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  const std::shared_ptr<FrequencySet> getFitness() const { return pfitset_;}
+  const FrequencySetInterface& fitness() const { return *pfitset_; }
+  
+  //TODO (jdutheil 30/12/22) not allowed if fully encapsulated.
+  //std::shared_ptr<const FrequencySetInterface> getFitness() const { return pfitset_; }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return 0;
+    throw NullPointerException("AbstractCodonFitnessSubstitutionModel::frequencySet. No associated FrequencySet.");
   }
+
+  bool hasCodonFrequencySet() const override
+  {
+    return false;
+  }
+
 };
 } // end of namespace bpp
 # endif

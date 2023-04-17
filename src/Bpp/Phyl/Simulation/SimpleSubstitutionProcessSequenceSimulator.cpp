@@ -43,7 +43,7 @@
 
 #include "SimpleSubstitutionProcessSequenceSimulator.h"
 
-// From SeqLib:
+// From boo-seq:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
@@ -51,17 +51,19 @@ using namespace std;
 
 /******************************************************************************/
 
-std::shared_ptr<SiteContainer> SimpleSubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
+unique_ptr<SiteContainerInterface> SimpleSubstitutionProcessSequenceSimulator::simulate(
+    size_t numberOfSites) const
 {
   auto seqNames = siteSim_->getSequenceNames();
-  auto sites = make_shared<VectorSiteContainer>(seqNames, getAlphabet());
-  sites->setSequenceNames(seqNames);
-  for (size_t j = 0; j < numberOfSites; j++)
+  auto sites = make_unique<VectorSiteContainer>(seqNames, getAlphabet());
+  sites->setSequenceNames(seqNames, true);
+  for (size_t j = 0; j < numberOfSites; ++j)
   {
-    Site* site = siteSim_->simulateSite();
-    site->setPosition(static_cast<int>(j));
-    sites->addSite(*site);
-    delete site;
+    auto site = siteSim_->simulateSite();
+    site->setCoordinate(static_cast<int>(j));
+    sites->addSite(site);
   }
   return sites;
 }
+
+/******************************************************************************/

@@ -82,34 +82,41 @@ namespace bpp
  */
 class GY94 :
   public AbstractBiblioSubstitutionModel,
-  virtual public ReversibleSubstitutionModel
+  public virtual ReversibleSubstitutionModelInterface
 {
+
 private:
-  GranthamAAChemicalDistance gacd_;
+
+  std::shared_ptr<const GranthamAAChemicalDistance> gacd_;
   std::unique_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
 public:
-  GY94(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs);
 
-  ~GY94();
+  GY94(
+      std::shared_ptr<const GeneticCode> gc,
+      std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
+
+  virtual ~GY94();
 
   GY94(const GY94& gy94);
 
   GY94& operator=(const GY94& gy94);
 
-  GY94* clone() const { return new GY94(*this); }
+  GY94* clone() const override { return new GY94(*this); }
 
 public:
-  std::string getName() const { return "GY94"; }
 
-  const SubstitutionModel& getSubstitutionModel() const { return *pmodel_.get(); }
+  std::string getName() const override { return "GY94"; }
 
-  const GeneticCode* getGeneticCode() const { return pmodel_->getGeneticCode(); }
+  const SubstitutionModelInterface& substitutionModel() const override { return *pmodel_; }
+
+  std::shared_ptr<const GeneticCode> getGeneticCode() const { return pmodel_->getGeneticCode(); }
 
   double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
 
 protected:
-  SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
+  
+  SubstitutionModelInterface& substitutionModel_() override { return *pmodel_; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_GY94_H

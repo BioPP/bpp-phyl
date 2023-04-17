@@ -46,7 +46,7 @@
 #include "DataFlow/DataFlowCWise.h"
 #include "DataFlow/LikelihoodCalculationSingleProcess.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 #include <Bpp/Seq/Sequence.h>
@@ -68,7 +68,7 @@ class MarginalAncestralReconstruction :
 private:
   std::shared_ptr<LikelihoodCalculationSingleProcess> likelihood_;
   std::shared_ptr<const ParametrizablePhyloTree> tree_;
-  const Alphabet* alphabet_;
+  mutable std::shared_ptr<const Alphabet> alphabet_;
   size_t nbSites_;
   size_t nbDistinctSites_;
   // size_t nbClasses_;
@@ -78,11 +78,11 @@ private:
 public:
   MarginalAncestralReconstruction(std::shared_ptr<LikelihoodCalculationSingleProcess> drl) :
     likelihood_      (drl),
-    tree_            (drl->getSubstitutionProcess().getParametrizablePhyloTree()),
-    alphabet_        (drl->getStateMap().getAlphabet()),
+    tree_            (drl->substitutionProcess().getParametrizablePhyloTree()),
+    alphabet_        (drl->stateMap().getAlphabet()),
     nbSites_         (drl->getNumberOfSites()),
     nbDistinctSites_ (drl->getNumberOfDistinctSites()),
-  nbStates_        (drl->getStateMap().getNumberOfModelStates()),
+  nbStates_        (drl->stateMap().getNumberOfModelStates()),
   rootPatternLinks_(drl->getRootArrayPositions())
   {
     if (!tree_)
@@ -118,6 +118,11 @@ public:
   virtual ~MarginalAncestralReconstruction() {}
 
 public:
+  std::shared_ptr<const Alphabet> getAlphabet() const
+  {
+    return alphabet_;
+  }
+  
   /**
    * @brief Get ancestral states  for a given node as a vector of int.
    *
@@ -138,17 +143,15 @@ public:
    * @return A vector of states indices.
    * @see getAncestralSequenceForNode
    */
-
-
   std::vector<size_t> getAncestralStatesForNode(uint nodeId, VVdouble& probs, bool sample) const;
 
-  std::vector<size_t> getAncestralStatesForNode(uint nodeId) const
+  std::vector<size_t> getAncestralStatesForNode(uint nodeId) const override
   {
     VVdouble probs(nbSites_);
     return getAncestralStatesForNode(nodeId, probs, false);
   }
 
-  std::map<uint, std::vector<size_t> > getAllAncestralStates() const;
+  std::map<uint, std::vector<size_t> > getAllAncestralStates() const override;
 
   /**
    * @brief Get an ancestral sequence for a given node.
@@ -167,31 +170,25 @@ public:
    * probability.
    * @return A sequence object.
    */
+  std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const;
 
-  Sequence* getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const;
-
-  Sequence* getAncestralSequenceForNode(uint nodeId) const
+  std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId) const override
   {
     return getAncestralSequenceForNode(nodeId, 0, false);
   }
 
-  AlignedSequenceContainer* getAncestralSequences() const
+  std::unique_ptr<AlignmentDataInterface> getAncestralSequences() const override
   {
     return getAncestralSequences(false);
   }
 
-#ifndef NO_VIRTUAL_COV
-  AlignedSequenceContainer*
-#else
-  SequenceContainer*
-#endif
-  getAncestralSequences(bool sample) const;
+  std::unique_ptr<AlignmentDataInterface> getAncestralSequences(bool sample) const;
 
 private:
   void recursiveMarginalAncestralStates(
     const std::shared_ptr<PhyloNode> node,
     std::map<uint, std::vector<size_t> >& ancestors,
-    AlignedValuesContainer& data) const;
+    AlignmentDataInterface& data) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_MARGINALANCESTRALRECONSTRUCTION_H

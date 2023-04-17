@@ -52,7 +52,7 @@ namespace bpp
 /**
  * @brief Abstract generic class for The Yang et al (2000) M
  * substitution models for codons. al (2004).
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * References:
  *
@@ -62,50 +62,46 @@ namespace bpp
  * Wong, W. S. W., Z. Yang, N. Goldman, and R. Nielsen. (2004)
  * Genetics 168:1041--1051.
  */
-
 class YNGP_M :
   public AbstractBiblioMixedTransitionModel,
-  virtual public TransitionModel
+  public virtual TransitionModelInterface
 {
 protected:
-  /*
+  /**
    * redefined mixed model pointer
-   *
    */
-
-  const MixtureOfASubstitutionModel*  pmixsubmodel_;
+  const MixtureOfASubstitutionModel* mixedSubModelPtr_;
 
   /**
    * @brief indexes of 2 codons states between which the substitution is
    * synonymous, to set a basis to the homogeneization of the rates.
-   *
    */
   size_t synfrom_, synto_;
 
 public:
   YNGP_M(const std::string& name) :
     AbstractBiblioMixedTransitionModel(name),
-    pmixsubmodel_(),
+    mixedSubModelPtr_(),
     synfrom_(),
     synto_()
   {}
 
   YNGP_M(const YNGP_M& mod2) :
     AbstractBiblioMixedTransitionModel(mod2),
-    pmixsubmodel_(),
+    mixedSubModelPtr_(),
     synfrom_(mod2.synfrom_),
     synto_(mod2.synto_)
   {
-    pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
+    mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
   }
 
-  virtual YNGP_M* clone() const = 0;
+  virtual YNGP_M* clone() const override = 0;
 
   YNGP_M& operator=(const YNGP_M& mod2)
   {
     AbstractBiblioMixedTransitionModel::operator=(mod2);
 
-    pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
+    mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
     synfrom_ = mod2.synfrom_;
     synto_ = mod2.synto_;

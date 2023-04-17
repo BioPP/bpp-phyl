@@ -1,7 +1,7 @@
 //
 // File: L95.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: lundi 18 octobre 2010, ÃÂ  22h 21
 //
 
@@ -88,7 +88,7 @@ namespace bpp
  * \endcode for instance.
  *
  * Reference:
- * - Lobry J R (1995), Journal_ Of Molecular Evolution_ 40 326-330.
+ * - Lobry J R (1995), _Journal Of Molecular Evolution_ 40 326-330.
  */
 class L95 :
   public AbstractNucleotideSubstitutionModel
@@ -98,7 +98,7 @@ private:
 
 public:
   L95(
-    const NucleicAlphabet* alphabet,
+    std::shared_ptr<const NucleicAlphabet> alphabet,
     double alpha = 0.5,
     double beta = 0.5,
     double gamma = 0.5,
@@ -107,17 +107,21 @@ public:
 
   virtual ~L95() {}
 
-  L95* clone() const { return new L95(*this); }
+  L95* clone() const override { return new L95(*this); }
 
 public:
-  std::string getName() const { return "L95"; }
 
-  void updateMatrices();
+  std::string getName() const override { return "L95"; }
 
   /**
    * @brief This method is redefined to actualize the corresponding parameters theta too.
    */
-  void setFreq(std::map<int, double>&);
+  void setFreq(std::map<int, double>&) override;
+  
+protected:
+
+  void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_L95_H

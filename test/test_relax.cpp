@@ -57,10 +57,10 @@ using namespace bpp;
 using namespace std;
 
 
-void printModelParameters(TreeLikelihood* tl)
+void printModelParameters(const TreeLikelihoodInterface& tl)
 {
-  ParameterList parameters = tl->getParameters();
-  for (size_t i = 0; i < parameters.size(); i++)
+  ParameterList parameters = tl.getParameters();
+  for (size_t i = 0; i < parameters.size(); ++i)
   {
     ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
   }

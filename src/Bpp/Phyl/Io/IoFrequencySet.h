@@ -54,7 +54,6 @@
 
 namespace bpp
 {
-class FrequencySet;
 
 /**
  * @brief General interface for model I/O.
@@ -91,10 +90,10 @@ public:
    * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  virtual std::shared_ptr<FrequencySet> readFrequencySet(
-    const Alphabet* alphabet,
+  virtual std::unique_ptr<FrequencySetInterface> readFrequencySet(
+    std::shared_ptr<const Alphabet> alphabet,
     const std::string& freqDescription,
-    const AlignedValuesContainer* data,
+    std::shared_ptr<const AlignmentDataInterface> data,
     bool parseArguments = true) = 0;
 
   /**
@@ -117,7 +116,7 @@ public:
   /**
    * @brief Write a substitution model to a stream.
    *
-   * @param pfreqset A pointer towards a frequencies set object;
+   * @param pfreqset A frequency set object;
    * @param out The output stream;
    * @param globalAliases parameters linked to global alias. The
    * output will be "name=alias_name";
@@ -125,7 +124,7 @@ public:
    * parameters so far [in, out];
    */
   virtual void writeFrequencySet(
-    const FrequencySet* pfreqset,
+    const FrequencySetInterface& pfreqset,
     OutputStream& out,
     std::map<std::string, std::string>& globalAliases,
     std::vector<std::string>& writtenNames) const = 0;

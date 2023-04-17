@@ -44,10 +44,16 @@
 #include "Parametrizable.h"
 #include "Sequence_DF.h"
 
+
+#include <string> // debug
+
+
 using namespace bpp;
 using namespace std;
 
-ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLikelihood (const string& sequenceName, const AlignedValuesContainer& sites)
+ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLikelihood(
+    const string& sequenceName,
+    const AlignmentDataInterface& sites)
 {
   size_t nbSites = sites.getNumberOfSites();
   const auto sequenceIndex = sites.getSequencePosition (sequenceName);
@@ -64,7 +70,9 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
   return Sequence_DF::create (context_, std::move(initCondLik), sequenceName);
 }
 
-ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (shared_ptr<ProcessEdge> processEdge, const AlignedValuesContainer& sites)
+ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge(
+    shared_ptr<ProcessEdge> processEdge,
+    const AlignmentDataInterface& sites)
 {
   const auto brlen = processEdge->getBrLen();
   const auto model = processEdge->getModel();
@@ -75,15 +83,16 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
 
   ForwardLikelihoodBelowRef forwardEdge;
 
-  auto zero = NumericConstant<size_t>::create(context_, size_t(0));
+  auto zero = context_.getZero();
 
   if (brlen) // Branch with transition through a model
   {
-    if (dynamic_cast<const TransitionModel*>(model->getTargetValue()))
+    if (dynamic_pointer_cast<const TransitionModelInterface>(model->targetValue()))
     {
       auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel, Eigen::MatrixXd>(context_, {model, brlen, zero, nMod}, transitionMatrixDimension (size_t(nbState_)));
 
       processEdge->setTransitionMatrix(transitionMatrix);
+
       forwardEdge = ForwardTransition::create (
         context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
     }
@@ -131,7 +140,7 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
   return forwardEdge;
 }
 
-ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNode (shared_ptr<ProcessNode> processNode, const AlignedValuesContainer& sites)
+ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNode (shared_ptr<ProcessNode> processNode, const AlignmentDataInterface& sites)
 {
   const auto childBranches = processTree_->getBranches (processNode);
 
@@ -241,7 +250,7 @@ ProbabilityDAG::ProbabilityDAG(std::shared_ptr<ForwardLikelihoodTree> forwardTre
     if (forwardTree->getOutgoingEdges(id).size() == 0)
     {
       auto n = makeProbaAtNode_(id, forwardTree).get();
-      n->getTargetValue();
+      n->targetValue();
       vN.push_back(n);
     }
   }

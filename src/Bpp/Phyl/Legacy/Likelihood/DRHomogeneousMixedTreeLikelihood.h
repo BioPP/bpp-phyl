@@ -90,8 +90,8 @@ public:
    */
   DRHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true,
     bool rootArray = false);
@@ -114,9 +114,9 @@ public:
    */
   DRHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    const AlignedValuesContainer& data,
-    TransitionModel* model,
-    DiscreteDistribution* rDist,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistribution> rDist,
     bool checkRooted = true,
     bool verbose = true,
     bool rootArray = false);
@@ -140,7 +140,7 @@ public:
   double getLikelihood() const;
   double getLogLikelihood() const;
 
-  void setData(const AlignedValuesContainer& sites);
+  void setData(const AlignmentDataInterface& sites);
   double getLikelihoodForASite (size_t site) const;
   double getLogLikelihoodForASite(size_t site) const;
   /** @} */

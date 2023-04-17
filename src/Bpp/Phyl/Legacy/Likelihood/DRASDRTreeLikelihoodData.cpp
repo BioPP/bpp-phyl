@@ -50,7 +50,9 @@ using namespace std;
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model)
+void DRASDRTreeLikelihoodData::initLikelihoods(
+    const AlignmentDataInterface& sites,
+    const TransitionModelInterface& model)
 {
   if (sites.getNumberOfSequences() == 1)
     throw Exception("Error, only 1 sequence!");
@@ -65,31 +67,22 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sit
   nbStates_ = model.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
 
-  SitePatterns pattern(&sites);
+  SitePatterns pattern(sites);
   shrunkData_       = pattern.getSites();
   rootWeights_      = pattern.getWeights();
 
-  rootPatternLinks_.resize(size_t(pattern.getIndices().size()));
+  rootPatternLinks_.resize(static_cast<size_t>(pattern.getIndices().size()));
   SitePatterns::IndicesType::Map(&rootPatternLinks_[0], pattern.getIndices().size()) = pattern.getIndices();
   nbDistinctSites_  = shrunkData_->getNumberOfSites();
 
   // Init data:
-  // Clone data for more efficiency on sequences access:
-
-  const SiteContainer* sc = dynamic_cast<const SiteContainer*>(shrunkData_.get());
-  const VectorProbabilisticSiteContainer* psc = dynamic_cast<const VectorProbabilisticSiteContainer*>(shrunkData_.get());
-
-  shared_ptr<const AlignedValuesContainer> sequences(sc ?
-                                                     static_cast<const AlignedValuesContainer*>(sc->clone()) :
-                                                     static_cast<const AlignedValuesContainer*>(psc->clone()));
-
-  initLikelihoods(tree_->getRootNode(), *sequences, model);
+  initLikelihoods(tree_->getRootNode(), *shrunkData_, model);
 
   // Now initialize root likelihoods and derivatives:
   rootLikelihoods_.resize(nbDistinctSites_);
   rootLikelihoodsS_.resize(nbDistinctSites_);
   rootLikelihoodsSR_.resize(nbDistinctSites_);
-  for (size_t i = 0; i < nbDistinctSites_; i++)
+  for (size_t i = 0; i < nbDistinctSites_; ++i)
   {
     VVdouble* rootLikelihoods_i_ = &rootLikelihoods_[i];
     Vdouble* rootLikelihoodsS_i_ = &rootLikelihoodsS_[i];
@@ -109,7 +102,10 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sit
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedValuesContainer& sites, const TransitionModel& model)
+void DRASDRTreeLikelihoodData::initLikelihoods(
+    const Node* node,
+    const AlignmentDataInterface& sites,
+    const TransitionModelInterface& model)
 {
   if (node->isLeaf())
   {

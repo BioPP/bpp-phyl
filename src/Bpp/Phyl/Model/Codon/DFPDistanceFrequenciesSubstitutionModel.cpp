@@ -47,15 +47,15 @@ using namespace std;
 /******************************************************************************/
 
 DFPDistanceFrequenciesSubstitutionModel::DFPDistanceFrequenciesSubstitutionModel(
-  const GeneticCode* gCode,
-  std::shared_ptr<FrequencySet> pfreq,
-  const AlphabetIndex2* pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("DFPDistFreq."),
   AbstractDFPSubstitutionModel(gCode, "DFPDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "DFPDistFreq."),
-  AbstractCodonFrequenciesSubstitutionModel(pfreq, "DFPDistFreq.")
+  AbstractCodonFrequenciesSubstitutionModel(move(pfreq), "DFPDistFreq.")
 {
-  updateMatrices();
+  updateMatrices_();
 }
 
 std::string DFPDistanceFrequenciesSubstitutionModel::getName() const
@@ -90,5 +90,5 @@ void DFPDistanceFrequenciesSubstitutionModel::setNamespace(const std::string& st
 void DFPDistanceFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   AbstractCodonFrequenciesSubstitutionModel::setFreq(frequencies);
-  getFrequencies_() = AbstractCodonFrequenciesSubstitutionModel::getFrequencySet()->getFrequencies();
+  getFrequencies_() = AbstractCodonFrequenciesSubstitutionModel::codonFrequencySet().getFrequencies();
 }

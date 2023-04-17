@@ -65,15 +65,15 @@ AbstractSinglePhyloSubstitutionMapping::AbstractSinglePhyloSubstitutionMapping(c
     (**nIT)->pMod_ = 0;
     uint brid = getEdgeIndex(**nIT);
 
-    TransitionModel* sm = sppm.getEdge(brid)->pMod_;
+    auto sm = sppm.getEdge(brid)->pMod_;
 
     if (sm)
     {
       for (auto& k:keys)
       {
-        if (sppm.modelColl_[k].get() == sm)
+        if (sppm.modelColl_[k] == sm)
         {
-          (**nIT)->pMod_ = modelColl_[k].get();
+          (**nIT)->pMod_ = modelColl_[k];
           break;
         }
       }
@@ -107,15 +107,15 @@ AbstractSinglePhyloSubstitutionMapping& AbstractSinglePhyloSubstitutionMapping::
     (**nIT)->pMod_ = 0;
 
     uint brid = getEdgeIndex(**nIT);
-    TransitionModel* sm = sppm.getEdge(brid)->pMod_;
+    auto sm = sppm.getEdge(brid)->pMod_;
 
     if (sm)
     {
       for (auto& k:keys)
       {
-        if (sppm.modelColl_[k].get() == sm)
+        if (sppm.modelColl_[k] == sm)
         {
-          (**nIT)->pMod_ = modelColl_[k].get();
+          (**nIT)->pMod_ = modelColl_[k];
           break;
         }
       }
@@ -129,16 +129,16 @@ AbstractSinglePhyloSubstitutionMapping& AbstractSinglePhyloSubstitutionMapping::
 }
 
 
-void AbstractSinglePhyloSubstitutionMapping::addModel(size_t index, const TransitionModel& model, Vuint brIds)
+void AbstractSinglePhyloSubstitutionMapping::addModel(size_t index, const TransitionModelInterface& model, Vuint brIds)
 {
-  modelColl_.addObject(std::shared_ptr<TransitionModel>(model.clone()), index);
+  modelColl_.addObject(std::shared_ptr<TransitionModelInterface>(model.clone()), index);
 
-  TransitionModel* tm = modelColl_[index].get();
+  auto tm = modelColl_[index];
   mModBrid_[index] = brIds;
 
   for (auto& id : brIds)
   {
-    shared_ptr<ModelBranch> mb(new ModelBranch);
+    auto mb = make_shared<ModelBranch>();
     mb->pMod_ = tm;
 
     associateEdge(mb, id);

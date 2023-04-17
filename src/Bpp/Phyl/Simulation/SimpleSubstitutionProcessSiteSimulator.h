@@ -98,62 +98,52 @@ public:
 
 typedef AssociationTreeGlobalGraphObserver<SimProcessNode, SimProcessEdge>  SPTree;
 
+
+
+
+
 /**
  * @brief Site simulation under a unique substitution process.
- *
  */
-
 class SimpleSubstitutionProcessSiteSimulator :
-  public DetailedSiteSimulator
+  public virtual DetailedSiteSimulatorInterface
 {
 protected:
-  const SubstitutionProcess*     process_;
+  
+  std::shared_ptr<const SubstitutionProcessInterface> process_;
   std::shared_ptr<const ParametrizablePhyloTree> phyloTree_;
 
 
-  /*
+  /**
    * @brief To store states & transition probabilities of the simulator
-   *
    */
-
   SPTree tree_;
 
-  /*
-   *@brief cumsum probas of the substitution rates
-   *
+  /**
+   * @brief cumsum probas of the substitution rates
    */
-
   Vdouble qRates_;
 
   /*
-   *@brief cumsum probas of the root frequencies, one per rate class
-   *(this "per class" is useful for
-   * GivenDataSubstitutionProcessSiteSimulator)
-   *
+   * @brief cumsum probas of the root frequencies, one per rate class
+   * (this "per class" is useful for GivenDataSubstitutionProcessSiteSimulator)
    */
-
   VVdouble qRoots_;
 
   /**
    * @brief Vector of indexes of sequenced output species
-   *
    */
-
   std::vector<size_t> seqIndexes_;
 
   /**
    * @brief Vector of names of sequenced output species
-   *
    */
-
   std::vector<std::string> seqNames_;
 
   /**
    * @brief Map between species Indexes & used nodes, may change at
    * each simulation.
-   *
    */
-
   mutable std::map<size_t, std::shared_ptr<SimProcessNode> > speciesNodes_;
 
   size_t nbNodes_;
@@ -173,10 +163,9 @@ protected:
 
 public:
   SimpleSubstitutionProcessSiteSimulator(
-    const SubstitutionProcess& process);
+    std::shared_ptr<const SubstitutionProcessInterface> process);
 
-  virtual ~SimpleSubstitutionProcessSiteSimulator()
-  {}
+  virtual ~SimpleSubstitutionProcessSiteSimulator() {}
 
   SimpleSubstitutionProcessSiteSimulator(const SimpleSubstitutionProcessSiteSimulator& nhss) :
     process_        (nhss.process_),
@@ -213,7 +202,10 @@ public:
     return *this;
   }
 
-  SimpleSubstitutionProcessSiteSimulator* clone() const { return new SimpleSubstitutionProcessSiteSimulator(*this); }
+  SimpleSubstitutionProcessSiteSimulator* clone() const override
+  { 
+    return new SimpleSubstitutionProcessSiteSimulator(*this);
+  }
 
 private:
   /**
@@ -229,15 +221,20 @@ public:
    *
    * @{
    */
-  Site* simulateSite() const;
 
-  Site* simulateSite(size_t rateClass) const;
+  std::unique_ptr<Site> simulateSite() const override;
 
-  Site* simulateSite(double rate) const;
+  std::unique_ptr<Site> simulateSite(size_t rateClass) const override;
 
-  Site* simulateSite(size_t ancestralStateIndex, double rate) const;
+  std::unique_ptr<Site> simulateSite(double rate) const override;
 
-  std::vector<std::string> getSequenceNames() const { return seqNames_; }
+  std::unique_ptr<Site> simulateSite(size_t ancestralStateIndex, double rate) const override;
+
+  std::vector<std::string> getSequenceNames() const override
+  {
+    return seqNames_;
+  }
+
   /** @} */
 
   /**
@@ -245,7 +242,9 @@ public:
    *
    * @{
    */
-  const Alphabet* getAlphabet() const { return process_->getStateMap().getAlphabet(); }
+  std::shared_ptr<const Alphabet> getAlphabet() const override { return process_->stateMap().getAlphabet(); }
+  
+  const Alphabet& alphabet() const override { return process_->stateMap().alphabet(); }
   /** @} */
 
   /**
@@ -254,13 +253,13 @@ public:
    * @{
    */
 
-  SiteSimulationResult* dSimulateSite() const;
+  std::unique_ptr<SiteSimulationResult> dSimulateSite() const override;
 
-  SiteSimulationResult* dSimulateSite(size_t rateClass) const;
+  std::unique_ptr<SiteSimulationResult> dSimulateSite(size_t rateClass) const override;
 
-  SiteSimulationResult* dSimulateSite(double rate) const;
+  std::unique_ptr<SiteSimulationResult> dSimulateSite(double rate) const override;
 
-  SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
+  std::unique_ptr<SiteSimulationResult> dSimulateSite(size_t ancestralStateIndex, double rate) const override;
 
   /** @} */
 
@@ -269,14 +268,20 @@ public:
    *
    * @return The substitution process associated to this instance.
    */
-  const SubstitutionProcess* getSubstitutionProcess() const { return process_; }
+  std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const
+  { 
+    return process_;
+  }
 
   /**
    * @brief Get the tree associated to this instance.
    *
    * @return The Tree object associated to this instance.
    */
-  std::shared_ptr<const ParametrizablePhyloTree> getTree() const { return phyloTree_; }
+  std::shared_ptr<const ParametrizablePhyloTree> getTree() const
+  { 
+    return phyloTree_;
+  }
 
   /**
    * @brief Enable the use of continuous rates instead of discrete rates.
@@ -297,7 +302,7 @@ public:
    *
    * @param yn Tell if we should output internal sequences.
    */
-  void outputInternalSites(bool yn);
+  void outputInternalSites(bool yn) override;
 
 protected:
   /**
@@ -309,12 +314,17 @@ protected:
   /**
    * This method uses the states_ variable for saving ancestral states.
    */
-  void evolveInternal(std::shared_ptr<SimProcessNode> node, size_t rateClass, SiteSimulationResult* ssr = 0) const;
+  void evolveInternal(
+      std::shared_ptr<SimProcessNode> node, 
+      size_t rateClass, SiteSimulationResult* ssr = nullptr) const;
 
   /**
    * This method uses the states_ variable for saving ancestral states.
    */
-  void evolveInternal(std::shared_ptr<SimProcessNode> node, double rate, SiteSimulationResult* ssr = 0) const;
+  void evolveInternal(
+      std::shared_ptr<SimProcessNode> node,
+      double rate,
+      SiteSimulationResult* ssr = nullptr) const;
 
   /** @} */
 };

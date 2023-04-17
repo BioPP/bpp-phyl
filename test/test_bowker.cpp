@@ -58,7 +58,7 @@ using namespace std;
 
 double testBowker(const SimpleSubstitutionProcessSequenceSimulator& sim, size_t seqlen) {
   auto sites(sim.simulate(seqlen));
-  unique_ptr<BowkerTest> bTest(SequenceTools::bowkerTest(sites->getSequence(0), sites->getSequence(1)));
+  unique_ptr<BowkerTest> bTest(SequenceTools::bowkerTest(sites->sequence(0), sites->sequence(1)));
   return bTest->getPValue();
 }
 
@@ -69,13 +69,13 @@ int main() {
 
   //First test stationnary model:
   cout << "..:: Testing with stationary model ::.." << endl;
-  unique_ptr<NucleicAlphabet> alphabet(new DNA());
-  std::shared_ptr<T92> model1(new T92(alphabet.get(), 3., 0.65));
+  shared_ptr<NucleicAlphabet> alphabet(new DNA());
+  auto model1 = make_shared<T92>(alphabet, 3., 0.65);
   shared_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
   
-  auto process1 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model1, rdist, phyloTree);
+  shared_ptr<SubstitutionProcessInterface> process1 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model1, rdist, phyloTree);
 
-  SimpleSubstitutionProcessSequenceSimulator simulatorS(*process1);
+  SimpleSubstitutionProcessSequenceSimulator simulatorS(process1);
 
   unsigned int nsim = 1000;
   unsigned int seqlen = 2000;
@@ -101,12 +101,12 @@ int main() {
   //Then test homogeneous, non-stationary model:
   cout << "..:: Testing with homogeneous, non-stationary model ::.." << endl;
   
-  std::shared_ptr<T92> model2(new T92(alphabet.get(), 3., 0.65));
-  auto rootFreqs2 = std::make_shared<GCFrequencySet>(alphabet.get(), 0.4);
+  auto model2 = make_shared<T92>(alphabet, 3., 0.65);
+  auto rootFreqs2 = make_shared<GCFrequencySet>(alphabet, 0.4);
 
-  auto process2 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model2, rdist, phyloTree, rootFreqs2);
+  shared_ptr<SubstitutionProcessInterface> process2 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model2, rdist, phyloTree, rootFreqs2);
 
-  SimpleSubstitutionProcessSequenceSimulator simulatorNS(*process2);
+  SimpleSubstitutionProcessSequenceSimulator simulatorNS(process2);
 
   count05 = 0;
   count01 = 0;
@@ -128,17 +128,17 @@ int main() {
   //Now test non-homogeneous model, with distinct GC content:
   cout << "..:: Testing with non-homogeneous, non-stationary model ::.." << endl;
 
-  std::shared_ptr<T92> model3(new T92(alphabet.get(), 3., 0.65));
-  auto rootFreqs3 = std::make_shared<GCFrequencySet>(alphabet.get(), 0.65);
+  auto model3 = make_shared<T92>(alphabet, 3., 0.65);
+  auto rootFreqs3 = make_shared<GCFrequencySet>(alphabet, 0.65);
 
   std::vector<string> globalParameterNames={"T92.kappa"};
   
-  auto process3 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model3, rdist, phyloTree, rootFreqs3, globalParameterNames);
+  shared_ptr<SubstitutionProcessInterface> process3 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model3, rdist, phyloTree, rootFreqs3, globalParameterNames);
   
   process3->setParameterValue("T92.theta_1", 0.3);
   process3->setParameterValue("T92.theta_2", 0.8);
 
-  SimpleSubstitutionProcessSequenceSimulator simulatorNHGC(*process3);
+  SimpleSubstitutionProcessSequenceSimulator simulatorNHGC(process3);
 
   count05 = 0;
   count01 = 0;
@@ -160,17 +160,17 @@ int main() {
   //Now test non-homogeneous model, with distinct ts/tv:
   cout << "..:: Testing with non-homogeneous, stationary model ::.." << endl;
 
-  std::shared_ptr<T92> model4(new T92(alphabet.get(), 3., 0.5));
-  auto rootFreqs4 = std::make_shared<GCFrequencySet>(alphabet.get(), 0.5);
+  auto model4 = make_shared<T92>(alphabet, 3., 0.5);
+  auto rootFreqs4 = make_shared<GCFrequencySet>(alphabet, 0.5);
   
-  std::vector<string> globalParameterNames2={"T92.theta"};
+  std::vector<string> globalParameterNames2 = {"T92.theta"};
   
-  auto process4 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model4, rdist, phyloTree, rootFreqs4, globalParameterNames2);
+  shared_ptr<SubstitutionProcessInterface> process4 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model4, rdist, phyloTree, rootFreqs4, globalParameterNames2);
   
   process4->setParameterValue("T92.kappa_1", 2);
   process4->setParameterValue("T92.kappa_2", 7);
   
-  SimpleSubstitutionProcessSequenceSimulator simulatorNHTsTv(*process4);
+  SimpleSubstitutionProcessSequenceSimulator simulatorNHTsTv(process4);
 
   count05 = 0;
   count01 = 0;

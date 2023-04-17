@@ -45,45 +45,55 @@
 #include "YNGP_M2.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
-YNGP_M2::YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs) :
+YNGP_M2::YNGP_M2(
+    shared_ptr<const GeneticCode> gc,
+    unique_ptr<CodonFrequencySetInterface> codonFreqs) :
+  AbstractParameterAliasable("YNGP_M2."),
+  AbstractWrappedModel("YNGP_M2."),
+  AbstractWrappedTransitionModel("YNGP_M2."),
+  AbstractTotallyWrappedTransitionModel("YNGP_M2."),
+  AbstractBiblioTransitionModel("YNGP_M2."),
   YNGP_M("YNGP_M2.")
 {
   // build the submodel
 
   vector<double> v1, v2;
-  v1.push_back(0.5); v1.push_back(1); v1.push_back(2);
-  v2.push_back(0.333333); v2.push_back(0.333333); v2.push_back(0.333334);
+  v1.push_back(0.5);
+  v1.push_back(1);
+  v1.push_back(2);
+  v2.push_back(0.333333);
+  v2.push_back(0.333333);
+  v2.push_back(0.333334);
 
-  std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(v1, v2));
+  auto psdd = make_unique<SimpleDiscreteDistribution>(v1, v2);
 
-  map<string, DiscreteDistribution*> mpdd;
-  mpdd["omega"] = psdd.get();
+  map<string, unique_ptr<DiscreteDistribution>> mpdd;
+  mpdd["omega"] = move(psdd);
 
-  unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
+  auto yn98 = make_unique<YN98>(gc, move(codonFreqs));
 
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
-  pmixsubmodel_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());
+  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), move(yn98), mpdd));
+  mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
   vector<int> supportedChars = yn98->getAlphabetStates();
 
   // mapping the parameters
 
-  ParameterList pl = pmixmodel_->getParameters();
-  for (size_t i = 0; i < pl.size(); i++)
+  ParameterList pl = mixedModelPtr_->getParameters();
+  for (size_t i = 0; i < pl.size(); ++i)
   {
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequencySet()->getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<const YN98&>(mixedModelPtr_->nModel(0)).frequencySet().getParameters().getParameterNames();
 
-  for (size_t i = 0; i < v.size(); i++)
+  for (auto& vi : v)
   {
-    mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
+    mapParNamesFromPmodel_[vi] = vi.substr(5);
   }
 
   mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
@@ -97,10 +107,10 @@ YNGP_M2::YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   string st;
   for (auto it : mapParNamesFromPmodel_)
   {
-    st = pmixmodel_->getParameterNameWithoutNamespace(it.first);
+    st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     if (it.second.substr(0, 5) != "omega")
-      addParameter_(new Parameter("YNGP_M2." + it.second, pmixmodel_->getParameterValue(st),
-                                  pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
+      addParameter_(new Parameter("YNGP_M2." + it.second, mixedModelPtr_->getParameterValue(st),
+                                  mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   addParameter_(new Parameter("YNGP_M2.omega0", 0.5, std::make_shared<IntervalConstraint>(0.002, 1, true, false)));
@@ -113,8 +123,8 @@ YNGP_M2::YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
     for (synto_ = 0; synto_ < synfrom_; ++synto_)
     {
       if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
-          && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
-          && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
+          && (mixedSubModelPtr_->subNModel(0).Qij(synfrom_, synto_) != 0)
+          && (mixedSubModelPtr_->subNModel(1).Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
@@ -127,20 +137,20 @@ YNGP_M2::YNGP_M2(const GeneticCode* gc, std::shared_ptr<FrequencySet> codonFreqs
   // update Matrices
 
   computeFrequencies(false);
-  updateMatrices();
+  updateMatrices_();
 }
 
-void YNGP_M2::updateMatrices()
+void YNGP_M2::updateMatrices_()
 {
-  AbstractBiblioTransitionModel::updateMatrices();
+  AbstractBiblioTransitionModel::updateMatrices_();
 
   // homogeneization of the synonymous substittion rates
 
   Vdouble vd;
 
-  vd.push_back(1 / pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_));
-  vd.push_back(1 / pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_));
-  vd.push_back(1 / pmixsubmodel_->getSubNModel(2)->Qij(synfrom_, synto_));
+  vd.push_back(1 / mixedSubModelPtr_->subNModel(0).Qij(synfrom_, synto_));
+  vd.push_back(1 / mixedSubModelPtr_->subNModel(1).Qij(synfrom_, synto_));
+  vd.push_back(1 / mixedSubModelPtr_->subNModel(2).Qij(synfrom_, synto_));
 
-  pmixmodel_->setVRates(vd);
+  mixedModelPtr_->setVRates(vd);
 }

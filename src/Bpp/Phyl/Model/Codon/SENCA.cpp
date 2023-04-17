@@ -45,38 +45,33 @@ using namespace bpp;
 using namespace std;
 
 SENCA::SENCA(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod,
-  std::shared_ptr<FrequencySet> pfit,
-  const AlphabetIndex2* pdist) :
+  shared_ptr<const GeneticCode> gCode,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+  unique_ptr<FrequencySetInterface> pfit,
+  shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("SENCA."),
   AbstractCodonSubstitutionModel(gCode, pmod, "SENCA."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "SENCA."),
-  AbstractCodonFitnessSubstitutionModel(pfit, gCode, "SENCA.")
+  AbstractCodonFitnessSubstitutionModel(move(pfit), gCode, "SENCA.")
 {
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 SENCA::SENCA(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3,
-  std::shared_ptr<FrequencySet> pfit,
-  const AlphabetIndex2* pdist) :
+  shared_ptr<const GeneticCode> gCode,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+  unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+  unique_ptr<FrequencySetInterface> pfit,
+  shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("SENCA."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "SENCA."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "SENCA."),
-  AbstractCodonFitnessSubstitutionModel(pfit, gCode, "SENCA.")
+  AbstractCodonFitnessSubstitutionModel(move(pfit), gCode, "SENCA.")
 {
   computeFrequencies(true);
-  updateMatrices();
-}
-
-string SENCA::getName() const
-{
-  return "SENCA";
+  updateMatrices_();
 }
 
 void SENCA::fireParameterChanged(const ParameterList& parameters)
@@ -105,23 +100,23 @@ void SENCA::setFreq(map<int, double>& frequencies)
 {
   AbstractSubstitutionModel::setFreq(frequencies);
   const Vdouble& freq1 = AbstractCodonSubstitutionModel::getFrequencies();
-  const Alphabet* alphabet = getAlphabet();
+  auto alphabet = getAlphabet();
 
   map<int, double> freq2;
   double s = 0;
 
-  for (auto it : frequencies)
+  for (auto& it : frequencies)
   {
     freq2[it.first] = (freq1[alphabet->getStateIndex(it.first) - 1] != 0 ? it.second / freq1[alphabet->getStateIndex(it.first) - 1] : 0);
     s += freq2[it.first];
   }
 
-  for (auto it : freq2)
+  for (auto& it : freq2)
   {
     freq2[it.first] /= s;
   }
 
   AbstractCodonFitnessSubstitutionModel::setFreq(freq2);
 
-  updateMatrices();
+  updateMatrices_();
 }

@@ -72,7 +72,7 @@ private:
   unsigned char alphabetCode_;
   bool verbose_;
   std::map<std::string, std::string> unparsedArguments_;
-  const GeneticCode* geneticCode_;
+  std::shared_ptr<const GeneticCode> geneticCode_;
   int warningLevel_;
 
 public:
@@ -105,38 +105,42 @@ public:
   virtual ~BppOFrequencySetFormat() {}
 
 public:
-  const std::string getFormatName() const { return "BppO"; }
+  const std::string getFormatName() const override { return "BppO"; }
 
-  const std::string getFormatDescription() const { return "Bpp Options format."; }
+  const std::string getFormatDescription() const override { return "Bpp Options format."; }
 
   /**
    * @brief Set the genetic code to use in case a codon frequencies set should be built.
    *
    * @param gCode The genetic code to use.
    */
-  void setGeneticCode(const GeneticCode* gCode)
+  void setGeneticCode(std::shared_ptr<const GeneticCode> gCode)
   {
     geneticCode_ = gCode;
   }
 
-  std::shared_ptr<FrequencySet> readFrequencySet(
-    const Alphabet* alphabet,
+  std::unique_ptr<FrequencySetInterface> readFrequencySet(
+    std::shared_ptr<const Alphabet> alphabet,
     const std::string& freqDescription,
-    const AlignedValuesContainer* data,
-    bool parseArguments = true);
+    std::shared_ptr<const AlignmentDataInterface> data,
+    bool parseArguments = true) override;
 
-  const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
+  const std::map<std::string, std::string>& getUnparsedArguments() const override
+  {
+    return unparsedArguments_;
+  }
 
   void writeFrequencySet(
-    const FrequencySet* pfreqset,
+    const FrequencySetInterface& freqset,
     OutputStream& out,
     std::map<std::string, std::string>& globalAliases,
-    std::vector<std::string>& writtenNames) const;
+    std::vector<std::string>& writtenNames) const override;
 
-  void setVerbose(bool verbose) { verbose_ = verbose;}
+  void setVerbose(bool verbose) { verbose_ = verbose; }
 
 private:
-  void initialize_(FrequencySet& freqSet, const AlignedValuesContainer* data);
+  void initialize_(FrequencySetInterface& freqSet, const AlignmentDataInterface& data);
+  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOFREQUENCYSETFORMAT_H

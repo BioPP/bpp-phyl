@@ -125,7 +125,6 @@ class DRASRTreeLikelihoodData :
 private:
   /**
    * @brief This contains all likelihood values used for computation.
-   *
    */
   mutable std::map<int, DRASRTreeLikelihoodNodeData> nodeData_;
 
@@ -142,7 +141,7 @@ private:
    * of the likelihoods array.
    */
   mutable std::map<int, std::map<int, std::vector<size_t> > > patternLinks_;
-  std::shared_ptr<AlignedValuesContainer> shrunkData_;
+  std::shared_ptr<AlignmentDataInterface> shrunkData_;
   size_t nbSites_;
   size_t nbStates_;
   size_t nbClasses_;
@@ -150,9 +149,9 @@ private:
   bool usePatterns_;
 
 public:
-  DRASRTreeLikelihoodData(const TreeTemplate<Node>* tree, size_t nbClasses, bool usePatterns = true) :
+  DRASRTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node> > tree, size_t nbClasses, bool usePatterns = true) :
     AbstractTreeLikelihoodData(tree),
-    nodeData_(), patternLinks_(), shrunkData_(0), nbSites_(0), nbStates_(0),
+    nodeData_(), patternLinks_(), shrunkData_(), nbSites_(0), nbStates_(0),
     nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
   {}
 
@@ -160,13 +159,13 @@ public:
     AbstractTreeLikelihoodData(data),
     nodeData_(data.nodeData_),
     patternLinks_(data.patternLinks_),
-    shrunkData_(0),
+    shrunkData_(),
     nbSites_(data.nbSites_), nbStates_(data.nbStates_),
     nbClasses_(data.nbClasses_), nbDistinctSites_(data.nbDistinctSites_),
     usePatterns_(data.usePatterns_)
   {
     if (data.shrunkData_)
-      shrunkData_ = std::shared_ptr<AlignedValuesContainer>(dynamic_cast<AlignedValuesContainer*>(data.shrunkData_->clone()));
+      shrunkData_ = std::unique_ptr<AlignmentDataInterface>(data.shrunkData_->clone());
   }
 
   DRASRTreeLikelihoodData& operator=(const DRASRTreeLikelihoodData& data)
@@ -179,7 +178,7 @@ public:
     nbClasses_         = data.nbClasses_;
     nbDistinctSites_   = data.nbDistinctSites_;
     if (data.shrunkData_)
-      shrunkData_ = std::shared_ptr<AlignedValuesContainer>(dynamic_cast<AlignedValuesContainer*>(data.shrunkData_->clone()));
+      shrunkData_ = std::unique_ptr<AlignmentDataInterface>(data.shrunkData_->clone());
     else
       shrunkData_      = 0;
     usePatterns_       = data.usePatterns_;
@@ -200,13 +199,13 @@ public:
    *
    * @param tree The tree to be associated to this data.
    */
-  void setTree(const TreeTemplate<Node>* tree)
+  void setTree(std::shared_ptr< const TreeTemplate<Node> > tree)
   {
     tree_ = tree;
-    for (std::map<int, DRASRTreeLikelihoodNodeData>::iterator it = nodeData_.begin(); it != nodeData_.end(); it++)
+    for (auto& it : nodeData_)
     {
-      int id = it->second.getNode()->getId();
-      it->second.setNode(tree_->getNode(id));
+      int id = it.second.getNode()->getId();
+      it.second.setNode(tree_->getNode(id));
     }
   }
 
@@ -259,7 +258,9 @@ public:
   size_t getNumberOfStates() const { return nbStates_; }
   size_t getNumberOfClasses() const { return nbClasses_; }
 
-  void initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model);
+  void initLikelihoods(
+      const AlignmentDataInterface& sites,
+      const TransitionModelInterface& model);
 
 protected:
   /**
@@ -276,7 +277,10 @@ protected:
    * @param sequences The data to be used for initialization.
    * @param model     The model to use.
    */
-  virtual void initLikelihoods(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model);
+  virtual void initLikelihoods(
+      const Node* node,
+      const AlignmentDataInterface& sequences,
+      const TransitionModelInterface& model);
 
   /**
    * @brief This method initializes the leaves according to a sequence file.
@@ -294,7 +298,10 @@ protected:
    * @param model     The model to use.
    * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
    */
-  virtual std::shared_ptr<SitePatterns> initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model);
+  virtual std::unique_ptr<SitePatterns> initLikelihoodsWithPatterns(
+      const Node* node,
+      const AlignmentDataInterface& sequences,
+      const TransitionModelInterface& model);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_DRASRTREELIKELIHOODDATA_H

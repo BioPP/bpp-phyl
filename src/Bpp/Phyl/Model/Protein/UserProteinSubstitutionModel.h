@@ -67,7 +67,7 @@ class UserProteinSubstitutionModel :
 {
 private:
   std::string path_;
-  std::shared_ptr<ProteinFrequencySet> freqSet_;
+  std::unique_ptr<ProteinFrequencySetInterface> freqSet_;
 
 public:
   /**
@@ -78,7 +78,7 @@ public:
    * @param prefix The parameter namespace to use.
    */
   UserProteinSubstitutionModel(
-    const ProteicAlphabet* alpha,
+    std::shared_ptr<const ProteicAlphabet> alpha,
     const std::string& path,
     const std::string& prefix);
 
@@ -93,9 +93,9 @@ public:
    * Otherwise, the values of the set will be used.
    */
   UserProteinSubstitutionModel(
-    const ProteicAlphabet* alpha,
+    std::shared_ptr<const ProteicAlphabet> alpha,
     const std::string& path,
-    std::shared_ptr<ProteinFrequencySet> freqSet,
+    std::unique_ptr<ProteinFrequencySetInterface> freqSet,
     const std::string& prefix,
     bool initFreqs = false
     );
@@ -104,7 +104,7 @@ public:
     AbstractParameterAliasable(model),
     AbstractReversibleProteinSubstitutionModel(model),
     path_(model.path_),
-    freqSet_(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()))
+    freqSet_(model.freqSet_->clone())
   {}
 
   UserProteinSubstitutionModel& operator=(const UserProteinSubstitutionModel& model)
@@ -112,42 +112,47 @@ public:
     AbstractParameterAliasable::operator=(model);
     AbstractReversibleProteinSubstitutionModel::operator=(model);
     path_ = model.path_;
-    freqSet_ = std::shared_ptr<ProteinFrequencySet>(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone()));
+    freqSet_.reset(model.freqSet_->clone());
     return *this;
   }
 
   virtual ~UserProteinSubstitutionModel() {}
 
-  UserProteinSubstitutionModel* clone() const { return new UserProteinSubstitutionModel(*this); }
+  UserProteinSubstitutionModel* clone() const override { return new UserProteinSubstitutionModel(*this); }
 
 public:
-  std::string getName() const;
+  std::string getName() const override;
+  
   const std::string& getPath() const { return path_; }
 
-  void fireParameterChanged(const ParameterList& parameters)
+  void fireParameterChanged(const ParameterList& parameters) override
   {
     freqSet_->matchParametersValues(parameters);
     freq_ = freqSet_->getFrequencies();
     AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
   }
 
-  void setNamespace(const std::string& prefix)
+  void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
     freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
   }
 
-
-  void setFrequencySet(const ProteinFrequencySet& freqSet)
+  void setFrequencySet(const ProteinFrequencySetInterface& freqSet)
   {
-    freqSet_.reset(dynamic_cast<ProteinFrequencySet*>(freqSet.clone()));
+    freqSet_.reset(freqSet.clone());
     resetParameters_();
     addParameters_(freqSet_->getParameters());
   }
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const { return freqSet_; }
-
-  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+  const FrequencySetInterface& frequencySet() const override
+  {
+    if (freqSet_)
+      return *freqSet_;
+    throw NullPointerException("UserProteinSubstitutionModel::frequencySet(). No associated FrequencySet.");
+  }
+    
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
 protected:
   void readFromFile();

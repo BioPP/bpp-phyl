@@ -68,17 +68,17 @@ public:
   const static std::string PHYML;
 
 private:
-  NNISearchable* searchableTree_;
+  std::shared_ptr<NNISearchable> searchableTree_;
   std::string algorithm_;
   unsigned int verbose_;
-  std::vector<TopologyListener*> topoListeners_;
+  std::vector<std::shared_ptr<TopologyListener>> topoListeners_;
 
 public:
   NNITopologySearch(
-    NNISearchable& tree,
+    std::shared_ptr<NNISearchable> tree,
     const std::string& algorithm = FAST,
     unsigned int verbose = 2) :
-    searchableTree_(&tree), algorithm_(algorithm), verbose_(verbose), topoListeners_()
+    searchableTree_(tree), algorithm_(algorithm), verbose_(verbose), topoListeners_()
   {}
 
   NNITopologySearch(const NNITopologySearch& ts) :
@@ -90,7 +90,7 @@ public:
     // Hard-copy all listeners:
     for (unsigned int i = 0; i < topoListeners_.size(); i++)
     {
-      topoListeners_[i] = dynamic_cast<TopologyListener*>(ts.topoListeners_[i]->clone());
+      topoListeners_[i].reset(ts.topoListeners_[i]->clone());
     }
   }
 
@@ -103,21 +103,14 @@ public:
     // Hard-copy all listeners:
     for (unsigned int i = 0; i < topoListeners_.size(); i++)
     {
-      topoListeners_[i] = dynamic_cast<TopologyListener*>(ts.topoListeners_[i]->clone());
+      topoListeners_[i].reset(ts.topoListeners_[i]->clone());
     }
     return *this;
   }
 
 
   virtual ~NNITopologySearch()
-  {
-    for (std::vector<TopologyListener*>::iterator it = topoListeners_.begin();
-         it != topoListeners_.end();
-         it++)
-    {
-      delete *it;
-    }
-  }
+  {}
 
 public:
   void search();
@@ -130,7 +123,7 @@ public:
    *
    * The listener will be owned by this instance, and copied when needed.
    */
-  void addTopologyListener(TopologyListener* listener)
+  void addTopologyListener(std::shared_ptr<TopologyListener> listener)
   {
     if (listener)
       topoListeners_.push_back(listener);
@@ -142,16 +135,17 @@ public:
    *
    * @return The tree associated to this instance.
    */
-  const Tree& getTopology() const { return searchableTree_->getTopology(); }
+  const Tree& topology() const { return searchableTree_->topology(); }
 
   /**
    * @return The NNISearchable object associated to this instance.
    */
-  NNISearchable* getSearchableObject() { return searchableTree_; }
+  std::shared_ptr<NNISearchable> getSearchableObject() { return searchableTree_; }
+
   /**
    * @return The NNISearchable object associated to this instance.
    */
-  const NNISearchable* getSearchableObject() const { return searchableTree_; }
+  std::shared_ptr<const NNISearchable> getSearchableObject() const { return searchableTree_; }
 
 protected:
   void searchFast();

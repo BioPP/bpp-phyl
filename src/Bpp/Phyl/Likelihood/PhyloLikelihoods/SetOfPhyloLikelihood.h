@@ -1,7 +1,7 @@
 //
 // File: SetOfAbstractPhyloLikelihood.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 8 octobre 2015, ÃÂ  14h 33
 //
 
@@ -38,8 +38,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SETOFABSTRACTPHYLOLIKELIHOOD_H
-#define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SETOFABSTRACTPHYLOLIKELIHOOD_H
+#ifndef BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SETOFPHYLOLIKELIHOOD_H
+#define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SETOFPHYLOLIKELIHOOD_H
 
 
 #include "AbstractPhyloLikelihood.h"
@@ -49,64 +49,130 @@
 namespace bpp
 {
 /**
- * @brief The SetOfAbstractPhyloLikelihood class, to manage a
- * subset of AbstractPhyloLikelihoods from a given
+ * @brief The SetOfPhyloLikelihood interface, to manage a
+ * subset of PhyloLikelihoods from a given
  * PhyloLikelihoodContainer
- *
  */
+class SetOfPhyloLikelihoodInterface :
+  public virtual PhyloLikelihoodInterface
+{
+public:
+  virtual SetOfPhyloLikelihoodInterface* clone() const = 0;
 
-class SetOfAbstractPhyloLikelihood :
-  virtual public AbstractPhyloLikelihood,
-  public AbstractParametrizable
+public:
+  virtual std::shared_ptr<PhyloLikelihoodContainer> getPhyloContainer() = 0;
+
+  virtual std::shared_ptr<const PhyloLikelihoodContainer> getPhyloContainer() const = 0;
+
+  virtual const std::vector<size_t>& getNumbersOfPhyloLikelihoods() const = 0;
+
+  /**
+   *
+   * @brief adds a PhyloLikelihood already stored in the
+   * PhyloLikelihoodContainer, iff it is an
+   * AbstractPhyloLikelihood.
+   *
+   * @param nPhyl  number of the phylolikelihood
+   * @param suff for parameters names if use specific parameters names
+   *
+   * @return if the PhyloLikelihood has been added.
+   */
+  virtual bool addPhyloLikelihood(size_t nPhyl, const std::string& suff = "") = 0;
+
+  /**
+   *
+   * @name The PhyloLikelihood storage.
+   *
+   * @{
+   */
+  virtual bool hasPhyloLikelihood(size_t nPhyl) = 0;
+
+  virtual std::shared_ptr<const PhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl) const = 0;
+
+  virtual std::shared_ptr<PhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl) = 0;
+
+};
+
+
+
+/**
+ * @brief The SetOfPhyloLikelihood class, to manage a
+ * subset of PhyloLikelihoods from a given
+ * PhyloLikelihoodContainer
+ */
+class AbstractSetOfPhyloLikelihood :
+  public virtual SetOfPhyloLikelihoodInterface,
+  public virtual AbstractPhyloLikelihood,
+  public virtual AbstractParametrizable
 {
 protected:
   /**
    * @brief pointer to a  PhyloLikelihoodContainer
-   *
    */
-
   std::shared_ptr<PhyloLikelihoodContainer> pPhyloCont_;
 
   /**
    * @brief vector of AbstractPhyloLikelihood numbers
-   *
    */
-
   std::vector<size_t> nPhylo_;
 
   /**
    * vector of pointers towards LikelihoodCalculation, used
    * for the global likelihood.
    */
-
   mutable std::vector<std::shared_ptr<LikelihoodCalculation> > vLikCal_;
 
 public:
-  /*
+  /**
    * @param inCollection : avoid suffix addition to parameter names
-   *
    */
+  AbstractSetOfPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      bool inCollection = true,
+      const std::string& prefix = "");
 
-  SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection = true, const std::string& prefix = "");
+  AbstractSetOfPhyloLikelihood(
+      Context& context,
+      std::shared_ptr<PhyloLikelihoodContainer> pC,
+      const std::vector<size_t>& nPhylo,
+      bool inCollection = true,
+      const std::string& prefix = "");
 
-  SetOfAbstractPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
+  virtual ~AbstractSetOfPhyloLikelihood() {}
 
-  ~SetOfAbstractPhyloLikelihood() {}
+protected:
 
-  SetOfAbstractPhyloLikelihood(const SetOfAbstractPhyloLikelihood& sd);
+  AbstractSetOfPhyloLikelihood(const AbstractSetOfPhyloLikelihood& sd) :
+    AbstractPhyloLikelihood(sd),
+    AbstractParametrizable(sd),
+    pPhyloCont_(sd.pPhyloCont_),
+    nPhylo_(sd.nPhylo_),
+    vLikCal_(sd.vLikCal_)
+  {}
+
+  AbstractSetOfPhyloLikelihood& operator=(const AbstractSetOfPhyloLikelihood& sd)
+  {
+    AbstractPhyloLikelihood::operator=(sd);
+    AbstractParametrizable::operator=(sd);
+    pPhyloCont_ = sd.pPhyloCont_;
+    nPhylo_ = sd.nPhylo_;
+    vLikCal_ = sd.vLikCal_;
+    return *this;
+  }
 
 public:
-  std::shared_ptr<PhyloLikelihoodContainer> getPhyloContainer()
+  std::shared_ptr<PhyloLikelihoodContainer> getPhyloContainer() override
   {
     return pPhyloCont_;
   }
 
-  std::shared_ptr<const PhyloLikelihoodContainer> getPhyloContainer() const
+  std::shared_ptr<const PhyloLikelihoodContainer> getPhyloContainer() const override
   {
     return pPhyloCont_;
   }
 
-  const std::vector<size_t>& getNumbersOfPhyloLikelihoods() const
+  const std::vector<size_t>& getNumbersOfPhyloLikelihoods() const override
   {
     return nPhylo_;
   }
@@ -123,37 +189,26 @@ public:
    * @return if the PhyloLikelihood has been added.
    */
 
-  virtual bool addPhyloLikelihood(size_t nPhyl, const std::string& suff = "");
+  virtual bool addPhyloLikelihood(size_t nPhyl, const std::string& suff = "") override;
 
   /**
    *
-   * @name The AbstractPhyloLikelihood storage.
+   * @name The PhyloLikelihood storage.
    *
    * @{
    */
-  bool hasPhyloLikelihood(size_t nPhyl)
+  bool hasPhyloLikelihood(size_t nPhyl) override
   {
     return std::find(nPhylo_.begin(), nPhylo_.end(), nPhyl) != nPhylo_.end();
   }
 
-  const AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
-  {
-    return dynamic_cast<const AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
-  }
-
-
-  AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl)
-  {
-    return dynamic_cast<AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
-  }
-
-  const PhyloLikelihood* getPhyloLikelihood(size_t nPhyl) const
+  std::shared_ptr<const PhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl) const override
   {
     return (*pPhyloCont_)[nPhyl];
   }
 
 
-  PhyloLikelihood* getPhyloLikelihood(size_t nPhyl)
+  std::shared_ptr<PhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl) override
   {
     return (*pPhyloCont_)[nPhyl];
   }
@@ -177,9 +232,9 @@ public:
    */
   bool isInitialized() const override
   {
-    for (size_t i = 0; i < nPhylo_.size(); i++)
+    for (auto nPhylo: nPhylo_)
     {
-      if (!getPhyloLikelihood(nPhylo_[i])->isInitialized())
+      if (!getPhyloLikelihood(nPhylo)->isInitialized())
         return false;
     }
     return true;
@@ -188,9 +243,9 @@ public:
 public:
   virtual void fireParameterChanged(const ParameterList& params) override
   {
-    for (size_t i = 0; i < nPhylo_.size(); i++)
+    for (auto nPhylo: nPhylo_)
     {
-      getAbstractPhyloLikelihood(nPhylo_[i])->matchParametersValues(params);
+      getPhyloLikelihood(nPhylo)->matchParametersValues(params);
 
       // to ensure each phylolikelihood is recomputed, such as in
       // case of total aliasing
@@ -214,7 +269,6 @@ public:
    *
    * @return A ParameterList with all branch lengths.
    */
-
   ParameterList getBranchLengthParameters() const override;
 
   /**
@@ -222,7 +276,6 @@ public:
    *
    * @return A ParameterList.
    */
-
   ParameterList getSubstitutionModelParameters() const override;
 
   /**
@@ -244,4 +297,4 @@ public:
   /** @} */
 };
 } // end of namespace bpp.
-#endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SETOFABSTRACTPHYLOLIKELIHOOD_H
+#endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SETOFPHYLOLIKELIHOOD_H

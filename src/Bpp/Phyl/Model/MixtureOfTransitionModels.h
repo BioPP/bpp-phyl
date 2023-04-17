@@ -54,7 +54,7 @@ namespace bpp
 /**
  * @brief Transition models defined as a mixture of several
  * substitution models.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * All the models can be of different types (for example T92 or
  * GY94), and each model has a specific probability and rate.
@@ -119,7 +119,6 @@ namespace bpp
  * submodels that are prefixed by "Mixture.i_", where i is the order
  * of the model.
  */
-
 class MixtureOfTransitionModels :
   public AbstractMixedTransitionModel
 {
@@ -134,8 +133,8 @@ public:
    * @warning providing a vpModel with size 0 will generate a segmentation fault!
    */
   MixtureOfTransitionModels(
-    const Alphabet* alpha,
-    std::vector<std::shared_ptr<TransitionModel> > vpModel);
+    std::shared_ptr<const Alphabet> alpha,
+    std::vector<std::unique_ptr<TransitionModelInterface>>& vpModel);
 
   /**
    * @brief Constructor of a MixtureOfTransitionModels.
@@ -150,10 +149,9 @@ public:
    * See above the constraints on the rates and the probabilities of
    * the vectors.
    */
-
   MixtureOfTransitionModels(
-    const Alphabet* alpha,
-    std::vector<std::shared_ptr<TransitionModel> > vpModel,
+    std::shared_ptr<const Alphabet> alpha,
+    std::vector<std::unique_ptr<TransitionModelInterface>>& vpModel,
     Vdouble& vproba, Vdouble& vrate);
 
   MixtureOfTransitionModels(const MixtureOfTransitionModels&);
@@ -162,31 +160,24 @@ public:
 
   virtual ~MixtureOfTransitionModels();
 
-  MixtureOfTransitionModels* clone() const { return new MixtureOfTransitionModels(*this); }
+  MixtureOfTransitionModels* clone() const override {
+    return new MixtureOfTransitionModels(*this);
+  }
 
 public:
-  std::string getName() const { return "Mixture"; }
+  std::string getName() const override { return "Mixture"; }
 
   /**
    * @brief retrieve a pointer to the submodel with the given name.
-   *
-   * Return Null if not found.
-   *
    */
+  const TransitionModelInterface& model(const std::string& name) const override;
 
-  const TransitionModel* getModel(const std::string& name) const;
-
-  const TransitionModel* getModel(size_t i) const
+  const TransitionModelInterface& model(size_t i) const
   {
-    return AbstractMixedTransitionModel::getNModel(i);
+    return AbstractMixedTransitionModel::nModel(i);
   }
 
-  // TransitionModel* getModel(size_t i)
-  // {
-  //   return AbstractMixedTransitionModel::getModel(i);
-  // }
-
-  void updateMatrices();
+  void updateMatrices_() override;
 
   /**
    * @brief Sets the rates of the submodels to follow the constraint
@@ -195,7 +186,7 @@ public:
    * the respective submodels are in the same proportions (ie this
    * vector does not need to be normalized).
    */
-  virtual void setVRates(const Vdouble& vd);
+  virtual void setVRates(const Vdouble& vd) override;
 
   /**
    * @brief Returns the vector of numbers of the submodels in the
@@ -204,13 +195,13 @@ public:
    * @param desc is the description of the class indexes of the mixed
    * parameters. Syntax is like: kappa_1,gamma_3,delta_2
    */
-  Vuint getSubmodelNumbers(const std::string& desc) const;
+  Vuint getSubmodelNumbers(const std::string& desc) const override;
 
   /**
    * @brief applies setFreq to all the models of the mixture and
    * recovers the parameters values.
    */
-  void setFreq(std::map<int, double>&);
+  void setFreq(std::map<int, double>&) override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_MIXTUREOFTRANSITIONMODELS_H

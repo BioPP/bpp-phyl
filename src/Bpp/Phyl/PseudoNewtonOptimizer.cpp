@@ -73,7 +73,7 @@ bool PseudoNewtonOptimizer::PNStopCondition::isToleranceReached() const
 
 /**************************************************************************/
 
-PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder* function) :
+PseudoNewtonOptimizer::PseudoNewtonOptimizer(shared_ptr<SecondOrderDerivable> function) :
   AbstractOptimizer(function),
   previousPoint_(),
   previousValue_(0),
@@ -82,8 +82,8 @@ PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder* function) :
   maxCorrection_(10),
   useCG_(true)
 {
-  setDefaultStopCondition_(new FunctionStopCondition(this));
-  setStopCondition(*getDefaultStopCondition());
+  setDefaultStopCondition_(make_shared<FunctionStopCondition>(this));
+  setStopCondition(getDefaultStopCondition());
 }
 
 /**************************************************************************/
@@ -92,8 +92,8 @@ void PseudoNewtonOptimizer::doInit(const ParameterList& params)
 {
   n_ = getParameters().size();
   params_ = getParameters().getParameterNames();
-  getFunction()->enableSecondOrderDerivatives(true);
-  getFunction()->setParameters(getParameters());
+  secondOrderDerivableFunction().enableSecondOrderDerivatives(true);
+  secondOrderDerivableFunction().setParameters(getParameters());
 }
 
 /**************************************************************************/
@@ -110,8 +110,8 @@ double PseudoNewtonOptimizer::doStep()
 
   for (size_t i = 0; i < n_; i++)
   {
-    double firstOrderDerivative = getFunction()->getFirstOrderDerivative(params_[i]);
-    double secondOrderDerivative = getFunction()->getSecondOrderDerivative(params_[i]);
+    double firstOrderDerivative = secondOrderDerivableFunction().getFirstOrderDerivative(params_[i]);
+    double secondOrderDerivative = secondOrderDerivableFunction().getSecondOrderDerivative(params_[i]);
     if (secondOrderDerivative == 0)
     {
       movements[i] = 0;
@@ -161,8 +161,8 @@ double PseudoNewtonOptimizer::doStep()
     {
       printMessage("!!! Felsenstein-Churchill correction applied too many times.");
       printMessage("Use conjugate gradients optimization.");
-      getFunction()->enableSecondOrderDerivatives(false);
-      ConjugateGradientMultiDimensions opt(getFunction());
+      secondOrderDerivableFunction().enableSecondOrderDerivatives(false);
+      ConjugateGradientMultiDimensions opt(dynamic_pointer_cast<FirstOrderDerivable>(function_));
       opt.setConstraintPolicy(getConstraintPolicy());
       opt.setProfiler(getProfiler());
       opt.setMessageHandler(getMessageHandler());
@@ -192,9 +192,8 @@ double PseudoNewtonOptimizer::doStep()
   }
   else
   {
-    // getFunction()->enableFirstOrderDerivatives(true);
-    getFunction()->enableSecondOrderDerivatives(true);
-    getFunction()->setParameters(newPoint); // Compute derivatives for this point
+    secondOrderDerivableFunction().enableSecondOrderDerivatives(true);
+    secondOrderDerivableFunction().setParameters(newPoint); // Compute derivatives for this point
 
     previousPoint_ = getParameters();
     previousValue_ = currentValue_;

@@ -45,7 +45,7 @@
 #include "../Model/StateMap.h"
 #include "TreeParsimonyScore.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
@@ -54,67 +54,45 @@ namespace bpp
  * @brief Partial implementation of the TreeParsimonyScore interface.
  */
 class AbstractTreeParsimonyScore :
-  public virtual TreeParsimonyScore
+  public virtual TreeParsimonyScoreInterface
 {
 private:
-  TreeTemplate<Node>* tree_;
-  const SiteContainer* data_;
-  const Alphabet* alphabet_;
-  std::shared_ptr<const StateMap> statesMap_;
+  std::shared_ptr<TreeTemplate<Node>> treePtr_;
+  std::shared_ptr<const SiteContainerInterface> data_;
+  std::shared_ptr<const Alphabet> alphabet_;
+  std::shared_ptr<const StateMapInterface> statesMap_;
   size_t nbStates_;
 
 public:
   AbstractTreeParsimonyScore(
-    const Tree& tree,
-    const SiteContainer& data,
+    std::shared_ptr<TreeTemplate<Node>> tree,
+    std::shared_ptr<const SiteContainerInterface> data,
     bool verbose,
     bool includeGaps);
 
   AbstractTreeParsimonyScore(
-    const Tree& tree,
-    const SiteContainer& data,
-    std::shared_ptr<const StateMap> statesMap,
+    std::shared_ptr<TreeTemplate<Node>> tree,
+    std::shared_ptr<const SiteContainerInterface> data,
+    std::shared_ptr<const StateMapInterface> statesMap,
     bool verbose);
 
-  AbstractTreeParsimonyScore(const AbstractTreeParsimonyScore& tp) :
-    tree_(0),
-    data_(0),
-    alphabet_(tp.alphabet_),
-    statesMap_(0),
-    nbStates_(tp.nbStates_)
-  {
-    tree_      = tp.tree_->clone();
-    data_      = dynamic_cast<SiteContainer*>(tp.data_->clone());
-    statesMap_ = tp.statesMap_;
-  }
-
-  AbstractTreeParsimonyScore& operator=(const AbstractTreeParsimonyScore& tp)
-  {
-    tree_      = dynamic_cast<TreeTemplate<Node>*>(tp.tree_->clone());
-    data_      = dynamic_cast<SiteContainer*>(tp.data_->clone());
-    alphabet_  = tp.alphabet_;
-    statesMap_ = tp.statesMap_;
-    nbStates_  = tp.nbStates_;
-    return *this;
-  }
-
-  virtual ~AbstractTreeParsimonyScore()
-  {
-    delete tree_;
-    if (data_) delete data_;
-  }
+  virtual ~AbstractTreeParsimonyScore() {}
 
 private:
-  void init_(const SiteContainer& data, bool verbose);
+  void init_(std::shared_ptr<const SiteContainerInterface> data, bool verbose);
 
 public:
-  virtual const Tree& getTree() const { return *tree_; }
-  virtual std::vector<unsigned int> getScorePerSite() const;
-  virtual const StateMap& getStateMap() const { return *statesMap_; }
+  const Tree& tree() const override { return *treePtr_; }
+  virtual const TreeTemplate<Node>& treeTemplate() const { return *treePtr_; }
+  virtual std::shared_ptr<const TreeTemplate<Node>> getTreeTemplate() const { return treePtr_; }
+  std::vector<unsigned int> getScorePerSite() const override;
+  const StateMapInterface& stateMap() const override { return *statesMap_; }
+  std::shared_ptr<const StateMapInterface> getStateMap() const override { return statesMap_; }
 
 protected:
-  const TreeTemplate<Node>* getTreeP_() const { return tree_; }
-  TreeTemplate<Node>* getTreeP_() { return tree_; }
+  virtual Tree& tree_() { return *treePtr_; }
+  virtual TreeTemplate<Node>& treeTemplate_() { return *treePtr_; }
+  virtual std::shared_ptr<TreeTemplate<Node>> getTreeTemplate_() { return treePtr_; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PARSIMONY_ABSTRACTTREEPARSIMONYSCORE_H

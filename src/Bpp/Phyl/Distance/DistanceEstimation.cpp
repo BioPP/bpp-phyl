@@ -88,7 +88,7 @@ void DistanceEstimation::computeMatrix()
     {
       ApplicationTools::displayGauge(i, n - 1, '=');
     }
-    for (size_t j = i + 1; j < n; j++)
+    for (size_t j = i + 1; j < n; ++j)
     {
       if (verbose_ > 1)
       {
@@ -97,13 +97,13 @@ void DistanceEstimation::computeMatrix()
 
       Context context;
   
-      auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("("+names[i]+":0.01,"+names[j]+":0.01);", false, "", false, false));
+      auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(" + names[i] + ":0.01," + names[j] + ":0.01);", false, "", false, false));
 
-      auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model_, rateDist_, phyloTree);
+      auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model_, rateDist_, phyloTree);
       
-      auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *sites_, *process);
+      auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites_, process);
 
-      SingleProcessPhyloLikelihood llh(context, lik);
+      auto llh = std::make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
       // size_t d = sc ?
       //            SymbolListTools::getNumberOfDistinctPositions(sc->getSequence(i), sc->getSequence(j)) :
@@ -114,14 +114,14 @@ void DistanceEstimation::computeMatrix()
 
       // llh.setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
-      optimizer_->setFunction(&llh);
+      optimizer_->setFunction(llh);
       optimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-      ParameterList params = llh.getBranchLengthParameters();
+      ParameterList params = llh->getBranchLengthParameters();
       params.addParameters(parameters_);
       optimizer_->init(params);
       optimizer_->optimize();
       // Store results:
-      (*dist_)(i, j) = (*dist_)(j, i) = llh.getParameterValue("BrLen0") + llh.getParameterValue("BrLen1");
+      (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0") + llh->getParameterValue("BrLen1");
 
     }
     if (verbose_ > 1 && ApplicationTools::message)

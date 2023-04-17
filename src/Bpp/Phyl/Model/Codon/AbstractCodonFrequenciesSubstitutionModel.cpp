@@ -46,28 +46,29 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionModel(
-  std::shared_ptr<FrequencySet> pfreq,
-  const std::string& prefix) :
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
-  pfreqset_(pfreq),
+  pfreqset_(move(pfreq)),
   freqName_("")
 {
-  if (dynamic_cast<CodonFrequencySet*>(pfreq.get()) == NULL)
-    throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
-
   freqName_ = pfreqset_->getNamespace();
   pfreqset_->setNamespace(prefix + freqName_);
   addParameters_(pfreqset_->getParameters());
 }
 
-AbstractCodonFrequenciesSubstitutionModel::~AbstractCodonFrequenciesSubstitutionModel()
-{}
+/******************************************************************************/
+
+AbstractCodonFrequenciesSubstitutionModel::~AbstractCodonFrequenciesSubstitutionModel() {}
+
+/******************************************************************************/
 
 void AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   pfreqset_->matchParametersValues(parameters);
 }
 
+/******************************************************************************/
 
 void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
@@ -75,7 +76,12 @@ void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int, double>& freque
   matchParametersValues(pfreqset_->getParameters());
 }
 
+/******************************************************************************/
+
 double AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   return pfreqset_->getFrequencies()[j];
 }
+
+/******************************************************************************/
+

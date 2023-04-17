@@ -45,16 +45,20 @@ using namespace std;
 using namespace bpp;
 
 
-SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, bool inCollection, const std::string& prefix) :
+AbstractSetOfAlignedPhyloLikelihood::AbstractSetOfAlignedPhyloLikelihood(
+    Context& context,
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    bool inCollection,
+    const std::string& prefix) :
   AbstractPhyloLikelihood(context),
-  AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAbstractPhyloLikelihood(context, pC, inCollection, prefix)
+  AbstractSetOfPhyloLikelihood(context, pC, inCollection, prefix),
+  AbstractAlignedPhyloLikelihood(context, 0)
 {
   for (auto np:nPhylo_)
   {
-    const AlignedPhyloLikelihood* aPL = getPhyloLikelihood(np);
+    auto aPL = getAlignedPhyloLikelihood(np);
 
-    if (aPL == NULL)
+    if (!aPL)
       throw Exception("SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood  :non aligned PhyloLikelihood: " + TextTools::toString(np));
     if (getNumberOfSites() == 0)
       setNumberOfSites(aPL->getNumberOfSites());
@@ -65,16 +69,21 @@ SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::
 
 /*************************************************************/
 
-SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::shared_ptr<PhyloLikelihoodContainer> pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix) :
+AbstractSetOfAlignedPhyloLikelihood::AbstractSetOfAlignedPhyloLikelihood(
+    Context& context, 
+    std::shared_ptr<PhyloLikelihoodContainer> pC,
+    const std::vector<size_t>& nPhylo,
+    bool inCollection,
+    const std::string& prefix) :
   AbstractPhyloLikelihood(context),
-  AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAbstractPhyloLikelihood(context, pC, nPhylo, inCollection, prefix)
+  AbstractSetOfPhyloLikelihood(context, pC, nPhylo, inCollection, prefix),
+  AbstractAlignedPhyloLikelihood(context, 0)
 {
-  for (auto np:nPhylo)
+  for (auto np : nPhylo)
   {
-    const AlignedPhyloLikelihood* aPL = getPhyloLikelihood(np);
+    auto aPL = getAlignedPhyloLikelihood(np);
 
-    if (aPL == NULL)
+    if (!aPL)
       throw Exception("SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood  :non aligned PhyloLikelihood: " + TextTools::toString(np));
     if (getNumberOfSites() == 0)
       setNumberOfSites(aPL->getNumberOfSites());
@@ -85,13 +94,13 @@ SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, std::
 
 /******************************************************************************/
 
-bool SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::string& suff)
+bool AbstractSetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::string& suff)
 {
-  const AlignedPhyloLikelihood* aPL = getPhyloLikelihood(nPhyl);
+  auto aPL = getAlignedPhyloLikelihood(nPhyl);
 
-  if (aPL != NULL && (getNumberOfSites() == 0 || aPL->getNumberOfSites() == getNumberOfSites()))
+  if (aPL && (getNumberOfSites() == 0 || aPL->getNumberOfSites() == getNumberOfSites()))
   {
-    if (SetOfAbstractPhyloLikelihood::addPhyloLikelihood(nPhyl, suff))
+    if (AbstractSetOfPhyloLikelihood::addPhyloLikelihood(nPhyl, suff))
     {
       if (getNumberOfSites() == 0)
         setNumberOfSites(aPL->getNumberOfSites());
@@ -103,3 +112,6 @@ bool SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::st
 
   return false;
 }
+
+/******************************************************************************/
+

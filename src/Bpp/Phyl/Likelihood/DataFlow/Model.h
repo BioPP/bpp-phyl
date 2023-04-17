@@ -7,37 +7,37 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
+
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
+
+   This software is governed by the CeCILL license under French law and
+   abiding by the rules of distribution of free software. You can use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
+
+   As a counterpart to the access to the source code and rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty and the software's author, the holder of the
+   economic rights, and the successive licensors have only limited
+   liability.
+
+   In this respect, the user's attention is drawn to the risks associated
+   with loading, using, modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean that it is complicated to manipulate, and that also
+   therefore means that it is reserved for developers and experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and, more generally, to use and operate it in the
+   same conditions as regards security.
+
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef BPP_PHYL_LIKELIHOOD_DATAFLOW_MODEL_H
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_MODEL_H
@@ -64,9 +64,10 @@ inline RowVectorDimension equilibriumFrequenciesDimension (std::size_t nbState)
 }
 
 
-/* Likelihood transition model.
+/**
+ * @brief Likelihood transition model.
  */
-class TransitionModel;
+//class TransitionModelInterface;
 
 /** @brief Data flow node representing a Model configured with parameter values.
  *
@@ -78,7 +79,8 @@ class TransitionModel;
  *
  * The dummy value is implemented as a pointer to the internal model for simplicity.
  */
-class ConfiguredModel : public Value<BranchModel*>,
+class ConfiguredModel :
+  public Value<std::shared_ptr<BranchModelInterface>>,
   public AbstractParametrizable
 {
   // private:
@@ -86,32 +88,32 @@ class ConfiguredModel : public Value<BranchModel*>,
 
 public:
   using Self = ConfiguredModel;
-  using Target = BranchModel;
+  using Target = BranchModelInterface;
 
-  ConfiguredModel (Context& context, NodeRefVec&& deps, std::unique_ptr<BranchModel>&& model);
-  ~ConfiguredModel ();
+  ConfiguredModel(Context& context, NodeRefVec&& deps, std::shared_ptr<BranchModelInterface>&& model);
+  virtual ~ConfiguredModel();
 
-  ConfiguredModel* clone() const
+  ConfiguredModel* clone() const override
   {
     throw bpp::Exception("ConfiguredModel clone should not happen.");
   }
 
-  std::string description () const final;
-  std::string debugInfo () const final;
+  std::string description() const final;
+  std::string debugInfo() const final;
 
-  std::string color () const final
+  std::string color() const final
   {
     return "red";
   }
 
-  bool compareAdditionalArguments (const Node_DF& other) const;
+  bool compareAdditionalArguments(const Node_DF& other) const override;
 
-  std::size_t hashAdditionalArguments () const;
+  std::size_t hashAdditionalArguments () const override;
 
   /// Configuration for numerical derivation of computation nodes using this Model.
   NumericalDerivativeConfiguration config;
 
-  NodeRef recreate (Context& c, NodeRefVec&& deps) final;
+  NodeRef recreate(Context& c, NodeRefVec&& deps) final;
 
   const ConfiguredParameter& getConfiguredParameter(const std::string& name) const
   {
@@ -119,15 +121,16 @@ public:
   }
 
 private:
-  void compute ()
+  void compute() override
   {
     model_->matchParametersValues(getParameters());
   }
 
-  std::unique_ptr<BranchModel> model_;
+  std::shared_ptr<BranchModelInterface> model_;
 };
 
-/** equilibriumFrequencies = f(model).
+/** 
+ * equilibriumFrequencies = f(model).
  * equilibriumFrequencies: RowVector(nbState).
  * model: ConfiguredModel.
  *
@@ -234,14 +237,14 @@ private:
 
 public:
   /// Build a new TransitionMatrixFromModel node with the given output dimensions.
-  TransitionFunctionFromModel (NodeRefVec&& deps, const Dimension<T>& dim);
+  TransitionFunctionFromModel(NodeRefVec&& deps, const Dimension<T>& dim);
 
-  std::string debugInfo () const final;
+  std::string debugInfo() const final;
 
-  bool compareAdditionalArguments (const Node_DF& other) const;
+  bool compareAdditionalArguments(const Node_DF& other) const;
 
-  NodeRef derive (Context& c, const Node_DF& node) final;
-  NodeRef recreate (Context& c, NodeRefVec&& deps) final;
+  NodeRef derive(Context& c, const Node_DF& node) final;
+  NodeRef recreate(Context& c, NodeRefVec&& deps) final;
 
   std::string color () const final
   {
@@ -259,21 +262,20 @@ public:
   }
 
 private:
-  void compute () final;
+  void compute() final;
 
 public:
-  static std::shared_ptr<Self> create (Context& c, NodeRefVec&& deps, const Dimension<T>& dim);
+  static std::shared_ptr<Self> create(Context& c, NodeRefVec&& deps, const Dimension<T>& dim);
 };
 
-/** dtransitionMatrix/dbrlen = f(model, branchLen).
+/** 
+ * dtransitionMatrix/dbrlen = f(model, branchLen).
  * dtransitionMatrix/dbrlen: Matrix(fromState, toState).
  * model: ConfiguredModel.
  * branchLen: double.
  *
  * Node construction should be done with the create static method.
  */
-
-
 class ProbabilitiesFromMixedModel : public Value<Eigen::RowVectorXd>
 {
 public:
@@ -343,4 +345,4 @@ public:
   static std::shared_ptr<Self> create (Context& c, NodeRefVec&& deps, size_t nCat);
 };
 } // namespace bpp
-#endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_MODEL_H
+#endif// BPP_PHYL_LIKELIHOOD_DATAFLOW_MODEL_H

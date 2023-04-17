@@ -106,39 +106,45 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *        distance object.
    */
-
   DFPDistanceFrequenciesSubstitutionModel(
-    const GeneticCode* gCode,
-    std::shared_ptr<FrequencySet> pfreq,
-    const AlphabetIndex2* pdist = 0);
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
+    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~DFPDistanceFrequenciesSubstitutionModel() {}
 
-  DFPDistanceFrequenciesSubstitutionModel* clone() const
+  DFPDistanceFrequenciesSubstitutionModel* clone() const override
   {
     return new DFPDistanceFrequenciesSubstitutionModel(*this);
   }
 
 public:
-  void fireParameterChanged(const ParameterList& parameterlist);
+  
+  void fireParameterChanged(const ParameterList& parameterlist) override;
 
-  std::string getName() const;
+  std::string getName() const override;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
+  double getCodonsMulRate(size_t i, size_t j) const override;
 
-  void setNamespace(const std::string&);
+  void setNamespace(const std::string&) override;
 
-  size_t getNumberOfStates() const
+  size_t getNumberOfStates() const override
   {
     return 64;
   }
 
-  void setFreq(std::map<int, double>& frequencies);
+  void setFreq(std::map<int, double>& frequencies) override;
 
-  const std::shared_ptr<FrequencySet> getFrequencySet() const
+  const CodonFrequencySetInterface& codonFrequencySet() const override
   {
-    return AbstractCodonFrequenciesSubstitutionModel::getFrequencySet();
+    return AbstractCodonFrequenciesSubstitutionModel::codonFrequencySet();
   }
+
+  bool hasCodonFrequencySet() const override
+  {
+    return AbstractCodonFrequenciesSubstitutionModel::hasCodonFrequencySet();
+  }
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_DFPDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H

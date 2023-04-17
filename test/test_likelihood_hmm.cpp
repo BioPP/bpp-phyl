@@ -70,40 +70,40 @@ int main() {
   Context context;
   
   Newick reader;
+  auto tree1 = reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);");
+  auto tree2 = reader.parenthesisToPhyloTree("((A:0.05, C:0.02):0.1,(D:0.01,B:0.03):0.05);");
 
-  unique_ptr<PhyloTree> tree1(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);"));
-  unique_ptr<PhyloTree> tree2(reader.parenthesisToPhyloTree("((A:0.05, C:0.02):0.1,(D:0.01,B:0.03):0.05);"));
-
-  vector<shared_ptr<PhyloNode> > vl= tree1->getAllLeaves();
-  
+  vector<shared_ptr<PhyloNode>> vl = tree1->getAllLeaves();
+   
   vector<string> seqNames;
-  for (size_t i=0; i<vl.size(); i++)
-    seqNames.push_back(vl[i]->getName());
+  for (auto& vi : vl)
+    seqNames.push_back(vi->getName());
   
   vector<unsigned int> ids = tree1->getNodeIndexes(tree1->getAllNodes());
   //-------------
 
-  const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  auto rootFreqs = std::make_shared<GCFrequencySet>(alphabet);
+  shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
+  shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
+  auto rootFreqs = make_shared<GCFrequencySet>(nucAlphabet);
   
-  auto model1 = std::make_shared<T92>(alphabet, 3.,0.9);
-  auto model2 = std::make_shared<T92>(alphabet, 2., 0.1);
-  auto model3 = std::make_shared<T92>(alphabet, 5., 0.5);
+  auto model1 = make_shared<T92>(nucAlphabet, 3.,0.9);
+  auto model2 = make_shared<T92>(nucAlphabet, 2., 0.1);
+  auto model3 = make_shared<T92>(nucAlphabet, 5., 0.5);
 
-  auto rdist1 = std::make_shared<ConstantRateDistribution>();//GammaDiscreteRateDistribution>(4, 2.0);
+  auto rdist1 = make_shared<ConstantRateDistribution>();//GammaDiscreteRateDistribution>(4, 2.0);
   auto rdist2 = rdist1;//std::make_shared<GammaDiscreteRateDistribution>(3, 1.0);
   
-  auto parTree1 = std::make_shared<ParametrizablePhyloTree>(*tree1);
-  auto parTree2 = std::make_shared<ParametrizablePhyloTree>(*tree2);
+  auto parTree1 = make_shared<ParametrizablePhyloTree>(*tree1);
+  auto parTree2 = make_shared<ParametrizablePhyloTree>(*tree2);
 
   ///////////////////////////////////////////
   // Collection Processes
 
-  SubstitutionProcessCollection* modelColl=new SubstitutionProcessCollection();
+  auto modelColl = make_shared<SubstitutionProcessCollection>();
   
-  modelColl->addModel(std::shared_ptr<T92>(model1), 1);
-  modelColl->addModel(std::shared_ptr<T92>(model2), 2);
-  modelColl->addModel(std::shared_ptr<T92>(model3), 3);
+  modelColl->addModel(model1, 1);
+  modelColl->addModel(model2, 2);
+  modelColl->addModel(model3, 3);
 
   modelColl->addFrequencies(rootFreqs, 1);
   modelColl->addDistribution(rdist1, 1);
@@ -138,48 +138,48 @@ int main() {
 
   // Data
 
-  VectorSiteContainer sites(alphabet);
-  sites.addSequence(
-    BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet));
-  sites.addSequence(
-    BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet));
-  sites.addSequence(
-    BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
-  sites.addSequence(
-    BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
+  auto sites = make_shared<VectorSiteContainer>(alphabet);
+  auto seqA = make_unique<Sequence>("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet);
+  sites->addSequence("A", seqA);
+  auto seqB = make_unique<Sequence>("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet);
+  sites->addSequence("B", seqB);
+  auto seqC = make_unique<Sequence>("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet);
+  sites->addSequence("C", seqC);
+  auto seqD = make_unique<Sequence>("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet);
+  sites->addSequence("D", seqD);
 
   //  Hmm of process
   
-  std::vector<size_t> vp(2);
+  vector<size_t> vp(2);
   vp[0]=1; vp[1]=2;
 
-  AutoCorrelationSequenceEvolution hse(modelColl, vp);
+  auto hse = make_shared<AutoCorrelationSequenceEvolution>(modelColl, vp);
 
-  CollectionNodes collNodes(context, *modelColl);
+  auto collNodes = make_shared<CollectionNodes>(context, modelColl);
   
-  AutoCorrelationProcessPhyloLikelihood hppl(*sites.clone(), hse, collNodes);
+  auto hppl = make_shared<AutoCorrelationProcessPhyloLikelihood>(sites, hse, collNodes);
 
-  hppl.getParameters().printParameters(std::cerr);
+  hppl->getParameters().printParameters(std::cerr);
 
   using bpp::DotOptions;
-  bpp::writeGraphToDot("hppl.dot", {hppl.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
-  cerr << "Hppl: " << hppl.getValue() << endl;
+  bpp::writeGraphToDot("hppl.dot", {hppl->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
+  cerr << "Hppl: " << hppl->getValue() << endl;
 
 
   // Derivative Graph
 
   // Manual access to dkappa
-  auto dkappa = dynamic_cast<ConfiguredParameter*>(hppl.getSharedParameter("T92.kappa_3").get());
+  auto dkappa = dynamic_cast<ConfiguredParameter*>(hppl->getSharedParameter("T92.kappa_3").get());
 
-  auto dlogLik_dkappa = hppl.getLikelihoodNode()->deriveAsValue(context, *dkappa->dependency(0));
+  auto dlogLik_dkappa = hppl->getLikelihoodNode()->deriveAsValue(context, *dkappa->dependency(0));
 
   bpp::writeGraphToDot("dhppl_kappa3.dot", {dlogLik_dkappa.get()});
   
   // check posterior probabilities
 
-  auto postprob = hppl.getPosteriorProbabilitiesPerSitePerProcess();
+  auto postprob = hppl->getPosteriorProbabilitiesPerSitePerProcess();
 
-  for (auto& v:postprob)
+  for (auto& v : postprob)
   {
     VectorTools::print(v);
     std::cerr << VectorTools::sum(v) << std::endl;
@@ -194,18 +194,21 @@ int main() {
   cout << "Optimization : " << endl;
   cout << endl;
 
-  OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
-  OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
+  auto profiler  = make_shared<StlOutputStream>(make_unique<ofstream>("profile.txt", ios::out));
+  auto messenger = make_shared<StlOutputStream>(make_unique<ofstream>("messages.txt", ios::out));
 
   unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
-    &hppl, hppl.getParameters(), 0,
-    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    hppl, hppl->getParameters(), 0,
+    0.0001, 10000,
+    messenger, profiler,
+    false, false,
+    1, OptimizationTools::OPTIMIZATION_NEWTON);
   
   cerr << "Opt M rounds: " << cM << endl;
 
-  cerr << "Hppl: " << hppl.getValue() << endl;
+  cerr << "Hppl: " << hppl->getValue() << endl;
 
-  hppl.getParameters().printParameters(std::cout);
+  hppl->getParameters().printParameters(std::cout);
 
   return 0;
 }

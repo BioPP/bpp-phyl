@@ -59,20 +59,20 @@ class DRTreeParsimonyScore :
   public virtual NNISearchable
 {
 private:
-  DRTreeParsimonyData* parsimonyData_;
+  std::unique_ptr<DRTreeParsimonyData> parsimonyData_;
   size_t nbDistinctSites_;
 
 public:
   DRTreeParsimonyScore(
-    const Tree& tree,
-    const SiteContainer& data,
+    std::shared_ptr<TreeTemplate<Node>> tree,
+    std::shared_ptr<const SiteContainerInterface> data,
     bool verbose = true,
     bool includeGaps = false);
 
   DRTreeParsimonyScore(
-    const Tree& tree,
-    const SiteContainer& data,
-    std::shared_ptr<const StateMap> statesMap,
+    std::shared_ptr<TreeTemplate<Node>> tree,
+    std::shared_ptr<const SiteContainerInterface> data,
+    std::shared_ptr<const StateMapInterface> statesMap,
     bool verbose = true);
 
   DRTreeParsimonyScore(const DRTreeParsimonyScore& tp);
@@ -81,10 +81,10 @@ public:
 
   virtual ~DRTreeParsimonyScore();
 
-  DRTreeParsimonyScore* clone() const { return new DRTreeParsimonyScore(*this); }
+  DRTreeParsimonyScore* clone() const override { return new DRTreeParsimonyScore(*this); }
 
 private:
-  void init_(const SiteContainer& data, bool verbose);
+  void init_(std::shared_ptr<const SiteContainerInterface> data, bool verbose);
 
 protected:
   /**
@@ -103,8 +103,8 @@ protected:
   virtual void computeScoresPostorder(const Node*);
 
 public:
-  unsigned int getScore() const;
-  unsigned int getScoreForSite(size_t site) const;
+  unsigned int getScore() const override;
+  unsigned int getScoreForSite(size_t site) const override;
 
   /**
    * @brief Compute bitsets and scores for each site for a node, in postorder.
@@ -166,22 +166,21 @@ public:
    *
    * @{
    */
-  double getTopologyValue() const { return getScore(); }
+  double getTopologyValue() const override { return getScore(); }
 
-  double testNNI(int nodeId) const;
+  double testNNI(int nodeId) const override;
 
-  void doNNI(int nodeId);
+  void doNNI(int nodeId) override;
 
-  // Tree& getTopology() { return getTree(); } do we realy need this one?
-  const Tree& getTopology() const { return getTree(); }
+  const Tree& topology() const override { return tree(); }
 
-  void topologyChangeTested(const TopologyChangeEvent& event)
+  void topologyChangeTested(const TopologyChangeEvent& event) override
   {
     parsimonyData_->reInit();
     computeScores();
   }
 
-  void topologyChangeSuccessful(const TopologyChangeEvent& event) {}
+  void topologyChangeSuccessful(const TopologyChangeEvent& event) override {}
   /**@} */
 };
 } // end of namespace bpp.

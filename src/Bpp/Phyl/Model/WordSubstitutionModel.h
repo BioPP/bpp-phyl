@@ -52,7 +52,7 @@ namespace bpp
 {
 /**
  * @brief Basal class for words of substitution models.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * Only substitutions with one letter changed are accepted. Hence the
  * equilibrium frequency of each word is the product of the
@@ -74,7 +74,6 @@ namespace bpp
  * @f]
  * where @f$\rho_i@f$ stands for the rate of position @f$i@f$.
  */
-
 class WordSubstitutionModel :
   public AbstractWordSubstitutionModel
 {
@@ -90,7 +89,6 @@ public:
    *   are owned by the instance.
    * @param prefix the Namespace.
    */
-
   WordSubstitutionModel(ModelList& modelList, const std::string& prefix = "");
 
   /**
@@ -103,29 +101,36 @@ public:
    * @param num The number of models involved.
    * @param prefix the Namespace.
    */
-  WordSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& prefix = "");
+  WordSubstitutionModel(
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
+      unsigned int num,
+      const std::string& prefix = "");
 
   virtual ~WordSubstitutionModel() {}
 
-  WordSubstitutionModel* clone() const { return new WordSubstitutionModel(*this); }
+  WordSubstitutionModel* clone() const override { return new WordSubstitutionModel(*this); }
 
 protected:
   /**
    * @brief Constructor for the derived classes only
    */
-  WordSubstitutionModel(const Alphabet* alph, std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "");
+  WordSubstitutionModel(
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      const std::string& prefix = "");
 
-  virtual void updateMatrices();
-  virtual void completeMatrices();
+  virtual void updateMatrices_() override;
+
+  virtual void completeMatrices_() override;
 
 public:
-  virtual const RowMatrix<double>& getPij_t(double d) const;
+  virtual const RowMatrix<double>& getPij_t(double d) const override;
 
-  virtual const RowMatrix<double>& getdPij_dt(double d) const;
+  virtual const RowMatrix<double>& getdPij_dt(double d) const override;
 
-  virtual const RowMatrix<double>& getd2Pij_dt2(double d) const;
+  virtual const RowMatrix<double>& getd2Pij_dt2(double d) const override;
 
-  virtual std::string getName() const;
+  virtual std::string getName() const override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_WORDSUBSTITUTIONMODEL_H

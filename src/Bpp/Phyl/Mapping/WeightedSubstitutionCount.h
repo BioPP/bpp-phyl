@@ -60,7 +60,7 @@ namespace bpp
  */
 
 class WeightedSubstitutionCount :
-  public virtual SubstitutionCount
+  public virtual SubstitutionCountInterface
 {
 public:
   virtual void setWeights(std::shared_ptr<const AlphabetIndex2> index) = 0;

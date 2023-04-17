@@ -47,29 +47,29 @@ using namespace std;
 /******************************************************************************/
 
 CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod,
-  const AlphabetIndex2* pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDist."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDist.")
 {
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
-  const GeneticCode* gCode,
-  NucleotideSubstitutionModel* pmod1,
-  NucleotideSubstitutionModel* pmod2,
-  NucleotideSubstitutionModel* pmod3,
-  const AlphabetIndex2* pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDist."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDist.")
 {
   computeFrequencies(true);
-  updateMatrices();
+  updateMatrices_();
 }
 
 std::string CodonDistanceSubstitutionModel::getName() const

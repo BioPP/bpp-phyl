@@ -44,56 +44,62 @@
 #include "LLG08_EX2.h"
 
 using namespace bpp;
-
 using namespace std;
 
 /******************************************************************************/
 
-LLG08_EX2::LLG08_EX2(const ProteicAlphabet* alpha) :
+LLG08_EX2::LLG08_EX2(shared_ptr<const ProteicAlphabet> alpha) :
+  AbstractParameterAliasable("LLG08_EX2."),
+  AbstractWrappedModel("LLG08_EX2."),
+  AbstractWrappedTransitionModel("LLG08_EX2."),
+  AbstractTotallyWrappedTransitionModel("LLG08_EX2."),
+  AbstractBiblioTransitionModel("LLG08_EX2."),
   AbstractBiblioMixedTransitionModel("LLG08_EX2.")
 {
   // build the submodel
 
-  vector<std::shared_ptr<TransitionModel> > vpSM;
-  vpSM.push_back(std::make_shared<LLG08_EX2::EmbeddedModel>(alpha, "Buried"));
-  vpSM.push_back(std::make_shared<LLG08_EX2::EmbeddedModel>(alpha, "Exposed"));
+  vector<unique_ptr<TransitionModelInterface>> vpSM;
+  vpSM.push_back(make_unique<LLG08_EX2::EmbeddedModel>(alpha, "Buried"));
+  vpSM.push_back(make_unique<LLG08_EX2::EmbeddedModel>(alpha, "Exposed"));
 
   Vdouble vrate, vproba;
 
-  for (unsigned int i = 0; i < vpSM.size(); i++)
+  for (auto& vi : vpSM)
   {
-    vproba.push_back((dynamic_pointer_cast<LLG08_EX2::EmbeddedModel>(vpSM[i]))->getProportion());
-    vrate.push_back(vpSM[i]->getRate());
+    vproba.push_back(dynamic_cast<LLG08_EX2::EmbeddedModel&>(*vi).getProportion());
+    vrate.push_back(vi->getRate());
   }
 
-  pmixmodel_.reset(new MixtureOfSubstitutionModels(alpha, vpSM, vproba, vrate));
+  mixedModelPtr_.reset(new MixtureOfSubstitutionModels(alpha, vpSM, vproba, vrate));
 
   string name, st;
-  ParameterList pl = pmixmodel_->getParameters();
-  for (size_t i = 0; i < pl.size(); i++)
+  ParameterList pl = mixedModelPtr_->getParameters();
+  for (size_t i = 0; i < pl.size(); ++i)
   {
     name = pl[i].getName();
     lParPmodel_.addParameter(Parameter(pl[i]));
-    st = pmixmodel_->getParameterNameWithoutNamespace(name);
+    st = mixedModelPtr_->getParameterNameWithoutNamespace(name);
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LLG08_EX2." + st,
-                                pmixmodel_->getParameterValue(st),
-                                pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
+                                mixedModelPtr_->getParameterValue(st),
+                                mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
-  updateMatrices();
+  updateMatrices_();
 }
 
-/**************** sub model classes */ // ////////
+/**************** sub model classes *******************/
 
-LLG08_EX2::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
+LLG08_EX2::EmbeddedModel::EmbeddedModel(
+    shared_ptr<const ProteicAlphabet> alpha,
+    string name) :
   AbstractParameterAliasable(name),
-  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), name),
+  AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), name),
   proportion_(1),
   name_(name)
 {
 #include "__LLG08_EX2ExchangeabilityCode"
 #include "__LLG08_EX2FrequenciesCode"
 #include "__LLG08_EX2RatesProps"
-  updateMatrices();
+  updateMatrices_();
 }

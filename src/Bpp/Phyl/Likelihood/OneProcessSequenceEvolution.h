@@ -61,39 +61,35 @@ namespace bpp
  */
 
 class OneProcessSequenceEvolution :
-  virtual public SequenceEvolution,
+  public virtual SequenceEvolution,
   public AbstractParameterAliasable
 {
 protected:
-  SubstitutionProcess* subsProc_;
+  std::shared_ptr<SubstitutionProcessInterface> subsProc_;
 
-  /*
+  /**
    * @brief the substitution process number.
-   *
    */
-
   size_t nProc_;
 
-  /*
+  /**
    * @brief not nice, for inheritance compatibility.
-   *
    */
-
   std::vector<size_t> vProc_;
 
 public:
-  OneProcessSequenceEvolution(SubstitutionProcess& process, size_t nProc = 0);
+  OneProcessSequenceEvolution(std::shared_ptr<SubstitutionProcessInterface> process, size_t nProc = 0);
 
   OneProcessSequenceEvolution(const OneProcessSequenceEvolution& evol);
 
   OneProcessSequenceEvolution& operator=(const OneProcessSequenceEvolution& evol);
 
-  OneProcessSequenceEvolution* clone() const
+  OneProcessSequenceEvolution* clone() const override
   {
     return new OneProcessSequenceEvolution(*this);
   }
 
-  bool isCompatibleWith(const AlignedValuesContainer& data) const
+  bool isCompatibleWith(const AlignmentDataInterface& data) const override
   {
     return subsProc_->isCompatibleWith(data);
   }
@@ -103,24 +99,39 @@ public:
     return nProc_;
   }
 
-  const SubstitutionProcess& getSubstitutionProcess() const
+  const SubstitutionProcessInterface& substitutionProcess() const
   {
     return *subsProc_;
   }
 
-  SubstitutionProcess& getSubstitutionProcess()
+  std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const
+  {
+    return subsProc_;
+  }
+
+  SubstitutionProcessInterface& substitutionProcess()
   {
     return *subsProc_;
   }
 
-  const std::vector<size_t>& getSubstitutionProcessNumbers() const
+  std::shared_ptr<SubstitutionProcessInterface> getSubstitutionProcess()
+  {
+    return subsProc_;
+  }
+
+  const std::vector<size_t>& getSubstitutionProcessNumbers() const override
   {
     return vProc_;
   }
 
-  const SubstitutionProcess& getSubstitutionProcess(size_t number) const
+  const SubstitutionProcessInterface& substitutionProcess(size_t number) const override
   {
     return *subsProc_;
+  }
+
+  std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess(size_t number) const override
+  {
+    return subsProc_;
   }
 
   /**
@@ -128,13 +139,17 @@ public:
    *
    * @return The tree of this OneProcessSequenceEvolution object.
    */
+  const ParametrizablePhyloTree& tree() const
+  {
+    return subsProc_->parametrizablePhyloTree();
+  }
 
   std::shared_ptr<const ParametrizablePhyloTree> getTree() const
   {
     return subsProc_->getParametrizablePhyloTree();
   }
 
-  void fireParameterChanged(const ParameterList& pl)
+  void fireParameterChanged(const ParameterList& pl) override
   {
     // Updates substitution process:
     subsProc_->matchParametersValues(pl);
@@ -145,27 +160,27 @@ public:
    * @brief Get several categories of parameters
    *
    **/
-  ParameterList getBranchLengthParameters(bool independent) const
+  ParameterList getBranchLengthParameters(bool independent) const override
   {
     return subsProc_->getBranchLengthParameters(independent);
   }
 
-  ParameterList getRootFrequenciesParameters(bool independent) const
+  ParameterList getRootFrequenciesParameters(bool independent) const override
   {
     return subsProc_->getRootFrequenciesParameters(independent);
   }
 
-  ParameterList getRateDistributionParameters(bool independent) const
+  ParameterList getRateDistributionParameters(bool independent) const override
   {
     return subsProc_->getRateDistributionParameters(independent);
   }
 
-  ParameterList getSubstitutionModelParameters(bool independent) const
+  ParameterList getSubstitutionModelParameters(bool independent) const override
   {
     return subsProc_->getSubstitutionModelParameters(independent);
   }
 
-  ParameterList getSubstitutionProcessParameters(bool independent) const
+  ParameterList getSubstitutionProcessParameters(bool independent) const override
   {
     if (independent)
       return subsProc_->getIndependentParameters();
@@ -173,12 +188,12 @@ public:
       return subsProc_->getParameters();
   }
 
-  const ParameterList& getParameters() const
+  const ParameterList& getParameters() const override
   {
     return subsProc_->getParameters();
   }
 
-  const ParameterList& getIndependentParameters() const
+  const ParameterList& getIndependentParameters() const override
   {
     return subsProc_->getIndependentParameters();
   }
@@ -187,7 +202,7 @@ public:
    * @brief get (Non)Derivable INDEPENDENT parameters
    *
    **/
-  ParameterList getNonDerivableParameters() const
+  ParameterList getNonDerivableParameters() const override
   {
     return subsProc_->getNonDerivableParameters();
   }

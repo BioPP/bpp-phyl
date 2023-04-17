@@ -319,7 +319,7 @@ Node* TreeTemplateTools::parenthesisToNode(const string& description, unsigned i
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId, bool verbose)
+unique_ptr<TreeTemplate<Node>> TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId, bool verbose)
 {
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
@@ -327,7 +327,7 @@ TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& descripti
   string content = description.substr(0, semi);
   unsigned int nodeCounter = 0;
   Node* node = parenthesisToNode(content, nodeCounter, bootstrap, propertyName, withId, verbose);
-  TreeTemplate<Node>* tree = new TreeTemplate<Node>();
+  auto tree = make_unique<TreeTemplate<Node>>();
   tree->setRootNode(node);
   if (!withId)
   {
@@ -572,7 +572,7 @@ void TreeTemplateTools::scaleTree(Node& node, double factor)
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames, bool rooted)
+unique_ptr<TreeTemplate<Node>> TreeTemplateTools::getRandomTree(vector<string>& leavesNames, bool rooted)
 {
   if (leavesNames.size() == 0)
     return 0;                                               // No taxa.
@@ -607,7 +607,7 @@ TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames
   {
     root->addSon(nodes[i]);
   }
-  TreeTemplate<Node>* tree = new TreeTemplate<Node>(root);
+  auto tree = make_unique<TreeTemplate<Node>>(root);
   tree->resetNodesId();
   return tree;
 }
