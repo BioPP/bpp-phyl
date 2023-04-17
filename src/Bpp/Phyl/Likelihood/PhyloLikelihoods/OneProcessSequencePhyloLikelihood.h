@@ -205,12 +205,8 @@ public:
    * Warning; the process parameter values may not be up to date
    * with some of the LikelihoodCalculationSingleProcess
    */
-  const ParametrizablePhyloTree& tree() const
-  {
-    return mSeqEvol_->substitutionProcess().parametrizablePhyloTree();
-  }
   
-  std::shared_ptr<const ParametrizablePhyloTree> getTree() const
+  std::shared_ptr<const ParametrizablePhyloTree> tree() const
   {
     return mSeqEvol_->substitutionProcess().getParametrizablePhyloTree();
   }

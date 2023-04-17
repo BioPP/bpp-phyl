@@ -178,9 +178,10 @@ public:
    * the LikelihoodCalculationSingleProcess.
    *
    */
-  const ParametrizablePhyloTree& tree() const
+  
+  std::shared_ptr<const ParametrizablePhyloTree> tree() const
   {
-    return *likelihoodCalculationSingleProcess().substitutionProcess().getParametrizablePhyloTree();
+    return likelihoodCalculationSingleProcess().substitutionProcess().getParametrizablePhyloTree();
   }
 
   /**
