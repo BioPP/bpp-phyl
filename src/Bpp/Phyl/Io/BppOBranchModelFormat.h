@@ -86,7 +86,7 @@ public:
   std::unique_ptr<BranchModelInterface> readBranchModel(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      std::shared_ptr<const AlignmentDataInterface> data = nullptr,
+      const AlignmentDataInterface& data,
       bool parseArguments = true);
   
 };

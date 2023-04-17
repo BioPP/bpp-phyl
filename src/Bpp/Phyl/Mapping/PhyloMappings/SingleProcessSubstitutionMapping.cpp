@@ -45,27 +45,27 @@ using namespace bpp;
 using namespace std;
 
 SingleProcessSubstitutionMapping::SingleProcessSubstitutionMapping(
-    SingleProcessPhyloLikelihood& spp,
+    shared_ptr<SingleProcessPhyloLikelihood> spp,
     shared_ptr<SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights,
     std::shared_ptr<const AlphabetIndex2> distances,
     double threshold,
     bool verbose) :
-  AbstractSinglePhyloSubstitutionMapping(spp.tree().getGraph(), reg, weights, distances),
-  pSPP_(&spp)
+  AbstractSinglePhyloSubstitutionMapping(spp->tree()->getGraph(), reg, weights, distances),
+  pSPP_(spp)
 {
   setBranchedModelSet_();
 
   // assigns edge indexes
-  const auto& tree = spp.tree();
+  const auto tree = spp->tree();
 
   unique_ptr<modelTree::EdgeIterator> eIT = allEdgesIterator();
 
   for ( ; !eIT->end(); eIT->next())
   {
-    auto edge1 = tree.getEdgeFromGraphid(getEdgeGraphid(**eIT));
-    if (tree.hasEdgeIndex(edge1))
-      setEdgeIndex(**eIT, tree.getEdgeIndex(edge1));
+    auto edge1 = tree->getEdgeFromGraphid(getEdgeGraphid(**eIT));
+    if (tree->hasEdgeIndex(edge1))
+      setEdgeIndex(**eIT, tree->getEdgeIndex(edge1));
   }
 
   // assigns node indexes
@@ -73,9 +73,9 @@ SingleProcessSubstitutionMapping::SingleProcessSubstitutionMapping(
 
   for ( ; !nIT->end(); nIT->next())
   {
-    auto node1 = tree.getNodeFromGraphid(getNodeGraphid(**nIT));
-    if (tree.hasNodeIndex(node1))
-      setNodeIndex(**nIT, tree.getNodeIndex(node1));
+    auto node1 = tree->getNodeFromGraphid(getNodeGraphid(**nIT));
+    if (tree->hasNodeIndex(node1))
+      setNodeIndex(**nIT, tree->getNodeIndex(node1));
   }
 }
 

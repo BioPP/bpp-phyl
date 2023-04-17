@@ -80,7 +80,7 @@ unsigned char BppOFrequencySetFormat::ALL = 1 | 2 | 4 | 8 | 16;
 std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& freqDescription,
-    std::shared_ptr<const AlignmentDataInterface> data,
+    const AlignmentDataInterface& data,
     bool parseArguments)
 {
   unparsedArguments_.clear();
@@ -613,10 +613,10 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   if (args.find("values") != args.end())
   {
     unparsedArguments_["init"] = "values" + args["values"];
-    initialize_(*pFS, *data);
+    initialize_(*pFS, data);
   }
   else if (parseArguments)
-    initialize_(*pFS, *data);
+    initialize_(*pFS, data);
 
   return pFS;
 }

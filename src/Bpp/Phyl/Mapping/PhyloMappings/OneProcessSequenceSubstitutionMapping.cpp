@@ -59,15 +59,15 @@ OneProcessSequenceSubstitutionMapping::OneProcessSequenceSubstitutionMapping(
   setBranchedModelSet_();
 
   // assigns edge indexes
-  const auto& tree = spp->tree();
+  const auto tree = spp->tree();
 
   unique_ptr<modelTree::EdgeIterator> eIT = allEdgesIterator();
 
   for ( ; !eIT->end(); eIT->next())
   {
-    auto edge1 = tree.getEdgeFromGraphid(getEdgeGraphid(**eIT));
-    if (tree.hasEdgeIndex(edge1))
-      setEdgeIndex(**eIT, tree.getEdgeIndex(edge1));
+    auto edge1 = tree->getEdgeFromGraphid(getEdgeGraphid(**eIT));
+    if (tree->hasEdgeIndex(edge1))
+      setEdgeIndex(**eIT, tree->getEdgeIndex(edge1));
   }
 
   // assigns node indexes
@@ -75,9 +75,9 @@ OneProcessSequenceSubstitutionMapping::OneProcessSequenceSubstitutionMapping(
 
   for ( ; !nIT->end(); nIT->next())
   {
-    auto node1 = tree.getNodeFromGraphid(getNodeGraphid(**nIT));
-    if (tree.hasNodeIndex(node1))
-      setNodeIndex(**nIT, tree.getNodeIndex(node1));
+    auto node1 = tree->getNodeFromGraphid(getNodeGraphid(**nIT));
+    if (tree->hasNodeIndex(node1))
+      setNodeIndex(**nIT, tree->getNodeIndex(node1));
   }
 }
 

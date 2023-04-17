@@ -63,7 +63,7 @@ class SingleProcessSubstitutionMapping :
   public std::enable_shared_from_this<SingleProcessSubstitutionMapping>
 {
 private:
-  SingleProcessPhyloLikelihood* pSPP_;
+  std::shared_ptr<SingleProcessPhyloLikelihood> pSPP_;
 
   /**
    * @brief Set the models of the BranchedModelSet to the adhoc
@@ -73,7 +73,7 @@ private:
 
 public:
   SingleProcessSubstitutionMapping(
-      SingleProcessPhyloLikelihood& spp, 
+      std::shared_ptr<SingleProcessPhyloLikelihood> spp, 
       std::shared_ptr<SubstitutionRegisterInterface> reg,
       std::shared_ptr<const AlphabetIndex2> weights,
       std::shared_ptr<const AlphabetIndex2> distances,

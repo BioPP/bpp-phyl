@@ -148,7 +148,7 @@ public:
   std::unique_ptr<SubstitutionModelInterface> readSubstitutionModel(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      std::shared_ptr<const AlignmentDataInterface> data = nullptr,
+      const AlignmentDataInterface& data,
       bool parseArguments = true) override;
 
   const std::map<std::string, std::string>& getUnparsedArguments() const override
@@ -178,7 +178,7 @@ private:
   std::unique_ptr<SubstitutionModelInterface> readWord_(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      std::shared_ptr<const AlignmentDataInterface> data);
+      const AlignmentDataInterface& data);
 
   void writeMixed_(const MixedTransitionModelInterface& model,
       OutputStream& out,
@@ -209,7 +209,7 @@ protected:
    */
   void initialize_(
       BranchModelInterface& model,
-      std::shared_ptr<const AlignmentDataInterface> data);
+      const AlignmentDataInterface& data);
   
 };
 } // end of namespace bpp.

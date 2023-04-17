@@ -93,7 +93,7 @@ public:
   virtual std::unique_ptr<FrequencySetInterface> readFrequencySet(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& freqDescription,
-    std::shared_ptr<const AlignmentDataInterface> data,
+    const AlignmentDataInterface& data,
     bool parseArguments = true) = 0;
 
   /**

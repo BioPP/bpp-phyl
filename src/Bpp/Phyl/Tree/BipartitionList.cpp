@@ -648,9 +648,9 @@ void BipartitionList::removeRedundantBipartitions()
 
 /******************************************************************************/
 
-TreeTemplate<Node>* BipartitionList::toTree() const
+unique_ptr<TreeTemplate<Node>> BipartitionList::toTree() const
 {
-  BipartitionList* sortedBipL;
+  unique_ptr<BipartitionList> sortedBipL;
   vector<int*> sortedBitBipL;
   int* bip;
   vector<Node*> vecNd, sonNd;
@@ -662,7 +662,7 @@ TreeTemplate<Node>* BipartitionList::toTree() const
   if (!BipartitionList::areAllCompatible())
     throw Exception("Trying to build a tree from incompatible bipartitions");
 
-  sortedBipL = dynamic_cast<BipartitionList*>(clone());
+  sortedBipL.reset(dynamic_cast<BipartitionList*>(clone()));
   for (size_t i = 0; i < sortedBipL->getNumberOfBipartitions(); i++)
   {
     if (sortedBipL->getPartitionSize(i) > sortedBipL->getNumberOfElements() / 2)
@@ -733,9 +733,9 @@ TreeTemplate<Node>* BipartitionList::toTree() const
   }
 
   /* construct tree and return */
-  TreeTemplate<Node>* tr = new TreeTemplate<Node>(rootNd);
+  auto tr = make_unique<TreeTemplate<Node>>(rootNd);
   tr->resetNodesId();
-  delete sortedBipL;
+
   return tr;
 }
 

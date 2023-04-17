@@ -160,7 +160,7 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   }
 }
 
-unique_ptr<AlignmentDataInterface> MarginalAncestralReconstruction::getAncestralSequences(bool sample) const
+unique_ptr<AlignedSequenceContainer> MarginalAncestralReconstruction::getAncestralSequences(bool sample) const
 {
   auto asc = make_unique<AlignedSequenceContainer>(alphabet_);
   vector<shared_ptr<PhyloNode> > inNodes = tree_->getAllInnerNodes();
@@ -169,5 +169,5 @@ unique_ptr<AlignmentDataInterface> MarginalAncestralReconstruction::getAncestral
     auto seq = getAncestralSequenceForNode(tree_->getNodeIndex(inNodes[i]), nullptr, sample);
     asc->addSequence(seq->getName(), seq);
   }
-  return move(asc);
+  return asc;
 }
