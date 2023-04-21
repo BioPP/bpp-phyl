@@ -134,7 +134,7 @@ public:
  *
  * Access methods for these fields are implemented.
  *
- * This class also provides the updateMatrices() method, which computes eigen values and vectors and fills the corresponding vector (eigenValues_)
+ * This class also provides the updateMatrices_() method, which computes eigen values and vectors and fills the corresponding vector (eigenValues_)
  * and matrices (leftEigenVectors_ and rightEigenVectors_) from the generator.
  *
  *

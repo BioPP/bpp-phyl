@@ -281,7 +281,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
           }
 
           mTree[i2 + 1] = move(trees[i2]);
-          ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
+          ApplicationTools::displayResult("Number of leaves", mTree[i2+1]->getNumberOfLeaves());
         }
       }
       else
@@ -297,7 +297,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
             mTree.erase(num);
           }
           mTree[num] = move(trees[0]);
-          ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
+          ApplicationTools::displayResult("Number of leaves", mTree[num]->getNumberOfLeaves());
         }
       }
     }
@@ -637,7 +637,6 @@ map<size_t, std::unique_ptr<BranchModelInterface>> PhylogeneticsApplicationTools
   {
     size_t poseq = name.find("=");
     if (name.find("nodes_id") == string::npos) {
-      cout << name << endl;
       modelsNum.push_back(TextTools::to<size_t>(name.substr(5, poseq - 5)));
     }
   }
@@ -810,7 +809,7 @@ map<size_t, std::unique_ptr<FrequencySetInterface> > PhylogeneticsApplicationToo
     size_t poseq = rfName.find("=");
     try
     {
-      rfNum.push_back(TextTools::to<size_t>(rfName.substr(9, poseq - 9)));
+      rfNum.push_back(TextTools::toInt(rfName.substr(9, poseq - 9)));
     }
     catch (Exception& e)
     {}
@@ -905,7 +904,7 @@ map<size_t, std::unique_ptr<ModelPath> > PhylogeneticsApplicationTools::getModel
     size_t num;
     try
     {
-      num = TextTools::to<size_t>(name.substr(4));
+      num = TextTools::toInt(name.substr(4));
     }
     catch (const Exception& e)
     {
@@ -961,7 +960,7 @@ map<size_t, std::unique_ptr<ModelPath> > PhylogeneticsApplicationTools::getModel
         bool n2ok = true;
         try
         {
-          n2 = TextTools::to<uint>(p2);
+          n2 = TextTools::toInt(p2);
           if (n2 <= 0 || n2 > pSM->getNumberOfModels())
             n2ok = false;
           else
@@ -1023,7 +1022,7 @@ map<size_t, std::unique_ptr<ModelScenario> > PhylogeneticsApplicationTools::getM
     size_t num;
     try
     {
-      num = TextTools::to<size_t>(name.substr(8));
+      num = TextTools::toInt(name.substr(8));
     }
     catch (const Exception& e)
     {
@@ -1199,13 +1198,14 @@ unique_ptr<AutonomousSubstitutionProcessInterface> PhylogeneticsApplicationTools
   else
   {
     auto NHSP = make_unique<NonHomogeneousSubstitutionProcess>(procm.getRateDistribution(), procm.getParametrizablePhyloTree(), rootproc);
-    ASP = move(NHSP);
     
     for (auto nb:vmodnb)
       NHSP->addModel(procm.getModel(nb), procm.getNodesWithModel(nb));
 
     if (!NHSP->isFullySetUp(false))
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess: process not fully set up.");
+
+    ASP = move(NHSP);
   }
 
   if (procm.getModelScenario())
@@ -1866,7 +1866,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
 /**** PHYLO LIKELIHOODS *********************************/
 /******************************************************/
 
-std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(
+std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(
   Context& context,
   shared_ptr<SubstitutionProcessCollection> SPC,
   map<size_t, std::shared_ptr<SequenceEvolution> >& mSeqEvol,
@@ -1877,7 +1877,7 @@ std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   bool verbose,
   int warn)
 {
-  auto mPhylo = std::make_unique<PhyloLikelihoodContainer>(context, SPC);
+  auto mPhylo = std::make_shared<PhyloLikelihoodContainer>(context, SPC);
 
   // get all members of the collection and link then to Configured Objects
   auto collNodes = mPhylo->getCollectionNodes();
@@ -2246,7 +2246,7 @@ std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   {
     try
     {
-      nP = TextTools::to<size_t>(resultDesc.substr(5));
+      nP = TextTools::toInt(resultDesc.substr(5));
     }
     catch (Exception& e)
     {
@@ -2256,7 +2256,7 @@ std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
   if (!flag)
   {
-    nPL = make_shared<FormulaOfPhyloLikelihood>(context, move(mPhylo), resultDesc);
+    nPL = make_shared<FormulaOfPhyloLikelihood>(context, mPhylo, resultDesc);
     if (verbose)
       ApplicationTools::displayResult(" Result", dynamic_cast<FormulaOfPhyloLikelihood*>(nPL.get())->output());
   }
@@ -2271,6 +2271,7 @@ std::unique_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   }
 
   mPhylo->addPhyloLikelihood(0, nPL);
+                    
   return mPhylo;
 }
 
@@ -2463,13 +2464,15 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
       else if (param.find("*") != string::npos)
       {
         vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
-
         bool verbhere = verbose;
 
         if (vs.size() >= 20)
         {
           if (verbose)
+          {            
             ApplicationTools::displayResult("Number of parameters ignored", vs.size());
+            ApplicationTools::displayMessage(" from " + param);
+          }
           verbhere = false;
         }
 
@@ -2610,11 +2613,6 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
     }
   }
 
-  // There it goes...
-  bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, warn + 1);
-  if (optimizeTopo)
-    throw Exception("Topology opmitization not implemented yet for processes");
-
   // if (verbose)
   //   ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
   // string nniMethod = ApplicationTools::getStringParameter("optimization.topology.algorithm_nni.method", params, "phyml", suffix, suffixIsOptional, warn + 1);
@@ -2666,8 +2664,6 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
   if (clock != "None" && clock != "Global")
     throw Exception("Molecular clock option not recognized, should be one of 'Global' or 'None'.");
   bool useClock = (clock == "Global");
-  if (useClock && optimizeTopo)
-    throw Exception("PhylogeneticsApplicationTools::optimizeParameters. Cannot optimize topology with a molecular clock.");
   if (verbose)
     ApplicationTools::displayResult("Molecular clock", clock);
 
@@ -2930,7 +2926,7 @@ void PhylogeneticsApplicationTools::printParameters(
     bIO.write(sp.model(0, 0), out, globalAliases, writtenNames);
     out.endLine();
     return;
-  } catch(exception& e) {}
+  } catch(bad_cast& e) {}
 
   try
   {
@@ -2953,7 +2949,7 @@ void PhylogeneticsApplicationTools::printParameters(
     bIOR.writeDiscreteDistribution(*pRA.getRateDistribution(), out, globalAliases, writtenNames);
     out.endLine();
     return;
-  } catch(exception& e) {}
+  } catch(bad_cast& e) {}
 
   try
   {
@@ -3038,7 +3034,7 @@ void PhylogeneticsApplicationTools::printParameters(
     bIO.writeDiscreteDistribution(pdd, out, aliases, writtenNames);
     out.endLine();
     return;
-  } catch(exception& e) {}
+  } catch(bad_cast& e) {}
 
   return;
 }
@@ -3074,6 +3070,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     out << "model" << modn << "=";
     BppOBranchModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
     bIOsm.write(model, out, aliases, writtenNames);
+    out.endLine();
     out.endLine();
   }
 
@@ -3420,13 +3417,13 @@ void PhylogeneticsApplicationTools::printParameters(const SingleDataPhyloLikelih
     auto& pMP = dynamic_cast<const SequencePhyloLikelihoodInterface&>(phyloLike);
     out << "process=" << pMP.getSequenceEvolutionNumber();
     goto finish;
-  } catch(Exception& e) {}
+  } catch(bad_cast& e) {}
   
   try
   {
     auto& pS = dynamic_cast<const SingleProcessPhyloLikelihood&>(phyloLike);
     out << "process=" << pS.getSubstitutionProcessNumber();
-  } catch(Exception& e) {}
+  } catch(bad_cast& e) {}
 
 finish:
   out << ", data=" << TextTools::toString(phyloLike.getNData()) << ")";
@@ -3767,7 +3764,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
 
     DataTable::write(*infos, out, "\t");
     return;
-  } catch(exception& e) {}
+  } catch(bad_cast& e) {}
 
   try
   {
@@ -3869,7 +3866,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
 
     DataTable::write(*infos, out, "\t");
     return;
-  } catch (exception& e) {}
+  } catch (bad_cast& e) {}
 
   try
   {
@@ -3946,7 +3943,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
     DataTable::write(*infos, out, "\t");
     delete infos;
     return;
-  } catch (exception& e) {}
+  } catch (bad_cast& e) {}
   
   return;
 }

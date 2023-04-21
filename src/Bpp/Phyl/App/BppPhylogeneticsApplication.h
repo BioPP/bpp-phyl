@@ -121,7 +121,7 @@ public:
   /**
    * @brief get the phylolikelihoods.
    */
-  virtual std::unique_ptr<PhyloLikelihoodContainer> getPhyloLikelihoods(
+  virtual std::shared_ptr<PhyloLikelihoodContainer> getPhyloLikelihoods(
     Context& context,
     std::map<size_t, std::shared_ptr<SequenceEvolution> > mSeqEvol,
     std::shared_ptr<SubstitutionProcessCollection> collection,

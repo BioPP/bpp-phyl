@@ -69,6 +69,7 @@ public:
   static unsigned char CODON;
   static unsigned char WORD;
   static unsigned char BINARY;
+  static unsigned char INTEGER;
   static unsigned char ALL;
 
 protected:

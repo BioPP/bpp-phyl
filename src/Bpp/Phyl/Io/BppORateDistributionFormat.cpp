@@ -233,6 +233,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
   }
   if (verbose_)
   {
+    ApplicationTools::displayMessage("");
     ApplicationTools::displayResult("Distribution", distName);
     ApplicationTools::displayResult("Number of classes", TextTools::toString((int)rDist->getNumberOfCategories()));
   }

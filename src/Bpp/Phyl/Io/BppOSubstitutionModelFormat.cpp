@@ -51,6 +51,7 @@
 #include "../App/PhylogeneticsApplicationTools.h"
 #include "../Model/AbstractBiblioMixedTransitionModel.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/D1WalkSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAAFitnessSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAARateSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonBGCSubstitutionModel.h"
@@ -146,7 +147,8 @@ unsigned char BppOSubstitutionModelFormat::PROTEIN = 4;
 unsigned char BppOSubstitutionModelFormat::CODON = 8;
 unsigned char BppOSubstitutionModelFormat::WORD = 16;
 unsigned char BppOSubstitutionModelFormat::BINARY = 32;
-unsigned char BppOSubstitutionModelFormat::ALL = 1 | 2 | 4 | 8 | 16 | 32;
+unsigned char BppOSubstitutionModelFormat::INTEGER = 64;
+unsigned char BppOSubstitutionModelFormat::ALL = 1 | 2 | 4 | 8 | 16 | 32 | 64;
 
 
 unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitutionModel(
@@ -898,6 +900,18 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         model = make_unique<TwoParameterBinarySubstitutionModel>(balpha);
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit binary alphabet.");
+    }
+    else if (AlphabetTools::isIntegerAlphabet(alphabet.get()))
+    {
+      if (!(alphabetCode_ & INTEGER))
+        throw Exception("BppOSubstitutionModelFormat::read. Integer alphabet not supported.");
+
+      auto balpha = dynamic_pointer_cast<const IntegerAlphabet>(alphabet);
+
+      if (modelName == "D1Walk")
+        model.reset(new D1WalkSubstitutionModel(balpha));
+      else
+        throw Exception("Model '" + modelName + "' unknown, or does not fit integer alphabet.");
     }
     else
       throw Exception("Model '" + modelName + "' unknown, or does not fit " + alphabet->getAlphabetType() + " alphabet.");
@@ -1703,7 +1717,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
     bIOFreq.writeFrequencySet(pfs, out, globalAliases, writtenNames);
     comma = true;
-  } catch (bad_cast&) {}
+  } catch (exception&) {}
 
   // Is it a codon model with Protein Model or partition in it?
   try {
@@ -1925,7 +1939,7 @@ void BppOSubstitutionModelFormat::initialize_(
       auto& tmodel = dynamic_cast<TransitionModelInterface&>(model);
       if (initFreqs == "observed")
       {
-        if (data.getNumberOfSites()!=0)
+        if (data.getNumberOfSites()==0)
           throw Exception("BppOSubstitutionModelFormat::initialize_(). Missing data for observed frequencies");
         unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedArguments_, 0, "", true, warningLevel_);
         tmodel.setFreqFromData(data, psi);

@@ -807,8 +807,8 @@ void BppOFrequencySetFormat::initialize_(
     if (init == "observed")
     {
       unsigned int psc = 0;
-      if (unparsedArguments_.find("observedPseudoCount") != unparsedArguments_.end())
-        psc = TextTools::to<unsigned int>(unparsedArguments_["observedPseudoCount"]);
+      if (unparsedArguments_.find("init.observedPseudoCount") != unparsedArguments_.end())
+        psc = TextTools::to<unsigned int>(unparsedArguments_["init.observedPseudoCount"]);
 
       map<int, double> freqs;
       SequenceContainerTools::getFrequencies(data, freqs, psc);
@@ -834,6 +834,8 @@ void BppOFrequencySetFormat::initialize_(
       throw Exception("Unknown init argument");
 
     unparsedArguments_.erase(unparsedArguments_.find("init"));
+    if (unparsedArguments_.find("init.observedPseudoCount") != unparsedArguments_.end())
+      unparsedArguments_.erase(unparsedArguments_.find("init.observedPseudoCount"));
   }
 
   // Explicit initialization of each parameter

@@ -240,16 +240,19 @@ public:
    */
 
   const ExtType& exponent_part () const {
-    return efMat_.exponent_part();
-  }
+    return efMat_.exponent_part(); }
 
-  const VecType& float_part () const { return tmp_; }
+  const VecType& float_part () const {
+    return tmp_;
+  }
 
   ExtType& exponent_part () {
     return efMat_.exponent_part();
   }
 
-  VecType& float_part () { return tmp_; }
+  VecType& float_part () {
+    return tmp_;
+  }
 
   ExtendedFloatCol& operator=(const ExtendedFloatEigen<R, 1, EigenType>& col)
   {
@@ -257,6 +260,18 @@ public:
     efMat_.normalize();
     return *this;
   }
+
+  // std::ostream& operator<<(std::ostream& out, const Self& ef)
+  // {
+  //   return out << "( " << efMat_.float_part() << " ) *  2^" << efMat_.exponent_part();
+  // }
+
+  // const ExtendedFloat& sum() const
+  // {
+  //   EFtmp_.set_float_part(float_part().sum());
+  //   EFtmp_.set_exponent_part(exponent_part());
+  //   return EFtmp_;
+  // }
 
 };
 }

@@ -537,7 +537,7 @@ public:
    * The PhyloLikelihood with number 0 is a specific
    * PhyloLikelihood, with name "result" in the BppO file.
    */
-  static std::unique_ptr<PhyloLikelihoodContainer> getPhyloLikelihoodContainer(
+  static std::shared_ptr<PhyloLikelihoodContainer> getPhyloLikelihoodContainer(
     Context& context,
     std::shared_ptr<SubstitutionProcessCollection> SPC,
     std::map<size_t, std::shared_ptr<SequenceEvolution> >& mSeqEvol,
