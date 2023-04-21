@@ -1717,7 +1717,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
     bIOFreq.writeFrequencySet(pfs, out, globalAliases, writtenNames);
     comma = true;
-  } catch (bad_cast&) {}
+  } catch (exception&) {}
 
   // Is it a codon model with Protein Model or partition in it?
   try {
@@ -1939,7 +1939,7 @@ void BppOSubstitutionModelFormat::initialize_(
       auto& tmodel = dynamic_cast<TransitionModelInterface&>(model);
       if (initFreqs == "observed")
       {
-        if (data.getNumberOfSites()!=0)
+        if (data.getNumberOfSites()==0)
           throw Exception("BppOSubstitutionModelFormat::initialize_(). Missing data for observed frequencies");
         unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedArguments_, 0, "", true, warningLevel_);
         tmodel.setFreqFromData(data, psi);

@@ -159,7 +159,10 @@ namespace bpp
       AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
     }
 
-    const std::shared_ptr<FrequencySetInterface> getFrequencySet() const { return freqSet_; }
+    const FrequencySetInterface& frequencySet() const override
+    {
+      return *freqSet_;
+    }
 
     void setFreq(std::map<int, double>& freq);
 

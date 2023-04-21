@@ -379,7 +379,6 @@ unique_ptr<PhyloTree> Newick::parenthesisToPhyloTree(const string& description, 
   auto tree = make_unique<PhyloTree>();
   shared_ptr<PhyloNode> root = parenthesisToNode(*tree, 0, content, nodeCounter, bootstrap, propertyName, withId, verbose);
   tree->rootAt(root);
-
   if (verbose)
   {
     (*ApplicationTools::message) << " nodes loaded.";

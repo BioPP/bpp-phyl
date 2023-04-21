@@ -133,7 +133,7 @@ map<size_t, std::unique_ptr<SequenceEvolution> > BppPhylogeneticsApplication::ge
 }
 
 
-std::unique_ptr<PhyloLikelihoodContainer> BppPhylogeneticsApplication::getPhyloLikelihoods(
+std::shared_ptr<PhyloLikelihoodContainer> BppPhylogeneticsApplication::getPhyloLikelihoods(
   Context& context,
   map<size_t, shared_ptr<SequenceEvolution> > mSeqEvol,
   shared_ptr<SubstitutionProcessCollection> collection,
