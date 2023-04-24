@@ -64,10 +64,10 @@ RE08::RE08(
   addParameter_(new Parameter("RE08.lambda", lambda, Parameter::R_PLUS));
   addParameter_(new Parameter("RE08.mu", mu, Parameter::R_PLUS));
   simpleModel_->setNamespace("RE08." + nestedPrefix_);
-  addParameters_(simpleModel->getParameters());
+  addParameters_(simpleModel_->getParameters());
   // We need to overrired this from the AbstractSubstitutionModel constructor,
   // since the number of states in the model is no longer equal to the size of the alphabet.
-  size_ = simpleModel->getNumberOfStates() + 1;
+  size_ = simpleModel_->getNumberOfStates() + 1;
   generator_.resize(size_, size_);
   exchangeability_.resize(size_, size_);
   freq_.resize(size_);

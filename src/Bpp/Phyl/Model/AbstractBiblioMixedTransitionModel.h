@@ -171,6 +171,11 @@ public:
 
   const MixedTransitionModelInterface& mixedModel() const { return *mixedModelPtr_; }
 
+  const FrequencySetInterface& frequencySet() const
+  {
+    return mixedModelPtr_->nModel(0).frequencySet();
+  }
+
 protected:
   
   TransitionModelInterface& transitionModel_() override
@@ -179,11 +184,6 @@ protected:
   }
 
   MixedTransitionModelInterface& mixedModel_() { return *mixedModelPtr_; }
-
-  const FrequencySetInterface& frequencySet_() const
-  {
-    return mixedModelPtr_->nModel(0).frequencySet();
-  }
 
   TransitionModelInterface& nModel_(size_t i) override
   {

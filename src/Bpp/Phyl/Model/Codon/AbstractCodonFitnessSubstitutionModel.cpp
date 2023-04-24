@@ -54,8 +54,8 @@ AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(
   pgencode_(pgencode),
   fitName_("")
 {
-  if (!dynamic_cast<CodonFrequencySetInterface*>(pfitset.get()))
-    throw Exception("Bad type for fitness parameters" + pfitset->getName());
+  if (!dynamic_cast<CodonFrequencySetInterface*>(pfitset_.get()))
+    throw Exception("Bad type for fitness parameters" + pfitset_->getName());
   fitName_ = "fit_" + pfitset_->getNamespace();
   pfitset_->setNamespace(prefix + fitName_);
   addParameters_(pfitset_->getParameters());

@@ -59,21 +59,21 @@ CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
   X_(20, 20),
   phi_(20)
 {
-  pCodonModel->enableEigenDecomposition(true);
-  pAAmodel->enableEigenDecomposition(true);
+  pCodonModel_->enableEigenDecomposition(true);
+  pAAmodel_->enableEigenDecomposition(true);
 
   pAAmodel_->setNamespace("SameAARate." + pAAmodel_->getNamespace());
   pCodonModel_->setNamespace("SameAARate." + pCodonModel_->getNamespace());
 
   //TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
-  if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel.get())->codonFrequencySet()))
+  if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel_.get())->codonFrequencySet()))
     pFreq_->setNamespace("SameAARate." + pFreq_->getNamespace());
 
   addParameters_(pAAmodel_->getParameters());
   addParameters_(pCodonModel_->getParameters());
 
   //TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
-  if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel.get())->codonFrequencySet()))
+  if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel_.get())->codonFrequencySet()))
     addParameters_(pFreq_->getParameters());
 
   compute_();

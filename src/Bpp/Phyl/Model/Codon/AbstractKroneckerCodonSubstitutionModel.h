@@ -91,7 +91,7 @@ public:
    */
   AbstractKroneckerCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::string& st);
 
   /**
@@ -107,7 +107,7 @@ public:
    */
   AbstractKroneckerCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::vector<std::set<size_t> >& vPos,
     const std::string& st);
 
@@ -125,9 +125,9 @@ public:
    */
   AbstractKroneckerCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::string& st);
 
   /**
@@ -146,9 +146,9 @@ public:
    */
   AbstractKroneckerCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::vector<std::set< size_t> >& vPos,
     const std::string& st);
 

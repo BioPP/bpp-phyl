@@ -484,7 +484,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     reconstructionMethod.computeTree();
     previousTree = move(tree);
 
-    tree.reset(new TreeTemplate<Node>(reconstructionMethod.tree()));
+    tree = make_unique<TreeTemplate<Node>>(reconstructionMethod.tree());
     if (verbose > 0)
       ApplicationTools::displayTaskDone();
     if (previousTree && verbose > 0)

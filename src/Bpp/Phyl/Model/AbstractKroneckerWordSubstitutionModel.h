@@ -158,7 +158,7 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface>& pmodel,
+    std::unique_ptr<SubstitutionModelInterface> pmodel,
     unsigned int num,
     const std::string& prefix);
 
@@ -175,7 +175,7 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface>& pmodel,
+    std::unique_ptr<SubstitutionModelInterface> pmodel,
     unsigned int num,
     const std::vector<std::set< size_t> >& vPos,
     const std::string& prefix);

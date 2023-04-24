@@ -82,7 +82,7 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
   unsigned int num,
   const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
-  AbstractKroneckerWordSubstitutionModel(pmodel,
+  AbstractKroneckerWordSubstitutionModel(move(pmodel),
                                          num,
                                          (prefix == "") ? "Kron." : prefix)
 {
@@ -109,7 +109,7 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
   const vector<set< size_t> >& vPos,
   const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
-  AbstractKroneckerWordSubstitutionModel(pmodel,
+  AbstractKroneckerWordSubstitutionModel(move(pmodel),
                                          num, vPos,
                                          (prefix == "") ? "Kron." : prefix)
 {

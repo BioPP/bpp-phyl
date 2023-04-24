@@ -51,7 +51,7 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
     unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDist."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "CodonDist."),
+  AbstractCodonSubstitutionModel(gCode, move(pmod), "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDist.")
 {
   computeFrequencies(true);
@@ -65,7 +65,7 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
     unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDist."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDist."),
+  AbstractCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDist.")
 {
   computeFrequencies(true);

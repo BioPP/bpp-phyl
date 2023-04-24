@@ -162,6 +162,11 @@ public:
     return AbstractCodonFrequenciesSubstitutionModel::codonFrequencySet();
   }
 
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return AbstractCodonFrequenciesSubstitutionModel::frequencySet();
+  }
+
   bool hasCodonFrequencySet() const override
   {
     return AbstractCodonFrequenciesSubstitutionModel::hasCodonFrequencySet();

@@ -54,7 +54,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
       gCode->getSourceAlphabet(),
       shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       "KronCodonDist."),
-  AbstractKroneckerCodonSubstitutionModel(gCode, pmod, "KronCodonDist."),
+  AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod), "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
@@ -72,7 +72,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
       gCode->getSourceAlphabet(),
       shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       "KronCodonDist."),
-  AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "KronCodonDist."),
+  AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
@@ -89,7 +89,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
       gCode->getSourceAlphabet(),
       shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       "KronCodonDist."),
-  AbstractKroneckerCodonSubstitutionModel(gCode, pmod, vPos, "KronCodonDist."),
+  AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod), vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
@@ -108,7 +108,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
       gCode->getSourceAlphabet(),
       shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       "KronCodonDist."),
-  AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, vPos, "KronCodonDist."),
+  AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);

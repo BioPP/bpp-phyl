@@ -58,7 +58,7 @@ gBGC::gBGC(
   AbstractParameterAliasable("gBGC."),
   AbstractNucleotideSubstitutionModel(alph, pm->getStateMap(), "gBGC."),
   model_(move(pm)),
-  nestedPrefix_(pm->getNamespace()),
+  nestedPrefix_(model_->getNamespace()),
   B_(B)
 {
   model_->setNamespace("gBGC." + nestedPrefix_);

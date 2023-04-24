@@ -71,7 +71,10 @@ public:
    * @brief Create a ModelList from one template substitution model.
    *
    * @param models A vector of pointers toward substitution model objects.
+   *
+   * !! All pointers of the vector will be emptied.
    */
+  
   ModelList(std::vector<std::unique_ptr<SubstitutionModelInterface>>& models) :
     models_(models.size()), wordAlphabet_(nullptr)
   {
@@ -193,7 +196,7 @@ public:
    * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface>& model,
+    std::unique_ptr<SubstitutionModelInterface> model,
     unsigned int num,
     const std::string& prefix);
 

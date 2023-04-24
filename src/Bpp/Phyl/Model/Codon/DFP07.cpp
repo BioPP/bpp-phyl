@@ -77,7 +77,7 @@ DFP07::DFP07(
   mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gCode->getSourceAlphabet(), move(submodel), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
-  vector<int> supportedChars = submodel->getAlphabetStates();
+  vector<int> supportedChars = mixedSubModelPtr_->getAlphabetStates();
   // map the parameters
 
   lParPmodel_.addParameters(mixedModelPtr_->getParameters());

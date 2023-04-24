@@ -143,6 +143,8 @@ public:
     return AbstractCodonPhaseFrequenciesSubstitutionModel::codonFrequencySet();
   }
 
+  using AbstractCodonPhaseFrequenciesSubstitutionModel::frequencySet;
+
   bool hasCodonFrequencySet() const override
   {
     return AbstractCodonPhaseFrequenciesSubstitutionModel::hasCodonFrequencySet();

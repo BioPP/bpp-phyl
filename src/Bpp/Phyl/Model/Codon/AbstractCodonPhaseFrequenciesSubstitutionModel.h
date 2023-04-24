@@ -128,6 +128,11 @@ public:
     return *posFreqSet_;
   }
 
+  const FrequencySetInterface& frequencySet() const 
+  {
+    return *posFreqSet_;
+  }
+
   bool hasCodonFrequencySet() const override
   {
     return (posFreqSet_ != nullptr);

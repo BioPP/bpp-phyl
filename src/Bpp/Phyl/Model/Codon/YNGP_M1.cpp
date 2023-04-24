@@ -75,7 +75,7 @@ YNGP_M1::YNGP_M1(
   mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getCodonAlphabet(), move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
-  vector<int> supportedChars = yn98->getAlphabetStates();
+  vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();
   // map the parameters
 
   lParPmodel_.addParameters(mixedModelPtr_->getParameters());

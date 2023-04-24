@@ -87,11 +87,11 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface>& pmodel,
+  unique_ptr<SubstitutionModelInterface> pmodel,
   unsigned int num,
   const string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(pmodel, num, prefix),
+  AbstractWordSubstitutionModel(move(pmodel), num, prefix),
   sChangingPos_(),
   vGenerators_()
 {
@@ -105,12 +105,12 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface>& pmodel,
+  unique_ptr<SubstitutionModelInterface> pmodel,
   unsigned int num,
   const std::vector<std::set<size_t> >& vPos,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(pmodel, num, prefix),
+  AbstractWordSubstitutionModel(move(pmodel), num, prefix),
   sChangingPos_(vPos),
   vGenerators_()
 {

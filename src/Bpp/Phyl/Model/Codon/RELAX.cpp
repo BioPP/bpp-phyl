@@ -79,7 +79,7 @@ RELAX::RELAX(
   mixedModelPtr_ = make_unique<MixtureOfASubstitutionModel>(gc->getSourceAlphabet(), move(yn98), mpdd);
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
-  vector<int> supportedChars = yn98->getAlphabetStates();
+  vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();
 
   // mapping the parameters
   ParameterList pl = mixedModelPtr_->getParameters();

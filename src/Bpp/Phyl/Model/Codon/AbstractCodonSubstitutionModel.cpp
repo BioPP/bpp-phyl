@@ -47,7 +47,7 @@ using namespace std;
 
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const string& prefix,
     bool paramRates) :
   AbstractParameterAliasable(prefix),
@@ -91,9 +91,9 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::string& prefix,
     bool paramRates) :
   AbstractParameterAliasable(prefix),
@@ -107,22 +107,22 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   enableEigenDecomposition(1);
 
   VSubMod_.push_back(move(pmod1));
-  VnestedPrefix_.push_back(pmod1->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[0]->getNamespace());
   VSubMod_[0]->setNamespace(prefix + "1_" + VnestedPrefix_[0]);
   VSubMod_[0]->enableEigenDecomposition(0);
-  addParameters_(pmod1->getParameters());
+  addParameters_(VSubMod_[0]->getParameters());
 
   VSubMod_.push_back(move(pmod2));
-  VnestedPrefix_.push_back(pmod2->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[1]->getNamespace());
   VSubMod_[1]->setNamespace(prefix + "2_" + VnestedPrefix_[1]);
   VSubMod_[1]->enableEigenDecomposition(0);
-  addParameters_(pmod2->getParameters());
+  addParameters_(VSubMod_[1]->getParameters());
 
   VSubMod_.push_back(move(pmod3));
-  VnestedPrefix_.push_back(pmod3->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[2]->getNamespace());
   VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
   VSubMod_[2]->enableEigenDecomposition(0);
-  addParameters_(pmod3->getParameters());
+  addParameters_(VSubMod_[2]->getParameters());
 
   Vrate_.resize(3);
   for (size_t i = 0; i < 3; ++i)

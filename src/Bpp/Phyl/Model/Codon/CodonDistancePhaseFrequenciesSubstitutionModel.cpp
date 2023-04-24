@@ -51,7 +51,7 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
     unique_ptr<CodonFrequencySetInterface> pfreq,
     shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistPhasFreq."),
+  AbstractCodonSubstitutionModel(gCode, move(pmod), "CodonDistPhasFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(move(pfreq), "CodonDistPhasFreq.")
 {
@@ -68,7 +68,7 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
     unique_ptr<CodonFrequencySetInterface> pfreq,
     shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistPhasFreq."),
+  AbstractCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), "CodonDistPhasFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(move(pfreq), "CodonDistPhasFreq.")
 {

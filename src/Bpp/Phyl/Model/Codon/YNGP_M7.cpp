@@ -76,7 +76,7 @@ YNGP_M7::YNGP_M7(
   mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
-  vector<int> supportedChars = yn98->getAlphabetStates();
+  vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();
 
   // mapping the parameters
 

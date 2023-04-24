@@ -138,7 +138,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 {}
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface>& pmodel,
+  unique_ptr<SubstitutionModelInterface> pmodel,
   unsigned int num,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
@@ -161,8 +161,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
     t += TextTools::toString(i + 1);
   }
 
-  pmodel->setNamespace(prefix + t + "_" + VnestedPrefix_[0]);
-  addParameters_(pmodel->getParameters());
+  pmodel2->setNamespace(prefix + t + "_" + VnestedPrefix_[0]);
+  addParameters_(pmodel2->getParameters());
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(

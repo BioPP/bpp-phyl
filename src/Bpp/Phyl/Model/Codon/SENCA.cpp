@@ -50,7 +50,7 @@ SENCA::SENCA(
   unique_ptr<FrequencySetInterface> pfit,
   shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("SENCA."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "SENCA."),
+  AbstractCodonSubstitutionModel(gCode, move(pmod), "SENCA."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "SENCA."),
   AbstractCodonFitnessSubstitutionModel(move(pfit), gCode, "SENCA.")
 {
@@ -66,7 +66,7 @@ SENCA::SENCA(
   unique_ptr<FrequencySetInterface> pfit,
   shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("SENCA."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "SENCA."),
+  AbstractCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), "SENCA."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "SENCA."),
   AbstractCodonFitnessSubstitutionModel(move(pfit), gCode, "SENCA.")
 {

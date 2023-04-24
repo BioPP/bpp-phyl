@@ -179,8 +179,8 @@ public:
       const std::string& prefix) :
     AbstractParameterAliasable(prefix),
     model_(std::move(model)),
-    stateMap_(std::make_shared<MarkovModulatedStateMap>(model->stateMap(), nbRates)),
-    nbStates_(model->getNumberOfStates()),
+    stateMap_(std::make_shared<MarkovModulatedStateMap>(model_->stateMap(), nbRates)),
+    nbStates_(model_->getNumberOfStates()),
     nbRates_(nbRates),
     rates_(nbRates, nbRates),
     ratesExchangeability_(nbRates, nbRates),
@@ -196,7 +196,7 @@ public:
     compFreq_(false),
     pijt_(), dpijt_(), d2pijt_(), freq_(),
     normalizeRateChanges_(normalizeRateChanges),
-    nestedPrefix_("model_" + model->getNamespace())
+    nestedPrefix_("model_" + model_->getNamespace())
   {
     model_->setNamespace(prefix + nestedPrefix_);
     addParameters_(model_->getIndependentParameters());

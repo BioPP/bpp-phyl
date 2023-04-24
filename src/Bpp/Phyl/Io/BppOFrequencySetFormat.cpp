@@ -362,7 +362,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
 
       if (!geneticCode_)
         throw Exception("BppOFrequencySetFormat::readFrequencySet(). No genetic code specified! Consider using 'setGeneticCode'.");
-      pFS.reset(new CodonFromIndependentFrequencySet(geneticCode_, v_AFS, "Codon"));
+      pFS = make_unique<CodonFromIndependentFrequencySet>(geneticCode_, v_AFS, "Codon");
     }
   }
 

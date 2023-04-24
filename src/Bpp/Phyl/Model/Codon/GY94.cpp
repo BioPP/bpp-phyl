@@ -69,7 +69,7 @@ GY94::GY94(
   addParameter_(new Parameter("GY94.V", 10000, Parameter::R_PLUS_STAR));
 
   pmodel_->setNamespace("GY94.");
-  addParameters_(codonFreqs->getParameters());
+  addParameters_(pmodel_->frequencySet().getParameters());
 
   lParPmodel_.addParameters(pmodel_->getParameters());
 

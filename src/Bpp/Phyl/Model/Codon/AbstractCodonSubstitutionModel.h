@@ -97,7 +97,7 @@ public:
    */
   AbstractCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::string& st,
     bool paramRates = false);
 
@@ -117,9 +117,9 @@ public:
    */
   AbstractCodonSubstitutionModel(
     std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::string& st,
     bool paramRates = false);
 

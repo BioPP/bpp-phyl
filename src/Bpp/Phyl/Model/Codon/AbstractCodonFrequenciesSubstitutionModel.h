@@ -119,6 +119,11 @@ public:
     return *pfreqset_;
   }
 
+  const FrequencySetInterface& frequencySet() const
+  {
+    return *pfreqset_;
+  }
+
   bool hasCodonFrequencySet() const override
   {
     return (pfreqset_ != nullptr);

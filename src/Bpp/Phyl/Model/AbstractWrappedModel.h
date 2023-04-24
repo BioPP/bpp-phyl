@@ -51,8 +51,9 @@ namespace bpp
 {
 /**
  * @brief Abstract class of Wrapping model class, where all methods
- * are redirected from getModel().
+ * are redirected from model().
  */
+  
 class AbstractWrappedModel :
   public virtual AbstractParameterAliasable,
   public virtual WrappedModelInterface
@@ -91,7 +92,9 @@ public:
 
   size_t getNumberOfStates() const override { return model().getNumberOfStates(); }
 
-  const FrequencySetInterface& frequencySet() const override { return model().frequencySet(); }
+  const FrequencySetInterface& frequencySet() const override {
+    return model().frequencySet();
+  }
   
   /**
    * @}

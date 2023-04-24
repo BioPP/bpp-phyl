@@ -96,7 +96,7 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
   for (size_t i = 0; i < l; ++i)
   {
     vFreq_.push_back(move(freqVector[i]));
-    vNestedPrefix_.push_back(freqVector[i]->getNamespace());
+    vNestedPrefix_.push_back(vFreq_[i]->getNamespace());
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }
@@ -283,7 +283,7 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     prefix,
     name),
   pFreq_(move(pabsfreq)),
-  NestedPrefix_(pabsfreq->getNamespace()),
+  NestedPrefix_(pFreq_->getNamespace()),
   length_(pWA->getLength())
 {
   size_t i;
@@ -310,7 +310,7 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     prefix,
     name),
   pFreq_(move(pabsfreq)),
-  NestedPrefix_(pabsfreq->getNamespace()),
+  NestedPrefix_(pFreq_->getNamespace()),
   length_(pWA->getLength())
 {
   size_t i;

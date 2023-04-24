@@ -47,7 +47,7 @@ using namespace std;
 
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
     shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
@@ -62,19 +62,19 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   for (i = 0; i < 3; i++)
   {
     VSubMod_.push_back(move(pmod));
-    VnestedPrefix_.push_back(pmod->getNamespace());
+    VnestedPrefix_.push_back(VSubMod_[i]->getNamespace());
   }
 
-  pmod->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
-  pmod->enableEigenDecomposition(0);
-  addParameters_(pmod->getParameters());
+  VSubMod_[0]->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
+  VSubMod_[0]->enableEigenDecomposition(0);
+  addParameters_(VSubMod_[0]->getParameters());
 
   initGenerators_();
 }
 
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
     shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::vector<std::set< size_t> >& vPos,
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
@@ -93,9 +93,9 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
     VSubMod_.push_back(pmod2);
     VnestedPrefix_.push_back(pmod2->getNamespace());
   }
-  pmod->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
-  pmod->enableEigenDecomposition(0);
-  addParameters_(pmod->getParameters());
+  pmod2->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
+  pmod2->enableEigenDecomposition(0);
+  addParameters_(pmod2->getParameters());
 
   initGenerators_();
   setChangingPositions(vPos);
@@ -103,9 +103,9 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
 
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
     shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
@@ -117,31 +117,31 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   enableEigenDecomposition(true);
 
   VSubMod_.push_back(move(pmod1));
-  VnestedPrefix_.push_back(pmod1->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[0]->getNamespace());
   VSubMod_[0]->setNamespace(prefix + "1_" + VnestedPrefix_[0]);
   VSubMod_[0]->enableEigenDecomposition(0);
-  addParameters_(pmod1->getParameters());
+  addParameters_(VSubMod_[0]->getParameters());
 
   VSubMod_.push_back(move(pmod2));
-  VnestedPrefix_.push_back(pmod2->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[1]->getNamespace());
   VSubMod_[1]->setNamespace(prefix + "2_" + VnestedPrefix_[1]);
   VSubMod_[1]->enableEigenDecomposition(0);
-  addParameters_(pmod2->getParameters());
+  addParameters_(VSubMod_[1]->getParameters());
 
   VSubMod_.push_back(move(pmod3));
-  VnestedPrefix_.push_back(pmod3->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[2]->getNamespace());
   VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
   VSubMod_[2]->enableEigenDecomposition(0);
-  addParameters_(pmod3->getParameters());
+  addParameters_(VSubMod_[2]->getParameters());
   
   initGenerators_();
 }
 
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
     shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface>& pmod3,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::vector<std::set< size_t> >& vPos,
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
@@ -154,22 +154,22 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   enableEigenDecomposition(true);
 
   VSubMod_.push_back(move(pmod1));
-  VnestedPrefix_.push_back(pmod1->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[0]->getNamespace());
   VSubMod_[0]->setNamespace(prefix + "1_" + VnestedPrefix_[0]);
   VSubMod_[0]->enableEigenDecomposition(0);
-  addParameters_(pmod1->getParameters());
+  addParameters_(VSubMod_[0]->getParameters());
 
   VSubMod_.push_back(move(pmod2));
-  VnestedPrefix_.push_back(pmod2->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[1]->getNamespace());
   VSubMod_[1]->setNamespace(prefix + "2_" + VnestedPrefix_[1]);
   VSubMod_[1]->enableEigenDecomposition(0);
-  addParameters_(pmod2->getParameters());
+  addParameters_(VSubMod_[1]->getParameters());
 
   VSubMod_.push_back(move(pmod3));
-  VnestedPrefix_.push_back(pmod3->getNamespace());
+  VnestedPrefix_.push_back(VSubMod_[2]->getNamespace());
   VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
   VSubMod_[2]->enableEigenDecomposition(0);
-  addParameters_(pmod3->getParameters());
+  addParameters_(VSubMod_[2]->getParameters());
 
   initGenerators_();
   setChangingPositions(vPos);

@@ -117,6 +117,17 @@ public:
     return pmodel_->getGeneticCode();
   }
 
+  const FrequencySetInterface& frequencySet() const override {
+    return AbstractWrappedModel::frequencySet();
+  }
+// std::cerr << "frqqq" << std::endl;
+
+//     return pmodel_->frequencySet();
+//   }
+  
+// using AbstractBiblioMixedTransitionModel::frequencySet;
+
+
   double getCodonsMulRate(size_t i, size_t j) const override
   {
     return pmodel_->getCodonsMulRate(i, j);
@@ -137,6 +148,8 @@ public:
     AbstractBiblioSubstitutionModel::setFreq(frequencies);
   }
 
+  using AbstractBiblioSubstitutionModel::frequencySet;
+  
 protected:
   SubstitutionModelInterface& substitutionModel_() override { return *pmodel_; }
   

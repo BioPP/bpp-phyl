@@ -51,11 +51,11 @@ AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTrans
     const std::string& prefix) :
   //AbstractParameterAliasable(prefix + subModel->getNamespace()),
   subModel_(move(subModel)),
-  size_(subModel->getNumberOfStates()),
+  size_(subModel_->getNumberOfStates()),
   pij_t(size_, size_),
   dpij_t(size_, size_),
   d2pij_t(size_, size_),
-  nestedPrefix_(subModel->getNamespace())
+  nestedPrefix_(subModel_->getNamespace())
 {
   subModel_->setNamespace(getNamespace() + nestedPrefix_);
   addParameters_(subModel_->getParameters());

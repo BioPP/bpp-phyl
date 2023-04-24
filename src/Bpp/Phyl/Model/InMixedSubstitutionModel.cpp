@@ -76,7 +76,7 @@ InMixedSubstitutionModel::InMixedSubstitutionModel(
   subModelNumber_(subModelNumber),
   mixtName_(mixtDesc)
 {
-  if (subModelNumber >= mixedModel->getNumberOfModels())
+  if (subModelNumber >= mixedModelPtr_->getNumberOfModels())
     throw ParameterNotFoundException("InMixedSubstitutionModel::InMixedSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
 
   addParameters_(mixedModelPtr_->getParameters());

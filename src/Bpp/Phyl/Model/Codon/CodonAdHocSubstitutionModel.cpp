@@ -52,7 +52,7 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
     vector<unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
     const string& name) :
   AbstractParameterAliasable(name + "."),
-  AbstractCodonSubstitutionModel(gCode, pmod, name + "."),
+  AbstractCodonSubstitutionModel(gCode, move(pmod), name + "."),
   vModel_(),
   name_(name),
   freqSet_()
@@ -85,7 +85,7 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
     vector<unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
     const std::string& name) :
   AbstractParameterAliasable(name + "."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, name + "."),
+  AbstractCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), name + "."),
   vModel_(),
   name_(name),
   freqSet_()
