@@ -261,15 +261,13 @@ Vuint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
   }
 
   Vuint submodnb;
-  size_t i, j, l;
+  size_t l;
   string s;
 
-  bool nameok = false;
-
-  bool stopped = false;
-  for (i = 0; i < modelsContainer_.size(); ++i)
+  for (size_t i = 0; i < modelsContainer_.size(); ++i)
   {
-    j = i;
+    size_t stopped = 0;
+    size_t j = i;
     for (auto& it : distributionMap_)
     {
       s = it.first;
@@ -277,16 +275,14 @@ Vuint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
 
       if (msubn.find(s) != msubn.end())
       {
-        nameok = true;
-        if (msubn[s] != l) {
-	  stopped = true;
-          break;
+        if (msubn[s] == l) {
+	  stopped ++;
 	}
       }
 
       j = j / it.second->getNumberOfCategories();
     }
-    if (nameok && !stopped)
+    if (stopped==msubn.size())  // All requests are fulfilled
       submodnb.push_back(uint(i));
   }
 
