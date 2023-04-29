@@ -809,7 +809,7 @@ map<size_t, std::unique_ptr<FrequencySetInterface> > PhylogeneticsApplicationToo
     size_t poseq = rfName.find("=");
     try
     {
-      rfNum.push_back(TextTools::toInt(rfName.substr(9, poseq - 9)));
+      rfNum.push_back(TextTools::to<size_t>(rfName.substr(9, poseq - 9)));
     }
     catch (Exception& e)
     {}
@@ -904,7 +904,7 @@ map<size_t, std::unique_ptr<ModelPath> > PhylogeneticsApplicationTools::getModel
     size_t num;
     try
     {
-      num = TextTools::toInt(name.substr(4));
+      num = TextTools::to<size_t>(name.substr(4));
     }
     catch (const Exception& e)
     {
@@ -933,8 +933,8 @@ map<size_t, std::unique_ptr<ModelPath> > PhylogeneticsApplicationTools::getModel
     {
       string submodel = st.nextToken();
       Vuint submodelNb;
-      string::size_type indexo = submodel.find("[");
-      string::size_type indexf = submodel.find("]");
+      auto indexo = submodel.find("[");
+      auto indexf = submodel.find("]");
       if ((indexo == string::npos) | (indexf == string::npos))
         throw Exception("PhylogeneticsApplicationTools::getModelPaths. Bad path syntax, should contain `[]' symbols: " + submodel);
 
@@ -956,11 +956,11 @@ map<size_t, std::unique_ptr<ModelPath> > PhylogeneticsApplicationTools::getModel
       {
         string p2 = stp2.nextToken();
 
-        uint n2;
+        unsigned int n2;
         bool n2ok = true;
         try
         {
-          n2 = TextTools::toInt(p2);
+          n2 = TextTools::to<unsigned int>(p2);
           if (n2 <= 0 || n2 > pSM->getNumberOfModels())
             n2ok = false;
           else
@@ -1022,7 +1022,7 @@ map<size_t, std::unique_ptr<ModelScenario> > PhylogeneticsApplicationTools::getM
     size_t num;
     try
     {
-      num = TextTools::toInt(name.substr(8));
+      num = TextTools::to<size_t>(name.substr(8));
     }
     catch (const Exception& e)
     {
@@ -2246,7 +2246,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   {
     try
     {
-      nP = TextTools::toInt(resultDesc.substr(5));
+      nP = TextTools::to<size_t>(resultDesc.substr(5));
     }
     catch (Exception& e)
     {

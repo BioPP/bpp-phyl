@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
+
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
+
+   This software is governed by the CeCILL license under French law and
+   abiding by the rules of distribution of free software. You can use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
+
+   As a counterpart to the access to the source code and rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty and the software's author, the holder of the
+   economic rights, and the successive licensors have only limited
+   liability.
+
+   In this respect, the user's attention is drawn to the risks associated
+   with loading, using, modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean that it is complicated to manipulate, and that also
+   therefore means that it is reserved for developers and experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and, more generally, to use and operate it in the
+   same conditions as regards security.
+
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #ifndef BPP_PHYL_MODEL_POMO_H
 #define BPP_PHYL_MODEL_POMO_H
@@ -122,96 +122,94 @@
 
 namespace bpp
 {
-  class POMO :
-    public AbstractSubstitutionModel
+class POMO :
+  public AbstractSubstitutionModel
+{
+private:
+  uint nbAlleles_;
+
+  std::unique_ptr<SubstitutionModelInterface> pmodel_;
+  std::unique_ptr<FrequencySetInterface> pfitness_;
+
+public:
+  /**
+   * @brief Build a POMO instance
+   */
+  POMO(std::shared_ptr<const AllelicAlphabet> allAlph,
+       std::unique_ptr<SubstitutionModelInterface> pmodel,
+       std::unique_ptr<FrequencySetInterface> pfitness);
+
+  POMO(const POMO& model) :
+    AbstractParameterAliasable(model),
+    AbstractSubstitutionModel(model),
+    nbAlleles_(model.nbAlleles_),
+    pmodel_(model.pmodel_->clone()),
+    pfitness_(model.pfitness_ ? model.pfitness_->clone() : nullptr)
+  {}
+
+  POMO& operator=(const POMO& model)
   {
-  private:
-    uint nbAlleles_;
-  
-    std::unique_ptr<SubstitutionModelInterface> pmodel_;
-    std::unique_ptr<FrequencySetInterface> pfitness_;
+    AbstractParameterAliasable::operator=(model);
+    nbAlleles_ = model.nbAlleles_;
+    pmodel_.reset(model.pmodel_->clone());
+    pfitness_.reset(model.pfitness_ ? model.pfitness_->clone() : nullptr);
+    return *this;
+  }
 
-  public:
-    /**
-     * @brief Build a POMO instance
-     */
-    POMO(std::shared_ptr<const AllelicAlphabet> allAlph,
-         std::unique_ptr<SubstitutionModelInterface> pmodel,
-         std::unique_ptr<FrequencySetInterface> pfitness);
+  POMO* clone() const override
+  {
+    return new POMO(*this);
+  }
 
-    POMO(const POMO& model) :
-      AbstractParameterAliasable(model),
-      AbstractSubstitutionModel(model),
-      nbAlleles_(model.nbAlleles_),
-      pmodel_(model.pmodel_->clone()),
-      pfitness_(model.pfitness_ ? model.pfitness_->clone() : nullptr)
-    {}
+  void fireParameterChanged(const ParameterList& parameters) override;
 
-    POMO& operator=(const POMO& model)
-    {
-      AbstractParameterAliasable::operator=(model);
-      nbAlleles_ = model.nbAlleles_;
-      pmodel_.reset(model.pmodel_->clone());
-      pfitness_.reset(model.pfitness_ ? model.pfitness_->clone() : nullptr);
-      return *this;
-    }
+  void setFreq(std::map<int, double>& frequencies) override;
 
-    POMO* clone() const override
-    {
-      return new POMO(*this);
-    }
+  void setNamespace(const std::string& prefix) override
+  {
+    AbstractParameterAliasable::setNamespace(prefix);
+    pmodel_->setNamespace(prefix + pmodel_->getNamespace());
+    if (pfitness_)
+      pfitness_->setNamespace(prefix + pfitness_->getNamespace());
+  }
 
-    void fireParameterChanged(const ParameterList& parameters) override;
+  std::shared_ptr<const AllelicAlphabet> getAllelicAlphabet() const
+  {
+    return std::dynamic_pointer_cast<const AllelicAlphabet>(alphabet_);
+  }
 
-    void setFreq(std::map<int, double>& frequencies) override;
+  const AllelicAlphabet& allelicAlphabet() const
+  {
+    return dynamic_cast<const AllelicAlphabet&>(*alphabet_);
+  }
 
-    void setNamespace(const std::string& prefix) override
-    {
-      AbstractParameterAliasable::setNamespace(prefix);
-      pmodel_->setNamespace(prefix+pmodel_->getNamespace());
-      if (pfitness_)
-        pfitness_->setNamespace(prefix+pfitness_->getNamespace());
-    }
+  uint getNbAlleles() const
+  {
+    return nbAlleles_;
+  }
 
-    std::shared_ptr<const AllelicAlphabet> getAllelicAlphabet() const
-    {
-      return std::dynamic_pointer_cast<const AllelicAlphabet>(alphabet_);
-    }
+  bool hasFitness() const
+  {
+    return pfitness_ != nullptr;
+  }
 
-    const AllelicAlphabet& allelicAlphabet() const
-    {
-      return dynamic_cast<const AllelicAlphabet&>(*alphabet_);
-    }
+  const FrequencySetInterface& fitness() const
+  {
+    return *pfitness_;
+  }
 
-    uint getNbAlleles() const
-    {
-      return nbAlleles_;
-    }
+  const SubstitutionModelInterface& mutationModel() const
+  {
+    return *pmodel_;
+  }
 
-    bool hasFitness() const 
-    {
-      return pfitness_ != nullptr;
-    }
+  std::string getName() const override
+  {
+    return "POMO";
+  }
 
-    const FrequencySetInterface& fitness() const
-    {
-      return *pfitness_;
-    }
-
-    const SubstitutionModelInterface& mutationModel() const
-    {
-      return *pmodel_;
-    }
-
-    std::string getName() const override
-    {
-      return "POMO";
-    }
-    
-  protected:
-    
-    void updateMatrices_() override;
-  
-  };
+protected:
+  void updateMatrices_() override;
+};
 } // end of namespace bpp.
-#endif // BPP_PHYL_MODEL_POMO_H
+#endif// BPP_PHYL_MODEL_POMO_H

@@ -144,16 +144,16 @@ namespace bpp
 
     virtual ~D1WalkSubstitutionModel() {}
 
-    D1WalkSubstitutionModel* clone() const { return new D1WalkSubstitutionModel(*this); }
+    D1WalkSubstitutionModel* clone() const override { return new D1WalkSubstitutionModel(*this); }
 
   public:
 
-    std::string getName() const
+    std::string getName() const override
     {
       return "D1Walk";
     }
 
-    void fireParameterChanged(const ParameterList& parameters)
+    void fireParameterChanged(const ParameterList& parameters) override
     {
       freqSet_->matchParametersValues(parameters);
       AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
@@ -164,7 +164,7 @@ namespace bpp
       return *freqSet_;
     }
 
-    void setFreq(std::map<int, double>& freq);
+    void setFreq(std::map<int, double>& freq) override;
 
   protected:
     /**
@@ -172,7 +172,7 @@ namespace bpp
      * the generator is fixed! No matrice can be changed... This method is only
      * used in the constructor of the class.
      */
-    void updateMatrices_();
+    void updateMatrices_() override;
   };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_D1WALKSUBSTITUTIONMODEL_H

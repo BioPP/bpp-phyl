@@ -171,7 +171,7 @@ public:
 
   const MixedTransitionModelInterface& mixedModel() const { return *mixedModelPtr_; }
 
-  const FrequencySetInterface& frequencySet() const
+  const FrequencySetInterface& frequencySet() const override
   {
     return mixedModelPtr_->nModel(0).frequencySet();
   }

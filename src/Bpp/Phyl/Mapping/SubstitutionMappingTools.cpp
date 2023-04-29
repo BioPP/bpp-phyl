@@ -205,7 +205,10 @@ unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingTools::computeCo
     if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
       continue;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-abstract-non-virtual-dtor" //Disable warning coming from Eigen because of non-virtual destructor.
     vector<RowLik> substitutionsForCurrentNode(nbTypes);
+#pragma GCC diagnostic pop
     for (auto& sub : substitutionsForCurrentNode)
     {
       sub = RowLik::Zero((int)nbDistinctSites);

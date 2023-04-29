@@ -6,36 +6,36 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
+
+   This software is governed by the CeCILL license under French law and
+   abiding by the rules of distribution of free software. You can use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
+
+   As a counterpart to the access to the source code and rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty and the software's author, the holder of the
+   economic rights, and the successive licensors have only limited
+   liability.
+
+   In this respect, the user's attention is drawn to the risks associated
+   with loading, using, modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean that it is complicated to manipulate, and that also
+   therefore means that it is reserved for developers and experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and, more generally, to use and operate it in the
+   same conditions as regards security.
+
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 
 #include "POMO.h"
@@ -46,17 +46,17 @@ using namespace std;
 /******************************************************************************/
 
 POMO::POMO(
-    shared_ptr<const AllelicAlphabet> allAlph,
-    unique_ptr<SubstitutionModelInterface> pmodel,
-    unique_ptr<FrequencySetInterface> pfitness):
+  shared_ptr<const AllelicAlphabet> allAlph,
+  unique_ptr<SubstitutionModelInterface> pmodel,
+  unique_ptr<FrequencySetInterface> pfitness) :
   AbstractParameterAliasable("POMO."),
   AbstractSubstitutionModel(allAlph, make_shared<CanonicalStateMap>(allAlph, false), "POMO."),
   nbAlleles_(allAlph->getNbAlleles()),
   pmodel_(move(pmodel)),
   pfitness_(move(pfitness))
 {
-  const auto& alph=allAlph->getStateAlphabet();
-  
+  const auto& alph = allAlph->getStateAlphabet();
+
   if (alph->getAlphabetType() != pmodel_->alphabet().getAlphabetType())
     throw AlphabetMismatchException("POMO mismatch state alphabet for model.", alph.get(), &pmodel_->alphabet());
 
@@ -84,48 +84,48 @@ void POMO::updateMatrices_()
   const auto& Q = pmodel_->getGenerator();
 
   const Vdouble* fit = pfitness_ ? &pfitness_->getFrequencies() : 0;
-  
+
   // Per couple of alleles
 
-  // position of the bloc of alleles 
+  // position of the bloc of alleles
   size_t nbloc = nbStates;
 
   // for all couples starting with i
-  for (size_t i=0;i<nbStates;i++)
+  for (size_t i = 0; i < nbStates; i++)
   {
-    double phi_i = fit?(*fit)[i]:1./(double)nbStates;
+    double phi_i = fit ? (*fit)[i] : 1. / (double)nbStates;
     // then for all couples ending with j
-    for (size_t j=i+1;j<nbStates;j++)
+    for (size_t j = i + 1; j < nbStates; j++)
     {
-      double phi_j = fit?(*fit)[j]:1./(double)nbStates;
-      
+      double phi_j = fit ? (*fit)[j] : 1. / (double)nbStates;
+
       // mutations
-      generator_(i, nbloc) = nbAlleles * Q(i,j);
-      generator_(j, nbloc + nbAlleles-2)= nbAlleles * Q(j,i);
+      generator_(i, nbloc) = nbAlleles * Q(i, j);
+      generator_(j, nbloc + nbAlleles - 2) = nbAlleles * Q(j, i);
 
       // drift + selection
       if (std::abs(generator_(i, nbloc)) < NumConstants::TINY() &&
-          std::abs(generator_(j, nbloc + nbAlleles-2) < NumConstants::TINY())) // No mutation between states
+          std::abs(generator_(j, nbloc + nbAlleles - 2)) < NumConstants::TINY()) // No mutation between states
       {
-        for (size_t a=1;a<nbAlleles;a++)
+        for (size_t a = 1; a < nbAlleles; a++)
         {
-          generator_(nbloc+a-1 , (a>1?nbloc+a-2:i)) = 0;
-          generator_(nbloc+a-1 , (a<nbAlleles-1?nbloc+a:j)) = 0;
+          generator_(nbloc + a - 1, (a > 1 ? nbloc + a - 2 : i)) = 0;
+          generator_(nbloc + a - 1, (a < nbAlleles - 1 ? nbloc + a : j)) = 0;
         }
       }
       else
-        for (size_t a=1;a<nbAlleles;a++)
+        for (size_t a = 1; a < nbAlleles; a++)
         {
-          double rap = (double)(a * (nbAlleles - a ))/((double)a * phi_i  + (double)(nbAlleles - a) * phi_j);
-          
+          double rap = (double)(a * (nbAlleles - a )) / ((double)a * phi_i  + (double)(nbAlleles - a) * phi_j);
+
           // drift towards i:  a -> a+1
-          generator_(nbloc+a-1 , (a>1?nbloc+a-2:i)) = phi_i * rap;
-          
+          generator_(nbloc + a - 1, (a > 1 ? nbloc + a - 2 : i)) = phi_i * rap;
+
           // drift towards j: nbAlleles - a -> nbAlleles -a +1
-          generator_(nbloc+a-1 , (a<nbAlleles-1?nbloc+a:j)) = phi_j  * rap;
+          generator_(nbloc + a - 1, (a < nbAlleles - 1 ? nbloc + a : j)) = phi_j  * rap;
         }
       // setting for the next couple of alleles
-      nbloc += nbAlleles-1;
+      nbloc += nbAlleles - 1;
     }
   }
 
@@ -133,64 +133,64 @@ void POMO::updateMatrices_()
 
   // Stationnary distribution
   // and variables used for rate of substitutions
-  
+
   const auto& pFreq = pmodel_->getFrequencies();
 
   Vdouble pN(nbStates), pNm(nbStates), pNm2(nbStates), p(nbStates);
-  for (size_t i=0;i<nbStates;i++)
+  for (size_t i = 0; i < nbStates; i++)
   {
-    pNm2[i]=fit?std::pow((*fit)[i],nbAlleles-2):1;
-    pNm[i]=fit?pNm2[i] * (*fit)[i]:1;
-    pN[i]=fit?pNm[i] * (*fit)[i]:1;
-    freq_[i]=pFreq[i]*pNm[i];
+    pNm2[i] = fit ? std::pow((*fit)[i], nbAlleles - 2) : 1;
+    pNm[i] = fit ? pNm2[i] * (*fit)[i] : 1;
+    pN[i] = fit ? pNm[i] * (*fit)[i] : 1;
+    freq_[i] = pFreq[i] * pNm[i];
   }
 
-  size_t k=nbStates;
-  double sden=0;
-  double snum=0;
-  
-  for (size_t i = 0; i < nbStates-1; ++i)
+  size_t k = nbStates;
+  double sden = 0;
+  double snum = 0;
+
+  for (size_t i = 0; i < nbStates - 1; ++i)
   {
-    double phi_i = fit?(*fit)[i]:1./(double)nbStates;
+    double phi_i = fit ? (*fit)[i] : 1. / (double)nbStates;
     // then for all couples ending with j
-    for (size_t j=i+1;j<nbStates;j++)
+    for (size_t j = i + 1; j < nbStates; j++)
     {
-      double phi_j = fit?(*fit)[j]:1./(double)nbStates;
+      double phi_j = fit ? (*fit)[j] : 1. / (double)nbStates;
 
-      auto mu=Q(i,j)*pFreq[i];   // alleles i & j
+      auto mu = Q(i, j) * pFreq[i];   // alleles i & j
 
-      double rfreq=pNm2[i];
-      
-      double rat=fit?(*fit)[j]/(*fit)[i]:1;
-                            
-      for (size_t n=1 ; n<nbAlleles; n++)   // i_{N-n}j_{n}
+      double rfreq = pNm2[i];
+
+      double rat = fit ? (*fit)[j] / (*fit)[i] : 1;
+
+      for (size_t n = 1; n < nbAlleles; n++)   // i_{N-n}j_{n}
       {
-        freq_[k++]=mu*rfreq*((int)(nbAlleles-n) * phi_i  + (int)n * phi_j)*nbAlleles/((int)n*(int)(nbAlleles-n));
-        rfreq*=rat;
+        freq_[k++] = mu * rfreq * ((int)(nbAlleles - n) * phi_i  + (int)n * phi_j) * nbAlleles / ((int)n * (int)(nbAlleles - n));
+        rfreq *= rat;
       }
 
-      snum+=2*mu*pNm2[i] * pN[j] * (pN[i]!=pN[j]?(phi_i-phi_j)/(pN[i]-pN[j]):(1./nbAlleles));
-      sden+=mu * 2 * pNm[i] + ((phi_i+phi_j)*
-                               ((phi_i!=phi_j)?((pNm[i]-pNm[j])/(phi_i-phi_j)):(nbAlleles-1)));
+      snum += 2 * mu * pNm2[i] * pN[j] * (pN[i] != pN[j] ? (phi_i - phi_j) / (pN[i] - pN[j]) : (1. / nbAlleles));
+      sden += mu * 2 * pNm[i] + ((phi_i + phi_j) *
+                                 ((phi_i != phi_j) ? ((pNm[i] - pNm[j]) / (phi_i - phi_j)) : (nbAlleles - 1)));
     }
   }
-  
+
   // stationary freq
   double x = VectorTools::sum(freq_);
   freq_ /= x;
 
 
   // Specific normalization in numbers of substitutions (from appendix D of Genetics. 2019 Aug; 212(4): 1321–1336.)
-  // s is the probability of substitution on a duration of 1 generation (ie the actual scale time of the model). 
-  double s=snum/sden;
+  // s is the probability of substitution on a duration of 1 generation (ie the actual scale time of the model).
+  double s = snum / sden;
 
   // And everything for exponential
   AbstractSubstitutionModel::updateMatrices_();
 
-  setScale(1/s);
+  setScale(1 / s);
 }
-  
-  
+
+
 void POMO::fireParameterChanged(const ParameterList& parameters)
 {
   if (pfitness_)
@@ -206,4 +206,3 @@ void POMO::setFreq(map<int, double>& frequencies)
   // pfreqset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
   // matchParametersValues(pfreqset_->getParameters());
 }
-
