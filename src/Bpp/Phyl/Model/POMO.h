@@ -94,15 +94,10 @@
  * \pi_{a_i} \pi_{a_j} \rho_{a_ia_j} \sum_{n=1}^{N-1} \phi_{a_i}^{N-n}
  * \phi_{a_j}^{n-1}\frac{N}{n} @f$
  *
- * The generator is normalized to ensure one substitution per unit of
- * time, which means that it is divided per:
+ * The generator should be normalized to ensure one substitution per
+ * unit of time. See document online:
  *
- *
- * s= \frac{\sum_{i \neq j} 2 \mu_{a_ia_j} \pi_{a_i}
- * \phi_{a_i}^{N-2}\phi_{a_j}^{N}\frac{\phi_{a_i}-\phi_{a_j}}{\phi_{a_i}^{N}-\phi_{a_j}^N}}
- * {\sum_{k \neq l} \pi_{a_k} \mu_{a_ka_l} ( 2 \phi_{a_k}^{N-1} + (\phi_{a_l}
- * + \phi_{a_k})\frac{\phi_{a_l}^{N-1} - \phi_{a_k}^{N-1}}{\phi_{a_l}
- * - \phi_{a_k}})} @f$
+ * https://www.overleaf.com/project/639760f5aacdcfbde3ced551
  *
  * See:
  *

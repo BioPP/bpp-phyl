@@ -285,7 +285,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (args.find("fitness") != args.end())
     {
       string nestedFreqDescription = args["fitness"];
-      BppOFrequencySetFormat nestedFreqReader(ALL, verbose_, warningLevel_);
+      BppOFrequencySetFormat nestedFreqReader(ALL, false, warningLevel_);
 
       nestedFreq = nestedFreqReader.readFrequencySet(allelic->getStateAlphabet(), nestedFreqDescription, data, false);
       unparsedParameterValuesNested=nestedFreqReader.getUnparsedArguments();
