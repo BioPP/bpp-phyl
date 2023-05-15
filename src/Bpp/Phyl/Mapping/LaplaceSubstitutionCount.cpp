@@ -50,6 +50,9 @@ using namespace std;
 void LaplaceSubstitutionCount::computeCounts(double length) const
 {
   RowMatrix<double> Q = model_->getGenerator();
+  double rate = model_->getRate();
+  MatrixTools::scale(Q, rate);
+  
   // L is the diagonal matrix with all substitution rates.
   size_t s = Q.getNumberOfRows();
   RowMatrix<double> QL(s, s);
