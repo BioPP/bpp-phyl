@@ -84,10 +84,10 @@ void TwoParameterBinarySubstitutionModel::updateMatrices()
   freq_[1] = 1 - pi0_;
 
   // Generator:
-  generator_(0, 0) = -1 * rate_ * freq_[1];
-  generator_(0, 1) = rate_ * freq_[1];
-  generator_(1, 0) = rate_ * freq_[0];
-  generator_(1, 1) = -1 * rate_ * freq_[0];
+  generator_(0, 0) = -1 * freq_[1];
+  generator_(0, 1) = freq_[1];
+  generator_(1, 0) = freq_[0];
+  generator_(1, 1) = -1 * freq_[0];
 
   // Eigen values:
   eigenValues_[0] = 0;

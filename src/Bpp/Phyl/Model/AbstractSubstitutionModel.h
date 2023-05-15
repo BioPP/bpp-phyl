@@ -347,7 +347,7 @@ protected:
   bool isScalable_;
 
   /**
-   * @brief The generator matrix \f$Q\f$ of the model.
+   * @brief The normalized generator matrix \f$Q\f$ of the model.
    */
   RowMatrix<double> generator_;
 

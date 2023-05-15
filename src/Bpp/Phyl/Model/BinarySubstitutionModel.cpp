@@ -79,14 +79,14 @@ void BinarySubstitutionModel::updateMatrices()
   freq_[1] = kappa_ / (kappa_ + 1);
 
   // Generator:
-  generator_(0, 0) = rate_ * -(kappa_ + 1) / 2;
-  generator_(0, 1) = rate_ * (kappa_ + 1) / 2;
-  generator_(1, 0) = rate_ * (kappa_ + 1) / (2 * kappa_);
-  generator_(1, 1) = rate_ * -(kappa_ + 1) / (2 * kappa_);
+  generator_(0, 0) = -(kappa_ + 1) / 2;
+  generator_(0, 1) = (kappa_ + 1) / 2;
+  generator_(1, 0) = (kappa_ + 1) / (2 * kappa_);
+  generator_(1, 1) = -(kappa_ + 1) / (2 * kappa_);
 
   // Eigen values:
   eigenValues_[0] = 0;
-  eigenValues_[1] = -rate_ * lambda_;
+  eigenValues_[1] = lambda_;
 
   // Eigen vectors:
   leftEigenVectors_(0, 0) = 1 / (kappa_ + 1);
