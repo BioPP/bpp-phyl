@@ -49,40 +49,30 @@ namespace bpp
 /**
  * @brief From a model, compute the expected transition probabilities:
  *
- * if the branch length $l$ is a random variable that follows a
- * distribution of density $\delta$, then transition probability
- * $P(l)$ is also a random variable which $n^\text{th}$ moment is:
- * $E(P^n)=\int_l e^{nlQ} \delta(l) dl$
- * 
- * A convenient modeling of the variability of the branch length around
- * this mean $\lambda$ is $\delta_t = t + \Gamma(k,\frac{\zeta}{k})$, with
- * $k>0$ and $\zeta > 0$
+ * if the branch length @f$l@f$ is a random variable that follows a
+ * distribution of density @f$\delta@f$, then transition probability
+ * @f$P(l)@f$ is also a random variable which @f$m^\text{th}@f$ moment is:
+ * @f$E(P^m)=\int_l e^{mlQ} \delta(l) dl@f$
  *
- * $\delta_t(l) = \left\{ 
- * \begin{array}{ll}
- * 0 & \text{ if } l < t \\
- * \frac{1}{\Gamma(k)\left(\frac{\zeta}{k}\right)^k}(l-t)^{k-1}e^{-\frac{k}{\zeta}(l-t)} & \text{ if } l \geqslant t \\
- * \end{array} \right.
- * $
- * 
- * Then, from the fact that $E(P^n)$ is like the moment-generating
+ * A convenient modeling of the variability of the branch length would
+ * be, with @f$\forall i, \zeta_i > 0@f$ and @f$\zeta_1 + ... + \zeta_n = 1@f$,
+ * @f$\delta_t = \frac 1n \sum_i
+ * \Gamma(k,\frac{n \zeta_i t}{k})@f$, with @f$k \in \mb N^*@f$
+ * with expectation @f$E(T)= t@f$ and variance
+ * @f$var(T)=\frac{t^2}{k} \sum_i \zeta_i^2 @f$.
+ *
+ * Then, from the fact that @f$E(P)@f$ is like the moment-generating
  * function for a matrix:
  * 
  * 
- * $\begin{array}{rl}
- * E(P) &= e^{tQ}.\frac{1}{\Gamma(k)\left(\frac{\zeta}{k}\right)^k}\int_l
- * e^{lQ}l^{k-1}e^{-\frac{k}{\zeta}l} dl\\
- * & = (I-\frac{\zeta}{k}Q)^{-k}.e^{tQ}
- * \end{array}
- * $ 
+ * @f$E(P) = \frac 1n \sum_i (I-\frac{\zeta_i n t}{k}Q)^{-k}@f$
  * 
- * which is defined since $I-\frac{((1-\lambda) t}{k}Q$ is
- * invertible (because the eigen values of $Q$ are non-positive).
  *
+ * It has the same parameters as the SubModel, plus \c "thetas" of the
+ * Simplex encoding the @f$\zeta@f$s.
  *
- * It has the same parameters as the SubModel, plus \c "zeta". Its
- * construction depends on value of integer \c "k" (which is not
- * a parameter).
+ * Its construction depends on value of integer \c "k" (which is not a
+ * parameter) and the number of @f$\zeta@f$, \c "n".
  *
  */
 
