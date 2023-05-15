@@ -271,7 +271,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
 
     for (size_t i = 0; i < size_; ++i)
     {
-      vector<double>& pi_t = pij_t.getRow(i);
+      vector<double>& pi_t = pijt_.getRow(i);
 
       double si = Qch(i, size_);
       if (si != 0)
@@ -290,7 +290,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
           pi_t[j] = (i == j) ? 1 : 0;
         }
     }
-    return pij_t;
+    return pijt_;
   }
 
   const RowMatrix<double>& orig_t = transitionModel().getPij_t(t);
@@ -298,7 +298,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
 
   for (unsigned int i = 0; i < size_; ++i)
   {
-    vector<double>& pi_t = pij_t.getRow(i);
+    vector<double>& pi_t = pijt_.getRow(i);
     const vector<double>& origi_t = orig_t.getRow(i);
     const vector<double>& chi_t = ch_t.getRow(i);
 
@@ -315,7 +315,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
       }
   }
 
-  return pij_t;
+  return pijt_;
 }
 
 
@@ -336,7 +336,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
 
     for (size_t i = 0; i < size_; i++)
     {
-      vector<double>& dpi_t = dpij_t.getRow(i);
+      vector<double>& dpi_t = dpijt_.getRow(i);
 
       const vector<double>& qchi = Qch.getRow(i);
       double si = qchi[size_];
@@ -359,7 +359,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
           x = 0;
         }
     }
-    return dpij_t;
+    return dpijt_;
   }
 
   const RowMatrix<double>& orig_t = transitionModel().getPij_t(t);
@@ -369,7 +369,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
 
   for (unsigned int i = 0; i < size_; ++i)
   {
-    vector<double>& dpi_dt = dpij_t.getRow(i);
+    vector<double>& dpi_dt = dpijt_.getRow(i);
     const vector<double>& chi_t = ch_t.getRow(i);
 
     double si = chi_t[size_];
@@ -394,7 +394,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
     }
   }
 
-  return dpij_t;
+  return dpijt_;
 }
 
 
@@ -418,7 +418,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
 
     for (size_t i = 0; i < size_; ++i)
     {
-      vector<double>& d2pi_t = d2pij_t.getRow(i);
+      vector<double>& d2pi_t = d2pijt_.getRow(i);
 
       const vector<double>& qchi = Qch.getRow(i);
       double si = qchi[size_];
@@ -443,7 +443,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
           x = 0;
         }
     }
-    return d2pij_t;
+    return d2pijt_;
   }
 
   const RowMatrix<double>& orig_t = transitionModel().getPij_t(t);
@@ -455,7 +455,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
 
   for (unsigned int i = 0; i < size_; ++i)
   {
-    vector<double>& d2pi_dt2 = d2pij_t.getRow(i);
+    vector<double>& d2pi_dt2 = d2pijt_.getRow(i);
     const vector<double>& chi_t = ch_t.getRow(i);
 
     double si = chi_t[size_];
@@ -489,5 +489,5 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
     }
   }
 
-  return d2pij_t;
+  return d2pijt_;
 }

@@ -61,6 +61,7 @@
 #include "../Model/MixedTransitionModel.h"
 #include "../Model/MixtureOfATransitionModel.h"
 #include "../Model/MixtureOfTransitionModels.h"
+#include "../Model/IntegrationOfSubstitutionModel.h"
 #include "../Model/OneChangeRegisterTransitionModel.h"
 #include "../Model/OneChangeTransitionModel.h"
 #include "../Model/Protein/LG10_EX_EHO.h"
@@ -158,6 +159,38 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
     for (auto& it : unparsedParameterValuesNested)
     {
       unparsedArguments_["OneChange." + it.first] = it.second;
+    }
+  }
+  else if (modelName == "Integrate")
+  {
+    // We have to parse the nested model first:
+    if (args.find("model") == args.end())
+      throw Exception("BppOTransitionModelFormat::read. Missing argument 'model' for model 'Integrate'.");
+    string nestedModelDescription = args["model"];
+    BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_);
+
+    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
+    // We look for the k of Gamma law:
+    if (args.find("k") == args.end())
+      throw Exception("Missing argument 'k' (shape parameter of gamma distributions) in Integrate model");
+    
+    size_t k = TextTools::to<size_t>(args["k"]);
+
+    if (args.find("n") == args.end())
+      throw Exception("Missing argument 'n' (number of gamma distributions) in Integrate model");
+    
+    size_t n = TextTools::to<size_t>(args["n"]);
+
+    model = make_unique<IntegrationOfSubstitutionModel>(nestedModel, k, n);
+
+    // Then we update the parameter set:
+    for (auto& it : unparsedParameterValuesNested)
+    {
+      unparsedArguments_["Integrate." + it.first] = it.second;
     }
   }
   // //////////////////

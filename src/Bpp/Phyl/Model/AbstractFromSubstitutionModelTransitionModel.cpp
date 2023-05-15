@@ -52,9 +52,9 @@ AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTrans
   //AbstractParameterAliasable(prefix + subModel->getNamespace()),
   subModel_(move(subModel)),
   size_(subModel_->getNumberOfStates()),
-  pij_t(size_, size_),
-  dpij_t(size_, size_),
-  d2pij_t(size_, size_),
+  pijt_(size_, size_),
+  dpijt_(size_, size_),
+  d2pijt_(size_, size_),
   nestedPrefix_(subModel_->getNamespace())
 {
   subModel_->setNamespace(getNamespace() + nestedPrefix_);
@@ -68,9 +68,9 @@ AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTrans
   //AbstractParameterAliasable(fmsm),
   subModel_(fmsm.subModel_->clone()),
   size_(fmsm.size_),
-  pij_t(fmsm.pij_t),
-  dpij_t(fmsm.dpij_t),
-  d2pij_t(fmsm.d2pij_t),
+  pijt_(fmsm.pijt_),
+  dpijt_(fmsm.dpijt_),
+  d2pijt_(fmsm.d2pijt_),
   nestedPrefix_(fmsm.nestedPrefix_)
 {}
 
@@ -83,9 +83,9 @@ AbstractFromSubstitutionModelTransitionModel& AbstractFromSubstitutionModelTrans
 
   subModel_ = std::unique_ptr<SubstitutionModelInterface>(fmsm.subModel_->clone());
   size_ = fmsm.size_;
-  pij_t = fmsm.pij_t;
-  dpij_t = fmsm.dpij_t;
-  d2pij_t = fmsm.d2pij_t;
+  pijt_ = fmsm.pijt_;
+  dpijt_ = fmsm.dpijt_;
+  d2pijt_ = fmsm.d2pijt_;
   nestedPrefix_ = fmsm.nestedPrefix_;
 
   return *this;

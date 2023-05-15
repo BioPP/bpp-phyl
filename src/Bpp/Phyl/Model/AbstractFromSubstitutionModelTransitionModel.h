@@ -69,9 +69,9 @@ protected:
   /**
    * @brief These ones are for bookkeeping:
    */
-  mutable RowMatrix<double> pij_t;
-  mutable RowMatrix<double> dpij_t;
-  mutable RowMatrix<double> d2pij_t;
+  mutable RowMatrix<double> pijt_;
+  mutable RowMatrix<double> dpijt_;
+  mutable RowMatrix<double> d2pijt_;
 
   std::string nestedPrefix_;
 

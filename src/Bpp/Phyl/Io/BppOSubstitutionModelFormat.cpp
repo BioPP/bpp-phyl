@@ -81,6 +81,7 @@
 #include "../Model/FromMixtureSubstitutionModel.h"
 #include "../Model/G2001.h"
 #include "../Model/InMixedSubstitutionModel.h"
+#include "../Model/IntegrationOfSubstitutionModel.h"
 #include "../Model/KroneckerWordSubstitutionModel.h"
 #include "../Model/MixtureOfATransitionModel.h"
 #include "../Model/MixtureOfTransitionModels.h"
@@ -1625,6 +1626,37 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
       out << registerRatesSubstitutionModel.getRegisterName();
     } catch(bad_cast&) {}
   }
+  // Is it an Integration model
+  try {
+    const IntegrationOfSubstitutionModel& integr = dynamic_cast<const IntegrationOfSubstitutionModel&>(model);
+    out << "model=";
+    write(integr.model(), out, globalAliases, writtenNames);
+    comma = true;
+    out << ", k=";
+    out << integr.k();
+    out << ", n=";
+    out << integr.numberOfGammas();
+  } catch(bad_cast&) {}
+  
+  // Is it a model with register?
+  try {
+    const OneChangeRegisterTransitionModel& oneChangeRegisterTransitionModel = dynamic_cast<const OneChangeRegisterTransitionModel&>(model);
+    out << "model=";
+    write(oneChangeRegisterTransitionModel.model(), out, globalAliases, writtenNames);
+    comma = true;
+    out << ", register=";
+    out << oneChangeRegisterTransitionModel.getRegisterName();
+    out << ", numReg=" << VectorTools::paste(oneChangeRegisterTransitionModel.getRegisterNumbers(), "+");
+  } catch(bad_cast&) {}
+
+  try {
+    const RegisterRatesSubstitutionModel& registerRatesSubstitutionModel = dynamic_cast<const RegisterRatesSubstitutionModel&>(model);
+    out << "model=";
+    write(registerRatesSubstitutionModel.model(), out, globalAliases, writtenNames);
+    comma = true;
+    out << ", register=";
+    out << registerRatesSubstitutionModel.getRegisterName();
+  } catch(bad_cast&) {}
 
   // Is it a gBGC model?
   try {

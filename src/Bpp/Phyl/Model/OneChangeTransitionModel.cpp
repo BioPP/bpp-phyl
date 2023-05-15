@@ -147,7 +147,7 @@ const Matrix<double>& OneChangeTransitionModel::getPij_t(double t) const
 
   for (unsigned int i = 0; i < size_; ++i)
   {
-    vector<double>& pi_t = pij_t.getRow(i);
+    vector<double>& pi_t = pijt_.getRow(i);
 
     double qii = Q(i, i);
     if (qii == 0)
@@ -179,7 +179,7 @@ const Matrix<double>& OneChangeTransitionModel::getPij_t(double t) const
       }
     }
   }
-  return pij_t;
+  return pijt_;
 }
 
 
@@ -193,7 +193,7 @@ const Matrix<double>& OneChangeTransitionModel::getdPij_dt(double t) const
 
     for (unsigned int i = 0; i < size_; ++i)
     {
-      vector<double>& dpi_t = dpij_t.getRow(i);
+      vector<double>& dpi_t = dpijt_.getRow(i);
       double qii = substitutionModel().Qij(i, i);
 
       if (qii == 0)
@@ -228,7 +228,7 @@ const Matrix<double>& OneChangeTransitionModel::getdPij_dt(double t) const
     for (unsigned int i = 0; i < size_; ++i)
     {
       const vector<double>& Q_i = Q.getRow(i);
-      vector<double>& dpi_t = dpij_t.getRow(i);
+      vector<double>& dpi_t = dpijt_.getRow(i);
       double qii = Q_i[i];
 
       if (qii == 0)
@@ -250,7 +250,7 @@ const Matrix<double>& OneChangeTransitionModel::getdPij_dt(double t) const
     }
   }
 
-  return dpij_t;
+  return dpijt_;
 }
 
 
@@ -268,7 +268,7 @@ const Matrix<double>& OneChangeTransitionModel::getd2Pij_dt2(double t) const
     for (unsigned int i = 0; i < size_; ++i)
     {
       double qii = substitutionModel().Qij(i, i);
-      vector<double>& d2pi_t = d2pij_t.getRow(i);
+      vector<double>& d2pi_t = d2pijt_.getRow(i);
 
       if (qii == 0)
       {
@@ -311,7 +311,7 @@ const Matrix<double>& OneChangeTransitionModel::getd2Pij_dt2(double t) const
     {
       const vector<double>& Q_i = Q.getRow(i);
       double qii = Q_i[i];
-      vector<double>& d2pi_t = d2pij_t.getRow(i);
+      vector<double>& d2pi_t = d2pijt_.getRow(i);
 
       if (qii == 0)
       {
@@ -332,5 +332,5 @@ const Matrix<double>& OneChangeTransitionModel::getd2Pij_dt2(double t) const
       }
     }
   }
-  return d2pij_t;
+  return d2pijt_;
 }

@@ -187,6 +187,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/FrequencySet/WordFrequencySet.cpp
   Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
   Bpp/Phyl/Model/InMixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/IntegrationOfSubstitutionModel.cpp
   Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
   Bpp/Phyl/Legacy/Model/MixedSubstitutionModelSet.cpp

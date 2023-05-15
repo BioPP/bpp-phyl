@@ -45,9 +45,6 @@
 
 #include "AbstractWordSubstitutionModel.h"
 
-// From bpp-core:
-#include <Bpp/Numeric/Prob/Simplex.h>
-
 namespace bpp
 {
 

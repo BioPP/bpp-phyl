@@ -334,9 +334,10 @@ public:
 protected:
   virtual Vdouble& getFrequencies_() = 0;
 
-friend class AbstractTotallyWrappedTransitionModel;
-friend class AbstractFromSubstitutionModelTransitionModel;
-friend class InMixedSubstitutionModel;
+  friend class AbstractTotallyWrappedTransitionModel;
+  friend class AbstractFromSubstitutionModelTransitionModel;
+  friend class InMixedSubstitutionModel;
+  friend class IntegrationOfSubstitutionModel;
 };
 
 
