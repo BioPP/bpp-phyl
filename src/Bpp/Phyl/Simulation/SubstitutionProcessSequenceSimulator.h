@@ -121,6 +121,15 @@ public:
    */
   void setMap(std::vector<size_t> vMap);
 
+  /**
+   * @brief the number of mapped sites.
+   */
+  
+  size_t getNumberOfSites() const
+  {
+    return vMap_.size();
+  }
+
   std::unique_ptr<SiteContainerInterface> simulate(size_t numberOfSites) const override;
 
   std::unique_ptr<SiteContainerInterface> simulate(const std::vector<double>& rates) const;

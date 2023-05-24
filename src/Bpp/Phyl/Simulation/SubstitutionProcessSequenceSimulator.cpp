@@ -187,6 +187,9 @@ void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
 unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
     size_t numberOfSites) const
 {
+  if (numberOfSites > vMap_.size())
+    throw BadIntegerException("SubstitutionProcessSequenceSimulator::simulate. Too many sites to simulate.",(int)numberOfSites);
+
   auto sites = make_unique<VectorSiteContainer>(seqNames_, getAlphabet());
   sites->setSequenceNames(seqNames_, true);
 
