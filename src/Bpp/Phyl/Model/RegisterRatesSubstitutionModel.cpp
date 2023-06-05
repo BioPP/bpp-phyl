@@ -110,7 +110,7 @@ void RegisterRatesSubstitutionModel::updateMatrices_()
   RowMatrix<double>& gen = generator_;
 
   gen = substitutionModel().getGenerator();
-
+  
   for (size_t t = 0; t < nbTypes_; ++t)
   {
     double rate = vRates_[t];

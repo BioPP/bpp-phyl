@@ -112,6 +112,7 @@ double PseudoNewtonOptimizer::doStep()
   {
     double firstOrderDerivative = secondOrderDerivableFunction().getFirstOrderDerivative(params_[i]);
     double secondOrderDerivative = secondOrderDerivableFunction().getSecondOrderDerivative(params_[i]);
+
     if (secondOrderDerivative == 0)
     {
       movements[i] = 0;
@@ -131,13 +132,12 @@ double PseudoNewtonOptimizer::doStep()
       movements[i] = 0; // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
     }
     // DEBUG:
-    // cerr << "PN[" << params_[i] << "]=" << getParameters().getParameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
+    //    cerr << "PN[" << params_[i] << "]=" << getParameters().getParameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
     newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
     // Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
     movements[i] = getParameters()[i].getValue() - newPoint[i].getValue();
   }
   newValue = getFunction()->f(newPoint);
-
   // Check newValue:
   unsigned int count = 0;
   while ((count < maxCorrection_) && ((newValue > currentValue_ + getStopCondition()->getTolerance()) || std::isnan(newValue)))

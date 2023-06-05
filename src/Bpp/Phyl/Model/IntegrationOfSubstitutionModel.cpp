@@ -52,7 +52,7 @@ IntegrationOfSubstitutionModel::IntegrationOfSubstitutionModel(std::unique_ptr<S
   AbstractWrappedModel("Integrate."),
   AbstractWrappedTransitionModel("Integrate."),
   AbstractFromSubstitutionModelTransitionModel(move(originalModel), "Integrate."),
-  svar_(n,2,true), // setting the method of the simplex to ensure decreasing values
+  svar_(n,true), // setting the method of the simplex to ensure decreasing values
   // zeta_(zeta),
   k_(k),
   vMatInv_(),
@@ -61,21 +61,19 @@ IntegrationOfSubstitutionModel::IntegrationOfSubstitutionModel(std::unique_ptr<S
   tmp2_(model().getNumberOfStates(), model().getNumberOfStates()),
   tmp3_(model().getNumberOfStates(), model().getNumberOfStates())
 {
-  // addParameter_(new Parameter(getNamespace() + "zeta", zeta_, Parameter::R_PLUS));
-  // computeInv_();
   for (size_t i=0; i<n;i++)
     vMatInv_.push_back(RowMatrix<double>(model().getNumberOfStates(), model().getNumberOfStates()));
 
   // set constraints to have decreasing values in the Simplex
   svar_.setNamespace("Integrate.");
 
-  auto  constraint = make_shared<IntervalConstraint>(0.5,1,true,true);
+  // auto  constraint = make_shared<IntervalConstraint>(0.5,1,true,true);
 
   auto lpar = svar_.getParameters();    
-  for (size_t i = 0; i < lpar.size(); ++i)
-  {
-    lpar[i].setConstraint(constraint);
-  }
+  // for (size_t i = 0; i < lpar.size(); ++i)
+  // {
+  //   lpar[i].setConstraint(constraint);
+  // }
   addParameters_(lpar);
   vZeta_ = svar_.getFrequencies();
 }
@@ -98,12 +96,13 @@ void IntegrationOfSubstitutionModel::computeInv_(double t) const
   time_=t;
   
   const auto& Q = substitutionModel().getGenerator();
-
+  auto rate = substitutionModel().getRate();
+  
   size_t s = vZeta_.size();
   
   for (size_t n=0;n<s;n++)
   {
-    double x = (double) s * vZeta_[n]/k_*time_;
+    double x = rate * (double) s * vZeta_[n]/k_*time_;
    
     for (size_t i=0;i<(size_t)getNumberOfStates();i++)
       for (size_t j=0;j<(size_t)getNumberOfStates();j++)
@@ -172,7 +171,7 @@ const Matrix<double>& IntegrationOfSubstitutionModel::getPij_t(double t) const
   }
 
   MatrixTools::scale(pijt_,1./(double)vZeta_.size());
-    return pijt_;
+  return pijt_;
 }
 
 
@@ -181,13 +180,15 @@ const Matrix<double>& IntegrationOfSubstitutionModel::getdPij_dt(double t) const
   computeInv_(t);
   
   const auto& Q = substitutionModel().getGenerator();
+  auto rate = substitutionModel().getRate();
+
   MatrixTools::fill(tmp3_,0);
   
   size_t s = vZeta_.size();
   
   for (size_t n=0;n<s;n++)
   {
-    double x = (double) s * vZeta_[n]/k_*time_;
+    double x = rate * (double) s * vZeta_[n]/k_*time_;
     
     for (size_t i=0;i<(size_t)getNumberOfStates();i++)
       for (size_t j=0;j<(size_t)getNumberOfStates();j++)
@@ -202,7 +203,8 @@ const Matrix<double>& IntegrationOfSubstitutionModel::getdPij_dt(double t) const
   }
 
   MatrixTools::mult(Q,tmp3_,dpijt_);
-    
+  MatrixTools::scale(dpijt_,rate);
+  
   return dpijt_;
 }
 
@@ -212,13 +214,15 @@ const Matrix<double>& IntegrationOfSubstitutionModel::getd2Pij_dt2(double t) con
   computeInv_(t);
   
   const auto& Q = substitutionModel().getGenerator();
+  auto rate = substitutionModel().getRate();
+
   MatrixTools::fill(tmp3_,0);
 
   size_t s = vZeta_.size();
   
   for (size_t n=0;n<s;n++)
   {
-    double x = (double) s * vZeta_[n]/k_*time_;
+    double x = rate * (double) s * vZeta_[n]/k_*time_;
     
     for (size_t i=0;i<(size_t)getNumberOfStates();i++)
       for (size_t j=0;j<(size_t)getNumberOfStates();j++)
@@ -237,7 +241,7 @@ const Matrix<double>& IntegrationOfSubstitutionModel::getd2Pij_dt2(double t) con
   
   MatrixTools::mult(tmp_,tmp3_,d2pijt_);
 
-  MatrixTools::scale(d2pijt_, (double) s * (k_+1)/k_);
+  MatrixTools::scale(d2pijt_, rate * rate * (double) s * (k_+1)/k_);
   
   return d2pijt_;
 }
