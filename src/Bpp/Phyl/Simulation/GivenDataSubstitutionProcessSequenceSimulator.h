@@ -126,6 +126,14 @@ public:
     return vSiteSim_[0]->getSequenceNames();
   }
 
+  /**
+   * @brief the number of mapped sites.
+   */
+  
+  size_t getNumberOfSites() const
+  {
+    return calcul_->getNumberOfSites();
+  }
 
   /** @} */
 

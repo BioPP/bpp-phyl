@@ -299,7 +299,7 @@ void ProcessComputationTree::buildFollowingScenario_(
         vMP[np].push_back(smp);
     }
 
-    size_t nmodel; // number model of the model split at this mrca node
+    size_t nmodel=0; // number model of the model split at this mrca node
     bool modok(false);
 
     auto modNbs = process_->getModelNumbers();
