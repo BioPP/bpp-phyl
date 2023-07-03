@@ -77,10 +77,6 @@ public:
 
   Matrix<double>& setGenerator() { return generator_; }
 
-  void updateMatrices() {
-    updateMatrices_();
-  }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ANONYMOUSSUBSTITUTIONMODEL_H

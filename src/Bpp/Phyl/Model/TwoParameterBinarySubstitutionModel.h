@@ -147,7 +147,7 @@ public:
   void setMuBounds(double lb, double ub);
 
 protected:
-  void updateMatrices();
+  void updateMatrices_();
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_TWOPARAMETERBINARYSUBSTITUTIONMODEL_H

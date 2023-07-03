@@ -67,12 +67,12 @@ TwoParameterBinarySubstitutionModel::TwoParameterBinarySubstitutionModel(
 {
   addParameter_(new Parameter(getNamespace() + "mu", mu_, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 100, false, false)));
   addParameter_(new Parameter(getNamespace() + "pi0", pi0_, std::make_shared<IntervalConstraint>(0.05, 0.95, true, true)));
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void TwoParameterBinarySubstitutionModel::updateMatrices()
+void TwoParameterBinarySubstitutionModel::updateMatrices_()
 {
   mu_ = getParameterValue("mu");
   rate_ = mu_;

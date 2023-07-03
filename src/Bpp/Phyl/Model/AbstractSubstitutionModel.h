@@ -548,6 +548,8 @@ public:
    * line equals 0.
    */
   void setDiagonal();
+
+  friend class OneChangeRegisterTransitionModel;
 };
 
 
@@ -617,6 +619,7 @@ protected:
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
    */
   virtual void updateMatrices_() override;
+
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTSUBSTITUTIONMODEL_H

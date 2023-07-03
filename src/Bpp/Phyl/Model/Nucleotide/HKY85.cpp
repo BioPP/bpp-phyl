@@ -70,12 +70,12 @@ HKY85::HKY85(
   addParameter_(new Parameter("HKY85.theta", theta_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter("HKY85.theta1", theta1_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter("HKY85.theta2", theta2_, FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL));
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void HKY85::updateMatrices()
+void HKY85::updateMatrices_()
 {
   kappa_  = getParameterValue("kappa");
   theta_  = getParameterValue("theta");
