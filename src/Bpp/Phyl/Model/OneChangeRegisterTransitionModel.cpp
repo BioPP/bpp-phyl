@@ -143,7 +143,7 @@ void OneChangeRegisterTransitionModel::updateMatrices_()
     modelChanged_->setGenerator()(i, size_) = si;
   }
 
-  modelChanged_->updateMatrices();
+  modelChanged_->updateMatrices_();
 }
 
 /******************************************************************************/

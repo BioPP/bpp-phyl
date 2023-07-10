@@ -145,7 +145,7 @@ public:
   size_t getNumberOfStates() const { return 2; }
 
 protected:
-  void updateMatrices();
+  void updateMatrices_();
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_BINARYSUBSTITUTIONMODEL_H

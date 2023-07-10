@@ -212,7 +212,7 @@ public:
    */
   void setFreq(std::map<int, double>& freqs);
 
-  void updateMatrices();
+  void updateMatrices_();
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_HKY85_H

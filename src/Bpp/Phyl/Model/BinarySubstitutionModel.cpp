@@ -64,12 +64,12 @@ BinarySubstitutionModel::BinarySubstitutionModel(
   p_(size_, size_)
 {
   addParameter_(new Parameter(getNamespace() + "kappa", kappa_, Parameter::R_PLUS_STAR));
-  updateMatrices();
+  updateMatrices_();
 }
 
 /******************************************************************************/
 
-void BinarySubstitutionModel::updateMatrices()
+void BinarySubstitutionModel::updateMatrices_()
 {
   kappa_ = getParameterValue("kappa"); // alpha/beta
   lambda_ = (kappa_ + 1) * (kappa_ + 1) / (2 * kappa_);
@@ -241,5 +241,5 @@ void BinarySubstitutionModel::setFreq(std::map<int, double>& freqs)
 {
   kappa_ = freqs[1] / freqs[0];
   setParameterValue("kappa", kappa_);
-  updateMatrices();
+  updateMatrices_();
 }
