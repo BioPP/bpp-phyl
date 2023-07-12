@@ -52,8 +52,8 @@ IntegrationOfSubstitutionModel::IntegrationOfSubstitutionModel(std::unique_ptr<S
   AbstractWrappedModel("Integrate."),
   AbstractWrappedTransitionModel("Integrate."),
   AbstractFromSubstitutionModelTransitionModel(move(originalModel), "Integrate."),
-  svar_(n,true), // setting the method of the simplex to ensure decreasing values
-  // zeta_(zeta),
+  svar_(n,1,true),
+  vZeta_(n),
   k_(k),
   vMatInv_(),
   time_(-1),
@@ -64,20 +64,39 @@ IntegrationOfSubstitutionModel::IntegrationOfSubstitutionModel(std::unique_ptr<S
   for (size_t i=0; i<n;i++)
     vMatInv_.push_back(RowMatrix<double>(model().getNumberOfStates(), model().getNumberOfStates()));
 
-  // set constraints to have decreasing values in the Simplex
   svar_.setNamespace("Integrate.");
 
-  // auto  constraint = make_shared<IntervalConstraint>(0.5,1,true,true);
-
   auto lpar = svar_.getParameters();    
-  // for (size_t i = 0; i < lpar.size(); ++i)
-  // {
-  //   lpar[i].setConstraint(constraint);
-  // }
   addParameters_(lpar);
   vZeta_ = svar_.getFrequencies();
 }
+
+IntegrationOfSubstitutionModel::IntegrationOfSubstitutionModel(std::unique_ptr<SubstitutionModelInterface>& originalModel, uint k, const Vdouble& vZetas) :
+  AbstractParameterAliasable("Integrate."),
+  AbstractWrappedModel("Integrate."),
+  AbstractWrappedTransitionModel("Integrate."),
+  AbstractFromSubstitutionModelTransitionModel(move(originalModel), "Integrate."),
+  svar_(vZetas.size(),1,true),
+  vZeta_(vZetas),
+  k_(k),
+  vMatInv_(),
+  time_(-1),
+  tmp_(model().getNumberOfStates(), model().getNumberOfStates()),
+  tmp2_(model().getNumberOfStates(), model().getNumberOfStates()),
+  tmp3_(model().getNumberOfStates(), model().getNumberOfStates())
+{
+  for (size_t i=0; i<vZeta_.size();i++)
+    vMatInv_.push_back(RowMatrix<double>(model().getNumberOfStates(), model().getNumberOfStates()));
+
+  // set constraints to have decreasing values in the Simplex
+  svar_.setNamespace("Integrate.");
+
+  svar_.setFrequencies(vZeta_);
   
+  auto lpar = svar_.getParameters();    
+  addParameters_(lpar);
+}
+
 void IntegrationOfSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   AbstractFromSubstitutionModelTransitionModel::fireParameterChanged(parameters);

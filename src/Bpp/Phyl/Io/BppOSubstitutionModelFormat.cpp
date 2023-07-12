@@ -1631,11 +1631,23 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     const IntegrationOfSubstitutionModel& integr = dynamic_cast<const IntegrationOfSubstitutionModel&>(model);
     out << "model=";
     write(integr.model(), out, globalAliases, writtenNames);
-    comma = true;
+
     out << ", k=";
     out << integr.k();
-    out << ", n=";
-    out << integr.numberOfGammas();
+    out << ",zetas=(";
+    const auto& zetas=integr.getZetas();
+    comma = false;    
+    for (const auto& zeta:zetas)
+    {
+      if (!comma)
+        comma=true;
+      else
+        out << ",";
+      out << zeta;
+    }
+    out << ")";
+    for (size_t i=1;i<zetas.size();i++)
+      writtenNames.push_back("Integrate.theta"+TextTools::toString(i));
   } catch(bad_cast&) {}
   
   // Is it a model with register?

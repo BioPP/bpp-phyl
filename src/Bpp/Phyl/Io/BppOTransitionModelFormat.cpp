@@ -180,12 +180,29 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
     
     size_t k = TextTools::to<size_t>(args["k"]);
 
-    if (args.find("n") == args.end())
-      throw Exception("Missing argument 'n' (number of gamma distributions) in Integrate model");
-    
-    size_t n = TextTools::to<size_t>(args["n"]);
+    if (args.find("n") == args.end() &&  args.find("zetas") == args.end())
+      throw Exception("Missing argument 'n' (number of gamma distributions) or argument 'zetas' (vector of gamma scales in Integrate model.");
 
-    model = make_unique<IntegrationOfSubstitutionModel>(nestedModel, k, n);
+
+    if (args.find("n") != args.end())
+    {
+      size_t n = TextTools::to<size_t>(args["n"]);
+      model = make_unique<IntegrationOfSubstitutionModel>(nestedModel, k, n);
+    }
+    else 
+    // take direct values for 
+    // Initialization using the "values" argument
+      if (args.find("zetas") != args.end())
+      {
+        vector<double> probas;
+        string rf = args["zetas"];
+        
+        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+        while (strtok.hasMoreToken())
+          probas.push_back(TextTools::toDouble(strtok.nextToken()));
+        model = make_unique<IntegrationOfSubstitutionModel>(nestedModel, k, probas);
+      }
+
 
     // Then we update the parameter set:
     for (auto& it : unparsedParameterValuesNested)

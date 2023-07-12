@@ -64,7 +64,6 @@ namespace bpp
  * Then, from the fact that @f$E(P)@f$ is like the moment-generating
  * function for a matrix:
  * 
- * 
  * @f$E(P) = \frac 1n \sum_i (I-\frac{\zeta_i n t}{k}Q)^{-k}@f$
  * 
  *
@@ -80,7 +79,7 @@ class IntegrationOfSubstitutionModel :
   public AbstractFromSubstitutionModelTransitionModel
 {
 private:
-  Simplex svar_;
+  OrderedSimplex svar_;
   
   /***
    * @brief vector of Zetas.
@@ -111,6 +110,8 @@ private:
 
 public:
   IntegrationOfSubstitutionModel(std::unique_ptr<SubstitutionModelInterface>& originalModel, uint k, uint n);
+
+  IntegrationOfSubstitutionModel(std::unique_ptr<SubstitutionModelInterface>& originalModel, uint k, const Vdouble& vZetas);
 
   IntegrationOfSubstitutionModel(const IntegrationOfSubstitutionModel& fmsm) :
     AbstractParameterAliasable(fmsm),
@@ -170,6 +171,11 @@ public:
   double getInitValue(size_t i, int state) const override
   {
     return transitionModel().getInitValue(i, state);
+  }
+
+  const Vdouble& getZetas() const
+  {
+    return vZeta_;
   }
 
   double getRate() const override
