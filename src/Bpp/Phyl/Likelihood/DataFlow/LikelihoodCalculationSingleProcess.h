@@ -152,6 +152,7 @@ private:
   class RateCategoryTrees
   {
 public:
+
     std::shared_ptr<ProcessTree> phyloTree;
     std::shared_ptr<ForwardLikelihoodTree> flt;
 
@@ -180,6 +181,8 @@ public:
      * computed.
      */
     std::shared_ptr<SiteLikelihoodsTree> speciesLt;
+
+    ~RateCategoryTrees();
   };
 
   /**
@@ -278,6 +281,9 @@ public:
 
   void setData(std::shared_ptr<const AlignmentDataInterface> sites)
   {
+    if (psites_)
+      cleanAllLikelihoods();
+
     psites_ = sites;
     setPatterns_();
     if (isInitialized())
@@ -635,6 +641,8 @@ private:
   void makeLikelihoodsAtDAGNode_(uint nodeId);
 
   std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);
+
+  void cleanAllLikelihoods();
 };
 } // namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_LIKELIHOODCALCULATIONSINGLEPROCESS_H

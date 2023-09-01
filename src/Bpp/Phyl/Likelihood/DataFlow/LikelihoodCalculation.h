@@ -127,6 +127,7 @@ public:
   {
     if (likelihood_)
       getContext_().erase(likelihood_);
+    likelihood_.reset();
   }
 
 /*
@@ -272,10 +273,16 @@ public:
     LikelihoodCalculation::cleanAllLikelihoods();
 
     if (siteLikelihoods_)
+    {
       getContext_().erase(siteLikelihoods_);
-
+      siteLikelihoods_.reset();
+    }
     if (patternedSiteLikelihoods_)
+    {
       getContext_().erase(patternedSiteLikelihoods_);
+      patternedSiteLikelihoods_.reset();
+    }
+    
   }
 
 protected:

@@ -416,7 +416,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
   {
     vRateCatTrees_.resize(1);
     vRateCatTrees_[0].phyloTree = processNodes_.treeNode_;
-
+    
     auto flt = std::make_shared<ForwardLikelihoodTree >(getContext_(), processNodes_.treeNode_, processNodes_.modelNode_->targetValue()->stateMap());
 
     if (getShrunkData())
@@ -430,13 +430,10 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
 
 void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
 {
-  cleanAllLikelihoods();
-
   if (vRateCatTrees_.size() == 0)
     makeForwardLikelihoodTree_();
 
   size_t nbDistSite = getNumberOfDistinctSites();
-
   // Set root frequencies
   if (rFreqs_ == 0)
     makeRootFreqs_();
@@ -487,7 +484,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
     val = SumOfLogarithms<RowLik>::create (getContext_(), {sL}, RowVectorDimension (Eigen::Index (nbDistSite)));
 
   setLikelihoodNode(val);
-
+    
 #ifdef DEBUG
   using bpp::DotOptions;
   writeGraphToDot(
@@ -529,7 +526,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
     condLikelihoodTree_ = std::make_shared<ConditionalLikelihoodTree>(phylotree->getGraph());
 
   auto one = ConstantOne<Eigen::RowVectorXd>::create(getContext_(), RowVectorDimension (nbState));
-
+  
   for (auto& rateCat: vRateCatTrees_)
   {
     if (!rateCat.blt)
@@ -797,3 +794,26 @@ std::shared_ptr<ForwardLikelihoodTree> LikelihoodCalculationSingleProcess::getFo
 
   return vRateCatTrees_[nCat].flt;
 }
+
+void LikelihoodCalculationSingleProcess::cleanAllLikelihoods()
+{
+  psites_.reset();
+  rootPatternLinks_.reset();
+  rootWeights_.reset();
+  shrunkData_.reset();
+  condLikelihoodTree_.reset();
+
+  vRateCatTrees_.clear();
+
+  AlignedLikelihoodCalculation::cleanAllLikelihoods();
+}
+   
+LikelihoodCalculationSingleProcess::RateCategoryTrees::~RateCategoryTrees()
+{
+  auto& c = flt->getContext();
+  const auto& lroot=flt->getForwardLikelihoodArrayAtRoot();
+
+  phyloTree.reset();
+  c.erase(lroot);
+}
+    

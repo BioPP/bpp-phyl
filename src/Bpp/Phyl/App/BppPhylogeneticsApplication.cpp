@@ -154,7 +154,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
   bool suffixIsOptional) const
 {
   double logL = phylolik->getValue();
-
+  
   if (!std::isnormal(logL))
   {
     // This may be due to null branch lengths, leading to null likelihood!
@@ -261,6 +261,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
         // Then remove saturated positions
 
         bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", params_, false, suffix, suffixIsOptional, warn_);
+
 
         if (removeSaturated)
         {

@@ -84,13 +84,12 @@ public:
   std::string debugInfo () const final
   {
     using namespace numeric;
-    return name_ + " " + debug(this->accessValueConst ());
+    return debug(this->accessValueConst ());
   }
 
   std::string description () const final
   {
-    using namespace numeric;
-    return Node_DF::description() + "\n" + name_ + "\n" + debug (this->accessValueConst ());
+    return Node_DF::description() + " " + name_;
   }
 
   bool compareAdditionalArguments (const Node_DF& other) const override

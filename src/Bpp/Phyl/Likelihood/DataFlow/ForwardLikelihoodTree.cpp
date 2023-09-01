@@ -56,7 +56,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
     const AlignmentDataInterface& sites)
 {
   size_t nbSites = sites.getNumberOfSites();
-  
+
   const auto sequenceIndex = sites.getSequencePosition (sequenceName);
   Eigen::MatrixXd initCondLik ((int)nbState_, (int)nbSites);
   for (size_t site = 0; site < nbSites; ++site)
@@ -93,7 +93,7 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge(
       auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel, Eigen::MatrixXd>(context_, {model, brlen, zero, nMod}, transitionMatrixDimension (size_t(nbState_)));
 
       processEdge->setTransitionMatrix(transitionMatrix);
-
+      
       forwardEdge = ForwardTransition::create (
         context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
     }
@@ -114,13 +114,13 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge(
     forwardEdge = childConditionalLikelihood;
   }
 
-
   if (!hasEdgeIndex(forwardEdge)) // ie this edge does not exist before
   {
     // false (root) top-node of the edge (only way to build an edge in
     // the DAG). Correct top-node will be set afterwards.
 
     link(getRoot(), childConditionalLikelihood, forwardEdge);
+
     setEdgeIndex(forwardEdge, processTree_->getEdgeIndex(processEdge)); // gets the index of the corresponding branch in the processTree_
 
     auto spIndex = processEdge->getSpeciesIndex();
@@ -152,6 +152,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
   if (childBranches.empty ())
   {
     forwardNode = makeInitialConditionalLikelihood (processNode->getName (), sites);
+    
     if (!hasNodeIndex(forwardNode))
     {
       createNode(forwardNode);
