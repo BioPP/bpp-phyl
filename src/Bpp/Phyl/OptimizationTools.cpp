@@ -209,16 +209,17 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   //     pl = fclock->getParameters().getCommonParametersWith(parameters);
   //     pl.addParameters(fclock->getHeightParameters());
   //   }
-  // Shall we reparametrize the function to remove constraints?
-  // unique_ptr<DerivableSecondOrder> frep;
-  // if (reparametrization)
-  // {
-  //   frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
-  //   f = frep.get();
 
-  //   // Reset parameters to remove constraints:
-  //   pl = f->getParameters().createSubList(pl.getParameterNames());
-  // }
+  // Shall we reparametrize the function to remove constraints?
+  shared_ptr<SecondOrderDerivable> frep;
+  if (reparametrization)
+  {
+    frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
+    f = frep;
+
+    // Reset parameters to remove constraints:
+    pl = f->getParameters().createSubList(pl.getParameterNames());
+  }
 
   // Build optimizer:
   unique_ptr<OptimizerInterface> optimizer;
@@ -296,7 +297,14 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   ParameterList pl = parameters;
   if (reparametrization)
   {
-    throw Exception("OptimizationTools::optimizeNumericalParameters2 reparametrization not checked for dataflow likelihood calculation");
+    // Shall we reparametrize the function to remove constraints?
+    if (reparametrization)
+    {
+      f = make_shared<ReparametrizationDerivableSecondOrderWrapper>(f, parameters);
+
+      // Reset parameters to remove constraints:
+      pl = f->getParameters().createSubList(parameters.getParameterNames());
+    }
   }
 
   // Build optimizer:
