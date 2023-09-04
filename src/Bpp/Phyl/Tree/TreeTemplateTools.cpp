@@ -847,9 +847,9 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
   }
 }
 
-DistanceMatrix* TreeTemplateTools::getDistanceMatrix(const TreeTemplate<Node>& tree)
+unique_ptr<DistanceMatrix> TreeTemplateTools::getDistanceMatrix(const TreeTemplate<Node>& tree)
 {
-  DistanceMatrix* matrix = new DistanceMatrix(tree.getLeavesNames());
+  auto matrix = make_unique<DistanceMatrix>(tree.getLeavesNames());
   vector< pair<string, double> > distsToRoot;
   processDistsInSubtree_(tree.getRootNode(), *matrix, distsToRoot);
   return matrix;
