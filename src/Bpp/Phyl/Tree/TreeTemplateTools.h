@@ -904,7 +904,7 @@ public:
    * @param tree The tree to use.
    * @return The distance matrix computed from tree.
    */
-  static DistanceMatrix* getDistanceMatrix(const TreeTemplate<Node>& tree);
+  static std::unique_ptr<DistanceMatrix> getDistanceMatrix(const TreeTemplate<Node>& tree);
 
 private:
   /**
