@@ -125,12 +125,14 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 
   if (optMethodModel == OPTIMIZATION_BRENT)
   {
-    ParameterList plsm = parameters.getCommonParametersWith(lik->getSubstitutionModelParameters());
-    desc->addOptimizer("Substitution model parameter", make_shared<SimpleMultiDimensions>(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    ParameterList plTmp = lik->getSubstitutionModelParameters();
+    plTmp.addParameters(lik->getRootFrequenciesParameters());
+    ParameterList plsm = parameters.getCommonParametersWith(plTmp);
+    desc->addOptimizer("Substitution model parameters", make_shared<SimpleMultiDimensions>(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
 
 
     ParameterList plrd = parameters.getCommonParametersWith(lik->getRateDistributionParameters());
-    desc->addOptimizer("Rate distribution parameter", make_shared<SimpleMultiDimensions>(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    desc->addOptimizer("Rate distribution parameters", make_shared<SimpleMultiDimensions>(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
     poptimizer = make_unique<MetaOptimizer>(f, move(desc), nstep);
   }
   else if (optMethodModel == OPTIMIZATION_BFGS)
