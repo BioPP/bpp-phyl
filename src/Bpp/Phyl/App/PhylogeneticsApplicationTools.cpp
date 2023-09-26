@@ -4108,12 +4108,11 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
 
 
   // Alphabet dependent registers
-
   else if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
   {
     if (regType == "GC")
       reg = make_unique<GCSubstitutionRegister>(stateMap, false);
-    if (regType == "GCw")
+    else if (regType == "GCw")
       reg = make_unique<GCSubstitutionRegister>(stateMap, true);
     else if (regType == "TsTv")
       reg = make_unique<TsTvSubstitutionRegister>(stateMap);
