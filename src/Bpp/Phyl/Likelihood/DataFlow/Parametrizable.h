@@ -85,11 +85,15 @@ class ConfiguredParametrizable
 {
 public:
   /**
-   * @brief Create a new node from a dependency vector.
+   * @brief Create a new node to an Aliased Parameterized object from
+   * a dependency vector of Independent Parameters (which are already
+   * Configure).
+   *
    * Object parameters are given by a dependency vector of Value<double> nodes.
-   * The number and order of parameters is given by the
-   * Object internal ParameterList.
+   * The number and order of parameters is given by the Object
+   * internal ParameterList.
    */
+  
   template<typename Object, typename Self>
   static std::shared_ptr<Self> createConfigured (Context& c, NodeRefVec&& deps,
                                                  std::unique_ptr<Object>&& object,
@@ -107,6 +111,16 @@ public:
     return cachedAs<Self>(c, std::make_shared<Self>(c, std::move (deps), std::move (object)));
   }
 
+
+  /**
+   * @brief Create a new node to a Parameterized object from a
+   * dependency vector of Parameters (which are already Configured).
+   *
+   * Object parameters are given by a dependency vector of Value<double> nodes.
+   * The number and order of parameters is given by the Object
+   * internal ParameterList.
+   */
+  
   template<typename Object, typename Self>
   static std::shared_ptr<Self> createConfigured (Context& c, NodeRefVec&& deps,
                                                  std::unique_ptr<Object>&& object,
@@ -124,6 +138,13 @@ public:
     return cachedAs<Self>(c, std::make_shared<Self>(c, std::move (deps), std::move (object)));
   }
 
+  
+  /**
+   * @brief Create a new node to a Parameterized object
+   * ConfiguredParameters are built from its set of independent Parameters.
+   *
+   */
+  
   template<typename Object, typename Self>
   static std::shared_ptr<Self> createConfigured (Context& context, std::unique_ptr<Object>&& object)
   {

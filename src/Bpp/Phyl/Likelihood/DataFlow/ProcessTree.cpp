@@ -78,7 +78,6 @@ ProcessTree::ProcessTree(Context& context,
     const auto& bp = branch->getParameters()[0]; // Get BrLen Parameter
 
     auto parDF = ConfiguredParameter::create(context, bp);
-
     auto index = tree.getEdgeIndex(branch);
     auto brref = make_shared<ProcessEdge>(index, parDF, nullptr);
 
@@ -268,4 +267,18 @@ shared_ptr<ProcessTree> ProcessTree::makeProcessTree(
   // then process tree with DF objects
 
   return std::make_shared<ProcessTree>(tree, modelColl, pt);
+}
+
+DAGindexes ProcessTree::getDAGEdgesIndexes(const Speciesindex speciesIndex) const
+{
+  auto vB = getAllEdges();
+
+  DAGindexes dag;
+  for (auto& branch:vB)
+  {
+    if (branch->getSpeciesIndex()==speciesIndex)
+      dag.push_back(getEdgeIndex(branch));
+  }
+
+  return(dag);
 }

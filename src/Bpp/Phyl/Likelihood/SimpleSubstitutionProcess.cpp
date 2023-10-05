@@ -103,10 +103,14 @@ void SimpleSubstitutionProcess::setModelScenario(shared_ptr<ModelScenario> model
     return;
 
   if (vmod.size() != 1)
-    throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
+    throw Exception("SimpleSubstitutionProcess::setModelScenario: model path must have exactly one model.");
 
-  if (vmod[0] != model_)
-    throw Exception("SimpleSubstitutionProcess::setModelPath: models are different " + vmod[0]->getName() + " != " + model_->getName());
+  auto mixed_ = dynamic_pointer_cast<MixedTransitionModelInterface>(model_);
+  if (!mixed_)
+    throw Exception("SimpleSubstitutionProcess::setModelScenario: model must be mixed.");
+    
+  if (vmod[0] != mixed_)
+    throw Exception("SimpleSubstitutionProcess::setModelScenario: models are different " + vmod[0]->getNModel(0)->getName() + " != " + mixed_->getNModel(0)->getName());
 
   modelScenario_ = modelpath;
 }

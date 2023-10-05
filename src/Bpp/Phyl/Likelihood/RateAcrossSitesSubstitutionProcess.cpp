@@ -119,10 +119,10 @@ void RateAcrossSitesSubstitutionProcess::setModelScenario(std::shared_ptr<ModelS
     return;
 
   if (vmod.size() != 1)
-    throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
+    throw Exception("RateAcrossSitesSubstitutionProcess::setModelScenario: model path must have exactly one model.");
 
   if (vmod[0] != model_)
-    throw Exception("SimpleSubstitutionProcess::setModelPath: models are different " + vmod[0]->getName() + " != " + model_->getName());
+    throw Exception("RateAcrossSitesSubstitutionProcess::setModelScenario: models are different " + vmod[0]->getNModel(0)->getName() + " != " + model_->getName());
 
   modelScenario_ = modelpath;
 }

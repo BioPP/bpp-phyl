@@ -65,6 +65,8 @@
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
 #include <Bpp/Phyl/Likelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/OnABranchPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationOnABranch.h>
 #include "Bpp/Phyl/Likelihood/SubstitutionProcess.h"
 #include <Bpp/Text/TextTools.h>
 
@@ -164,8 +166,8 @@ namespace
       : alphabet(AlphabetTools::DNA_ALPHABET)
       , nucAlphabet(AlphabetTools::DNA_ALPHABET)
       , sites(new VectorSiteContainer(alphabet))
-      , treeStr("(A:0.01, B:0.02);")
-//      , treeStr("((A:0.01, B:0.02):0.03,C:0.01);")
+//      , treeStr("(A:0.01, B:0.02);")
+      , treeStr("((A:0.01, B:0.02):0.03,C:0.01);")
     {
       // Init sequences
       auto seqA = make_unique<Sequence>("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet);
@@ -206,71 +208,47 @@ int main(int argc, char** argv)
 
   auto ts = timingStart();
   
-  auto t92 = std::make_shared<T92>(c.nucAlphabet, 3., 0.7);
-  auto t922 = std::make_shared<T92>(c.nucAlphabet, 3., 0.7);
-
-  std::map<std::string, unique_ptr<DiscreteDistribution>> mapParam1;
-
-  mapParam1["kappa"].reset(new GammaDiscreteDistribution(2, 1));
-
-//  auto mt92 = std::make_shared<MixtureOfASubstitutionModel>(&c.alphabet, t92.get(), mapParam1);
-
-  auto k80 = std::make_shared<K80>(c.nucAlphabet, 2.);
-  // std::map<std::string, DiscreteDistribution*> mapParam2;
-  // auto sdm=std::map<double, double>({{0.0001,0.3},{200.,0.7}});
-  
-  // mapParam2["kappa"]=new SimpleDiscreteDistribution(sdm);
-  // auto mk80 = std::make_shared<MixtureOfASubstitutionModel>(&c.alphabet, k80.get(), mapParam2);
-
-  /* scenario
-     auto scenario = std::make_shared<ModelScenario>();
-
-     auto mp1=make_shared<ModelPath>();
-     //mp1->setModel(mt92,Vuint({0}));
-     mp1->setModel(mk80,Vuint({0}));
-     scenario->addModelPath(mp1);
-
-     mp1=make_shared<ModelPath>();
-     //mp1->setModel(mt92,Vuint({1}));
-     mp1->setModel(mk80,Vuint({1}));
-     scenario->addModelPath(mp1);
-
-  */
-
-  auto rootFreqs = std::make_shared<GCFrequencySet>(c.nucAlphabet, 0.1);
-
-  auto distribution = std::make_shared<ConstantRateDistribution>();
-  //auto distribution = new GammaDiscreteRateDistribution(3, 1);
-
   // Read tree structure
   Newick reader;
   auto phyloTree = std::shared_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
 
-//  std::vector<std::string> globalParameterNames({"T92.kappa"});
-
-  // auto process =
-  //   std::unique_ptr<NonHomogeneousSubstitutionProcess>(NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model.get(), distribution, paramPhyloTree, rootFreqs, globalParameterNames));
-
-
-//  process->setModelScenario(scenario);
+  
+  // Models
+  auto t92 = std::make_unique<T92>(c.nucAlphabet, 2., 0.5);
 
   
-  // auto process  = std::make_shared<NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
+  auto t922 = std::make_unique<T92>(c.nucAlphabet, 3., 0.7);
+  
+  std::map<std::string, unique_ptr<DiscreteDistribution>> mapParam1;
 
-  // process->addModel(k80, Vuint({0,1,3}));
+  auto sdm=std::map<double, double>({{0.1,0.3},{0.6,0.7}});
+  mapParam1["theta"].reset(new SimpleDiscreteDistribution(sdm));
+  auto mt92 = std::make_shared<MixtureOfASubstitutionModel>(c.alphabet, std::move(t922), mapParam1);
 
-  // process->addModel(t92, Vuint({2}));
+  
+  auto scenario = std::make_shared<ModelScenario>();
+  
+  auto mp1=make_shared<ModelPath>();
+  mp1->setModel(mt92,Vuint({0}));
+  scenario->addModelPath(mp1);
+
+  mp1=make_shared<ModelPath>();
+  mp1->setModel(mt92,Vuint({1}));
+  scenario->addModelPath(mp1);
+
+
+  auto rootFreqs = std::make_shared<GCFrequencySet>(c.nucAlphabet, 0.1);
+
+  auto distribution = std::make_shared<ConstantRateDistribution>();
+
+  std::vector<std::string> globalParameterNames({"T92.kappa"});
+
     
-  shared_ptr<SubstitutionProcessInterface> process = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(k80, distribution, phyloTree, rootFreqs);//, scenario));
+  shared_ptr<SubstitutionProcessInterface> process = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(mt92, distribution, phyloTree, rootFreqs, scenario);
 
   process->getParameters().printParameters(cerr);
-  // Build likelihood value node
-  auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, process);
 
-  
-  l->setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
-//  l->setClockLike();
-
+  // Build likelihoodx value node
   auto ope = make_shared<OneProcessSequenceEvolution>(process);
 
   auto llh = make_shared<OneProcessSequencePhyloLikelihood>(context, c.sites,  ope);
@@ -280,11 +258,24 @@ int main(int argc, char** argv)
   dotOutput("likelihood_example_value", {lik->getLikelihoodNode().get()});
 
   ts = timingStart();
-  
+
   auto logLik = llh->getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
+  // Likelihoods after changing a model on a branch
+  OnABranchPhyloLikelihood obp(context, llh->getLikelihoodCalculationSingleProcess(), 2);
+
+  auto ct92 = ConfiguredParametrizable::createConfigured<BranchModelInterface, ConfiguredModel>(context, std::move(t92));
+
+  obp.setModel(ct92);
+
+  dotOutput("likelihood_example_onabranch", {obp.likelihoodCalculation().getLikelihoodNode().get()});
+  
+  auto logLikob = obp.getValue();
+  
+  printLik(logLikob, "branch 2 init_value");
+  
   // Manual access to dbrlen
   auto br = dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
 
@@ -296,19 +287,15 @@ int main(int argc, char** argv)
   std::cout << "[dbrlen1] " << llh->getSecondOrderDerivative("BrLen1") << std::endl;
 
   // // Manual access to dkappa
-  
- cout << "ok" << endl; 
-  auto kappa = dynamic_cast<ConfiguredParameter*>(llh->likelihoodCalculation().getSharedParameter("K80.kappa").get());
- cout << "ok1" << endl; 
+
+  auto kappa = dynamic_cast<ConfiguredParameter*>(llh->likelihoodCalculation().getSharedParameter("T92.kappa").get());
   auto dlogLik_dkappa = lik->getLikelihoodNode()->deriveAsValue(context, *kappa->dependency(0));
- cout << "ok2" << endl; 
   std::cout << "[dkappa] " << dlogLik_dkappa->targetValue() << "\n";
   dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
- cout << "ok" << endl; 
   
-  // auto d2logLik_dkappa2 = dlogLik_dkappa->deriveAsValue(context, *kappa->dependency(0));
-  // std::cout << "[d2kappa] " << d2logLik_dkappa2->getTargetValue() << "\n";
-  // dotOutput("likelihood_example_dkappa2", {d2logLik_dkappa2.get()});
+  auto d2logLik_dkappa2 = dlogLik_dkappa->deriveAsValue(context, *kappa->dependency(0));
+  std::cout << "[d2kappa] " << d2logLik_dkappa2->targetValue() << "\n";
+  dotOutput("likelihood_example_dkappa2", {d2logLik_dkappa2.get()});
 
   // Manual access to dalpha
 
@@ -327,14 +314,9 @@ int main(int argc, char** argv)
   // std::cout << "[lik2] " << lik2->getTargetValue() << "\n";
   // dotOutput("likelihood_2", {lik2.get()});
   
-  l->getParameters().printParameters(cerr);
+//  l->getParameters().printParameters(cerr);
   
- cout << "ok" << endl; 
-  optimize_for_params(llh, "df_all_opt", l->getParameters());
- cout << "ok" << endl; 
+  optimize_for_params(llh, "df_all_opt", llh->getParameters());
   dotOutput("likelihood_optim_value", {lik->getLikelihoodNode().get()});
- cout << "ok" << endl; 
   llh->getParameters().printParameters(std::cerr);  
- cout << "ok" << endl; 
-
 }
