@@ -246,7 +246,7 @@ void PartitionProcessPhyloLikelihood::makeLikCal_()
   // get the RowVectors of site likelihoods
   for (const auto& lik : vLikCal_)
   {
-    vLik.push_back(dynamic_pointer_cast<LikelihoodCalculationSingleProcess>(lik)->getSiteLikelihoods(false));
+    vLik.push_back(dynamic_pointer_cast<AlignedLikelihoodCalculation>(lik)->getSiteLikelihoods(false));
   }
 
   // build the reverse map of Phylo indexes

@@ -28,7 +28,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
   AlignedLikelihoodCalculation(context), process_(process), psites_(sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), catProb_(), condLikelihoodTree_(0)
 {
   if (!process_->getParametrizablePhyloTree())
     throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
@@ -46,7 +46,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
   process_(process), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), catProb_(), condLikelihoodTree_(0)
 {
   if (!process_->getParametrizablePhyloTree())
     throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
@@ -66,7 +66,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
   psites_(sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), catProb_(), condLikelihoodTree_(0)
 {
   if (!process_->getParametrizablePhyloTree())
     throw Exception("LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess: missing tree in SubstitutionProcess.");
@@ -87,7 +87,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
   psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), catProb_(), condLikelihoodTree_(0)
 {
   makeProcessNodes_(*collection, nProcess);
 
@@ -101,7 +101,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
   process_(lik.process_), psites_(lik.psites_),
   rootPatternLinks_(lik.rootPatternLinks_), rootWeights_(), shrunkData_(lik.shrunkData_),
   processNodes_(), rFreqs_(),
-  vRateCatTrees_(), condLikelihoodTree_(0)
+  vRateCatTrees_(), catProb_(), condLikelihoodTree_(0)
 {
   setPatterns_();
   makeProcessNodes_();
@@ -453,14 +453,19 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
                            RowVectorDimension (Eigen::Index (nbDistSite))));
     }
 
-    auto catProb = ProbabilitiesFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_});
+    // for (size_t nCat = 0; nCat < vRateCatTrees_.size(); nCat++)
+    // {
+    //   vLikRoot.push_back(ProbabilityFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_}, (uint)nCat));
+    // }
 
-    for (size_t nCat = 0; nCat < vRateCatTrees_.size(); nCat++)
-    {
-      vLikRoot.push_back(ProbabilityFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_}, (uint)nCat));
-    }
+    
+//    sL = CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double> >::create(getContext_(), std::move(vLikRoot), RowVectorDimension (Eigen::Index(nbDistSite)));
 
-    sL = CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double> >::create(getContext_(), std::move(vLikRoot), RowVectorDimension (Eigen::Index(nbDistSite)));
+    catProb_ = ProbabilitiesFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_});
+    auto catProb = Convert<RowLik, Eigen::RowVectorXd>::create(getContext_(), {catProb_}, RowVectorDimension (Eigen::Index (vRateCatTrees_.size())));
+    vLikRoot.push_back(catProb);
+
+    sL = CWiseMean<RowLik, ReductionOf<RowLik>, RowLik>::create(getContext_(), std::move(vLikRoot), RowVectorDimension (Eigen::Index(nbDistSite)));
   }
   else
   {
@@ -609,13 +614,12 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
     }
   }
 
-  if (processNodes_.ratesNode_)
+  if (catProb_) // Should have been computed before
   {
-    auto catProb = ProbabilitiesFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_});
-    auto catProbEf = Convert<RowLik, Eigen::RowVectorXd>::create(getContext_(), {catProb}, RowVectorDimension (Eigen::Index (nbDistSite)));
-    vRoot.push_back(catProbEf);
-    vCondRate.push_back(catProbEf);
+    auto catProb = Convert<RowLik, Eigen::RowVectorXd>::create(getContext_(), {catProb_}, RowVectorDimension (Eigen::Index (vRateCatTrees_.size())));
 
+    vRoot.push_back(catProb);
+    vCondRate.push_back(catProb);
 
     distinctSiteLikelihoodsNode = CWiseMean<RowLik, ReductionOf<RowLik>, RowLik>::create(getContext_(), std::move(vRoot), RowVectorDimension (nbDistSite));
 
@@ -793,6 +797,14 @@ std::shared_ptr<ForwardLikelihoodTree> LikelihoodCalculationSingleProcess::getFo
     throw Exception("LikelihoodCalculationSingleProcess::getForwardTree : bad class number " + TextTools::toString(nCat));
 
   return vRateCatTrees_[nCat].flt;
+}
+
+std::shared_ptr<BackwardLikelihoodTree> LikelihoodCalculationSingleProcess::getBackwardLikelihoodTree(size_t nCat)
+{
+  if (nCat >= vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getBackwardTree : bad class number " + TextTools::toString(nCat));
+
+  return vRateCatTrees_[nCat].blt;
 }
 
 void LikelihoodCalculationSingleProcess::cleanAllLikelihoods()

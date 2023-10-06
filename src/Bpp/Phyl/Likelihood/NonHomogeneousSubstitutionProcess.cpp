@@ -312,7 +312,7 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(shared_ptr<ModelScenari
   for (auto& mod:vmod)
   {
     if (find(modelSet_.begin(), modelSet_.end(), mod) == modelSet_.end())
-      throw Exception("NonHomogeneousSubstitutionProcess::setModelPath: unknown model " + mod->getName());
+      throw Exception("NonHomogeneousSubstitutionProcess::setModelScenario: unknown model " + mod->getName());
   }
 
   modelScenario_ = modelscenario;
