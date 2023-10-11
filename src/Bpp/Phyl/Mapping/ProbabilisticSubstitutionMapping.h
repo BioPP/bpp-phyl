@@ -220,7 +220,6 @@ public:
    * getAllEdgesIndexes() function.
    *
    */
-
   void fillMappingVectorForSite(size_t siteIndex, VVdouble& counts) const;
 
   /**

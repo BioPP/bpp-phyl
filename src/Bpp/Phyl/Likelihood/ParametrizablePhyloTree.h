@@ -1,7 +1,7 @@
 //
 // File: ParametrizablePhyloTree.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 15 septembre 2016, ÃÂ  06h 40
 //
 
@@ -54,11 +54,9 @@
 namespace bpp
 {
 /**
- * PhyloTree with Parametrizable Phylo Branches. They SHARE their
+ * @brief PhyloTree with Parametrizable Phylo Branches. They SHARE their
  * branch length parameters.
- *
- **/
-
+ */
 class ParametrizablePhyloTree :
   public AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranchParam>,
   public AbstractParametrizable
