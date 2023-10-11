@@ -65,6 +65,10 @@ class CollectionNodes;
  *  The map is indexed by branch ids.
  */
 
+  using DAGindexes = std::vector<uint>;
+  using Speciesindex = uint;
+
+
 // Branch specific DataFlow objects
 class ProcessEdge
 {
@@ -73,7 +77,7 @@ private:
   /**
    * @brief the index of the species in the phyloTree matching this node.
    */
-  const uint speciesIndex_;
+  const Speciesindex speciesIndex_;
 
   /**
    * @brief Model & BrLen, = 0 if not supporting a model
@@ -242,6 +246,13 @@ public:
     // AssociationTreeGlobalGraphObserver<ProcessNode,Value<T>>::operator=(pTree);
     return *this;
   }
+
+  /*
+   * @brief Get the edges indexes of the DAG that correspond to
+   * the species Index (of the Process tree).
+   */
+  
+  DAGindexes getDAGEdgesIndexes(const Speciesindex speciesIndex) const;
 
   /*
    * For inclusion in ParametrizableCollection. Not used

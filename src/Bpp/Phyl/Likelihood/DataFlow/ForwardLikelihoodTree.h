@@ -120,9 +120,12 @@ using ForwardProportion =
  *
  * @see LikelihoodNode
  */
+
+// Lower Conditional Likelihood under nodes
 using ConditionalLikelihoodForward = Value<MatrixLik>;
 using ConditionalLikelihoodForwardRef = ValueRef<MatrixLik>;
 
+// Lower Likelihood at top of edges
 using ForwardLikelihoodBelow = Value<MatrixLik>;
 using ForwardLikelihoodBelowRef = ValueRef<MatrixLik>;
 
@@ -231,6 +234,11 @@ public:
     return mapNodesIndexes_.at(speciesIndex);
   }
 
+  /*
+   * @brief Get the edges indexes of the DAG that correspond to
+   * the species Index (of the Process tree).
+   */
+  
   const DAGindexes& getDAGEdgesIndexes(const Speciesindex speciesIndex) const
   {
     return mapEdgesIndexes_.at(speciesIndex);

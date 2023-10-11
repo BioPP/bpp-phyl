@@ -75,6 +75,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/DataFlow/ForwardLikelihoodTree.cpp
   Bpp/Phyl/Likelihood/DataFlow/ExtendedFloat.cpp
   Bpp/Phyl/Likelihood/DataFlow/FrequencySet.cpp
+  Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationOnABranch.cpp
   Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationSingleProcess.cpp
   Bpp/Phyl/Likelihood/DataFlow/Model.cpp
   Bpp/Phyl/Likelihood/DataFlow/Parameter.cpp
@@ -99,6 +100,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/HmmSequenceEvolution.cpp
   Bpp/Phyl/Likelihood/AutoCorrelationSequenceEvolution.cpp
   Bpp/Phyl/Likelihood/ParametrizablePhyloTree.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/OnABranchPhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
