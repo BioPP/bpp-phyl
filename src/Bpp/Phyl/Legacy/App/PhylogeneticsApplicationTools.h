@@ -83,11 +83,11 @@ namespace bpp
  *
  * @see ApplicationTools
  */
-class PhylogeneticsApplicationToolsOld
+class LegacyPhylogeneticsApplicationTools
 {
 public:
-  PhylogeneticsApplicationToolsOld();
-  virtual ~PhylogeneticsApplicationToolsOld();
+  LegacyPhylogeneticsApplicationTools();
+  virtual ~LegacyPhylogeneticsApplicationTools();
 
   /**
    * @brief Build a list ofTree objects according to options.

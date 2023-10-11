@@ -100,7 +100,7 @@ using namespace std;
 /******************************************************************************/
 
 
-map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
+map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
   const map<string, string>& params,
   const map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
   map<string, string>& unparsedParams,
@@ -379,7 +379,7 @@ map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValuesWithAliases(
+void LegacyPhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
   BranchModelInterface& model,
   map<string, string>& unparsedParameterValues,
   size_t modelNumber,
@@ -463,7 +463,7 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValu
 
 /******************************************************************************/
 
-unique_ptr<SubstitutionModelSet> PhylogeneticsApplicationToolsOld::getSubstitutionModelSet(
+unique_ptr<SubstitutionModelSet> LegacyPhylogeneticsApplicationTools::getSubstitutionModelSet(
   shared_ptr<const Alphabet> alphabet,
   shared_ptr<const GeneticCode> gCode,
   shared_ptr<const AlignmentDataInterface> data,
@@ -507,7 +507,7 @@ unique_ptr<SubstitutionModelSet> PhylogeneticsApplicationToolsOld::getSubstituti
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
+void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
   SubstitutionModelSet& modelSet,
   shared_ptr<const Alphabet> alphabet,
   shared_ptr<const GeneticCode> gCode,
@@ -644,7 +644,7 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
+void LegacyPhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   MixedSubstitutionModelSet& mixedModelSet,
   shared_ptr<const Alphabet> alphabet,
   shared_ptr<const AlignmentDataInterface> data,
@@ -700,7 +700,7 @@ void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
 
       auto pSM = dynamic_pointer_cast<const MixedTransitionModelInterface>(mixedModelSet.getModel(static_cast<size_t>(num - 1)));
       if (pSM == NULL)
-        throw BadIntegerException("PhylogeneticsApplicationToolsOld::setMixedSubstitutionModelSet: Wrong model for number", num - 1);
+        throw BadIntegerException("LegacyPhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", num - 1);
       Vuint submodnb = pSM->getSubmodelNumbers(p2);
 
       mixedModelSet.addToHyperNode(static_cast<size_t>(num - 1), submodnb);
@@ -738,7 +738,7 @@ void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
 
 /******************************************************************************/
 
-shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizeParameters(
+shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimizeParameters(
   shared_ptr<TreeLikelihoodInterface> tl,
   const ParameterList& parameters,
   const map<string, string>& params,
@@ -1180,7 +1180,7 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
 /**************** Output ************************************/
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::writeTrees(
+void LegacyPhylogeneticsApplicationTools::writeTrees(
   const vector<const Tree*>& trees,
   const map<string, string>& params,
   const string& prefix,
@@ -1213,7 +1213,7 @@ void PhylogeneticsApplicationToolsOld::writeTrees(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn, bool withAlias)
+void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn, bool withAlias)
 {
   (out << "nonhomogeneous=general").endLine();
   (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
