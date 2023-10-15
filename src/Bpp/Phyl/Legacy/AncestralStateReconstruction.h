@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ANCESTRALSTATESRECONSTRUCTION_H_
-#define _ANCESTRALSTATESRECONSTRUCTION_H_
+#ifndef _LEGACY_ANCESTRAL_STATES_RECONSTRUCTION_H_
+#define _LEGACY_ANCESTRAL_STATES_RECONSTRUCTION_H_
 
 // From SeqLib:
 #include <Bpp/Seq/Sequence.h>
@@ -56,11 +56,11 @@ class Node;
 /**
  * @brief Interface for ancestral states reconstruction methods.
  */
-class AncestralStateReconstruction
+class LegacyAncestralStateReconstruction
 {
   public:
-    AncestralStateReconstruction() {}
-    virtual ~AncestralStateReconstruction() {}
+    LegacyAncestralStateReconstruction() {}
+    virtual ~LegacyAncestralStateReconstruction() {}
 
   public:
     /**
@@ -106,5 +106,5 @@ class AncestralStateReconstruction
 
 } //end of namespace bpp.
 
-#endif // _ANCESTRALSTATESRECONSTRUCTION_H_
+#endif // _LEGACY_ANCESTRAL_STATES_RECONSTRUCTION_H_
 

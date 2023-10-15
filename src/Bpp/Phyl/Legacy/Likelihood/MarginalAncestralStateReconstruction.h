@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
-#define _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
+#ifndef _LEGACY_MARGINAL_ANCESTRAL_STATES_RECONSTRUCTION_H_
+#define _LEGACY_MARGINAL_ANCESTRAL_STATES_RECONSTRUCTION_H_
 
 #include "../AncestralStateReconstruction.h"
 #include "DRTreeLikelihood.h"
@@ -60,8 +60,8 @@ namespace bpp
  * Reference:
  * Z Yang, S Kumar and M Nei (1995), _Genetics_ 141(4) 1641-50.
  */
-class MarginalAncestralStateReconstruction:
-  public virtual AncestralStateReconstruction
+class LegacyMarginalAncestralStateReconstruction:
+  public virtual LegacyAncestralStateReconstruction
 {
   private:
     std::shared_ptr<const DRTreeLikelihoodInterface> likelihood_;
@@ -76,7 +76,7 @@ class MarginalAncestralStateReconstruction:
     std::vector<double> l_;
     
   public:
-    MarginalAncestralStateReconstruction(std::shared_ptr<const DRTreeLikelihoodInterface> drl) :
+    LegacyMarginalAncestralStateReconstruction(std::shared_ptr<const DRTreeLikelihoodInterface> drl) :
       likelihood_      (drl),
       tree_            (drl->tree()),
       alphabet_        (drl->getAlphabet()),
@@ -89,13 +89,13 @@ class MarginalAncestralStateReconstruction:
       l_               (drl->likelihoodData().getRootRateSiteLikelihoodArray())
     {}
 
-    MarginalAncestralStateReconstruction(const MarginalAncestralStateReconstruction& masr) = default;
+    LegacyMarginalAncestralStateReconstruction(const LegacyMarginalAncestralStateReconstruction& masr) = default;
 
-    MarginalAncestralStateReconstruction& operator=(const MarginalAncestralStateReconstruction& masr) = default;
+    LegacyMarginalAncestralStateReconstruction& operator=(const LegacyMarginalAncestralStateReconstruction& masr) = default;
 
-    MarginalAncestralStateReconstruction* clone() const { return new MarginalAncestralStateReconstruction(*this); }
+    LegacyMarginalAncestralStateReconstruction* clone() const { return new LegacyMarginalAncestralStateReconstruction(*this); }
 
-    virtual ~MarginalAncestralStateReconstruction() {}
+    virtual ~LegacyMarginalAncestralStateReconstruction() {}
 
   public:
 
@@ -160,5 +160,5 @@ class MarginalAncestralStateReconstruction:
 
 } //end of namespace bpp.
 
-#endif // _MARGINALANCESTRALSTATESRECONSTRUCTION_H_
+#endif // _LEGACY_MARGINAL_ANCESTRAL_STATES_RECONSTRUCTION_H_
 

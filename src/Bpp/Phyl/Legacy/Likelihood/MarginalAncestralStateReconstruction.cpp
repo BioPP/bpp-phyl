@@ -44,7 +44,7 @@
 using namespace bpp;
 using namespace std;
 
-vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const
+vector<size_t> LegacyMarginalAncestralStateReconstruction::getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const
 {
   vector<size_t> ancestors(nbDistinctSites_);
   probs.resize(nbDistinctSites_);
@@ -101,7 +101,7 @@ vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(i
   return ancestors;
 }
 
-map<int, vector<size_t>> MarginalAncestralStateReconstruction::getAllAncestralStates() const
+map<int, vector<size_t>> LegacyMarginalAncestralStateReconstruction::getAllAncestralStates() const
 {
   map<int, vector<size_t>> ancestors;
   // Clone the data into a AlignedSequenceContainer for more efficiency:
@@ -110,7 +110,7 @@ map<int, vector<size_t>> MarginalAncestralStateReconstruction::getAllAncestralSt
   return ancestors;
 }
 
-std::unique_ptr<Sequence> MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int nodeId, VVdouble* probs, bool sample) const
+std::unique_ptr<Sequence> LegacyMarginalAncestralStateReconstruction::getAncestralSequenceForNode(int nodeId, VVdouble* probs, bool sample) const
 {
   string name = tree_.hasNodeName(nodeId) ? tree_.getNodeName(nodeId) : ("" + TextTools::toString(nodeId));
   const vector<size_t>& rootPatternLinks = likelihood_->likelihoodData().getRootArrayPositions();
@@ -140,7 +140,7 @@ std::unique_ptr<Sequence> MarginalAncestralStateReconstruction::getAncestralSequ
   return make_unique<Sequence>(name, allStates, alpha);
 }
 
-void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
+void LegacyMarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
   const Node* node,
   map<int, vector<size_t> >& ancestors,
   AlignedSequenceContainer& data) const
@@ -169,7 +169,7 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
   }
 }
 
-unique_ptr<SiteContainerInterface> MarginalAncestralStateReconstruction::getAncestralSequences(bool sample) const
+unique_ptr<SiteContainerInterface> LegacyMarginalAncestralStateReconstruction::getAncestralSequences(bool sample) const
 {
   unique_ptr<SiteContainerInterface> asc = make_unique<AlignedSequenceContainer>(alphabet_);
   vector<int> ids = tree_.getInnerNodesId();
