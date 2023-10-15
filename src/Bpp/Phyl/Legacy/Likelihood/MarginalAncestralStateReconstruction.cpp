@@ -1,60 +1,58 @@
 //
 // File: MarginalAncestralStateReconstruction.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2005-07-08 13:32:00
+// Created by: Julien Dutheil
+// Created on: Fri Jul 08 13:32 2005
 //
 
 /*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-#include <Bpp/Numeric/Random/RandomTools.h>
-#include <Bpp/Numeric/VectorTools.h>
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
+
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
+
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
+
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
+
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "MarginalAncestralStateReconstruction.h"
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 
 using namespace bpp;
 using namespace std;
 
-vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(uint nodeId, VVdouble& probs, bool sample) const
+vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const
 {
   vector<size_t> ancestors(nbDistinctSites_);
   probs.resize(nbDistinctSites_);
   double cumProb = 0;
   double r;
-  if (likelihood_->tree().isLeaf((int)nodeId))
+  if (likelihood_->tree().isLeaf(nodeId))
   {
-    VVdouble larray = likelihood_->likelihoodData().getLeafLikelihoods((int)nodeId);
+    VVdouble larray = likelihood_->likelihoodData().getLeafLikelihoods(nodeId);
     for (size_t i = 0; i < nbDistinctSites_; ++i)
     {
       Vdouble* probs_i = &probs[i];
@@ -68,7 +66,7 @@ vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(u
   {
     VVVdouble larray;
 
-    likelihood_->computeLikelihoodAtNode((int)nodeId, larray);
+    likelihood_->computeLikelihoodAtNode(nodeId, larray);
     for (size_t i = 0; i < nbDistinctSites_; i++)
     {
       VVdouble* larray_i = &larray[i];
@@ -103,19 +101,19 @@ vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(u
   return ancestors;
 }
 
-map<uint, vector<size_t> > MarginalAncestralStateReconstruction::getAllAncestralStates() const
+map<int, vector<size_t>> MarginalAncestralStateReconstruction::getAllAncestralStates() const
 {
-  map<uint, vector<size_t> > ancestors;
-  // Clone the data into a AlignedValuesContainer for more efficiency:
-  shared_ptr<AlignmentDataInterface> data(likelihood_->likelihoodData().shrunkData().clone());
+  map<int, vector<size_t>> ancestors;
+  // Clone the data into a AlignedSequenceContainer for more efficiency:
+  auto data = make_unique<AlignedSequenceContainer>(dynamic_cast<const SiteContainerInterface&>(likelihood_->likelihoodData().shrunkData()));
   recursiveMarginalAncestralStates(tree_.getRootNode(), ancestors, *data);
   return ancestors;
 }
 
-unique_ptr<Sequence> MarginalAncestralStateReconstruction::getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const
+std::unique_ptr<Sequence> MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int nodeId, VVdouble* probs, bool sample) const
 {
-  string name = tree_.hasNodeName((int)nodeId) ? tree_.getNodeName((int)nodeId) : ("" + TextTools::toString(nodeId));
-  const vector<size_t>* rootPatternLinks = &likelihood_->likelihoodData().getRootArrayPositions();
+  string name = tree_.hasNodeName(nodeId) ? tree_.getNodeName(nodeId) : ("" + TextTools::toString(nodeId));
+  const vector<size_t>& rootPatternLinks = likelihood_->likelihoodData().getRootArrayPositions();
   auto model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
   vector<size_t> states;
   vector<int> allStates(nbSites_);
@@ -126,8 +124,8 @@ unique_ptr<Sequence> MarginalAncestralStateReconstruction::getAncestralSequenceF
     probs->resize(nbSites_);
     for (size_t i = 0; i < nbSites_; i++)
     {
-      allStates[i] = model->getAlphabetStateAsInt(states[(*rootPatternLinks)[i]]);
-      (*probs)[i] = patternedProbs[(*rootPatternLinks)[i]];
+      allStates[i] = model->getAlphabetStateAsInt(states[rootPatternLinks[i]]);
+      (*probs)[i] = patternedProbs[rootPatternLinks[i]];
     }
   }
   else
@@ -135,54 +133,51 @@ unique_ptr<Sequence> MarginalAncestralStateReconstruction::getAncestralSequenceF
     states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     for (size_t i = 0; i < nbSites_; i++)
     {
-      allStates[i] = model->getAlphabetStateAsInt(states[(*rootPatternLinks)[i]]);
+      allStates[i] = model->getAlphabetStateAsInt(states[rootPatternLinks[i]]);
     }
   }
-  return make_unique<Sequence>(name, allStates, alphabet_);
+  std::shared_ptr<const Alphabet> alpha = alphabet_; //Copy needed because of const
+  return make_unique<Sequence>(name, allStates, alpha);
 }
 
 void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
   const Node* node,
-  map<uint, vector<size_t> >& ancestors,
-  const AlignmentDataInterface& data) const
+  map<int, vector<size_t> >& ancestors,
+  AlignedSequenceContainer& data) const
 {
   if (node->isLeaf())
   {
-    try {
-      auto& sc = dynamic_cast<const SiteContainerInterface&>(data);
-      const Sequence& seq = sc.sequence(node->getName());
-      vector<size_t>* v = &ancestors[static_cast<uint>(node->getId())];
-      v->resize(seq.size());
-      // This is a tricky way to store the real sequence as an ancestral one...
-      // In case of Markov Modulated models, we consider that the real sequences
-      // Are all in the first category.
-      auto model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
-      for (size_t i = 0; i < seq.size(); ++i)
-      {
-        (*v)[i] = model->getModelStates(seq[i])[0];
-      }
-    } catch (bad_cast&) {
-      ancestors[(uint)node->getId()] = getAncestralStatesForNode((uint)node->getId());
+    const Sequence& seq = data.sequence(node->getName());
+    vector<size_t>* v = &ancestors[node->getId()];
+    v->resize(seq.size());
+    // This is a tricky way to store the real sequence as an ancestral one...
+    // In case of Markov Modulated models, we consider that the real sequences
+    // Are all in the first category.
+    auto model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
+    for (size_t i = 0; i < seq.size(); i++)
+    {
+      (*v)[i] = model->getModelStates(seq[i])[0];
     }
   }
   else
   {
-    ancestors[static_cast<uint>(node->getId())] = getAncestralStatesForNode(static_cast<uint>(node->getId()));
-    for (size_t i = 0; i < node->getNumberOfSons(); ++i)
+    ancestors[node->getId()] = getAncestralStatesForNode(node->getId());
+    for (size_t i = 0; i < node->getNumberOfSons(); i++)
     {
       recursiveMarginalAncestralStates(node->getSon(i), ancestors, data);
     }
   }
 }
 
-unique_ptr<AlignedSequenceContainer> MarginalAncestralStateReconstruction::getAncestralSequences(bool sample) const
+unique_ptr<SiteContainerInterface> MarginalAncestralStateReconstruction::getAncestralSequences(bool sample) const
 {
-  auto asc = make_unique<AlignedSequenceContainer>(alphabet_);
+  unique_ptr<SiteContainerInterface> asc = make_unique<AlignedSequenceContainer>(alphabet_);
   vector<int> ids = tree_.getInnerNodesId();
-  for (auto id : ids)
+  for (size_t i = 0; i < ids.size(); i++)
   {
-    auto seq = getAncestralSequenceForNode(static_cast<uint>(id), nullptr, sample);
+    auto seq = getAncestralSequenceForNode(ids[i], nullptr, sample);
     asc->addSequence(seq->getName(), seq);
   }
   return asc;
 }
+

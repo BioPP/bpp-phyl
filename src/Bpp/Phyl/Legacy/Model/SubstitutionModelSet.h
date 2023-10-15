@@ -473,6 +473,8 @@ public:
   ParameterList getModelParameters(size_t modelIndex) const;
 
   std::shared_ptr<const Alphabet> getAlphabet() const { return alphabet_; }
+  
+  const Alphabet& alphabet() const { return *alphabet_; }
 
   /**
    * @return The supported states of the model set, as a vector of int codes.

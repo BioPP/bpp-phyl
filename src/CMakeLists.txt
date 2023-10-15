@@ -63,6 +63,10 @@ set (CPP_FILES
   Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/TreeLikelihoodTools.cpp
+  Bpp/Phyl/Legacy/Mapping/ProbabilisticRewardMapping.cpp 
+  Bpp/Phyl/Legacy/Mapping/ProbabilisticSubstitutionMapping.cpp
+  Bpp/Phyl/Legacy/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Legacy/Mapping/RewardMappingTools.cpp 
   Bpp/Phyl/Legacy/Simulation/NonHomogeneousSequenceSimulator.cpp
   Bpp/Phyl/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Likelihood/DataFlow/BackwardLikelihoodTree.cpp
