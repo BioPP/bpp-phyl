@@ -60,14 +60,14 @@ class Tree;
 /**
  * @brief General interface for distance-based phylogenetic reconstruction methods.
  */
-class DistanceMethod :
+class DistanceMethodInterface :
   public virtual Clonable
 {
 public:
-  DistanceMethod() {}
-  virtual ~DistanceMethod() {}
+  DistanceMethodInterface() {}
+  virtual ~DistanceMethodInterface() {}
 
-  virtual DistanceMethod* clone() const override = 0;
+  virtual DistanceMethodInterface* clone() const override = 0;
 
 public:
   /**
@@ -116,14 +116,14 @@ public:
  * is there only for "ontology" purposes. Specific methods
  * might be added later.
  */
-class AgglomerativeDistanceMethod :
-  public DistanceMethod
+class AgglomerativeDistanceMethodInterface :
+  public virtual DistanceMethodInterface
 {
 public:
-  AgglomerativeDistanceMethod() {}
-  virtual ~AgglomerativeDistanceMethod() {}
+  AgglomerativeDistanceMethodInterface() {}
+  virtual ~AgglomerativeDistanceMethodInterface() {}
   
-  virtual AgglomerativeDistanceMethod* clone() const override = 0;
+  virtual AgglomerativeDistanceMethodInterface* clone() const override = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_DISTANCE_DISTANCEMETHOD_H
