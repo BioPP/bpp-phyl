@@ -272,24 +272,33 @@ public:
    */
   std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel(size_t i) const
   {
-    auto model = std::dynamic_pointer_cast<const SubstitutionModelInterface>(getModel(i));
-    if (model) return model;
+    auto m = std::dynamic_pointer_cast<const SubstitutionModelInterface>(getModel(i));
+    if (m) return m;
     else
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + model(i).getName() + " is  not a sustitution model.");
   }
 
 
   std::shared_ptr<SubstitutionModelInterface> getSubstitutionModel(size_t i)
   {
-    auto model = std::dynamic_pointer_cast<SubstitutionModelInterface>(getModel(i));
-    if (model) return model;
+    auto m = std::dynamic_pointer_cast<SubstitutionModelInterface>(getModel(i));
+    if (m) return m;
     else
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + model(i).getName() + " is  not a sustitution model.");
   }
 
-  /*
+  const SubstitutionModelInterface& substitutionModel(size_t i) const
+  {
+    try {
+      auto& m = dynamic_cast<const SubstitutionModelInterface&>(model(i));
+      return m;
+    } catch (Exception& ex) {
+      throw Exception("SubstitutionModelSet::substitutionModel : " + model(i).getName() + " is not a sustitution model.");
+    }
+  }
+
+  /**
    * @brief check if has only markovian substitution models
-   *
    */
   bool hasOnlySubstitutionModels() const
   {
