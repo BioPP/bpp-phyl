@@ -66,15 +66,18 @@ YNGP_M7::YNGP_M7(
 
   // build the submodel
 
-  auto pbdd = make_unique<BetaDiscreteDistribution>(nclass, 2, 2);
+  auto pbdd = make_unique<BetaDiscreteDistribution>(nclass, 2, 2, AbstractDiscreteDistribution::DISCRETIZATION_EQUAL_PROB_WHEN_POSSIBLE);
 
   map<string, unique_ptr<DiscreteDistribution>> mpdd;
   mpdd["omega"] = move(pbdd);
 
   auto yn98 = make_unique<YN98>(gc, move(codonFreqs));
+  yn98->getParameters().printParameters(cout);
+  yn98->setConstraint("omega", make_shared<IntervalConstraint>(0, 1000, true, true, 0.));
 
   mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
+  mixedModelPtr_->getParameters().printParameters(cout);
 
   vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();
 
@@ -104,7 +107,7 @@ YNGP_M7::YNGP_M7(
   {
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     addParameter_(new Parameter("YNGP_M7." + it.second, mixedModelPtr_->getParameterValue(st),
-                                mixedModelPtr_->getParameter(st).hasConstraint() ? shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                mixedModelPtr_->getParameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   // look for synonymous codons
@@ -128,6 +131,10 @@ YNGP_M7::YNGP_M7(
 
   computeFrequencies(false);
   updateMatrices_();
+
+  cout << "-----------" << endl;
+  mixedModelPtr_->getParameters().printParameters(cout);
+  getParameters().printParameters(cout);
 }
 
 void YNGP_M7::updateMatrices_()

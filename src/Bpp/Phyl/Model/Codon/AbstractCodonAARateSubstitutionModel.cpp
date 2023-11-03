@@ -62,7 +62,7 @@ AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
   if (paramSynRate)
     addParameter_(new Parameter(prefix + "gamma", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 
-  addParameter_(new Parameter(prefix + "beta", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
+  addParameter_(new Parameter(prefix + "beta", 1, Parameter::R_PLUS_STAR));
 
   pAAmodel_->enableEigenDecomposition(false);
 

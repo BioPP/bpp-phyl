@@ -125,7 +125,7 @@ protected:
 
   double minimumBrLen_;
   double maximumBrLen_;
-  std::shared_ptr<Constraint> brLenConstraint_;
+  std::shared_ptr<ConstraintInterface> brLenConstraint_;
 
   bool reparametrizeRoot_;
   int root1_, root2_;

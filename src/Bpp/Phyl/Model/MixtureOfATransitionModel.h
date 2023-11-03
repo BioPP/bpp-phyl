@@ -54,7 +54,7 @@ namespace bpp
 /**
  * @brief Transition models defined as a mixture of nested
  * substitution models.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * All the nested models are of the same type (for example T92 or
  * GY94), and their parameter values can follow discrete

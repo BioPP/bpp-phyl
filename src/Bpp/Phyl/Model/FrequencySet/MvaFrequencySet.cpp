@@ -77,7 +77,7 @@ void MvaFrequencySet::defineParameters()
     double maxCoord = VectorTools::max(rCoords);
     double minCoord = VectorTools::min(rCoords);
     double sd = VectorTools::sd<double, double>(rCoords);
-    std::shared_ptr<Constraint> constraint = std::make_shared<IntervalConstraint>(minCoord - sd, maxCoord + sd, true, true);
+    auto constraint = std::make_shared<IntervalConstraint>(minCoord - sd, maxCoord + sd, true, true);
     if (paramValues_.find("RootAxPos" + TextTools::toString(i)) != paramValues_.end())
       addParameter_(new Parameter(getNamespace() + "RootAxPos" + TextTools::toString(i), TextTools::toDouble(paramValues_["RootAxPos" + TextTools::toString(i)].substr(0, 8)), constraint));
     else

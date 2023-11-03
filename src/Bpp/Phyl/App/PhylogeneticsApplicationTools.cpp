@@ -2540,7 +2540,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
         Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
         if (par.hasConstraint())
         {
-          par.setConstraint(std::shared_ptr<Constraint>(*ic & (*par.getConstraint())));
+          par.setConstraint(std::shared_ptr<ConstraintInterface>(*ic & (*par.getConstraint())));
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
         }
@@ -2762,7 +2762,7 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
 {
   for (size_t i = 0; i < pl.size(); ++i)
   {
-    std::shared_ptr<Constraint> constraint = pl[i].getConstraint();
+    auto constraint = pl[i].getConstraint();
     if (constraint)
     {
       double value = pl[i].getValue();

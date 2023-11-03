@@ -187,37 +187,17 @@ protected:
   mutable RowMatrix<double> dpijt_;
   mutable RowMatrix<double> d2pijt_;
 
+  short verboseLevel_;
+
 public:
   AbstractTransitionModel(
       std::shared_ptr<const Alphabet> alpha,
       std::shared_ptr<const StateMapInterface> stateMap,
       const std::string& prefix);
 
-  AbstractTransitionModel(const AbstractTransitionModel& model) :
-    AbstractParameterAliasable(model),
-    alphabet_(model.alphabet_),
-    stateMap_(model.stateMap_),
-    size_(model.size_),
-    rate_(model.rate_),
-    freq_(model.freq_),
-    pijt_(model.pijt_),
-    dpijt_(model.dpijt_),
-    d2pijt_(model.d2pijt_)
-  {}
+  AbstractTransitionModel(const AbstractTransitionModel& model) = default;
 
-  AbstractTransitionModel& operator=(const AbstractTransitionModel& model)
-  {
-    AbstractParameterAliasable::operator=(model);
-    alphabet_          = model.alphabet_;
-    stateMap_          = model.stateMap_;
-    size_              = model.size_;
-    rate_              = model.rate_;
-    freq_              = model.freq_;
-    pijt_              = model.pijt_;
-    dpijt_             = model.dpijt_;
-    d2pijt_            = model.d2pijt_;
-    return *this;
-  }
+  AbstractTransitionModel& operator=(const AbstractTransitionModel& model) = default;
 
   virtual ~AbstractTransitionModel() {}
 
@@ -293,6 +273,10 @@ public:
    *
    */
   void addRateParameter() override;
+
+  void setVerboseLevel(short level) { verboseLevel_ = level; }
+
+  short verboseLevel() const { return verboseLevel_; }
 
 protected:
   /**

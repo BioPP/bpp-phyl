@@ -944,15 +944,15 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
         Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
         if (par.hasConstraint())
         {
-          par.setConstraint(std::shared_ptr<Constraint>(*ic & (*par.getConstraint())));
-          if (par.getConstraint()->isEmpty())
-            throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
+          par.setConstraint(std::shared_ptr<ConstraintInterface>(*ic & (*par.getConstraint())));
+          if (par.constraint().isEmpty())
+            throw Exception("Empty interval for parameter " + parNames[i] + par.constraint().getDescription());
         }
         else
           par.setConstraint(ic);
 
         if (verbose)
-          ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
+          ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.constraint().getDescription());
       }
     }
     catch (ParameterNotFoundException& pnfe)

@@ -102,7 +102,7 @@ DFP07::DFP07(
     if (st != "DFPDistFreq.beta_Simple.V1")
     {
       addParameter_(new Parameter("DFP07." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                  mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
     }
   }
 

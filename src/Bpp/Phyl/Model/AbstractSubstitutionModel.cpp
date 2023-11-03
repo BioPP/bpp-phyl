@@ -66,7 +66,8 @@ AbstractTransitionModel::AbstractTransitionModel(
   freq_(size_),
   pijt_(size_, size_),
   dpijt_(size_, size_),
-  d2pijt_(size_, size_)
+  d2pijt_(size_, size_),
+  verboseLevel_(0)
 {
   if (computeFrequencies())
     for (auto& fr : freq_)
@@ -372,14 +373,16 @@ void AbstractSubstitutionModel::updateMatrices_()
       }
       else
       {
-        ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Unable to find eigenvector for eigenvalue 0. Taylor series used instead.");
+        if (verboseLevel_ > 0)
+          ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Unable to find eigenvector for eigenvalue 0. Taylor series used instead.");
         isDiagonalizable_ = false;
       }
     }
     // if rightEigenVectors_ is singular
     catch (ZeroDivisionException& e)
     {
-      ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Singularity during diagonalization. Taylor series used instead.");
+      if (verboseLevel_ > 0)
+        ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Singularity during diagonalization. Taylor series used instead.");
       isNonSingular_ = false;
       isDiagonalizable_ = false;
     }

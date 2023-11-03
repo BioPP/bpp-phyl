@@ -110,7 +110,7 @@ YNGP_M2::YNGP_M2(
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     if (it.second.substr(0, 5) != "omega")
       addParameter_(new Parameter("YNGP_M2." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                  mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   addParameter_(new Parameter("YNGP_M2.omega0", 0.5, std::make_shared<IntervalConstraint>(0.002, 1, true, false)));

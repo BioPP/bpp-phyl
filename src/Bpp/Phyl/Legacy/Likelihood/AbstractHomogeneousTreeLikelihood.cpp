@@ -132,7 +132,7 @@ AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
   verbose_         = lik.verbose_;
   minimumBrLen_    = lik.minimumBrLen_;
   maximumBrLen_    = lik.maximumBrLen_;
-  brLenConstraint_ = std::shared_ptr<Constraint>(lik.brLenConstraint_->clone());
+  brLenConstraint_ = std::shared_ptr<ConstraintInterface>(lik.brLenConstraint_->clone());
   return *this;
 }
 

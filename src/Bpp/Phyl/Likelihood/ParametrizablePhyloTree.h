@@ -1,7 +1,7 @@
 //
 // File: ParametrizablePhyloTree.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: jeudi 15 septembre 2016, ÃÂ  06h 40
 //
 
@@ -56,9 +56,7 @@ namespace bpp
 /**
  * PhyloTree with Parametrizable Phylo Branches. They SHARE their
  * branch length parameters.
- *
- **/
-
+ */
 class ParametrizablePhyloTree :
   public AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranchParam>,
   public AbstractParametrizable
@@ -66,7 +64,7 @@ class ParametrizablePhyloTree :
 private:
   double minimumBrLen_;
   double maximumBrLen_;
-  std::shared_ptr<Constraint> brLenConstraint_;
+  std::shared_ptr<ConstraintInterface> brLenConstraint_;
 
 public:
   ParametrizablePhyloTree(const PhyloTree& tree, const std::string& prefix = "");
@@ -95,11 +93,11 @@ public:
     minimumBrLen_ = minimum;
     if (!brLenConstraint_)
     {
-      brLenConstraint_ = std::shared_ptr<Constraint>(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+      brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
       resetParameters_();
     }
     else
-      dynamic_cast<IntervalConstraint*>(brLenConstraint_.get())->setLowerBound(minimumBrLen_, false);
+      dynamic_cast<IntervalConstraint&>(*brLenConstraint_).setLowerBound(minimumBrLen_, false);
   }
 
   virtual void setMaximumBranchLength(double maximum)
@@ -109,11 +107,11 @@ public:
     maximumBrLen_ = maximum;
     if (!brLenConstraint_)
     {
-      brLenConstraint_ = std::shared_ptr<Constraint>(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+      brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
       resetParameters_();
     }
     else
-      dynamic_cast<IntervalConstraint*>(brLenConstraint_.get())->setUpperBound(minimumBrLen_, false);
+      dynamic_cast<IntervalConstraint&>(*brLenConstraint_).setUpperBound(minimumBrLen_, false);
   }
 
   virtual double getMinimumBranchLength() const { return minimumBrLen_; }
