@@ -61,7 +61,7 @@ namespace bpp
  * Several methods, commons to several algorithm are provided.
  */
 class AbstractAgglomerativeDistanceMethod :
-  public virtual AgglomerativeDistanceMethod
+  public virtual AgglomerativeDistanceMethodInterface
 {
 protected:
   DistanceMatrix matrix_;

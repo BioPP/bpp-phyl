@@ -1,7 +1,7 @@
 //
 // File: RewardMappingTools.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: vendredi 29 mars 2013, ÃÂ  14h 08
 //
 

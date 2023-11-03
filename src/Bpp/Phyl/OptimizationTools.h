@@ -249,7 +249,7 @@ public:
    */
   static std::unique_ptr<TreeTemplate<Node>> buildDistanceTree(
     DistanceEstimation& estimationMethod,
-    AgglomerativeDistanceMethod& reconstructionMethod,
+    AgglomerativeDistanceMethodInterface& reconstructionMethod,
     const ParameterList& parametersToIgnore,
     bool optimizeBrLen = false,
     const std::string& param = DISTANCEMETHOD_INIT,

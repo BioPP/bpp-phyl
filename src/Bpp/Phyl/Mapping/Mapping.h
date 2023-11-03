@@ -57,14 +57,14 @@ namespace bpp
  * @brief General interface for storing mapping data.
  *
  */
-class Mapping :
+class MappingInterface :
   public virtual Clonable
 {
 public:
-  Mapping() {}
-  virtual ~Mapping() {}
+  MappingInterface() {}
+  virtual ~MappingInterface() {}
 
-  Mapping* clone() const = 0;
+  MappingInterface* clone() const override = 0;
 
 public:
   /**
@@ -74,9 +74,7 @@ public:
 
   /**
    * @return The PhyloBranchMapping to a given index
-   *
    */
-
   virtual const PhyloBranch& getBranch(unsigned int branchId) const = 0;
 
   virtual PhyloBranch& getBranch(unsigned int branchId) = 0;
@@ -86,14 +84,12 @@ public:
   /**
    * @return The number of branches mapped.
    */
-
   virtual size_t getNumberOfBranches() const = 0;
 
   /**
    * @param index The site index.
    * @return The site position corresponding to the index.
    */
-
   virtual int getSitePosition(size_t index) const = 0;
 
   /**
@@ -103,7 +99,6 @@ public:
    * @param index The site index.
    * @param position The position of the site.
    */
-
   virtual void setSitePosition(size_t index, int position) = 0;
 };
 
@@ -116,7 +111,7 @@ public:
  */
 
 class AbstractMapping :
-  virtual public Mapping
+  public virtual MappingInterface
 {
 protected:
   std::vector<int> sitesPositions_;
@@ -129,24 +124,14 @@ public:
   AbstractMapping(size_t nb) : sitesPositions_(), nbSites_(nb)
   {}
 
-  AbstractMapping(const AbstractMapping& absm) :
-    sitesPositions_(absm.sitesPositions_),
-    nbSites_(absm.nbSites_)
-  {}
+  AbstractMapping(const AbstractMapping& absm) = default;
 
-  AbstractMapping& operator=(const AbstractMapping& absm)
-  {
-    sitesPositions_ = absm.sitesPositions_;
-    nbSites_        = absm.nbSites_;
-
-    return *this;
-  }
-
-  AbstractMapping* clone() const = 0;
+  AbstractMapping& operator=(const AbstractMapping& absm) = default;
 
   virtual ~AbstractMapping() {}
 
 public:
+
   int getSitePosition(size_t index) const
   {
     return sitesPositions_.size() == 0 ? (int)(index + 1) : sitesPositions_[index];

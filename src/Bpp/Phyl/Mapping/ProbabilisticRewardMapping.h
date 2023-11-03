@@ -100,7 +100,7 @@ public:
    * @param numberOfSites The number of sites to map.
    */
   ProbabilisticRewardMapping(const PhyloTree& tree, size_t numberOfSites) :
-    AbstractMapping(numberOfSites), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(numberOfSites)
+    AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(numberOfSites)
   {
     std::unique_ptr<mapTree::EdgeIterator> nIT = allEdgesIterator();
     for ( ; !nIT->end(); nIT->next())
@@ -113,7 +113,7 @@ public:
    * @brief the same with rootPatternLinks
    */
   ProbabilisticRewardMapping(const PhyloTree& tree, const PatternType& rootpatterns, size_t nbDistinctSites) :
-    AbstractMapping(size_t(rootpatterns.size())), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
+    AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
   {
     std::unique_ptr<mapTree::EdgeIterator> nIT = allEdgesIterator();
     for ( ; !nIT->end(); nIT->next())
@@ -128,14 +128,14 @@ public:
    * @param tree The tree object to use. It will be cloned for internal use.
    */
   ProbabilisticRewardMapping(const PhyloTree& tree) :
-    AbstractMapping(), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(0)
+    AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(0)
   {}
 
 
-  ProbabilisticRewardMapping* clone() const { return new ProbabilisticRewardMapping(*this); }
+  ProbabilisticRewardMapping* clone() const override { return new ProbabilisticRewardMapping(*this); }
 
   ProbabilisticRewardMapping(const ProbabilisticRewardMapping& prm) :
-    AbstractMapping(prm), AbstractRewardMapping(prm), mapTree(prm), rootPatternLinks_(prm.rootPatternLinks_), usePatterns_(prm.usePatterns_), numberOfDistinctSites_(prm.numberOfDistinctSites_)
+    AbstractRewardMapping(prm), mapTree(prm), rootPatternLinks_(prm.rootPatternLinks_), usePatterns_(prm.usePatterns_), numberOfDistinctSites_(prm.numberOfDistinctSites_)
   {}
 
   ProbabilisticRewardMapping& operator=(const ProbabilisticRewardMapping& prm)
@@ -157,17 +157,17 @@ public:
    *
    * @{
    */
-  const PhyloBranch& getBranch(unsigned int branchIndex) const
+  const PhyloBranch& getBranch(unsigned int branchIndex) const override
   {
     return *getEdge(branchIndex);
   }
 
-  PhyloBranch& getBranch(unsigned int branchIndex)
+  PhyloBranch& getBranch(unsigned int branchIndex) override
   {
     return *getEdge(branchIndex);
   }
 
-  size_t getNumberOfBranches() const
+  size_t getNumberOfBranches() const override
   {
     return getNumberOfEdges();
   }
@@ -190,7 +190,7 @@ public:
     return getEdge((uint)branchId)->getSiteReward(getSiteIndex(site));
   }
 
-  virtual void setNumberOfSites(size_t numberOfSites);
+  virtual void setNumberOfSites(size_t numberOfSites) override;
 
   /**
    * @brief Direct access to rewards, with COMPRESSED
@@ -198,7 +198,7 @@ public:
    *
    * @warning No index checking is performed, use with care!
    */
-  virtual double operator()(uint branchId, size_t siteIndex) const
+  virtual double operator()(uint branchId, size_t siteIndex) const override
   {
     return (*getEdge(branchId))(siteIndex);
   }
@@ -209,7 +209,7 @@ public:
    *
    * @warning No index checking is performed, use with care!
    */
-  virtual double& operator()(uint branchId, size_t siteIndex)
+  virtual double& operator()(uint branchId, size_t siteIndex) override
   {
     return (*getEdge(branchId))(siteIndex);
   }

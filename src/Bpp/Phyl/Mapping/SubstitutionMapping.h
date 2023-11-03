@@ -63,13 +63,13 @@ namespace bpp
  * More methods are expected to be added later.
  */
 class SubstitutionMapping :
-  virtual public Mapping
+  public virtual MappingInterface
 {
 public:
   SubstitutionMapping() {}
   virtual ~SubstitutionMapping() {}
 
-  SubstitutionMapping* clone() const = 0;
+  SubstitutionMapping* clone() const override = 0;
 
 public:
   /**

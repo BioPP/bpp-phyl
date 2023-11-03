@@ -54,7 +54,7 @@
 namespace bpp
 {
 /**
- * PhyloTree with Parametrizable Phylo Branches. They SHARE their
+ * @brief PhyloTree with Parametrizable Phylo Branches. They SHARE their
  * branch length parameters.
  */
 class ParametrizablePhyloTree :

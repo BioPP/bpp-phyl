@@ -57,13 +57,18 @@ set (CPP_FILES
   Bpp/Phyl/Legacy/Likelihood/MarginalAncestralStateReconstruction.cpp
   Bpp/Phyl/Legacy/Likelihood/NNIHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/PairedSiteLikelihoods.cpp
-  Bpp/Phyl/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Legacy/Likelihood/RASTools.cpp
   Bpp/Phyl/Legacy/Likelihood/RHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/TreeLikelihoodTools.cpp
+  Bpp/Phyl/Legacy/Mapping/ProbabilisticRewardMapping.cpp 
+  Bpp/Phyl/Legacy/Mapping/ProbabilisticSubstitutionMapping.cpp
+  Bpp/Phyl/Legacy/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Legacy/Mapping/RewardMappingTools.cpp 
+  Bpp/Phyl/Legacy/Simulation/NonHomogeneousSequenceSimulator.cpp
+  Bpp/Phyl/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Likelihood/DataFlow/BackwardLikelihoodTree.cpp
   Bpp/Phyl/Likelihood/DataFlow/CollectionNodes.cpp
   Bpp/Phyl/Likelihood/DataFlow/DataFlow.cpp
