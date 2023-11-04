@@ -1,7 +1,7 @@
 //
 // File: ExtendedFloatEigen.h
 // Authors:
-//   Laurent GuÃÂ©guen (2021)
+//   Laurent Guéguen (2021)
 // Created: samedi 17 avril 2021, ÃÂ  08h 11
 // Last modified: 2018-07-11 00:00:00
 //
@@ -48,14 +48,11 @@
 
 namespace bpp
 {
-/*
+/**
  * Base Class to allow generic type declaration with no
  * consideration on dimensions. This class knows the
  * Extendedfloatmatrix from which it is inherited (function derived)
- *
- *
  */
-
 struct ExtendedFloatEigenCore {};
 
 template<typename Derived>
@@ -228,6 +225,8 @@ public:
     exp_(0),
     EFtmp_(*this) {}
 
+  virtual ~ExtendedFloatEigen() {}
+  
   // Specific constructors
 
   static Self Zero(Eigen::Index rows, Eigen::Index cols)
