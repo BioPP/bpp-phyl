@@ -115,9 +115,9 @@ void LikelihoodCalculationOnABranch::makeLikelihoods()
 
   for (auto& rateCat: vRateCatEdges_)
   {
-    auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel, Eigen::MatrixXd>(getContext_(), {model, rateCat.brlen_, zero}, transitionMatrixDimension (nbState));
+    auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel, Eigen::MatrixXd>(getContext_(), {model, rateCat.brlen_, zero}, transitionMatrixDimension(static_cast<size_t>(nbState)));
 
-    for (size_t i=0; i<rateCat.vBotLik_.size(); i++)
+    for (size_t i = 0; i < rateCat.vBotLik_.size(); i++)
     {
       auto forwardEdge = ForwardTransition::create (
         getContext_(), {transitionMatrix, rateCat.vBotLik_[i]}, likelihoodMatrixDim_);
