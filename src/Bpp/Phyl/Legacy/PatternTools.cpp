@@ -6,7 +6,7 @@
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or (C) or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -53,7 +53,7 @@ using namespace std;
 
 /******************************************************************************/
 
-AlignedValuesContainer* PatternToolsOld::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const vector<string>& names)
+unique_ptr<AlignedValuesContainer> PatternToolsOld::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const vector<string>& names)
 {
   AlignedValuesContainer* result;
 
@@ -64,7 +64,7 @@ AlignedValuesContainer* PatternToolsOld::getSequenceSubset(const AlignedValuesCo
     VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
     result = sequenceSubset;
 
-    for (unsigned int i = 0; i < names.size(); i++)
+    for (size_t i = 0; i < names.size(); i++)
     {
       const Sequence* newSeq = &sitecontainer.getSequence(names[i]);
       if (!newSeq)
@@ -79,7 +79,7 @@ AlignedValuesContainer* PatternToolsOld::getSequenceSubset(const AlignedValuesCo
     VectorProbabilisticSiteContainer* sequenceSubset = new VectorProbabilisticSiteContainer(sequenceSet.getAlphabet());
     result = sequenceSubset;
 
-    for (unsigned int i = 0; i < names.size(); i++)
+    for (size_t i = 0; i < names.size(); i++)
     {
       shared_ptr<BasicProbabilisticSequence> newSeq = sitecontainer.getSequence(names[i]);
       if (!newSeq)

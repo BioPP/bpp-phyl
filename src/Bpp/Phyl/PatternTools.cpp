@@ -73,7 +73,7 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     {
       if (i->hasName())
       {
-	//Use sequence name as key.
+        //Use sequence name as key.
         try
         {
           auto newSeq = make_unique<Sequence>(sitecontainer.sequence(i->getName()));
@@ -106,7 +106,7 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     {
       if (i->hasName())
       {
-	//Use sequence name as key.
+        //Use sequence name as key.
         try
         {
           auto newSeq = make_unique<ProbabilisticSequence>(sitecontainer.sequence(i->getName()));
@@ -148,7 +148,7 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     {
       if (sitecontainer.hasSequence(i))
       {
-	auto newSeq = make_unique<Sequence>(sitecontainer.sequence(i));
+        auto newSeq = make_unique<Sequence>(sitecontainer.sequence(i));
         sequenceSubset->addSequence(i, newSeq);
       } else
         throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", i);

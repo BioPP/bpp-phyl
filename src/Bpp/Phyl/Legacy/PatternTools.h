@@ -63,7 +63,7 @@ namespace bpp
  * Theses methods are mainly designed to save computation in likelihood
  * and parsimony methods.
  */
-class PatternToolsOld
+class LegacyPatternTools
 {
 public:
 
