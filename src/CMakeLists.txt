@@ -68,7 +68,6 @@ set (CPP_FILES
   Bpp/Phyl/Legacy/Mapping/SubstitutionMappingTools.cpp
   Bpp/Phyl/Legacy/Mapping/RewardMappingTools.cpp 
   Bpp/Phyl/Legacy/Simulation/NonHomogeneousSequenceSimulator.cpp
-  Bpp/Phyl/Legacy/PatternTools.cpp
   Bpp/Phyl/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Likelihood/DataFlow/BackwardLikelihoodTree.cpp
   Bpp/Phyl/Likelihood/DataFlow/CollectionNodes.cpp
