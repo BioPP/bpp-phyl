@@ -90,7 +90,7 @@ RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(
   // rates for all register types
   for (size_t i = 1; i <= nbTypes_; i++)
   {
-    addParameter_(new Parameter("FromRegister.rho_" + reg.getTypeName(i), 1, Parameter::R_PLUS));
+    addParameter_(new Parameter("FromRegister.rho_" + reg.getTypeName(i), 1, Parameter::R_PLUS_STAR));
   }
 
   model_().setNamespace(getNamespace() + model().getNamespace());

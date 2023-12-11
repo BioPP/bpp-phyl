@@ -628,6 +628,16 @@ void BppOFrequencySetFormat::writeFrequencySet(
   std::vector<std::string>& writtenNames) const
 {
   ParameterList pl = freqset.getParameters();
+  vector<string> vpl = pl.getParameterNames();
+
+  for (auto& pn : vpl)
+  {
+    if (find(writtenNames.begin(), writtenNames.end(), pn) != writtenNames.end())
+      pl.deleteParameter(pn);
+  }
+
+  if (pl.size()==0)
+    return;
 
   int p = out.getPrecision();
   out.setPrecision(12);

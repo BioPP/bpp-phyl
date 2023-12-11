@@ -354,7 +354,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (args.find("frequencies") != args.end())
     {
       string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
-      BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
+      BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, false, warningLevel_);
       freqReader.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model.
 
       auto tmpFreqs = freqReader.readFrequencySet(pCA, freqOpt, data);
@@ -1710,12 +1710,17 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
 
   try {
     auto& pfs = model.frequencySet();
-    if (comma)
-      out << ",";
-    out << "frequencies=";
 
+    StdStr freqdesc;
     BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-    bIOFreq.writeFrequencySet(pfs, out, globalAliases, writtenNames);
+    bIOFreq.writeFrequencySet(pfs, freqdesc, globalAliases, writtenNames);
+    string fd = freqdesc.str();
+    if (fd.size()!=0)
+    {
+      if (comma)
+        out << ",";
+      out << "frequencies=" + fd;
+    }
     comma = true;
   } catch (exception&) {}
 
