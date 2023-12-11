@@ -5,7 +5,7 @@
 #   Francois Gindraud (2017)
 # Created: 20/08/2009
 
-cmake_minimum_required (VERSION 3.0) #3.0 needed for Eigen inclusion to work
+cmake_minimum_required (VERSION 3.5)
 project (bpp-phyl3 CXX)
 
 # Compile options

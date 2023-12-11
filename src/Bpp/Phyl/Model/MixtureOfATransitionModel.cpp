@@ -104,13 +104,13 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
     c *= it.second->getNumberOfCategories();
   }
 
+  model->getParameters().printParameters(cout);
   for (i = 0; i < c; i++)
   {
     modelsContainer_.push_back(unique_ptr<TransitionModelInterface>(model->clone()));
     vProbas_.push_back(1.0 / static_cast<double>(c));
     vRates_.push_back(1.0);
   }
-
   // Initialization of parameters_.
 
 
@@ -120,9 +120,9 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
   {
     const Parameter& pm = model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it.first)));
     pd = it.second.get();
-
-    if (pm.hasConstraint())
+    if (pm.hasConstraint()) {
       pd->restrictToConstraint(*pm.getConstraint());
+    }
 
     if (!dynamic_cast<ConstantDistribution*>(it.second.get()))
     {
@@ -132,8 +132,10 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
         addParameter_(pl[i].clone());
       }
     }
-    else
-      addParameter_(new Parameter(it.first, pd->getCategory(0), (pd->getParameter("value").getConstraint()) ? shared_ptr<Constraint>(pd->getParameter("value").getConstraint()->clone()) : 0));
+    else {
+      //addParameter_(new Parameter(it.first, pd->getCategory(0), (pd->getParameter("value").getConstraint()) ? shared_ptr<ConstraintInterface>(pd->getParameter("value").getConstraint()->clone()) : nullptr));
+      addParameter_(new Parameter(it.first, pd->getCategory(0), pm.hasConstraint() ? shared_ptr<ConstraintInterface>(pm.getConstraint()->clone()) : nullptr));
+    }
   }
   updateMatrices_();
 }
@@ -210,7 +212,7 @@ void MixtureOfATransitionModel::updateMatrices_()
   {
     vProbas_[i] = 1;
     j = i;
-    for (auto& distrib:distributionMap_)
+    for (auto& distrib : distributionMap_)
     {
       s = distrib.first;
       l = j % distrib.second->getNumberOfCategories();

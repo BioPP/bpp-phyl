@@ -86,7 +86,7 @@ LG10_EX_EHO::LG10_EX_EHO(shared_ptr<const ProteicAlphabet> alpha) :
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LG10_EX_EHO." + st,
                                 mixedModelPtr_->getParameterValue(st),
-                                mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   updateMatrices_();

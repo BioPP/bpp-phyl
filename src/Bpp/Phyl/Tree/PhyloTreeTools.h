@@ -88,7 +88,6 @@ public:
    * @param node The node defining the subtree.
    * @return The height of the subtree.
    */
-
   static double getHeight(const PhyloTree& tree, const std::shared_ptr<PhyloNode> node);
 
   /**
@@ -120,7 +119,6 @@ public:
    * @param init Tell if the height must be initialized by calling the initBranchLengthsGrafen() method.
    *             Otherwise use branch lengths.
    */
-
   static void computeBranchLengthsGrafen(PhyloTree& tree, double power = 1, bool init = true);
 
 private:
@@ -145,7 +143,6 @@ public:
    * @param node The node defining the subtree.
    * @return The modified height of the node.
    */
-
   static double convertToClockTree(PhyloTree& tree, std::shared_ptr<PhyloNode> node);
 
   /**
@@ -161,7 +158,6 @@ public:
    * @param node The node defining the subtree.
    * @return The modified height of the node.
    */
-
   static double convertToClockTree2(PhyloTree& tree, std::shared_ptr<PhyloNode> node);
 
 

@@ -1,12 +1,12 @@
 //
 // File: PhyloTree.h
 // Authors:
-//   Laurent GuÃÂ©guen
+//   Laurent Guéguen
 // Created: dimanche 24 juillet 2016, ÃÂ  19h 58
 //
 
 /*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
+  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
   
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -55,7 +55,6 @@ namespace bpp
  *
  * @author Thomas Bigot
  */
-
 class ParametrizablePhyloTree;
 
 class PhyloTree :
@@ -106,7 +105,6 @@ public:
    *name is not present in the PhyloTree.
    *
    */
-  
   std::shared_ptr<PhyloNode> getPhyloNode(const std::string& name) const;
   
   Vdouble getBranchLengths() const;
@@ -120,8 +118,6 @@ public:
    *
    * @param factor The factor to multiply all branch lengths with.
    */
-
-
   void scaleTree(double factor);
 
   /**
@@ -130,7 +126,6 @@ public:
    * @param node The node defining the subtree.
    * @param factor The factor to multiply all branch lengths with.
    */
-
   void scaleTree(std::shared_ptr<PhyloNode> node, double factor);
 
   /**
@@ -139,9 +134,7 @@ public:
    * the trees.
    *
    * @param phylotree The added PhyloTree
-   *
    */
-
   PhyloTree& operator+=(const PhyloTree& phylotree);
 
   /**
@@ -150,9 +143,7 @@ public:
    * the trees.
    *
    * @param phylotree The added PhyloTree
-   *
    */
-
   PhyloTree& operator-=(const PhyloTree& phylotree);
 
   /**
@@ -161,9 +152,7 @@ public:
    * whatever the topology of the trees.
    *
    * @param phylotree The dividant PhyloTree
-   *
    */
-
   PhyloTree& operator/=(const PhyloTree& phylotree);
 
   /**
@@ -172,17 +161,13 @@ public:
    * whatever the topology of the trees.
    *
    * @param phylotree The dividant PhyloTree
-   *
    */
-
   PhyloTree& operator*=(const PhyloTree& phylotree);
 
   /**
    * @brief Concatenate the subtree under a Node (in a
    * TreeTemplate<Node>) to this PhyloTree, under the given phylonode.
-   *
    */
-  
   void addSubTree(std::shared_ptr<PhyloNode> phyloNode, const Node& node);
 };
 }

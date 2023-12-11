@@ -410,7 +410,7 @@ unique_ptr<DistanceMatrix> OptimizationTools::estimateDistanceMatrix(
 
 unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
   DistanceEstimation& estimationMethod,
-  AgglomerativeDistanceMethod& reconstructionMethod,
+  AgglomerativeDistanceMethodInterface& reconstructionMethod,
   const ParameterList& parametersToIgnore,
   bool optimizeBrLen,
   const std::string& param,

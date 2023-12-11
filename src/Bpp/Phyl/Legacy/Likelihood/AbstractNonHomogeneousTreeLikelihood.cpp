@@ -145,7 +145,7 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
   verbose_           = lik.verbose_;
   minimumBrLen_      = lik.minimumBrLen_;
   maximumBrLen_      = lik.maximumBrLen_;
-  brLenConstraint_   = std::shared_ptr<Constraint>(lik.brLenConstraint_->clone());
+  brLenConstraint_   = std::shared_ptr<ConstraintInterface>(lik.brLenConstraint_->clone());
   reparametrizeRoot_ = lik.reparametrizeRoot_;
   root1_             = lik.root1_;
   root2_             = lik.root2_;

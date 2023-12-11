@@ -726,7 +726,7 @@ public:
    *
    * @param in            The input stream where to read the std::vectors.
    * @param substitutions The mapping object to fill.
-   * @param type          The type of substitutions that are read. Should be in supported by the substittuion count obect assiciated to the mapping, if any.
+   * @param type          The type of substitutions that are read. Should be in supported by the substitution count object associated to the mapping, if any.
    * @throw IOException If an input error happens.
    */
   static void readFromStream(

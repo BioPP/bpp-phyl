@@ -58,15 +58,14 @@ namespace bpp
  * interface only contains a few methods.
  * More methods are expected to be added later.
  */
-
-class RewardMapping :
-  virtual public Mapping
+class RewardMappingInterface :
+  public virtual MappingInterface
 {
 public:
-  RewardMapping() {}
-  virtual ~RewardMapping() {}
+  RewardMappingInterface() {}
+  virtual ~RewardMappingInterface() {}
 
-  RewardMapping* clone() const = 0;
+  RewardMappingInterface* clone() const override = 0;
 
 public:
   virtual double& operator()(uint branchId, size_t siteIndex) = 0;
@@ -81,16 +80,16 @@ public:
  */
 
 class AbstractRewardMapping :
-  virtual public RewardMapping,
-  virtual public AbstractMapping
+  public virtual RewardMappingInterface,
+  public AbstractMapping
 {
 public:
-  AbstractRewardMapping() : AbstractMapping(){}
+  AbstractRewardMapping() : AbstractMapping() {}
 
   AbstractRewardMapping(const AbstractRewardMapping& absm) :
     AbstractMapping(absm) {}
 
-  AbstractRewardMapping* clone() const = 0;
+  AbstractRewardMapping* clone() const override = 0;
 
   AbstractRewardMapping& operator=(const AbstractRewardMapping& absm)
   {

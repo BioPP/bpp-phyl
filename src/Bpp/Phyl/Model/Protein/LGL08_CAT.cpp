@@ -86,7 +86,7 @@ LGL08_CAT::LGL08_CAT(
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LGL08_CAT." + st,
                                 mixedModelPtr_->getParameterValue(st),
-                                mixedModelPtr_->getParameter(st).hasConstraint() ? shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                mixedModelPtr_->getParameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   updateMatrices_();
