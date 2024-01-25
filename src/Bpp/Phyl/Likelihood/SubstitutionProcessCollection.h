@@ -110,7 +110,7 @@ private:
   /**
    * A collection of DiscreteDistributions
    */
-  ParametrizableCollection<DiscreteDistribution> distColl_;
+  ParametrizableCollection<DiscreteDistributionInterface> distColl_;
 
   /**
    * A map from the DiscreteDistribution numbers to the numbers of
@@ -222,7 +222,7 @@ public:
     addParametrizable(frequencies, frequenciesIndex);
   }
 
-  void addDistribution(std::shared_ptr<DiscreteDistribution> distribution, size_t distributionIndex)
+  void addDistribution(std::shared_ptr<DiscreteDistributionInterface> distribution, size_t distributionIndex)
   {
     addParametrizable(distribution, distributionIndex, (distributionIndex < 10000));
 
@@ -323,22 +323,22 @@ public:
    * @param distributionIndex The index of the distribution in the collection.
    * @return a pointer towards a DiscreteDistribution.
    */
-  std::shared_ptr<DiscreteDistribution> getRateDistribution(size_t distributionIndex)
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution(size_t distributionIndex)
   {
     return distColl_[distributionIndex];
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution(size_t distributionIndex) const
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution(size_t distributionIndex) const
   {
     return distColl_[distributionIndex];
   }
 
-  DiscreteDistribution& rateDistribution(size_t distributionIndex)
+  DiscreteDistributionInterface& rateDistribution(size_t distributionIndex)
   {
     return *distColl_[distributionIndex];
   }
   
-  const DiscreteDistribution& rateDistribution(size_t distributionIndex) const
+  const DiscreteDistributionInterface& rateDistribution(size_t distributionIndex) const
   {
     return *distColl_[distributionIndex];
   }

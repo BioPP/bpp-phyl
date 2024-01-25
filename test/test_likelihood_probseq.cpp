@@ -65,7 +65,7 @@ using namespace std;
 
 void fitModelHSR(
     shared_ptr<SubstitutionModelInterface> model,
-    shared_ptr<DiscreteDistribution> rdist,
+    shared_ptr<DiscreteDistributionInterface> rdist,
     const Tree& tree, const ParametrizablePhyloTree&  new_tree,
     shared_ptr<const ProbabilisticSiteContainerInterface> sites,
     double initialValue, double finalValue)
@@ -126,7 +126,7 @@ void fitModelHSR(
   
   auto process = make_shared<RateAcrossSitesSubstitutionProcess>(
       shared_ptr<SubstitutionModelInterface>(model->clone()),
-      shared_ptr<DiscreteDistribution>(rdist->clone()),
+      shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
       shared_ptr<ParametrizablePhyloTree>(new_tree.clone()));
 
   Context context;                        
@@ -178,11 +178,11 @@ void fitModelHSR(
   
   auto tlop = make_shared<RHomogeneousTreeLikelihood>(tree, *sites,
       shared_ptr<SubstitutionModelInterface>(model->clone()),
-      shared_ptr<DiscreteDistribution>(rdist->clone()),
+      shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
       false, false);
   tlop->initialize();
 
-  OptimizationToolsOld::optimizeNumericalParameters2(
+  LegacyOptimizationTools::optimizeNumericalParameters2(
       tlop, tlop->getParameters(),
       0, 0.000001, nboptim, 0, 0);
   cout << setprecision(20) << tlop->getValue() << endl;
@@ -192,7 +192,7 @@ void fitModelHSR(
   tlop->getParameters().printParameters(cout);
 
 
-  process.reset(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<ParametrizablePhyloTree>(new_tree.clone())));  
+  process.reset(new RateAcrossSitesSubstitutionProcess(model, std::shared_ptr<DiscreteDistributionInterface>(rdist->clone()), std::shared_ptr<ParametrizablePhyloTree>(new_tree.clone())));  
   lik.reset(new LikelihoodCalculationSingleProcess(context, sites, process));
   newTl.reset(new SingleProcessPhyloLikelihood(context, lik));
 

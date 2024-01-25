@@ -51,7 +51,7 @@ CollectionNodes::CollectionNodes(
     auto obj = collection_->getRateDistribution(num);
 
     if (!dynamic_pointer_cast<const ConstantRateDistribution>(obj))
-      distColl_.addObject(ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(this->context(), *obj, getParameters_(), suff), num);
+      distColl_.addObject(ConfiguredParametrizable::createConfigured<DiscreteDistributionInterface, ConfiguredDistribution>(this->context(), *obj, getParameters_(), suff), num);
   }
 
   // models nodes

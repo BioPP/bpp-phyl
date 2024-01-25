@@ -134,7 +134,7 @@ public:
   AbstractNonHomogeneousTreeLikelihood(
     const Tree& tree,
     std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose = true,
     bool reparametrizeRoot = true);
 
@@ -161,7 +161,7 @@ private:
   void init_(
     const Tree& tree,
     std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose);
 
 public:

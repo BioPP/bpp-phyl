@@ -52,7 +52,7 @@ using namespace std;
 MixtureOfATransitionModel::MixtureOfATransitionModel(
   shared_ptr<const Alphabet> alpha,
   unique_ptr<TransitionModelInterface> model,
-  std::map<std::string, unique_ptr<DiscreteDistribution>>& parametersDistributionsList,
+  std::map<std::string, unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
   int ffrom,
   int tto) :
   AbstractParameterAliasable(model->getNamespace()),
@@ -114,7 +114,7 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
   // Initialization of parameters_.
 
 
-  DiscreteDistribution* pd;
+  DiscreteDistributionInterface* pd;
 
   for (auto& it : distributionMap_)
   {

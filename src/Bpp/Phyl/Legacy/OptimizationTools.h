@@ -255,12 +255,12 @@ public:
  * object. Some non trivial parameters are left to the user choice (tolerance, maximum
  * number of function evaluation, output streams).
  */
-class OptimizationToolsOld :
+class LegacyOptimizationTools :
   public OptimizationTools
 {
 public:
-  OptimizationToolsOld();
-  virtual ~OptimizationToolsOld();
+  LegacyOptimizationTools();
+  virtual ~LegacyOptimizationTools();
 
 public:
   /**

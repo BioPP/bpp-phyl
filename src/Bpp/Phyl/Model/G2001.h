@@ -65,7 +65,7 @@ class G2001 :
   public MarkovModulatedSubstitutionModel
 {
 private:
-  std::unique_ptr<DiscreteDistribution> rDist_;
+  std::unique_ptr<DiscreteDistributionInterface> rDist_;
 
   std::string nestedRatePrefix_;
 
@@ -81,7 +81,7 @@ public:
    */
   G2001(
        std::unique_ptr<ReversibleSubstitutionModelInterface> model,
-       std::unique_ptr<DiscreteDistribution> rDist,
+       std::unique_ptr<DiscreteDistributionInterface> rDist,
        double nu = 1.,
        bool normalizeRateChanges = false) :
     MarkovModulatedSubstitutionModel(std::move(model), static_cast<unsigned int>(rDist->getNumberOfCategories()), normalizeRateChanges, "G01."),
@@ -131,7 +131,7 @@ public:
   /**
    * @return The rate distribution associated to this instance.
    */
-  const DiscreteDistribution& rateDistribution() const { return *rDist_; }
+  const DiscreteDistributionInterface& rateDistribution() const { return *rDist_; }
   
   void setNamespace(const std::string& prefix) override
   {

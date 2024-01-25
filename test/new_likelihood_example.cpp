@@ -219,7 +219,7 @@ int main(int argc, char** argv)
   
   auto t922 = std::make_unique<T92>(c.nucAlphabet, 3., 0.7);
   
-  std::map<std::string, unique_ptr<DiscreteDistribution>> mapParam1;
+  std::map<std::string, unique_ptr<DiscreteDistributionInterface>> mapParam1;
 
   auto sdm=std::map<double, double>({{0.1,0.3},{0.6,0.7}});
   mapParam1["theta"].reset(new SimpleDiscreteDistribution(sdm));

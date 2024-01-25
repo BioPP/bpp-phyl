@@ -56,7 +56,7 @@ using namespace std;
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const Tree& tree,
   std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<DiscreteDistribution> rDist,
+  std::shared_ptr<DiscreteDistributionInterface> rDist,
   bool verbose,
   bool usePatterns,
   bool reparametrizeRoot) :
@@ -75,7 +75,7 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const Tree& tree,
   const AlignmentDataInterface& data,
   std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<DiscreteDistribution> rDist,
+  std::shared_ptr<DiscreteDistributionInterface> rDist,
   bool verbose,
   bool usePatterns,
   bool reparametrizeRoot) :

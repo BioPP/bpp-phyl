@@ -59,7 +59,7 @@ using namespace std;
 RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
     const Tree& tree,
     shared_ptr<MixedSubstitutionModelSet> modelSet,
-    shared_ptr<DiscreteDistribution> rDist,
+    shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose,
     bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
@@ -89,7 +89,7 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
     const Tree& tree,
     const AlignmentDataInterface& data,
     shared_ptr<MixedSubstitutionModelSet> modelSet,
-    shared_ptr<DiscreteDistribution> rDist,
+    shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose,
     bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, data, modelSet, rDist, verbose, usePatterns),
@@ -120,7 +120,7 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
     shared_ptr<MixedSubstitutionModelSet> modelSet,
     const MixedSubstitutionModelSet::HyperNode& hyperNode,
     int upperNode,
-    shared_ptr<DiscreteDistribution> rDist,
+    shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose,
     bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, usePatterns),
@@ -143,7 +143,7 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(
     shared_ptr<MixedSubstitutionModelSet> modelSet,
     const MixedSubstitutionModelSet::HyperNode& hyperNode,
     int upperNode,
-    shared_ptr<DiscreteDistribution> rDist,
+    shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose,
     bool usePatterns) :
   RNonHomogeneousTreeLikelihood(tree, data, modelSet, rDist, verbose, usePatterns),

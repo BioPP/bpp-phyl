@@ -83,22 +83,22 @@ std::shared_ptr<ModelScenario> SubstitutionProcessCollectionMember::getModelScen
   return collection().getModelScenario(nPath_);
 }
 
-std::shared_ptr<const DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution() const
+std::shared_ptr<const DiscreteDistributionInterface> SubstitutionProcessCollectionMember::getRateDistribution() const
 {
   return collection().getRateDistribution(nDist_);
 }
 
-std::shared_ptr<DiscreteDistribution> SubstitutionProcessCollectionMember::getRateDistribution()
+std::shared_ptr<DiscreteDistributionInterface> SubstitutionProcessCollectionMember::getRateDistribution()
 {
   return collection().getRateDistribution(nDist_);
 }
 
-const DiscreteDistribution& SubstitutionProcessCollectionMember::rateDistribution() const
+const DiscreteDistributionInterface& SubstitutionProcessCollectionMember::rateDistribution() const
 {
   return collection().rateDistribution(nDist_);
 }
 
-DiscreteDistribution& SubstitutionProcessCollectionMember::rateDistribution()
+DiscreteDistributionInterface& SubstitutionProcessCollectionMember::rateDistribution()
 {
   return collection().rateDistribution(nDist_);
 }

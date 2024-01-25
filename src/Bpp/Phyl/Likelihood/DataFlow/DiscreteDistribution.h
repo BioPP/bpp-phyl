@@ -69,7 +69,7 @@ namespace bpp
  * distribution for simplicity.
  */
 
-class ConfiguredDistribution : public Value<const DiscreteDistribution*>,
+class ConfiguredDistribution : public Value<const DiscreteDistributionInterface*>,
   public AbstractParametrizable
 {
   // private:
@@ -77,9 +77,9 @@ class ConfiguredDistribution : public Value<const DiscreteDistribution*>,
 
 public:
   using Self = ConfiguredDistribution;
-  using Target = DiscreteDistribution;
+  using Target = DiscreteDistributionInterface;
 
-  ConfiguredDistribution (Context& context, NodeRefVec&& deps, std::unique_ptr<DiscreteDistribution>&& distrib);
+  ConfiguredDistribution (Context& context, NodeRefVec&& deps, std::unique_ptr<DiscreteDistributionInterface>&& distrib);
   ~ConfiguredDistribution ();
 
   ConfiguredDistribution* clone() const
@@ -114,7 +114,7 @@ private:
     distrib_->matchParametersValues(getParameters());
   }
 
-  std::unique_ptr<DiscreteDistribution> distrib_;
+  std::unique_ptr<DiscreteDistributionInterface> distrib_;
 };
 
 /** Probabilities = f(DiscreteDistribution).

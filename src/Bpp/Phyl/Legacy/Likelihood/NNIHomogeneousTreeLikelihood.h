@@ -67,7 +67,7 @@ class BranchLikelihood :
 protected:
   const VVVdouble* array1_, * array2_;
   std::shared_ptr<const TransitionModelInterface> model_;
-  std::shared_ptr<const DiscreteDistribution> rDist_;
+  std::shared_ptr<const DiscreteDistributionInterface> rDist_;
   size_t nbStates_, nbClasses_;
   VVVdouble pxy_;
   double lnL_;
@@ -124,7 +124,7 @@ public:
 public:
   void initModel(
       std::shared_ptr<const TransitionModelInterface> model,
-      std::shared_ptr<const DiscreteDistribution> rDist);
+      std::shared_ptr<const DiscreteDistributionInterface> rDist);
 
   /**
    * @warning No checking on alphabet size or number of rate classes is performed,
@@ -198,7 +198,7 @@ public:
   NNIHomogeneousTreeLikelihood(
     const Tree& tree,
     std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -218,7 +218,7 @@ public:
     const Tree& tree,
     const AlignmentDataInterface& data,
     std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted = true,
     bool verbose = true);
 

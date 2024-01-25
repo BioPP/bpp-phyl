@@ -53,7 +53,7 @@ using namespace bpp;
 using namespace std;
 
 void fitModelH(shared_ptr<SubstitutionModelInterface> model,
-	       shared_ptr<DiscreteDistribution> rdist,
+	       shared_ptr<DiscreteDistributionInterface> rdist,
                shared_ptr<PhyloTree> tree,
 	       shared_ptr<const SiteContainerInterface> sites,
                double initialValue, double finalValue)
@@ -87,7 +87,7 @@ void fitModelH(shared_ptr<SubstitutionModelInterface> model,
 }
 
 void fitModelHClock(shared_ptr<SubstitutionModelInterface> model,
-	            shared_ptr<DiscreteDistribution> rdist,
+	            shared_ptr<DiscreteDistributionInterface> rdist,
                     shared_ptr<PhyloTree> tree,
 		    shared_ptr<const SiteContainerInterface> sites,
                     double initialValue, double finalValue)
@@ -142,7 +142,7 @@ int main() {
   try {
     fitModelH(
 	std::shared_ptr<SubstitutionModelInterface>(model->clone()),
-	std::shared_ptr<DiscreteDistribution>(rdist->clone()),
+	std::shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
        	std::shared_ptr<PhyloTree>(phyloTree->clone()),
        	sites,
        	94.3957, 71.0564);
@@ -156,7 +156,7 @@ int main() {
   try {
     fitModelHClock(
 	model,
-        std::shared_ptr<DiscreteDistribution>(rdist->clone()),
+        std::shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
        	std::shared_ptr<PhyloTree>(phyloTree->clone()),
        	sites,
        	94.395699, 72.7196);

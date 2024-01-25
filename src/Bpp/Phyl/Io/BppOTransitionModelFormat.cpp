@@ -333,7 +333,7 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
 
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
-    map<string, unique_ptr<DiscreteDistribution> > mdist;
+    map<string, unique_ptr<DiscreteDistributionInterface>> mdist;
     map<string, string> unparsedParameterValuesNested2;
 
     for (auto& it : unparsedParameterValuesNested)

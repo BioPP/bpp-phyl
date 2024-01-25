@@ -54,7 +54,7 @@ using namespace std;
 /*******************************************************************************/
 void BranchLikelihood::initModel(
     std::shared_ptr<const TransitionModelInterface> model,
-    std::shared_ptr<const DiscreteDistribution> rDist)
+    std::shared_ptr<const DiscreteDistributionInterface> rDist)
 {
   model_ = model;
   rDist_ = rDist;
@@ -127,7 +127,7 @@ void BranchLikelihood::computeLogLikelihood()
 NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(
   const Tree& tree,
   std::shared_ptr<TransitionModelInterface> model,
-  std::shared_ptr<DiscreteDistribution> rDist,
+  std::shared_ptr<DiscreteDistributionInterface> rDist,
   bool checkRooted,
   bool verbose) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
@@ -149,7 +149,7 @@ NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(
   const Tree& tree,
   const AlignmentDataInterface& data,
   std::shared_ptr<TransitionModelInterface> model,
-  std::shared_ptr<DiscreteDistribution> rDist,
+  std::shared_ptr<DiscreteDistributionInterface> rDist,
   bool checkRooted,
   bool verbose) :
   DRHomogeneousTreeLikelihood(tree, data, model, rDist, checkRooted, verbose),

@@ -61,7 +61,7 @@ using namespace bpp;
 using namespace std;
 
 
-unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistribution(
+unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscreteDistribution(
   const std::string& distDescription,
   bool parseArguments)
 {
@@ -69,7 +69,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
   string distName;
   map<string, string> args;
   KeyvalTools::parseProcedure(distDescription, distName, args);
-  unique_ptr<DiscreteDistribution> rDist;
+  unique_ptr<DiscreteDistributionInterface> rDist;
 
   if (distName == "Uniform")
     throw Exception("BppO Warning: Uniform distribution is deprecated, use Constant instead.");
@@ -167,7 +167,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
     if (args.find("probas") == args.end())
       throw Exception("Missing argument 'probas' in Mixture distribution");
     vector<double> probas;
-    vector< unique_ptr<DiscreteDistribution> > v_pdd;
+    vector<unique_ptr<DiscreteDistributionInterface>> v_pdd;
     string rf = args["probas"];
     StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
     while (strtok2.hasMoreToken())
@@ -246,7 +246,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
 
 
 void BppORateDistributionFormat::writeDiscreteDistribution(
-  const DiscreteDistribution& dist,
+  const DiscreteDistributionInterface& dist,
   OutputStream& out,
   std::map<std::string, std::string>& globalAliases,
   std::vector<std::string>& writtenNames) const

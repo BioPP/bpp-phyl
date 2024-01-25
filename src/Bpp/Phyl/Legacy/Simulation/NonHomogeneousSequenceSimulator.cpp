@@ -58,7 +58,7 @@ using namespace std;
 
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   std::shared_ptr<const SubstitutionModelSet> modelSet,
-  std::shared_ptr<const DiscreteDistribution> rate,
+  std::shared_ptr<const DiscreteDistributionInterface> rate,
   std::shared_ptr<const Tree> tree) :
   modelSet_(modelSet),
   alphabet_(modelSet_->getAlphabet()),
@@ -84,7 +84,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
 
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   std::shared_ptr<const TransitionModelInterface> model,
-  std::shared_ptr<const DiscreteDistribution> rate,
+  std::shared_ptr<const DiscreteDistributionInterface> rate,
   std::shared_ptr<const Tree> tree) :
   modelSet_(0),
   alphabet_(model->getAlphabet()),

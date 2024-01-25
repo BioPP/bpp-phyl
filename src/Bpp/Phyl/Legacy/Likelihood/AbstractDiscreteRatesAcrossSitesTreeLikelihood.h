@@ -59,11 +59,11 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood :
   public virtual DiscreteRatesAcrossSitesTreeLikelihoodInterface
 {
 protected:
-  std::shared_ptr<DiscreteDistribution> rateDistribution_;
+  std::shared_ptr<DiscreteDistributionInterface> rateDistribution_;
 
 public:
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose = true
     );
 
@@ -103,22 +103,22 @@ public:
    *
    * @{
    */
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const
   {
     return rateDistribution_;
   }
 
-  std::shared_ptr<DiscreteDistribution> getRateDistribution()
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution()
   {
     return rateDistribution_;
   }
 
-  const DiscreteDistribution& rateDistribution() const
+  const DiscreteDistributionInterface& rateDistribution() const
   {
     return *rateDistribution_;
   }
 
-  DiscreteDistribution& rateDistribution()
+  DiscreteDistributionInterface& rateDistribution()
   {
     return *rateDistribution_;
   }

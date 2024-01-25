@@ -485,7 +485,7 @@ public:
     const map<size_t, std::shared_ptr<PhyloTree> >& mTree,
     const map<size_t, std::shared_ptr<BranchModelInterface> >& mMod,
     const map<size_t, std::shared_ptr<FrequencySetInterface> >& mRootFreq,
-    const map<size_t, std::shared_ptr<DiscreteDistribution> >& mDist,
+    const map<size_t, std::shared_ptr<DiscreteDistributionInterface> >& mDist,
     const map<size_t, std::shared_ptr<ModelScenario> >& mScen,
     const std::map<std::string, std::string>& params,
     map<string, string>& unparsedparams,
@@ -580,7 +580,7 @@ public:
    * @param verbose Print some info to the 'message' output stream.
    * @return A new DiscreteDistribution object according to options specified.
    */
-  static std::unique_ptr<DiscreteDistribution> getRateDistribution(
+  static std::unique_ptr<DiscreteDistributionInterface> getRateDistribution(
     const std::map<std::string, std::string>& params,
     const std::string& suffix = "",
     bool suffixIsOptional = true,
@@ -591,7 +591,7 @@ public:
    *
    */
 
-  static std::map<size_t, std::shared_ptr<DiscreteDistribution> > getRateDistributions(
+  static std::map<size_t, std::shared_ptr<DiscreteDistributionInterface>> getRateDistributions(
     const std::map<std::string, std::string>& params,
     const string& suffix = "",
     bool suffixIsOptional = true,
@@ -814,7 +814,7 @@ public:
    *                      Parameters instead of the values (default
    *                      : true).
    */
-  static void printParameters(const DiscreteDistribution& rDist, OutputStream& out, bool withAlias = true);
+  static void printParameters(const DiscreteDistributionInterface& rDist, OutputStream& out, bool withAlias = true);
 
   /**
    * @brief Output information on the computation to a file.

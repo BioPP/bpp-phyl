@@ -66,28 +66,28 @@ public:
    *
    * @return A const pointer toward the rate distribution of this instance.
    */
-  virtual std::shared_ptr<const DiscreteDistribution> getRateDistribution() const = 0;
+  virtual std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const = 0;
 
   /**
    * @brief Get the rate distribution used for the computation.
    *
    * @return A pointer toward the rate distribution of this instance.
    */
-  virtual std::shared_ptr<DiscreteDistribution> getRateDistribution() = 0;
+  virtual std::shared_ptr<DiscreteDistributionInterface> getRateDistribution() = 0;
 
   /**
    * @brief Get the rate distribution used for the computation.
    *
    * @return A const reference toward the rate distribution of this instance.
    */
-  virtual const DiscreteDistribution& rateDistribution() const = 0;
+  virtual const DiscreteDistributionInterface& rateDistribution() const = 0;
 
   /**
    * @brief Get the rate distribution used for the computation.
    *
    * @return A reference toward the rate distribution of this instance.
    */
-  virtual DiscreteDistribution& rateDistribution() = 0;
+  virtual DiscreteDistributionInterface& rateDistribution() = 0;
 
   /**
    * @brief Get the likelihood for a site knowing its rate class.

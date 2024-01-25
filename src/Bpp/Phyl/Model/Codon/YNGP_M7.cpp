@@ -68,7 +68,7 @@ YNGP_M7::YNGP_M7(
 
   auto pbdd = make_unique<BetaDiscreteDistribution>(nclass, 2, 2, AbstractDiscreteDistribution::DISCRETIZATION_EQUAL_PROB_WHEN_POSSIBLE);
 
-  map<string, unique_ptr<DiscreteDistribution>> mpdd;
+  map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
   mpdd["omega"] = move(pbdd);
 
   auto yn98 = make_unique<YN98>(gc, move(codonFreqs));

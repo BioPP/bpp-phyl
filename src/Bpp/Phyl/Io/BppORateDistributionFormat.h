@@ -79,9 +79,9 @@ public:
   virtual ~BppORateDistributionFormat() {}
 
 public:
-  std::unique_ptr<DiscreteDistribution> readDiscreteDistribution(const std::string& distDescription, bool parseArguments);
+  std::unique_ptr<DiscreteDistributionInterface> readDiscreteDistribution(const std::string& distDescription, bool parseArguments);
 
-  void writeDiscreteDistribution(const DiscreteDistribution& dist,
+  void writeDiscreteDistribution(const DiscreteDistributionInterface& dist,
                                  OutputStream& out,
                                  std::map<std::string, std::string>& globalAliases,
                                  std::vector<std::string>& writtenNames) const;

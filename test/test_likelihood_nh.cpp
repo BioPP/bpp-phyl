@@ -87,7 +87,7 @@ int main() {
   
   auto rootFreqs2 = shared_ptr<FrequencySetInterface>(rootFreqs->clone());
 
-  auto rdist2 = shared_ptr<DiscreteDistribution>(rdist->clone());
+  auto rdist2 = shared_ptr<DiscreteDistributionInterface>(rdist->clone());
   std::shared_ptr<SubstitutionModelInterface> model2(model->clone());
 
   map<string, string> alias;
@@ -139,7 +139,7 @@ int main() {
     cout << setprecision(10) << "OldTL init: "  << tl->getValue()  << endl;
     cout << setprecision(10) << "NewTL init: "  << ntl->getValue()  << endl;
 
-    unsigned int c1 = OptimizationToolsOld::optimizeNumericalParameters2(
+    unsigned int c1 = LegacyOptimizationTools::optimizeNumericalParameters2(
       tl, tl->getParameters(), 0,
       0.0001, 10000,
       messenger, profiler,

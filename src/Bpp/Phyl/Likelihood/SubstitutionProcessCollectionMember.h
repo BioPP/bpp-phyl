@@ -314,13 +314,13 @@ public:
   /**
    * @brief Get the rate distribution
    */
-  const DiscreteDistribution& rateDistribution() const override;
+  const DiscreteDistributionInterface& rateDistribution() const override;
 
-  DiscreteDistribution& rateDistribution() override;
+  DiscreteDistributionInterface& rateDistribution() override;
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override;
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const override;
 
-  std::shared_ptr<DiscreteDistribution> getRateDistribution() override;
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution() override;
 
   const size_t getRateDistributionNumber() const { return nDist_; }
 

@@ -91,7 +91,7 @@ public:
   DRNonHomogeneousTreeLikelihood(
     const Tree& tree,
     std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose = true,
     bool reparametrizeRoot = false);
 
@@ -113,7 +113,7 @@ public:
     const Tree& tree,
     const AlignmentDataInterface& data,
     std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose = true,
     bool reparametrizeRoot = false);
 

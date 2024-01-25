@@ -62,13 +62,13 @@ using namespace std;
 
 /******************************************************************************/
 
-OptimizationToolsOld::OptimizationToolsOld() {}
+LegacyOptimizationTools::LegacyOptimizationTools() {}
 
-OptimizationToolsOld::~OptimizationToolsOld() {}
+LegacyOptimizationTools::~LegacyOptimizationTools() {}
 
 /******************************************************************************/
 
-OptimizationToolsOld::ScaleFunction::ScaleFunction(
+LegacyOptimizationTools::ScaleFunction::ScaleFunction(
     shared_ptr<TreeLikelihoodInterface> tl) :
   tl_(tl),
   brLen_(),
@@ -81,16 +81,16 @@ OptimizationToolsOld::ScaleFunction::ScaleFunction(
   lambda_.addParameter(Parameter("scale factor", 0));
 }
 
-OptimizationToolsOld::ScaleFunction::~ScaleFunction() {}
+LegacyOptimizationTools::ScaleFunction::~ScaleFunction() {}
 
-void OptimizationToolsOld::ScaleFunction::setParameters(const ParameterList& lambda)
+void LegacyOptimizationTools::ScaleFunction::setParameters(const ParameterList& lambda)
 {
   if (lambda.size() != 1)
-    throw Exception("OptimizationToolsOld::ScaleFunction::f(). This is a one parameter function!");
+    throw Exception("LegacyOptimizationTools::ScaleFunction::f(). This is a one parameter function!");
   lambda_.setParametersValues(lambda);
 }
 
-double OptimizationToolsOld::ScaleFunction::getValue() const
+double LegacyOptimizationTools::ScaleFunction::getValue() const
 {
   // Scale the tree:
   ParameterList brLen = brLen_;
@@ -111,7 +111,7 @@ double OptimizationToolsOld::ScaleFunction::getValue() const
 
 /******************************************************************************/
 
-unsigned int OptimizationToolsOld::optimizeTreeScale(
+unsigned int LegacyOptimizationTools::optimizeTreeScale(
   shared_ptr<TreeLikelihoodInterface> tl,
   double tolerance,
   unsigned int tlEvalMax,
@@ -139,7 +139,7 @@ unsigned int OptimizationToolsOld::optimizeTreeScale(
 
 /******************************************************************************/
 
-unsigned int OptimizationToolsOld::optimizeNumericalParameters(
+unsigned int LegacyOptimizationTools::optimizeNumericalParameters(
   shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
   const ParameterList& parameters,
   shared_ptr<OptimizationListener> listener,
@@ -181,7 +181,7 @@ unsigned int OptimizationToolsOld::optimizeNumericalParameters(
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
     desc->addOptimizer("Branch length parameters", make_shared<BfgsMultiDimensions>(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else
-    throw Exception("OptimizationToolsOld::optimizeNumericalParameters. Unknown optimization method: " + optMethodDeriv);
+    throw Exception("LegacyOptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodDeriv);
 
   // Other parameters
 
@@ -213,7 +213,7 @@ unsigned int OptimizationToolsOld::optimizeNumericalParameters(
     poptimizer.reset(new MetaOptimizer(fnum, move(desc), nstep));
   }
   else
-    throw Exception("OptimizationToolsOld::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);
+    throw Exception("LegacyOptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);
 
   poptimizer->setVerbose(verbose);
   poptimizer->setProfiler(profiler);
@@ -241,7 +241,7 @@ unsigned int OptimizationToolsOld::optimizeNumericalParameters(
 
 /******************************************************************************/
 
-unsigned int OptimizationToolsOld::optimizeNumericalParameters2(
+unsigned int LegacyOptimizationTools::optimizeNumericalParameters2(
   shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
   const ParameterList& parameters,
   shared_ptr<OptimizationListener> listener,
@@ -302,7 +302,7 @@ unsigned int OptimizationToolsOld::optimizeNumericalParameters2(
     optimizer.reset(new BfgsMultiDimensions(fnum));
   }
   else
-    throw Exception("OptimizationToolsOld::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
+    throw Exception("LegacyOptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
   ParameterList tmp = tl->getNonDerivableParameters();
@@ -335,7 +335,7 @@ unsigned int OptimizationToolsOld::optimizeNumericalParameters2(
 
 /******************************************************************************/
 
-unsigned int OptimizationToolsOld::optimizeBranchLengthsParameters(
+unsigned int LegacyOptimizationTools::optimizeBranchLengthsParameters(
   shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
   const ParameterList& parameters,
   shared_ptr<OptimizationListener> listener,
@@ -367,7 +367,7 @@ unsigned int OptimizationToolsOld::optimizeBranchLengthsParameters(
     optimizer.reset(new BfgsMultiDimensions(tl));
   }
   else
-    throw Exception("OptimizationToolsOld::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethodDeriv);
+    throw Exception("LegacyOptimizationTools::optimizeBranchLengthsParameters. Unknown optimization method: " + optMethodDeriv);
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
   optimizer->setMessageHandler(messageHandler);
@@ -398,7 +398,7 @@ void NNITopologyListener::topologyChangeSuccessful(const TopologyChangeEvent& ev
   {
     auto likelihood = dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(topoSearch_->getSearchableObject());
     parameters_.matchParametersValues(likelihood->getParameters());
-    OptimizationToolsOld::optimizeNumericalParameters(likelihood, parameters_, 0, nStep_, tolerance_, 1000000, messenger_, profiler_, reparametrization_, verbose_, optMethod_);
+    LegacyOptimizationTools::optimizeNumericalParameters(likelihood, parameters_, 0, nStep_, tolerance_, 1000000, messenger_, profiler_, reparametrization_, verbose_, optMethod_);
     optimizeCounter_ = 0;
   }
 }
@@ -412,14 +412,14 @@ void NNITopologyListener2::topologyChangeSuccessful(const TopologyChangeEvent& e
   {
     auto likelihood = dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(topoSearch_->getSearchableObject());
     parameters_.matchParametersValues(likelihood->getParameters());
-    OptimizationToolsOld::optimizeNumericalParameters2(likelihood, parameters_, 0, tolerance_, 1000000, messenger_, profiler_, reparametrization_, false, verbose_, optMethod_);
+    LegacyOptimizationTools::optimizeNumericalParameters2(likelihood, parameters_, 0, tolerance_, 1000000, messenger_, profiler_, reparametrization_, false, verbose_, optMethod_);
     optimizeCounter_ = 0;
   }
 }
 
 // ******************************************************************************/
 
-shared_ptr<NNIHomogeneousTreeLikelihood> OptimizationToolsOld::optimizeTreeNNI(
+shared_ptr<NNIHomogeneousTreeLikelihood> LegacyOptimizationTools::optimizeTreeNNI(
     shared_ptr<NNIHomogeneousTreeLikelihood> tl,
     const ParameterList& parameters,
     bool optimizeNumFirst,
@@ -438,7 +438,7 @@ shared_ptr<NNIHomogeneousTreeLikelihood> OptimizationToolsOld::optimizeTreeNNI(
   // Roughly optimize parameter
   if (optimizeNumFirst)
   {
-    OptimizationToolsOld::optimizeNumericalParameters(tl, parameters, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, reparametrization, verbose, optMethodDeriv);
+    LegacyOptimizationTools::optimizeNumericalParameters(tl, parameters, NULL, nStep, tolBefore, 1000000, messageHandler, profiler, reparametrization, verbose, optMethodDeriv);
   }
   // Begin topo search:
   auto topoSearch = make_shared<NNITopologySearch>(tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
@@ -451,7 +451,7 @@ shared_ptr<NNIHomogeneousTreeLikelihood> OptimizationToolsOld::optimizeTreeNNI(
 
 /******************************************************************************/
 
-shared_ptr<NNIHomogeneousTreeLikelihood> OptimizationToolsOld::optimizeTreeNNI2(
+shared_ptr<NNIHomogeneousTreeLikelihood> LegacyOptimizationTools::optimizeTreeNNI2(
     shared_ptr<NNIHomogeneousTreeLikelihood> tl,
     const ParameterList& parameters,
     bool optimizeNumFirst,
@@ -469,7 +469,7 @@ shared_ptr<NNIHomogeneousTreeLikelihood> OptimizationToolsOld::optimizeTreeNNI2(
   // Roughly optimize parameter
   if (optimizeNumFirst)
   {
-    OptimizationToolsOld::optimizeNumericalParameters2(tl, parameters, nullptr, tolBefore, 1000000, messageHandler, profiler, reparametrization, false, verbose, optMethodDeriv);
+    LegacyOptimizationTools::optimizeNumericalParameters2(tl, parameters, nullptr, tolBefore, 1000000, messageHandler, profiler, reparametrization, false, verbose, optMethodDeriv);
   }
   // Begin topo search:
   auto topoSearch = make_shared<NNITopologySearch> (tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
@@ -482,7 +482,7 @@ shared_ptr<NNIHomogeneousTreeLikelihood> OptimizationToolsOld::optimizeTreeNNI2(
 
 /******************************************************************************/
 
-shared_ptr<DRTreeParsimonyScore> OptimizationToolsOld::optimizeTreeNNI(
+shared_ptr<DRTreeParsimonyScore> LegacyOptimizationTools::optimizeTreeNNI(
     shared_ptr<DRTreeParsimonyScore> tp,
     unsigned int verbose)
 {

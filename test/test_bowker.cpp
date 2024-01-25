@@ -71,7 +71,7 @@ int main() {
   cout << "..:: Testing with stationary model ::.." << endl;
   shared_ptr<NucleicAlphabet> alphabet(new DNA());
   auto model1 = make_shared<T92>(alphabet, 3., 0.65);
-  shared_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
+  shared_ptr<DiscreteDistributionInterface> rdist(new ConstantRateDistribution());
   
   shared_ptr<SubstitutionProcessInterface> process1 = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model1, rdist, phyloTree);
 

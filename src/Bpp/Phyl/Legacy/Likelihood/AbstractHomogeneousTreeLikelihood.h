@@ -121,7 +121,7 @@ public:
   AbstractHomogeneousTreeLikelihood(
     const Tree& tree,
     std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -147,7 +147,7 @@ private:
    */
   void init_(const Tree& tree,
              std::shared_ptr<TransitionModelInterface> model,
-             std::shared_ptr<DiscreteDistribution> rDist,
+             std::shared_ptr<DiscreteDistributionInterface> rDist,
              bool checkRooted,
              bool verbose);
 

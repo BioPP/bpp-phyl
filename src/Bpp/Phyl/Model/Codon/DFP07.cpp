@@ -68,7 +68,7 @@ DFP07::DFP07(
   auto codmodel = make_unique<DFPDistanceFrequenciesSubstitutionModel>(gCode, move(codonFreqs));
   auto submodel = make_unique<CodonSameAARateSubstitutionModel>(move(pAAmodel), move(codmodel),  unique_ptr<CodonFrequencySetInterface>(nullptr), gCode);
 
-  map<string, unique_ptr<DiscreteDistribution>> mpdd;
+  map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
   vector<double> v1, v2;
   v1.push_back(0.5); v1.push_back(1);
   v2.push_back(0.5); v2.push_back(0.5);

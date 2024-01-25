@@ -89,7 +89,7 @@ public:
   DRHomogeneousTreeLikelihood(
     const Tree& tree,
     std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted = true,
     bool verbose = true);
 
@@ -111,7 +111,7 @@ public:
     const Tree& tree,
     const AlignmentDataInterface& data,
     std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted = true,
     bool verbose = true);
 

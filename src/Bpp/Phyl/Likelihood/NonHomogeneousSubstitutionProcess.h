@@ -124,7 +124,7 @@ private:
   /**
    *  @brief Rate Distribution
    */
-  std::shared_ptr<DiscreteDistribution> rDist_;
+  std::shared_ptr<DiscreteDistributionInterface> rDist_;
 
   /**
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
@@ -148,7 +148,7 @@ public:
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
   NonHomogeneousSubstitutionProcess(
-      std::shared_ptr<DiscreteDistribution> rdist,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
       std::shared_ptr<const PhyloTree> tree = 0,
       std::shared_ptr<FrequencySetInterface> rootFreqs = 0) :
     AbstractParameterAliasable(""),
@@ -172,7 +172,7 @@ public:
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
   NonHomogeneousSubstitutionProcess(
-      std::shared_ptr<DiscreteDistribution> rdist,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
       std::shared_ptr<ParametrizablePhyloTree> tree,
       std::shared_ptr<FrequencySetInterface> rootFreqs = 0) :
     AbstractParameterAliasable(""),
@@ -379,26 +379,26 @@ public:
     return rDist_.get() ? (independent ? rDist_->getIndependentParameters() : rDist_->getParameters()) : ParameterList();
   }
 
-  const DiscreteDistribution& rateDistribution() const override
+  const DiscreteDistributionInterface& rateDistribution() const override
   {
     if (!rDist_)
       throw NullPointerException("NonHomogeneousSubstitutionProcess::rateDistribution. No associated rate distribution.");
     return *rDist_;
   }
 
-  DiscreteDistribution& rateDistribution() override
+  DiscreteDistributionInterface& rateDistribution() override
   {
     if (!rDist_)
       throw NullPointerException("NonHomogeneousSubstitutionProcess::rateDistribution. No associated rate distribution.");
     return *rDist_;
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const override
   {
     return rDist_ ? rDist_ : nullptr;
   }
 
-  std::shared_ptr<DiscreteDistribution> getRateDistribution() override
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution() override
   {
     return rDist_ ? rDist_ : nullptr;
   }
@@ -511,7 +511,7 @@ public:
    */
   static std::unique_ptr<AutonomousSubstitutionProcessInterface> createHomogeneousSubstitutionProcess(
     std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rdist,
+    std::shared_ptr<DiscreteDistributionInterface> rdist,
     std::shared_ptr<PhyloTree> tree,
     std::shared_ptr<FrequencySetInterface> rootFreqs = 0,
     std::shared_ptr<ModelScenario> scenario = 0
@@ -534,7 +534,7 @@ public:
    */
   static std::unique_ptr<NonHomogeneousSubstitutionProcess> createNonHomogeneousSubstitutionProcess(
     std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rdist,
+    std::shared_ptr<DiscreteDistributionInterface> rdist,
     std::shared_ptr<PhyloTree> tree,
     std::shared_ptr<FrequencySetInterface> rootFreqs,
     const std::vector<std::string>& globalParameterNames,

@@ -786,7 +786,7 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
     unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
     if (verbose)
       ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
-    OptimizationToolsOld::optimizeTreeScale(
+    LegacyOptimizationTools::optimizeTreeScale(
       tl,
       tolerance,
       nbEvalMax,
@@ -1097,7 +1097,7 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
       unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
       double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional, warn + 1);
       double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, warn + 1);
-      tl = OptimizationToolsOld::optimizeTreeNNI(
+      tl = LegacyOptimizationTools::optimizeTreeNNI(
         dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
         optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
         reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
@@ -1106,7 +1106,7 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
     if (verbose && nstep > 1)
       ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     parametersToEstimate.matchParametersValues(tl->getParameters());
-    n = OptimizationToolsOld::optimizeNumericalParameters(
+    n = LegacyOptimizationTools::optimizeNumericalParameters(
       dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
       backupListener, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
   }
@@ -1120,14 +1120,14 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
       unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
       double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional, warn + 1);
       double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional, warn + 1);
-      tl = OptimizationToolsOld::optimizeTreeNNI2(
+      tl = LegacyOptimizationTools::optimizeTreeNNI2(
         dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
         optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
         reparam, optVerbose, optMethodDeriv, nniAlgo);
     }
 
     parametersToEstimate.matchParametersValues(tl->getParameters());
-    n = OptimizationToolsOld::optimizeNumericalParameters2(
+    n = LegacyOptimizationTools::optimizeNumericalParameters2(
       dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
       backupListener, tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
   }

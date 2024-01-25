@@ -67,7 +67,7 @@ namespace bpp
 {
 private:
   std::shared_ptr<BranchModelInterface> model_;
-  std::shared_ptr<DiscreteDistribution> rateDist_;
+  std::shared_ptr<DiscreteDistributionInterface> rateDist_;
   std::shared_ptr<const AlignmentDataInterface> sites_;
   std::shared_ptr<DistanceMatrix> dist_;
   std::shared_ptr<OptimizerInterface> optimizer_;
@@ -92,7 +92,7 @@ public:
    */
   DistanceEstimation(
     std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rateDist,
+    std::shared_ptr<DiscreteDistributionInterface> rateDist,
     size_t verbose = 1) :
     model_(model),
     rateDist_(rateDist),
@@ -125,7 +125,7 @@ public:
    */
   DistanceEstimation(
     std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rateDist,
+    std::shared_ptr<DiscreteDistributionInterface> rateDist,
     std::shared_ptr<const AlignmentDataInterface> sites,
     size_t verbose = 1,
     bool computeMat = true) :
@@ -252,7 +252,7 @@ public:
 
   bool hasRateDistribution() const { return rateDist_.get(); }
 
-  const DiscreteDistribution& rateDistribution() const
+  const DiscreteDistributionInterface& rateDistribution() const
   {
     if (hasRateDistribution())
       return *rateDist_;
@@ -260,12 +260,12 @@ public:
       throw Exception("DistanceEstimation::getRateDistribution(). No rate distribution associated to this instance.");
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const
   {
      return rateDist_;
   }
   
-  void setRateDistribution(std::shared_ptr<DiscreteDistribution> rateDist = nullptr) { rateDist_ = rateDist; }
+  void setRateDistribution(std::shared_ptr<DiscreteDistributionInterface> rateDist = nullptr) { rateDist_ = rateDist; }
 
   void setData(std::shared_ptr<const AlignmentDataInterface> sites = nullptr) { sites_ = sites; }
 

@@ -1575,7 +1575,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
       const G2001& gModel = dynamic_cast<const G2001&>(model);
       // Also print distribution here:
       out << ",rdist=";
-      const DiscreteDistribution& nestedDist = gModel.rateDistribution();
+      const DiscreteDistributionInterface& nestedDist = gModel.rateDistribution();
       const BppODiscreteDistributionFormat bIO;
       bIO.writeDiscreteDistribution(nestedDist, out, globalAliases, writtenNames);
     } catch (bad_cast&) {}

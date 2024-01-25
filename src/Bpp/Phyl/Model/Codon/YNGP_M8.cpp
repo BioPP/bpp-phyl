@@ -75,7 +75,7 @@ YNGP_M8::YNGP_M8(
   vector<double> prob = { 1. };
   auto psdd = make_unique<SimpleDiscreteDistribution>(val, move(prob));
 
-  vector<unique_ptr<DiscreteDistribution>> v_distr;
+  vector<unique_ptr<DiscreteDistributionInterface>> v_distr;
   v_distr.push_back(move(pbdd)); 
   v_distr.push_back(move(psdd));
   prob.clear(); 
@@ -85,7 +85,7 @@ YNGP_M8::YNGP_M8(
   // Distribution on omega = mixture (Beta + Simple of size 1)
   auto pmodd = make_unique<MixtureOfDiscreteDistributions>(v_distr, prob);
 
-  map<string, unique_ptr<DiscreteDistribution>> mpdd;
+  map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
   mpdd["omega"] = move(pmodd);
 
   auto yn98 = make_unique<YN98>(gc, move(codonFreqs));

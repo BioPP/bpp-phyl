@@ -510,7 +510,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     Context context;
   
     shared_ptr<BranchModelInterface> model(estimationMethod.model().clone());
-    shared_ptr<DiscreteDistribution> rdist(estimationMethod.rateDistribution().clone());
+    shared_ptr<DiscreteDistributionInterface> rdist(estimationMethod.rateDistribution().clone());
     auto phyloT  = PhyloTreeTools::buildFromTreeTemplate(*tree);
     auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, phyloT);
     auto lik     = make_shared<LikelihoodCalculationSingleProcess>(context, estimationMethod.getData(), process);

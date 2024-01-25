@@ -55,7 +55,7 @@ using namespace std;
 DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   const Tree& tree,
   std::shared_ptr<TransitionModelInterface> model,
-  std::shared_ptr<DiscreteDistribution> rDist,
+  std::shared_ptr<DiscreteDistributionInterface> rDist,
   bool checkRooted,
   bool verbose,
   bool rootArray) :
@@ -82,7 +82,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   const Tree& tree,
   const AlignmentDataInterface& data,
   shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistribution> rDist,
+  shared_ptr<DiscreteDistributionInterface> rDist,
   bool checkRooted,
   bool verbose,
   bool rootArray) :

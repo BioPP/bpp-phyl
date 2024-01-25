@@ -124,9 +124,9 @@ void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametriz
     freqColl_.addObject(std::dynamic_pointer_cast<FrequencySetInterface>(parametrizable), parametrizableIndex);
     pl = freqColl_.getParametersForObject(parametrizableIndex);
   }
-  else if (std::dynamic_pointer_cast<DiscreteDistribution>(parametrizable))
+  else if (std::dynamic_pointer_cast<DiscreteDistributionInterface>(parametrizable))
   {
-    distColl_.addObject(std::dynamic_pointer_cast<DiscreteDistribution>(parametrizable), parametrizableIndex);
+    distColl_.addObject(std::dynamic_pointer_cast<DiscreteDistributionInterface>(parametrizable), parametrizableIndex);
     pl = distColl_.getParametersForObject(parametrizableIndex);
   }
   else if (std::dynamic_pointer_cast<ParametrizablePhyloTree>(parametrizable))

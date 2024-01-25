@@ -57,18 +57,18 @@ class RateAcrossSitesSubstitutionProcess :
 {
 private:
   std::shared_ptr<BranchModelInterface> model_;
-  std::shared_ptr<DiscreteDistribution> rDist_;
+  std::shared_ptr<DiscreteDistributionInterface> rDist_;
 
 public:
   RateAcrossSitesSubstitutionProcess(
     std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rdist,
+    std::shared_ptr<DiscreteDistributionInterface> rdist,
     std::shared_ptr<const PhyloTree> tree = nullptr,
     std::shared_ptr<FrequencySetInterface> rootFrequencies = nullptr);
 
   RateAcrossSitesSubstitutionProcess(
     std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rdist,
+    std::shared_ptr<DiscreteDistributionInterface> rdist,
     std::shared_ptr<ParametrizablePhyloTree> tree,
     std::shared_ptr<FrequencySetInterface> rootFrequencies = nullptr);
 
@@ -135,26 +135,26 @@ public:
     return model_;
   }
 
-  const DiscreteDistribution& rateDistribution() const override
+  const DiscreteDistributionInterface& rateDistribution() const override
   {
     if (!rDist_)
       throw NullPointerException("RateAcrossSitesSubstitutionProcess::rateDistribution. No associated rate distribution.");
     return *rDist_;
   }
 
-  DiscreteDistribution& rateDistribution() override
+  DiscreteDistributionInterface& rateDistribution() override
   {
     if (!rDist_)
       throw NullPointerException("RateAcrossSitesSubstitutionProcess::rateDistribution. No associated rate distribution.");
     return *rDist_;
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const override
   {
     return rDist_;
   }
 
-  std::shared_ptr<DiscreteDistribution> getRateDistribution() override
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution() override
   {
     return rDist_;
   }

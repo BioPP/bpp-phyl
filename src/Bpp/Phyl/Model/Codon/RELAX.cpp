@@ -69,7 +69,7 @@ RELAX::RELAX(
 
   auto psdd = make_unique<SimpleDiscreteDistribution>(omega_initials, omega_frequencies_initials);
 
-  map<string, unique_ptr<DiscreteDistribution>> mpdd;
+  map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
   mpdd["omega"] = move(psdd);
 
   // build the submodel as a basic Yang Nielsen model (with kappa instead of 5 GTR nucleotide substituion rate parameters)

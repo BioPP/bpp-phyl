@@ -195,25 +195,25 @@ public:
    * @brief Get the rate distribution
    * @throw NullPointerException if there is no associated rate distribution.
    */
-  virtual const DiscreteDistribution& rateDistribution() const = 0;
+  virtual const DiscreteDistributionInterface& rateDistribution() const = 0;
 
   /**
    * @brief Get the rate distribution
    * @throw NullPointerException if there is no associated rate distribution.
    */
-  virtual DiscreteDistribution& rateDistribution() = 0;
+  virtual DiscreteDistributionInterface& rateDistribution() = 0;
 
   /**
    * @brief Get a pointer to the rate distribution (or null if there
    * is no rate distribution).
    */
-  virtual std::shared_ptr<const DiscreteDistribution> getRateDistribution() const = 0;
+  virtual std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const = 0;
 
   /**
    * @brief Get a pointer to the rate distribution (or null if there
    * is no rate distribution).
    */
-  virtual std::shared_ptr<DiscreteDistribution> getRateDistribution() = 0;
+  virtual std::shared_ptr<DiscreteDistributionInterface> getRateDistribution() = 0;
 
 
   /**

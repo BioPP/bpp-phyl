@@ -67,7 +67,7 @@ YNGP_M1::YNGP_M1(
 
   auto psdd = make_unique<SimpleDiscreteDistribution>(v1, v2);
 
-  map<string, unique_ptr<DiscreteDistribution>> mpdd;
+  map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
   mpdd["omega"] = move(psdd);
 
   auto yn98 = make_unique<YN98>(gc, move(codonFreqs));

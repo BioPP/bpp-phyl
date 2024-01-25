@@ -61,7 +61,7 @@ using namespace bpp;
 using namespace std;
 
 void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
-	         std::shared_ptr<DiscreteDistribution> rdist,
+	         std::shared_ptr<DiscreteDistributionInterface> rdist,
                  const Tree& tree,
                  std::shared_ptr<ParametrizablePhyloTree> partree,
                  std::shared_ptr<const SiteContainerInterface> sites,
@@ -182,12 +182,12 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
       tree,
       *sites,
       shared_ptr<SubstitutionModelInterface>(model->clone()),
-      shared_ptr<DiscreteDistribution>(rdist->clone()),
+      shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
       false,
       false);
   tlop->initialize();
 
-  OptimizationToolsOld::optimizeNumericalParameters2(tlop, tlop->getParameters(), 0, 0.000001, nboptim, 0, 0);
+  LegacyOptimizationTools::optimizeNumericalParameters2(tlop, tlop->getParameters(), 0, 0.000001, nboptim, 0, 0);
   cout << setprecision(20) << tlop->getValue() << endl;
   ApplicationTools::displayResult("* lnL after full optimization (old)", tlop->getValue());
   if (abs(tlop->getValue() - finalValue) > 0.001)
@@ -197,7 +197,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
   
   process = std::make_shared<RateAcrossSitesSubstitutionProcess>(
       shared_ptr<SubstitutionModelInterface>(model->clone()),
-      shared_ptr<DiscreteDistribution>(rdist->clone()),
+      shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
       partree);
 
   Context context2;

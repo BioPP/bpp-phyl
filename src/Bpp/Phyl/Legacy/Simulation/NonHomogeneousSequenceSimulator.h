@@ -104,7 +104,7 @@ class NonHomogeneousSequenceSimulator:
     std::shared_ptr<const SubstitutionModelSet> modelSet_;
     mutable std::shared_ptr<const Alphabet> alphabet_;
     std::vector<int>            supportedStates_;
-    std::shared_ptr<const DiscreteDistribution> rate_;
+    std::shared_ptr<const DiscreteDistributionInterface> rate_;
     std::shared_ptr<const Tree> templateTree_;
     mutable TreeTemplate<SNode> tree_;
     mutable std::shared_ptr<const ParametrizablePhyloTree> phyloTree_;
@@ -135,13 +135,13 @@ class NonHomogeneousSequenceSimulator:
   public:
     NonHomogeneousSequenceSimulator(
       std::shared_ptr<const SubstitutionModelSet> modelSet,
-      std::shared_ptr<const DiscreteDistribution> rate,
+      std::shared_ptr<const DiscreteDistributionInterface> rate,
       std::shared_ptr<const Tree> tree
     );
 
     NonHomogeneousSequenceSimulator(
       std::shared_ptr<const TransitionModelInterface> model,
-      std::shared_ptr<const DiscreteDistribution> rate,
+      std::shared_ptr<const DiscreteDistributionInterface> rate,
       std::shared_ptr<const Tree> tree
     );
 
@@ -248,14 +248,14 @@ class NonHomogeneousSequenceSimulator:
      *
      * @return The DiscreteDistribution object associated to this instance.
      */
-    std::shared_ptr<const DiscreteDistribution> getRateDistribution() const { return rate_; }
+    std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const { return rate_; }
 
     /**
      * @brief Get the rate distribution associated to this instance.
      *
      * @return The DiscreteDistribution object associated to this instance.
      */
-    const DiscreteDistribution& rateDistribution() const { return *rate_; }
+    const DiscreteDistributionInterface& rateDistribution() const { return *rate_; }
 
    /**
      * @brief Get the tree associated to this instance.

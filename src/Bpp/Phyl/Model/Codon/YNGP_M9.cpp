@@ -75,7 +75,7 @@ YNGP_M9::YNGP_M9(
   auto pbdd = make_unique<BetaDiscreteDistribution>(nbBeta, 2, 2);
   auto pgdd = make_unique<GammaDiscreteDistribution>(nbGamma, 1, 1);
 
-  vector<unique_ptr<DiscreteDistribution>> v_distr;
+  vector<unique_ptr<DiscreteDistributionInterface>> v_distr;
   v_distr.push_back(move(pbdd));
   v_distr.push_back(move(pgdd));
   vector<double> prob;
@@ -84,7 +84,7 @@ YNGP_M9::YNGP_M9(
 
   auto pmodd = make_unique<MixtureOfDiscreteDistributions>(v_distr, prob);
 
-  map<string, unique_ptr<DiscreteDistribution>> mpdd;
+  map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
   mpdd["omega"] = move(pmodd);
 
   auto yn98 = make_unique<YN98>(gc, move(codonFreqs));

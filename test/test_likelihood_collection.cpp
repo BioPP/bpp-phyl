@@ -99,7 +99,7 @@ int main() {
   // First Process
 
   auto subPro1 = make_shared<NonHomogeneousSubstitutionProcess>(
-      shared_ptr<DiscreteDistribution>(rdist1->clone()),
+      shared_ptr<DiscreteDistributionInterface>(rdist1->clone()),
       shared_ptr<PhyloTree>(tree1->clone()));
 
   Vuint vP1m1{0, 3, 4};
@@ -112,7 +112,7 @@ int main() {
   // Second Process
 
   auto subPro2 = make_shared<NonHomogeneousSubstitutionProcess>(
-      shared_ptr<DiscreteDistribution>(rdist2->clone()),
+      shared_ptr<DiscreteDistributionInterface>(rdist2->clone()),
       shared_ptr<PhyloTree>(tree2->clone()),
       shared_ptr<FrequencySetInterface>(rootFreqs->clone()));
   

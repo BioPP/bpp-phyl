@@ -72,7 +72,7 @@ public:
   MixtureOfASubstitutionModel(
       std::shared_ptr<const Alphabet> alpha,
       std::unique_ptr<SubstitutionModelInterface> model,
-      std::map<std::string, std::unique_ptr<DiscreteDistribution> >& parametersDistributionsList,
+      std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
       int ffrom = -1,
       int tto = -1) :
     AbstractParameterAliasable(model->getNamespace()),

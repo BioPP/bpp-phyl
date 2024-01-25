@@ -124,7 +124,7 @@ private:
      std::shared_ptr<MixedSubstitutionModelSet> modelSet,
      const MixedSubstitutionModelSet::HyperNode& hyperNode,
      int upperNode,
-     std::shared_ptr<DiscreteDistribution> rDist,
+     std::shared_ptr<DiscreteDistributionInterface> rDist,
      bool verbose,
      bool usePatterns);
 
@@ -155,7 +155,7 @@ private:
       std::shared_ptr<MixedSubstitutionModelSet> modelSet,
       const MixedSubstitutionModelSet::HyperNode& hyperNode,
       int upperNode,
-      std::shared_ptr<DiscreteDistribution> rDist,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
       bool verbose,
       bool usePatterns);
 
@@ -185,7 +185,7 @@ public:
   RNonHomogeneousMixedTreeLikelihood(
     const Tree& tree,
     std::shared_ptr<MixedSubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistribution> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose = true,
     bool usePatterns = true);
 
@@ -208,7 +208,7 @@ public:
       const Tree& tree,
       const AlignmentDataInterface& data,
       std::shared_ptr<MixedSubstitutionModelSet> modelSet,
-      std::shared_ptr<DiscreteDistribution> rDist,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
       bool verbose = true,
       bool usePatterns = true);
 

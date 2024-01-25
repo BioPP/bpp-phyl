@@ -49,7 +49,7 @@ using namespace bpp;
 
 using namespace std;
 
-unique_ptr<DiscreteDistribution> RASTools::getPosteriorRateDistribution(
+unique_ptr<DiscreteDistributionInterface> RASTools::getPosteriorRateDistribution(
   const DiscreteRatesAcrossSitesTreeLikelihoodInterface& treeLikelihood)
 {
   // Get all posterior rate classes for each sites:

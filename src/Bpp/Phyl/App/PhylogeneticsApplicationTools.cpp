@@ -544,7 +544,7 @@ std::unique_ptr<BranchModelInterface> PhylogeneticsApplicationTools::getBranchMo
 
 /******************************************************************************/
 
-map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTools::getRateDistributions(
+map<size_t, std::shared_ptr<DiscreteDistributionInterface>> PhylogeneticsApplicationTools::getRateDistributions(
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -562,10 +562,10 @@ map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTool
   vector<string> vratesName = ApplicationTools::matchingParameters("rate_distribution*", paramDist);
 
   BppORateDistributionFormat bIO(true);
-  map<size_t, std::shared_ptr<DiscreteDistribution> > mDist;
+  map<size_t, std::shared_ptr<DiscreteDistributionInterface>> mDist;
 
 
-  for (size_t i = 0; i < vratesName.size(); i++)
+  for (size_t i = 0; i < vratesName.size(); ++i)
   {
     size_t poseq = vratesName[i].find("=");
     size_t num = 0;
@@ -590,13 +590,13 @@ map<size_t, std::shared_ptr<DiscreteDistribution> > PhylogeneticsApplicationTool
 
     string distDescription = ApplicationTools::getStringParameter(vratesName[i], paramDist, "", suffix, suffixIsOptional);
 
-    mDist[num] = std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
+    mDist[num] = std::shared_ptr<DiscreteDistributionInterface>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
   if (mDist.size() == 0)
   {
     string distDescription = ApplicationTools::getStringParameter("rate_distribution", paramDist, "Constant()", suffix, suffixIsOptional);
-    mDist[1] = std::shared_ptr<DiscreteDistribution>(bIO.readDiscreteDistribution(distDescription, true));
+    mDist[1] = std::shared_ptr<DiscreteDistributionInterface>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
   return mDist;
@@ -1500,11 +1500,11 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 unique_ptr<SubstitutionProcessCollection> PhylogeneticsApplicationTools::getSubstitutionProcessCollection(
   std::shared_ptr<const Alphabet> alphabet,
   std::shared_ptr<const GeneticCode> gCode,
-  const map<size_t, std::shared_ptr<PhyloTree> >& mTree,
-  const map<size_t, std::shared_ptr<BranchModelInterface> >& mMod,
-  const map<size_t, std::shared_ptr<FrequencySetInterface> >& mRootFreq,
-  const map<size_t, std::shared_ptr<DiscreteDistribution> >& mDist,
-  const map<size_t, std::shared_ptr<ModelScenario> >& mScen,
+  const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
+  const map<size_t, std::shared_ptr<BranchModelInterface>>& mMod,
+  const map<size_t, std::shared_ptr<FrequencySetInterface>>& mRootFreq,
+  const map<size_t, std::shared_ptr<DiscreteDistributionInterface>>& mDist,
+  const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
   const map<string, string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -2327,7 +2327,7 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
 
 /******************************************************************************/
 
-unique_ptr<DiscreteDistribution> PhylogeneticsApplicationTools::getRateDistribution(
+unique_ptr<DiscreteDistributionInterface> PhylogeneticsApplicationTools::getRateDistribution(
   const map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -2340,7 +2340,7 @@ unique_ptr<DiscreteDistribution> PhylogeneticsApplicationTools::getRateDistribut
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
   BppORateDistributionFormat bIO(true);
-  unique_ptr<DiscreteDistribution> rDist(bIO.readDiscreteDistribution(distDescription, true));
+  unique_ptr<DiscreteDistributionInterface> rDist(bIO.readDiscreteDistribution(distDescription, true));
 
   if (verbose)
   {
@@ -3951,7 +3951,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution& rDist, OutputStream& out, bool withAlias)
+void PhylogeneticsApplicationTools::printParameters(const DiscreteDistributionInterface& rDist, OutputStream& out, bool withAlias)
 {
   out << "rate_distribution=";
   map<string, string> globalAliases;

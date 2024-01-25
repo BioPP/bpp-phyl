@@ -56,7 +56,7 @@ using namespace std;
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   const Tree& tree,
   shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistribution> rDist,
+  shared_ptr<DiscreteDistributionInterface> rDist,
   bool checkRooted,
   bool verbose,
   bool usePatterns) :
@@ -73,7 +73,7 @@ RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   const Tree& tree,
   const AlignmentDataInterface& data,
   shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistribution> rDist,
+  shared_ptr<DiscreteDistributionInterface> rDist,
   bool checkRooted,
   bool verbose,
   bool usePatterns) :
@@ -133,7 +133,6 @@ RHomogeneousTreeLikelihood::~RHomogeneousTreeLikelihood()
 void RHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites)
 {
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
-
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(*data_, *model_);

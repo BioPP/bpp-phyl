@@ -208,7 +208,7 @@ unique_ptr<AlignmentDataInterface> PatternTools::shrinkSiteSet(
         sites.push_back(make_unique<Site>(currentSite));
     }
     auto result = make_unique<VectorSiteContainer>(sites, alphabet, false);
-    result->setSequenceNames(siteSet.getSequenceNames(), false);
+    result->setSequenceNames(siteSet.getSequenceNames(), true); //Update keys too
     return result;
   } catch(std::bad_cast& e) {}
 

@@ -162,7 +162,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
 
   auto rates = process_->getRateDistribution();
   if (rates && dynamic_pointer_cast<const ConstantRateDistribution>(rates) == nullptr)
-    processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(getContext_(), *rates, pl2, suff);
+    processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistributionInterface, ConfiguredDistribution>(getContext_(), *rates, pl2, suff);
 
   ///////
   // tree node

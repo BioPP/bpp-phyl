@@ -129,22 +129,22 @@ public:
     return model_;
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const override
   {
     return nullptr;
   }
 
-  std::shared_ptr<DiscreteDistribution> getRateDistribution() override
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution() override
   {
     return nullptr;
   }
 
-  const DiscreteDistribution& rateDistribution() const override
+  const DiscreteDistributionInterface& rateDistribution() const override
   {
     throw NullPointerException("SimpleSubstitutionProcess::rateDistribution. This process does not model a rate distribution.");
   }
 
-  DiscreteDistribution& rateDistribution() override
+  DiscreteDistributionInterface& rateDistribution() override
   {
     throw NullPointerException("SimpleSubstitutionProcess::rateDistribution. This process does not model a rate distribution.");
   }

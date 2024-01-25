@@ -55,7 +55,7 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
   AbstractParameterAliasable(set),
   AbstractAutonomousSubstitutionProcess(set),
   modelSet_(set.modelSet_.size()),
-  rDist_                (set.rDist_ ? dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()) : 0),
+  rDist_                (set.rDist_ ? dynamic_cast<DiscreteDistributionInterface*>(set.rDist_->clone()) : 0),
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
   modelParameters_      (set.modelParameters_)
@@ -83,7 +83,7 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
   modelToNodes_        = set.modelToNodes_;
   modelParameters_     = set.modelParameters_;
 
-  rDist_.reset(rDist_ ? dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()) : 0);
+  rDist_.reset(rDist_ ? dynamic_cast<DiscreteDistributionInterface*>(set.rDist_->clone()) : 0);
 
   // Duplicate all model objects:
 
@@ -321,7 +321,7 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(shared_ptr<ModelScenari
 
 unique_ptr<AutonomousSubstitutionProcessInterface> NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
   shared_ptr<BranchModelInterface> model,
-  shared_ptr<DiscreteDistribution> rdist,
+  shared_ptr<DiscreteDistributionInterface> rdist,
   shared_ptr<PhyloTree> tree,
   shared_ptr<FrequencySetInterface> rootFreqs,
   shared_ptr<ModelScenario> scenario)
@@ -351,7 +351,7 @@ unique_ptr<AutonomousSubstitutionProcessInterface> NonHomogeneousSubstitutionPro
 
 unique_ptr<NonHomogeneousSubstitutionProcess> NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
   shared_ptr<BranchModelInterface> model,
-  shared_ptr<DiscreteDistribution> rdist,
+  shared_ptr<DiscreteDistributionInterface> rdist,
   shared_ptr<PhyloTree> tree,
   shared_ptr<FrequencySetInterface> rootFreqs,
   const vector<string>& globalParameterNames,

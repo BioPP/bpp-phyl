@@ -81,7 +81,7 @@ int main() {
   auto model = make_shared<GTR>(nucAlphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
   auto rdist = make_shared<GammaDiscreteDistribution>(4, 0.4, 0.4);
 
-  auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, shared_ptr<DiscreteDistribution>(rdist->clone()), std::shared_ptr<PhyloTree>(new_tree->clone()));
+  auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, shared_ptr<DiscreteDistributionInterface>(rdist->clone()), std::shared_ptr<PhyloTree>(new_tree->clone()));
 
   SimpleSubstitutionProcessSiteSimulator simulator(process);
   

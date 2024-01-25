@@ -104,7 +104,7 @@ class MixtureOfATransitionModel :
   public AbstractMixedTransitionModel
 {
 private:
-  std::map<std::string, std::unique_ptr<DiscreteDistribution> > distributionMap_;
+  std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>> distributionMap_;
 
 protected:
   int from_, to_;
@@ -113,7 +113,7 @@ public:
   MixtureOfATransitionModel(
     std::shared_ptr<const Alphabet> alpha,
     std::unique_ptr<TransitionModelInterface> model,
-    std::map<std::string, std::unique_ptr<DiscreteDistribution> >& parametersDistributionsList,
+    std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
     int ffrom = -1, int tto = -1);
 
   MixtureOfATransitionModel(const MixtureOfATransitionModel&);
@@ -180,7 +180,7 @@ public:
    * parameter name.
    * @param parName name of the parameter
    */
-  const DiscreteDistribution& distribution(std::string& parName) const
+  const DiscreteDistributionInterface& distribution(std::string& parName) const
   {
     if (distributionMap_.find(parName) != distributionMap_.end())
       return *distributionMap_.find(parName)->second;

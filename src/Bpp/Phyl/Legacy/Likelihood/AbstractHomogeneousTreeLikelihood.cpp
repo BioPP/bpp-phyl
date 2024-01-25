@@ -60,7 +60,7 @@ using namespace std;
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   const Tree& tree,
   shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistribution> rDist,
+  shared_ptr<DiscreteDistributionInterface> rDist,
   bool checkRooted,
   bool verbose) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
@@ -141,12 +141,12 @@ AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
 void AbstractHomogeneousTreeLikelihood::init_(
   const Tree& tree,
   std::shared_ptr<TransitionModelInterface> model,
-  std::shared_ptr<DiscreteDistribution> rDist,
+  std::shared_ptr<DiscreteDistributionInterface> rDist,
   bool checkRooted,
   bool verbose)
 {
   TreeTools::checkIds(tree, true);
-  tree_ = make_unique< TreeTemplate<Node> >(tree);
+  tree_ = make_unique<TreeTemplate<Node>>(tree);
   if (checkRooted && tree_->isRooted())
   {
     if (verbose)

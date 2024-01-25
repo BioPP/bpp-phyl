@@ -59,7 +59,7 @@ using namespace std;
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   const Tree& tree,
   shared_ptr<SubstitutionModelSet> modelSet,
-  shared_ptr<DiscreteDistribution> rDist,
+  shared_ptr<DiscreteDistributionInterface> rDist,
   bool verbose,
   bool reparametrizeRoot) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
@@ -163,7 +163,7 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
 void AbstractNonHomogeneousTreeLikelihood::init_(
   const Tree& tree,
   shared_ptr<SubstitutionModelSet> modelSet,
-  shared_ptr<DiscreteDistribution> rDist,
+  shared_ptr<DiscreteDistributionInterface> rDist,
   bool verbose)
 {
   TreeTools::checkIds(tree, true);
