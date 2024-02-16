@@ -109,7 +109,7 @@ void RegisterRatesSubstitutionModel::updateMatrices_()
 
   RowMatrix<double>& gen = generator_;
 
-  gen = substitutionModel().getGenerator();
+  gen = substitutionModel().generator();
 
   for (size_t t = 0; t < nbTypes_; ++t)
   {

@@ -83,7 +83,7 @@ int main() {
     }
   }
 
-  const auto& Q=model->getGenerator();
+  const auto& Q=model->generator();
   
   map<uint, RowMatrix<double> >freqs;
   map<uint, double> sums;

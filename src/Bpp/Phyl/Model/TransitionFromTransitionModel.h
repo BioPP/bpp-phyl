@@ -61,7 +61,7 @@ private:
   /**
    * @brief The related model.
    */
-  std::unique_ptr<TransitionModelInterface> subModel_;
+  std::unique_ptr<TransitionModelInterface> subModel_; // --> shared?
 
   /**
    * The number of states

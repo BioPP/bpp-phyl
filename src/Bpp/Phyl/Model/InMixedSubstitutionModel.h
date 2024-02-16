@@ -188,7 +188,7 @@ public:
    */
   double Qij(size_t i, size_t j) const override { return substitutionModel().Qij(i, j); }
 
-  const Matrix<double>& getGenerator() const override { return substitutionModel().getGenerator(); }
+  const Matrix<double>& generator() const override { return substitutionModel().generator(); }
 
   const Matrix<double>& getExchangeabilityMatrix() const override { return substitutionModel().getExchangeabilityMatrix(); }
 

@@ -210,14 +210,14 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator_()
 
   if (sChangingPos_.size() == 0)
   {
-    vGenerators_[0] = VSubMod_[0]->getGenerator();
+    vGenerators_[0] = VSubMod_[0]->generator();
 
     for (size_t k = 1; k < nbmod - 1; k++)
     {
-      MatrixTools::kroneckerMult(vGenerators_[k - 1], VSubMod_[k]->getGenerator(), 1., 1., vGenerators_[k], false);
+      MatrixTools::kroneckerMult(vGenerators_[k - 1], VSubMod_[k]->generator(), 1., 1., vGenerators_[k], false);
     }
 
-    MatrixTools::kroneckerMult(vGenerators_[nbmod - 2], VSubMod_[nbmod - 1]->getGenerator(), 1., 1., generator_, false);
+    MatrixTools::kroneckerMult(vGenerators_[nbmod - 2], VSubMod_[nbmod - 1]->generator(), 1., 1., generator_, false);
   }
   else
   {
@@ -242,10 +242,10 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator_()
           if (ss != 1)
           {
             MatrixTools::getId(ss, vGenerators_[posok - 1]);
-            MatrixTools::kroneckerMult(vGenerators_[posok - 1], VSubMod_[posok]->getGenerator(), 1., 0., vGenerators_[posok], false);
+            MatrixTools::kroneckerMult(vGenerators_[posok - 1], VSubMod_[posok]->generator(), 1., 0., vGenerators_[posok], false);
           }
           else
-            vGenerators_[posok] = VSubMod_[0]->getGenerator();
+            vGenerators_[posok] = VSubMod_[0]->generator();
 
           MatrixTools::fillDiag(vGenerators_[posok], 0.);
         }
@@ -256,7 +256,7 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator_()
             MatrixTools::kroneckerMult(vGenerators_[pos - 1], VSubMod_[pos]->getNumberOfStates(), 1., vGenerators_[pos], false);
             pos++;
           }
-          MatrixTools::kroneckerMult(vGenerators_[posok - 1], VSubMod_[posok]->getGenerator(), 0., 0., vGenerators_[posok], false);
+          MatrixTools::kroneckerMult(vGenerators_[posok - 1], VSubMod_[posok]->generator(), 0., 0., vGenerators_[posok], false);
         }
 
         pos++;

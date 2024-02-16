@@ -81,7 +81,7 @@ void POMO::updateMatrices_()
   auto nbStates = pmodel_->getNumberOfStates();
   auto nbAlleles = allelicAlphabet().getNbAlleles();
 
-  const auto& Q = pmodel_->getGenerator();
+  const auto& Q = pmodel_->generator();
 
   const Vdouble* fit = pfitness_ ? &pfitness_->getFrequencies() : 0;
 

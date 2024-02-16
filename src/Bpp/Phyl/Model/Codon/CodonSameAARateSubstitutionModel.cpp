@@ -96,7 +96,7 @@ void CodonSameAARateSubstitutionModel::compute_()
 {
   const auto& freq = pFreq_ ? pFreq_->getFrequencies() : pCodonModel_->getFrequencies();
 
-  const auto& gen = pCodonModel_->getGenerator();
+  const auto& gen = pCodonModel_->generator();
 
   std::fill(phi_.begin(), phi_.end(), 0);
 
@@ -135,7 +135,7 @@ void CodonSameAARateSubstitutionModel::compute_()
     for (size_t aj = 0; aj < 20; aj++)
     {
       if (X_i[aj] != 0)
-        X_i[aj] = phi_[ai] * pAAmodel_->getGenerator()(ai, aj) / X_i[aj];
+        X_i[aj] = phi_[ai] * pAAmodel_->generator()(ai, aj) / X_i[aj];
     }
   }
 

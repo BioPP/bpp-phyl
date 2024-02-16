@@ -474,7 +474,7 @@ public:
    * See Kosiol and Goldman (2005), Molecular Biology And Evolution 22(2) 193-9.
    * @see Qij()
    */
-  virtual const Matrix<double>& getGenerator() const = 0;
+  virtual const Matrix<double>& generator() const = 0;
 
   /**
    * @return The matrix of exchangeability terms.

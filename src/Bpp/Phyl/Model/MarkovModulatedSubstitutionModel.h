@@ -234,7 +234,7 @@ public:
 
   const Matrix<double>& getExchangeabilityMatrix() const override { return exchangeability_; }
 
-  const Matrix<double>& getGenerator() const override { return generator_; }
+  const Matrix<double>& generator() const override { return generator_; }
 
   const Matrix<double>& getPij_t(double t) const override;
   const Matrix<double>& getdPij_dt(double t) const override;

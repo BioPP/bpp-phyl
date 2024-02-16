@@ -229,7 +229,7 @@ void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
     }
 
     if (!ok)
-      throw Exception("SubstitutionProcessCollectionMember::setModelScenario: Unknown model " + model->getName());
+      throw Exception("SubstitutionProcessCollectionMember::setModelScenario: Model " + model->getName() + " in used in scenario" + TextTools::toString(numPath) + " but is unknown from process " + TextTools::toString(nProc_));
   }
 
   nPath_ = numPath;

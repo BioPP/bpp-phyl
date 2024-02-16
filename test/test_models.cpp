@@ -144,7 +144,7 @@ int main() {
   
   POMO pomo(allalph, move(statemod), move(fit));
 
-  auto& Q = pomo.getGenerator();
+  auto& Q = pomo.generator();
 
   MatrixTools::printForR(Q, "Q", cerr);
 

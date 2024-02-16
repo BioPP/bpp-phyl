@@ -168,7 +168,7 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
   double lam = miu_ * length;
   RowMatrix<double> I;
   MatrixTools::getId(nbStates_, I);
-  RowMatrix<double> R(model_->getGenerator());
+  RowMatrix<double> R(model_->generator());
   MatrixTools::scale(R, 1. / miu_);
   MatrixTools::add(R, I);
 

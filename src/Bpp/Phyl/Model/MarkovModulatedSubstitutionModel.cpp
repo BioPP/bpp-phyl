@@ -115,7 +115,7 @@ void MarkovModulatedSubstitutionModel::updateMatrices_()
   RowMatrix<double> Tmp1, Tmp2;
   MatrixTools::diag(ratesFreq_, Tmp1);
   MatrixTools::mult(ratesExchangeability_, Tmp1, ratesGenerator_);
-  MatrixTools::kroneckerMult(rates_, model_->getGenerator(), generator_);
+  MatrixTools::kroneckerMult(rates_, model_->generator(), generator_);
 
   MatrixTools::MatrixTools::getId< RowMatrix<double> >(nbStates_, Tmp1);
   MatrixTools::kroneckerMult(ratesGenerator_, Tmp1, Tmp2);

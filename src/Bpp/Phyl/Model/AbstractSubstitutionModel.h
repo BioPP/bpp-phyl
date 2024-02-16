@@ -443,7 +443,7 @@ public:
 
   void computeFrequencies(bool yn) { computeFreq_ = yn; }
 
-  const Matrix<double>& getGenerator() const { return generator_; }
+  const Matrix<double>& generator() const { return generator_; }
 
   const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
 
