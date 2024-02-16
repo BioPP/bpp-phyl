@@ -90,7 +90,7 @@ int main() {
   // model
   auto t92 = make_shared<T92>(nucAlphabet, 3.);
 
-  auto multimodel = make_shared<MultinomialFromTransitionModel>(*t92); // t92 is copied there
+  auto multimodel = make_shared<MultinomialFromTransitionModel>(t92); // t92 is copied there
 
 
   auto rdist = make_shared<ConstantRateDistribution>();

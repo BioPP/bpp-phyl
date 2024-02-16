@@ -73,7 +73,7 @@ private:
   /**
    * @brief The related model.
    */
-  std::unique_ptr<TransitionModelInterface> subModel_;  // -> shared? 
+  std::shared_ptr<TransitionModelInterface> subModel_;  // -> shared? 
 
   /*
    * The number of states
@@ -132,11 +132,11 @@ protected:
   }
 
 public:
-  MultinomialFromTransitionModel(const TransitionModelInterface& originalModel) :
-    AbstractParameterAliasable("MultinomialFrom." + originalModel.getNamespace()),
-    AbstractWrappedModel("MultinomialFrom." + originalModel.getNamespace()),
-    subModel_(std::unique_ptr<TransitionModelInterface>(originalModel.clone())),
-    size_(originalModel.getNumberOfStates()),
+  MultinomialFromTransitionModel(std::shared_ptr<TransitionModelInterface> originalModel) :
+    AbstractParameterAliasable("MultinomialFrom." + originalModel->getNamespace()),
+    AbstractWrappedModel("MultinomialFrom." + originalModel->getNamespace()),
+    subModel_(originalModel),
+    size_(originalModel->getNumberOfStates()),
     tref_(NumConstants::MINF()), Pij_t(0), dPij_dt(0), d2Pij_dt2(0), Pi_(size_), dPi_(size_), d2Pi_(size_), mapFact_(&lessEigen)
   {
     subModel_->setNamespace(getNamespace());
@@ -155,7 +155,7 @@ public:
   {
     AbstractWrappedModel::operator=(fmsm);
 
-    subModel_ = std::unique_ptr<TransitionModelInterface>(fmsm.subModel_->clone());
+    subModel_ = std::shared_ptr<TransitionModelInterface>(fmsm.subModel_->clone());
     size_ = fmsm.size_;
     Pi_.resize(Eigen::Index(size_));
     dPi_.resize(Eigen::Index(size_));

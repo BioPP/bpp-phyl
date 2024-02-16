@@ -61,7 +61,7 @@ private:
   /**
    * @brief The related model.
    */
-  std::unique_ptr<TransitionModelInterface> subModel_; // --> shared?
+  std::shared_ptr<TransitionModelInterface> subModel_;
 
   /**
    * The number of states
@@ -91,11 +91,11 @@ private:
   mutable Eigen::VectorXd Pi_, dPi_, d2Pi_;
 
 public:
-  TransitionFromTransitionModel(const TransitionModelInterface& originalModel) :
-    AbstractParameterAliasable("TransitionFrom." + originalModel.getNamespace()),
-    AbstractWrappedModel("TransitionFrom." + originalModel.getNamespace()),
-    subModel_(originalModel.clone()),
-    size_(originalModel.getNumberOfStates()),
+  TransitionFromTransitionModel(std::shared_ptr<TransitionModelInterface> originalModel) :
+    AbstractParameterAliasable("TransitionFrom." + originalModel->getNamespace()),
+    AbstractWrappedModel("TransitionFrom." + originalModel->getNamespace()),
+    subModel_(originalModel),
+    size_(originalModel->getNumberOfStates()),
     tref_(-1), Pij_t(0), dPij_dt(0), d2Pij_dt2(0), Pi_(size_), dPi_(size_), d2Pi_(size_)
   {
     subModel_->setNamespace(getNamespace());
@@ -114,7 +114,7 @@ public:
   {
     AbstractWrappedModel::operator=(fmsm);
 
-    subModel_ = std::unique_ptr<TransitionModelInterface>(fmsm.subModel_->clone());
+    subModel_ = std::shared_ptr<TransitionModelInterface>(fmsm.subModel_->clone());
     size_ = fmsm.size_;
     Pi_.resize(Eigen::Index(size_));
     dPi_.resize(Eigen::Index(size_));
