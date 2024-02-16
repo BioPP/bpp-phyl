@@ -123,7 +123,7 @@ void MarkovModulatedSubstitutionModel::updateMatrices_()
 
   MatrixTools::diag(1. / ratesFreq_, Tmp1);
   MatrixTools::mult(rates_, Tmp1, Tmp2);
-  MatrixTools::kroneckerMult(Tmp2, model_->getExchangeabilityMatrix(), exchangeability_);
+  MatrixTools::kroneckerMult(Tmp2, model_->exchangeabilityMatrix(), exchangeability_);
 
   MatrixTools::diag(1 / model_->getFrequencies(), Tmp1);
   MatrixTools::kroneckerMult(ratesExchangeability_, Tmp1, Tmp2);

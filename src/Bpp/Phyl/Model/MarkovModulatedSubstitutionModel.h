@@ -232,7 +232,7 @@ public:
 
   const Vdouble& getFrequencies() const override { return freq_; }
 
-  const Matrix<double>& getExchangeabilityMatrix() const override { return exchangeability_; }
+  const Matrix<double>& exchangeabilityMatrix() const override { return exchangeability_; }
 
   const Matrix<double>& generator() const override { return generator_; }
 

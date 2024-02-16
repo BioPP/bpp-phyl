@@ -190,7 +190,7 @@ public:
 
   const Matrix<double>& generator() const override { return substitutionModel().generator(); }
 
-  const Matrix<double>& getExchangeabilityMatrix() const override { return substitutionModel().getExchangeabilityMatrix(); }
+  const Matrix<double>& exchangeabilityMatrix() const override { return substitutionModel().exchangeabilityMatrix(); }
 
   double Sij(size_t i, size_t j) const override { return substitutionModel().Sij(i, j); }
 

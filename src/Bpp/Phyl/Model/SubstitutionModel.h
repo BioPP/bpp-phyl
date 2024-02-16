@@ -481,7 +481,7 @@ public:
    * It is recommended that exchangeability matrix be normalized so that the normalized
    * generator be obtained directly by the dot product \f$S . \pi\f$.
    */
-  virtual const Matrix<double>& getExchangeabilityMatrix() const = 0;
+  virtual const Matrix<double>& exchangeabilityMatrix() const = 0;
 
   /**
    * @return The exchangeability between state i and state j.
@@ -583,7 +583,7 @@ public:
  * \f$\Pi\f$ the diagonal matrix with all equilibrium frequencies.
  * The frequencies may be retrieved as a vector by the getFrequencies() method
  * or individually by the freq() method.
- * The \f$S\f$ matrix may be obtained by the getExchangeabilityMatrix().
+ * The \f$S\f$ matrix may be obtained by the exchangeabilityMatrix().
  */
 class ReversibleSubstitutionModelInterface :
   public virtual SubstitutionModelInterface

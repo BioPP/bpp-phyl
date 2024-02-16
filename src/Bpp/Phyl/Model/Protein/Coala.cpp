@@ -78,7 +78,7 @@ Coala::Coala(
   setNamespace(getName() + ".");
 
   // Setting the exchangeability matrix
-  exchangeability_ = model.getExchangeabilityMatrix();
+  exchangeability_ = model.exchangeabilityMatrix();
   updateMatrices_();
 }
 

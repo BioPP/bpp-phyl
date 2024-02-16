@@ -270,7 +270,7 @@ public:
 
   const Matrix<double>& generator() const { return substitutionModel().generator(); }
 
-  const Matrix<double>& getExchangeabilityMatrix() const { return substitutionModel().getExchangeabilityMatrix(); }
+  const Matrix<double>& exchangeabilityMatrix() const { return substitutionModel().exchangeabilityMatrix(); }
 
   double Sij(size_t i, size_t j) const { return substitutionModel().Sij(i, j); }
 

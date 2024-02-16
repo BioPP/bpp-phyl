@@ -93,7 +93,7 @@ void RE08::updateMatrices_()
   freq_[size_ - 1] = (1. - f);
 
   simpleGenerator_ = simpleModel_->generator();
-  simpleExchangeabilities_ = simpleModel_->getExchangeabilityMatrix();
+  simpleExchangeabilities_ = simpleModel_->exchangeabilityMatrix();
 
   // Generator and exchangeabilities:
   for (size_t i = 0; i < size_ - 1; ++i)

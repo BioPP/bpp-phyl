@@ -445,7 +445,7 @@ public:
 
   const Matrix<double>& generator() const { return generator_; }
 
-  const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
+  const Matrix<double>& exchangeabilityMatrix() const { return exchangeability_; }
 
   const Matrix<double>& getPij_t(double t) const;
   const Matrix<double>& getdPij_dt(double t) const;
