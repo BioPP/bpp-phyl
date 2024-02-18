@@ -43,7 +43,7 @@
 
 #include "../Likelihood/ModelScenario.h"
 #include "../Likelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h"
-#include "../Likelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h"
+#include "../Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodSet.h"
 #include "../Likelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
 #include "../Likelihood/SequenceEvolution.h"
 #include "../Likelihood/AutonomousSubstitutionProcess.h"
@@ -828,7 +828,7 @@ public:
 
   static void printAnalysisInformation(const SingleDataPhyloLikelihoodInterface& phylolike, const std::string& infosFile, int warn = 1);
 
-  static void printAnalysisInformation(const SetOfAlignedPhyloLikelihoodInterface& sOAP, const std::string& infosFile, int warn = 1);
+  static void printAnalysisInformation(const AlignedPhyloLikelihoodSetInterface& sOAP, const std::string& infosFile, int warn = 1);
 
   /**
    * @}

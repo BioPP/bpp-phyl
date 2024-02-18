@@ -136,7 +136,7 @@ public:
 
 /** @} */
 
-  friend class SetOfAlignedPhyloLikelihood;
+  friend class AlignedPhyloLikelihoodSet;
 };
 
 

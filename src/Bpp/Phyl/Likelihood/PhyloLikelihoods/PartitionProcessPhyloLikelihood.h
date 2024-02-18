@@ -43,7 +43,7 @@
 
 
 #include "../PartitionSequenceEvolution.h"
-#include "ProductOfAlignedPhyloLikelihood.h"
+#include "AlignedPhyloLikelihoodProduct.h"
 #include "SequencePhyloLikelihood.h"
 #include "SingleProcessPhyloLikelihood.h"
 
@@ -68,7 +68,7 @@ namespace bpp
 
   class PartitionProcessPhyloLikelihood :
     public AbstractSequencePhyloLikelihood,
-    public AbstractSetOfPhyloLikelihood
+    public AbstractPhyloLikelihoodSet
   {
   private:
     /**
@@ -120,7 +120,7 @@ namespace bpp
       AbstractSingleDataPhyloLikelihood(lik),
       AbstractParametrizable(""),
       AbstractSequencePhyloLikelihood(lik),
-      AbstractSetOfPhyloLikelihood(lik),
+      AbstractPhyloLikelihoodSet(lik),
       mSeqEvol_(lik.mSeqEvol_),
       vProcPos_(lik.vProcPos_),
       mData_(lik.mData_),
@@ -130,7 +130,7 @@ namespace bpp
     PartitionProcessPhyloLikelihood& operator=(const PartitionProcessPhyloLikelihood& lik)
     {
       AbstractSequencePhyloLikelihood::operator=(lik);
-      AbstractSetOfPhyloLikelihood::operator=(lik);
+      AbstractPhyloLikelihoodSet::operator=(lik);
       mSeqEvol_ = lik.mSeqEvol_;
       vProcPos_ = lik.vProcPos_;
       mData_    = lik.mData_;

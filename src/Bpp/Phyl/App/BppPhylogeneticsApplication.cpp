@@ -184,7 +184,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
       mSD[1] = dynamic_pointer_cast<SingleDataPhyloLikelihoodInterface>(phylolik);
     else
     {
-      auto sOAP = dynamic_pointer_cast<SetOfPhyloLikelihoodInterface>(phylolik);
+      auto sOAP = dynamic_pointer_cast<PhyloLikelihoodSetInterface>(phylolik);
       if (sOAP)
       {
         const vector<size_t>& nSD = sOAP->getNumbersOfPhyloLikelihoods();

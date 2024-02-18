@@ -46,7 +46,7 @@
 // From Numeric
 #include <Bpp/Numeric/Hmm/HmmStateAlphabet.h>
 
-#include "SetOfAlignedPhyloLikelihood.h"
+#include "AlignedPhyloLikelihoodSet.h"
 #include "MultiProcessSequencePhyloLikelihood.h"
 #include "SingleProcessPhyloLikelihood.h"
 
@@ -56,7 +56,7 @@ namespace bpp
  * @brief Hidden states alphabet.
  *
  * Implementation of HmmStateAlphabet where Alphabet States are all
- * the PhyloLikelihoods belonging to a SetOfAlignedPhyloLikelihood.
+ * the PhyloLikelihoods belonging to a AlignedPhyloLikelihoodSet.
  */
 class HmmPhyloAlphabet :
   public virtual HmmStateAlphabet,
@@ -74,7 +74,7 @@ private:
   size_t nbSites_;
 
 public:
-  HmmPhyloAlphabet(SetOfAlignedPhyloLikelihoodInterface& soap) :
+  HmmPhyloAlphabet(AlignedPhyloLikelihoodSetInterface& soap) :
     AbstractParametrizable(""),
     context_(soap.context()),
     vAP_(),

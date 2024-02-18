@@ -55,9 +55,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Likelihood/MixtureSequenceEvolution.h>
 
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodMixture.h>
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/PhyloLikelihoodFormula.h>
 
 #include <iostream>
 
@@ -218,7 +218,7 @@ int main() {
   pc2->addPhyloLikelihood(1, make_shared<SingleProcessPhyloLikelihood>(context2, lik22));
 
   vector<size_t> nPhylo = {1,2};
-  auto moap = make_shared<MixtureOfAlignedPhyloLikelihood>(context2, pc2, nPhylo, false);
+  auto moap = make_shared<AlignedPhyloLikelihoodMixture>(context2, pc2, nPhylo, false);
 
   bpp::writeGraphToDot("moap.dot", {moap->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
 
@@ -302,7 +302,7 @@ int main() {
   
   string formula="(phylo2 - phylo1) * (phylo1 - phylo2)";      
 
-  auto tl = make_shared<FormulaOfPhyloLikelihood>(context, pc, formula, false);
+  auto tl = make_shared<PhyloLikelihoodFormula>(context, pc, formula, false);
 
   cerr << formula << " : " << tl->getValue() << endl;
 

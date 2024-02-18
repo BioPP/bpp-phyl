@@ -56,16 +56,16 @@
 #include "../Likelihood/OneProcessSequenceEvolution.h"
 #include "../Likelihood/ParametrizablePhyloTree.h"
 #include "../Likelihood/PartitionSequenceEvolution.h"
-#include "../Likelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h"
+#include "../Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodAutoCorrelation.h"
 #include "../Likelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h"
-#include "../Likelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h"
-#include "../Likelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h"
+#include "../Likelihood/PhyloLikelihoods/PhyloLikelihoodFormula.h"
+#include "../Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodHmm.h"
 #include "../Likelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h"
-#include "../Likelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.h"
+#include "../Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodMixture.h"
 #include "../Likelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h"
 #include "../Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
 #include "../Likelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.h"
-#include "../Likelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h"
+#include "../Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodProduct.h"
 #include "../Likelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
 #include "../Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
 #include "../Likelihood/RateAcrossSitesSubstitutionProcess.h"
@@ -2113,7 +2113,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
         if (phyloName == "Mixture")
         {
-          auto pMA = make_unique<MixtureOfAlignedPhyloLikelihood>(context, move(mPhylo), vPhylo);
+          auto pMA = make_unique<AlignedPhyloLikelihoodMixture>(context, move(mPhylo), vPhylo);
           vector<double> vprob = ApplicationTools::getVectorParameter<double>("probas", args, ',', "(" + VectorTools::paste(vector<double>(vPhylo.size(), 1. / (double)vPhylo.size())) + ")");
           if (vprob.size() != 1)
           {
@@ -2127,7 +2127,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
         }
         else if (phyloName == "HMM")
         {
-          auto pMA = make_unique<HmmOfAlignedPhyloLikelihood>(context, move(mPhylo), vPhylo);
+          auto pMA = make_unique<AlignedPhyloLikelihoodHmm>(context, move(mPhylo), vPhylo);
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
 
@@ -2150,7 +2150,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
         }
         else if (phyloName == "AutoCorr")
         {
-          auto pMA = make_unique<AutoCorrelationOfAlignedPhyloLikelihood>(context, move(mPhylo), vPhylo);
+          auto pMA = make_unique<AlignedPhyloLikelihoodAutoCorrelation>(context, move(mPhylo), vPhylo);
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
 
@@ -2171,7 +2171,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
         }
         else if (phyloName == "Product")
         {
-          auto pAP = make_unique<ProductOfAlignedPhyloLikelihood>(context, move(mPhylo), vPhylo);
+          auto pAP = make_unique<AlignedPhyloLikelihoodProduct>(context, move(mPhylo), vPhylo);
 
           nPL = move(pAP);
         }
@@ -2256,9 +2256,9 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
   if (!flag)
   {
-    nPL = make_shared<FormulaOfPhyloLikelihood>(context, mPhylo, resultDesc);
+    nPL = make_shared<PhyloLikelihoodFormula>(context, mPhylo, resultDesc);
     if (verbose)
-      ApplicationTools::displayResult(" Result", dynamic_cast<FormulaOfPhyloLikelihood*>(nPL.get())->output());
+      ApplicationTools::displayResult(" Result", dynamic_cast<PhyloLikelihoodFormula*>(nPL.get())->output());
   }
   else
   {
@@ -3279,7 +3279,7 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
   // First output result
   out << "result=";
 
-  auto pop = dynamic_pointer_cast<const FormulaOfPhyloLikelihood>(result);
+  auto pop = dynamic_pointer_cast<const PhyloLikelihoodFormula>(result);
 
   vector<size_t> phyldep;
 
@@ -3332,21 +3332,21 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
     {
       out << "phylo" << num << "=";
 
-      auto mDP = dynamic_pointer_cast<const SetOfPhyloLikelihoodInterface>(phyloLike);
+      auto mDP = dynamic_pointer_cast<const PhyloLikelihoodSetInterface>(phyloLike);
       if (mDP)
       {
-        if (dynamic_pointer_cast<const MixtureOfAlignedPhyloLikelihood>(phyloLike))
+        if (dynamic_pointer_cast<const AlignedPhyloLikelihoodMixture>(phyloLike))
         {
-          auto pM = dynamic_pointer_cast<const MixtureOfAlignedPhyloLikelihood>(phyloLike);
+          auto pM = dynamic_pointer_cast<const AlignedPhyloLikelihoodMixture>(phyloLike);
 
           out << "Mixture(probas=(" << VectorTools::paste(pM->getPhyloProbabilities(), ",");
 
           out << "),";
         }
 
-        else if (dynamic_pointer_cast<const HmmOfAlignedPhyloLikelihood>(phyloLike))
+        else if (dynamic_pointer_cast<const AlignedPhyloLikelihoodHmm>(phyloLike))
         {
-          auto pM = dynamic_pointer_cast<const HmmOfAlignedPhyloLikelihood>(phyloLike);
+          auto pM = dynamic_pointer_cast<const AlignedPhyloLikelihoodHmm>(phyloLike);
           out << "HMM(probas=";
 
           RowMatrix<double> tMt;
@@ -3356,9 +3356,9 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
           out << ",";
         }
 
-        else if (dynamic_pointer_cast<const AutoCorrelationOfAlignedPhyloLikelihood>(phyloLike))
+        else if (dynamic_pointer_cast<const AlignedPhyloLikelihoodAutoCorrelation>(phyloLike))
         {
-          auto pM = dynamic_pointer_cast<const AutoCorrelationOfAlignedPhyloLikelihood>(phyloLike);
+          auto pM = dynamic_pointer_cast<const AlignedPhyloLikelihoodAutoCorrelation>(phyloLike);
 
           out << "AutoCorr(lambdas=(";
 
@@ -3372,7 +3372,7 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
 
           out << "),";
         }
-        else if (dynamic_pointer_cast<const ProductOfAlignedPhyloLikelihood>(phyloLike))
+        else if (dynamic_pointer_cast<const AlignedPhyloLikelihoodProduct>(phyloLike))
         {
           out << "Product(";
         }
@@ -3551,7 +3551,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
       printAnalysisInformation(*dynamic_pointer_cast<const SingleDataPhyloLikelihoodInterface>(phyloLike), info_out, warn);
     else
     {
-      auto sOAP = dynamic_pointer_cast<const SetOfAlignedPhyloLikelihoodInterface>(phyloLike);
+      auto sOAP = dynamic_pointer_cast<const AlignedPhyloLikelihoodSetInterface>(phyloLike);
       if (sOAP)
       {
         if (num != 0)
@@ -3565,7 +3565,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
       }
       else
       {
-        auto sOAB = dynamic_pointer_cast<const SetOfPhyloLikelihoodInterface>(phyloLike);
+        auto sOAB = dynamic_pointer_cast<const PhyloLikelihoodSetInterface>(phyloLike);
         if (sOAB)
         {
           vector<size_t> vPN = sOAB->getNumbersOfPhyloLikelihoods();
@@ -3580,25 +3580,25 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
 }
 
 
-void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedPhyloLikelihoodInterface& sOAP, const string& infosFile, int warn)
+void PhylogeneticsApplicationTools::printAnalysisInformation(const AlignedPhyloLikelihoodSetInterface& sOAP, const string& infosFile, int warn)
 {
-  const MixtureOfAlignedPhyloLikelihood* mOAP = nullptr;
-  const HmmOfAlignedPhyloLikelihood* hOAP = nullptr;
-  const AutoCorrelationOfAlignedPhyloLikelihood* aCOAP = nullptr;
+  const AlignedPhyloLikelihoodMixture* mOAP = nullptr;
+  const AlignedPhyloLikelihoodHmm* hOAP = nullptr;
+  const AlignedPhyloLikelihoodAutoCorrelation* aCOAP = nullptr;
 
   vector<size_t> phyloNum = sOAP.getNumbersOfPhyloLikelihoods();
   size_t nbP = phyloNum.size();
 
-  if (dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(&sOAP) == nullptr)
+  if (dynamic_cast<const AlignedPhyloLikelihoodProduct*>(&sOAP) == nullptr)
   {
     StlOutputStream out(make_unique<ofstream>(infosFile.c_str(), ios::out));
 
-    if (dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP) != nullptr)
-      mOAP = dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP);
-    else if (dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP) != nullptr)
-      hOAP = dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP);
-    else if (dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP) != nullptr)
-      aCOAP = dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP);
+    if (dynamic_cast<const AlignedPhyloLikelihoodMixture*>(&sOAP) != nullptr)
+      mOAP = dynamic_cast<const AlignedPhyloLikelihoodMixture*>(&sOAP);
+    else if (dynamic_cast<const AlignedPhyloLikelihoodHmm*>(&sOAP) != nullptr)
+      hOAP = dynamic_cast<const AlignedPhyloLikelihoodHmm*>(&sOAP);
+    else if (dynamic_cast<const AlignedPhyloLikelihoodAutoCorrelation*>(&sOAP) != nullptr)
+      aCOAP = dynamic_cast<const AlignedPhyloLikelihoodAutoCorrelation*>(&sOAP);
 
     vector<string> colNames;
     colNames.push_back("Sites");
