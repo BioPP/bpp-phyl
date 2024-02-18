@@ -78,12 +78,6 @@ public:
 public:
   std::vector<std::string> getAllLeavesNames() const;
 
-  const ParameterList getBranchLengthParameters(size_t nodeIndex) const
-  {
-    // !!!!!!!!!!!!!!!!!! TODO : not stable
-    return getParameters().createSubList(nodeIndex);
-  }
-
   Vdouble getBranchLengths() const;
 
   virtual void setMinimumBranchLength(double minimum)

@@ -207,23 +207,9 @@ public:
     return 1;
   }
 
-  // bool transitionProbabilitiesHaveChanged() const { return true; }
-
 protected:
   void fireParameterChanged(const ParameterList& pl) override; // Forward parameters and updates probabilities if needed.
 
-  bool modelChangesWithParameter_(size_t i, const ParameterList& pl) const
-  {
-    if (pl.getCommonParametersWith(model_->getParameters()).size() > 0)
-      return true;
-    if (pTree_)
-    {
-      ParameterList plbl = pTree_->getBranchLengthParameters(i);
-      if (plbl.getCommonParametersWith(pl).size() > 0)
-        return true;
-    }
-    return false;
-  }
 };
 } // end namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_SIMPLESUBSTITUTIONPROCESS_H
