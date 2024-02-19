@@ -407,14 +407,14 @@ public:
     void setParameters(const ParameterList& lambda);
     double getValue() const;
     const ParameterList& getParameters() const { return lambda_; }
-    const Parameter& getParameter(const std::string& name) const
+    const Parameter& parameter(const std::string& name) const
     {
       if (name == "lambda") return lambda_[0];
       else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
     }
     double getParameterValue(const std::string& name) const
     {
-      return lambda_.getParameter(name).getValue();
+      return lambda_.parameter(name).getValue();
     }
     size_t getNumberOfParameters() const { return 1; }
     size_t getNumberOfIndependentParameters() const { return 1; }

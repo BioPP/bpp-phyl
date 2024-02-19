@@ -277,7 +277,7 @@ int main(int argc, char** argv)
   printLik(logLikob, "branch 2 init_value");
   
   // Manual access to dbrlen
-  auto br = dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
+  auto br = dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getParameter("BrLen1").get():lik->getParameter("BrLen_rate").get());
 
   auto dlogLik_dbrlen1 = lik->getLikelihoodNode()->deriveAsValue(context, *br->dependency(0));
 
@@ -288,7 +288,7 @@ int main(int argc, char** argv)
 
   // // Manual access to dkappa
 
-  auto kappa = dynamic_cast<ConfiguredParameter*>(llh->likelihoodCalculation().getSharedParameter("T92.kappa").get());
+  auto kappa = dynamic_cast<ConfiguredParameter*>(llh->likelihoodCalculation().getParameter("T92.kappa").get());
   auto dlogLik_dkappa = lik->getLikelihoodNode()->deriveAsValue(context, *kappa->dependency(0));
   std::cout << "[dkappa] " << dlogLik_dkappa->targetValue() << "\n";
   dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
@@ -299,7 +299,7 @@ int main(int argc, char** argv)
 
   // Manual access to dalpha
 
-  // auto alpha= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("Gamma.alpha").get());
+  // auto alpha= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getParameter("Gamma.alpha").get());
   // auto dlogLik_dalpha = lik->getLikelihood()->deriveAsValue(context, *alpha->dependency(0));
   // std::cout << "[dalpha] " << dlogLik_dalpha->getTargetValue() << "\n";
   // dotOutput("likelihood_example_dalpha", {dlogLik_dalpha.get()});

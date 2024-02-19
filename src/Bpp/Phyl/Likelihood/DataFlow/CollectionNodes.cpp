@@ -32,10 +32,10 @@ CollectionNodes::CollectionNodes(
   for (size_t i = 0; i < paramProc.size(); ++i)
   {
     auto vs = collection_->getAlias(paramProc[i].getName());
-    auto dep = dynamic_cast<const ConfiguredParameter*>(&getParameter(paramProc[i].getName()))->dependency(0);
+    auto dep = dynamic_cast<const ConfiguredParameter*>(&parameter(paramProc[i].getName()))->dependency(0);
     for (const auto& s:vs)
     {
-      auto newacp = ConfiguredParameter::create(this->context(), {dep}, collection_->getParameter(s));
+      auto newacp = ConfiguredParameter::create(this->context(), {dep}, collection_->parameter(s));
       shareParameter_(newacp);
     }
   }

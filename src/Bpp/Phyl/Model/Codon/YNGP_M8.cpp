@@ -127,7 +127,7 @@ YNGP_M8::YNGP_M8(
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     if (it.second != "omegas")
       addParameter_(new Parameter(getName()+"." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                  mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   if (!neutral_)

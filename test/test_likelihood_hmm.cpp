@@ -169,7 +169,7 @@ int main() {
   // Derivative Graph
 
   // Manual access to dkappa
-  auto dkappa = dynamic_cast<ConfiguredParameter*>(hppl->getSharedParameter("T92.kappa_3").get());
+  auto dkappa = dynamic_cast<ConfiguredParameter*>(hppl->getParameter("T92.kappa_3").get());
 
   auto dlogLik_dkappa = hppl->getLikelihoodNode()->deriveAsValue(context, *dkappa->dependency(0));
 

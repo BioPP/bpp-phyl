@@ -116,7 +116,7 @@ RELAX::RELAX(
     if (it.second.substr(0, 5) != "omega" && it.second.substr(0, 5) != "p")
     {
       addParameter_(new Parameter("RELAX." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                  mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
     }
   }
 
@@ -209,7 +209,7 @@ void RELAX::updateMatrices_()
     }
     else
     {
-      lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
+      lParPmodel_[i].setValue(parameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
     }
   }
 

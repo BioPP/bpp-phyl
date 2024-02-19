@@ -229,7 +229,7 @@ protected:
 
   Node_DF& accessVariableNode (const std::string& name) const
   {
-    return accessVariableNode (getParameter (name));
+    return accessVariableNode (parameter(name));
   }
 };
 } // end of namespace bpp.

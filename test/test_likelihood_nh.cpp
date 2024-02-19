@@ -160,11 +160,11 @@ int main() {
     cout << "Thetas : " << endl;
     
     for (size_t i = 0; i < nmodels; ++i) {
-      cout << tl->substitutionModelSet().model(i).getParameter("theta").getValue() << "\t" << ntl->getLikelihoodCalculation()->getParameter("T92.theta_"+to_string(i+1)).getValue() << endl;
-      //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
+      cout << tl->substitutionModelSet().model(i).parameter("theta").getValue() << "\t" << ntl->getLikelihoodCalculation()->parameter("T92.theta_"+to_string(i+1)).getValue() << endl;
+      //if (abs(modelSet2->getModel(i)->parameter("theta").getValue() - modelSet3->getModel(i)->parameter("theta").getValue()) > 0.1)
       //  return 1;
-      thetasEst1[i] += tl->substitutionModelSet().model(i).getParameter("theta").getValue();
-      thetasEst1n[i] += ntl->likelihoodCalculation().getParameter("T92.theta_"+to_string(i+1)).getValue();
+      thetasEst1[i] += tl->substitutionModelSet().model(i).parameter("theta").getValue();
+      thetasEst1n[i] += ntl->likelihoodCalculation().parameter("T92.theta_"+to_string(i+1)).getValue();
     }
   }
   thetasEst1 /= static_cast<double>(nrep);

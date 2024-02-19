@@ -131,7 +131,7 @@ double PseudoNewtonOptimizer::doStep()
       movements[i] = 0; // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
     }
     // DEBUG:
-    // cerr << "PN[" << params_[i] << "]=" << getParameters().getParameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
+    // cerr << "PN[" << params_[i] << "]=" << getParameters().parameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
     newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
     // Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
     movements[i] = getParameters()[i].getValue() - newPoint[i].getValue();

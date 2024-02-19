@@ -108,7 +108,7 @@ public:
 
   const ConfiguredParameter& getConfiguredParameter(const std::string& name)
   {
-    return static_cast<const ConfiguredParameter&>(getParameter(name));
+    return static_cast<const ConfiguredParameter&>(parameter(name));
   }
 
 private:

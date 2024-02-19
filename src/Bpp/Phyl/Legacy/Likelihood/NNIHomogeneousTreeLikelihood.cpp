@@ -290,7 +290,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const
     pos++;
   if (pos == nodes_.size())
     throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
-  Parameter brLen = getParameter("BrLen" + TextTools::toString(pos));
+  Parameter brLen = parameter("BrLen" + TextTools::toString(pos));
   brLen.setName("BrLen");
   parameters.addParameter(brLen);
   brLikFunction_->setParameters(parameters);
@@ -302,7 +302,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const
   brentOptimizer_->init(parameters);
   brentOptimizer_->optimize();
   // brLenNNIValues_[nodeId] = brLikFunction_->getParameterValue("BrLen");
-  brLenNNIValues_[nodeId] = brentOptimizer_->getParameters().getParameter("BrLen").getValue();
+  brLenNNIValues_[nodeId] = brentOptimizer_->getParameters().parameter("BrLen").getValue();
   brLikFunction_->resetLikelihoods(); // Array1 and Array2 will be destroyed after this function call.
                                       // We should not keep pointers towards them...
 
@@ -349,7 +349,7 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId)
     cerr << "ERROR, branch not found: " << nodeId << endl;
   try
   {
-    brLenNNIParams_.addParameter(brLenParameters_.getParameter(name));
+    brLenNNIParams_.addParameter(brLenParameters_.parameter(name));
   }
   catch (ParameterException& ex)
   {

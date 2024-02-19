@@ -142,7 +142,7 @@ ProcessTree::ProcessTree(Context& context,
         name = bp.getName() + "_1";
     }
 
-    auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
+    auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getParameter(name).get());
     if (!confPar)
       throw Exception("ProcessTree::ProcessTree: unknown ConfiguredParameter " + name);
 

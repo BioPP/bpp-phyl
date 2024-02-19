@@ -57,7 +57,7 @@ ParametrizablePhyloTree::ParametrizablePhyloTree(const PhyloTree& tree, const st
   {
     if (hasEdgeIndex(it))
       it->getParameter_(0).setName("BrLen" + TextTools::toString(getEdgeIndex(it)));
-    shareParameter_(it->getSharedParameter(0));
+    shareParameter_(it->getParameter(0));
   }
 }
 

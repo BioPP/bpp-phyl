@@ -82,14 +82,14 @@ createParameterMap (Context& c, const Parametrizable& parametrizable)
 }
 
 NodeRefVec createDependencyVector (const Parametrizable& parametrizable,
-                                   const std::function<NodeRef (const std::string&)>& getParameter)
+                                   const std::function<NodeRef (const std::string&)>& parameter)
 {
   const auto& parameters = parametrizable.getParameters ();
   const auto nbParameters = parameters.size ();
   NodeRefVec deps (nbParameters);
   for (std::size_t i = 0; i < nbParameters; ++i)
   {
-    auto dep = getParameter (parameters[i].getName ());
+    auto dep = parameter(parameters[i].getName ());
     if (!dep)
     {
       throw Exception ("createDependencyVector (Parametrizable): parameter not found: " + parameters[i].getName ());
@@ -100,14 +100,14 @@ NodeRefVec createDependencyVector (const Parametrizable& parametrizable,
 }
 
 NodeRefVec createDependencyVector (const ParameterAliasable& parametrizable,
-                                   const std::function<NodeRef (const std::string&)>& getParameter)
+                                   const std::function<NodeRef (const std::string&)>& parameter)
 {
   const auto& parameters = parametrizable.getIndependentParameters ();
   const auto nbParameters = parameters.size ();
   NodeRefVec deps (nbParameters);
   for (std::size_t i = 0; i < nbParameters; ++i)
   {
-    auto dep = getParameter (parameters[i].getName ());
+    auto dep = parameter(parameters[i].getName ());
     if (!dep)
     {
       throw Exception ("createDependencyVector (Parametrizable): parameter not found: " + parameters[i].getName ());

@@ -107,7 +107,7 @@ YNGP_M7::YNGP_M7(
   {
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     addParameter_(new Parameter("YNGP_M7." + it.second, mixedModelPtr_->getParameterValue(st),
-                                mixedModelPtr_->getParameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                mixedModelPtr_->parameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   // look for synonymous codons

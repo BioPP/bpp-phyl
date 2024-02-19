@@ -155,7 +155,7 @@ void SubstitutionModelSet::addModel(shared_ptr<TransitionModelInterface> model, 
   for (size_t i  = 0; i < nplm.size(); i++)
   {
     pname = nplm[i];
-    Parameter* p = new Parameter(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
+    Parameter* p = new Parameter(model->getParameters().parameter(pname)); // We work with namespaces here, so model->parameter(pname) does not work.
     p->setName(pname + "_" + TextTools::toString(thisModelIndex + 1));
     addParameter_(p);
   }
@@ -219,7 +219,7 @@ void SubstitutionModelSet::replaceModel(size_t modelIndex, shared_ptr<Transition
   for (size_t i  = 0; i < nplm.size(); i++)
   {
     pname = nplm[i];
-    Parameter* p = new Parameter(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
+    Parameter* p = new Parameter(model->getParameters().parameter(pname)); // We work with namespaces here, so model->parameter(pname) does not work.
     p->setName(pname + "_" + TextTools::toString(modelIndex + 1));
     addParameter_(p);
   }
