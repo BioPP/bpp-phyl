@@ -205,7 +205,7 @@ private:
     tmp.addParameters(rateDist_->getParameters());
     desc->addOptimizer("substitution model and rate distribution", std::make_shared<SimpleMultiDimensions>(nullptr), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
 
-    defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, move(desc));
+    defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, std::move(desc));
     defaultOptimizer_->setMessageHandler(nullptr);
     defaultOptimizer_->setProfiler(nullptr);
     defaultOptimizer_->getStopCondition()->setTolerance(0.0001);

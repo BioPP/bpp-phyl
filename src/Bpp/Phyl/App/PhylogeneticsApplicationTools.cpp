@@ -280,7 +280,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
             mTree.erase(i2 + 1);
           }
 
-          mTree[i2 + 1] = move(trees[i2]);
+          mTree[i2 + 1] = std::move(trees[i2]);
           ApplicationTools::displayResult("Number of leaves", mTree[i2+1]->getNumberOfLeaves());
         }
       }
@@ -296,7 +296,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
             ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
             mTree.erase(num);
           }
-          mTree[num] = move(trees[0]);
+          mTree[num] = std::move(trees[0]);
           ApplicationTools::displayResult("Number of leaves", mTree[num]->getNumberOfLeaves());
         }
       }
@@ -698,7 +698,7 @@ map<size_t, std::unique_ptr<BranchModelInterface>> PhylogeneticsApplicationTools
         ApplicationTools::displayResult("Data used ", TextTools::toString(nData));
     }
 
-    mModel[modelsNum[i]] = move(model);
+    mModel[modelsNum[i]] = std::move(model);
   }
 
   return mModel;
@@ -736,7 +736,7 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getFrequen
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-    pFS = std::make_unique<MarkovModulatedFrequencySet>(move(pFS), rateFreqs);
+    pFS = std::make_unique<MarkovModulatedFrequencySet>(std::move(pFS), rateFreqs);
   }
 
   return pFS;
@@ -865,7 +865,7 @@ map<size_t, std::unique_ptr<FrequencySetInterface> > PhylogeneticsApplicationToo
         ApplicationTools::displayResult("Data used ", TextTools::toString(nData));
     }
 
-    mFS[rfNum[i]] = move(rFS);
+    mFS[rfNum[i]] = std::move(rFS);
   }
 
   return mFS;
@@ -1205,7 +1205,7 @@ unique_ptr<AutonomousSubstitutionProcessInterface> PhylogeneticsApplicationTools
     if (!NHSP->isFullySetUp(false))
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess: process not fully set up.");
 
-    ASP = move(NHSP);
+    ASP = std::move(NHSP);
   }
 
   if (procm.getModelScenario())
@@ -1773,7 +1773,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
 
         auto pMP = make_unique<PartitionSequenceEvolution>(SPC, vMap);
 
-        nEvol = move(pMP);
+        nEvol = std::move(pMP);
       }
       else if (evolName == "Mixture")
       {
@@ -1793,7 +1793,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
           pMP->setSubProcessProb(si);
         }
 
-        nEvol = move(pMP);
+        nEvol = std::move(pMP);
       }
       else if (evolName == "HMM")
       {
@@ -1819,7 +1819,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
 
         pMP->matchParametersValues(fhtm.getParameters());
 
-        nEvol = move(pMP);
+        nEvol = std::move(pMP);
       }
       else if (evolName == "AutoCorr")
       {
@@ -1843,7 +1843,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
 
         pMP->matchParametersValues(pl);
 
-        nEvol = move(pMP);
+        nEvol = std::move(pMP);
       }
       else
         throw Exception("Unknown Process description : " + evolName);
@@ -1855,7 +1855,7 @@ map<size_t, unique_ptr<SequenceEvolution> > PhylogeneticsApplicationTools::getSe
       }
     }
 
-    mEvol[evolsNum[mPi]] = move(nEvol);
+    mEvol[evolsNum[mPi]] = std::move(nEvol);
   }
 
   return mEvol;
@@ -2037,7 +2037,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
     else
       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Process number.", (int)nProcess);
 
-    mPhylo->addPhyloLikelihood(phylonum, move(nPL));
+    mPhylo->addPhyloLikelihood(phylonum, std::move(nPL));
     usedPhylo.push_back(phylonum);
   }
 
@@ -2113,7 +2113,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
         if (phyloName == "Mixture")
         {
-          auto pMA = make_unique<AlignedPhyloLikelihoodMixture>(context, move(mPhylo), vPhylo);
+          auto pMA = make_unique<AlignedPhyloLikelihoodMixture>(context, std::move(mPhylo), vPhylo);
           vector<double> vprob = ApplicationTools::getVectorParameter<double>("probas", args, ',', "(" + VectorTools::paste(vector<double>(vPhylo.size(), 1. / (double)vPhylo.size())) + ")");
           if (vprob.size() != 1)
           {
@@ -2123,11 +2123,11 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
             pMA->setPhyloProb(si);
           }
 
-          nPL = move(pMA);
+          nPL = std::move(pMA);
         }
         else if (phyloName == "HMM")
         {
-          auto pMA = make_unique<AlignedPhyloLikelihoodHmm>(context, move(mPhylo), vPhylo);
+          auto pMA = make_unique<AlignedPhyloLikelihoodHmm>(context, std::move(mPhylo), vPhylo);
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
 
@@ -2146,11 +2146,11 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
           pMA->matchParametersValues(fhtm.getParameters());
 
-          nPL = move(pMA);
+          nPL = std::move(pMA);
         }
         else if (phyloName == "AutoCorr")
         {
-          auto pMA = make_unique<AlignedPhyloLikelihoodAutoCorrelation>(context, move(mPhylo), vPhylo);
+          auto pMA = make_unique<AlignedPhyloLikelihoodAutoCorrelation>(context, std::move(mPhylo), vPhylo);
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
 
@@ -2167,13 +2167,13 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
           pMA->matchParametersValues(pl);
 
-          nPL = move(pMA);
+          nPL = std::move(pMA);
         }
         else if (phyloName == "Product")
         {
-          auto pAP = make_unique<AlignedPhyloLikelihoodProduct>(context, move(mPhylo), vPhylo);
+          auto pAP = make_unique<AlignedPhyloLikelihoodProduct>(context, std::move(mPhylo), vPhylo);
 
-          nPL = move(pAP);
+          nPL = std::move(pAP);
         }
         else
           throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo name " + phyloName);
@@ -2184,7 +2184,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
           ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vPhylo, ","));
         }
 
-        mPhylo->addPhyloLikelihood(phylonum, move(nPL));
+        mPhylo->addPhyloLikelihood(phylonum, std::move(nPL));
         usedPhylo.push_back(phylonum);
       }
     }
@@ -4087,10 +4087,10 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
 
       auto sreg = getSubstitutionRegister(regDesc, stateMap, genCode, w2, d2);
 
-      vreg->addRegister(move(sreg));
+      vreg->addRegister(std::move(sreg));
     }
 
-    reg = move(vreg);
+    reg = std::move(vreg);
   }
   else if (regType == "All")
   {
