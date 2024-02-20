@@ -129,7 +129,7 @@ void Coala::computeEquilibriumFrequencies()
     vector<double> coord;
     for (unsigned int i = 0; i < nbrOfAxes_; ++i)
     {
-      coord.push_back(getParameter("AxPos" + TextTools::toString(i)).getValue());
+      coord.push_back(parameter("AxPos" + TextTools::toString(i)).getValue());
     }
 
     // Now, frequencies are computed from the vector of coordinates and the transpose of the principal axes matrix (P_):

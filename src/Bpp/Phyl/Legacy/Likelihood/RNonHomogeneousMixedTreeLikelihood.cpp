@@ -367,19 +367,19 @@ void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterLis
       int id = nodes_[i]->getId();
       if (reparametrizeRoot_ && id == root1_)
       {
-        const Parameter* rootBrLen = &getParameter("BrLenRoot");
-        const Parameter* rootPos = &getParameter("RootPosition");
+        const Parameter* rootBrLen = &parameter("BrLenRoot");
+        const Parameter* rootPos = &parameter("RootPosition");
         nodes_[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
       }
       else if (reparametrizeRoot_ && id == root2_)
       {
-        const Parameter* rootBrLen = &getParameter("BrLenRoot");
-        const Parameter* rootPos = &getParameter("RootPosition");
+        const Parameter* rootBrLen = &parameter("BrLenRoot");
+        const Parameter* rootPos = &parameter("RootPosition");
         nodes_[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
       }
       else
       {
-        const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+        const Parameter* brLen = &parameter(string("BrLen") + TextTools::toString(i));
         if (brLen)
           nodes_[i]->setDistanceToFather(brLen->getValue());
       }

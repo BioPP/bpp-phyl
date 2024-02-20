@@ -146,7 +146,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
     auto dep = dynamic_cast<const ConfiguredParameter*>(&getParameters_()[i])->dependency(0);
     for (const auto& s:vs)
     {
-      auto newacp = ConfiguredParameter::create(getContext_(), {dep}, process_->getParameter(s));
+      auto newacp = ConfiguredParameter::create(getContext_(), {dep}, process_->parameter(s));
       shareParameter_(newacp);
       aliasParameters(name, s);
     }
@@ -210,7 +210,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& coll
     if (!collection.hasParameter(name))
       throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes_ : CollectionNodes does not have parameter " + name);
 
-    shareParameter_(collection.getSharedParameter(name));
+    shareParameter_(collection.getParameter(name));
   }
 
   // share dependencies
@@ -223,7 +223,7 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_(CollectionNodes& coll
     auto dep = dynamic_cast<const ConfiguredParameter*>(&getParameters_()[i])->dependency(0);
     for (const auto& s:vs)
     {
-      auto newacp = ConfiguredParameter::create(getContext_(), {dep}, spcm.getParameter(s));
+      auto newacp = ConfiguredParameter::create(getContext_(), {dep}, spcm.parameter(s));
       shareParameter_(newacp);
       aliasParameters(name, s);
     }

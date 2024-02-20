@@ -125,7 +125,7 @@ YNGP_M3::YNGP_M3(
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     if (it.second.substr(0, 5) != "delta")
       addParameter_(new Parameter("YNGP_M3." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->getParameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+                                  mixedModelPtr_->parameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   for (size_t i = 1; i < nbOmega; ++i)
@@ -175,7 +175,7 @@ void YNGP_M3::updateMatrices_()
         lParPmodel_[i].setValue(parConst ? (parConst->isCorrect(x) ? x : parConst->getAcceptedLimit(x)) : x);
       }
       else
-        lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
+        lParPmodel_[i].setValue(parameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
     }
   }
 

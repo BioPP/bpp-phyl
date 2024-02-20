@@ -55,9 +55,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Likelihood/MixtureSequenceEvolution.h>
 
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodHmm.h>
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodAutoCorrelation.h>
 
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
@@ -169,7 +169,7 @@ int main() {
   // Derivative Graph
 
   // Manual access to dkappa
-  auto dkappa = dynamic_cast<ConfiguredParameter*>(hppl->getSharedParameter("T92.kappa_3").get());
+  auto dkappa = dynamic_cast<ConfiguredParameter*>(hppl->getParameter("T92.kappa_3").get());
 
   auto dlogLik_dkappa = hppl->getLikelihoodNode()->deriveAsValue(context, *dkappa->dependency(0));
 

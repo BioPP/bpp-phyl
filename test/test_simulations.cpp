@@ -118,8 +118,8 @@ int main() {
 
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
-    cout << thetas[i] << "\t" << process->model(i+1).getParameter("theta").getValue() << endl;
-    double diff = abs(thetas[i] - process->model(i+1).getParameter("theta").getValue());
+    cout << thetas[i] << "\t" << process->model(i+1).parameter("theta").getValue() << endl;
+    double diff = abs(thetas[i] - process->model(i+1).parameter("theta").getValue());
     if (diff > 0.1)
       return 1;
   }
@@ -154,8 +154,8 @@ int main() {
 
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
-    cout << thetas[i] << "\t" << process2->model(i+1).getParameter("theta").getValue() << endl;
-    double diff = abs(thetas[i] - process2->model(i+1).getParameter("theta").getValue());
+    cout << thetas[i] << "\t" << process2->model(i+1).parameter("theta").getValue() << endl;
+    double diff = abs(thetas[i] - process2->model(i+1).parameter("theta").getValue());
     if (diff > 0.1)
     {
       cout << "difference too large" << endl;

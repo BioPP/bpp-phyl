@@ -92,7 +92,7 @@ bool AbstractPhyloLikelihoodSet::addPhyloLikelihood(size_t nPhyl, const std::str
 
       for (size_t i = 0; i < pl.size(); i++)
       {
-        auto confP = dynamic_pointer_cast<ConfiguredParameter>(pl.getSharedParameter(i));
+        auto confP = dynamic_pointer_cast<ConfiguredParameter>(pl.getParameter(i));
         if (confP == 0)
           throw Exception("SetOfAbstractPhyloLikelihood::addPhyloLikelihood: Parameter " + pl[i].getName() + " is not configured in PhyloLikelihood " + TextTools::toString(nPhyl));
 

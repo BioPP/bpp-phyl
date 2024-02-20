@@ -70,7 +70,7 @@ createParameterMap(Context& c, const ParameterAliasable& parametrizable);
 /**
  * @brief Create a dependency vector suitable for a parametrizable class constructor.
  * The vector is built from parameter names, and an opaque accessor function.
- * For each named parameter, getParameter(name) should return a valid node.
+ * For each named parameter, parameter(name) should return a valid node.
  * If no node is found (NodeRef was null), an exception is thrown.
  * Returned nodes must be Value<double> nodes.
  */
@@ -191,7 +191,7 @@ public:
           throw Exception("createConfigured: unknow ConfiguredParameter " + name);
         else name = lParams[i].getName() + "_1";
       }
-      auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
+      auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getParameter(name).get());
       if (!confPar)
         throw Exception("createConfigured: unknown ConfiguredParameter " + name);
 

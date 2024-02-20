@@ -2492,7 +2492,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
     }
     catch (ParameterNotFoundException& pnfe)
     {
-      ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
+      ApplicationTools::displayWarning("Parameter '" + pnfe.parameter() + "' not found, and so can't be ignored!");
     }
   }
 
@@ -2537,7 +2537,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
 
       for (size_t i = 0; i < parNames2.size(); i++)
       {
-        Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
+        Parameter& par = parametersToEstimate.parameter(parNames2[i]);
         if (par.hasConstraint())
         {
           par.setConstraint(std::shared_ptr<ConstraintInterface>(*ic & (*par.getConstraint())));
@@ -2553,7 +2553,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
     }
     catch (ParameterNotFoundException& pnfe)
     {
-      ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be constrained!");
+      ApplicationTools::displayWarning("Parameter '" + pnfe.parameter() + "' not found, and so can't be constrained!");
     }
     catch (ConstraintException& pnfe)
     {

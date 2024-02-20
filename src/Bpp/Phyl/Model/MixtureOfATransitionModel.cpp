@@ -90,7 +90,7 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
     else
       distributionMap_[s1]->setNamespace(s1 + "_");
 
-    auto constr = model->getParameter(s2).getConstraint();
+    auto constr = model->parameter(s2).getConstraint();
     if (constr)
       distributionMap_[s1]->restrictToConstraint(*constr);
   }
@@ -118,7 +118,7 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
 
   for (auto& it : distributionMap_)
   {
-    const Parameter& pm = model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it.first)));
+    const Parameter& pm = model->parameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it.first)));
     pd = it.second.get();
     if (pm.hasConstraint()) {
       pd->restrictToConstraint(*pm.getConstraint());
@@ -133,7 +133,7 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
       }
     }
     else {
-      //addParameter_(new Parameter(it.first, pd->getCategory(0), (pd->getParameter("value").getConstraint()) ? shared_ptr<ConstraintInterface>(pd->getParameter("value").getConstraint()->clone()) : nullptr));
+      //addParameter_(new Parameter(it.first, pd->getCategory(0), (pd->parameter("value").getConstraint()) ? shared_ptr<ConstraintInterface>(pd->parameter("value").getConstraint()->clone()) : nullptr));
       addParameter_(new Parameter(it.first, pd->getCategory(0), pm.hasConstraint() ? shared_ptr<ConstraintInterface>(pm.getConstraint()->clone()) : nullptr));
     }
   }
@@ -203,7 +203,7 @@ void MixtureOfATransitionModel::updateMatrices_()
     else
     {
       t = distrib.second->getNamespace();
-      d = getParameter(getParameterNameWithoutNamespace(t.substr(0, t.length() - 1))).getValue();
+      d = parameter(getParameterNameWithoutNamespace(t.substr(0, t.length() - 1))).getValue();
       distrib.second->setParameterValue("value", d);
     }
   }

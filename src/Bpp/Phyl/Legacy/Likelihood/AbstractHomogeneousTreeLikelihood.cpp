@@ -290,7 +290,7 @@ void AbstractHomogeneousTreeLikelihood::applyParameters()
   // brLenParameters_.matchParametersValues(parameters_); Not necessary!
   for (unsigned int i = 0; i < nbNodes_; i++)
   {
-    const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+    const Parameter* brLen = &parameter(string("BrLen") + TextTools::toString(i));
     if (brLen)
       nodes_[i]->setDistanceToFather(brLen->getValue());
   }
