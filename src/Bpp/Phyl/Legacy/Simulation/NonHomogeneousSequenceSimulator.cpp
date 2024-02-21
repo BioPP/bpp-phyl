@@ -397,7 +397,7 @@ unique_ptr<SiteSimulationResult> NonHomogeneousSequenceSimulator::dSimulateSite(
   // Make this state evolve:
   auto hssr = make_unique<RASiteSimulationResult>(phyloTree_, modelSet_->getStateMap(), ancestralStateIndex, rate);
   dEvolve(ancestralStateIndex, rate, *hssr);
-  return move(hssr);
+  return std::move(hssr);
 }
 
 /******************************************************************************/
@@ -590,7 +590,7 @@ unique_ptr<SiteContainerInterface> NonHomogeneousSequenceSimulator::multipleEvol
       sites->addSequence(leaves_[i]->getName(), seq);
     }
   }
-  return move(sites);
+  return std::move(sites);
 }
 
 /******************************************************************************/

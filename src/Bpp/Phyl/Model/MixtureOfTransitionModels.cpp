@@ -74,7 +74,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_.push_back(move(vpModel[i]));
+    modelsContainer_.push_back(std::move(vpModel[i]));
     vProbas_.push_back(1.0 / static_cast<double>(nbmod));
     vRates_.push_back(1.0);
   }
@@ -143,7 +143,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_.push_back(move(vpModel[i]));
+    modelsContainer_.push_back(std::move(vpModel[i]));
   }
 
   // rates & probas

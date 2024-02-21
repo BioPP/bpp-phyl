@@ -52,8 +52,8 @@ POMO::POMO(
   AbstractParameterAliasable("POMO."),
   AbstractSubstitutionModel(allAlph, make_shared<CanonicalStateMap>(allAlph, false), "POMO."),
   nbAlleles_(allAlph->getNbAlleles()),
-  pmodel_(move(pmodel)),
-  pfitness_(move(pfitness))
+  pmodel_(std::move(pmodel)),
+  pfitness_(std::move(pfitness))
 {
   const auto& alph = allAlph->getStateAlphabet();
 

@@ -69,7 +69,7 @@ EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(
     bool initFreqs) :
   AbstractParameterAliasable("Equi+F."),
   AbstractReversibleSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "Equi+F."),
-  exp_(), p_(size_, size_), freqSet_(move(freqSet))
+  exp_(), p_(size_, size_), freqSet_(std::move(freqSet))
 {
   freqSet_->setNamespace("Equi+F." + freqSet_->getNamespace());
   if (initFreqs)

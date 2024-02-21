@@ -61,7 +61,7 @@ unique_ptr<SiteContainerInterface> SequenceSimulationTools::simulateSites(
   {
     auto s = simulator.siteSimulator(i).simulateSite(rates[i]);
     s->setCoordinate(static_cast<int>(i));
-    vs[i] = move(s);
+    vs[i] = std::move(s);
   }
   auto sites = make_unique<VectorSiteContainer>(vs, simulator.getAlphabet());
   sites->setSequenceNames(simulator.getSequenceNames(), true);
@@ -82,7 +82,7 @@ unique_ptr<SiteContainerInterface> SequenceSimulationTools::simulateSites(
   {
     auto s = simulator.siteSimulator(i).simulateSite(states[i], rates[i]);
     s->setCoordinate(static_cast<int>(i));
-    vs[i] = move(s);
+    vs[i] = std::move(s);
   }
 
   auto sites = make_unique<VectorSiteContainer>(vs, simulator.getAlphabet());
@@ -101,7 +101,7 @@ unique_ptr<SiteContainerInterface> SequenceSimulationTools::simulateSites(
   {
     auto s = simulator.siteSimulator(i).simulateSite(states[i], 1);
     s->setCoordinate(static_cast<int>(i));
-    vs[i] = move(s);
+    vs[i] = std::move(s);
   }
 
   auto sites = make_unique<VectorSiteContainer>(vs, simulator.getAlphabet());

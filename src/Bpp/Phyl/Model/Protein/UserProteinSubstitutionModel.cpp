@@ -84,7 +84,7 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
   AbstractParameterAliasable(prefix),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), prefix),
   path_(path),
-  freqSet_(move(freqSet))
+  freqSet_(std::move(freqSet))
 {
   readFromFile();
   freqSet_->setNamespace(prefix + freqSet_->getName() + ".");

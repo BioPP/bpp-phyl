@@ -80,11 +80,11 @@ YNGP_M3::YNGP_M3(
   auto psdd = make_unique<SimpleDiscreteDistribution>(v1, v2, 0.002);
 
   map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
-  mpdd["omega"] = move(psdd);
+  mpdd["omega"] = std::move(psdd);
 
-  auto yn98 = make_unique<YN98>(gc, move(codonFreqs));
+  auto yn98 = make_unique<YN98>(gc, std::move(codonFreqs));
 
-  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), move(yn98), mpdd));
+  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), std::move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
   vector<int> supportedChars = mixedSubModelPtr_->getAlphabetStates();

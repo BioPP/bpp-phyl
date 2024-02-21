@@ -223,7 +223,7 @@ MarkovModulatedFrequencySet::MarkovModulatedFrequencySet(
     make_shared<MarkovModulatedStateMap>(freqSet->stateMap(), static_cast<unsigned int>(rateFreqs.size())),
     "MarkovModulated.",
     "MarkovModulated." + freqSet->getName()),
-  freqSet_(move(freqSet)),
+  freqSet_(std::move(freqSet)),
   rateFreqs_(rateFreqs)
 {
   freqSet_->setNamespace(std::string("MarkovModulated.") + freqSet_->getNamespace());

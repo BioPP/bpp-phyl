@@ -50,7 +50,7 @@ AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(
     shared_ptr<const GeneticCode> pgencode,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
-  pfitset_(move(pfitset)),
+  pfitset_(std::move(pfitset)),
   pgencode_(pgencode),
   fitName_("")
 {

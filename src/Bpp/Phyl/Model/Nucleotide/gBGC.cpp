@@ -57,7 +57,7 @@ gBGC::gBGC(
     double B) :
   AbstractParameterAliasable("gBGC."),
   AbstractNucleotideSubstitutionModel(alph, pm->getStateMap(), "gBGC."),
-  model_(move(pm)),
+  model_(std::move(pm)),
   nestedPrefix_(model_->getNamespace()),
   B_(B)
 {

@@ -69,7 +69,7 @@ JTT92::JTT92(
     bool initFreqs) :
   AbstractParameterAliasable("JTT92+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JTT92+F."),
-  freqSet_(move(freqSet))
+  freqSet_(std::move(freqSet))
 {
   #include "__JTT92ExchangeabilityCode"
   #include "__JTT92FrequenciesCode"

@@ -82,7 +82,7 @@ public:
     for (size_t i = 0; i < models.size(); ++i)
     {
       alphabets[i] = models[i]->getAlphabet();
-      models_[i] = move(models[i]);
+      models_[i] = std::move(models[i]);
     }
     wordAlphabet_ = std::make_shared<WordAlphabet>(alphabets);
   }

@@ -445,7 +445,7 @@ std::shared_ptr<ProbabilitiesFromMixedModel> ProbabilitiesFromMixedModel::create
     failureDependencyTypeMismatch(typeid(Self), 0, typeid(MixedTransitionModelInterface), typeid(deps0));
 
   size_t nbCat = mixmodel->getNumberOfModels();
-  return cachedAs<ProbabilitiesFromMixedModel>(c, make_shared<ProbabilitiesFromMixedModel>(move(deps), RowVectorDimension(Eigen::Index(nbCat))));
+  return cachedAs<ProbabilitiesFromMixedModel>(c, make_shared<ProbabilitiesFromMixedModel>(std::move(deps), RowVectorDimension(Eigen::Index(nbCat))));
 }
 
 

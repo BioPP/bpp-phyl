@@ -96,7 +96,7 @@ std::unique_ptr<BranchModelInterface> BppOBranchModelFormat::readBranchModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    std::shared_ptr<TransitionModelInterface> nestedModel(move(nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false)));
+    std::shared_ptr<TransitionModelInterface> nestedModel = nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     model.reset(new MultinomialFromTransitionModel(nestedModel));

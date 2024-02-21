@@ -251,7 +251,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       {
         unparsedArguments_[st + "_" + it->first] = it->second;
       }
-      pFS = make_unique<WordFromUniqueFrequencySet>(pWA, move(pFS2));
+      pFS = make_unique<WordFromUniqueFrequencySet>(pWA, std::move(pFS2));
     }
     else
     {
@@ -278,7 +278,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
         {
           unparsedArguments_[TextTools::toString(i + 1) + "_" + it->first] = it->second;
         }
-        v_AFS.push_back(move(pFS));
+        v_AFS.push_back(std::move(pFS));
       }
 
       pFS = make_unique<WordFromIndependentFrequencySet>(pWA, v_AFS);
@@ -295,7 +295,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       nestedReader.setGeneticCode(geneticCode_);
 
     auto model = nestedReader.readTransitionModel(alphabet, args["model"], data, false);
-    pFS = make_unique<FromModelFrequencySet>(move(model));
+    pFS = make_unique<FromModelFrequencySet>(std::move(model));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (auto& it : unparsedParameterValuesNested)
     {
@@ -330,7 +330,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
         unparsedArguments_["123_" + it->first] = it->second;
       }
 
-      pFS = make_unique<CodonFromUniqueFrequencySet>(geneticCode_, move(pFS2), "Codon");
+      pFS = make_unique<CodonFromUniqueFrequencySet>(geneticCode_, std::move(pFS2), "Codon");
     }
     else
     {
@@ -357,7 +357,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
         {
           unparsedArguments_[TextTools::toString(i + 1) + "_" + it.first] = it.second;
         }
-        v_AFS.push_back(move(pFS));
+        v_AFS.push_back(std::move(pFS));
       }
 
       if (!geneticCode_)
@@ -401,7 +401,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       {
         unparsedArguments_["FullPerAA." + it.first] = it.second;
       }
-      pFS = make_unique<FullPerAACodonFrequencySet>(geneticCode_, move(pPFS), method);
+      pFS = make_unique<FullPerAACodonFrequencySet>(geneticCode_, std::move(pPFS), method);
     }
     else
       pFS = make_unique<FullPerAACodonFrequencySet>(geneticCode_, method);
@@ -552,7 +552,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   {
     auto mvaFS = make_unique<MvaFrequencySet>(dynamic_pointer_cast<const ProteicAlphabet>(alphabet));
     mvaFS->setParamValues(args);
-    pFS = move(mvaFS);
+    pFS = std::move(mvaFS);
   }
   else
     throw Exception("Unknown frequency option: " + freqName);

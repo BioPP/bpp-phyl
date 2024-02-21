@@ -50,9 +50,9 @@ SENCA::SENCA(
   unique_ptr<FrequencySetInterface> pfit,
   shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("SENCA."),
-  AbstractCodonSubstitutionModel(gCode, move(pmod), "SENCA."),
+  AbstractCodonSubstitutionModel(gCode, std::move(pmod), "SENCA."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "SENCA."),
-  AbstractCodonFitnessSubstitutionModel(move(pfit), gCode, "SENCA.")
+  AbstractCodonFitnessSubstitutionModel(std::move(pfit), gCode, "SENCA.")
 {
   computeFrequencies(true);
   updateMatrices_();
@@ -66,9 +66,9 @@ SENCA::SENCA(
   unique_ptr<FrequencySetInterface> pfit,
   shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("SENCA."),
-  AbstractCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), "SENCA."),
+  AbstractCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), "SENCA."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "SENCA."),
-  AbstractCodonFitnessSubstitutionModel(move(pfit), gCode, "SENCA.")
+  AbstractCodonFitnessSubstitutionModel(std::move(pfit), gCode, "SENCA.")
 {
   computeFrequencies(true);
   updateMatrices_();

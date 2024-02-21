@@ -70,13 +70,13 @@ RELAX::RELAX(
   auto psdd = make_unique<SimpleDiscreteDistribution>(omega_initials, omega_frequencies_initials);
 
   map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
-  mpdd["omega"] = move(psdd);
+  mpdd["omega"] = std::move(psdd);
 
   // build the submodel as a basic Yang Nielsen model (with kappa instead of 5 GTR nucleotide substituion rate parameters)
-  auto yn98 = make_unique<YN98>(gc, move(codonFreqs));
+  auto yn98 = make_unique<YN98>(gc, std::move(codonFreqs));
 
   // initialize the site model with the initial omegas distribution
-  mixedModelPtr_ = make_unique<MixtureOfASubstitutionModel>(gc->getSourceAlphabet(), move(yn98), mpdd);
+  mixedModelPtr_ = make_unique<MixtureOfASubstitutionModel>(gc->getSourceAlphabet(), std::move(yn98), mpdd);
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
   vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();

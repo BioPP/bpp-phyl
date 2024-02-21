@@ -66,7 +66,7 @@ WAG01::WAG01(
     bool initFreqs) :
   AbstractParameterAliasable("WAG01+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "WAG01+F."),
-  freqSet_(move(freqSet))
+  freqSet_(std::move(freqSet))
 {
   #include "__WAG01ExchangeabilityCode"
   #include "__WAG01FrequenciesCode"

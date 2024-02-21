@@ -68,7 +68,7 @@ JCprot::JCprot(
     bool initFreqs) :
   AbstractParameterAliasable("JC69+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JC69+F."),
-  exp_(), p_(size_, size_), freqSet_(move(freqSet)), withFreq_(true)
+  exp_(), p_(size_, size_), freqSet_(std::move(freqSet)), withFreq_(true)
 {
   freqSet_->setNamespace("JC69+F." + freqSet_->getNamespace());
   if (initFreqs)

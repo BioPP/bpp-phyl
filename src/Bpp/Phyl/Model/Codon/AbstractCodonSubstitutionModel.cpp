@@ -60,7 +60,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 {
   enableEigenDecomposition(true);
 
-  shared_ptr<NucleotideSubstitutionModelInterface> pmod2 = move(pmod);
+  shared_ptr<NucleotideSubstitutionModelInterface> pmod2 = std::move(pmod);
   for (size_t i = 0; i < 3; ++i)
   {
     VSubMod_.push_back(pmod2);
@@ -106,19 +106,19 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 {
   enableEigenDecomposition(1);
 
-  VSubMod_.push_back(move(pmod1));
+  VSubMod_.push_back(std::move(pmod1));
   VnestedPrefix_.push_back(VSubMod_[0]->getNamespace());
   VSubMod_[0]->setNamespace(prefix + "1_" + VnestedPrefix_[0]);
   VSubMod_[0]->enableEigenDecomposition(0);
   addParameters_(VSubMod_[0]->getParameters());
 
-  VSubMod_.push_back(move(pmod2));
+  VSubMod_.push_back(std::move(pmod2));
   VnestedPrefix_.push_back(VSubMod_[1]->getNamespace());
   VSubMod_[1]->setNamespace(prefix + "2_" + VnestedPrefix_[1]);
   VSubMod_[1]->enableEigenDecomposition(0);
   addParameters_(VSubMod_[1]->getParameters());
 
-  VSubMod_.push_back(move(pmod3));
+  VSubMod_.push_back(std::move(pmod3));
   VnestedPrefix_.push_back(VSubMod_[2]->getNamespace());
   VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
   VSubMod_[2]->enableEigenDecomposition(0);

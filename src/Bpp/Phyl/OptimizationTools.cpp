@@ -133,7 +133,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 
     ParameterList plrd = parameters.getCommonParametersWith(lik->getRateDistributionParameters());
     desc->addOptimizer("Rate distribution parameters", make_shared<SimpleMultiDimensions>(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-    poptimizer = make_unique<MetaOptimizer>(f, move(desc), nstep);
+    poptimizer = make_unique<MetaOptimizer>(f, std::move(desc), nstep);
   }
   else if (optMethodModel == OPTIMIZATION_BFGS)
   {
@@ -151,7 +151,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     fnum->setParametersToDerivate(vNameDer);
 
     desc->addOptimizer("Rate & model distribution parameters", make_shared<BfgsMultiDimensions>(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
-    poptimizer = make_unique<MetaOptimizer>(fnum, move(desc), nstep);
+    poptimizer = make_unique<MetaOptimizer>(fnum, std::move(desc), nstep);
   }
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);
@@ -492,7 +492,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
       ApplicationTools::displayTask("Building tree");
     reconstructionMethod.setDistanceMatrix(*matrix);
     reconstructionMethod.computeTree();
-    previousTree = move(tree);
+    previousTree = std::move(tree);
 
     tree = make_unique<TreeTemplate<Node>>(reconstructionMethod.tree());
     if (verbose > 0)

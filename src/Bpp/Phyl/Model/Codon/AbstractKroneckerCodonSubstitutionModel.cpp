@@ -61,7 +61,7 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   size_t i;
   for (i = 0; i < 3; i++)
   {
-    VSubMod_.push_back(move(pmod));
+    VSubMod_.push_back(std::move(pmod));
     VnestedPrefix_.push_back(VSubMod_[i]->getNamespace());
   }
 
@@ -86,7 +86,7 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
 {
   enableEigenDecomposition(true);
 
-  shared_ptr<NucleotideSubstitutionModelInterface> pmod2 = move(pmod);
+  shared_ptr<NucleotideSubstitutionModelInterface> pmod2 = std::move(pmod);
   size_t i;
   for (i = 0; i < 3; i++)
   {
@@ -116,19 +116,19 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
 {
   enableEigenDecomposition(true);
 
-  VSubMod_.push_back(move(pmod1));
+  VSubMod_.push_back(std::move(pmod1));
   VnestedPrefix_.push_back(VSubMod_[0]->getNamespace());
   VSubMod_[0]->setNamespace(prefix + "1_" + VnestedPrefix_[0]);
   VSubMod_[0]->enableEigenDecomposition(0);
   addParameters_(VSubMod_[0]->getParameters());
 
-  VSubMod_.push_back(move(pmod2));
+  VSubMod_.push_back(std::move(pmod2));
   VnestedPrefix_.push_back(VSubMod_[1]->getNamespace());
   VSubMod_[1]->setNamespace(prefix + "2_" + VnestedPrefix_[1]);
   VSubMod_[1]->enableEigenDecomposition(0);
   addParameters_(VSubMod_[1]->getParameters());
 
-  VSubMod_.push_back(move(pmod3));
+  VSubMod_.push_back(std::move(pmod3));
   VnestedPrefix_.push_back(VSubMod_[2]->getNamespace());
   VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
   VSubMod_[2]->enableEigenDecomposition(0);
@@ -153,19 +153,19 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
 {
   enableEigenDecomposition(true);
 
-  VSubMod_.push_back(move(pmod1));
+  VSubMod_.push_back(std::move(pmod1));
   VnestedPrefix_.push_back(VSubMod_[0]->getNamespace());
   VSubMod_[0]->setNamespace(prefix + "1_" + VnestedPrefix_[0]);
   VSubMod_[0]->enableEigenDecomposition(0);
   addParameters_(VSubMod_[0]->getParameters());
 
-  VSubMod_.push_back(move(pmod2));
+  VSubMod_.push_back(std::move(pmod2));
   VnestedPrefix_.push_back(VSubMod_[1]->getNamespace());
   VSubMod_[1]->setNamespace(prefix + "2_" + VnestedPrefix_[1]);
   VSubMod_[1]->enableEigenDecomposition(0);
   addParameters_(VSubMod_[1]->getParameters());
 
-  VSubMod_.push_back(move(pmod3));
+  VSubMod_.push_back(std::move(pmod3));
   VnestedPrefix_.push_back(VSubMod_[2]->getNamespace());
   VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
   VSubMod_[2]->enableEigenDecomposition(0);

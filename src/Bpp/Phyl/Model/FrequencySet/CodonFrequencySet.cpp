@@ -192,7 +192,7 @@ FullPerAACodonFrequencySet::FullPerAACodonFrequencySet(
     "FullPerAA.",
     "FullPerAA"),
   pgc_(gencode),
-  ppfs_(move(ppfs)),
+  ppfs_(std::move(ppfs)),
   vS_()
 {
   auto& ppa = pgc_->proteicAlphabet();
@@ -563,7 +563,7 @@ CodonFromUniqueFrequencySet::CodonFromUniqueFrequencySet(
   unique_ptr<FrequencySetInterface> pfreq,
   const string& name,
   const string& mgmtStopCodon) :
-  WordFromUniqueFrequencySet(gCode->getCodonAlphabet(), move(pfreq), "", name),
+  WordFromUniqueFrequencySet(gCode->getCodonAlphabet(), std::move(pfreq), "", name),
   mStopNeigh_(),
   mgmtStopCodon_(2),
   pgc_(gCode)

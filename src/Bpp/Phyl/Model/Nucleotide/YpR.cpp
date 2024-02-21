@@ -409,7 +409,7 @@ YpR_Sym::YpR_Sym(
     double CgT, double TgC,
     double CaT, double TaC) :
   AbstractParameterAliasable("YpR_Sym."),
-  YpR(alph, move(pm), "YpR_Sym.")
+  YpR(alph, std::move(pm), "YpR_Sym.")
 {
   addParameter_(new Parameter("YpR_Sym.rCgT", CgT, Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Sym.rTgC", TgC, Parameter::R_PLUS));
@@ -455,7 +455,7 @@ YpR_Gen::YpR_Gen(
     double CaT, double cAG,
     double TaC, double tAG) : 
   AbstractParameterAliasable("YpR_Gen."),
-  YpR(alph, move(pm), "YpR_Gen.")
+  YpR(alph, std::move(pm), "YpR_Gen.")
 {
   addParameter_(new Parameter("YpR_Gen.rCgT", CgT, Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Gen.rcGA", cGA, Parameter::R_PLUS));

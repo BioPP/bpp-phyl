@@ -54,7 +54,7 @@ InMixedSubstitutionModel::InMixedSubstitutionModel(
   AbstractWrappedModel(mixedModel->getNamespace()),
   AbstractWrappedTransitionModel(mixedModel->getNamespace()),
   AbstractWrappedSubstitutionModel(mixedModel->getNamespace()),
-  mixedModelPtr_(move(mixedModel)),
+  mixedModelPtr_(std::move(mixedModel)),
   subModelNumber_(0),
   mixtName_(mixtDesc)
 {
@@ -72,7 +72,7 @@ InMixedSubstitutionModel::InMixedSubstitutionModel(
   AbstractWrappedModel(mixedModel->getNamespace()),
   AbstractWrappedTransitionModel(mixedModel->getNamespace()),
   AbstractWrappedSubstitutionModel(mixedModel->getNamespace()),
-  mixedModelPtr_(move(mixedModel)),
+  mixedModelPtr_(std::move(mixedModel)),
   subModelNumber_(subModelNumber),
   mixtName_(mixtDesc)
 {

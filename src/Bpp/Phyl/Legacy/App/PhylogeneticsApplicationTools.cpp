@@ -194,7 +194,7 @@ map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
             ApplicationTools::displayWarning("Tree " + TextTools::toString(i2 + 1) + " already assigned, replaced by new one.");
           }
 
-          mTree[i2 + 1] = move(trees[i2]);
+          mTree[i2 + 1] = std::move(trees[i2]);
           ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
         }
       }
@@ -209,7 +209,7 @@ map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
           {
             ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
           }
-          mTree[num] = move(trees[0]);
+          mTree[num] = std::move(trees[0]);
           ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
         }
       }
@@ -238,7 +238,7 @@ map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
       {
         ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
       }
-      mTree[num] = move(tree);
+      mTree[num] = std::move(tree);
       ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
 
@@ -500,7 +500,7 @@ unique_ptr<SubstitutionModelSet> LegacyPhylogeneticsApplicationTools::getSubstit
     completeMixedSubstitutionModelSet(dynamic_cast<MixedSubstitutionModelSet&>(*modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
   }
   else
-    modelSet = move(modelSet1);
+    modelSet = std::move(modelSet1);
 
   return modelSet;
 }
@@ -621,7 +621,7 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
-    modelSet.addModel(move(model), nodesId);
+    modelSet.addModel(std::move(model), nodesId);
   }
 
   // Finally check parameter aliasing:

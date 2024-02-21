@@ -164,7 +164,7 @@ void NexusIOTree::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
         leaves[i]->setName(translation[name]);
       }
     }
-    trees.push_back(move(tree));
+    trees.push_back(std::move(tree));
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (cmdFound)
       cmdName = TextTools::toUpper(cmdName);
@@ -179,7 +179,7 @@ unique_ptr<PhyloTree> NexusIOTree::readPhyloTree(istream& in) const
   readPhyloTrees(in, trees);
   if (trees.size() == 0)
     throw IOException("NexusIOTree::readPhyloTree(). No tree found in file.");
-  return move(trees[0]);
+  return std::move(trees[0]);
 }
 
 /******************************************************************************/
@@ -262,7 +262,7 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloT
         leaves[i]->setName(translation[name]);
       }
     }
-    trees.push_back(move(tree));
+    trees.push_back(std::move(tree));
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (cmdFound)
       cmdName = TextTools::toUpper(cmdName);

@@ -77,7 +77,7 @@ public:
       int tto = -1) :
     AbstractParameterAliasable(model->getNamespace()),
     AbstractTransitionModel(alpha, model->getStateMap(), model->getNamespace()),
-    MixtureOfATransitionModel(alpha, move(model), parametersDistributionsList, ffrom, tto)
+    MixtureOfATransitionModel(alpha, std::move(model), parametersDistributionsList, ffrom, tto)
   {}
 
   MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& model) :
