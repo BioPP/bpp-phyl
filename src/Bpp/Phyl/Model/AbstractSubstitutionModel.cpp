@@ -231,6 +231,7 @@ void AbstractSubstitutionModel::updateMatrices_()
           gi++;
       }
 
+
       EigenValue<double> ev(gk);
       eigenValues_ = ev.getRealEigenValues();
       iEigenValues_ = ev.getImagEigenValues();
@@ -303,25 +304,25 @@ void AbstractSubstitutionModel::updateMatrices_()
 
       vector<size_t> vNullEv;
       double fact = 0.1;
+
       while (vNullEv.size() == 0 && fact < 1000)
       {
         fact *= 10;
 
         for (size_t i = 0; i < salph - nbStop; i++)
         {
-          if ((abs(eigenValues_[i]) < fact * NumConstants::SMALL()) && (abs(iEigenValues_[i]) < NumConstants::SMALL()))
+          if ((abs(eigenValues_[i]) < fact * NumConstants::NANO()) && (abs(iEigenValues_[i]) < NumConstants::NANO()))
             vNullEv.push_back(i);
         }
       }
-
-
+      
       // pb to find unique null eigenvalue
       isNonSingular_ = (vNullEv.size() == 1);
 
       size_t nulleigen;
 
       double val;
-      if (!isNonSingular_)
+      if (vNullEv.size()>1)
       {
         // look or check which non-stop right eigen vector elements are
         // equal.
@@ -497,7 +498,6 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
     }
   }
 
-//  MatrixTools::print(pijt_);
 
   // Check to avoid numerical issues
   // if (t<= NumConstants::SMALL())
