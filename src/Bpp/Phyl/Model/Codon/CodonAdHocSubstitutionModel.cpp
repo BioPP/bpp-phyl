@@ -52,7 +52,7 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
     vector<unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
     const string& name) :
   AbstractParameterAliasable(name + "."),
-  AbstractCodonSubstitutionModel(gCode, move(pmod), name + "."),
+  AbstractCodonSubstitutionModel(gCode, std::move(pmod), name + "."),
   vModel_(),
   name_(name),
   freqSet_()
@@ -70,7 +70,7 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
         freqSet_ = unique_ptr<CodonFrequencySetInterface>(model->codonFrequencySet().clone());
       }
       addParameters_(model->getParameters());
-      vModel_.push_back(move(model));
+      vModel_.push_back(std::move(model));
     }
   }
   computeFrequencies(true);
@@ -85,7 +85,7 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
     vector<unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
     const std::string& name) :
   AbstractParameterAliasable(name + "."),
-  AbstractCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), name + "."),
+  AbstractCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), name + "."),
   vModel_(),
   name_(name),
   freqSet_()
@@ -104,7 +104,7 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
       }
 
       addParameters_(model->getParameters());
-      vModel_.push_back(move(model));
+      vModel_.push_back(std::move(model));
     }
   }
 

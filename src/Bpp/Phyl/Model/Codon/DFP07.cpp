@@ -65,8 +65,8 @@ DFP07::DFP07(
 {
   // build the submodel
 
-  auto codmodel = make_unique<DFPDistanceFrequenciesSubstitutionModel>(gCode, move(codonFreqs));
-  auto submodel = make_unique<CodonSameAARateSubstitutionModel>(move(pAAmodel), move(codmodel),  unique_ptr<CodonFrequencySetInterface>(nullptr), gCode);
+  auto codmodel = make_unique<DFPDistanceFrequenciesSubstitutionModel>(gCode, std::move(codonFreqs));
+  auto submodel = make_unique<CodonSameAARateSubstitutionModel>(std::move(pAAmodel), std::move(codmodel),  unique_ptr<CodonFrequencySetInterface>(nullptr), gCode);
 
   map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
   vector<double> v1, v2;
@@ -74,7 +74,7 @@ DFP07::DFP07(
   v2.push_back(0.5); v2.push_back(0.5);
   mpdd["DFPDistFreq.beta"] = make_unique<SimpleDiscreteDistribution>(v1, v2);
 
-  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gCode->getSourceAlphabet(), move(submodel), mpdd));
+  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gCode->getSourceAlphabet(), std::move(submodel), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
   vector<int> supportedChars = mixedSubModelPtr_->getAlphabetStates();

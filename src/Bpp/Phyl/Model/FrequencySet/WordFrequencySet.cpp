@@ -95,7 +95,7 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
 
   for (size_t i = 0; i < l; ++i)
   {
-    vFreq_.push_back(move(freqVector[i]));
+    vFreq_.push_back(std::move(freqVector[i]));
     vNestedPrefix_.push_back(vFreq_[i]->getNamespace());
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
@@ -124,7 +124,7 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
   for (size_t i = 0; i < l; ++i)
   {
     vNestedPrefix_.push_back(freqVector[i]->getNamespace());
-    vFreq_.push_back(move(freqVector[i]));
+    vFreq_.push_back(std::move(freqVector[i]));
     vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
     addParameters_(vFreq_[i]->getParameters());
   }
@@ -282,7 +282,7 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     make_shared<CanonicalStateMap>(pWA, false),
     prefix,
     name),
-  pFreq_(move(pabsfreq)),
+  pFreq_(std::move(pabsfreq)),
   NestedPrefix_(pFreq_->getNamespace()),
   length_(pWA->getLength())
 {
@@ -309,7 +309,7 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     make_shared<CanonicalStateMap>(pWA, false),
     prefix,
     name),
-  pFreq_(move(pabsfreq)),
+  pFreq_(std::move(pabsfreq)),
   NestedPrefix_(pFreq_->getNamespace()),
   length_(pWA->getLength())
 {

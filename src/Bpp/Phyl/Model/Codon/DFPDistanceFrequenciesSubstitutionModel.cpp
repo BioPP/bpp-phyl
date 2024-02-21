@@ -53,7 +53,7 @@ DFPDistanceFrequenciesSubstitutionModel::DFPDistanceFrequenciesSubstitutionModel
   AbstractParameterAliasable("DFPDistFreq."),
   AbstractDFPSubstitutionModel(gCode, "DFPDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "DFPDistFreq."),
-  AbstractCodonFrequenciesSubstitutionModel(move(pfreq), "DFPDistFreq.")
+  AbstractCodonFrequenciesSubstitutionModel(std::move(pfreq), "DFPDistFreq.")
 {
   updateMatrices_();
 }

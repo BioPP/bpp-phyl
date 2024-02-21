@@ -85,7 +85,7 @@ public:
        double nu = 1.,
        bool normalizeRateChanges = false) :
     MarkovModulatedSubstitutionModel(std::move(model), static_cast<unsigned int>(rDist->getNumberOfCategories()), normalizeRateChanges, "G01."),
-    rDist_(move(rDist)),
+    rDist_(std::move(rDist)),
     nestedRatePrefix_("rdist_" + rDist->getNamespace())
   {
     ratesFreq_ = std::vector<double>(nbRates_, 1. / static_cast<double>(nbRates_));

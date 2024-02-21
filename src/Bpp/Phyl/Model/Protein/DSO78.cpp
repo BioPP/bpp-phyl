@@ -69,7 +69,7 @@ DSO78::DSO78(
     bool initFreqs) :
   AbstractParameterAliasable("DSO78+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "DSO78+F."),
-  freqSet_(move(freqSet))
+  freqSet_(std::move(freqSet))
 {
   #include "__DSO78ExchangeabilityCode"
   #include "__DSO78FrequenciesCode"

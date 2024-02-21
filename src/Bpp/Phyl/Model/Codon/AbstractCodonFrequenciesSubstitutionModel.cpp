@@ -49,7 +49,7 @@ AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionM
     unique_ptr<CodonFrequencySetInterface> pfreq,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
-  pfreqset_(move(pfreq)),
+  pfreqset_(std::move(pfreq)),
   freqName_("")
 {
   freqName_ = pfreqset_->getNamespace();

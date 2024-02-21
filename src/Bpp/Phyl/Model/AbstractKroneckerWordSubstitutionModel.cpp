@@ -91,7 +91,7 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
   unsigned int num,
   const string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(move(pmodel), num, prefix),
+  AbstractWordSubstitutionModel(std::move(pmodel), num, prefix),
   sChangingPos_(),
   vGenerators_()
 {
@@ -110,7 +110,7 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
   const std::vector<std::set<size_t> >& vPos,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(move(pmodel), num, prefix),
+  AbstractWordSubstitutionModel(std::move(pmodel), num, prefix),
   sChangingPos_(vPos),
   vGenerators_()
 {

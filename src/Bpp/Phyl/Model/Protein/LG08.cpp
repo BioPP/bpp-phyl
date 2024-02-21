@@ -70,7 +70,7 @@ LG08::LG08(
     bool initFreqs) :
   AbstractParameterAliasable("LG08+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "LG08+F."),
-  freqSet_(move(freqSet))
+  freqSet_(std::move(freqSet))
 {
   #include "__LG08ExchangeabilityCode"
   #include "__LG08FrequenciesCode"

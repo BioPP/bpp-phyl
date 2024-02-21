@@ -193,7 +193,7 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters(
 
     ParameterList plrd = parameters.getCommonParametersWith(tl->getRateDistributionParameters());
     desc->addOptimizer("Rate distribution parameter", make_shared<SimpleMultiDimensions>(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-    poptimizer.reset(new MetaOptimizer(f, move(desc), nstep));
+    poptimizer.reset(new MetaOptimizer(f, std::move(desc), nstep));
   }
   else if (optMethodModel == OPTIMIZATION_BFGS)
   {
@@ -210,7 +210,7 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters(
     fnum->setParametersToDerivate(vNameDer);
 
     desc->addOptimizer("Rate & model distribution parameters", make_shared<BfgsMultiDimensions>(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
-    poptimizer.reset(new MetaOptimizer(fnum, move(desc), nstep));
+    poptimizer.reset(new MetaOptimizer(fnum, std::move(desc), nstep));
   }
   else
     throw Exception("LegacyOptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);

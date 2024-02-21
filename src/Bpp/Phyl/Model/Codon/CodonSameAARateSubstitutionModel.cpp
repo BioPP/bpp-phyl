@@ -52,9 +52,9 @@ CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
   shared_ptr<const GeneticCode> pgencode) :
   AbstractParameterAliasable("SameAARate."),
   AbstractSubstitutionModel(pCodonModel->getAlphabet(), pCodonModel->getStateMap(), "SameAARate."),
-  pAAmodel_(move(pAAmodel)),
-  pCodonModel_(move(pCodonModel)),
-  pFreq_(move(pFreq)),
+  pAAmodel_(std::move(pAAmodel)),
+  pCodonModel_(std::move(pCodonModel)),
+  pFreq_(std::move(pFreq)),
   pgencode_(pgencode),
   X_(20, 20),
   phi_(20)

@@ -53,9 +53,9 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
     shared_ptr<const AlphabetIndex2> pdist,
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
-  AbstractCodonSubstitutionModel(gCode, move(pmod), "CodonDistFreq."),
+  AbstractCodonSubstitutionModel(gCode, std::move(pmod), "CodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistFreq.", paramSynRate),
-  AbstractCodonFrequenciesSubstitutionModel(move(pfreq), "CodonDistFreq.")
+  AbstractCodonFrequenciesSubstitutionModel(std::move(pfreq), "CodonDistFreq.")
 {
   computeFrequencies(true); // for initialization
   updateMatrices_();
@@ -71,9 +71,9 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
     shared_ptr<const AlphabetIndex2> pdist,
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
-  AbstractCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), "CodonDistFreq."),
+  AbstractCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), "CodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistFreq.", paramSynRate),
-  AbstractCodonFrequenciesSubstitutionModel(move(pfreq), "CodonDistFreq.")
+  AbstractCodonFrequenciesSubstitutionModel(std::move(pfreq), "CodonDistFreq.")
 {
   computeFrequencies(true); // for initialization
   updateMatrices_();

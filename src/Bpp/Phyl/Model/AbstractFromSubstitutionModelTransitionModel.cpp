@@ -50,7 +50,7 @@ AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTrans
     unique_ptr<SubstitutionModelInterface> subModel,
     const std::string& prefix) :
   //AbstractParameterAliasable(prefix + subModel->getNamespace()),
-  subModel_(move(subModel)),
+  subModel_(std::move(subModel)),
   size_(subModel_->getNumberOfStates()),
   pij_t(size_, size_),
   dpij_t(size_, size_),

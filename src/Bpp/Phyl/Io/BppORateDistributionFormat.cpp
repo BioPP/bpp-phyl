@@ -87,7 +87,7 @@ unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscre
     map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
     // Now we create the Invariant rate distribution:
-    rDist = make_unique<InvariantMixedDiscreteDistribution>(move(nestedDistribution), 0.1, 0.000001);
+    rDist = make_unique<InvariantMixedDiscreteDistribution>(std::move(nestedDistribution), 0.1, 0.000001);
 
     // Then we update the parameter set:
     for (auto it : unparsedArgumentsNested)
@@ -192,7 +192,7 @@ unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscre
       {
         unparsedArguments_[distName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
       }
-      v_pdd.push_back(move(pdd));
+      v_pdd.push_back(std::move(pdd));
     }
     rDist = make_unique<MixtureOfDiscreteDistributions>(v_pdd, probas);
   }

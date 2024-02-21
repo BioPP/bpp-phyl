@@ -68,7 +68,7 @@ TripletSubstitutionModel::TripletSubstitutionModel(
   Vrate_.resize(3);
   for (i = 0; i < 3; i++)
   {
-    VSubMod_.push_back(move(pmod));
+    VSubMod_.push_back(std::move(pmod));
     VnestedPrefix_.push_back(VSubMod_[i]->getNamespace());
     Vrate_[i] = 1. / 3.;
   }
@@ -92,17 +92,17 @@ TripletSubstitutionModel::TripletSubstitutionModel(
 {
   string st = "Triplet.";
 
-  VSubMod_.push_back(move(pmod1));
+  VSubMod_.push_back(std::move(pmod1));
   VnestedPrefix_.push_back(VSubMod_[0]->getNamespace());
   VSubMod_[0]->setNamespace(st + "1_" + VnestedPrefix_[0]);
   addParameters_(VSubMod_[0]->getParameters());
 
-  VSubMod_.push_back(move(pmod2));
+  VSubMod_.push_back(std::move(pmod2));
   VnestedPrefix_.push_back(VSubMod_[1]->getNamespace());
   VSubMod_[1]->setNamespace(st + "2_" + VnestedPrefix_[1]);
   addParameters_(VSubMod_[1]->getParameters());
 
-  VSubMod_.push_back(move(pmod3));
+  VSubMod_.push_back(std::move(pmod3));
   VnestedPrefix_.push_back(VSubMod_[2]->getNamespace());
   VSubMod_[2]->setNamespace(st + "3_" + VnestedPrefix_[2]);
   addParameters_(VSubMod_[2]->getParameters());

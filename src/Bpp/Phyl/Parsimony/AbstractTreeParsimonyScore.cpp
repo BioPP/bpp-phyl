@@ -52,7 +52,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   shared_ptr<const SiteContainerInterface> data,
   bool verbose,
   bool includeGaps) :
-  treePtr_(move(tree)),
+  treePtr_(std::move(tree)),
   data_(nullptr),
   alphabet_(data->getAlphabet()),
   statesMap_(nullptr),
@@ -69,7 +69,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   shared_ptr<const SiteContainerInterface> data,
   std::shared_ptr<const StateMapInterface> statesMap,
   bool verbose) :
-  treePtr_(move(tree)),
+  treePtr_(std::move(tree)),
   data_(nullptr),
   alphabet_(data->getAlphabet()),
   statesMap_(statesMap),

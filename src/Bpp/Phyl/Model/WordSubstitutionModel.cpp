@@ -96,7 +96,7 @@ WordSubstitutionModel::WordSubstitutionModel(
   unsigned int num,
   const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
-  AbstractWordSubstitutionModel(move(pmodel),
+  AbstractWordSubstitutionModel(std::move(pmodel),
                                 num,
                                 (prefix == "") ? "Word." : prefix)
 {

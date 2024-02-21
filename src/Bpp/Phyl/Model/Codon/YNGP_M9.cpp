@@ -76,8 +76,8 @@ YNGP_M9::YNGP_M9(
   auto pgdd = make_unique<GammaDiscreteDistribution>(nbGamma, 1, 1);
 
   vector<unique_ptr<DiscreteDistributionInterface>> v_distr;
-  v_distr.push_back(move(pbdd));
-  v_distr.push_back(move(pgdd));
+  v_distr.push_back(std::move(pbdd));
+  v_distr.push_back(std::move(pgdd));
   vector<double> prob;
   prob.push_back(0.5);
   prob.push_back(0.5);
@@ -85,10 +85,10 @@ YNGP_M9::YNGP_M9(
   auto pmodd = make_unique<MixtureOfDiscreteDistributions>(v_distr, prob);
 
   map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
-  mpdd["omega"] = move(pmodd);
+  mpdd["omega"] = std::move(pmodd);
 
-  auto yn98 = make_unique<YN98>(gc, move(codonFreqs));
-  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), move(yn98), mpdd));
+  auto yn98 = make_unique<YN98>(gc, std::move(codonFreqs));
+  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), std::move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
   vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();

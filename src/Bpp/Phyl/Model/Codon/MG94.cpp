@@ -61,7 +61,7 @@ MG94::MG94(
   pmodel_(new CodonDistancePhaseFrequenciesSubstitutionModel(
       gc,
       make_unique<K80>(gc->codonAlphabet().getNucleicAlphabet()),
-      move(codonFreqs)))
+      std::move(codonFreqs)))
 {
   addParameter_(new Parameter("MG94.rho", 1, std::make_shared<IntervalConstraint>(0.002, 999, true, true)));
 

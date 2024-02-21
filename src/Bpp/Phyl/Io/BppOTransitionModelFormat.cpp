@@ -123,7 +123,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
 
     // We look for the register:
     if (args.find("register") == args.end())
-      model = make_unique<OneChangeTransitionModel>(move(nestedModel));
+      model = make_unique<OneChangeTransitionModel>(std::move(nestedModel));
     else
     {
       shared_ptr<AlphabetIndex2> weights;
@@ -151,7 +151,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
         }
       }
 
-      model = make_unique<OneChangeRegisterTransitionModel>(move(nestedModel), *reg, vNumRegs);
+      model = make_unique<OneChangeRegisterTransitionModel>(std::move(nestedModel), *reg, vNumRegs);
     }
 
     // Then we update the parameter set:
@@ -202,16 +202,16 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
       throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "YNGP_M1")
-      model = make_unique<YNGP_M1>(geneticCode_, move(codonFreqs));
+      model = make_unique<YNGP_M1>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "YNGP_M2")
-      model = make_unique<YNGP_M2>(geneticCode_, move(codonFreqs));
+      model = make_unique<YNGP_M2>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "RELAX")
-      model = make_unique<RELAX>(geneticCode_, move(codonFreqs));
+      model = make_unique<RELAX>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "YNGP_M3")
       if (args.find("n") == args.end())
-        model = make_unique<YNGP_M3>(geneticCode_, move(codonFreqs));
+        model = make_unique<YNGP_M3>(geneticCode_, std::move(codonFreqs));
       else
-        model = make_unique<YNGP_M3>(geneticCode_, move(codonFreqs), TextTools::to<unsigned int>(args["n"]));
+        model = make_unique<YNGP_M3>(geneticCode_, std::move(codonFreqs), TextTools::to<unsigned int>(args["n"]));
     else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8" || modelName == "YNGP_M8a")
     {
       if (args.find("n") == args.end())
@@ -221,11 +221,11 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
         ApplicationTools::displayResult("Number of classes in model", nbClasses);
 
       if (modelName == "YNGP_M7")
-        model = make_unique<YNGP_M7>(geneticCode_, move(codonFreqs), nbClasses);
+        model = make_unique<YNGP_M7>(geneticCode_, std::move(codonFreqs), nbClasses);
       else if (modelName == "YNGP_M8")
-        model = make_unique<YNGP_M8>(geneticCode_, move(codonFreqs), nbClasses);
+        model = make_unique<YNGP_M8>(geneticCode_, std::move(codonFreqs), nbClasses);
       else if (modelName == "YNGP_M8a")
-        model = make_unique<YNGP_M8>(geneticCode_, move(codonFreqs), nbClasses, true);
+        model = make_unique<YNGP_M8>(geneticCode_, std::move(codonFreqs), nbClasses, true);
     }
     else if (modelName == "YNGP_M9" || modelName == "YNGP_M10")
     {
@@ -239,9 +239,9 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
         ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
 
       if (modelName == "YNGP_M9")
-        model = make_unique<YNGP_M9>(geneticCode_, move(codonFreqs), nbBeta, nbGamma);
+        model = make_unique<YNGP_M9>(geneticCode_, std::move(codonFreqs), nbBeta, nbGamma);
       else
-        model = make_unique<YNGP_M10>(geneticCode_, move(codonFreqs), nbBeta, nbGamma);
+        model = make_unique<YNGP_M10>(geneticCode_, std::move(codonFreqs), nbBeta, nbGamma);
     }
     else if (modelName == "DFP07")
     {
@@ -259,7 +259,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
       auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
       unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
 
-      model = make_unique<DFP07>(geneticCode_, move(nestedProtModel), move(codonFreqs));
+      model = make_unique<DFP07>(geneticCode_, std::move(nestedProtModel), std::move(codonFreqs));
     }
   }
   else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
@@ -366,7 +366,7 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
       ti = alphabet->charToInt(args["to"]);
 
     string sModN = pSM->getName();
-    model = make_unique<MixtureOfATransitionModel>(alphabet, move(pSM), mdist, fi, ti);
+    model = make_unique<MixtureOfATransitionModel>(alphabet, std::move(pSM), mdist, fi, ti);
 
     vector<string> v = model->getParameters().getParameterNames();
 
@@ -409,7 +409,7 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
         unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
       }
 
-      v_pSM.push_back(move(pSM));
+      v_pSM.push_back(std::move(pSM));
     }
 
     model = make_unique<MixtureOfTransitionModels>(alphabet, v_pSM);

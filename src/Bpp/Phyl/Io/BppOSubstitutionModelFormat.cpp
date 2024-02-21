@@ -206,13 +206,13 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       } catch (NullPointerException&) {
         throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'InMixed' has no submodel with name " + nameMod + ".");
       }
-      model = make_unique<InMixedSubstitutionModel>(move(nestedModel), nameMod, modelDesc2);
+      model = make_unique<InMixedSubstitutionModel>(std::move(nestedModel), nameMod, modelDesc2);
     }
     else
     {
       if (numMod == 0 || (nestedModel->getNumberOfModels() < numMod))
         throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'InMixed' has no submodel with number " + TextTools::toString(numMod) + ".");
-      model = make_unique<InMixedSubstitutionModel>(move(nestedModel), numMod - 1, modelDesc2);
+      model = make_unique<InMixedSubstitutionModel>(std::move(nestedModel), numMod - 1, modelDesc2);
     }
 
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
@@ -256,7 +256,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (args.find("isNormalized") != args.end() && args["isNormalized"] == "true")
       isNorm = true;
 
-    model = make_unique<RegisterRatesSubstitutionModel>(move(nestedModel), *reg, isNorm);
+    model = make_unique<RegisterRatesSubstitutionModel>(std::move(nestedModel), *reg, isNorm);
 
     if (TextTools::isEmpty(registerDescription))
       throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'register' for model 'FromRegister'.");
@@ -305,7 +305,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
                                          nestedReader.getUnparsedArguments().end());
     
 
-    model = make_unique<POMO>(allelic, move(nestedModel), move(nestedFreq));
+    model = make_unique<POMO>(allelic, std::move(nestedModel), std::move(nestedFreq));
 
     // Then we update the parameter set:
     for (auto& it : unparsedParameterValuesNested)
@@ -370,11 +370,11 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "MG94")
-      model = make_unique<MG94>(geneticCode_, move(codonFreqs));
+      model = make_unique<MG94>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "GY94")
-      model = make_unique<GY94>(geneticCode_, move(codonFreqs));
+      model = make_unique<GY94>(geneticCode_, std::move(codonFreqs));
     else if ((modelName == "YN98") || (modelName == "YNGP_M0"))
-      model = make_unique<YN98>(geneticCode_, move(codonFreqs));
+      model = make_unique<YN98>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "KCM7")
       model= make_unique<KCM>(geneticCode_, true);
     else if (modelName == "KCM19")
@@ -406,7 +406,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         unparsedArguments_["SameAARate." + it.first] = it.second;
       }
 
-      model = make_unique<CodonSameAARateSubstitutionModel>(move(nestedProtModel), move(nestedCodonModel), move(codonFreqs), geneticCode_);
+      model = make_unique<CodonSameAARateSubstitutionModel>(std::move(nestedProtModel), std::move(nestedCodonModel), std::move(codonFreqs), geneticCode_);
     }
     else
       throw Exception("Unknown Codon model: " + modelName);
@@ -439,7 +439,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       unparsedArguments_["YpR_Sym." + it.first] = it.second;
     }
 
-    model = make_unique<YpR_Sym>(prny, move(nestedModel));
+    model = make_unique<YpR_Sym>(prny, std::move(nestedModel));
   }
   else if (modelName == "YpR_Gen")
   {
@@ -464,7 +464,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       unparsedArguments_["YpR_Gen." + it.first] = it.second;
     }
 
-    model = make_unique<YpR_Gen>(prny, move(nestedModel));
+    model = make_unique<YpR_Gen>(prny, std::move(nestedModel));
   }
 
 
@@ -496,7 +496,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       if (!(alphabetCode_ & NUCLEOTIDE))
         throw Exception("BppOSubstitutionModelFormat::read. Nucleic alphabet not supported.");
       unique_ptr<NucleotideReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<NucleotideReversibleSubstitutionModelInterface*>(tmpModel.release()));
-      model = make_unique<RE08Nucleotide>(move(nestedModel));
+      model = make_unique<RE08Nucleotide>(std::move(nestedModel));
       if (!model)
         throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). Invalid submodel, must be 'reversible' and 'nucleotide'.");
     }
@@ -505,7 +505,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       if (!(alphabetCode_ & PROTEIN))
         throw Exception("BppOSubstitutionModelFormat::read. Protein alphabet not supported.");
       unique_ptr<ProteinReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<ProteinReversibleSubstitutionModelInterface*>(tmpModel.release()));
-      model = make_unique<RE08Protein>(move(nestedModel));
+      model = make_unique<RE08Protein>(std::move(nestedModel));
       if (!model)
         throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). Invalid submodel, must be 'reversible' and 'protein'.");
     }
@@ -514,14 +514,14 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       if (!(alphabetCode_ & CODON))
         throw Exception("BppOSubstitutionModelFormat::read. Codon alphabet not supported.");
       unique_ptr<CodonReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<CodonReversibleSubstitutionModelInterface*>(tmpModel.release()));
-      model = make_unique<RE08Codon>(move(nestedModel));
+      model = make_unique<RE08Codon>(std::move(nestedModel));
       if (!model)
         throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). Invalid submodel, must be 'reversible' and 'codon'.");
     }
     else
     {
       unique_ptr<ReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<ReversibleSubstitutionModelInterface*>(tmpModel.release()));
-      model = make_unique<RE08>(move(nestedModel));
+      model = make_unique<RE08>(std::move(nestedModel));
     }
 
     // Then we update the parameter set:
@@ -554,7 +554,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // Now we create the TS98 substitution model:
-    model = make_unique<TS98>(move(nestedModel));
+    model = make_unique<TS98>(std::move(nestedModel));
 
     // Then we update the parameter set:
     for (auto& it : unparsedParameterValuesNested)
@@ -593,7 +593,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     map<string, string> unparsedParameterValuesNestedDist(rateReader.getUnparsedArguments());
 
     // Now we create the G01 substitution model:
-    model = make_unique<G2001>(move(nestedModel), move(nestedRDist));
+    model = make_unique<G2001>(std::move(nestedModel), std::move(nestedRDist));
 
     // Then we update the parameter set:
     for (auto& it : unparsedParameterValuesNestedModel)
@@ -656,7 +656,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
         // Now we create the gBGC substitution model:
-        model = make_unique<gBGC>(alpha, move(nestedModel));
+        model = make_unique<gBGC>(alpha, std::move(nestedModel));
 
         // Then we update the parameter set:
         for (auto& it : unparsedParameterValuesNested)
@@ -801,15 +801,15 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         }
 
         if (modelName == "JC69+F")
-          model = make_unique<JCprot>(alpha, move(protFreq));
+          model = make_unique<JCprot>(alpha, std::move(protFreq));
         else if (modelName == "DSO78+F")
-          model = make_unique<DSO78>(alpha, move(protFreq));
+          model = make_unique<DSO78>(alpha, std::move(protFreq));
         else if (modelName == "JTT92+F")
-          model = make_unique<JTT92>(alpha, move(protFreq));
+          model = make_unique<JTT92>(alpha, std::move(protFreq));
         else if (modelName == "LG08+F")
-          model = make_unique<LG08>(alpha, move(protFreq));
+          model = make_unique<LG08>(alpha, std::move(protFreq));
         else if (modelName == "WAG01+F")
-          model =make_unique<WAG01>(alpha, move(protFreq));
+          model =make_unique<WAG01>(alpha, std::move(protFreq));
         else if (modelName == "Empirical+F")
         {
           string prefix = args["name"];
@@ -818,7 +818,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
           string fname = args["file"];
           if (TextTools::isEmpty(fname))
             throw Exception("'file' argument missing for user-defined substitution model.");
-          model = make_unique<UserProteinSubstitutionModel>(alpha, args["file"], move(protFreq), prefix + "+F.");
+          model = make_unique<UserProteinSubstitutionModel>(alpha, args["file"], std::move(protFreq), prefix + "+F.");
         }
       }
       else if (modelName == "JC69")
@@ -1068,7 +1068,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       unparsedArguments_[modelName + "." + pref + "_" + it.first] = it.second;
     }
 
-    v_pSM.push_back(move(model));
+    v_pSM.push_back(std::move(model));
   }
   else
   {
@@ -1082,7 +1082,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
         unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
       }
 
-      v_pSM.push_back(move(model));
+      v_pSM.push_back(std::move(model));
     }
   }
 
@@ -1123,7 +1123,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
   {
     if (v_nestedModelDescription.size() != nbmodels)
     {
-      model = make_unique<WordSubstitutionModel>(move(v_pSM[0]), nbmodels);
+      model = make_unique<WordSubstitutionModel>(std::move(v_pSM[0]), nbmodels);
     }
     else
     {
@@ -1142,7 +1142,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     {
       if (v_nestedModelDescription.size() != nbmodels)
       {
-        model = make_unique<KroneckerWordSubstitutionModel>(move(v_pSM[0]), nbmodels);
+        model = make_unique<KroneckerWordSubstitutionModel>(std::move(v_pSM[0]), nbmodels);
       }
       else
       {
@@ -1154,7 +1154,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     {
       if (v_nestedModelDescription.size() != nbmodels)
       {
-        model = make_unique<KroneckerWordSubstitutionModel>(move(v_pSM[0]), nbmodels, vposKron);
+        model = make_unique<KroneckerWordSubstitutionModel>(std::move(v_pSM[0]), nbmodels, vposKron);
       }
       else
       {
@@ -1254,7 +1254,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       {
         name += "Dist";
 
-        vCSM.push_back(make_unique<AbstractCodonDistanceSubstitutionModel>(move(pai2), geneticCode_, ""));
+        vCSM.push_back(make_unique<AbstractCodonDistanceSubstitutionModel>(std::move(pai2), geneticCode_, ""));
       }
       else if (modelName.find("BGC") != string::npos)
       {
@@ -1298,7 +1298,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
             make_unique<AbstractCodonClusterAASubstitutionModel>(geneticCode_, "", partition) :
             make_unique<AbstractCodonClusterAASubstitutionModel>(geneticCode_, "");
 
-        vCSM.push_back(move(aca));
+        vCSM.push_back(std::move(aca));
       }
 
       /// Default name in none used before
@@ -1328,12 +1328,12 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
         }
 
-        auto aca = make_unique<AbstractCodonAAFitnessSubstitutionModel>(move(nestedFreq), geneticCode_, "");
+        auto aca = make_unique<AbstractCodonAAFitnessSubstitutionModel>(std::move(nestedFreq), geneticCode_, "");
 
         if (args.find("Ns") != args.end())
           aca->addNsParameter();
 
-        vCSM.push_back(move(aca));
+        vCSM.push_back(std::move(aca));
       }
       else if (modelName.find("Fit") != string::npos)
       {
@@ -1351,18 +1351,18 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
         }
 
-        vCSM.push_back(make_unique<AbstractCodonFitnessSubstitutionModel>(move(nestedFreq), geneticCode_, ""));
+        vCSM.push_back(make_unique<AbstractCodonFitnessSubstitutionModel>(std::move(nestedFreq), geneticCode_, ""));
       }
 
       if (modelName.find("PhasFreq") != string::npos)
       {
         name += "PhasFreq";
-        vCSM.push_back(make_unique<AbstractCodonPhaseFrequenciesSubstitutionModel>(move(pFS), ""));
+        vCSM.push_back(make_unique<AbstractCodonPhaseFrequenciesSubstitutionModel>(std::move(pFS), ""));
       }
       else if (modelName.find("Freq") != string::npos)
       {
         name += "Freq";
-        vCSM.push_back(make_unique<AbstractCodonFrequenciesSubstitutionModel>(move(pFS), ""));
+        vCSM.push_back(make_unique<AbstractCodonFrequenciesSubstitutionModel>(std::move(pFS), ""));
       }
 
       // Then we update the parameter set:
@@ -1401,12 +1401,12 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(geneticCode_,
                unique_ptr<NucleotideSubstitutionModelInterface>(
 		       dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
-		       move(pFS), move(pai2));
+		       std::move(pFS), std::move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(geneticCode_,
                unique_ptr<NucleotideSubstitutionModelInterface>(
 		       dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
-		       vposKron, move(pFS), move(pai2));
+		       vposKron, std::move(pFS), std::move(pai2));
       }
       else
       {
@@ -1422,8 +1422,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
                         unique_ptr<NucleotideSubstitutionModelInterface>(
 				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
 				),
-                        move(pFS),
-                        move(pai2));
+                        std::move(pFS),
+                        std::move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(
                         geneticCode_,
@@ -1437,8 +1437,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
 				),
                         vposKron,
-                        move(pFS),
-                        move(pai2));
+                        std::move(pFS),
+                        std::move(pai2));
       }
     }
     else if (modelName == "KronDist")
@@ -1448,11 +1448,11 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
         if (vposKron.size() == 0)
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(geneticCode_,
                unique_ptr<NucleotideSubstitutionModelInterface>(dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
-	       move(pai2));
+	       std::move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(geneticCode_,
 	       unique_ptr<NucleotideSubstitutionModelInterface>(dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
-	       vposKron, move(pai2));
+	       vposKron, std::move(pai2));
       }
       else
       {
@@ -1468,7 +1468,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
                         unique_ptr<NucleotideSubstitutionModelInterface>(
 				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
 				),
-                        move(pai2));
+                        std::move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(
                         geneticCode_,
@@ -1482,7 +1482,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
 				),
                         vposKron,
-                        move(pai2));
+                        std::move(pai2));
       }
     }
 
@@ -1508,7 +1508,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
             unique_ptr<NucleotideSubstitutionModelInterface>(
 		    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
 		    ),
-            move(pFit), move(pai2));
+            std::move(pFit), std::move(pai2));
       }
       else
         model = make_unique<SENCA>(
@@ -1522,8 +1522,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
                       unique_ptr<NucleotideSubstitutionModelInterface>(
 			      dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
 			      ),
-                      move(pFit),
-                      move(pai2));
+                      std::move(pFit),
+                      std::move(pai2));
     }
   }
 
