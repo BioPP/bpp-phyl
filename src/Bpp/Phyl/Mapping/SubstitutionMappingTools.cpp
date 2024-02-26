@@ -1336,6 +1336,34 @@ void SubstitutionMappingTools::outputPerSitePerType(
   file.close();
 }
 
+/**************************************************************************************************/
+
+void SubstitutionMappingTools::outputPerType(
+  const string& filename,
+  const SubstitutionRegisterInterface& reg,
+  const AlignmentDataInterface& sites,
+  const VVdouble& counts)
+{
+  size_t nbSites = counts.size();
+  if (nbSites == 0)
+    return;
+
+  size_t nbTypes = counts[0].size();
+
+  ofstream file;
+  file.open(filename.c_str());
+
+  for (size_t i = 0; i < nbTypes; ++i)
+  {
+    double sumtype=0;
+    for (size_t k = 0; k < nbSites; ++k)
+      sumtype+=counts[k][i];
+    
+    file << reg.getTypeName(i + 1) << "\t" <<  sumtype << endl;
+  }
+  file.close();
+}
+
 
 /**************************************************************************************************/
 

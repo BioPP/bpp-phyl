@@ -695,6 +695,14 @@ public:
                                    const VVdouble& counts);
 
   /**
+   * @brief Output Per Type
+   */
+  static void outputPerType(const std::string& filename,
+                            const SubstitutionRegisterInterface& reg,
+                            const AlignmentDataInterface& sites,
+                            const VVdouble& counts);
+
+  /**
    * @brief Output Per Site Per Branch Per Type
    */
   static void outputPerSitePerBranchPerType(const std::string& filenamePrefix,
