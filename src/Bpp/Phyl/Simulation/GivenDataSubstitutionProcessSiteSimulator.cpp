@@ -67,10 +67,11 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
 
   const auto& dRate = process_->getRateDistribution();
 
-  std::vector<DataLik> qR(nbClasses_);
+  std::vector<DataLik> qR;
+
   for (size_t i = 0; i < nbClasses_; i++)
   {
-    qR[i] = calcul_->getSiteLikelihoodsForAClass(i)(pos_, true);
+    qR.push_back(calcul_->getSiteLikelihoodsForAClass(i)(pos_));
   }
 
   auto sQ = VectorTools::sum(qR);
@@ -151,8 +152,8 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
 
       /* Get likelihoods on this node for all states at this position*/
 
-      const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(tree_.getSon(outid), c)->targetValue().col(pos_);
-
+      const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(calcul_->getForwardLikelihoodTree(c)->getSon(outid), c)->targetValue().col(pos_);
+      
       for (size_t x = 0; x < size_t(nbStates_); x++)
       {
         for (size_t y = 0; y < size_t(nbStates_); y++)
