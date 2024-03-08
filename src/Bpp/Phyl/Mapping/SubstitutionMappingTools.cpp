@@ -1277,8 +1277,9 @@ void SubstitutionMappingTools::outputPerSitePerBranch(
   size_t nbBr = counts[0].size();
 
   ofstream file;
+  file.precision(10);
   file.open(filename.c_str());
-
+  
   file << "sites";
   for (size_t i = 0; i < nbBr; ++i)
   {
@@ -1314,6 +1315,7 @@ void SubstitutionMappingTools::outputPerSitePerType(
   size_t nbTypes = counts[0].size();
 
   ofstream file;
+  file.precision(10);
   file.open(filename.c_str());
 
   file << "sites";
@@ -1351,6 +1353,7 @@ void SubstitutionMappingTools::outputPerType(
   size_t nbTypes = counts[0].size();
 
   ofstream file;
+  file.precision(10);
   file.open(filename.c_str());
 
   for (size_t i = 0; i < nbTypes; ++i)
@@ -1383,6 +1386,7 @@ void SubstitutionMappingTools::outputPerSitePerBranchPerType(
   size_t nbTypes = counts[0][0].size();
 
   ofstream file;
+  file.precision(10);
 
   for (size_t i = 0; i < nbTypes; ++i)
   {
