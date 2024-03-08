@@ -72,12 +72,10 @@ YNGP_M7::YNGP_M7(
   mpdd["omega"] = std::move(pbdd);
 
   auto yn98 = make_unique<YN98>(gc, std::move(codonFreqs));
-  yn98->getParameters().printParameters(cout);
   yn98->setConstraint("omega", make_shared<IntervalConstraint>(0, 1000, true, true, 0.));
 
   mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), std::move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
-  mixedModelPtr_->getParameters().printParameters(cout);
 
   vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();
 
@@ -131,10 +129,6 @@ YNGP_M7::YNGP_M7(
 
   computeFrequencies(false);
   updateMatrices_();
-
-  cout << "-----------" << endl;
-  mixedModelPtr_->getParameters().printParameters(cout);
-  getParameters().printParameters(cout);
 }
 
 void YNGP_M7::updateMatrices_()
