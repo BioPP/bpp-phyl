@@ -104,7 +104,6 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
     c *= it.second->getNumberOfCategories();
   }
 
-  model->getParameters().printParameters(cout);
   for (i = 0; i < c; i++)
   {
     modelsContainer_.push_back(unique_ptr<TransitionModelInterface>(model->clone()));
