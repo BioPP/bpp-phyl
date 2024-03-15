@@ -1,9 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: LikelihoodCalculationOnABranch.cpp
-// Authors:
-//   François Gindraud, Laurent Guéguen (2018)
-// Created: jeudi 28 février 2019, à 07h 22
-//
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <list>
 #include <numeric>

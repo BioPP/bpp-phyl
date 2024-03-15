@@ -1,4 +1,6 @@
-// Tester for StochasticMapping implementation
+// SPDX-FileCopyrightText: The Bio++ Development Group
+//
+// SPDX-License-Identifier: CECILL-2.1
 
 // From the STL:
 #include <vector>

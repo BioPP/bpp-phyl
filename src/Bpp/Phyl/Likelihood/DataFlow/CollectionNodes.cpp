@@ -1,9 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: CollectionNodes.cpp
-// Authors:
-//   Laurent Guéguen (2018)
-// Created: mercredi 8 avril 2020, ÃÂ  00h 31
-//
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 

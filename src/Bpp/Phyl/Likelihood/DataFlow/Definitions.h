@@ -1,7 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: Definitions.h
-// Authors:
-//
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_DATAFLOW_DEFINITIONS_H
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_DEFINITIONS_H
