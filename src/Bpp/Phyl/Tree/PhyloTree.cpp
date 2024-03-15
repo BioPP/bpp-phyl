@@ -116,6 +116,17 @@ void PhyloTree::scaleTree(double factor)
   scaleTree(getRoot(), factor);
 }
 
+void PhyloTree::pruneTree(std::vector<string> leaves)
+{
+  vector<shared_ptr<PhyloNode> > vpn = getAllLeaves();
+
+  for (auto& leaf:vpn)
+  {
+    if (std::find(leaves.begin(), leaves.end(), leaf->getName())==leaves.end())
+      deleteNode(leaf);
+  }
+}
+
 void PhyloTree::setBranchLengths(double l)
 {
   vector<shared_ptr<PhyloBranch> > vpn = getAllEdges();

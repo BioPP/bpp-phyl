@@ -257,6 +257,28 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
       vector<unique_ptr<PhyloTree>> trees;
       treeReader->readPhyloTrees(treeFilePath, trees);
 
+      if (args.find("data") != args.end())
+      {
+        auto seqNum = (size_t) TextTools::toInt(args["data"]);
+        if (mSeq.find(seqNum) == mSeq.end())
+          throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
+        else
+        {
+          ApplicationTools::displayMessage("Tree leaves pruned to fit data " + TextTools::toString(seqNum));
+          vector<string> names = mSeq.find(seqNum)->second->getSequenceNames();
+
+          for (auto& tree:trees)
+          {
+            auto nb1 = tree->getNumberOfLeaves();
+            tree->pruneTree(names);
+            auto nb2 = tree->getNumberOfLeaves();
+            if ((nb1!=nb2) && flag)
+              ApplicationTools::displayResult("Number of removed leaves",nb1-nb2);
+              
+          }
+        }
+      }
+        
       if (verbose)
       {
         if (flag)
@@ -303,7 +325,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
     }
     else if (treeName == "random")
     {
-      throw Exception("Random Phylotrees not defined yet. Ask developpers.");
+      throw Exception("Random Phylotrees not updated. Ask developpers.");
 
       size_t seqNum;
 

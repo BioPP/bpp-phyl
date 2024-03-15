@@ -121,6 +121,14 @@ public:
   void scaleTree(double factor);
 
   /**
+   * @brief Prune a tree to a given set of leaf names
+   *
+   * @param leaves  the vector of leaf names restricting the tree
+   */
+  
+  void pruneTree(std::vector<std::string> leaves);
+
+  /**
    * @brief Multiply all branch lengths under a Node by a given factor.
    *
    * @param node The node defining the subtree.
