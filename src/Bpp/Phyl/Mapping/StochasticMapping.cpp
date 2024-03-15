@@ -1,7 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: StochasticMapping.cpp
-// Authors:
-//
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/Number.h>

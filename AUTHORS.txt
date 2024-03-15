@@ -1,12 +1,12 @@
-Julien Dutheil     <julien.dutheil@univ-montp2.fr>
-Vincent Ranwez     <ranwez@univ-montp2.fr>
-Nicolas Galtier    <galtier@univ-montp2.fr>
-Bastien Boussau    <bastien.boussau@univ-lyon1.fr>
-Céline Scornavacca <celine.scornavacca@lirmm.fr>
 Laurent Guéguen    <laurent.gueguen@univ-lyon1.fr>
-Nicolas Rochette   <nicolas.rochette@univ-lyon1.fr>
-Fanny Pouyet       <fanny.pouyet@univ-lyon1.fr>
-François Gindraud  <francois.gindraud@gmail.com>
+Julien Dutheil     <dutheil@evolbio.mpg.de>
+Bastien Boussau    <bastien.boussau@univ-lyon1.fr>
+Nicolas Galtier    
+François Gindraud  
+Fanny Pouyet       
+Vincent Ranwez     
+Nicolas Rochette   
+Céline Scornavacca 
 
 Contributed code to Bio++ was enabled thanks to the following institutions and resources:
 

@@ -1,8 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: TreeIterator.cpp
-// Authors:
-//
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "TreeIterator.h"
 
