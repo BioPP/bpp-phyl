@@ -822,10 +822,13 @@ void LikelihoodCalculationSingleProcess::cleanAllLikelihoods()
    
 LikelihoodCalculationSingleProcess::RateCategoryTrees::~RateCategoryTrees()
 {
-  auto& c = flt->getContext();
-  const auto& lroot=flt->getForwardLikelihoodArrayAtRoot();
+  if (flt)
+  {
+    auto& c = flt->getContext();
+    const auto& lroot=flt->getForwardLikelihoodArrayAtRoot();
+    c.erase(lroot);
+  }
 
   phyloTree.reset();
-  c.erase(lroot);
 }
     
