@@ -88,8 +88,16 @@ void PhyloTree::pruneTree(std::vector<string> leaves)
   for (auto& leaf:vpn)
   {
     if (std::find(leaves.begin(), leaves.end(), leaf->getName())==leaves.end())
-      deleteNode(leaf);
+    {
+      while (leaf && isLeaf(leaf)) // to get rid of internal nodes as leaves
+      {
+        auto fat = getFatherOfNode(leaf);
+        deleteNode(leaf);
+        leaf=fat;
+      }
+    }
   }
+
 }
 
 void PhyloTree::setBranchLengths(double l)
