@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
+# files to be ignored
+
+*.tag
+CMakeCache.txt
+CMakeFiles
+*.cmake
+*.cmake.in
+Makefile
+html
+install_manifest.txt
+.clang*
+*.sw*
+build
+
+# file to be specifically not ignored by previous rules
+
+!/CTestConfig.cmake
+!/cmake/*

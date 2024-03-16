@@ -1,7 +1,7 @@
-# CMake package file for Bio++ Phyl
-# Authors:
-#   Francois Gindraud (2017)
-# Created: 08/03/2017
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
 @PACKAGE_INIT@
 
 if (NOT @PROJECT_NAME@_FOUND)
