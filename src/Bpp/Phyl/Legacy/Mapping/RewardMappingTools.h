@@ -44,10 +44,10 @@ public:
    * @throw Exception If the likelihood object is not initialized.
    */
   static std::unique_ptr<LegacyProbabilisticRewardMapping> computeRewardVectors(
-    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& nodeIds,
-    std::shared_ptr<Reward> reward,
-    bool verbose = true);
+      std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& nodeIds,
+      std::shared_ptr<Reward> reward,
+      bool verbose = true);
 
 
   /**
@@ -60,9 +60,9 @@ public:
    * @throw IOException If an output error happens.
    */
   static void writeToStream(
-    const LegacyProbabilisticRewardMapping& rewards,
-    const SiteContainerInterface& sites,
-    std::ostream& out);
+      const LegacyProbabilisticRewardMapping& rewards,
+      const SiteContainerInterface& sites,
+      std::ostream& out);
 
 
   /**

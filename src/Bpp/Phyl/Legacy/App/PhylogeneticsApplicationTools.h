@@ -72,14 +72,14 @@ public:
    * @return A new vector of Tree objects according to the specified options.
    */
   static std::map<size_t, std::shared_ptr<Tree>> getTrees(
-    const std::map<std::string, std::string>& params,
-    const std::map<size_t, std::shared_ptr<AlignmentDataInterface>>& mSeq,
-    std::map<std::string, std::string>& unparsedParams,
-    const std::string& prefix = "input.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      const std::map<std::string, std::string>& params,
+      const std::map<size_t, std::shared_ptr<AlignmentDataInterface>>& mSeq,
+      std::map<std::string, std::string>& unparsedParams,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Set parameter initial values of a given model in a set according to options.
@@ -103,12 +103,12 @@ public:
    * @param verbose Print some info to the 'message' output stream.
    */
   static void setSubstitutionModelParametersInitialValuesWithAliases(
-    BranchModelInterface& model,
-    std::map<std::string, std::string>& unparsedParameterValues,
-    size_t modelNumber,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::map<std::string, std::string>& sharedParams,
-    bool verbose);
+      BranchModelInterface& model,
+      std::map<std::string, std::string>& unparsedParameterValues,
+      size_t modelNumber,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::map<std::string, std::string>& sharedParams,
+      bool verbose);
 
   /**
    * @brief Gets a SubstitutionModelSet object according to options.
@@ -117,14 +117,14 @@ public:
    * methods.
    */
   static std::unique_ptr<SubstitutionModelSet> getSubstitutionModelSet(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gcode,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gcode,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
@@ -181,15 +181,15 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
   static void setSubstitutionModelSet(
-    SubstitutionModelSet& modelSet,
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gcode,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      SubstitutionModelSet& modelSet,
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gcode,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Complete a MixedSubstitutionModelSet object according to
@@ -254,14 +254,14 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
   static void completeMixedSubstitutionModelSet(
-    MixedSubstitutionModelSet& mixedModelSet,
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      MixedSubstitutionModelSet& mixedModelSet,
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Optimize parameters according to options.
@@ -283,13 +283,13 @@ public:
    * @endcode
    */
   static std::shared_ptr<TreeLikelihoodInterface> optimizeParameters(
-    std::shared_ptr<TreeLikelihoodInterface> tl,
-    const ParameterList& parameters,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<TreeLikelihoodInterface> tl,
+      const ParameterList& parameters,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
@@ -310,24 +310,24 @@ public:
    * >0 display warnings on demand).
    */
   static void writeTrees(
-    const std::vector<const Tree*>& trees,
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "output.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    bool checkOnly = false,
-    int warn = 1);
+      const std::vector<const Tree*>& trees,
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1);
 
   static void writeTrees(
-    const std::vector<const TreeTemplate<Node>* >& trees,
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "output.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    bool checkOnly = false,
-    int warn = 1);
+      const std::vector<const TreeTemplate<Node>* >& trees,
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1);
 
   /**
    * @brief Output a SubstitutionModelSet description to a file.

@@ -54,10 +54,10 @@ public:
    * @see Simplex
    */
   static std::unique_ptr<CodonFrequencySetInterface> getFrequencySetForCodons(
-    short option,
-    std::shared_ptr<const GeneticCode> gCode,
-    const std::string& mgmtStopCodon = "quadratic",
-    unsigned short method = 1);
+      short option,
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::string& mgmtStopCodon = "quadratic",
+      unsigned short method = 1);
 
   static const short F0;
   static const short F1X4;

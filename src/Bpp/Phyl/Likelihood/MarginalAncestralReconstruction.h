@@ -149,9 +149,9 @@ public:
 
 private:
   void recursiveMarginalAncestralStates(
-    const std::shared_ptr<PhyloNode> node,
-    std::map<uint, std::vector<size_t>>& ancestors,
-    AlignmentDataInterface& data) const;
+      const std::shared_ptr<PhyloNode> node,
+      std::map<uint, std::vector<size_t>>& ancestors,
+      AlignmentDataInterface& data) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_MARGINALANCESTRALRECONSTRUCTION_H

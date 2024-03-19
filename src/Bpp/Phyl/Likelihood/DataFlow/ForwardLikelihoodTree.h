@@ -149,23 +149,23 @@ private:
    * the forward proces (ie at top of the edge).
    */
   ForwardLikelihoodBelowRef makeForwardLikelihoodAtEdge(
-    std::shared_ptr<ProcessEdge> edge,
-    const AlignmentDataInterface& sites);
+      std::shared_ptr<ProcessEdge> edge,
+      const AlignmentDataInterface& sites);
 
   /*
    * @brief Compute ConditionalLikelihood after reading node on
    * the forward proces (ie just above node).
    */
   ConditionalLikelihoodForwardRef makeForwardLikelihoodAtNode(
-    std::shared_ptr<ProcessNode> node,
-    const AlignmentDataInterface& sites);
+      std::shared_ptr<ProcessNode> node,
+      const AlignmentDataInterface& sites);
 
   /**
    * @brief Compute ConditionalLikelihood for leaf.
    */
   ConditionalLikelihoodForwardRef makeInitialConditionalLikelihood(
-    const std::string& sequenceName,
-    const AlignmentDataInterface& sites);
+      const std::string& sequenceName,
+      const AlignmentDataInterface& sites);
 
   /**
    * @brief Map the species indexes and the likelihood DAG

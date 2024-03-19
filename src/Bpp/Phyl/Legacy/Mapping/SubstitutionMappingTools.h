@@ -67,17 +67,17 @@ public:
    * @throw Exception If the likelihood object is not initialized.
    */
   static std::unique_ptr<LegacyProbabilisticSubstitutionMapping> computeSubstitutionVectors(
-    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& nodeIds,
-    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-    bool verbose = true);
+      std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& nodeIds,
+      std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+      bool verbose = true);
 
   static std::unique_ptr<LegacyProbabilisticSubstitutionMapping> computeSubstitutionVectors(
-    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-    const SubstitutionModelSet& modelSet,
-    const std::vector<int>& nodeIds,
-    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-    bool verbose = true);
+      std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+      const SubstitutionModelSet& modelSet,
+      const std::vector<int>& nodeIds,
+      std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+      bool verbose = true);
 
   /**
    * @brief Compute the substitutions vectors for a particular dataset using the
@@ -100,9 +100,9 @@ public:
    * @throw Exception If the likelihood object is not initialized.
    */
   static std::unique_ptr<LegacyProbabilisticSubstitutionMapping> computeSubstitutionVectorsNoAveraging(
-    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-    bool verbose = true);
+      std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+      std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+      bool verbose = true);
 
 
   /**
@@ -124,9 +124,9 @@ public:
    * @throw Exception If the likelihood object is not initialized.
    */
   static std::unique_ptr<LegacyProbabilisticSubstitutionMapping> computeSubstitutionVectorsNoAveragingMarginal(
-    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-    bool verbose = true);
+      std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+      std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+      bool verbose = true);
 
 
   /**
@@ -145,9 +145,9 @@ public:
    * @throw Exception If the likelihood object is not initialized.
    */
   static std::unique_ptr<LegacyProbabilisticSubstitutionMapping> computeSubstitutionVectorsMarginal(
-    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-    bool verbose = true);
+      std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+      std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+      bool verbose = true);
 
 
   /**
@@ -179,10 +179,10 @@ public:
    * @throw IOException If an output error happens.
    */
   static void writeToStream(
-    const LegacyProbabilisticSubstitutionMapping& substitutions,
-    const SiteContainerInterface& sites,
-    size_t type,
-    std::ostream& out);
+      const LegacyProbabilisticSubstitutionMapping& substitutions,
+      const SiteContainerInterface& sites,
+      size_t type,
+      std::ostream& out);
 
 
   /**
@@ -257,20 +257,20 @@ public:
    * @{
    */
   static std::vector<std::vector<double>> getCountsPerBranch(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelInterface> model,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    double threshold = -1,
-    bool verbose = true);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelInterface> model,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      double threshold = -1,
+      bool verbose = true);
 
   static std::vector<std::vector<double>> getCountsPerBranch(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    const SubstitutionModelSet& modelSet,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    double threshold = -1,
-    bool verbose = true);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      const SubstitutionModelSet& modelSet,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      double threshold = -1,
+      bool verbose = true);
 
 
   /**
@@ -286,11 +286,11 @@ public:
    * @return A vector of normalization vectors (one per branch per type).
    */
   static std::vector<std::vector<double>> getNormalizationsPerBranch(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<const SubstitutionModelInterface> nullModel,
-    const SubstitutionRegisterInterface& reg,
-    bool verbose = true);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<const SubstitutionModelInterface> nullModel,
+      const SubstitutionRegisterInterface& reg,
+      bool verbose = true);
 
 
   /**
@@ -306,11 +306,11 @@ public:
    * @return A vector of normalization vectors (one per branch per type).
    */
   static std::vector<std::vector<double>> getNormalizationsPerBranch(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<const SubstitutionModelSet> nullModelSet,
-    const SubstitutionRegisterInterface& reg,
-    bool verbose = true);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<const SubstitutionModelSet> nullModelSet,
+      const SubstitutionRegisterInterface& reg,
+      bool verbose = true);
 
 
   /**
@@ -426,11 +426,11 @@ public:
    * @param array       The resulted counts as an tabular site X branchid
    */
   static void computeCountsPerSitePerBranch(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelInterface> model,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVdouble& array);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelInterface> model,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVdouble& array);
 
 
   /**
@@ -458,13 +458,13 @@ public:
    * @param verbose           Display progress messages.
    */
   static void computeCountsPerTypePerBranch(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelInterface> model,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVdouble& result,
-    double threshold = -1,
-    bool verbose = true);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelInterface> model,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVdouble& result,
+      double threshold = -1,
+      bool verbose = true);
 
   /**
    * @brief Compute the sum over all branches of the normalized
@@ -486,15 +486,15 @@ public:
    * @param verbose           Display progress messages.
    */
   static void computeCountsPerTypePerBranch(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelInterface> model,
-    std::shared_ptr<SubstitutionModelInterface> nullModel,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVdouble& result,
-    bool perTime,
-    bool perWord,
-    bool verbose = true);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelInterface> model,
+      std::shared_ptr<SubstitutionModelInterface> nullModel,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVdouble& result,
+      bool perTime,
+      bool perWord,
+      bool verbose = true);
 
   /**
    * @brief Compute the sum over all branches of the normalized
@@ -518,15 +518,15 @@ public:
    *
    */
   static void computeCountsPerTypePerBranch(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<SubstitutionModelSet> nullModelSet,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVdouble& result,
-    bool perTime,
-    bool perWord,
-    bool verbose = true);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<SubstitutionModelSet> nullModelSet,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVdouble& result,
+      bool perTime,
+      bool perWord,
+      bool verbose = true);
 
   /**
    * @}
@@ -549,11 +549,11 @@ public:
    *                          site X TypeId
    */
   static void computeCountsPerSitePerType(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelInterface> model,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVdouble& result);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelInterface> model,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVdouble& result);
 
   /**
    * @brief Compute the sum over all branches of the normalized
@@ -574,14 +574,14 @@ public:
    *                          word length).
    */
   static void computeCountsPerSitePerType(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelInterface> model,
-    std::shared_ptr<SubstitutionModelInterface> nullModel,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVdouble& result,
-    bool perTime,
-    bool perWord);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelInterface> model,
+      std::shared_ptr<SubstitutionModelInterface> nullModel,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVdouble& result,
+      bool perTime,
+      bool perWord);
 
   /**
    * @brief Compute the sum over all branches of the normalized
@@ -602,14 +602,14 @@ public:
    *                          word length).
    */
   static void computeCountsPerSitePerType(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<SubstitutionModelSet> nullModelSet,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVdouble& result,
-    bool perTime,
-    bool perWord);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<SubstitutionModelSet> nullModelSet,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVdouble& result,
+      bool perTime,
+      bool perWord);
 
   /**
    * @}
@@ -633,11 +633,11 @@ public:
    * @author Iakov Davydov
    */
   static void computeCountsPerSitePerBranchPerType(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelInterface> model,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVVdouble& result);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelInterface> model,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVVdouble& result);
 
   /**
    * @brief Compute normalized counts per site per branch per type.
@@ -657,14 +657,14 @@ public:
    *                          word length).
    */
   static void computeCountsPerSitePerBranchPerType(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelInterface> model,
-    std::shared_ptr<SubstitutionModelInterface> nullModel,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVVdouble& result,
-    bool perTime,
-    bool perWord);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelInterface> model,
+      std::shared_ptr<SubstitutionModelInterface> nullModel,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVVdouble& result,
+      bool perTime,
+      bool perWord);
 
   /**
    * @brief Compute normalized counts per site per branch per type.
@@ -684,14 +684,14 @@ public:
    *                          word length).
    */
   static void computeCountsPerSitePerBranchPerType(
-    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-    const std::vector<int>& ids,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<SubstitutionModelSet> nullModelSet,
-    std::shared_ptr<const SubstitutionRegisterInterface> reg,
-    VVVdouble& result,
-    bool perTime,
-    bool perWord);
+      std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+      const std::vector<int>& ids,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<SubstitutionModelSet> nullModelSet,
+      std::shared_ptr<const SubstitutionRegisterInterface> reg,
+      VVVdouble& result,
+      bool perTime,
+      bool perWord);
 
   /**
    * @brief Outputs of counts

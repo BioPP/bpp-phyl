@@ -22,9 +22,9 @@ class BppOTransitionModelFormat :
 {
 private:
   std::unique_ptr<MixedTransitionModelInterface> readMixed_(
-    std::shared_ptr<const Alphabet> alphabet,
-    const std::string& modelDescription,
-    const AlignmentDataInterface& data);
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface& data);
 
 public:
   /**
@@ -55,10 +55,10 @@ public:
 
 public:
   std::unique_ptr<TransitionModelInterface> readTransitionModel(
-    std::shared_ptr<const Alphabet> alphabet,
-    const std::string& modelDescription,
-    const AlignmentDataInterface& data,
-    bool parseArguments = true);
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface& data,
+      bool parseArguments = true);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOTRANSITIONMODELFORMAT_H

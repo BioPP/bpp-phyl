@@ -110,10 +110,10 @@ public:
   }
 
   std::unique_ptr<SubstitutionModelInterface> readSubstitutionModel(
-    std::shared_ptr<const Alphabet> alphabet,
-    const std::string& modelDescription,
-    const AlignmentDataInterface& data,
-    bool parseArguments = true) override;
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface& data,
+      bool parseArguments = true) override;
 
   const std::map<std::string, std::string>& getUnparsedArguments() const override
   {
@@ -140,9 +140,9 @@ public:
 
 private:
   std::unique_ptr<SubstitutionModelInterface> readWord_(
-    std::shared_ptr<const Alphabet> alphabet,
-    const std::string& modelDescription,
-    const AlignmentDataInterface& data);
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface& data);
 
   void writeMixed_(const MixedTransitionModelInterface& model,
       OutputStream& out,
@@ -154,8 +154,8 @@ protected:
    * @brief Finish parsing of parameters, taking care of aliases.
    */
   void updateParameters_(
-    BranchModelInterface& model,
-    std::map<std::string, std::string>& args);
+      BranchModelInterface& model,
+      std::map<std::string, std::string>& args);
 
   /**
    * @brief Set parameter initial values of a given model according to options.
@@ -172,8 +172,8 @@ protected:
    * @throw Exception if an error occured.
    */
   void initialize_(
-    BranchModelInterface& model,
-    const AlignmentDataInterface& data);
+      BranchModelInterface& model,
+      const AlignmentDataInterface& data);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOSUBSTITUTIONMODELFORMAT_H

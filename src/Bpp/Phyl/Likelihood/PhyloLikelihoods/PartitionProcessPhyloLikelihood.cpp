@@ -20,8 +20,8 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   AbstractSingleDataPhyloLikelihood(
-    context, processSeqEvol->getNumberOfSites(),
-    (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, 0),
+      context, processSeqEvol->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, 0),
   AbstractParametrizable(""),
   AbstractSequencePhyloLikelihood(context, processSeqEvol, nSeqEvol),
   AbstractPhyloLikelihoodSet(context, std::make_shared<PhyloLikelihoodContainer>(context, processSeqEvol->getCollection())),
@@ -74,8 +74,8 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
-    context, data->getNumberOfSites(),
-    (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+      context, data->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
   AbstractParametrizable(""),
   AbstractSequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
   AbstractPhyloLikelihoodSet(context, std::make_shared<PhyloLikelihoodContainer>(context, processSeqEvol->getCollection())),
@@ -132,8 +132,8 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
-    collNodes->context(), data->getNumberOfSites(),
-    (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+      collNodes->context(), data->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
   AbstractParametrizable(""),
   AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nSeqEvol, nData),
   AbstractPhyloLikelihoodSet(collNodes->context(), std::make_shared<PhyloLikelihoodContainer>(collNodes->context(), collNodes)),

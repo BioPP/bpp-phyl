@@ -26,8 +26,8 @@ WordSubstitutionModel::WordSubstitutionModel(
     const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(
-    modelList,
-    (prefix == "") ? "Word." : prefix)
+      modelList,
+      (prefix == "") ? "Word." : prefix)
 {
   size_t i, nbmod = VSubMod_.size();
 

@@ -119,22 +119,22 @@ public:
 
 private:
   std::shared_ptr<PhyloNode> parenthesisToNode(
-    PhyloTree& tree,
-    std::shared_ptr<PhyloNode> father,
-    const std::string& description,
-    unsigned int& nodeCounter,
-    bool bootstrap,
-    const std::string& propertyName,
-    bool withId,
-    bool verbose) const;
+      PhyloTree& tree,
+      std::shared_ptr<PhyloNode> father,
+      const std::string& description,
+      unsigned int& nodeCounter,
+      bool bootstrap,
+      const std::string& propertyName,
+      bool withId,
+      bool verbose) const;
 
 public:
   std::unique_ptr<PhyloTree> parenthesisToPhyloTree(
-    const std::string& description,
-    bool bootstrap = false,
-    const std::string& propertyName = "",
-    bool withId = false,
-    bool verbose = false) const;
+      const std::string& description,
+      bool bootstrap = false,
+      const std::string& propertyName = "",
+      bool withId = false,
+      bool verbose = false) const;
 
 /** @} */
 
@@ -169,14 +169,14 @@ public:
   using AbstractIMultiTree::readTrees;
 
   void readTrees(
-    std::istream& in,
-    std::vector<std::unique_ptr<Tree>>& trees) const override;
+      std::istream& in,
+      std::vector<std::unique_ptr<Tree>>& trees) const override;
 
   using AbstractIMultiPhyloTree::readPhyloTrees;
 
   void readPhyloTrees(
-    std::istream& in,
-    std::vector<std::unique_ptr<PhyloTree>>& trees) const override;
+      std::istream& in,
+      std::vector<std::unique_ptr<PhyloTree>>& trees) const override;
 
   /**@}*/
 

@@ -21,12 +21,12 @@ AutoCorrelationProcessPhyloLikelihood::AutoCorrelationProcessPhyloLikelihood(
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
-    collNodes->context(),
-    data->getNumberOfSites(),
-    (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
+      collNodes->context(),
+      data->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
           ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates()
     : 0,
-    nData),
+      nData),
   AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nData),
   AbstractParametrizable(""),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData),

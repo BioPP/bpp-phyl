@@ -76,12 +76,12 @@ public:
    * @return A new Tree object according to the specified options.
    */
   static std::unique_ptr<Tree> getTree(
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "input.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Build a list of Tree objects according to options.
@@ -98,12 +98,12 @@ public:
    */
 
   static std::vector<std::unique_ptr<Tree>> getTrees(
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "input.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Build a map of <number,PhyloTree> according to options.
@@ -125,14 +125,14 @@ public:
    */
 
   static std::map<size_t, std::shared_ptr<PhyloTree>> getPhyloTrees(
-    const std::map<std::string, std::string>& params,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mSeq,
-    std::map<std::string, std::string>& unparsedParams,
-    const std::string& prefix = "input.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      const std::map<std::string, std::string>& params,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mSeq,
+      std::map<std::string, std::string>& unparsedParams,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Build a BranchModel (most general class of branch models)
@@ -165,15 +165,15 @@ public:
    * @return A new BranchModel object.
    */
   static std::unique_ptr<BranchModelInterface> getBranchModel(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    std::map<std::string, std::string>& unparsedparams,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& unparsedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Build a SubstitutionModel object according to options (ie
@@ -205,30 +205,30 @@ public:
    * @return A new SubstitutionModel object.
    */
   static std::unique_ptr<SubstitutionModelInterface> getSubstitutionModel(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    std::map<std::string, std::string>& unparsedparams,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& unparsedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
    * @brief The same as before, but returns a map <number, branch model>.
    */
   static std::map<size_t, std::unique_ptr<BranchModelInterface>> getBranchModels(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
-    const std::map<std::string, std::string>& params,
-    std::map<std::string, std::string>& unparsedparams,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      const std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& unparsedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Get A FrequencySet object for root frequencies (NH models) according to options.
@@ -251,30 +251,30 @@ public:
    * @return A new FrequencySet object according to options specified.
    */
   static std::unique_ptr<FrequencySetInterface> getRootFrequencySet(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    const AlignmentDataInterface& data,
-    const std::map<std::string, std::string>& params,
-    std::map<std::string, std::string>& sharedparams,
-    const std::vector<double>& rateFreqs,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      const AlignmentDataInterface& data,
+      const std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& sharedparams,
+      const std::vector<double>& rateFreqs,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief The same, but returns a map <number, shared_ptr<FrequencySetInterface>>.
    */
   static std::map<size_t, std::unique_ptr<FrequencySetInterface>> getRootFrequencySets(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
-    const std::map<std::string, std::string>& params,
-    std::map<std::string, std::string>& sharedparams,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      const std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& sharedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Get A FrequencySet object according to options.
@@ -298,14 +298,14 @@ public:
    * @return A new FrequencySet object according to options specified.
    */
   static std::unique_ptr<FrequencySetInterface> getFrequencySet(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    const std::string& freqDescription,
-    const AlignmentDataInterface& data,
-    std::map<std::string, std::string>& sharedParams,
-    const std::vector<double>& rateFreqs,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::string& freqDescription,
+      const AlignmentDataInterface& data,
+      std::map<std::string, std::string>& sharedParams,
+      const std::vector<double>& rateFreqs,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
@@ -329,12 +329,12 @@ public:
    * the specified options.
    */
   static map<size_t, std::unique_ptr<ModelPath>> getModelPaths(
-    const std::map<std::string, std::string>& params,
-    const map<size_t, std::shared_ptr<BranchModelInterface>>& mModel,
-    const string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      const std::map<std::string, std::string>& params,
+      const map<size_t, std::shared_ptr<BranchModelInterface>>& mModel,
+      const string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Build map of ModelScenarios from a map of ModelPaths.
@@ -354,13 +354,13 @@ public:
    * according to the specified options.
    */
   static map<size_t, std::unique_ptr<ModelScenario>> getModelScenarios(
-    const std::map<std::string, std::string>& params,
-    const map<size_t, std::shared_ptr<ModelPath>>& mModelPath,
-    const map<size_t, std::shared_ptr<BranchModelInterface>>& mModel,
-    const string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      const std::map<std::string, std::string>& params,
+      const map<size_t, std::shared_ptr<ModelPath>>& mModelPath,
+      const map<size_t, std::shared_ptr<BranchModelInterface>>& mModel,
+      const string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Get a Register instance.
@@ -377,12 +377,12 @@ public:
    * @return A SubstitutionRegister object.
    */
   static std::unique_ptr<SubstitutionRegisterInterface> getSubstitutionRegister(
-    const std::string& regTypeDesc,
-    std::shared_ptr<const StateMapInterface> stateMap,
-    std::shared_ptr<const GeneticCode> genCode,
-    std::shared_ptr<AlphabetIndex2>& weights,
-    std::shared_ptr<AlphabetIndex2>& distances,
-    bool verbose = true);
+      const std::string& regTypeDesc,
+      std::shared_ptr<const StateMapInterface> stateMap,
+      std::shared_ptr<const GeneticCode> genCode,
+      std::shared_ptr<AlphabetIndex2>& weights,
+      std::shared_ptr<AlphabetIndex2>& distances,
+      bool verbose = true);
 
   /**
    * @brief Sets a SubstitutionProcess object according to options.
@@ -411,15 +411,15 @@ public:
    * @return A pointer to a AutonomousSubstitutionProcess.
    */
   static std::unique_ptr<AutonomousSubstitutionProcessInterface> getSubstitutionProcess(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const vector<std::shared_ptr<PhyloTree>>& vTree,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const vector<std::shared_ptr<PhyloTree>>& vTree,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Builds a  SubstitutionProcessCollection from meny maps of relevant objects.
@@ -444,19 +444,19 @@ public:
    * @return A shared pointer to a SubstitutionProcessCollection.
    */
   static std::unique_ptr<SubstitutionProcessCollection> getSubstitutionProcessCollection(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
-    const map<size_t, std::shared_ptr<BranchModelInterface>>& mMod,
-    const map<size_t, std::shared_ptr<FrequencySetInterface>>& mRootFreq,
-    const map<size_t, std::shared_ptr<DiscreteDistributionInterface>>& mDist,
-    const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
-    const std::map<std::string, std::string>& params,
-    map<string, string>& unparsedparams,
-    const string& suffix = "",
-    bool suffixIsOptional  = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
+      const map<size_t, std::shared_ptr<BranchModelInterface>>& mMod,
+      const map<size_t, std::shared_ptr<FrequencySetInterface>>& mRootFreq,
+      const map<size_t, std::shared_ptr<DiscreteDistributionInterface>>& mDist,
+      const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
+      const std::map<std::string, std::string>& params,
+      map<string, string>& unparsedparams,
+      const string& suffix = "",
+      bool suffixIsOptional  = true,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
@@ -472,11 +472,11 @@ public:
    * @return if the addition has been successful.
    */
   static bool addSubstitutionProcessCollectionMember(
-    SubstitutionProcessCollection& SubProColl,
-    size_t procNum,
-    const std::map<std::string, std::string>& params,
-    bool verbose = true,
-    int warn = 1);
+      SubstitutionProcessCollection& SubProColl,
+      size_t procNum,
+      const std::map<std::string, std::string>& params,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
@@ -484,13 +484,13 @@ public:
    * evolve, which may use several processes.
    */
   static std::map<size_t, std::unique_ptr<SequenceEvolution>> getSequenceEvolutions(
-    std::shared_ptr<SubstitutionProcessCollection> SPC,
-    const std::map<std::string, std::string>& params,
-    map<string, string>& unparsedParams,
-    const string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<SubstitutionProcessCollection> SPC,
+      const std::map<std::string, std::string>& params,
+      map<string, string>& unparsedParams,
+      const string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
@@ -502,15 +502,15 @@ public:
    * PhyloLikelihood, with name "result" in the BppO file.
    */
   static std::shared_ptr<PhyloLikelihoodContainer> getPhyloLikelihoodContainer(
-    Context& context,
-    std::shared_ptr<SubstitutionProcessCollection> SPC,
-    std::map<size_t, std::shared_ptr<SequenceEvolution>>& mSeqEvol,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
-    const std::map<std::string, std::string>& params,
-    const string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      Context& context,
+      std::shared_ptr<SubstitutionProcessCollection> SPC,
+      std::map<size_t, std::shared_ptr<SequenceEvolution>>& mSeqEvol,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      const std::map<std::string, std::string>& params,
+      const string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Build a multi-dimension distribution as a
@@ -527,9 +527,9 @@ public:
    * @return A new MultipleDiscreteDistribution object according to options specified.
    */
   static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
-    const std::string& distDescription,
-    std::map<std::string, std::string>& unparsedParameterValues,
-    bool verbose = true);
+      const std::string& distDescription,
+      std::map<std::string, std::string>& unparsedParameterValues,
+      bool verbose = true);
 
   /**
    * @brief Build a DiscreteDistribution object according to options.
@@ -545,10 +545,10 @@ public:
    * @return A new DiscreteDistribution object according to options specified.
    */
   static std::unique_ptr<DiscreteDistributionInterface> getRateDistribution(
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true);
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true);
 
   /**
    * brief Same as before, but using several distributions.
@@ -556,10 +556,10 @@ public:
    */
 
   static std::map<size_t, std::shared_ptr<DiscreteDistributionInterface>> getRateDistributions(
-    const std::map<std::string, std::string>& params,
-    const string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true);
+      const std::map<std::string, std::string>& params,
+      const string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true);
 
   /**
    * @brief Optimize parameters according to options.
@@ -583,13 +583,13 @@ public:
    * @endcode
    */
   static std::shared_ptr<PhyloLikelihoodInterface> optimizeParameters(
-    std::shared_ptr<PhyloLikelihoodInterface> lik,
-    const ParameterList& parameters,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<PhyloLikelihoodInterface> lik,
+      const ParameterList& parameters,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Check if parameter values are close to their definition boundary.
@@ -613,12 +613,12 @@ public:
    * @return A SubstitutionCount object.
    */
   static std::unique_ptr<SubstitutionCountInterface> getSubstitutionCount(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const SubstitutionModelInterface> model,
-    const std::map<std::string, std::string>& params,
-    string suffix = "",
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const SubstitutionModelInterface> model,
+      const std::map<std::string, std::string>& params,
+      string suffix = "",
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Output methods:
@@ -643,14 +643,14 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
   static void writeTree(
-    const TreeTemplate<Node>& tree,
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "output.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    bool checkOnly = false,
-    int warn = 1);
+      const TreeTemplate<Node>& tree,
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1);
 
   /**
    * @brief Write a tree according to options.
@@ -670,14 +670,14 @@ public:
    * >0 display warnings on demand).
    */
   static void writePhyloTrees(
-    const std::vector<const PhyloTree*>& trees,
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "output.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    bool checkOnly = false,
-    int warn = 1);
+      const std::vector<const PhyloTree*>& trees,
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1);
 
   /**
    * @brief Write a tree according to options.
@@ -699,15 +699,15 @@ public:
    * >0 display warnings on demand).
    */
   static void writePhyloTrees(
-    const SubstitutionProcessCollection& spc,
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "output.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    bool checkOnly = false,
-    bool withIds = false,
-    int warn = 1);
+      const SubstitutionProcessCollection& spc,
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      bool withIds = false,
+      int warn = 1);
 
 
   /**

@@ -41,8 +41,8 @@ public:
    * @return          A container with all simulated sites.
    */
   static std::unique_ptr<SiteContainerInterface> simulateSites(
-    const SequenceSimulatorInterface& simulator,
-    const std::vector<double>& rates);
+      const SequenceSimulatorInterface& simulator,
+      const std::vector<double>& rates);
 
   /**
    * @brief Simulate a set of sites knowing their rate and ancestral state.
@@ -60,9 +60,9 @@ public:
    * @return          A container with all simulated sites.
    */
   static std::unique_ptr<SiteContainerInterface> simulateSites(
-    const SequenceSimulatorInterface& simulator,
-    const std::vector<double>& rates,
-    const std::vector<size_t>& states);
+      const SequenceSimulatorInterface& simulator,
+      const std::vector<double>& rates,
+      const std::vector<size_t>& states);
 
   /**
    * @brief Simulate a set of sites knowing ancestral state.
@@ -73,8 +73,8 @@ public:
    * @return          A container with all simulated sites.
    */
   static std::unique_ptr<SiteContainerInterface> simulateSites(
-    const SequenceSimulatorInterface& simulator,
-    const std::vector<size_t>& states);
+      const SequenceSimulatorInterface& simulator,
+      const std::vector<size_t>& states);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_SIMULATION_SEQUENCESIMULATIONTOOLS_H

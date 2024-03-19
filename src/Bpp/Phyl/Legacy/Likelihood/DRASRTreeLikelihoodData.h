@@ -223,8 +223,8 @@ public:
   size_t getNumberOfClasses() const { return nbClasses_; }
 
   void initLikelihoods(
-    const AlignmentDataInterface& sites,
-    const TransitionModelInterface& model);
+      const AlignmentDataInterface& sites,
+      const TransitionModelInterface& model);
 
 protected:
   /**
@@ -242,9 +242,9 @@ protected:
    * @param model     The model to use.
    */
   virtual void initLikelihoods(
-    const Node* node,
-    const AlignmentDataInterface& sequences,
-    const TransitionModelInterface& model);
+      const Node* node,
+      const AlignmentDataInterface& sequences,
+      const TransitionModelInterface& model);
 
   /**
    * @brief This method initializes the leaves according to a sequence file.
@@ -263,9 +263,9 @@ protected:
    * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
    */
   virtual std::unique_ptr<SitePatterns> initLikelihoodsWithPatterns(
-    const Node* node,
-    const AlignmentDataInterface& sequences,
-    const TransitionModelInterface& model);
+      const Node* node,
+      const AlignmentDataInterface& sequences,
+      const TransitionModelInterface& model);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_DRASRTREELIKELIHOODDATA_H

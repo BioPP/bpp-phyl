@@ -98,8 +98,8 @@ public:
    * @return the model with given index.
    */
   virtual const BranchModelInterface& model(
-    unsigned int nodeId,
-    size_t classIndex) const = 0;
+      unsigned int nodeId,
+      size_t classIndex) const = 0;
 
   /**
    * @brief Get the substitution model corresponding to a certain
@@ -110,8 +110,8 @@ public:
    * @return A shared pointer toward the model with given index.
    */
   virtual std::shared_ptr<const BranchModelInterface> getModel(
-    unsigned int nodeId,
-    size_t classIndex) const = 0;
+      unsigned int nodeId,
+      size_t classIndex) const = 0;
 
   /**
    * @brief Get the Model Scenario associated with this process, in

@@ -11,9 +11,9 @@ using namespace std;
 
 MvaFrequencySet::MvaFrequencySet(shared_ptr<const ProteicAlphabet> alpha) :
   AbstractFrequencySet(
-    make_shared<CanonicalStateMap>(alpha, false),
-    "MVA.",
-    "MVAprotein"),
+      make_shared<CanonicalStateMap>(alpha, false),
+      "MVA.",
+      "MVAprotein"),
   tPpalAxes_(),
   rowCoords_(),
   nbrOfAxes_(0),

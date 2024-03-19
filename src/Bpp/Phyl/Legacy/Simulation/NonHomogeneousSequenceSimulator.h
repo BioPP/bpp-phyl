@@ -277,14 +277,14 @@ protected:
    * This method is used for the implementation of the SequenceSimulator interface.
    */
   void multipleEvolve(
-    const SNode* node,
-    const std::vector<size_t>& initialStateIndices,
-    const std::vector<size_t>& rateClasses,
-    std::vector<size_t>& finalStates) const;
+      const SNode* node,
+      const std::vector<size_t>& initialStateIndices,
+      const std::vector<size_t>& rateClasses,
+      std::vector<size_t>& finalStates) const;
 
   std::unique_ptr<SiteContainerInterface> multipleEvolve(
-    const std::vector<size_t>& initialStates,
-    const std::vector<size_t>& rateClasses) const;
+      const std::vector<size_t>& initialStates,
+      const std::vector<size_t>& rateClasses) const;
 
   void dEvolve(size_t initialState, double rate, RASiteSimulationResult& rassr) const;
 

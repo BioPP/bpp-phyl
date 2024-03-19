@@ -69,8 +69,8 @@ public:
       size_t nData = 0) :
     AbstractPhyloLikelihood(context),
     AbstractSingleDataPhyloLikelihood(
-      context, 0,
-      (se->getSubstitutionProcessNumbers().size() != 0) ? se->substitutionProcess(se->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+        context, 0,
+        (se->getSubstitutionProcessNumbers().size() != 0) ? se->substitutionProcess(se->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
     seqEvol_(se),
     nSeqEvol_(nSE)
   {}

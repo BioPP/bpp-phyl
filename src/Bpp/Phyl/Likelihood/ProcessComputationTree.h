@@ -166,14 +166,14 @@ private:
    * be set in this method)
    */
   void buildFollowingPath_(
-    std::shared_ptr<ProcessComputationNode> father,
-    const ModelPath& path);
+      std::shared_ptr<ProcessComputationNode> father,
+      const ModelPath& path);
 
   void buildFollowingScenario_(
-    std::shared_ptr<ProcessComputationNode> father,
-    const ModelScenario& scenario,
-    std::map<std::shared_ptr<MixedTransitionModelInterface>,
-    uint>& mMrca);
+      std::shared_ptr<ProcessComputationNode> father,
+      const ModelScenario& scenario,
+      std::map<std::shared_ptr<MixedTransitionModelInterface>,
+      uint>& mMrca);
 
 public:
   /**

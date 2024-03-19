@@ -26,8 +26,8 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
     const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(
-    modelList,
-    (prefix == "") ? "Kron." : prefix)
+      modelList,
+      (prefix == "") ? "Kron." : prefix)
 {
   updateMatrices_();
 }
@@ -61,8 +61,8 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
     const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(
-    modelList, vPos,
-    (prefix == "") ? "Kron." : prefix)
+      modelList, vPos,
+      (prefix == "") ? "Kron." : prefix)
 {
   enableEigenDecomposition(true);
   updateMatrices_();

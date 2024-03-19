@@ -48,10 +48,10 @@ public:
 
 public:
   std::unique_ptr<BranchModelInterface> readBranchModel(
-    std::shared_ptr<const Alphabet> alphabet,
-    const std::string& modelDescription,
-    const AlignmentDataInterface& data,
-    bool parseArguments = true);
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& modelDescription,
+      const AlignmentDataInterface& data,
+      bool parseArguments = true);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOBRANCHMODELFORMAT_H

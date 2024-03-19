@@ -28,7 +28,7 @@ public:
    * @return The posterior distribution of rate classes.
    */
   static std::unique_ptr<DiscreteDistributionInterface> getPosteriorRateDistribution(
-    const DiscreteRatesAcrossSitesTreeLikelihoodInterface& treeLikelihood);
+      const DiscreteRatesAcrossSitesTreeLikelihoodInterface& treeLikelihood);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_RASTOOLS_H

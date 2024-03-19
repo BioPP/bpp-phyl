@@ -123,10 +123,10 @@ private:
    * @brief Method called by constructor.
    */
   void init_(
-    const Tree& tree,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose);
+      const Tree& tree,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose);
 
 public:
   /**

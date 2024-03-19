@@ -44,9 +44,9 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
-    make_shared<CanonicalStateMap>(pWA, false),
-    prefix,
-    name),
+      make_shared<CanonicalStateMap>(pWA, false),
+      prefix,
+      name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -72,9 +72,9 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
-    make_shared<CanonicalStateMap>(pWA, false),
-    prefix,
-    name),
+      make_shared<CanonicalStateMap>(pWA, false),
+      prefix,
+      name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -242,9 +242,9 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
-    make_shared<CanonicalStateMap>(pWA, false),
-    prefix,
-    name),
+      make_shared<CanonicalStateMap>(pWA, false),
+      prefix,
+      name),
   pFreq_(std::move(pabsfreq)),
   NestedPrefix_(pFreq_->getNamespace()),
   length_(pWA->getLength())
@@ -269,9 +269,9 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
-    make_shared<CanonicalStateMap>(pWA, false),
-    prefix,
-    name),
+      make_shared<CanonicalStateMap>(pWA, false),
+      prefix,
+      name),
   pFreq_(std::move(pabsfreq)),
   NestedPrefix_(pFreq_->getNamespace()),
   length_(pWA->getLength())

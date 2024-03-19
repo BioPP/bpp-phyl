@@ -39,10 +39,10 @@ public:
    * @throw Exception In case something bad happens, like an unvalid model set.
    */
   static void getAncestralFrequencies(
-    const TreeLikelihoodInterface& tl,
-    size_t site,
-    std::map<int, std::vector<double>>& frequencies,
-    bool alsoForLeaves = false);
+      const TreeLikelihoodInterface& tl,
+      size_t site,
+      std::map<int, std::vector<double>>& frequencies,
+      bool alsoForLeaves = false);
 
   /**
    * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
@@ -58,9 +58,9 @@ public:
    * @throw Exception In case something bad happens, like an unvalid model set.
    */
   static void getAncestralFrequencies(
-    const TreeLikelihoodInterface& tl,
-    std::map<int, std::vector<double>>& frequencies,
-    bool alsoForLeaves = false);
+      const TreeLikelihoodInterface& tl,
+      std::map<int, std::vector<double>>& frequencies,
+      bool alsoForLeaves = false);
 
 private:
   /**
@@ -69,12 +69,12 @@ private:
    * @see getAncestralFrequencies()
    */
   static void getAncestralFrequencies_(
-    const TreeLikelihoodInterface& tl,
-    size_t siteIndex,
-    int parentId,
-    const std::vector<double>& ancestralFrequencies,
-    std::map<int, std::vector<double>>& frequencies,
-    bool alsoForLeaves);
+      const TreeLikelihoodInterface& tl,
+      size_t siteIndex,
+      int parentId,
+      const std::vector<double>& ancestralFrequencies,
+      std::map<int, std::vector<double>>& frequencies,
+      bool alsoForLeaves);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_TREELIKELIHOODTOOLS_H

@@ -2198,7 +2198,7 @@ int Context::run() { return 0; }
 #define DOCTEST_WINDOWS_SAL_IN_OPT
 #endif // _MSC_VER
 extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA(
-  DOCTEST_WINDOWS_SAL_IN_OPT const char*);
+    DOCTEST_WINDOWS_SAL_IN_OPT const char*);
 extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
 #endif // _MSC_VER || __MINGW32__
 

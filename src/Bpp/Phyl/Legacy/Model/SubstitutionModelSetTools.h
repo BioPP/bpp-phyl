@@ -31,10 +31,10 @@ public:
    * @param tree      The tree to use for the construction of the set.
    */
   static std::unique_ptr<SubstitutionModelSet> createHomogeneousModelSet(
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<FrequencySetInterface> rootFreqs,
-    const Tree& tree
-    );
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<FrequencySetInterface> rootFreqs,
+      const Tree& tree
+      );
 
   /**
    * @brief Create a SubstitutionModelSet object, with one model per branch.
@@ -56,12 +56,12 @@ public:
    * All other parameters will be considered distinct for all branches.
    */
   static std::unique_ptr<SubstitutionModelSet> createNonHomogeneousModelSet(
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<FrequencySetInterface> rootFreqs,
-    const Tree& tree,
-    const std::map<std::string, std::string>& aliasFreqNames,
-    const std::map<std::string, std::vector<Vint>>& globalParameterNames
-    );
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<FrequencySetInterface> rootFreqs,
+      const Tree& tree,
+      const std::map<std::string, std::string>& aliasFreqNames,
+      const std::map<std::string, std::vector<Vint>>& globalParameterNames
+      );
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_MODEL_SUBSTITUTIONMODELSETTOOLS_H

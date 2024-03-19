@@ -89,8 +89,8 @@ public:
 
 private:
   void init_(
-    const AlignmentDataInterface& sequences,
-    std::vector<std::string> names = {});
+      const AlignmentDataInterface& sequences,
+      std::vector<std::string> names = {});
 
 public:
   /**

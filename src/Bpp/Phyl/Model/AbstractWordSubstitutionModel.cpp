@@ -30,9 +30,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(
-    modelList.getWordAlphabet(),
-    std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
-    prefix),
+      modelList.getWordAlphabet(),
+      std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
+      prefix),
   newAlphabet_(true),
   VSubMod_      (),
   VnestedPrefix_(),

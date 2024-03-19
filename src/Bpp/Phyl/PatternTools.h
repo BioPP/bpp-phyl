@@ -42,9 +42,9 @@ public:
    */
   template<class N, class E, class I>
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-    const AlignmentDataInterface& sequenceSet,
-    const std::shared_ptr<N> node,
-    const AssociationTreeGraphImplObserver<N, E, I>& tree);
+      const AlignmentDataInterface& sequenceSet,
+      const std::shared_ptr<N> node,
+      const AssociationTreeGraphImplObserver<N, E, I>& tree);
 
   /**
    * @brief Extract the sequences corresponding to a given subtree.
@@ -55,8 +55,8 @@ public:
    * @throw Exception if an error occured.
    */
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-    const AlignmentDataInterface& sequenceSet,
-    const Node& node);
+      const AlignmentDataInterface& sequenceSet,
+      const Node& node);
 
   /**
    * @brief Extract the sequences corresponding to a given set of names.
@@ -67,8 +67,8 @@ public:
    * @throw Exception if an error occured.
    */
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-    const AlignmentDataInterface& sequenceSet,
-    const std::vector<std::string>& names);
+      const AlignmentDataInterface& sequenceSet,
+      const std::vector<std::string>& names);
 
   /**
    * @brief Compress a site container by removing duplicated sites.
@@ -78,7 +78,7 @@ public:
    * @throw Exception if an error occured.
    */
   static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(
-    const AlignmentDataInterface& sequenceSet);
+      const AlignmentDataInterface& sequenceSet);
 
   /**
    * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
@@ -89,8 +89,8 @@ public:
    * @return A vector of positions.
    */
   static Vint getIndexes(
-    const AlignmentDataInterface& sequences1,
-    const AlignmentDataInterface& sequences2);
+      const AlignmentDataInterface& sequences1,
+      const AlignmentDataInterface& sequences2);
 };
 
 template<class N, class E, class I>

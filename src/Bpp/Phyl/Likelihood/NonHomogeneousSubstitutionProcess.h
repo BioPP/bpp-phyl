@@ -472,12 +472,12 @@ public:
    * @param scenario (optional) the scenario used (in case of Mixed Models)
    */
   static std::unique_ptr<AutonomousSubstitutionProcessInterface> createHomogeneousSubstitutionProcess(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rdist,
-    std::shared_ptr<PhyloTree> tree,
-    std::shared_ptr<FrequencySetInterface> rootFreqs = 0,
-    std::shared_ptr<ModelScenario> scenario = 0
-    );
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
+      std::shared_ptr<PhyloTree> tree,
+      std::shared_ptr<FrequencySetInterface> rootFreqs = 0,
+      std::shared_ptr<ModelScenario> scenario = 0
+      );
 
   /**
    * @brief Create a NonHomogeneousSubstitutionProcess object, with one model per branch.
@@ -495,13 +495,13 @@ public:
    * @param scenario (optional) the scenario used (in case of Mixed Models)
    */
   static std::unique_ptr<NonHomogeneousSubstitutionProcess> createNonHomogeneousSubstitutionProcess(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rdist,
-    std::shared_ptr<PhyloTree> tree,
-    std::shared_ptr<FrequencySetInterface> rootFreqs,
-    const std::vector<std::string>& globalParameterNames,
-    std::shared_ptr<ModelScenario> scenario = 0
-    );
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
+      std::shared_ptr<PhyloTree> tree,
+      std::shared_ptr<FrequencySetInterface> rootFreqs,
+      const std::vector<std::string>& globalParameterNames,
+      std::shared_ptr<ModelScenario> scenario = 0
+      );
 
 
   /** @} */

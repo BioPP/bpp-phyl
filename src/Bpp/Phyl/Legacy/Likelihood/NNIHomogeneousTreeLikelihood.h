@@ -87,8 +87,8 @@ public:
 
 public:
   void initModel(
-    std::shared_ptr<const TransitionModelInterface> model,
-    std::shared_ptr<const DiscreteDistributionInterface> rDist);
+      std::shared_ptr<const TransitionModelInterface> model,
+      std::shared_ptr<const DiscreteDistributionInterface> rDist);
 
   /**
    * @warning No checking on alphabet size or number of rate classes is performed,

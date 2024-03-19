@@ -51,5 +51,5 @@ double AbstractCodonAARateSubstitutionModel::getCodonsMulRate(size_t i, size_t j
 
   return pgencode_->areSynonymous(si, sj) ? gamma_ :
          beta_* pAAmodel_->Qij(pAAmodel_->getModelStates(pgencode_->translate(si))[0],
-             pAAmodel_->getModelStates(pgencode_->translate(sj))[0]);
+        pAAmodel_->getModelStates(pgencode_->translate(sj))[0]);
 }

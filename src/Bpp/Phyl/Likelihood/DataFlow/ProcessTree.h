@@ -236,10 +236,10 @@ public:
    * built and stored in a ParameterList.
    */
   static std::shared_ptr<ProcessTree> makeProcessTree(
-    Context& context,
-    std::shared_ptr<const SubstitutionProcessInterface> process,
-    ParameterList& parList,
-    const std::string& suff = "");
+      Context& context,
+      std::shared_ptr<const SubstitutionProcessInterface> process,
+      ParameterList& parList,
+      const std::string& suff = "");
 
   /**
    * @brief Create a Process Tree following a Substitution Process in a Collection. Tree

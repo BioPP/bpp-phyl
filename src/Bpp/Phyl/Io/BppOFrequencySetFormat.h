@@ -84,10 +84,10 @@ public:
   }
 
   std::unique_ptr<FrequencySetInterface> readFrequencySet(
-    std::shared_ptr<const Alphabet> alphabet,
-    const std::string& freqDescription,
-    const AlignmentDataInterface& data,
-    bool parseArguments = true) override;
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& freqDescription,
+      const AlignmentDataInterface& data,
+      bool parseArguments = true) override;
 
   const std::map<std::string, std::string>& getUnparsedArguments() const override
   {
@@ -95,10 +95,10 @@ public:
   }
 
   void writeFrequencySet(
-    const FrequencySetInterface& freqset,
-    OutputStream& out,
-    std::map<std::string, std::string>& globalAliases,
-    std::vector<std::string>& writtenNames) const override;
+      const FrequencySetInterface& freqset,
+      OutputStream& out,
+      std::map<std::string, std::string>& globalAliases,
+      std::vector<std::string>& writtenNames) const override;
 
   void setVerbose(bool verbose) { verbose_ = verbose; }
 

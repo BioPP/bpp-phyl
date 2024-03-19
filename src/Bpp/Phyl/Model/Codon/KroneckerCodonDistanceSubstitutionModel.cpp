@@ -15,9 +15,9 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
     shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDist."),
   AbstractKroneckerWordSubstitutionModel(
-    gCode->getSourceAlphabet(),
-    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-    "KronCodonDist."),
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      "KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod), "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
@@ -33,9 +33,9 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
     shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDist."),
   AbstractKroneckerWordSubstitutionModel(
-    gCode->getSourceAlphabet(),
-    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-    "KronCodonDist."),
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      "KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
@@ -50,9 +50,9 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
     shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDist."),
   AbstractKroneckerWordSubstitutionModel(
-    gCode->getSourceAlphabet(),
-    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-    "KronCodonDist."),
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      "KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod), vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
@@ -69,9 +69,9 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
     shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDist."),
   AbstractKroneckerWordSubstitutionModel(
-    gCode->getSourceAlphabet(),
-    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-    "KronCodonDist."),
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      "KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {

@@ -73,9 +73,9 @@ FullFrequencySet::FullFrequencySet(
     unsigned short method,
     const string& name) :
   AbstractFrequencySet(
-    stateMap,
-    "Full.",
-    name),
+      stateMap,
+      "Full.",
+      name),
   sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
   vector<double> vd;
@@ -98,9 +98,9 @@ FullFrequencySet::FullFrequencySet(
     unsigned short method,
     const string& name) :
   AbstractFrequencySet(
-    stateMap,
-    "Full.",
-    name),
+      stateMap,
+      "Full.",
+      name),
   sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
   sFreq_.setFrequencies(initFreqs);
@@ -144,9 +144,9 @@ FixedFrequencySet::FixedFrequencySet(
     const vector<double>& initFreqs,
     const string& name) :
   AbstractFrequencySet(
-    stateMap,
-    "Fixed.",
-    name)
+      stateMap,
+      "Fixed.",
+      name)
 {
   if (stateMap->getNumberOfModelStates() != initFreqs.size())
     throw Exception("FixedFrequencySet::constructor. size of init vector does not match the number of states in the model.");
@@ -157,9 +157,9 @@ FixedFrequencySet::FixedFrequencySet(
     shared_ptr<const StateMapInterface> stateMap,
     const string& name) :
   AbstractFrequencySet(
-    stateMap,
-    "Fixed.",
-    name)
+      stateMap,
+      "Fixed.",
+      name)
 {
   size_t n = stateMap->getNumberOfModelStates();
   setFrequencies_(std::vector<double>(n, 1. / (double)n));
@@ -183,9 +183,9 @@ MarkovModulatedFrequencySet::MarkovModulatedFrequencySet(
     unique_ptr<FrequencySetInterface> freqSet,
     const std::vector<double>& rateFreqs) :
   AbstractFrequencySet(
-    make_shared<MarkovModulatedStateMap>(freqSet->stateMap(), static_cast<unsigned int>(rateFreqs.size())),
-    "MarkovModulated.",
-    "MarkovModulated." + freqSet->getName()),
+      make_shared<MarkovModulatedStateMap>(freqSet->stateMap(), static_cast<unsigned int>(rateFreqs.size())),
+      "MarkovModulated.",
+      "MarkovModulated." + freqSet->getName()),
   freqSet_(std::move(freqSet)),
   rateFreqs_(rateFreqs)
 {
@@ -256,9 +256,9 @@ UserFrequencySet::UserFrequencySet(
     const std::string& path,
     size_t nCol) :
   AbstractFrequencySet(
-    stateMap,
-    "Empirical.",
-    "Empirical"),
+      stateMap,
+      "Empirical.",
+      "Empirical"),
   path_(path),
   nCol_(nCol)
 {

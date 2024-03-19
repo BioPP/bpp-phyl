@@ -114,9 +114,9 @@ public:
 
 private:
   void recursiveMarginalAncestralStates(
-    const Node* node,
-    std::map<int, std::vector<size_t>>& ancestors,
-    AlignedSequenceContainer& data) const;
+      const Node* node,
+      std::map<int, std::vector<size_t>>& ancestors,
+      AlignedSequenceContainer& data) const;
 };
 } // end of namespace bpp.
 

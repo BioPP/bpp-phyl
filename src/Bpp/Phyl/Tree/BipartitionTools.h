@@ -130,7 +130,7 @@ public:
    * according to the MRP supertree method.
    */
   static std::unique_ptr<VectorSiteContainer> MRPEncode(
-    const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
+      const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
 
   /**
    * @brief Create a sequence data set corresponding to the Matrix Representation of the input BipartitionList objects and accomodates multilabel trees
@@ -140,7 +140,7 @@ public:
    * according to the MRP supertree method.
    */
   static std::unique_ptr<VectorSiteContainer> MRPEncodeMultilabel(
-    const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
+      const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_TREE_BIPARTITIONTOOLS_H

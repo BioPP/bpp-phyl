@@ -27,8 +27,8 @@ public:
    * @return A 3-dimensional array, with probabilities for each site, each rate and each state.
    */
   static VVVdouble getPosteriorProbabilitiesPerStatePerRate(
-    const DRTreeLikelihoodInterface& drl,
-    int nodeId);
+      const DRTreeLikelihoodInterface& drl,
+      int nodeId);
 
   /**
    * @brief Compute the posterior probabilities for each state for a given node.
@@ -42,8 +42,8 @@ public:
    * @return vector of double with state frequencies for the given node.
    */
   static Vdouble getPosteriorStateFrequencies(
-    const DRTreeLikelihoodInterface& drl,
-    int nodeId);
+      const DRTreeLikelihoodInterface& drl,
+      int nodeId);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_DRTREELIKELIHOODTOOLS_H

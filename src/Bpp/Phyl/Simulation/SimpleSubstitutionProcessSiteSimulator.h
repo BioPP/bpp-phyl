@@ -275,16 +275,16 @@ protected:
    * This method uses the states_ variable for saving ancestral states.
    */
   void evolveInternal(
-    std::shared_ptr<SimProcessNode> node,
-    size_t rateClass, SiteSimulationResult* ssr = nullptr) const;
+      std::shared_ptr<SimProcessNode> node,
+      size_t rateClass, SiteSimulationResult* ssr = nullptr) const;
 
   /**
    * This method uses the states_ variable for saving ancestral states.
    */
   void evolveInternal(
-    std::shared_ptr<SimProcessNode> node,
-    double rate,
-    SiteSimulationResult* ssr = nullptr) const;
+      std::shared_ptr<SimProcessNode> node,
+      double rate,
+      SiteSimulationResult* ssr = nullptr) const;
 
   /** @} */
 };

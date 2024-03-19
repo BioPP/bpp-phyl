@@ -13,10 +13,10 @@ OneProcessSequenceSubstitutionMapping::OneProcessSequenceSubstitutionMapping(
     std::shared_ptr<const AlphabetIndex2> weights,
     std::shared_ptr<const AlphabetIndex2> distances) :
   AbstractSinglePhyloSubstitutionMapping(
-    spp->substitutionProcess().parametrizablePhyloTree().getGraph(),
-    reg,
-    weights,
-    distances),
+      spp->substitutionProcess().parametrizablePhyloTree().getGraph(),
+      reg,
+      weights,
+      distances),
   pOPSP_(spp)
 {
   setBranchedModelSet_();

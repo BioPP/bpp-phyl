@@ -15,9 +15,9 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
-    gCode->getSourceAlphabet(),
-    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-    prefix),
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -43,9 +43,9 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
-    gCode->getSourceAlphabet(),
-    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-    prefix),
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -73,9 +73,9 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
-    gCode->getSourceAlphabet(),
-    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-    prefix),
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -110,9 +110,9 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
-    gCode->getSourceAlphabet(),
-    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-    prefix),
+      gCode->getSourceAlphabet(),
+      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);

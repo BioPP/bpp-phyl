@@ -18,8 +18,8 @@ ConfiguredModel::ConfiguredModel(
     NodeRefVec&& deps,
     shared_ptr<BranchModelInterface>&& model) :
   Value<std::shared_ptr<BranchModelInterface>>(
-    std::move(deps),
-    model),
+      std::move(deps),
+      model),
   AbstractParametrizable(model->getNamespace()), // , context_(context)
   model_(model)
 {

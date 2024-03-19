@@ -20,9 +20,9 @@ FullNucleotideFrequencySet::FullNucleotideFrequencySet(
     bool allowNullFreqs,
     const string& name) :
   AbstractFrequencySet(
-    make_shared<CanonicalStateMap>(alphabet, false),
-    "Full.",
-    name)
+      make_shared<CanonicalStateMap>(alphabet, false),
+      "Full.",
+      name)
 {
   addParameter_(new Parameter(
         "Full.theta", 0.5,
@@ -49,9 +49,9 @@ FullNucleotideFrequencySet::FullNucleotideFrequencySet(
     bool allowNullFreqs,
     const string& name) :
   AbstractFrequencySet(
-    make_shared<CanonicalStateMap>(alphabet, false),
-    "Full.",
-    name)
+      make_shared<CanonicalStateMap>(alphabet, false),
+      "Full.",
+      name)
 {
   addParameter_(new Parameter(
         "Full.theta",

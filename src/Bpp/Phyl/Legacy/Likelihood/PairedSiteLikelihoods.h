@@ -57,8 +57,8 @@ public:
    * @throw Exception If the number of sites is not the same as in the container.
    */
   void appendModel(
-    const std::vector<double>& siteLogLikelihoods,
-    const std::string& modelName = "");
+      const std::vector<double>& siteLogLikelihoods,
+      const std::string& modelName = "");
 
   /**
    * @brief Append a model.

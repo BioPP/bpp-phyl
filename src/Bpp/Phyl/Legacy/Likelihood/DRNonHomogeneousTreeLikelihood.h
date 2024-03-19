@@ -228,13 +228,13 @@ protected:
    * If true, the resetLikelihoodArray method will be called.
    */
   static void computeLikelihoodFromArrays(
-    const std::vector<const VVVdouble*>& iLik,
-    const std::vector<const VVVdouble*>& tProb,
-    VVVdouble& oLik, size_t nbNodes,
-    size_t nbDistinctSites,
-    size_t nbClasses,
-    size_t nbStates,
-    bool reset = true);
+      const std::vector<const VVVdouble*>& iLik,
+      const std::vector<const VVVdouble*>& tProb,
+      VVVdouble& oLik, size_t nbNodes,
+      size_t nbDistinctSites,
+      size_t nbClasses,
+      size_t nbStates,
+      bool reset = true);
 
   /**
    * @brief Compute conditional likelihoods.
@@ -257,16 +257,16 @@ protected:
    * If true, the resetLikelihoodArray method will be called.
    */
   static void computeLikelihoodFromArrays(
-    const std::vector<const VVVdouble*>& iLik,
-    const std::vector<const VVVdouble*>& tProb,
-    const VVVdouble* iLikR,
-    const VVVdouble* tProbR,
-    VVVdouble& oLik,
-    size_t nbNodes,
-    size_t nbDistinctSites,
-    size_t nbClasses,
-    size_t nbStates,
-    bool reset = true);
+      const std::vector<const VVVdouble*>& iLik,
+      const std::vector<const VVVdouble*>& tProb,
+      const VVVdouble* iLikR,
+      const VVVdouble* tProbR,
+      VVVdouble& oLik,
+      size_t nbNodes,
+      size_t nbDistinctSites,
+      size_t nbClasses,
+      size_t nbStates,
+      bool reset = true);
 
   friend class DRNonHomogeneousMixedTreeLikelihood;
 };

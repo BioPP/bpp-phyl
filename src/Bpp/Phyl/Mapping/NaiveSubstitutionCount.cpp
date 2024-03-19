@@ -39,7 +39,7 @@ void NaiveSubstitutionCount::storeAllNumbersOfSubstitutions(double length, size_
 LabelSubstitutionCount::LabelSubstitutionCount(
     shared_ptr<const SubstitutionModelInterface> model) :
   AbstractSubstitutionCount(
-    make_shared<TotalSubstitutionRegister>(model->getStateMap())),
+      make_shared<TotalSubstitutionRegister>(model->getStateMap())),
   label_(model->getNumberOfStates(), model->getNumberOfStates()),
   supportedChars_(model->getAlphabetStates())
 {
@@ -60,7 +60,7 @@ LabelSubstitutionCount::LabelSubstitutionCount(
 LabelSubstitutionCount::LabelSubstitutionCount(
     shared_ptr<const StateMapInterface> stateMap) :
   AbstractSubstitutionCount(
-    make_shared<TotalSubstitutionRegister>(stateMap)),
+      make_shared<TotalSubstitutionRegister>(stateMap)),
   label_(stateMap->getNumberOfModelStates(), stateMap->getNumberOfModelStates()),
   supportedChars_(stateMap->getAlphabetStates())
 {

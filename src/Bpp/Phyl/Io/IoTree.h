@@ -395,9 +395,9 @@ public:
    * @throw Exception If an error occured.
    */
   virtual void writeTrees(
-    const std::vector<const Tree*>& trees,
-    const std::string& path,
-    bool overwrite) const = 0;
+      const std::vector<const Tree*>& trees,
+      const std::string& path,
+      bool overwrite) const = 0;
 
   /**
    * @brief Write trees to a stream.
@@ -407,8 +407,8 @@ public:
    * @throw Exception If an error occured.
    */
   virtual void writeTrees(
-    const std::vector<const Tree*>& trees,
-    std::ostream& out) const = 0;
+      const std::vector<const Tree*>& trees,
+      std::ostream& out) const = 0;
 };
 
 /**
@@ -432,9 +432,9 @@ public:
    * @throw Exception If an error occured.
    */
   virtual void writePhyloTrees(
-    const std::vector<const PhyloTree*>& trees,
-    const std::string& path,
-    bool overwrite) const = 0;
+      const std::vector<const PhyloTree*>& trees,
+      const std::string& path,
+      bool overwrite) const = 0;
 
   /**
    * @brief Write trees to a stream.
@@ -444,8 +444,8 @@ public:
    * @throw Exception If an error occured.
    */
   virtual void writePhyloTrees(
-    const std::vector<const PhyloTree*>& trees,
-    std::ostream& out) const = 0;
+      const std::vector<const PhyloTree*>& trees,
+      std::ostream& out) const = 0;
 };
 
 /**
