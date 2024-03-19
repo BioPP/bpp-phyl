@@ -102,7 +102,6 @@ private:
   std::vector<ParameterList> modelParameters_;
 
 public:
-
   /**
    * @brief Create a model set according to the specified alphabet and root frequencies.
    * Stationarity is not assumed.
@@ -126,7 +125,7 @@ public:
     if (rDist_)
       addParameters_(rDist_->getIndependentParameters());
   }
-  
+
   /**
    * @brief Create a model set according to the specified alphabet and root frequencies.
    * Stationarity is not assumed.
@@ -389,7 +388,6 @@ public:
   }
 
 protected:
-
   /**
    * @name Check function.
    *

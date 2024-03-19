@@ -23,11 +23,11 @@ using namespace std;
 /******************************************************************************/
 
 DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
-  const Tree& tree,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<DiscreteDistributionInterface> rDist,
-  bool verbose,
-  bool reparametrizeRoot) :
+    const Tree& tree,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose,
+    bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -40,12 +40,12 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
-  const Tree& tree,
-  const AlignmentDataInterface& data,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<DiscreteDistributionInterface> rDist,
-  bool verbose,
-  bool reparametrizeRoot) :
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose,
+    bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -61,8 +61,8 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
 void DRNonHomogeneousTreeLikelihood::init_()
 {
   likelihoodData_ = make_unique<DRASDRTreeLikelihoodData>(
-    tree_,
-    rateDistribution_->getNumberOfCategories());
+        tree_,
+        rateDistribution_->getNumberOfCategories());
 }
 
 /******************************************************************************/
@@ -105,7 +105,7 @@ void DRNonHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites
 
   if (verbose_)
     ApplicationTools::displayResult("Number of distinct sites",
-                                    TextTools::toString(nbDistinctSites_));
+        TextTools::toString(nbDistinctSites_));
   initialized_ = false;
 }
 
@@ -920,7 +920,7 @@ void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node* 
       {
         const Node* son = father->getSon(n);
         if (son->getId() != node->getId())
-          nodes.push_back(son);                                   // This is a real brother, not current node!
+          nodes.push_back(son); // This is a real brother, not current node!
       }
       // Now the real stuff... We've got to compute the likelihoods for the
       // subtree defined by node 'father'.
@@ -1132,14 +1132,14 @@ void DRNonHomogeneousTreeLikelihood::computeLikelihoodAtNode_(const Node* node, 
 /******************************************************************************/
 
 void DRNonHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
-  const vector<const VVVdouble*>& iLik,
-  const vector<const VVVdouble*>& tProb,
-  VVVdouble& oLik,
-  size_t nbNodes,
-  size_t nbDistinctSites,
-  size_t nbClasses,
-  size_t nbStates,
-  bool reset)
+    const vector<const VVVdouble*>& iLik,
+    const vector<const VVVdouble*>& tProb,
+    VVVdouble& oLik,
+    size_t nbNodes,
+    size_t nbDistinctSites,
+    size_t nbClasses,
+    size_t nbStates,
+    bool reset)
 {
   if (reset)
     resetLikelihoodArray(oLik);
@@ -1181,16 +1181,16 @@ void DRNonHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
 /******************************************************************************/
 
 void DRNonHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
-  const vector<const VVVdouble*>& iLik,
-  const vector<const VVVdouble*>& tProb,
-  const VVVdouble* iLikR,
-  const VVVdouble* tProbR,
-  VVVdouble& oLik,
-  size_t nbNodes,
-  size_t nbDistinctSites,
-  size_t nbClasses,
-  size_t nbStates,
-  bool reset)
+    const vector<const VVVdouble*>& iLik,
+    const vector<const VVVdouble*>& tProb,
+    const VVVdouble* iLikR,
+    const VVVdouble* tProbR,
+    VVVdouble& oLik,
+    size_t nbNodes,
+    size_t nbDistinctSites,
+    size_t nbClasses,
+    size_t nbStates,
+    bool reset)
 {
   if (reset)
     resetLikelihoodArray(oLik);

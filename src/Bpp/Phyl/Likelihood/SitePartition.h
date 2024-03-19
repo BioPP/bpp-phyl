@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_SITEPARTITION_H
 
 
-
 namespace bpp
 {
 /**

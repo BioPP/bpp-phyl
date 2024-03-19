@@ -78,7 +78,6 @@ public:
   void addRateParameter() override {}
 
 protected:
-  
   void updateRatesModel_() override
   {
     double s1 = getParameterValue("s1");

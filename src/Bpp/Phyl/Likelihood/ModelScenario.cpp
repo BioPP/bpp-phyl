@@ -38,7 +38,7 @@ bool ModelScenario::complete()
 }
 
 void ModelScenario::changeModel(shared_ptr<MixedTransitionModelInterface> m1,
-                                shared_ptr<MixedTransitionModelInterface> m2)
+    shared_ptr<MixedTransitionModelInterface> m2)
 {
   for (auto& mp: vModelPaths_)
   {
@@ -149,7 +149,7 @@ void ModelScenario::computeModelPathsProbabilities()
       for (auto& fn:fnd)
       {
         model->setNProbability(static_cast<size_t>(fn),
-                               model->getNProbability(static_cast<size_t>(fn)) / h.getProbability());
+            model->getNProbability(static_cast<size_t>(fn)) / h.getProbability());
       }
     }
   }
@@ -167,9 +167,9 @@ string ModelScenario::toString() const
   return output;
 }
 
-vector<shared_ptr<MixedTransitionModelInterface> > ModelScenario::getModels() const
+vector<shared_ptr<MixedTransitionModelInterface>> ModelScenario::getModels() const
 {
-  vector<shared_ptr<MixedTransitionModelInterface> > models, models2;
+  vector<shared_ptr<MixedTransitionModelInterface>> models, models2;
 
   for (const auto& mp : vModelPaths_)
   {

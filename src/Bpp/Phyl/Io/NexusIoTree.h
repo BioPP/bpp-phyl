@@ -107,14 +107,14 @@ public:
    * @{
    */
   using AbstractOMultiTree::writeTrees;
-  
+
   void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const override
   {
     write_(trees, out);
   }
 
   using AbstractOMultiPhyloTree::writePhyloTrees;
-  
+
   void writePhyloTrees(const std::vector<const PhyloTree*>& trees, std::ostream& out) const override
   {
     write_(trees, out);

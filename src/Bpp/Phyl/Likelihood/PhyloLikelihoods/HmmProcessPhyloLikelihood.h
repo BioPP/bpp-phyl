@@ -40,11 +40,11 @@ private:
 
 public:
   HmmProcessPhyloLikelihood(
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<HmmSequenceEvolution> processSeqEvol,
-    std::shared_ptr<CollectionNodes> collNodes,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<HmmSequenceEvolution> processSeqEvol,
+      std::shared_ptr<CollectionNodes> collNodes,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
 protected:
   HmmProcessPhyloLikelihood(const HmmProcessPhyloLikelihood& mlc) :
@@ -60,11 +60,9 @@ protected:
   HmmProcessPhyloLikelihood* clone() const override { return new HmmProcessPhyloLikelihood(*this); }
 
 public:
-
   virtual ~HmmProcessPhyloLikelihood() {}
 
 public:
-
   void setNamespace(const std::string& nameSpace) override;
 
   void fireParameterChanged(const ParameterList& parameters) override;

@@ -382,7 +382,7 @@ public:
       getInnerNodes<N>(*dynamic_cast<N*>(node.getSon(i)), nodes);
     }
     if (!node.isLeaf())
-      nodes.push_back(&node);                                 // Do not add leaves!
+      nodes.push_back(&node); // Do not add leaves!
   }
 
   /**
@@ -413,7 +413,7 @@ public:
       getInnerNodesId(*node.getSon(i), ids);
     }
     if (!node.isLeaf())
-      ids.push_back(node.getId());                                      // Do not add leaves!
+      ids.push_back(node.getId()); // Do not add leaves!
   }
 
   /**
@@ -714,7 +714,6 @@ public:
    * @param node The basal node of the subtree.
    * @return The basal node of the new copy.
    */
-
   template<class N>
   static N* cloneSubtree(const Node& node)
   {
@@ -882,7 +881,7 @@ private:
    * @param matrix The output matrix which will be filled.
    * @param distsToNodeFather Intermediate computations contianing the distances of the node to the leaves.
    */
-  static void processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, std::vector< std::pair<std::string, double> >& distsToNodeFather);
+  static void processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, std::vector< std::pair<std::string, double>>& distsToNodeFather);
 
 public:
   /** @} */
@@ -1253,7 +1252,7 @@ private:
    *
    * @author Nicolas Rochette, Manolo Gouy
    */
-  static void getBestRootInSubtree_(bpp::TreeTemplate<bpp::Node>& tree, short criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double> >& bestRoot);
+  static void getBestRootInSubtree_(bpp::TreeTemplate<bpp::Node>& tree, short criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double>>& bestRoot);
 
 public:
   static const short MIDROOT_VARIANCE;

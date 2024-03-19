@@ -40,7 +40,6 @@ public:
   std::string getName() const override { return "Anonymous"; }
 
   Matrix<double>& setGenerator() { return generator_; }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ANONYMOUSSUBSTITUTIONMODEL_H

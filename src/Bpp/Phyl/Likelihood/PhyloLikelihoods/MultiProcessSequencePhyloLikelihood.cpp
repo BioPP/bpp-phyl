@@ -11,11 +11,11 @@ using namespace bpp;
 /******************************************************************************/
 
 MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
-  shared_ptr<const AlignmentDataInterface> data,
-  shared_ptr<MultiProcessSequenceEvolution> processSeqEvol,
-  shared_ptr<CollectionNodes> collNodes,
-  size_t nSeqEvol,
-  size_t nData) :
+    shared_ptr<const AlignmentDataInterface> data,
+    shared_ptr<MultiProcessSequenceEvolution> processSeqEvol,
+    shared_ptr<CollectionNodes> collNodes,
+    size_t nSeqEvol,
+    size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nSeqEvol, nData),
@@ -31,8 +31,8 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
   for (auto n:nProc)
   {
     auto liksing = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes,
-                                                                        data,
-                                                                        n);
+          data,
+          n);
     liksing->makeLikelihoods();
     vLikCal_.push_back(liksing);
     shareParameters_(liksing->getParameters());

@@ -34,7 +34,7 @@ private:
 
 public:
   SiteSimulationResult(
-      std::shared_ptr<const ParametrizablePhyloTree> tree, 
+      std::shared_ptr<const ParametrizablePhyloTree> tree,
       std::shared_ptr<const StateMapInterface> statemap,
       size_t ancestralState) :
     indexes_        (),
@@ -79,7 +79,7 @@ public:
    * @return The alphabet associated to this simulation.
    */
   std::shared_ptr<const Alphabet> getAlphabet() const { return statemap_->getAlphabet(); }
-  
+
   const Alphabet& alphabet() const { return statemap_->alphabet(); }
 
   virtual void addNode(unsigned int nodeId, MutationPath path)
@@ -101,9 +101,9 @@ public:
   virtual size_t getSubstitutionCount(size_t i) const { return paths_[i].getNumberOfEvents(); }
 
   virtual void getSubstitutionCount(
-    size_t i, 
-    const SubstitutionRegisterInterface& reg,
-    std::vector<double>& counts) const
+      size_t i,
+      const SubstitutionRegisterInterface& reg,
+      std::vector<double>& counts) const
   {
     paths_[i].getEventCounts(counts, reg);
   }
@@ -111,9 +111,9 @@ public:
   virtual size_t getSubstitutionCount(unsigned int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
 
   virtual void getSubstitutionCount(
-    unsigned int nodeId,
-    const SubstitutionRegisterInterface& reg,
-    std::vector<double>& counts) const
+      unsigned int nodeId,
+      const SubstitutionRegisterInterface& reg,
+      std::vector<double>& counts) const
   {
     paths_[indexes_[nodeId]].getEventCounts(counts, reg);
   }
@@ -221,7 +221,7 @@ public:
   virtual ~DetailedSiteSimulatorInterface() {}
 
   DetailedSiteSimulatorInterface* clone() const override = 0;
-  
+
 public:
   /**
    * @brief Get a detailed simulation result for one site.

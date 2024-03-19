@@ -47,7 +47,7 @@ SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const Su
   treeColl_ = set.treeColl_;
   mTreeToSubPro_ = set.mTreeToSubPro_;
 
-  for (const auto & it : set.mSubProcess_)
+  for (const auto& it : set.mSubProcess_)
   {
     mSubProcess_[it.first] = shared_ptr<SubstitutionProcessCollectionMember>(it.second->clone(), SubstitutionProcessCollectionMember::Deleter());
   }
@@ -74,9 +74,9 @@ void SubstitutionProcessCollection::clear()
 
 void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters)
 {
-  if (parametrizableIndex<1)
-    throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.",(int)parametrizableIndex);
-  
+  if (parametrizableIndex < 1)
+    throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.", (int)parametrizableIndex);
+
   ParameterList pl;
   if (std::dynamic_pointer_cast<BranchModelInterface>(parametrizable))
   {
@@ -239,7 +239,7 @@ void SubstitutionProcessCollection::aliasParameters(std::map<std::string, std::s
 }
 
 
-void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
+void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int>> mModBr, size_t nTree, size_t nRate, size_t nFreq)
 {
   addSubstitutionProcess(nProc, mModBr, nTree, nRate);
 
@@ -252,30 +252,30 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   mFreqToSubPro_[nFreq].push_back(nProc);
 }
 
-void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate)
+void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int>> mModBr, size_t nTree, size_t nRate)
 {
   if (mSubProcess_.find(nProc) != mSubProcess_.end())
     throw BadIntegerException("Already assigned substitution process", (int)nProc);
 
-  if (nTree!=0 && !treeColl_.hasObject(nTree))
+  if (nTree != 0 && !treeColl_.hasObject(nTree))
     throw BadIntegerException("Wrong Tree number", (int)nTree);
 
   if (!distColl_.hasObject(nRate))
     throw BadIntegerException("Wrong Rate distribution number", (int)nRate);
 
   auto pSMS = shared_ptr<SubstitutionProcessCollectionMember>(
-		  new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate),
-		  SubstitutionProcessCollectionMember::Deleter()
-	      );
+        new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate),
+        SubstitutionProcessCollectionMember::Deleter()
+        );
 
-  std::map<size_t, std::vector<unsigned int> >::iterator it;
+  std::map<size_t, std::vector<unsigned int>>::iterator it;
   for (it = mModBr.begin(); it != mModBr.end(); it++)
   {
     pSMS->addModel(it->first, it->second);
     mModelToSubPro_[it->first].push_back(nProc);
   }
 
-  pSMS->isFullySetUp(nTree!=0);
+  pSMS->isFullySetUp(nTree != 0);
 
   mTreeToSubPro_[nTree].push_back(nProc);
   mDistToSubPro_[nRate].push_back(nProc);
@@ -329,7 +329,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
 
   size_t maxMod = *max_element(vModN.begin(), vModN.end());
 
-  std::map<size_t, std::vector<unsigned int> > mModBr;
+  std::map<size_t, std::vector<unsigned int>> mModBr;
   mModBr[nMod] = vector<uint>(1, ids[0]);
 
   for (auto it = ids.begin() + 1; it != ids.end(); it++)

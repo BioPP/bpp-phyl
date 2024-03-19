@@ -34,12 +34,11 @@ class RNonHomogeneousMixedTreeLikelihood :
   public RNonHomogeneousTreeLikelihood
 {
 private:
-
   /**
    * @brief the map of the branch numbers to the vectors of the
    * TreeLikelihoods for the expanded model on this branch.
    */
-  std::map<int, std::vector< std::shared_ptr<RNonHomogeneousMixedTreeLikelihood> > > mvTreeLikelihoods_;
+  std::map<int, std::vector< std::shared_ptr<RNonHomogeneousMixedTreeLikelihood>>> mvTreeLikelihoods_;
 
   /**
    * @brief A specific HyperNode in which the computation is
@@ -84,13 +83,13 @@ private:
    * @throw Exception in an error occured.
    */
   RNonHomogeneousMixedTreeLikelihood(
-     const Tree& tree,
-     std::shared_ptr<MixedSubstitutionModelSet> modelSet,
-     const MixedSubstitutionModelSet::HyperNode& hyperNode,
-     int upperNode,
-     std::shared_ptr<DiscreteDistributionInterface> rDist,
-     bool verbose,
-     bool usePatterns);
+      const Tree& tree,
+      std::shared_ptr<MixedSubstitutionModelSet> modelSet,
+      const MixedSubstitutionModelSet::HyperNode& hyperNode,
+      int upperNode,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose,
+      bool usePatterns);
 
   /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
@@ -147,11 +146,11 @@ public:
    * @throw Exception in an error occured.
    */
   RNonHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<MixedSubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose = true,
-    bool usePatterns = true);
+      const Tree& tree,
+      std::shared_ptr<MixedSubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true,
+      bool usePatterns = true);
 
   /**
    * @brief Build a new RNonHomogeneousMixedTreeLikelihood object

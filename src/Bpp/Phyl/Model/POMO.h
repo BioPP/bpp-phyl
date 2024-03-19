@@ -96,8 +96,8 @@ public:
    * @brief Build a POMO instance
    */
   POMO(std::shared_ptr<const AllelicAlphabet> allAlph,
-       std::unique_ptr<SubstitutionModelInterface> pmodel,
-       std::unique_ptr<FrequencySetInterface> pfitness);
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
+      std::unique_ptr<FrequencySetInterface> pfitness);
 
   POMO(const POMO& model) :
     AbstractParameterAliasable(model),
@@ -172,4 +172,4 @@ protected:
   void updateMatrices_() override;
 };
 } // end of namespace bpp.
-#endif// BPP_PHYL_MODEL_POMO_H
+#endif // BPP_PHYL_MODEL_POMO_H

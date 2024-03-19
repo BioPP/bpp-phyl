@@ -44,7 +44,7 @@ ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, bool para
   // Now we perform the Correspondence Analysis on from the matrix of observed frequencies computed on the alignment, to obtain the matrix of principal axes.
   // First, the matrix of amino acid frequencies is calculated from the alignment:
   vector<string> seqKeys = data.getSequenceKeys();
-  vector< map<int, double> > freqs(seqKeys.size()); // One map per sequence
+  vector< map<int, double>> freqs(seqKeys.size()); // One map per sequence
   // Each map is filled with the corresponding frequencies, which are then normalized.
   for (size_t i = 0; i < seqKeys.size(); ++i)
   {
@@ -119,8 +119,8 @@ ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, bool para
     if (nbrOfAxes_ > nbAxesConserved)
     {
       ApplicationTools::displayWarning("The specified number of parameters per branch (" + TextTools::toString(nbrOfAxes_) +
-                                       ") is higher than the number of axes (" + TextTools::toString(nbAxesConserved) +
-                                       ")... The number of parameters per branch is now equal to the number of axes kept by the COA analysis (" + TextTools::toString(nbAxesConserved) + ")");
+          ") is higher than the number of axes (" + TextTools::toString(nbAxesConserved) +
+          ")... The number of parameters per branch is now equal to the number of axes kept by the COA analysis (" + TextTools::toString(nbAxesConserved) + ")");
       nbrOfAxes_ = nbAxesConserved;
     }
     for (unsigned int i = 0; i < nbrOfAxes_; ++i)

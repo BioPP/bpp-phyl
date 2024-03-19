@@ -25,7 +25,7 @@ namespace bpp
  * Using member wise multiplication: c(state, site) = prod_i f_i(state, site).
  */
 
-using SpeciationBackward = CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
+using SpeciationBackward = CWiseMul<MatrixLik, ReductionOf<MatrixLik>>;
 
 /** @brief : At the top of each edge below a mixture node
  *
@@ -38,7 +38,7 @@ using SpeciationBackward = CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
  * Using member wise multiplication: c(state, site) = prod_i f_i(state, site).
  */
 
-using MixtureBackward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
+using MixtureBackward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>;
 
 /** @brief : Above each node : bottom of an edge in case of transition from upper
  *
@@ -53,7 +53,7 @@ using MixtureBackward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
  */
 
 using BackwardTransition =
-  MatrixProduct<MatrixLik, Transposed<Eigen::MatrixXd>, MatrixLik>;
+    MatrixProduct<MatrixLik, Transposed<Eigen::MatrixXd>, MatrixLik>;
 
 /** @brief : Above each node : in case of mixture of above edges
  *
@@ -64,7 +64,7 @@ using BackwardTransition =
  * f(State, site) = c(fromState, site) * prop
  */
 
-using BackwardProportion = CWiseMul<MatrixLik, std::tuple<double, MatrixLik> >;
+using BackwardProportion = CWiseMul<MatrixLik, std::tuple<double, MatrixLik>>;
 
 // Upper Likelihood in nodes
 using ConditionalLikelihood = Value<MatrixLik>;
@@ -99,11 +99,11 @@ private:
 
 public:
   BackwardLikelihoodTree(Context& c,
-                         std::shared_ptr<ForwardLikelihoodTree> forwardTree,
-                         std::shared_ptr<ProcessTree> tree,
-                         ValueRef<Eigen::RowVectorXd> rFreqs,
-                         const StateMapInterface& statemap,
-                         Eigen::Index nbSite) :
+      std::shared_ptr<ForwardLikelihoodTree> forwardTree,
+      std::shared_ptr<ProcessTree> tree,
+      ValueRef<Eigen::RowVectorXd> rFreqs,
+      const StateMapInterface& statemap,
+      Eigen::Index nbSite) :
     DAClass(forwardTree->getGraph()),
     context_(c), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSite_(nbSite), forwardTree_(forwardTree), processTree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)
   {}

@@ -37,7 +37,7 @@ private:
 public:
   FromMixtureSubstitutionModel(
       const MixedTransitionModelInterface& mixedModel,
-      const std::string& subModelName,const std::string& mixtDesc);
+      const std::string& subModelName, const std::string& mixtDesc);
 
   FromMixtureSubstitutionModel(
       const MixedTransitionModelInterface& mixedModel,
@@ -66,8 +66,8 @@ protected:
 
 public:
   /**
-   * @ 
-   *brief Methods to supersede AbstractSubstitutionModel methods.
+   * @
+   * brief Methods to supersede AbstractSubstitutionModel methods.
    *
    * @{
    */
@@ -102,7 +102,6 @@ public:
     size_t posp = mixtName_.find("(");
     return mixtName_.substr(0, posp) + "_" + model().getName() + mixtName_.substr(posp);
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_FROMMIXTURESUBSTITUTIONMODEL_H

@@ -45,9 +45,9 @@ public:
   std::unique_ptr<DiscreteDistributionInterface> readDiscreteDistribution(const std::string& distDescription, bool parseArguments);
 
   void writeDiscreteDistribution(const DiscreteDistributionInterface& dist,
-                                 OutputStream& out,
-                                 std::map<std::string, std::string>& globalAliases,
-                                 std::vector<std::string>& writtenNames) const;
+      OutputStream& out,
+      std::map<std::string, std::string>& globalAliases,
+      std::vector<std::string>& writtenNames) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPORATEDISTRIBUTIONFORMAT_H

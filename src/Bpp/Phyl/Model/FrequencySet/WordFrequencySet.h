@@ -29,7 +29,7 @@ class WordFrequencySetInterface :
   public virtual FrequencySetInterface
 {
 protected:
-  virtual size_t getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface> >& freqVector) = 0;
+  virtual size_t getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface>>& freqVector) = 0;
 
 public:
   WordFrequencySetInterface* clone() const override = 0;
@@ -53,7 +53,7 @@ class AbstractWordFrequencySet :
   public AbstractFrequencySet
 {
 protected:
-  size_t getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface> >& freqVector) override;
+  size_t getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface>>& freqVector) override;
 
 public:
   AbstractWordFrequencySet(std::shared_ptr<const StateMapInterface> stateMap, const std::string& prefix = "", const std::string& name = "");
@@ -140,8 +140,8 @@ public:
    * @brief Return the n-th FrequencySet&
    */
   const FrequencySetInterface& frequencySetForLetter(size_t i) const override
-  { 
-    return *vFreq_[i]; 
+  {
+    return *vFreq_[i];
   }
 
   /**
@@ -157,7 +157,6 @@ public:
 class WordFromUniqueFrequencySet :
   public AbstractWordFrequencySet
 {
-
 protected:
   std::unique_ptr<FrequencySetInterface> pFreq_;
   std::string NestedPrefix_;
@@ -209,7 +208,7 @@ public:
    * @brief Return the n-th FrequencySet&
    */
   const FrequencySetInterface& frequencySetForLetter(size_t i) const override
-  { 
+  {
     return *pFreq_;
   }
 

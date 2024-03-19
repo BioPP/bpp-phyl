@@ -6,7 +6,6 @@
 #define BPP_PHYL_DISTANCE_DISTANCEMETHOD_H
 
 
-
 // From bpp-core:
 #include <Bpp/Clonable.h>
 #include <Bpp/Exceptions.h>
@@ -85,7 +84,7 @@ class AgglomerativeDistanceMethodInterface :
 public:
   AgglomerativeDistanceMethodInterface() {}
   virtual ~AgglomerativeDistanceMethodInterface() {}
-  
+
   virtual AgglomerativeDistanceMethodInterface* clone() const override = 0;
 };
 } // end of namespace bpp.

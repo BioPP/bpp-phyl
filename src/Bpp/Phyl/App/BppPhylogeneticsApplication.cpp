@@ -16,14 +16,14 @@ using namespace bpp;
 
 /******************************************************************************/
 
-map<size_t, std::shared_ptr<PhyloTree> > BppPhylogeneticsApplication::getPhyloTreesMap(
-  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
-  map<string, string>& unparsedParams,
-  const std::string& prefix,
-  const std::string& suffix,
-  bool suffixIsOptional) const
+map<size_t, std::shared_ptr<PhyloTree>> BppPhylogeneticsApplication::getPhyloTreesMap(
+    const map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mSites,
+    map<string, string>& unparsedParams,
+    const std::string& prefix,
+    const std::string& suffix,
+    bool suffixIsOptional) const
 {
-  map<size_t, std::shared_ptr<PhyloTree> > mpTree = PhylogeneticsApplicationTools::getPhyloTrees(params_, mSites, unparsedParams, prefix, suffix, suffixIsOptional, verbose_, warn_);
+  map<size_t, std::shared_ptr<PhyloTree>> mpTree = PhylogeneticsApplicationTools::getPhyloTrees(params_, mSites, unparsedParams, prefix, suffix, suffixIsOptional, verbose_, warn_);
 
   // Scaling of trees:
   double scale = ApplicationTools::getDoubleParameter("input.tree.scale", params_, 1, suffix, suffixIsOptional, warn_);
@@ -45,13 +45,13 @@ map<size_t, std::shared_ptr<PhyloTree> > BppPhylogeneticsApplication::getPhyloTr
 }
 
 unique_ptr<SubstitutionProcessCollection> BppPhylogeneticsApplication::getCollection(
-  std::shared_ptr<const Alphabet> alphabet,
-  std::shared_ptr<const GeneticCode> gCode,
-  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
-  map<string, string>& unparsedParams,
-  const std::string& prefix,
-  const std::string& suffix,
-  bool suffixIsOptional) const
+    std::shared_ptr<const Alphabet> alphabet,
+    std::shared_ptr<const GeneticCode> gCode,
+    const map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mSites,
+    map<string, string>& unparsedParams,
+    const std::string& prefix,
+    const std::string& suffix,
+    bool suffixIsOptional) const
 {
   auto mpTree = getPhyloTreesMap(mSites, unparsedParams, prefix, suffix, suffixIsOptional);
   auto SPC = getCollection(alphabet, gCode, mSites, mpTree, unparsedParams, prefix, suffix, suffixIsOptional);
@@ -59,14 +59,14 @@ unique_ptr<SubstitutionProcessCollection> BppPhylogeneticsApplication::getCollec
 }
 
 std::unique_ptr<SubstitutionProcessCollection> BppPhylogeneticsApplication::getCollection(
-  std::shared_ptr<const Alphabet> alphabet,
-  std::shared_ptr<const GeneticCode> gCode,
-  const map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSites,
-  const map<size_t, std::shared_ptr<PhyloTree> >& mpTree,
-  map<string, string>& unparsedParams,
-  const std::string& prefix,
-  const std::string& suffix,
-  bool suffixIsOptional) const
+    std::shared_ptr<const Alphabet> alphabet,
+    std::shared_ptr<const GeneticCode> gCode,
+    const map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mSites,
+    const map<size_t, std::shared_ptr<PhyloTree>>& mpTree,
+    map<string, string>& unparsedParams,
+    const std::string& prefix,
+    const std::string& suffix,
+    bool suffixIsOptional) const
 {
   auto mDist = PhylogeneticsApplicationTools::getRateDistributions(params_, suffix, suffixIsOptional, verbose_);
   auto mModU = PhylogeneticsApplicationTools::getBranchModels(alphabet, gCode, mSites, params_, unparsedParams, suffix, suffixIsOptional, verbose_, warn_);
@@ -84,39 +84,39 @@ std::unique_ptr<SubstitutionProcessCollection> BppPhylogeneticsApplication::getC
 }
 
 
-map<size_t, std::unique_ptr<SequenceEvolution> > BppPhylogeneticsApplication::getProcesses(
-  shared_ptr<SubstitutionProcessCollection> collection,
-  map<string, string>& unparsedParams,
-  const std::string& suffix,
-  bool suffixIsOptional) const
+map<size_t, std::unique_ptr<SequenceEvolution>> BppPhylogeneticsApplication::getProcesses(
+    shared_ptr<SubstitutionProcessCollection> collection,
+    map<string, string>& unparsedParams,
+    const std::string& suffix,
+    bool suffixIsOptional) const
 {
   return PhylogeneticsApplicationTools::getSequenceEvolutions(
-    collection, params_, unparsedParams, suffix, suffixIsOptional, verbose_, warn_);
+        collection, params_, unparsedParams, suffix, suffixIsOptional, verbose_, warn_);
 }
 
 
 std::shared_ptr<PhyloLikelihoodContainer> BppPhylogeneticsApplication::getPhyloLikelihoods(
-  Context& context,
-  map<size_t, shared_ptr<SequenceEvolution> > mSeqEvol,
-  shared_ptr<SubstitutionProcessCollection> collection,
-  const map<size_t, shared_ptr<const AlignmentDataInterface> >& mSites,
-  const std::string& suffix,
-  bool suffixIsOptional) const
+    Context& context,
+    map<size_t, shared_ptr<SequenceEvolution>> mSeqEvol,
+    shared_ptr<SubstitutionProcessCollection> collection,
+    const map<size_t, shared_ptr<const AlignmentDataInterface>>& mSites,
+    const std::string& suffix,
+    bool suffixIsOptional) const
 {
   return PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(
-    context, collection, mSeqEvol, mSites, params_, suffix, suffixIsOptional, verbose_, warn_);
+        context, collection, mSeqEvol, mSites, params_, suffix, suffixIsOptional, verbose_, warn_);
 }
 
 
 void BppPhylogeneticsApplication::fixLikelihood(
-  shared_ptr<const Alphabet> alphabet,
-  shared_ptr<const GeneticCode> gCode,
-  shared_ptr<PhyloLikelihoodInterface> phylolik,
-  const std::string& suffix,
-  bool suffixIsOptional) const
+    shared_ptr<const Alphabet> alphabet,
+    shared_ptr<const GeneticCode> gCode,
+    shared_ptr<PhyloLikelihoodInterface> phylolik,
+    const std::string& suffix,
+    bool suffixIsOptional) const
 {
   double logL = phylolik->getValue();
-  
+
   if (!std::isnormal(logL))
   {
     // This may be due to null branch lengths, leading to null likelihood!
@@ -140,7 +140,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
   {
     ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
-    map<size_t, shared_ptr<SingleDataPhyloLikelihoodInterface> > mSD;
+    map<size_t, shared_ptr<SingleDataPhyloLikelihoodInterface>> mSD;
 
     if (dynamic_pointer_cast<SingleDataPhyloLikelihoodInterface>(phylolik))
       mSD[1] = dynamic_pointer_cast<SingleDataPhyloLikelihoodInterface>(phylolik);
@@ -244,7 +244,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
         logL = sDP->getValue();
 
         vector<size_t> vsiteok, vsitemin;
-        
+
         if (!std::isnormal(logL))
         {
           ApplicationTools::displayError("!!! Removing problem sites:");
@@ -272,7 +272,6 @@ void BppPhylogeneticsApplication::fixLikelihood(
           // auto logL2 = phylo2->getValue();
 
           // ApplicationTools::displayResult("Left log likelihood", TextTools::toString(-logL2, 15));
-          
         }
         else
           ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));

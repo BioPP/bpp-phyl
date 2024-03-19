@@ -6,7 +6,6 @@
 #define BPP_PHYL_LEGACY_IO_IOPAIREDSITELIKELIHOODS_H
 
 
-
 // From the STL:
 #include <vector>
 #include <string>

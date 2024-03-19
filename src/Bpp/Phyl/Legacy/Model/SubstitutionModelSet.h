@@ -78,7 +78,7 @@ protected:
   /**
    * @brief Contains all models used in this tree.
    */
-  std::vector< std::shared_ptr<TransitionModelInterface> > modelSet_;
+  std::vector< std::shared_ptr<TransitionModelInterface>> modelSet_;
 
 private:
   /**
@@ -90,7 +90,7 @@ private:
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
    */
   mutable std::map<int, size_t> nodeToModel_;
-  mutable std::map<size_t, std::vector<int> > modelToNodes_;
+  mutable std::map<size_t, std::vector<int>> modelToNodes_;
 
   /**
    * @brief Parameters for each model in the set.
@@ -252,10 +252,13 @@ public:
 
   const SubstitutionModelInterface& substitutionModel(size_t i) const
   {
-    try {
+    try
+    {
       auto& m = dynamic_cast<const SubstitutionModelInterface&>(model(i));
       return m;
-    } catch (Exception& ex) {
+    }
+    catch (Exception& ex)
+    {
       throw Exception("SubstitutionModelSet::substitutionModel : " + model(i).getName() + " is not a sustitution model.");
     }
   }
@@ -357,7 +360,7 @@ public:
    * <li>etc.</li>
    * </ul>
    */
-  void addModel(std::shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId);// , const std::vector<std::string>& newParams);
+  void addModel(std::shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId); // , const std::vector<std::string>& newParams);
 
   /**
    * @brief Sets an assignment of a given modle index to a given onde id
@@ -427,7 +430,7 @@ public:
   {
     ParameterList pl;
     for (size_t i = stationarity_ ? 0 : rootFrequencies_->getNumberOfParameters();
-         i < getNumberOfParameters(); i++)
+        i < getNumberOfParameters(); i++)
     {
       pl.addParameter(getParameter_(i));
     }
@@ -445,7 +448,7 @@ public:
   ParameterList getModelParameters(size_t modelIndex) const;
 
   std::shared_ptr<const Alphabet> getAlphabet() const { return alphabet_; }
-  
+
   const Alphabet& alphabet() const { return *alphabet_; }
 
   /**

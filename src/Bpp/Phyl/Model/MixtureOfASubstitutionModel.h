@@ -60,7 +60,6 @@ public:
   MixtureOfASubstitutionModel* clone() const override { return new MixtureOfASubstitutionModel(*this); }
 
 protected:
-
   void updateMatrices_() override
   {
     MixtureOfATransitionModel::updateMatrices_();
@@ -78,7 +77,6 @@ protected:
   }
 
 public:
-  
   /**
    * @brief retrieve a pointer to the subsitution model with the given name.
    */

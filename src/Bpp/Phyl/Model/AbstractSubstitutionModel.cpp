@@ -279,14 +279,14 @@ void AbstractSubstitutionModel::updateMatrices_()
             vNullEv.push_back(i);
         }
       }
-      
+
       // pb to find unique null eigenvalue
       isNonSingular_ = (vNullEv.size() == 1);
 
       size_t nulleigen;
 
       double val;
-      if (vNullEv.size()>1)
+      if (vNullEv.size() > 1)
       {
         // look or check which non-stop right eigen vector elements are
         // equal.
@@ -453,7 +453,7 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
       s *= v / static_cast<double>(i);   // v^n/n!
       MatrixTools::add(pijt_, s, vPowGen_[i]);
     }
-    
+
     while (m > 0)  // recover the 2^m
     {
       MatrixTools::mult(pijt_, pijt_, tmpMat_);
@@ -578,11 +578,11 @@ const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
           s = std::sin(iEigenValues_[i] * l);
           c = std::cos(iEigenValues_[i] * l);
           vdia[i] = NumTools::sqr(rate_)
-                    * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * c
-                       - 2 * eigenValues_[i] * iEigenValues_[i] * s) * e;
+              * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * c
+              - 2 * eigenValues_[i] * iEigenValues_[i] * s) * e;
           vup[i] = NumTools::sqr(rate_)
-                   * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * s
-                      - 2 * eigenValues_[i] * iEigenValues_[i] * c) * e;
+              * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * s
+              - 2 * eigenValues_[i] * iEigenValues_[i] * c) * e;
           vlo[i] = -vup[i];
           vdia[i + 1] = vdia[i]; // trick to avoid computation
           i++;

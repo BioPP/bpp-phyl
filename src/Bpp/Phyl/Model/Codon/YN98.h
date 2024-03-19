@@ -81,14 +81,15 @@ public:
     return pmodel_->getGeneticCode();
   }
 
-  const FrequencySetInterface& frequencySet() const override {
+  const FrequencySetInterface& frequencySet() const override
+  {
     return AbstractWrappedModel::frequencySet();
   }
 // std::cerr << "frqqq" << std::endl;
 
 //     return pmodel_->frequencySet();
 //   }
-  
+
 // using AbstractBiblioMixedTransitionModel::frequencySet;
 
 
@@ -98,12 +99,12 @@ public:
   }
 
   const CodonFrequencySetInterface& codonFrequencySet() const override
-  { 
+  {
     return pmodel_->codonFrequencySet();
   }
 
   bool hasCodonFrequencySet() const override
-  { 
+  {
     return pmodel_->hasCodonFrequencySet();
   }
 
@@ -113,10 +114,9 @@ public:
   }
 
   using AbstractBiblioSubstitutionModel::frequencySet;
-  
+
 protected:
   SubstitutionModelInterface& substitutionModel_() override { return *pmodel_; }
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YN98_H

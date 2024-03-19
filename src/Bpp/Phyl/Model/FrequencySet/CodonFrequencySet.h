@@ -27,7 +27,6 @@ public:
   virtual std::shared_ptr<const CodonAlphabet> getCodonAlphabet() const = 0;
 
 public:
-
   /**
    * @return The associated genetic code.
    */
@@ -55,10 +54,10 @@ public:
    * @see Simplex
    */
   static std::unique_ptr<CodonFrequencySetInterface> getFrequencySetForCodons(
-      short option,
-      std::shared_ptr<const GeneticCode> gCode,
-      const std::string& mgmtStopCodon = "quadratic",
-      unsigned short method = 1);
+    short option,
+    std::shared_ptr<const GeneticCode> gCode,
+    const std::string& mgmtStopCodon = "quadratic",
+    unsigned short method = 1);
 
   static const short F0;
   static const short F1X4;
@@ -457,10 +456,10 @@ public:
    *      the square of each target codon frequency.
    */
   CodonFromUniqueFrequencySet(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<FrequencySetInterface> pfreq,
-    const std::string& name = "Codon",
-    const std::string& mgmtStopCodon = "quadratic");
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<FrequencySetInterface> pfreq,
+      const std::string& name = "Codon",
+      const std::string& mgmtStopCodon = "quadratic");
 
   CodonFromUniqueFrequencySet(const CodonFromUniqueFrequencySet& iwfs);
 

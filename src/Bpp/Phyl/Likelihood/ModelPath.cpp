@@ -37,7 +37,7 @@ void ModelPath::setModel(std::shared_ptr<MixedTransitionModelInterface> mMod, co
 }
 
 void ModelPath::changeModel(shared_ptr<MixedTransitionModelInterface> mMod1,
-                            shared_ptr<MixedTransitionModelInterface> mMod2)
+    shared_ptr<MixedTransitionModelInterface> mMod2)
 {
   if (mModPath_.find(mMod1) == mModPath_.end())
     throw Exception("ModelPath::changeModel : Unknown model " + mMod1->getName());
@@ -129,15 +129,15 @@ ModelPath& ModelPath::operator-=(const ModelPath& hn)
   return *this;
 }
 
-vector< shared_ptr<MixedTransitionModelInterface> > ModelPath::getModels() const
+vector< shared_ptr<MixedTransitionModelInterface>> ModelPath::getModels() const
 {
-  vector< shared_ptr<MixedTransitionModelInterface> > models;
+  vector< shared_ptr<MixedTransitionModelInterface>> models;
 
   std::transform(
-    mModPath_.begin(),
-    mModPath_.end(),
-    std::back_inserter(models),
-    [](const map<shared_ptr<MixedTransitionModelInterface>, PathNode>::value_type& pair){
+      mModPath_.begin(),
+      mModPath_.end(),
+      std::back_inserter(models),
+      [](const map<shared_ptr<MixedTransitionModelInterface>, PathNode>::value_type& pair){
     return pair.first;
   });
 
@@ -213,7 +213,7 @@ void ModelPath::PathNode::insertN(const Vuint& vn)
 void ModelPath::PathNode::removeN(const Vuint& vn)
 {
   erase(std::remove_if(begin(), end(),
-                       [vn](const uint x) -> bool {
+        [vn](const uint x) -> bool {
     return std::find(vn.begin(), vn.end(), x) != vn.end();
   }), end());
 }

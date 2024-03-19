@@ -193,7 +193,7 @@ void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, doubl
 }
 
 
-void DecompositionMethods::computeExpectations(std::vector< RowMatrix<double> >& mappings, double length) const
+void DecompositionMethods::computeExpectations(std::vector< RowMatrix<double>>& mappings, double length) const
 {
   if (!model_)
     throw Exception("DecompositionMethods::computeExpectations: model not defined.");
@@ -239,7 +239,7 @@ void DecompositionMethods::initStates_()
 /******************************************************************************/
 
 void DecompositionMethods::setSubstitutionModel(
-  shared_ptr<const SubstitutionModelInterface> model)
+    shared_ptr<const SubstitutionModelInterface> model)
 {
   model_ = model;
   if (!model)

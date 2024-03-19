@@ -42,9 +42,9 @@ public:
    */
   template<class N, class E, class I>
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-      const AlignmentDataInterface& sequenceSet, 
-      const std::shared_ptr<N> node, 
-      const AssociationTreeGraphImplObserver<N, E, I>& tree);
+    const AlignmentDataInterface& sequenceSet,
+    const std::shared_ptr<N> node,
+    const AssociationTreeGraphImplObserver<N, E, I>& tree);
 
   /**
    * @brief Extract the sequences corresponding to a given subtree.
@@ -55,8 +55,8 @@ public:
    * @throw Exception if an error occured.
    */
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-      const AlignmentDataInterface& sequenceSet,
-      const Node& node);
+    const AlignmentDataInterface& sequenceSet,
+    const Node& node);
 
   /**
    * @brief Extract the sequences corresponding to a given set of names.
@@ -67,8 +67,8 @@ public:
    * @throw Exception if an error occured.
    */
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-      const AlignmentDataInterface& sequenceSet, 
-      const std::vector<std::string>& names);
+    const AlignmentDataInterface& sequenceSet,
+    const std::vector<std::string>& names);
 
   /**
    * @brief Compress a site container by removing duplicated sites.
@@ -78,7 +78,7 @@ public:
    * @throw Exception if an error occured.
    */
   static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(
-      const AlignmentDataInterface& sequenceSet);
+    const AlignmentDataInterface& sequenceSet);
 
   /**
    * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
@@ -89,14 +89,14 @@ public:
    * @return A vector of positions.
    */
   static Vint getIndexes(
-      const AlignmentDataInterface& sequences1,
-      const AlignmentDataInterface& sequences2);
+    const AlignmentDataInterface& sequences1,
+    const AlignmentDataInterface& sequences2);
 };
 
 template<class N, class E, class I>
 std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
-    const AlignmentDataInterface& sequenceSet, 
-    const std::shared_ptr<N> node, 
+    const AlignmentDataInterface& sequenceSet,
+    const std::shared_ptr<N> node,
     const AssociationTreeGraphImplObserver<N, E, I>& tree)
 {
   size_t nbSites = sequenceSet.getNumberOfSites();
@@ -114,7 +114,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     {
       if (i->hasName())
       {
-	//Use sequence name as key.
+        // Use sequence name as key.
         try
         {
           auto newSeq = std::make_unique<Sequence>(sitecontainer.sequence(i->getName()));
@@ -133,7 +133,9 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     }
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
-  } catch(std::bad_cast& e) {}
+  }
+  catch (std::bad_cast& e)
+  {}
 
   try
   {
@@ -141,16 +143,16 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
 
     auto sequenceSubset = std::make_unique<ProbabilisticVectorSiteContainer>(alphabet);
 
-    std::vector<std::shared_ptr<N> > leaves = tree.getLeavesUnderNode(node);
+    std::vector<std::shared_ptr<N>> leaves = tree.getLeavesUnderNode(node);
 
     for (auto i : leaves)
     {
       if (i->hasName())
       {
-	//Use sequence name as key.
+        // Use sequence name as key.
         try
         {
-          auto newSeq = std::make_unique<ProbabilisticSequence> (sitecontainer.sequence(i->getName()));
+          auto newSeq = std::make_unique<ProbabilisticSequence>(sitecontainer.sequence(i->getName()));
           sequenceSubset->addSequence(newSeq->getName(), newSeq);
         }
         catch (std::exception const& e)
@@ -166,7 +168,9 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     }
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
-  } catch(std::bad_cast& e) {}
+  }
+  catch (std::bad_cast& e)
+  {}
 
   throw Exception("PatternTools::getSequenceSubset : unsupported sequence type.");
 }

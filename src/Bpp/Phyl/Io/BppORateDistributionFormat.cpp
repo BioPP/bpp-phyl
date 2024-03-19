@@ -24,8 +24,8 @@ using namespace std;
 
 
 unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscreteDistribution(
-  const std::string& distDescription,
-  bool parseArguments)
+    const std::string& distDescription,
+    bool parseArguments)
 {
   unparsedArguments_.clear();
   string distName;
@@ -87,7 +87,7 @@ unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscre
     while (strtok2.hasMoreToken())
       probas.push_back(TextTools::toDouble(strtok2.nextToken()));
 
-    std::map<size_t, std::vector<double> > ranges;
+    std::map<size_t, std::vector<double>> ranges;
 
     if (args.find("ranges") != args.end())
     {
@@ -162,7 +162,7 @@ unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscre
   {
     if (args.find("n") == args.end())
       throw Exception("Missing argument 'n' (number of classes) in " + distName
-                      + " distribution");
+            + " distribution");
     size_t nbClasses = TextTools::to<size_t>(args["n"]);
 
     if (distName == "Gamma")
@@ -208,10 +208,10 @@ unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscre
 
 
 void BppORateDistributionFormat::writeDiscreteDistribution(
-  const DiscreteDistributionInterface& dist,
-  OutputStream& out,
-  std::map<std::string, std::string>& globalAliases,
-  std::vector<std::string>& writtenNames) const
+    const DiscreteDistributionInterface& dist,
+    OutputStream& out,
+    std::map<std::string, std::string>& globalAliases,
+    std::vector<std::string>& writtenNames) const
 {
   bool comma = false;
 
@@ -228,7 +228,8 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
   }
   else
   {
-    try {
+    try
+    {
       auto& mix = dynamic_cast<const MixtureOfDiscreteDistributions&>(dist);
       size_t nd = mix.getNumberOfDistributions();
       for (size_t i = 0; i < nd; ++i)
@@ -251,7 +252,9 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
       {
         writtenNames.push_back(mix.getNamespace() + "theta" + TextTools::toString(i));
       }
-    } catch (bad_cast&) {}
+    }
+    catch (bad_cast&)
+    {}
   }
   if (dynamic_cast<const ExponentialDiscreteRateDistribution*>(&dist) ||
       dynamic_cast<const GammaDiscreteRateDistribution*>(&dist) ||
@@ -263,7 +266,8 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
     comma = true;
   }
 
-  try {
+  try
+  {
     auto& ps = dynamic_cast<const SimpleDiscreteDistribution&>(dist);
     size_t nd = ps.getNumberOfCategories();
     if (comma)
@@ -311,7 +315,9 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
     }
 
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
 
   // Writing the parameters

@@ -61,7 +61,7 @@ public:
 
 
   ConfiguredParameter (const ConfiguredParameter& param)
-    : Parameter (param), Value<Parameter*>({std::shared_ptr<NumericMutable<double> >(new NumericMutable<double>(param.getValue()))}, this), context_(param.context_)
+    : Parameter (param), Value<Parameter*>({std::shared_ptr<NumericMutable<double>>(new NumericMutable<double>(param.getValue()))}, this), context_(param.context_)
   {}
 
   ConfiguredParameter (const Context& context, NodeRefVec&& deps, const Parameter& parameter);

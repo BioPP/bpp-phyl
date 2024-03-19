@@ -91,9 +91,8 @@ public:
 
   bool hasCodonFrequencySet() const override
   {
-    return (pfreqset_ != nullptr);
+    return pfreqset_ != nullptr;
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H

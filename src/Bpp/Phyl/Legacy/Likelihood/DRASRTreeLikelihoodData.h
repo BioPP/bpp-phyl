@@ -104,7 +104,7 @@ private:
    * The double map contains the position of the site to use (second dimension)
    * of the likelihoods array.
    */
-  mutable std::map<int, std::map<int, std::vector<size_t> > > patternLinks_;
+  mutable std::map<int, std::map<int, std::vector<size_t>>> patternLinks_;
   std::shared_ptr<AlignmentDataInterface> shrunkData_;
   size_t nbSites_;
   size_t nbStates_;
@@ -113,7 +113,7 @@ private:
   bool usePatterns_;
 
 public:
-  DRASRTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node> > tree, size_t nbClasses, bool usePatterns = true) :
+  DRASRTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node>> tree, size_t nbClasses, bool usePatterns = true) :
     AbstractTreeLikelihoodData(tree),
     nodeData_(), patternLinks_(), shrunkData_(), nbSites_(0), nbStates_(0),
     nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
@@ -163,7 +163,7 @@ public:
    *
    * @param tree The tree to be associated to this data.
    */
-  void setTree(std::shared_ptr< const TreeTemplate<Node> > tree)
+  void setTree(std::shared_ptr< const TreeTemplate<Node>> tree)
   {
     tree_ = tree;
     for (auto& it : nodeData_)
@@ -223,8 +223,8 @@ public:
   size_t getNumberOfClasses() const { return nbClasses_; }
 
   void initLikelihoods(
-      const AlignmentDataInterface& sites,
-      const TransitionModelInterface& model);
+    const AlignmentDataInterface& sites,
+    const TransitionModelInterface& model);
 
 protected:
   /**
@@ -242,9 +242,9 @@ protected:
    * @param model     The model to use.
    */
   virtual void initLikelihoods(
-      const Node* node,
-      const AlignmentDataInterface& sequences,
-      const TransitionModelInterface& model);
+    const Node* node,
+    const AlignmentDataInterface& sequences,
+    const TransitionModelInterface& model);
 
   /**
    * @brief This method initializes the leaves according to a sequence file.
@@ -263,9 +263,9 @@ protected:
    * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
    */
   virtual std::unique_ptr<SitePatterns> initLikelihoodsWithPatterns(
-      const Node* node,
-      const AlignmentDataInterface& sequences,
-      const TransitionModelInterface& model);
+    const Node* node,
+    const AlignmentDataInterface& sequences,
+    const TransitionModelInterface& model);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_DRASRTREELIKELIHOODDATA_H

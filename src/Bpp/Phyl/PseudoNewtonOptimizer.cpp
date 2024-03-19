@@ -22,8 +22,8 @@ using namespace bpp;
 double PseudoNewtonOptimizer::PNStopCondition::getCurrentTolerance() const
 {
   return NumTools::abs<double>(
-    dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
-    dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_);
+        dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
+        dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_);
 }
 
 /**************************************************************************/

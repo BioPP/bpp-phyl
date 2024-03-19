@@ -13,7 +13,7 @@
 
 namespace bpp
 {
-using EmissionLogk = CWiseCompound<MatrixLik, ReductionOf<RowLik> >;
+using EmissionLogk = CWiseCompound<MatrixLik, ReductionOf<RowLik>>;
 
 /**
  * @brief Emission probabilities in the context of DF phylolikeihoods.

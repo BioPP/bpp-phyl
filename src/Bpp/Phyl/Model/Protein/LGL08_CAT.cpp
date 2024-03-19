@@ -50,8 +50,8 @@ LGL08_CAT::LGL08_CAT(
     st = mixedModelPtr_->getParameterNameWithoutNamespace(name);
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LGL08_CAT." + st,
-                                mixedModelPtr_->getParameterValue(st),
-                                mixedModelPtr_->parameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
+          mixedModelPtr_->getParameterValue(st),
+          mixedModelPtr_->parameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   updateMatrices_();
@@ -61,7 +61,7 @@ LGL08_CAT::LGL08_CAT(
 
 LGL08_CAT::EmbeddedModel::EmbeddedModel(
     shared_ptr<const ProteicAlphabet> alpha,
-    string name, 
+    string name,
     unsigned int nbCat) :
   AbstractParameterAliasable(name),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), name),
@@ -116,4 +116,3 @@ LGL08_CAT::EmbeddedModel::EmbeddedModel(
 
   updateMatrices_();
 }
-

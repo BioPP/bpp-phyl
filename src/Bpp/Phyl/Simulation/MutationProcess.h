@@ -20,7 +20,6 @@ namespace bpp
 class MutationPath
 {
 private:
-  
   std::shared_ptr<const Alphabet> alphabet_;
 
   /**
@@ -323,7 +322,7 @@ public:
  * @f[ \frac{Q_{i,j}}{\sum_k Q_{i,k}}. @f]</li>
  * </ol>
  */
-class SimpleMutationProcess : 
+class SimpleMutationProcess :
   public AbstractMutationProcess
 {
 public:

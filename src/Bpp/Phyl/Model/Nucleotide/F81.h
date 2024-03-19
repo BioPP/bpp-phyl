@@ -150,11 +150,11 @@ private:
 
 public:
   F81(
-    std::shared_ptr<const NucleicAlphabet> alpha,
-    double piA = 0.25,
-    double piC = 0.25,
-    double piG = 0.25,
-    double piT = 0.25);
+      std::shared_ptr<const NucleicAlphabet> alpha,
+      double piA = 0.25,
+      double piC = 0.25,
+      double piG = 0.25,
+      double piT = 0.25);
 
   virtual ~F81() {}
 

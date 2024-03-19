@@ -539,7 +539,7 @@ void TreeTemplateTools::scaleTree(Node& node, double factor)
 unique_ptr<TreeTemplate<Node>> TreeTemplateTools::getRandomTree(vector<string>& leavesNames, bool rooted)
 {
   if (leavesNames.size() == 0)
-    return 0;                                               // No taxa.
+    return 0; // No taxa.
   // This vector will contain all nodes.
   // Start with all leaves, and then group nodes randomly 2 by 2.
   // Att the end, contains only the root node of the tree.
@@ -736,7 +736,7 @@ double TreeTemplateTools::getDistanceBetweenAnyTwoNodes(const Node& node1, const
 
 /******************************************************************************/
 
-void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, vector< std::pair<string, double> >& distsToNodeFather)
+void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, vector< std::pair<string, double>>& distsToNodeFather)
 {
   distsToNodeFather.clear();
 
@@ -749,7 +749,7 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
 
   // For all leaves in node's subtree, get leaf-to-node distances.
   // Leaves are classified upon node's sons.
-  map<const Node*, vector< pair<string, double> > > leavesDists;
+  map<const Node*, vector< pair<string, double>>> leavesDists;
   for (size_t i = 0; i < node->getNumberOfSons(); ++i)
   {
     const Node* son = node->getSon(i);
@@ -765,16 +765,16 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
       const Node* son1 = node->getSon(son1_loc);
       const Node* son2 = node->getSon(son2_loc);
 
-      for (vector< pair<string, double> >::iterator son1_leaf = leavesDists[son1].begin();
-           son1_leaf != leavesDists[son1].end();
-           ++son1_leaf)
+      for (vector< pair<string, double>>::iterator son1_leaf = leavesDists[son1].begin();
+          son1_leaf != leavesDists[son1].end();
+          ++son1_leaf)
       {
-        for (vector< pair<string, double> >::iterator son2_leaf = leavesDists[son2].begin();
-             son2_leaf != leavesDists[son2].end();
-             ++son2_leaf)
+        for (vector< pair<string, double>>::iterator son2_leaf = leavesDists[son2].begin();
+            son2_leaf != leavesDists[son2].end();
+            ++son2_leaf)
         {
           matrix(son1_leaf->first, son2_leaf->first) =
-            matrix(son2_leaf->first, son1_leaf->first) =
+              matrix(son2_leaf->first, son1_leaf->first) =
               ( son1_leaf->second + son2_leaf->second );
         }
       }
@@ -788,9 +788,9 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
     if (node->hasNoSon() )
     {
       string root_name = node->getName();
-      for (vector< pair<string, double> >::iterator other_leaf = leavesDists[node->getSon(0)].begin();
-           other_leaf != leavesDists[node->getSon(0)].end();
-           ++other_leaf)
+      for (vector< pair<string, double>>::iterator other_leaf = leavesDists[node->getSon(0)].begin();
+          other_leaf != leavesDists[node->getSon(0)].end();
+          ++other_leaf)
       {
         matrix(root_name, other_leaf->first) = matrix( other_leaf->first, root_name) = other_leaf->second;
       }
@@ -802,9 +802,9 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
   // Get distances from node's father to considered leaves
   distsToNodeFather.clear();
   double nodeToFather = node->getDistanceToFather();
-  for (map<const Node*, vector<pair<string, double> > >::iterator son = leavesDists.begin(); son != leavesDists.end(); ++son)
+  for (map<const Node*, vector<pair<string, double>>>::iterator son = leavesDists.begin(); son != leavesDists.end(); ++son)
   {
-    for (vector< pair<string, double> >::iterator leaf = (son->second).begin(); leaf != (son->second).end(); ++leaf)
+    for (vector< pair<string, double>>::iterator leaf = (son->second).begin(); leaf != (son->second).end(); ++leaf)
     {
       distsToNodeFather.push_back(make_pair(leaf->first, (leaf->second + nodeToFather)));
     }
@@ -814,7 +814,7 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
 unique_ptr<DistanceMatrix> TreeTemplateTools::getDistanceMatrix(const TreeTemplate<Node>& tree)
 {
   auto matrix = make_unique<DistanceMatrix>(tree.getLeavesNames());
-  vector< pair<string, double> > distsToRoot;
+  vector< pair<string, double>> distsToRoot;
   processDistsInSubtree_(tree.getRootNode(), *matrix, distsToRoot);
   return matrix;
 }
@@ -1069,7 +1069,7 @@ void TreeTemplateTools::midRoot(TreeTemplate<Node>& tree, short criterion, bool 
   // -- the best position of the root on the branch : .second["position"]
   //      0 is toward the original root, 1 is away from it
   //
-  pair<Node*, map<string, double> > best_root_branch;
+  pair<Node*, map<string, double>> best_root_branch;
   best_root_branch.first = ref_root; // nota: the root does not correspond to a branch as it has no father
   best_root_branch.second ["position"] = -1;
   best_root_branch.second ["score"] = numeric_limits<double>::max();
@@ -1117,7 +1117,7 @@ void TreeTemplateTools::midRoot(TreeTemplate<Node>& tree, short criterion, bool 
     {
       Node* nearest = root_sons.at(0);
       for (vector<Node*>::iterator n = root_sons.begin(); n !=
-           root_sons.end(); ++n)
+          root_sons.end(); ++n)
       {
         if ((**n).getDistanceToFather() < nearest->getDistanceToFather())
           nearest = *n;
@@ -1183,7 +1183,7 @@ void TreeTemplateTools::unresolveUncertainNodes(Node& subtree, double threshold,
   }
 }
 
-void TreeTemplateTools::getBestRootInSubtree_(TreeTemplate<Node>& tree, short criterion, Node* node, pair<Node*, map<string, double> >& bestRoot)
+void TreeTemplateTools::getBestRootInSubtree_(TreeTemplate<Node>& tree, short criterion, Node* node, pair<Node*, map<string, double>>& bestRoot)
 {
   const vector<Node*> sons = node->getSons(); // copy
   tree.rootAt(node);

@@ -83,7 +83,7 @@ public:
 
     virtual const SubstitutionModelInterface& substitutionModel() const = 0;
     virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const = 0;
-    
+
     virtual SiteIterator* getNewSiteIterator() const = 0;
   };
 
@@ -111,10 +111,10 @@ public:
 public:
     virtual const TransitionModelInterface& model() const = 0;
     virtual std::shared_ptr<const TransitionModelInterface> getModel() const = 0;
-    
+
     virtual const SubstitutionModelInterface& substitutionModel() const = 0;
     virtual std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const = 0;
-    
+
     virtual BranchIterator* getNewBranchIterator() const = 0;
   };
 

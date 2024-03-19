@@ -10,7 +10,7 @@ using namespace std;
 TreeDrawingDisplayControler::~TreeDrawingDisplayControler()
 {
   for (std::map<std::string, TreeDrawingListener*>::iterator it = listeners_.begin();
-       it != listeners_.end(); ++it)
+      it != listeners_.end(); ++it)
   {
     for (unsigned int j = 0; j < registeredTreeDrawings_.size(); ++j)
     {

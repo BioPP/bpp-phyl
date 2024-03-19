@@ -17,12 +17,12 @@ template class CWiseFill<MatrixLik, RowLik>;
 template class CWisePattern<RowLik>;
 template class CWisePattern<MatrixLik>;
 
-template class CWiseMatching<RowLik, ReductionOf<RowLik> >;
-template class CWiseMatching<MatrixLik, ReductionOf<MatrixLik> >;
-template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<double> >;
-template class CWiseMatching<ExtendedFloatRowVectorXd, ReductionOf<ExtendedFloat> >;
-template class CWiseMatching<MatrixLik, ReductionOf<RowLik> >;
+template class CWiseMatching<RowLik, ReductionOf<RowLik>>;
+template class CWiseMatching<MatrixLik, ReductionOf<MatrixLik>>;
+template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<double>>;
+template class CWiseMatching<ExtendedFloatRowVectorXd, ReductionOf<ExtendedFloat>>;
+template class CWiseMatching<MatrixLik, ReductionOf<RowLik>>;
 
-template class CWiseCompound<MatrixLik, ReductionOf<RowLik> >;
-template class CWiseCompound<MatrixLik, ReductionOf<VectorLik> >;
+template class CWiseCompound<MatrixLik, ReductionOf<RowLik>>;
+template class CWiseCompound<MatrixLik, ReductionOf<VectorLik>>;
 } // namespace bpp

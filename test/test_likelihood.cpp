@@ -26,11 +26,11 @@ using namespace bpp;
 using namespace std;
 
 void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
-	         std::shared_ptr<DiscreteDistributionInterface> rdist,
-                 const Tree& tree,
-                 std::shared_ptr<ParametrizablePhyloTree> partree,
-                 std::shared_ptr<const SiteContainerInterface> sites,
-                 double initialValue, double finalValue)
+    std::shared_ptr<DiscreteDistributionInterface> rdist,
+    const Tree& tree,
+    std::shared_ptr<ParametrizablePhyloTree> partree,
+    std::shared_ptr<const SiteContainerInterface> sites,
+    double initialValue, double finalValue)
 {
   ApplicationTools::startTimer();
 
@@ -46,23 +46,24 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
     throw Exception("Incorrect initial value.");
   cout << endl;
 
-  Parameter p1("T92.kappa",0.1);
-  Parameter p2("T92.kappa",3);
+  Parameter p1("T92.kappa", 0.1);
+  Parameter p2("T92.kappa", 3);
 
-  ParameterList pl1;pl1.addParameter(p1);
-  ParameterList pl2;pl2.addParameter(p2);
+  ParameterList pl1; pl1.addParameter(p1);
+  ParameterList pl2; pl2.addParameter(p2);
 
-  Parameter p3("BrLen1",0.1);
-  Parameter p4("BrLen1",0.2);
+  Parameter p3("BrLen1", 0.1);
+  Parameter p4("BrLen1", 0.2);
 
-  ParameterList pl3;pl3.addParameter(p3);
-  ParameterList pl4;pl4.addParameter(p4);
+  ParameterList pl3; pl3.addParameter(p3);
+  ParameterList pl4; pl4.addParameter(p4);
 
   unsigned int n = 100000;
 
   ApplicationTools::startTimer();
-  for (size_t i = 0; i < n; ++i) { 
-    ApplicationTools::displayGauge(i, n-1);
+  for (size_t i = 0; i < n; ++i)
+  {
+    ApplicationTools::displayGauge(i, n - 1);
     tl.matchParametersValues(pl1);
     tl.getValue();
     tl.matchParametersValues(pl2);
@@ -72,8 +73,9 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
   ApplicationTools::displayTime("Old Likelihood: model upgrade");
 
   ApplicationTools::startTimer();
-  for (size_t i = 0; i < n; ++i) { 
-    ApplicationTools::displayGauge(i, n-1);
+  for (size_t i = 0; i < n; ++i)
+  {
+    ApplicationTools::displayGauge(i, n - 1);
     tl.matchParametersValues(pl3);
     tl.getValue();
     tl.matchParametersValues(pl4);
@@ -87,7 +89,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
 
   auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, partree);
 
-  Context context;                        
+  Context context;
   auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   SingleProcessPhyloLikelihood llh(context, lik);
 
@@ -100,15 +102,17 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
   cout << "NewTL: " << setprecision(20) << llh.getValue() << endl;
   cout << "NewTL D1: " << setprecision(20) << llh.getFirstOrderDerivative("BrLen2") << endl;
   cout << "NewTL D2: " << setprecision(20) << llh.getSecondOrderDerivative("BrLen2") << endl;
-  
+
   ApplicationTools::displayResult("* initial likelihood", llh.getValue());
-  if (abs(llh.getValue() - initialValue) > 0.001) {
+  if (abs(llh.getValue() - initialValue) > 0.001)
+  {
     cerr << "Incorrect initial value." << endl;
     throw Exception("Incorrect initial value.");
   }
   cout << endl;
-  for (size_t i = 0; i < n; ++i) { 
-    ApplicationTools::displayGauge(i, n-1);
+  for (size_t i = 0; i < n; ++i)
+  {
+    ApplicationTools::displayGauge(i, n - 1);
     llh.matchParametersValues(pl1);
     llh.getValue();
     llh.matchParametersValues(pl2);
@@ -119,37 +123,38 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
   ApplicationTools::displayTime("New Likelihood: model upgrade");
 
   ApplicationTools::startTimer();
-  for (size_t i = 0; i < n; ++i) { 
-    ApplicationTools::displayGauge(i, n-1);
+  for (size_t i = 0; i < n; ++i)
+  {
+    ApplicationTools::displayGauge(i, n - 1);
     llh.matchParametersValues(pl3);
     llh.getValue();
     llh.matchParametersValues(pl4);
     llh.getValue();
   }
   cout << endl;
-  
+
   ApplicationTools::displayTime("New Likelihood: brlen upgrade");
 
   cout << endl;
-  
+
   cout << "==========================================" << endl;
   cout << "==========================================" << endl;
   cout << endl;
-  
+
   cout << "Optimization : " << endl;
   cout << endl;
 
-  uint nboptim=1000;
+  uint nboptim = 1000;
 
   ///////////////
-  
+
   auto tlop = make_shared<RHomogeneousTreeLikelihood>(
-      tree,
-      *sites,
-      shared_ptr<SubstitutionModelInterface>(model->clone()),
-      shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
-      false,
-      false);
+        tree,
+        *sites,
+        shared_ptr<SubstitutionModelInterface>(model->clone()),
+        shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
+        false,
+        false);
   tlop->initialize();
 
   LegacyOptimizationTools::optimizeNumericalParameters2(tlop, tlop->getParameters(), 0, 0.000001, nboptim, 0, 0);
@@ -159,19 +164,19 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
     throw Exception("Incorrect final value.");
   tlop->getParameters().printParameters(cout);
 
-  
+
   process = std::make_shared<RateAcrossSitesSubstitutionProcess>(
-      shared_ptr<SubstitutionModelInterface>(model->clone()),
-      shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
-      partree);
+        shared_ptr<SubstitutionModelInterface>(model->clone()),
+        shared_ptr<DiscreteDistributionInterface>(rdist->clone()),
+        partree);
 
   Context context2;
-  
+
   lik.reset(new LikelihoodCalculationSingleProcess(context2, sites, process));
-  
+
   auto llh2 = make_shared<SingleProcessPhyloLikelihood>(context2, lik);
 
-  ParameterList opln1=process->getBranchLengthParameters(true);
+  ParameterList opln1 = process->getBranchLengthParameters(true);
 
   OptimizationTools::optimizeNumericalParameters2(llh2, llh2->getParameters(), 0, 0.000001, nboptim, 0, 0);
   cout << setprecision(20) << llh2->getValue() << endl;
@@ -182,16 +187,17 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
 }
 
 
-int main() {
-  unique_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
-  vector<string> seqNames= tree->getLeavesNames();
+int main()
+{
+  unique_ptr<TreeTemplate<Node>> tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
+  vector<string> seqNames = tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
 
   Newick reader;
   auto pTree = unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
   auto paramphyloTree = make_shared<ParametrizablePhyloTree>(*pTree);
 
-  //-------------
+  // -------------
 
   shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
   shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
@@ -208,16 +214,17 @@ int main() {
 
   auto model = make_shared<T92>(nucAlphabet, 3.);
   auto rdist = make_shared<GammaDiscreteRateDistribution>(4, 1.0);
-  try {
+  try
+  {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
     fitModelHSR(model, rdist, *tree, paramphyloTree, sites, 228.6333642493463, 198.47216106233);
-  } catch (exception& ex) {
+  }
+  catch (exception& ex)
+  {
     cerr << "ERROR!!!" << endl;
     cerr << ex.what() << endl;
     return 1;
-  }  
+  }
 
   return 0;
 }
-
-

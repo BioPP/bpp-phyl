@@ -60,7 +60,7 @@ void DRTreeParsimonyData::init(
 
   auto tmp = pattern.getSites();
   shrunkData_.reset(dynamic_cast<SiteContainerInterface*>(tmp.release()));
-  
+
   if (shrunkData_ == nullptr)
     throw Exception("DRTreeParsimonyData::init : Data must be plain alignments.");
 
@@ -83,7 +83,7 @@ void DRTreeParsimonyData::init(
 /******************************************************************************/
 
 void DRTreeParsimonyData::init_(
-    const Node* node, 
+    const Node* node,
     shared_ptr<const SiteContainerInterface> sites,
     shared_ptr<const StateMapInterface> stateMap)
 {

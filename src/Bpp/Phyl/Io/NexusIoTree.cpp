@@ -215,7 +215,7 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloT
     // (we assume that all trees share the same translation! ===> check!)
     if (hasTranslation)
     {
-      vector<shared_ptr<PhyloNode> > leaves = tree->getAllLeaves();
+      vector<shared_ptr<PhyloNode>> leaves = tree->getAllLeaves();
       for (size_t i = 0; i < leaves.size(); i++)
       {
         string name = leaves[i]->getName();
@@ -363,7 +363,7 @@ void NexusIOTree::write_(const vector<const PhyloTree*>& trees, ostream& out) co
   vector<PhyloTree*> translatedTrees;
   for (size_t i = 0; i < trees.size(); i++)
   {
-    vector<shared_ptr<PhyloNode> > leaves = trees[i]->getAllLeaves();
+    vector<shared_ptr<PhyloNode>> leaves = trees[i]->getAllLeaves();
 
     PhyloTree* tree = trees[i]->clone();
 

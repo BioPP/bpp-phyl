@@ -5,7 +5,7 @@
 #include "PatternTools.h"
 
 // From bpp-seq:
-#include<Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/SiteTools.h>
 
 using namespace bpp;
 
@@ -36,7 +36,7 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     {
       if (i->hasName())
       {
-        //Use sequence name as key.
+        // Use sequence name as key.
         try
         {
           auto newSeq = make_unique<Sequence>(sitecontainer.sequence(i->getName()));
@@ -52,10 +52,12 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
           sequenceSubset->addSequence(i->getName(), seq);
         }
       }
-    }   
+    }
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
-  } catch(std::bad_cast& e) {}
+  }
+  catch (std::bad_cast& e)
+  {}
 
   try
   {
@@ -69,7 +71,7 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     {
       if (i->hasName())
       {
-        //Use sequence name as key.
+        // Use sequence name as key.
         try
         {
           auto newSeq = make_unique<ProbabilisticSequence>(sitecontainer.sequence(i->getName()));
@@ -88,7 +90,9 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     }
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
-  } catch(std::bad_cast& e) {}
+  }
+  catch (std::bad_cast& e)
+  {}
 
   throw Exception("PatternTools::getSequenceSubset : unsupported sequence type.");
 }
@@ -100,7 +104,7 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     const vector<string>& names)
 {
   auto alphabet = sequenceSet.getAlphabet();
-  
+
   try
   {
     const auto& sitecontainer = dynamic_cast<const SiteContainerInterface&>(sequenceSet);
@@ -113,13 +117,16 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
       {
         auto newSeq = make_unique<Sequence>(sitecontainer.sequence(i));
         sequenceSubset->addSequence(i, newSeq);
-      } else
+      }
+      else
         throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", i);
     }
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
-  } catch(std::bad_cast& e) {}
-  
+  }
+  catch (std::bad_cast& e)
+  {}
+
   try
   {
     const auto& sitecontainer = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequenceSet);
@@ -132,13 +139,16 @@ unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
       {
         auto newSeq = make_unique<ProbabilisticSequence>(sitecontainer.sequence(i));
         sequenceSubset->addSequence(i, newSeq);
-      } else
+      }
+      else
         throw SequenceNotFoundException("PatternTools ERROR: name not found in sequence file: ", i);
     }
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
-  } catch(std::bad_cast& e) {}
-  
+  }
+  catch (std::bad_cast& e)
+  {}
+
   throw Exception("PatternTools::getSequenceSubset : unsupported sequence type.");
 }
 
@@ -148,16 +158,16 @@ unique_ptr<AlignmentDataInterface> PatternTools::shrinkSiteSet(
     const AlignmentDataInterface& siteSet)
 {
   auto alphabet = siteSet.getAlphabet();
-  
+
   if (siteSet.getNumberOfSites() == 0)
     throw Exception("PatternTools::shrinkSiteSet siteSet is void.");
-  
+
   try
   {
     const auto& sc = dynamic_cast<const SiteContainerInterface&>(siteSet);
 
     vector<unique_ptr<Site>> sites;
- 
+
     for (unsigned int i = 0; i < siteSet.getNumberOfSites(); ++i)
     {
       const auto& currentSite = sc.site(i);
@@ -171,16 +181,18 @@ unique_ptr<AlignmentDataInterface> PatternTools::shrinkSiteSet(
         sites.push_back(make_unique<Site>(currentSite));
     }
     auto result = make_unique<VectorSiteContainer>(sites, alphabet, false);
-    result->setSequenceNames(siteSet.getSequenceNames(), true); //Update keys too
+    result->setSequenceNames(siteSet.getSequenceNames(), true); // Update keys too
     return result;
-  } catch(std::bad_cast& e) {}
+  }
+  catch (std::bad_cast& e)
+  {}
 
   try
   {
     const auto& psc = dynamic_cast<const ProbabilisticSiteContainerInterface&>(siteSet);
-    
+
     vector<unique_ptr<ProbabilisticSite>> sites;
-  
+
     for (unsigned int i = 0; i < siteSet.getNumberOfSites(); ++i)
     {
       const auto& currentSite = psc.site(i);
@@ -196,16 +208,18 @@ unique_ptr<AlignmentDataInterface> PatternTools::shrinkSiteSet(
     auto result = make_unique<ProbabilisticVectorSiteContainer>(sites, alphabet, false);
     result->setSequenceNames(siteSet.getSequenceNames(), false);
     return result;
-  } catch(std::bad_cast& e) {}
-  
+  }
+  catch (std::bad_cast& e)
+  {}
+
   throw Exception("PatternTools::shrinkSiteSet : unsupported sequence type.");
 }
 
 /******************************************************************************/
 
 Vint PatternTools::getIndexes(
-  const AlignmentDataInterface& sequences1,
-  const AlignmentDataInterface& sequences2)
+    const AlignmentDataInterface& sequences1,
+    const AlignmentDataInterface& sequences2)
 {
   size_t nbSites = sequences1.getNumberOfSites();
   Vint indexes(nbSites);
@@ -231,8 +245,10 @@ Vint PatternTools::getIndexes(
       }
     }
     return indexes;
-  } catch(std::bad_cast& e) {}
-  
+  }
+  catch (std::bad_cast& e)
+  {}
+
   try
   {
     const auto& psc1 = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequences1);
@@ -254,11 +270,11 @@ Vint PatternTools::getIndexes(
       }
     }
     return indexes;
-  } catch(std::bad_cast& e) {}
-  
-  throw Exception("PatternTools::shrinkSiteSet : unsupported sequence type.");
+  }
+  catch (std::bad_cast& e)
+  {}
 
+  throw Exception("PatternTools::shrinkSiteSet : unsupported sequence type.");
 }
 
 /******************************************************************************/
-

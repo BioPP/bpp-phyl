@@ -73,12 +73,12 @@ public:
   double getCodonsMulRate(size_t i, size_t j) const override { return pmodel_->getCodonsMulRate(i, j); }
 
   const CodonFrequencySetInterface& codonFrequencySet() const override
-  { 
+  {
     return pmodel_->codonFrequencySet();
   }
 
   bool hasCodonFrequencySet() const override
-  { 
+  {
     return pmodel_->hasCodonFrequencySet();
   }
 

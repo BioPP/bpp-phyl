@@ -6,7 +6,6 @@
 #define BPP_PHYL_MODEL_CODON_ABSTRACTCODONAAFITNESSSUBSTITUTIONMODEL_H
 
 
-
 # ifndef _ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
 # define _ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
 
@@ -60,9 +59,9 @@ private:
 
 public:
   AbstractCodonAAFitnessSubstitutionModel(
-    std::shared_ptr<FrequencySetInterface> pfitset,
-    std::shared_ptr<const GeneticCode> pgencode,
-    const std::string& prefix);
+      std::shared_ptr<FrequencySetInterface> pfitset,
+      std::shared_ptr<const GeneticCode> pgencode,
+      const std::string& prefix);
 
   AbstractCodonAAFitnessSubstitutionModel(const AbstractCodonAAFitnessSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -99,14 +98,16 @@ public:
 
   void setFreq(std::map<int, double>& frequencies) override;
 
-  const CodonFrequencySetInterface& codonFrequencySet() const override {
+  const CodonFrequencySetInterface& codonFrequencySet() const override
+  {
     throw NullPointerException("AbstractCodonAAFitnessSubstitutionModel::codonFrequencySet. This model does not take codon frequencies. See aaFitness.");
   }
-  
-  bool hasCodonFrequencySet() const override {
+
+  bool hasCodonFrequencySet() const override
+  {
     return false;
   }
-  
+
   void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
@@ -116,7 +117,7 @@ public:
   double getCodonsMulRate(size_t i, size_t j) const override;
 
   const FrequencySetInterface& aaFitness() const { return *pfitset_; }
-  
+
   std::shared_ptr<const FrequencySetInterface> getAAFitness() const { return pfitset_; }
 
   void addNsParameter()
@@ -126,5 +127,5 @@ public:
 };
 } // end of namespace bpp
 
-# endif//_ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
+# endif // _ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONAAFITNESSSUBSTITUTIONMODEL_H

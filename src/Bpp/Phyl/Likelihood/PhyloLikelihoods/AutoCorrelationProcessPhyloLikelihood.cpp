@@ -13,20 +13,20 @@ using namespace bpp;
 /******************************************************************************/
 
 AutoCorrelationProcessPhyloLikelihood::AutoCorrelationProcessPhyloLikelihood(
-  shared_ptr<const AlignmentDataInterface> data,
-  shared_ptr<AutoCorrelationSequenceEvolution> processSeqEvol,
-  shared_ptr<CollectionNodes> collNodes,
-  size_t nSeqEvol,
-  size_t nData) :
+    shared_ptr<const AlignmentDataInterface> data,
+    shared_ptr<AutoCorrelationSequenceEvolution> processSeqEvol,
+    shared_ptr<CollectionNodes> collNodes,
+    size_t nSeqEvol,
+    size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
-      collNodes->context(),
-      data->getNumberOfSites(),
-      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
+    collNodes->context(),
+    data->getNumberOfSites(),
+    (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
           ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates()
-	  : 0,
-      nData),
+    : 0,
+    nData),
   AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nData),
   AbstractParametrizable(""),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData),

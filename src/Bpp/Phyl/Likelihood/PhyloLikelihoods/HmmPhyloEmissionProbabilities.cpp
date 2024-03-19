@@ -27,7 +27,7 @@ void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(std::shared_ptr<HmmState
 
   phylAlph_ = dynamic_pointer_cast<HmmPhyloAlphabet>(stateAlphabet);
 
-  std::vector<std::shared_ptr<Node_DF> > vEM;
+  std::vector<std::shared_ptr<Node_DF>> vEM;
 
   auto nbStates = phylAlph_->getNumberOfStates();
 

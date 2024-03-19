@@ -28,16 +28,16 @@ private:
 
 public:
   DRTreeParsimonyScore(
-    std::shared_ptr<TreeTemplate<Node>> tree,
-    std::shared_ptr<const SiteContainerInterface> data,
-    bool verbose = true,
-    bool includeGaps = false);
+      std::shared_ptr<TreeTemplate<Node>> tree,
+      std::shared_ptr<const SiteContainerInterface> data,
+      bool verbose = true,
+      bool includeGaps = false);
 
   DRTreeParsimonyScore(
-    std::shared_ptr<TreeTemplate<Node>> tree,
-    std::shared_ptr<const SiteContainerInterface> data,
-    std::shared_ptr<const StateMapInterface> statesMap,
-    bool verbose = true);
+      std::shared_ptr<TreeTemplate<Node>> tree,
+      std::shared_ptr<const SiteContainerInterface> data,
+      std::shared_ptr<const StateMapInterface> statesMap,
+      bool verbose = true);
 
   DRTreeParsimonyScore(const DRTreeParsimonyScore& tp);
 

@@ -54,9 +54,9 @@ public:
    * @param st string of the Namespace
    */
   AbstractKroneckerCodonSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    const std::string& st);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      const std::string& st);
 
   /**
    * @brief Build a new AbstractKroneckerCodonSubstitutionModel object from
@@ -70,10 +70,10 @@ public:
    * @param st string of the Namespace
    */
   AbstractKroneckerCodonSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    const std::vector<std::set<size_t> >& vPos,
-    const std::string& st);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      const std::vector<std::set<size_t>>& vPos,
+      const std::string& st);
 
   /**
    * @brief Build a new AbstractKroneckerCodonSubstitutionModel object
@@ -88,11 +88,11 @@ public:
    * @param st string of the Namespace
    */
   AbstractKroneckerCodonSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    const std::string& st);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      const std::string& st);
 
   /**
    * @brief Build a new AbstractKroneckerCodonSubstitutionModel object
@@ -109,12 +109,12 @@ public:
    * @param st string of the Namespace
    */
   AbstractKroneckerCodonSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    const std::vector<std::set< size_t> >& vPos,
-    const std::string& st);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      const std::vector<std::set< size_t>>& vPos,
+      const std::string& st);
 
   virtual ~AbstractKroneckerCodonSubstitutionModel() {}
 

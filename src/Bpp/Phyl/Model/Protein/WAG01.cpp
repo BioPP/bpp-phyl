@@ -59,4 +59,3 @@ void WAG01::setFreqFromData(const SequenceDataInterface& data, double pseudoCoun
 }
 
 /******************************************************************************/
-

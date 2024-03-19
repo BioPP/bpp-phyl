@@ -166,7 +166,7 @@ public:
    * if mMod1 is the lead model, mMod2 becomes the lead model
    */
   void changeModel(std::shared_ptr<MixedTransitionModelInterface> mMod1,
-                   std::shared_ptr<MixedTransitionModelInterface> mMod2);
+      std::shared_ptr<MixedTransitionModelInterface> mMod2);
 
   /**
    * @brief Remove a model
@@ -264,7 +264,7 @@ public:
   /**
    * @brief gets the MixedTransitionModel used in the ModelPath
    */
-  std::vector<std::shared_ptr<MixedTransitionModelInterface> > getModels() const;
+  std::vector<std::shared_ptr<MixedTransitionModelInterface>> getModels() const;
 
   /**
    * @brief string description

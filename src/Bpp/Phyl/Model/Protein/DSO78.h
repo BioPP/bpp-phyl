@@ -51,8 +51,8 @@ public:
    * Otherwise, the values of the set will be used.
    */
   DSO78(std::shared_ptr<const ProteicAlphabet> alpha,
-        std::unique_ptr<ProteinFrequencySetInterface> freqSet,
-       	bool initFreqs = false);
+      std::unique_ptr<ProteinFrequencySetInterface> freqSet,
+      bool initFreqs = false);
 
   DSO78(const DSO78& model) :
     AbstractParameterAliasable(model),
@@ -107,7 +107,7 @@ public:
       return *freqSet_;
     throw NullPointerException("DSO78::frequencySet(). No associated FrequencySet.");
   }
-  
+
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 };
 } // end of namespace bpp.

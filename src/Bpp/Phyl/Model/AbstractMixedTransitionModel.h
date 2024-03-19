@@ -38,7 +38,7 @@ protected:
    * Beware: these TransitionModels are owned by the object, so
    * will be deleted at destruction
    */
-  std::vector< std::shared_ptr<TransitionModelInterface> > modelsContainer_;
+  std::vector< std::shared_ptr<TransitionModelInterface>> modelsContainer_;
 
   /**
    * @brief vector of the probabilities of the models
@@ -209,7 +209,6 @@ protected:
   {
     return *modelsContainer_[i];
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTMIXEDTRANSITIONMODEL_H

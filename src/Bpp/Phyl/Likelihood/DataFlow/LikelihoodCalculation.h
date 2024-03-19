@@ -36,7 +36,7 @@ public:
   {}
 
   LikelihoodCalculation(Context& context,
-                        ParameterList& paramList) :
+      ParameterList& paramList) :
     AbstractParameterAliasable(""),
     context_(context)
   {
@@ -70,7 +70,7 @@ public:
 
   virtual bool isInitialized() const
   {
-    return likelihood_!=0;
+    return likelihood_ != 0;
   }
 
   const Context& getContext() const
@@ -95,9 +95,9 @@ public:
   }
 
 /*
-   * @brief fix Factor such that valRef value becomes normal.
-   *
-   */
+ * @brief fix Factor such that valRef value becomes normal.
+ *
+ */
 
 protected:
   /* @brief Build the likelihood DF  */
@@ -182,7 +182,7 @@ public:
    *
    */
   void setSiteLikelihoods(SiteLikelihoodsRef ll,
-                          bool shrunk = false)
+      bool shrunk = false)
   {
     if (shrunk)
       patternedSiteLikelihoods_ = ll;
@@ -246,7 +246,6 @@ public:
       getContext_().erase(patternedSiteLikelihoods_);
       patternedSiteLikelihoods_.reset();
     }
-    
   }
 
 protected:

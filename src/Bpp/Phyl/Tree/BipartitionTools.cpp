@@ -90,9 +90,9 @@ bool BipartitionTools::testBit(int* plist, int num)
 /******************************************************************************/
 
 unique_ptr<BipartitionList> BipartitionTools::buildBipartitionPair(
-  const BipartitionList& bipartL1, size_t i1,
-  const BipartitionList& bipartL2, size_t i2,
-  bool checkElements)
+    const BipartitionList& bipartL1, size_t i1,
+    const BipartitionList& bipartL2, size_t i2,
+    bool checkElements)
 {
   vector<int*> bitBipL1, bitBipL2, twoBitBipL;
   vector<string> elements;
@@ -142,9 +142,9 @@ unique_ptr<BipartitionList> BipartitionTools::buildBipartitionPair(
 /******************************************************************************/
 
 bool BipartitionTools::areIdentical(
-  const BipartitionList& bipartL1, size_t i1,
-  const BipartitionList& bipartL2, size_t i2,
-  bool checkElements)
+    const BipartitionList& bipartL1, size_t i1,
+    const BipartitionList& bipartL2, size_t i2,
+    bool checkElements)
 {
   auto twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
   return twoBipL->areIdentical(0, 1);
@@ -153,9 +153,9 @@ bool BipartitionTools::areIdentical(
 /******************************************************************************/
 
 bool BipartitionTools::areCompatible(
-  const BipartitionList& bipartL1, size_t i1,
-  const BipartitionList& bipartL2, size_t i2,
-  bool checkElements)
+    const BipartitionList& bipartL1, size_t i1,
+    const BipartitionList& bipartL2, size_t i2,
+    bool checkElements)
 {
   auto twoBipL = buildBipartitionPair(bipartL1, i1, bipartL2, i2, checkElements);
   return twoBipL->areCompatible(0, 1);
@@ -164,8 +164,8 @@ bool BipartitionTools::areCompatible(
 /******************************************************************************/
 
 std::unique_ptr<BipartitionList> BipartitionTools::mergeBipartitionLists(
-  const vector<unique_ptr<BipartitionList> >& vecBipartL,
-  bool checkElements)
+    const vector<unique_ptr<BipartitionList>>& vecBipartL,
+    bool checkElements)
 {
   vector<string> elements;
   vector<int*> mergedBitBipL;
@@ -225,7 +225,7 @@ std::unique_ptr<BipartitionList> BipartitionTools::mergeBipartitionLists(
 /******************************************************************************/
 
 unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncode(
-  const vector<unique_ptr<BipartitionList> >& vecBipartL)
+    const vector<unique_ptr<BipartitionList>>& vecBipartL)
 {
   vector<string> all_elements;
   map<string, bool> bip;
@@ -236,7 +236,7 @@ unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncode(
   if (vecBipartL.size() == 0)
     throw Exception("Empty vector passed");
 
-  vector< vector<string> > vecElementLists;
+  vector< vector<string>> vecElementLists;
   for (auto& vi : vecBipartL)
   {
     vecElementLists.push_back(vi->getElementNames());
@@ -270,7 +270,9 @@ unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncode(
 
   vector<unique_ptr<Sequence>> vec_sequences;
   for (size_t i = 0; i < all_elements.size(); i++)
+  {
     vec_sequences.push_back(make_unique<Sequence>(all_elements[i], sequences[i], alpha));
+  }
 
   VectorSequenceContainer vec_seq_cont(alpha, vec_sequences);
 
@@ -282,7 +284,7 @@ unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncode(
 /******************************************************************************/
 
 unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncodeMultilabel(
-  const vector<unique_ptr<BipartitionList> >& vecBipartL)
+    const vector<unique_ptr<BipartitionList>>& vecBipartL)
 {
   vector<string> all_elements;
   map<string, bool> bip;
@@ -293,7 +295,7 @@ unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncodeMultilabel(
   if (vecBipartL.size() == 0)
     throw Exception("Empty vector passed");
 
-  vector< vector<string> > vecElementLists;
+  vector< vector<string>> vecElementLists;
   for (auto& vi : vecBipartL)
   {
     vecElementLists.push_back(vi->getElementNames());
@@ -350,7 +352,9 @@ unique_ptr<VectorSiteContainer> BipartitionTools::MRPEncodeMultilabel(
 
   vector<unique_ptr<Sequence>> vec_sequences;
   for (size_t i = 0; i < all_elements.size(); i++)
+  {
     vec_sequences.push_back(make_unique<Sequence>(all_elements[i], sequences[i], alpha));
+  }
 
   VectorSequenceContainer vec_seq_cont(alpha, vec_sequences);
 

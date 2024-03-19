@@ -16,9 +16,9 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     bool paramRates) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(
-      gCode->getSourceAlphabet(),
-      std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      prefix),
+    gCode->getSourceAlphabet(),
+    std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    prefix),
   hasParametrizedRates_(paramRates),
   gCode_(gCode)
 {
@@ -62,9 +62,9 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     bool paramRates) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(
-      gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      prefix),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    prefix),
   hasParametrizedRates_(paramRates),
   gCode_(gCode)
 {

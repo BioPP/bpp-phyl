@@ -52,18 +52,18 @@ class SENCA :
 {
 public:
   SENCA(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::unique_ptr<FrequencySetInterface> pfit,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      std::unique_ptr<FrequencySetInterface> pfit,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   SENCA(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::unique_ptr<FrequencySetInterface> pfit,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      std::unique_ptr<FrequencySetInterface> pfit,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~SENCA() {}
 
@@ -107,7 +107,6 @@ public:
   {
     return AbstractCodonFitnessSubstitutionModel::hasCodonFrequencySet();
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_SENCA_H

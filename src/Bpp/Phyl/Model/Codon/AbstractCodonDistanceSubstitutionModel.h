@@ -68,10 +68,10 @@ public:
    *       (default=false).
    */
   AbstractCodonDistanceSubstitutionModel(
-    std::shared_ptr<const AlphabetIndex2> pdist,
-    std::shared_ptr<const GeneticCode> pgencode,
-    const std::string& prefix,
-    bool paramSynRate = false);
+      std::shared_ptr<const AlphabetIndex2> pdist,
+      std::shared_ptr<const GeneticCode> pgencode,
+      const std::string& prefix,
+      bool paramSynRate = false);
 
   AbstractCodonDistanceSubstitutionModel(const AbstractCodonDistanceSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -84,7 +84,7 @@ public:
   {}
 
   AbstractCodonDistanceSubstitutionModel& operator=(
-    const AbstractCodonDistanceSubstitutionModel& model)
+      const AbstractCodonDistanceSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
     pdistance_ = model.pdistance_;

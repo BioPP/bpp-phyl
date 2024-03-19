@@ -14,9 +14,9 @@ AbstractDFPSubstitutionModel::AbstractDFPSubstitutionModel(
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(
-      gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      prefix),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    prefix),
   gCode_(gCode),
   tr_(1), trr_(1), tvv_(1), trv_(1), tsub_(1)
 {
@@ -77,10 +77,10 @@ double AbstractDFPSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
   for (size_t pos = 0; pos < 3; pos++)
   {
     int pi = (int) (pos == 0 ? i / 16 :
-                    (pos == 1 ? (i / 4) % 4
+        (pos == 1 ? (i / 4) % 4
                      : i % 4));
     int pj = (int) (pos == 0 ? j / 16 :
-                    (pos == 1 ? (j / 4) % 4
+        (pos == 1 ? (j / 4) % 4
                      : j % 4));
 
     nts += (pi == pj ? 0 : (abs(pi - pj) == 2 ? 1 : 4));
@@ -114,4 +114,3 @@ double AbstractDFPSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 }
 
 /******************************************************************************/
-

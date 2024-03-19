@@ -66,11 +66,11 @@ public:
 
   /*
    *@brief Get PhyloNode with given name, or null shared_ptr if the
-   *name is not present in the PhyloTree.
+   * name is not present in the PhyloTree.
    *
    */
   std::shared_ptr<PhyloNode> getPhyloNode(const std::string& name) const;
-  
+
   Vdouble getBranchLengths() const;
 
   void resetNodesId();
@@ -89,7 +89,7 @@ public:
    *
    * @param leaves  the vector of leaf names restricting the tree
    */
-  
+
   void pruneTree(std::vector<std::string> leaves);
 
   /**

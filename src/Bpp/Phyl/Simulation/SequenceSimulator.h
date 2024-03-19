@@ -6,7 +6,6 @@
 #define BPP_PHYL_SIMULATION_SEQUENCESIMULATOR_H
 
 
-
 // From bpp-core:
 #include <Bpp/Clonable.h>
 
@@ -38,7 +37,7 @@ public:
   virtual std::vector<std::string> getSequenceNames() const = 0;
 
   virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
-  
+
   virtual const Alphabet& alphabet() const = 0;
 
   virtual void outputInternalSequences(bool inter) = 0;

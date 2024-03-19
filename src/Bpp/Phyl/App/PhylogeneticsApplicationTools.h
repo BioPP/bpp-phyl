@@ -96,7 +96,7 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    * @return A new vector of Tree objects according to the specified options.
    */
-  
+
   static std::vector<std::unique_ptr<Tree>> getTrees(
     const std::map<std::string, std::string>& params,
     const std::string& prefix = "input.",
@@ -124,9 +124,9 @@ public:
    * @return A new vector of Tree objects according to the specified options.
    */
 
-  static std::map<size_t, std::shared_ptr<PhyloTree> > getPhyloTrees(
+  static std::map<size_t, std::shared_ptr<PhyloTree>> getPhyloTrees(
     const std::map<std::string, std::string>& params,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mSeq,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mSeq,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -219,10 +219,10 @@ public:
   /**
    * @brief The same as before, but returns a map <number, branch model>.
    */
-  static std::map<size_t, std::unique_ptr<BranchModelInterface> > getBranchModels(
+  static std::map<size_t, std::unique_ptr<BranchModelInterface>> getBranchModels(
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
     const std::map<std::string, std::string>& params,
     std::map<std::string, std::string>& unparsedparams,
     const std::string& suffix = "",
@@ -265,10 +265,10 @@ public:
   /**
    * @brief The same, but returns a map <number, shared_ptr<FrequencySetInterface>>.
    */
-  static std::map<size_t, std::unique_ptr<FrequencySetInterface> > getRootFrequencySets(
+  static std::map<size_t, std::unique_ptr<FrequencySetInterface>> getRootFrequencySets(
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
     const std::map<std::string, std::string>& params,
     std::map<std::string, std::string>& sharedparams,
     const std::string& suffix = "",
@@ -328,9 +328,9 @@ public:
    * @return A map of ModelPath shared_pointers objects according to
    * the specified options.
    */
-  static map<size_t, std::unique_ptr<ModelPath> > getModelPaths(
+  static map<size_t, std::unique_ptr<ModelPath>> getModelPaths(
     const std::map<std::string, std::string>& params,
-    const map<size_t, std::shared_ptr<BranchModelInterface> >& mModel,
+    const map<size_t, std::shared_ptr<BranchModelInterface>>& mModel,
     const string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
@@ -353,10 +353,10 @@ public:
    * @return A map of ModelScenarios shared_pointers objects
    * according to the specified options.
    */
-  static map<size_t, std::unique_ptr<ModelScenario> > getModelScenarios(
+  static map<size_t, std::unique_ptr<ModelScenario>> getModelScenarios(
     const std::map<std::string, std::string>& params,
-    const map<size_t, std::shared_ptr<ModelPath> >& mModelPath,
-    const map<size_t, std::shared_ptr<BranchModelInterface> >& mModel,
+    const map<size_t, std::shared_ptr<ModelPath>>& mModelPath,
+    const map<size_t, std::shared_ptr<BranchModelInterface>>& mModel,
     const string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
@@ -410,16 +410,16 @@ public:
    *
    * @return A pointer to a AutonomousSubstitutionProcess.
    */
-   static std::unique_ptr<AutonomousSubstitutionProcessInterface> getSubstitutionProcess(
-     std::shared_ptr<const Alphabet> alphabet,
-     std::shared_ptr<const GeneticCode> gCode,
-     std::shared_ptr<const AlignmentDataInterface> data,
-     const vector<std::shared_ptr<PhyloTree> >& vTree,
-     const std::map<std::string, std::string>& params,
-     const std::string& suffix = "",
-     bool suffixIsOptional = true,
-     bool verbose = true,
-     int warn = 1);
+  static std::unique_ptr<AutonomousSubstitutionProcessInterface> getSubstitutionProcess(
+    std::shared_ptr<const Alphabet> alphabet,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    const vector<std::shared_ptr<PhyloTree>>& vTree,
+    const std::map<std::string, std::string>& params,
+    const std::string& suffix = "",
+    bool suffixIsOptional = true,
+    bool verbose = true,
+    int warn = 1);
 
   /**
    * @brief Builds a  SubstitutionProcessCollection from meny maps of relevant objects.
@@ -442,15 +442,15 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    *
    * @return A shared pointer to a SubstitutionProcessCollection.
-   */  
+   */
   static std::unique_ptr<SubstitutionProcessCollection> getSubstitutionProcessCollection(
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
-    const map<size_t, std::shared_ptr<PhyloTree> >& mTree,
-    const map<size_t, std::shared_ptr<BranchModelInterface> >& mMod,
-    const map<size_t, std::shared_ptr<FrequencySetInterface> >& mRootFreq,
-    const map<size_t, std::shared_ptr<DiscreteDistributionInterface> >& mDist,
-    const map<size_t, std::shared_ptr<ModelScenario> >& mScen,
+    const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
+    const map<size_t, std::shared_ptr<BranchModelInterface>>& mMod,
+    const map<size_t, std::shared_ptr<FrequencySetInterface>>& mRootFreq,
+    const map<size_t, std::shared_ptr<DiscreteDistributionInterface>>& mDist,
+    const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
     const std::map<std::string, std::string>& params,
     map<string, string>& unparsedparams,
     const string& suffix = "",
@@ -483,7 +483,7 @@ public:
    * @brief Build a map of Sequence Evolution, ie ways how sequence
    * evolve, which may use several processes.
    */
-  static std::map<size_t, std::unique_ptr<SequenceEvolution> > getSequenceEvolutions(
+  static std::map<size_t, std::unique_ptr<SequenceEvolution>> getSequenceEvolutions(
     std::shared_ptr<SubstitutionProcessCollection> SPC,
     const std::map<std::string, std::string>& params,
     map<string, string>& unparsedParams,
@@ -504,8 +504,8 @@ public:
   static std::shared_ptr<PhyloLikelihoodContainer> getPhyloLikelihoodContainer(
     Context& context,
     std::shared_ptr<SubstitutionProcessCollection> SPC,
-    std::map<size_t, std::shared_ptr<SequenceEvolution> >& mSeqEvol,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface> >& mData,
+    std::map<size_t, std::shared_ptr<SequenceEvolution>>& mSeqEvol,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
     const std::map<std::string, std::string>& params,
     const string& suffix = "",
     bool suffixIsOptional = true,
@@ -626,7 +626,7 @@ public:
    * @{
    *
    */
-  
+
   /**
    * @brief Write a tree according to options.
    *
@@ -797,18 +797,17 @@ public:
   /**
    * @}
    */
-
   template<class T>
-  static std::map<size_t, std::shared_ptr<T> > uniqueToSharedMap(std::map<size_t, std::unique_ptr<T> >& mu)
+  static std::map<size_t, std::shared_ptr<T>> uniqueToSharedMap(std::map<size_t, std::unique_ptr<T>>& mu)
   {
-    std::map<size_t, std::shared_ptr<T> > ms;
-    for (auto& it : mu) {
+    std::map<size_t, std::shared_ptr<T>> ms;
+    for (auto& it : mu)
+    {
       std::shared_ptr<T> pt = std::move(it.second);
       ms.emplace(it.first, pt);
     }
     return ms;
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_APP_PHYLOGENETICSAPPLICATIONTOOLS_H

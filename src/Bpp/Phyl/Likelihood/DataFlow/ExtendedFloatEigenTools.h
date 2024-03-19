@@ -143,9 +143,8 @@ protected:
   Eigen::Index nrow_;
 
 private:
-
   VecType tmp_;
-  
+
 public:
   ExtendedFloatRow(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index nrow) :
     efMat_(der), nrow_(nrow), tmp_(efMat_.float_part().row(nrow_)) {}
@@ -163,14 +162,12 @@ public:
    * of both are to be fit, as in denorm_add method.
    *
    */
-  
   ExtendedFloatRow& operator=(const ExtendedFloatEigen<1, C, EigenType>& row)
   {
-    efMat_.float_part().row(nrow_) = row.float_part() * constexpr_power<double>(ExtendedFloat::radix, row.exponent_part()-efMat_.exponent_part());
+    efMat_.float_part().row(nrow_) = row.float_part() * constexpr_power<double>(ExtendedFloat::radix, row.exponent_part() - efMat_.exponent_part());
     efMat_.normalize();
     return *this;
   }
-
 };
 
 /*
@@ -189,9 +186,8 @@ protected:
   Eigen::Index ncol_;
 
 private:
-
   VecType tmp_;
-  
+
 public:
   ExtendedFloatCol(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index ncol) :
     efMat_(der), ncol_(ncol), tmp_(efMat_.float_part().col(ncol_)) {}
@@ -201,25 +197,29 @@ public:
    * of both are to be fit, as in denorm_add method.
    *
    */
-
-  const ExtType& exponent_part () const {
-    return efMat_.exponent_part(); }
-
-  const VecType& float_part () const {
-    return tmp_;
-  }
-
-  ExtType& exponent_part () {
+  const ExtType& exponent_part () const
+  {
     return efMat_.exponent_part();
   }
 
-  VecType& float_part () {
+  const VecType& float_part () const
+  {
+    return tmp_;
+  }
+
+  ExtType& exponent_part ()
+  {
+    return efMat_.exponent_part();
+  }
+
+  VecType& float_part ()
+  {
     return tmp_;
   }
 
   ExtendedFloatCol& operator=(const ExtendedFloatEigen<R, 1, EigenType>& col)
   {
-    efMat_.float_part().col(ncol_) = col.float_part() * constexpr_power<double>(ExtendedFloat::radix, col.exponent_part()-efMat_.exponent_part());
+    efMat_.float_part().col(ncol_) = col.float_part() * constexpr_power<double>(ExtendedFloat::radix, col.exponent_part() - efMat_.exponent_part());
     efMat_.normalize();
     return *this;
   }
@@ -235,7 +235,6 @@ public:
   //   EFtmp_.set_exponent_part(exponent_part());
   //   return EFtmp_;
   // }
-
 };
 }
 

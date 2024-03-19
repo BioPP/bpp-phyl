@@ -8,15 +8,15 @@ using namespace bpp;
 using namespace std;
 
 OneProcessSequenceSubstitutionMapping::OneProcessSequenceSubstitutionMapping(
-    std::shared_ptr<OneProcessSequencePhyloLikelihood> spp, 
+    std::shared_ptr<OneProcessSequencePhyloLikelihood> spp,
     std::shared_ptr<SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights,
     std::shared_ptr<const AlphabetIndex2> distances) :
   AbstractSinglePhyloSubstitutionMapping(
-      spp->substitutionProcess().parametrizablePhyloTree().getGraph(),
-      reg,
-      weights,
-      distances),
+    spp->substitutionProcess().parametrizablePhyloTree().getGraph(),
+    reg,
+    weights,
+    distances),
   pOPSP_(spp)
 {
   setBranchedModelSet_();
@@ -45,19 +45,19 @@ OneProcessSequenceSubstitutionMapping::OneProcessSequenceSubstitutionMapping(
 }
 
 void OneProcessSequenceSubstitutionMapping::computeNormalizations(
-  const ParameterList& nullParams,
-  short unresolvedOption,
-  bool verbose)
+    const ParameterList& nullParams,
+    short unresolvedOption,
+    bool verbose)
 {
   matchParametersValues(nullParams);
-  
+
   factors_ = SubstitutionMappingTools::computeNormalizations(
-    getLikelihoodCalculationSingleProcess(),
-    shared_from_this(),
-    getSubstitutionRegister(),
-    getDistances(),
-    unresolvedOption,
-    verbose);
+        getLikelihoodCalculationSingleProcess(),
+        shared_from_this(),
+        getSubstitutionRegister(),
+        getDistances(),
+        unresolvedOption,
+        verbose);
 }
 
 void OneProcessSequenceSubstitutionMapping::setBranchedModelSet_()

@@ -18,7 +18,7 @@
 
 namespace bpp
 {
-  class CondLikelihood : public Value<Eigen::MatrixXd>
+class CondLikelihood : public Value<Eigen::MatrixXd>
 {
 private:
   /**
@@ -38,7 +38,7 @@ public:
     // dependency on the name, to make objects different
     checkNthDependencyIsValue<std::string>(typeid(CondLikelihood), deps, 1);
 
-    return cachedAs<Value<Eigen::MatrixXd> >(c, std::make_shared<CondLikelihood>(std::move (deps), dim));
+    return cachedAs<Value<Eigen::MatrixXd>>(c, std::make_shared<CondLikelihood>(std::move (deps), dim));
   }
 
   CondLikelihood (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
@@ -132,7 +132,7 @@ private:
    * parCondLik_(i,j) corresponds to Pr(x_1...x_j, y_{j+1}=i)/Pr(x_1...x_j),
    * where the x are the observed states, and y the hidden states.
    *
-   * @f$ \sum_i \text{parCondLik\_(i,j)} = 1 @f$   
+   * @f$ \sum_i \text{parCondLik\_(i,j)} = 1 @f$
    */
 
   std::vector<Eigen::VectorXd> parCondLik_;
@@ -160,7 +160,7 @@ public:
     auto sself = std::make_shared<Self>(std::move (deps), dim);
     sself->build(c);
 
-    return cachedAs<Value<RowLik> >(c, sself);
+    return cachedAs<Value<RowLik>>(c, sself);
   }
 
   ForwardHmmLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
@@ -180,20 +180,20 @@ public:
 
     condLik_ = CondLikelihood::create(c, {this->shared_from_this(), fname}, targetDimension_);
 
-    const auto& hmmEq = dynamic_pointer_cast<Value<Eigen::VectorXd> >(this->dependency(0))->targetValue();
+    const auto& hmmEq = dynamic_pointer_cast<Value<Eigen::VectorXd>>(this->dependency(0))->targetValue();
 
     if (hmmEq.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad dimension for starting vector", size_t(hmmEq.rows()), size_t(targetDimension_.rows));
 
 
-    const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd> >(this->dependency(1))->targetValue();
+    const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd>>(this->dependency(1))->targetValue();
 
     if (hmmTrans.cols() != hmmTrans.rows())
       throw BadSizeException("ForwardHmmLikelihood_DF: Transition matrix should be square", size_t(hmmTrans.cols()), size_t(hmmTrans.rows()));
     if (hmmTrans.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad number of rows for transition matrix", size_t(hmmTrans.rows()), size_t(targetDimension_.rows));
 
-    const auto& hmmEmis = dynamic_pointer_cast<Value<MatrixLik> >(this->dependency(2))->targetValue();
+    const auto& hmmEmis = dynamic_pointer_cast<Value<MatrixLik>>(this->dependency(2))->targetValue();
 
     if (hmmEmis.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad number of states for emission matrix", size_t(hmmEmis.rows()), size_t(targetDimension_.rows));
@@ -311,7 +311,7 @@ public:
     auto sself = std::make_shared<Self>(std::move (deps), dim);
     sself->build(c);
 
-    return cachedAs<Value<RowLik> >(c, sself);
+    return cachedAs<Value<RowLik>>(c, sself);
   }
 
   ForwardHmmDLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
@@ -444,7 +444,7 @@ public:
     auto sself = std::make_shared<Self>(std::move (deps), dim);
     sself->build(c);
 
-    return cachedAs<Value<RowLik> >(c, sself);
+    return cachedAs<Value<RowLik>>(c, sself);
   }
 
   ForwardHmmD2Likelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
@@ -537,7 +537,7 @@ public:
     checkNthDependencyIsValue<Eigen::MatrixXd>(typeid (Self), deps, 1);
     checkNthDependencyIsValue<MatrixLik>(typeid (Self), deps, 2);
 
-    return cachedAs<Value<Eigen::MatrixXd> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<Eigen::MatrixXd>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   BackwardHmmLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)

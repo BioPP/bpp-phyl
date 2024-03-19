@@ -41,7 +41,7 @@ public:
   static void getAncestralFrequencies(
     const TreeLikelihoodInterface& tl,
     size_t site,
-    std::map<int, std::vector<double> >& frequencies,
+    std::map<int, std::vector<double>>& frequencies,
     bool alsoForLeaves = false);
 
   /**
@@ -59,7 +59,7 @@ public:
    */
   static void getAncestralFrequencies(
     const TreeLikelihoodInterface& tl,
-    std::map<int, std::vector<double> >& frequencies,
+    std::map<int, std::vector<double>>& frequencies,
     bool alsoForLeaves = false);
 
 private:
@@ -73,7 +73,7 @@ private:
     size_t siteIndex,
     int parentId,
     const std::vector<double>& ancestralFrequencies,
-    std::map<int, std::vector<double> >& frequencies,
+    std::map<int, std::vector<double>>& frequencies,
     bool alsoForLeaves);
 };
 } // end of namespace bpp.

@@ -72,7 +72,7 @@ public:
   }
 
   const TreeTemplate<Node>& tree() const override { return *tree_; }
-  
+
   std::shared_ptr<const TreeTemplate<Node>> getTree() const override { return tree_; }
 
 protected:

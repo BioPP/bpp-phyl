@@ -19,7 +19,7 @@ namespace bpp
 {
 class FrequencySetInterface;
 
-/** 
+/**
  * @brief Data flow node representing a Frequencies Set
  * configured with parameter values.
  *
@@ -33,7 +33,7 @@ class FrequencySetInterface;
  * The dummy value is implemented as a pointer to the internal
  * frequencies set for simplicity.
  */
-class ConfiguredFrequencySet : 
+class ConfiguredFrequencySet :
   public Value<const FrequencySetInterface*>,
   public AbstractParametrizable
 {

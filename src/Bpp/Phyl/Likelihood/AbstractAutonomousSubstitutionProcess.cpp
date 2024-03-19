@@ -31,15 +31,15 @@ AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(
   modelScenario_(0)
 {
   if (tree)
-    addParameters_(tree->getParameters());  // Branch lengths
+    addParameters_(tree->getParameters()); // Branch lengths
   if (rootFrequencies_)
     addParameters_(rootFrequencies_->getParameters());
 }
 
 AbstractAutonomousSubstitutionProcess::AbstractAutonomousSubstitutionProcess(const AbstractAutonomousSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
-  pTree_(asp.pTree_?asp.pTree_->clone():0),
-  rootFrequencies_(asp.rootFrequencies_?asp.rootFrequencies_->clone():0),
+  pTree_(asp.pTree_ ? asp.pTree_->clone() : 0),
+  rootFrequencies_(asp.rootFrequencies_ ? asp.rootFrequencies_->clone() : 0),
   modelScenario_(asp.modelScenario_) // this has to be specified by inheriting class to follow model links
 {}
 
@@ -47,8 +47,8 @@ AbstractAutonomousSubstitutionProcess& AbstractAutonomousSubstitutionProcess::op
 {
   AbstractParameterAliasable::operator=(*this);
 
-  pTree_.reset(asp.pTree_?asp.pTree_->clone():0);
-  rootFrequencies_.reset(asp.rootFrequencies_?asp.rootFrequencies_->clone():0);
+  pTree_.reset(asp.pTree_ ? asp.pTree_->clone() : 0);
+  rootFrequencies_.reset(asp.rootFrequencies_ ? asp.rootFrequencies_->clone() : 0);
   modelScenario_ = asp.modelScenario_; // this has to be specified by inheriting class to follow model links
   return *this;
 }
@@ -72,4 +72,3 @@ void AbstractAutonomousSubstitutionProcess::setPhyloTree(const PhyloTree& phyloT
   pTree_.reset(new ParametrizablePhyloTree(phyloTree));
   addParameters_(pTree_->getParameters());
 }
-  

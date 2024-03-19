@@ -73,7 +73,7 @@ public:
    */
   static std::map<size_t, std::shared_ptr<Tree>> getTrees(
     const std::map<std::string, std::string>& params,
-    const std::map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
+    const std::map<size_t, std::shared_ptr<AlignmentDataInterface>>& mSeq,
     std::map<std::string, std::string>& unparsedParams,
     const std::string& prefix = "input.",
     const std::string& suffix = "",
@@ -340,7 +340,6 @@ public:
    *                      : true).
    */
   static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn = 1, bool withAlias = true);
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_APP_PHYLOGENETICSAPPLICATIONTOOLS_H

@@ -41,8 +41,8 @@ protected:
 
 public:
   AbstractFromSubstitutionModelTransitionModel(
-    std::unique_ptr<SubstitutionModelInterface> subModel,
-    const std::string& prefix);
+      std::unique_ptr<SubstitutionModelInterface> subModel,
+      const std::string& prefix);
 
   AbstractFromSubstitutionModelTransitionModel(const AbstractFromSubstitutionModelTransitionModel& fmsm);
 

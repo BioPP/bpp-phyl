@@ -138,11 +138,11 @@ public:
 
 public:
   std::shared_ptr<const Alphabet> getAlphabet() const override { return alphabet_; }
-  
+
   const Alphabet& alphabet() const override { return *alphabet_; }
 
   const StateMapInterface& stateMap() const override { return *stateMap_; }
-  
+
   std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
 
   const Vdouble& getFrequencies() const override { return freq_; }
@@ -180,7 +180,6 @@ protected:
   const double& getFreq_(size_t i) const { return freq_[i]; }
   void setFrequencies_(const std::vector<double>& frequencies) { freq_ = frequencies; }
 };
-
 
 
 /**

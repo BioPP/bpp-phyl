@@ -72,9 +72,9 @@ public:
    *       (default categories:   "AGPV", "RQEHKWY", "NDCST", "ILMF")
    */
   AbstractCodonClusterAASubstitutionModel(
-    std::shared_ptr<const GeneticCode> pgencode,
-    const std::string& prefix,
-    const std::vector<uint>& assign = {1, 2, 3, 3, 3, 2, 2, 1, 2, 4, 4, 2, 4, 4, 1, 3, 3, 2, 2, 1});
+      std::shared_ptr<const GeneticCode> pgencode,
+      const std::string& prefix,
+      const std::vector<uint>& assign = {1, 2, 3, 3, 3, 2, 2, 1, 2, 4, 4, 2, 4, 4, 1, 3, 3, 2, 2, 1});
 
   AbstractCodonClusterAASubstitutionModel(const AbstractCodonClusterAASubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -86,7 +86,7 @@ public:
   {}
 
   AbstractCodonClusterAASubstitutionModel& operator=(
-    const AbstractCodonClusterAASubstitutionModel& model)
+      const AbstractCodonClusterAASubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
     pgencode_ = model.pgencode_;
@@ -106,7 +106,6 @@ public:
   virtual ~AbstractCodonClusterAASubstitutionModel() {}
 
 public:
-
   void fireParameterChanged(const ParameterList& parameters) override;
 
   double getCodonsMulRate(size_t i, size_t j) const override;

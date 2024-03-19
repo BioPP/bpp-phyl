@@ -92,10 +92,10 @@ FullFrequencySet::FullFrequencySet(
 }
 
 FullFrequencySet::FullFrequencySet(
-    shared_ptr<const StateMapInterface> stateMap, 
-    const vector<double>& initFreqs, 
-    bool allowNullFreqs, 
-    unsigned short method, 
+    shared_ptr<const StateMapInterface> stateMap,
+    const vector<double>& initFreqs,
+    bool allowNullFreqs,
+    unsigned short method,
     const string& name) :
   AbstractFrequencySet(
     stateMap,
@@ -162,7 +162,7 @@ FixedFrequencySet::FixedFrequencySet(
     name)
 {
   size_t n = stateMap->getNumberOfModelStates();
-  setFrequencies_(std::vector<double>(n , 1./(double)n));
+  setFrequencies_(std::vector<double>(n, 1. / (double)n));
 }
 
 void FixedFrequencySet::setFrequencies(const vector<double>& frequencies)

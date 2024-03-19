@@ -55,23 +55,23 @@ public:
 
   // biggest_normalized_radix_power = max { n ; (radix^n)^allowed_product_without_normalization is representable }
   static constexpr int biggest_normalized_radix_power =
-    biggest_repr_radix_power / allowed_product_without_normalization;
+      biggest_repr_radix_power / allowed_product_without_normalization;
 
 
   // biggest_normalized_value = max { f ; f^allowed_product_without_normalization is representable }
   static constexpr FloatType biggest_normalized_value =
-    constexpr_power (FloatType (radix), biggest_normalized_radix_power);
+      constexpr_power (FloatType (radix), biggest_normalized_radix_power);
 
   // smallest_repr_radix_power = min { n ; radix^n is representable }
   static constexpr int smallest_repr_radix_power = std::numeric_limits<FloatType>::min_exponent + 1;
 
   // smallest_normalized_radix_power = min { n ; (radix^n)^allowed_product_denorm is representable }
   static constexpr int smallest_normalized_radix_power =
-    -((-smallest_repr_radix_power) / allowed_product_without_normalization);
+      -((-smallest_repr_radix_power) / allowed_product_without_normalization);
 
   // smallest_normalized_value = min { f ; f^allowed_product_denorm is representable }
   static constexpr FloatType smallest_normalized_value =
-    constexpr_power (FloatType (radix), smallest_normalized_radix_power);
+      constexpr_power (FloatType (radix), smallest_normalized_radix_power);
 
   // factors to scale f_ to renormalize.
   static constexpr FloatType normalize_big_factor = 1. / biggest_normalized_value;
@@ -338,7 +338,7 @@ public:
   {
     return convert(*this) >= rhs;
   }
-  
+
   inline bool operator>(const ExtendedFloat& rhs) const
   {
     return exponent_part() > rhs.exponent_part() || (exponent_part() == rhs.exponent_part() && float_part() > rhs.float_part());

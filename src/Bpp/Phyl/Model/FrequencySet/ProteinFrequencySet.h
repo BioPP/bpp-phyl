@@ -45,10 +45,10 @@ public:
       unsigned short method = 1,
       const std::string& name = "Full") :
     FullFrequencySet(
-	std::make_shared<const CanonicalStateMap>(alphabet, false),
-	allowNullFreqs,
-	method,
-	name)
+      std::make_shared<const CanonicalStateMap>(alphabet, false),
+      allowNullFreqs,
+      method,
+      name)
   {}
 
   FullProteinFrequencySet(
@@ -58,11 +58,11 @@ public:
       unsigned short method = 1,
       const std::string& name = "Full") :
     FullFrequencySet(
-        std::make_shared<const CanonicalStateMap>(alphabet, false),
-	initFreqs,
-	allowNullFreqs,
-	method,
-	name)
+      std::make_shared<const CanonicalStateMap>(alphabet, false),
+      initFreqs,
+      allowNullFreqs,
+      method,
+      name)
   {}
 
   FullProteinFrequencySet* clone() const override { return new FullProteinFrequencySet(*this); }
@@ -89,9 +89,9 @@ public:
       const std::vector<double>& initFreqs,
       const std::string& name = "Fixed") :
     FixedFrequencySet(
-	std::make_shared<const CanonicalStateMap>(alphabet, false),
-       	initFreqs,
-	name)
+      std::make_shared<const CanonicalStateMap>(alphabet, false),
+      initFreqs,
+      name)
   {}
 
   /**
@@ -102,8 +102,8 @@ public:
       std::shared_ptr<const ProteicAlphabet> alphabet,
       const std::string& name = "Fixed") :
     FixedFrequencySet(
-	std::make_shared<const CanonicalStateMap>(alphabet, false),
-       	name)
+      std::make_shared<const CanonicalStateMap>(alphabet, false),
+      name)
   {}
 
   FixedProteinFrequencySet* clone() const override { return new FixedProteinFrequencySet(*this); }
@@ -130,9 +130,9 @@ public:
       const std::string& path,
       size_t nCol = 1) :
     UserFrequencySet(
-	std::make_shared<const CanonicalStateMap>(alphabet, false),
-       	path,
-       	nCol)
+      std::make_shared<const CanonicalStateMap>(alphabet, false),
+      path,
+      nCol)
   {}
 
   UserProteinFrequencySet* clone() const override { return new UserProteinFrequencySet(*this); }

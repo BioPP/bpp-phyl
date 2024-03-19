@@ -58,9 +58,9 @@ public:
    *        distance object.
    */
   KroneckerCodonDistanceSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceSubstitutionModel object
@@ -76,10 +76,10 @@ public:
    *        distance object.
    */
   KroneckerCodonDistanceSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    const std::vector<std::set< size_t> >& vPos,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      const std::vector<std::set< size_t>>& vPos,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceSubstitutionModel object
@@ -97,11 +97,11 @@ public:
    *   distance object.
    */
   KroneckerCodonDistanceSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceSubstitutionModel object
@@ -119,12 +119,12 @@ public:
    *   distance object.
    */
   KroneckerCodonDistanceSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    const std::vector<std::set< size_t> >& vPos,
-    std::shared_ptr<const AlphabetIndex2> pdist = 0);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      const std::vector<std::set< size_t>>& vPos,
+      std::shared_ptr<const AlphabetIndex2> pdist = 0);
 
   virtual ~KroneckerCodonDistanceSubstitutionModel() {}
 

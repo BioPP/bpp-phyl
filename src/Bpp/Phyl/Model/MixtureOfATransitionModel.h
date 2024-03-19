@@ -76,10 +76,10 @@ protected:
 
 public:
   MixtureOfATransitionModel(
-    std::shared_ptr<const Alphabet> alpha,
-    std::unique_ptr<TransitionModelInterface> model,
-    std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
-    int ffrom = -1, int tto = -1);
+      std::shared_ptr<const Alphabet> alpha,
+      std::unique_ptr<TransitionModelInterface> model,
+      std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
+      int ffrom = -1, int tto = -1);
 
   MixtureOfATransitionModel(const MixtureOfATransitionModel&);
 
@@ -113,7 +113,7 @@ public:
   {
     return AbstractMixedTransitionModel::nModel(i);
   }
-  
+
   /**
    * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description of the parameters numbers.
@@ -137,7 +137,7 @@ public:
    */
   bool hasDistribution(std::string& parName) const
   {
-    return (distributionMap_.find(parName) != distributionMap_.end());
+    return distributionMap_.find(parName) != distributionMap_.end();
   }
 
   /**
@@ -165,9 +165,7 @@ public:
   int to() const { return to_; }
 
 protected:
-
   void updateMatrices_() override;
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_MIXTUREOFATRANSITIONMODEL_H

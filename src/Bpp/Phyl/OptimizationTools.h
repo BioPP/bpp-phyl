@@ -55,7 +55,6 @@ public:
 };
 
 
-
 /**
  * @brief Optimization methods for phylogenetic inference.
  *

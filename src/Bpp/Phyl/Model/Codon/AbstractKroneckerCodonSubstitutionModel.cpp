@@ -15,9 +15,9 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
-      gCode->getSourceAlphabet(), 
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      prefix),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -39,13 +39,13 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
     shared_ptr<const GeneticCode> gCode,
     unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    const std::vector<std::set< size_t> >& vPos,
+    const std::vector<std::set< size_t>>& vPos,
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
-      gCode->getSourceAlphabet(), 
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      prefix),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -73,9 +73,9 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
-      gCode->getSourceAlphabet(), 
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      prefix),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -97,7 +97,7 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
   VSubMod_[2]->enableEigenDecomposition(0);
   addParameters_(VSubMod_[2]->getParameters());
-  
+
   initGenerators_();
 }
 
@@ -106,13 +106,13 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
     unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
     unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
     unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    const std::vector<std::set< size_t> >& vPos,
+    const std::vector<std::set< size_t>>& vPos,
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
-      gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      prefix),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);

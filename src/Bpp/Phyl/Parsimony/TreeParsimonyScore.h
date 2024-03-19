@@ -55,14 +55,14 @@ public:
    * @return The tree associated to this object.
    */
   virtual const Tree& tree() const = 0;
- 
+
   /**
    * @brief Get the state map associated to this instance.
    *
    * @return The underlying state map.
    */
   virtual const StateMapInterface& stateMap() const = 0;
-  
+
   /**
    * @brief Get the state map associated to this instance.
    *

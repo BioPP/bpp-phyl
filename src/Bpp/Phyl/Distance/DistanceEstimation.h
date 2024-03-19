@@ -25,7 +25,7 @@
 
 namespace bpp
 {
-  class DistanceEstimation :
+class DistanceEstimation :
   public virtual Clonable
 {
 private:
@@ -54,9 +54,9 @@ public:
    *  - 4=3 + likelihood object verbose enabled
    */
   DistanceEstimation(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rateDist,
-    size_t verbose = 1) :
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rateDist,
+      size_t verbose = 1) :
     model_(model),
     rateDist_(rateDist),
     sites_(0),
@@ -87,11 +87,11 @@ public:
    *  @param computeMat if true the computeMatrix() method is called.
    */
   DistanceEstimation(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rateDist,
-    std::shared_ptr<const AlignmentDataInterface> sites,
-    size_t verbose = 1,
-    bool computeMat = true) :
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rateDist,
+      std::shared_ptr<const AlignmentDataInterface> sites,
+      size_t verbose = 1,
+      bool computeMat = true) :
     model_(model),
     rateDist_(rateDist),
     sites_(sites),
@@ -225,15 +225,15 @@ public:
 
   std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const
   {
-     return rateDist_;
+    return rateDist_;
   }
-  
+
   void setRateDistribution(std::shared_ptr<DiscreteDistributionInterface> rateDist = nullptr) { rateDist_ = rateDist; }
 
   void setData(std::shared_ptr<const AlignmentDataInterface> sites = nullptr) { sites_ = sites; }
 
   std::shared_ptr<const AlignmentDataInterface> getData() const { return sites_; }
-  
+
   const AlignmentDataInterface& data() const { return *sites_; }
 
   void setOptimizer(std::shared_ptr<OptimizerInterface> optimizer)
@@ -242,11 +242,11 @@ public:
   }
 
   std::shared_ptr<const OptimizerInterface> getOptimizer() const { return optimizer_; }
-  
+
   std::shared_ptr<OptimizerInterface> getOptimizer() { return optimizer_; }
 
   const OptimizerInterface& optimizer() const { return *optimizer_; }
-  
+
   OptimizerInterface& optimizer() { return *optimizer_; }
 
   void resetOptimizer() { optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_); }

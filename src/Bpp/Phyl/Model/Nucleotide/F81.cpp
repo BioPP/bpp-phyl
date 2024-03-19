@@ -17,11 +17,11 @@ using namespace std;
 /******************************************************************************/
 
 F81::F81(
-  shared_ptr<const NucleicAlphabet> alpha,
-  double piA,
-  double piC,
-  double piG,
-  double piT) :
+    shared_ptr<const NucleicAlphabet> alpha,
+    double piA,
+    double piC,
+    double piG,
+    double piT) :
   AbstractParameterAliasable("F81."),
   AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "F81."),
   r_(),

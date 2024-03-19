@@ -12,8 +12,8 @@ using namespace bpp;
 /******************************************************************************/
 
 PartitionSequenceEvolution::PartitionSequenceEvolution(
-  shared_ptr<SubstitutionProcessCollection> processColl,
-  std::vector<size_t>& posProc) :
+    shared_ptr<SubstitutionProcessCollection> processColl,
+    std::vector<size_t>& posProc) :
   MultiProcessSequenceEvolution(processColl, vector<size_t>()),
   vProc_(),
   vSize_(0),
@@ -40,4 +40,3 @@ PartitionSequenceEvolution::PartitionSequenceEvolution(
     nProc_.push_back(it.first);
   }
 }
-

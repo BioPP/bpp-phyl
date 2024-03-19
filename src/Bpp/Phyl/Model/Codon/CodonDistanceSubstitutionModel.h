@@ -49,9 +49,9 @@ public:
    * @param pdist optional pointer to a distance between amino-acids
    */
   CodonDistanceSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::shared_ptr<const AlphabetIndex2> pdist);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      std::shared_ptr<const AlphabetIndex2> pdist);
 
   /**
    * @brief Build a new CodonDistanceSubstitutionModel object
@@ -66,11 +66,11 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistanceSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::shared_ptr<const AlphabetIndex2> pdist);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      std::shared_ptr<const AlphabetIndex2> pdist);
 
   virtual ~CodonDistanceSubstitutionModel() {}
 

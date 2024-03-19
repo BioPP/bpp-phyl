@@ -39,11 +39,9 @@ public:
   virtual ~AbstractBiblioTransitionModel() {}
 
 protected:
-
   virtual void updateMatrices_();
 
 public:
-
   /**
    * @brief get the name of a parameter from its name in a submodel
    *
@@ -108,7 +106,6 @@ class AbstractBiblioSubstitutionModel :
   public virtual AbstractBiblioTransitionModel,
   public virtual AbstractTotallyWrappedSubstitutionModel
 {
-	
 public:
   AbstractBiblioSubstitutionModel(const std::string& prefix) :
     AbstractBiblioTransitionModel(prefix),
@@ -129,7 +126,6 @@ public:
   virtual ~AbstractBiblioSubstitutionModel() {}
 
 protected:
-
   void updateMatrices_() override
   {
     AbstractBiblioTransitionModel::updateMatrices_();

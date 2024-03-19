@@ -27,7 +27,7 @@ class RHomogeneousMixedTreeLikelihood :
   public RHomogeneousTreeLikelihood
 {
 private:
-  std::vector< std::shared_ptr<RHomogeneousTreeLikelihood> > treeLikelihoodsContainer_;
+  std::vector< std::shared_ptr<RHomogeneousTreeLikelihood>> treeLikelihoodsContainer_;
   std::vector<double> probas_;
 
 public:
@@ -49,12 +49,12 @@ public:
    * @throw Exception in an error occured.
    */
   RHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true,
-    bool usePatterns = true);
+      const Tree& tree,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true,
+      bool usePatterns = true);
 
   /**
    * @brief Build a new RHomogeneousMixedTreeLikelihood object with data.
@@ -72,13 +72,13 @@ public:
    * @throw Exception in an error occured.
    */
   RHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true,
-    bool usePatterns = true);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true,
+      bool usePatterns = true);
 
   RHomogeneousMixedTreeLikelihood(const RHomogeneousMixedTreeLikelihood& lik);
 

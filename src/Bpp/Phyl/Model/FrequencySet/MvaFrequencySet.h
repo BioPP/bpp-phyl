@@ -54,7 +54,7 @@ protected:
 
 public:
   std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
-  { 
+  {
     return std::dynamic_pointer_cast<const ProteicAlphabet>(getAlphabet());
   }
 

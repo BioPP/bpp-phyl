@@ -104,7 +104,6 @@ public:
 
 private:
   void initialize_(FrequencySetInterface& freqSet, const AlignmentDataInterface& data);
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOFREQUENCYSETFORMAT_H

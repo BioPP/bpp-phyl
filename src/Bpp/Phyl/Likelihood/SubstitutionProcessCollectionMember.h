@@ -46,7 +46,7 @@ private:
    */
 
   std::map<unsigned int, size_t> nodeToModel_;
-  std::map<size_t, std::vector<unsigned int> > modelToNodes_;
+  std::map<size_t, std::vector<unsigned int>> modelToNodes_;
 
   /**
    * @brief The number of the tree: 0 means no assigned tree
@@ -132,7 +132,7 @@ private:
   }
 
   virtual ~SubstitutionProcessCollectionMember() {}
-  
+
   struct Deleter
   {
     void operator()(SubstitutionProcessCollectionMember* sm) const
@@ -144,28 +144,27 @@ private:
   SubstitutionProcessCollectionMember* clone() const override { return new SubstitutionProcessCollectionMember(*this); }
 
 public:
-
   const SubstitutionProcessCollection& collection() const
   {
-    if (! pSubProColl_)
+    if (!pSubProColl_)
       throw NullPointerException("SubstitutionProcessCollectionMember::collection(). Member is not associated to any collection.");
     return *pSubProColl_;
   }
 
   SubstitutionProcessCollection& collection()
   {
-    if (! pSubProColl_)
+    if (!pSubProColl_)
       throw NullPointerException("SubstitutionProcessCollectionMember::collection(). Member is not associated to any collection.");
     return *pSubProColl_;
   }
-  
+
   void clear()
   {
     nodeToModel_.clear();
     modelToNodes_.clear();
     nRoot_ = 0;
   }
-  
+
   const SubstitutionProcessCollection* getCollection() const
   {
     return pSubProColl_;
@@ -213,7 +212,7 @@ public:
   }
 
   const BranchModelInterface& model(size_t n) const override;
-  
+
   std::shared_ptr<const BranchModelInterface> getModel(size_t n) const override;
 
   std::shared_ptr<BranchModelInterface> getModel(size_t n);
@@ -364,17 +363,18 @@ public:
    * @return the Tree
    */
   const ParametrizablePhyloTree& parametrizablePhyloTree() const override;
-  
+
   std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const override;
 
   ParametrizablePhyloTree& parametrizablePhyloTree();
-  
+
   std::shared_ptr<ParametrizablePhyloTree> getParametrizablePhyloTree();
 
 public:
   size_t getTreeNumber() const { return nTree_; }
 
-  const BranchModelInterface& model(unsigned int nodeId, size_t classIndex) const override  {
+  const BranchModelInterface& model(unsigned int nodeId, size_t classIndex) const override
+  {
     return model(nodeToModel_.at(nodeId));
   }
 

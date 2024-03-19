@@ -33,11 +33,12 @@ void SitePatterns::init_(
     const AlignmentDataInterface& sequences,
     std::vector<std::string> names)
 {
-
   // positions of the names in sequences list
   std::vector<size_t> posseq;
   for (const auto& n : names)
+  {
     posseq.push_back(sequences.getSequencePosition(n));
+  }
 
   int nbSeq = static_cast<int>(sequences.getNumberOfSequences());
   std::vector<size_t> posnseq;
@@ -57,7 +58,9 @@ void SitePatterns::init_(
   {
     CoreSiteInterface* currentSite = sequences.site(i).clone();
     for (auto pos : posnseq)
+    {
       currentSite->deleteElement(pos);
+    }
 
     SortableSite* ssi = &ss[i];
     ssi->siteS = currentSite->toString();
@@ -111,10 +114,12 @@ unique_ptr<AlignmentDataInterface> SitePatterns::getSites() const
 
   unique_ptr<AlignmentDataInterface> sites;
 
-  if (dynamic_pointer_cast<const Site>(sites_[0])) {
-    //Copy the sites
+  if (dynamic_pointer_cast<const Site>(sites_[0]))
+  {
+    // Copy the sites
     vector<unique_ptr<Site>> vSites;
-    for (auto& s : sites_) {
+    for (auto& s : sites_)
+    {
       auto ptr = unique_ptr<Site>(dynamic_cast<Site*>(s->clone()));
       vSites.push_back(move(ptr));
     }
@@ -123,11 +128,14 @@ unique_ptr<AlignmentDataInterface> SitePatterns::getSites() const
     return sites;
   }
 
-  if (dynamic_pointer_cast<const ProbabilisticSite>(sites_[0])) {
-    //Copy the sites
+  if (dynamic_pointer_cast<const ProbabilisticSite>(sites_[0]))
+  {
+    // Copy the sites
     vector<unique_ptr<ProbabilisticSite>> vSites;
     for (auto& s : sites_)
+    {
       vSites.push_back(unique_ptr<ProbabilisticSite>(dynamic_cast<ProbabilisticSite*>(s->clone())));
+    }
     sites.reset(new ProbabilisticVectorSiteContainer(vSites, alpha_));
     sites->setSequenceNames(names_, true);
     return sites;

@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_PHYLOLIKELIHOODCONTAINER_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Seq/Container/AlignmentData.h>
 
@@ -32,11 +31,11 @@ private:
   std::shared_ptr<CollectionNodes> collectionNodes_;
 
 protected:
-  std::map<size_t, std::shared_ptr<PhyloLikelihoodInterface> >  mPhylo_;
+  std::map<size_t, std::shared_ptr<PhyloLikelihoodInterface>>  mPhylo_;
 
 public:
   PhyloLikelihoodContainer(
-      Context& context, 
+      Context& context,
       std::shared_ptr<SubstitutionProcessCollection> sColl) :
     context_(context),
     collectionNodes_(std::make_shared<CollectionNodes>(context_, sColl)),
@@ -171,7 +170,6 @@ public:
     }
     return nullptr;
   }
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_PHYLOLIKELIHOODCONTAINER_H

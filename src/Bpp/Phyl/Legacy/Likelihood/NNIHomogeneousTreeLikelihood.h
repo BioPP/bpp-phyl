@@ -87,8 +87,8 @@ public:
 
 public:
   void initModel(
-      std::shared_ptr<const TransitionModelInterface> model,
-      std::shared_ptr<const DiscreteDistributionInterface> rDist);
+    std::shared_ptr<const TransitionModelInterface> model,
+    std::shared_ptr<const DiscreteDistributionInterface> rDist);
 
   /**
    * @warning No checking on alphabet size or number of rate classes is performed,
@@ -160,11 +160,11 @@ public:
    * @throw Exception in an error occured.
    */
   NNIHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Build a new NNIHomogeneousTreeLikelihood object.
@@ -179,12 +179,12 @@ public:
    * @throw Exception in an error occured.
    */
   NNIHomogeneousTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Copy constructor.

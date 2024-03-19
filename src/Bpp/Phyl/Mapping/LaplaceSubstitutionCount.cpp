@@ -66,7 +66,7 @@ double LaplaceSubstitutionCount::getNumberOfSubstitutions(size_t initialState, s
   if (length == currentLength_)
     return m_(initialState, finalState);
   if (length < 0.000001)
-    return initialState == finalState ? 0. : 1.;                                                    // Limit case!
+    return initialState == finalState ? 0. : 1.; // Limit case!
   // Else we need to recompute M:
   computeCounts(length);
 

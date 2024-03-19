@@ -36,11 +36,9 @@ class YNGP_M10 :
   public YNGP_M
 {
 private:
-	
   unsigned int nBeta_, nGamma_;
 
 public:
-  
   /**
    * @brief Constructor that requires the number of classes of the
    * BetaDiscreteDistribution and the GammaDiscreteDistribution.
@@ -73,11 +71,9 @@ public:
   }
 
 protected:
-  
   void updateMatrices_() override;
 
 public:
-
   std::string getName() const override { return "YNGP_M10"; }
 
   unsigned int getNBeta() const

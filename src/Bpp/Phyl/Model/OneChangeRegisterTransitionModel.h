@@ -102,7 +102,8 @@ public:
 
   virtual ~OneChangeRegisterTransitionModel() {}
 
-  OneChangeRegisterTransitionModel* clone() const override {
+  OneChangeRegisterTransitionModel* clone() const override
+  {
     return new OneChangeRegisterTransitionModel(*this);
   }
 
@@ -153,7 +154,7 @@ public:
   void setRate(double rate) override { return transitionModel_().setRate(rate); }
 
   double getInitValue(size_t i, int state) const override
-  { 
+  {
     return model().getInitValue(i, state);
   }
 
@@ -176,10 +177,8 @@ public:
    * @}
    */
 
-protected:  
-  
+protected:
   void updateMatrices_();
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ONECHANGEREGISTERTRANSITIONMODEL_H

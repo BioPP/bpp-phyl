@@ -230,7 +230,7 @@ public:
     {
       N* son1 = dynamic_cast<N*>(root_->getSon(0));
       N* son2 = dynamic_cast<N*>(root_->getSon(1));
-      if (son1->isLeaf() && son2->isLeaf()) return false;                                                             // We can't unroot a single branch!
+      if (son1->isLeaf() && son2->isLeaf()) return false; // We can't unroot a single branch!
 
       // We manage to have a subtree in position 0:
       if (son1->isLeaf())
@@ -496,7 +496,7 @@ public:
     {
       for (size_t i = 0; i < root_->getNumberOfSons(); i++)
       {
-        if (root_->getSon(i) == outGroup) return;                                                     // This tree is already rooted appropriately.
+        if (root_->getSon(i) == outGroup) return; // This tree is already rooted appropriately.
       }
       rootId = getRootId();
       unroot();

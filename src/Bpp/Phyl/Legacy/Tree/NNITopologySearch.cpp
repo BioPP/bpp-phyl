@@ -72,9 +72,9 @@ void NNITopologySearch::searchFast()
     {
       // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1)); // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1)); // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -86,8 +86,8 @@ void NNITopologySearch::searchFast()
       if (verbose_ >= 3)
       {
         ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
-                                        + " at " + TextTools::toString(node->getFather()->getId()),
-                                        TextTools::toString(diff));
+            + " at " + TextTools::toString(node->getFather()->getId()),
+            TextTools::toString(diff));
       }
 
       if (diff < 0.)
@@ -95,8 +95,8 @@ void NNITopologySearch::searchFast()
         if (verbose_ >= 2)
         {
           ApplicationTools::displayResult("   Swapping node " + TextTools::toString(node->getId())
-                                          + " at " + TextTools::toString(node->getFather()->getId()),
-                                          TextTools::toString(diff));
+              + " at " + TextTools::toString(node->getFather()->getId()),
+              TextTools::toString(diff));
         }
         searchableTree_->doNNI(node->getId());
         // Notify:
@@ -126,9 +126,9 @@ void NNITopologySearch::searchBetter()
     for (size_t i = nodesSub.size(); i > 0; i--)
     { // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1)); // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1)); // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -143,8 +143,8 @@ void NNITopologySearch::searchBetter()
       if (verbose_ >= 3)
       {
         ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
-                                        + " at " + TextTools::toString(node->getFather()->getId()),
-                                        TextTools::toString(diff));
+            + " at " + TextTools::toString(node->getFather()->getId()),
+            TextTools::toString(diff));
       }
 
       if (diff < 0.)
@@ -162,8 +162,8 @@ void NNITopologySearch::searchBetter()
       Node* node = improving[nodeMin];
       if (verbose_ >= 2)
         ApplicationTools::displayResult("   Swapping node " + TextTools::toString(node->getId())
-                                        + " at " + TextTools::toString(node->getFather()->getId()),
-                                        TextTools::toString(improvement[nodeMin]));
+            + " at " + TextTools::toString(node->getFather()->getId()),
+            TextTools::toString(improvement[nodeMin]));
       searchableTree_->doNNI(node->getId());
 
       // Notify:
@@ -190,9 +190,9 @@ void NNITopologySearch::searchPhyML()
     {
       // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1)); // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));                                                                             // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1)); // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -208,8 +208,8 @@ void NNITopologySearch::searchPhyML()
       if (verbose_ >= 3)
       {
         ApplicationTools::displayResult("   Testing node " + TextTools::toString(node->getId())
-                                        + " at " + TextTools::toString(node->getFather()->getId()),
-                                        TextTools::toString(diff));
+            + " at " + TextTools::toString(node->getFather()->getId()),
+            TextTools::toString(diff));
       }
 
       if (diff < 0.)
@@ -286,8 +286,8 @@ void NNITopologySearch::searchPhyML()
           if (verbose_ >= 2)
           {
             ApplicationTools::displayResult(string("   Swapping node ") + TextTools::toString(nodeId)
-                                            + string(" at ") + TextTools::toString(searchableTree_->topology().getFatherId(nodeId)),
-                                            TextTools::toString(improvement[i]));
+                + string(" at ") + TextTools::toString(searchableTree_->topology().getFatherId(nodeId)),
+                TextTools::toString(improvement[i]));
           }
           searchableTree_->doNNI(improving[i]);
         }

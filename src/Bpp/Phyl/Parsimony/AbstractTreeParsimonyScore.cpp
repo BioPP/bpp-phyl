@@ -12,10 +12,10 @@ using namespace bpp;
 using namespace std;
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-  shared_ptr<TreeTemplate<Node>> tree,
-  shared_ptr<const SiteContainerInterface> data,
-  bool verbose,
-  bool includeGaps) :
+    shared_ptr<TreeTemplate<Node>> tree,
+    shared_ptr<const SiteContainerInterface> data,
+    bool verbose,
+    bool includeGaps) :
   treePtr_(std::move(tree)),
   data_(nullptr),
   alphabet_(data->getAlphabet()),
@@ -29,10 +29,10 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-  shared_ptr<TreeTemplate<Node>> tree,
-  shared_ptr<const SiteContainerInterface> data,
-  std::shared_ptr<const StateMapInterface> statesMap,
-  bool verbose) :
+    shared_ptr<TreeTemplate<Node>> tree,
+    shared_ptr<const SiteContainerInterface> data,
+    std::shared_ptr<const StateMapInterface> statesMap,
+    bool verbose) :
   treePtr_(std::move(tree)),
   data_(nullptr),
   alphabet_(data->getAlphabet()),

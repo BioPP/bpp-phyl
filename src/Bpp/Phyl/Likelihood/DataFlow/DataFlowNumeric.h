@@ -31,13 +31,13 @@ namespace bpp
 
 template<typename eVector, typename bVector>
 using ForConvert = typename std::enable_if< ((std::is_same<bVector, Vdouble>::value
-                                              || std::is_same<bVector, std::vector<ExtendedFloat> >::value)
-                                             &&
-                                             (std::is_same<eVector, Eigen::RowVectorXd>::value
-                                              || std::is_same<eVector, Eigen::VectorXd>::value)), bool>::type;
+        || std::is_same<bVector, std::vector<ExtendedFloat>>::value)
+        &&
+        (std::is_same<eVector, Eigen::RowVectorXd>::value
+        || std::is_same<eVector, Eigen::VectorXd>::value)), bool>::type;
 
 template<typename eVector,
-         typename bVector, ForConvert<eVector, bVector> = true>
+    typename bVector, ForConvert<eVector, bVector> = true>
 void copyBppToEigen (const bVector& bppVector, eVector& eigenVector)
 {
   const auto eigenRows = static_cast<Eigen::Index>(bppVector.size());
@@ -58,7 +58,7 @@ extern template void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::Vecto
 
 template<typename eVector>
 using EFVector = typename std::enable_if<(std::is_same<eVector, ExtendedFloatRowVectorXd>::value
-                                          || std::is_same<eVector, ExtendedFloatVectorXd>::value), bool>::type;
+        || std::is_same<eVector, ExtendedFloatVectorXd>::value), bool>::type;
 
 template<typename eVector, EFVector<eVector> = true>
 void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, eVector& eigenVector)
@@ -70,7 +70,7 @@ void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector, eVector& eigen
 
   eigenVector.exponent_part() = maxE;
   eigenVector.float_part() = Eigen::RowVectorXd::NullaryExpr(static_cast<Eigen::Index>(bppVector.size()),
-                                                             [&maxE, &bppVector](int i){
+        [&maxE, &bppVector](int i){
       return bppVector[(size_t)i].float_part() * bpp::constexpr_power<double>(bpp::ExtendedFloat::radix, bppVector[(size_t)i].exponent_part () - maxE);
     });
 }
@@ -84,10 +84,10 @@ extern template void copyBppToEigen (const std::vector<ExtendedFloat>& bppVector
 
 template<typename eVector>
 using EFoutput = typename std::enable_if<(std::is_same<eVector, ExtendedFloatRowVectorXd>::value
-                                          || std::is_same<eVector, ExtendedFloatVectorXd>::value), bool>::type;
+        || std::is_same<eVector, ExtendedFloatVectorXd>::value), bool>::type;
 
 template<typename eVector,
-         EFoutput<eVector> = true>
+    EFoutput<eVector> = true>
 void copyBppToEigen (const Vdouble& bppVector, eVector& eigenVector)
 {
   // Look for largest extendedfloat
@@ -115,9 +115,9 @@ extern void copyBppToEigen (const std::vector<ExtendedFloatVectorXd>& bppVector,
 
 
 template<typename eType,
-         typename = typename std::enable_if<(std::is_same<eType, double>::value
-                                             || std::is_same<eType, ExtendedFloat>::value)>::type>
-void copyEigenToBpp (const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<eType> >& bppMatrix)
+    typename = typename std::enable_if<(std::is_same<eType, double>::value
+    || std::is_same<eType, ExtendedFloat>::value)>::type>
+void copyEigenToBpp (const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<eType>>& bppMatrix)
 {
   const auto eigenRows = static_cast<std::size_t>(eigenMatrix.rows());
   const auto eigenCols = static_cast<std::size_t>(eigenMatrix.cols());
@@ -135,13 +135,13 @@ void copyEigenToBpp (const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::
 }
 
 
-extern template void copyEigenToBpp(const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<double> >& bppMatrix);
-extern template void copyEigenToBpp(const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat> >& bppMatrix);
+extern template void copyEigenToBpp(const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<double>>& bppMatrix);
+extern template void copyEigenToBpp(const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>>& bppMatrix);
 
 template<typename eType,
-         typename = typename std::enable_if<(std::is_same<eType, double>::value
-                                             || std::is_same<eType, ExtendedFloat>::value)>::type>
-void copyEigenToBpp (const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<eType> >& bppMatrix)
+    typename = typename std::enable_if<(std::is_same<eType, double>::value
+    || std::is_same<eType, ExtendedFloat>::value)>::type>
+void copyEigenToBpp (const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<eType>>& bppMatrix)
 {
   const auto eigenRows = static_cast<std::size_t>(eigenMatrix.rows());
   const auto eigenCols = static_cast<std::size_t>(eigenMatrix.cols());
@@ -159,8 +159,8 @@ void copyEigenToBpp (const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector
 }
 
 
-extern template void copyEigenToBpp(const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<double> >& bppMatrix);
-extern template void copyEigenToBpp(const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat> >& bppMatrix);
+extern template void copyEigenToBpp(const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<double>>& bppMatrix);
+extern template void copyEigenToBpp(const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>>& bppMatrix);
 
 
 extern void copyEigenToBpp(const MatrixLik& eigenMatrix, Matrix<double>& bppMatrix);
@@ -168,16 +168,16 @@ extern void copyEigenToBpp(const MatrixLik& eigenMatrix, Matrix<double>& bppMatr
 
 template<typename eVector, typename bVector>
 using ForConvert2 = typename std::enable_if< ((std::is_same<bVector, Vdouble>::value
-                                               || std::is_same<bVector, std::vector<ExtendedFloat> >::value)
-                                              &&
-                                              (std::is_same<eVector, Eigen::RowVectorXd>::value
-                                               || std::is_same<eVector, Eigen::VectorXd>::value
-                                               || std::is_same<eVector, ExtendedFloatVectorXd>::value
-                                               || std::is_same<eVector, ExtendedFloatRowVectorXd>::value)), bool>::type;
+        || std::is_same<bVector, std::vector<ExtendedFloat>>::value)
+        &&
+        (std::is_same<eVector, Eigen::RowVectorXd>::value
+        || std::is_same<eVector, Eigen::VectorXd>::value
+        || std::is_same<eVector, ExtendedFloatVectorXd>::value
+        || std::is_same<eVector, ExtendedFloatRowVectorXd>::value)), bool>::type;
 
 
 template<typename eVector,
-         typename bVector, ForConvert2<bVector, eVector> = true>
+    typename bVector, ForConvert2<bVector, eVector> = true>
 void copyEigenToBpp (const bVector& eigenVector, eVector& bppVector)
 {
   bppVector.resize(size_t(eigenVector.size()));
@@ -195,7 +195,7 @@ extern template void copyEigenToBpp (const VectorLik& eigenVector, std::vector<E
 /*******************************************/
 /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/
 
-using TransitionFunction = std::function<VectorLik(const VectorLik&)>;
+using TransitionFunction = std::function<VectorLik (const VectorLik&)>;
 
 /*
  * The same but with constant result
@@ -243,34 +243,48 @@ struct MatrixDimension
   Eigen::Index cols{};
 
   MatrixDimension () = default;
-  MatrixDimension (Eigen::Index rows_, Eigen::Index cols_) : rows (rows_), cols (cols_) {}
-  MatrixDimension (int rows_, int cols_) : rows (Eigen::Index(rows_)), cols (Eigen::Index(cols_)) {}
-  MatrixDimension (size_t rows_, size_t cols_) : rows (Eigen::Index(rows_)), cols (Eigen::Index(cols_)) {}
+  MatrixDimension (Eigen::Index rows_, Eigen::Index cols_) : rows (rows_),
+    cols (cols_)
+  {}
+  MatrixDimension (int rows_, int cols_) : rows (Eigen::Index(rows_)),
+    cols (Eigen::Index(cols_))
+  {}
+  MatrixDimension (size_t rows_, size_t cols_) : rows (Eigen::Index(rows_)),
+    cols (Eigen::Index(cols_))
+  {}
 
   // Get dimensions of any matrix-like eigen object.
   template<typename Derived>
-  MatrixDimension (const Eigen::MatrixBase<Derived>& m) : MatrixDimension (m.rows (), m.cols ()) {}
+  MatrixDimension (const Eigen::MatrixBase<Derived>& m) : MatrixDimension (m.rows (), m.cols ())
+  {}
 
   template<typename Derived>
-  MatrixDimension (const ExtendedFloatEigenBase<Derived>& m) : MatrixDimension (m.derived().float_part().rows (), m.derived().float_part().cols ()) {}
+  MatrixDimension (const ExtendedFloatEigenBase<Derived>& m) : MatrixDimension (m.derived().float_part().rows (), m.derived().float_part().cols ())
+  {}
 };
 
 struct VectorDimension :
   public MatrixDimension
 {
   using MatrixDimension::MatrixDimension;
-  VectorDimension(Eigen::Index rows_) : MatrixDimension(rows_, Eigen::Index(1)){}
-  VectorDimension(int rows_) : MatrixDimension(rows_, 1){}
-  VectorDimension(size_t rows_) : MatrixDimension(rows_, (size_t)1){}
+  VectorDimension(Eigen::Index rows_) : MatrixDimension(rows_, Eigen::Index(1))
+  {}
+  VectorDimension(int rows_) : MatrixDimension(rows_, 1)
+  {}
+  VectorDimension(size_t rows_) : MatrixDimension(rows_, (size_t)1)
+  {}
 };
 
 struct RowVectorDimension :
   public MatrixDimension
 {
   using MatrixDimension::MatrixDimension;
-  RowVectorDimension(Eigen::Index cols_) : MatrixDimension(Eigen::Index(1), cols_){}
-  RowVectorDimension(int cols_) : MatrixDimension(1, cols_){}
-  RowVectorDimension(size_t cols_) : MatrixDimension((size_t)1, cols_){}
+  RowVectorDimension(Eigen::Index cols_) : MatrixDimension(Eigen::Index(1), cols_)
+  {}
+  RowVectorDimension(int cols_) : MatrixDimension(1, cols_)
+  {}
+  RowVectorDimension(size_t cols_) : MatrixDimension((size_t)1, cols_)
+  {}
 };
 
 std::string to_string (const MatrixDimension& dim);
@@ -296,48 +310,56 @@ template<typename T> struct Dimension;
 template<> struct Dimension<double> : NoDimension
 {
   Dimension () = default;
-  Dimension (const double&) {}
+  Dimension (const double&)
+  {}
 };
 
 template<> struct Dimension<uint> : NoDimension
 {
   Dimension () = default;
-  Dimension (const uint&) {}
+  Dimension (const uint&)
+  {}
 };
 
 template<> struct Dimension<char> : NoDimension
 {
   Dimension () = default;
-  Dimension (const char&) {}
+  Dimension (const char&)
+  {}
 };
 
 template<> struct Dimension<std::string> : NoDimension
 {
   Dimension () = default;
-  Dimension (const std::string&) {}
+  Dimension (const std::string&)
+  {}
 };
 
 template<> struct Dimension<size_t> : NoDimension
 {
   Dimension () = default;
-  Dimension (const size_t&) {}
+  Dimension (const size_t&)
+  {}
 };
 template<> struct Dimension<float> : NoDimension
 {
   Dimension () = default;
-  Dimension (const float&) {}
+  Dimension (const float&)
+  {}
 };
 
 template<> struct Dimension<ExtendedFloat> : NoDimension
 {
   Dimension () = default;
-  Dimension (const ExtendedFloat&) {}
+  Dimension (const ExtendedFloat&)
+  {}
 };
 
 template<> struct Dimension<Parameter> : NoDimension
 {
   Dimension () = default;
-  Dimension (const Parameter&) {}
+  Dimension (const Parameter&)
+  {}
 };
 
 /** @brief Specialisation of Dimension<T> for eigen matrix types.
@@ -346,17 +368,19 @@ template<> struct Dimension<Parameter> : NoDimension
  * Redirect to MatrixDimension for all eigen matrix variants.
  */
 
-template<typename T,  int Rows,  int Cols> struct Dimension<Eigen::Matrix<T, Rows, Cols> > : MatrixDimension
+template<typename T,  int Rows,  int Cols> struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension
 {
   using MatrixDimension::MatrixDimension; // Have the same constructors as MatrixDimension
-  Dimension (const MatrixDimension& dim) : MatrixDimension (dim) {} // From MatrixDimension
+  Dimension (const MatrixDimension& dim) : MatrixDimension (dim)
+  {} // From MatrixDimension
 };
 
 
-template< int R,  int C, template< int R2 = R,  int C2 = C> class EigenType > struct Dimension<ExtendedFloatEigen<R, C, EigenType> > : MatrixDimension
+template< int R,  int C, template< int R2 = R,  int C2 = C> class EigenType > struct Dimension<ExtendedFloatEigen<R, C, EigenType>> : MatrixDimension
 {
   using MatrixDimension::MatrixDimension;
-  Dimension (const MatrixDimension& dim) : MatrixDimension (dim) {} // From MatrixDimension
+  Dimension (const MatrixDimension& dim) : MatrixDimension (dim)
+  {} // From MatrixDimension
 };
 
 
@@ -364,7 +388,8 @@ template<> struct Dimension<TransitionFunction> : Dimension<VectorLik>
 {
 public:
   Dimension () = default;
-  Dimension (Eigen::Index rows_) : Dimension<VectorLik>(rows_, (Eigen::Index)1){}
+  Dimension (Eigen::Index rows_) : Dimension<VectorLik>(rows_, (Eigen::Index)1)
+  {}
 };
 
 
@@ -409,14 +434,14 @@ ExtendedFloat zero (const Dimension<ExtendedFloat>&)
 }
 
 template<typename T,  int Rows,  int Cols>
-auto zero (const Dimension<Eigen::Matrix<T, Rows, Cols> >& dim)
+auto zero (const Dimension<Eigen::Matrix<T, Rows, Cols>>& dim)
 -> decltype (Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols))
 {
   return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols);
 }
 
 template< int R,  int C, template< int R2 = R,  int C2 = C> class MatType >
-auto zero (const Dimension<ExtendedFloatEigen<R, C, MatType> >& dim)
+auto zero (const Dimension<ExtendedFloatEigen<R, C, MatType>>& dim)
 -> decltype (ExtendedFloatEigen<R, C, MatType>::Zero (dim.rows, dim.cols))
 {
   return ExtendedFloatEigen<R, C, MatType>::Zero (dim.rows, dim.cols);
@@ -463,14 +488,14 @@ ExtendedFloat one (const Dimension<ExtendedFloat>&)
 }
 
 template<typename T,  int Rows,  int Cols>
-auto one (const Dimension<Eigen::Matrix<T, Rows, Cols> >& dim)
+auto one (const Dimension<Eigen::Matrix<T, Rows, Cols>>& dim)
 -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols))
 {
   return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
 }
 
 template< int R,  int C, template< int R2 = 2,  int C2 = C> class MatType>
-auto one (const Dimension<ExtendedFloatEigen<R, C, MatType> >& dim)
+auto one (const Dimension<ExtendedFloatEigen<R, C, MatType>>& dim)
 -> decltype (ExtendedFloatEigen<R, C, MatType>::Ones (dim.rows, dim.cols))
 {
   return ExtendedFloatEigen<R, C, MatType>::Ones (dim.rows, dim.cols);
@@ -498,7 +523,7 @@ T identity (const Dimension<ExtendedFloat>&)
 }
 
 template<typename T,  int Rows,  int Cols>
-auto identity (const Dimension<Eigen::Matrix<T, Rows, Cols> >& dim)
+auto identity (const Dimension<Eigen::Matrix<T, Rows, Cols>>& dim)
 -> decltype (Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows, dim.cols))
 {
   checkDimensionIsSquare (dim);
@@ -506,7 +531,7 @@ auto identity (const Dimension<Eigen::Matrix<T, Rows, Cols> >& dim)
 }
 
 template< int R,  int C, template< int R2 = R,  int C2 = C> class MatType>
-auto identity (const Dimension<ExtendedFloatEigen<R, C, MatType> >& dim)
+auto identity (const Dimension<ExtendedFloatEigen<R, C, MatType>>& dim)
 -> decltype (ExtendedFloatEigen<R, C, MatType>::Identity (dim.rows))
 {
   checkDimensionIsSquare (dim);
@@ -575,8 +600,8 @@ R convert (const F& from, const Dimension<R>&)
 }
 
 template<typename T,  int Rows,  int Cols, typename F,
-         typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
-auto convert (const F& from, const Dimension<Eigen::Matrix<T, Rows, Cols> >& dim)
+    typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
+auto convert (const F& from, const Dimension<Eigen::Matrix<T, Rows, Cols>>& dim)
 -> decltype (Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from))
 {
   // scalar -> matrix
@@ -584,8 +609,8 @@ auto convert (const F& from, const Dimension<Eigen::Matrix<T, Rows, Cols> >& dim
 }
 
 template< int R,  int C, template< int R2 = R,  int C2 = C> class MatType, typename F,
-          typename = typename std::enable_if<std::is_same<F, ExtendedFloat>::value || std::is_arithmetic<F>::value>::type>
-auto convert (const F& from, const Dimension<ExtendedFloatEigen<R, C, MatType> >& dim)
+    typename = typename std::enable_if<std::is_same<F, ExtendedFloat>::value || std::is_arithmetic<F>::value>::type>
+auto convert (const F& from, const Dimension<ExtendedFloatEigen<R, C, MatType>>& dim)
 -> decltype (ExtendedFloatEigen<R, C, MatType>::Constant (dim.rows, dim.cols, from))
 {
   // scalar -> efmatrix
@@ -603,8 +628,8 @@ inline TransitionFunction convert (double from, const Dimension<TransitionFuncti
 
 template<typename T,  int R,  int C, typename DerivedF>
 const Eigen::Matrix<T, R, C>   convert (const Eigen::MatrixBase<DerivedF>& from,
-                                        const Dimension<Eigen::Matrix<T, R, C> >& dim,
-                                        typename std::enable_if<std::is_same<DerivedF, Eigen::RowVectorXi>::value || std::is_same<DerivedF, Eigen::VectorXi>::value>::type* = 0)
+    const Dimension<Eigen::Matrix<T, R, C>>& dim,
+    typename std::enable_if<std::is_same<DerivedF, Eigen::RowVectorXi>::value || std::is_same<DerivedF, Eigen::VectorXi>::value>::type* = 0)
 {
   return from.derived().template cast<T>(); // matrixXi -> matrix
 }
@@ -612,8 +637,8 @@ const Eigen::Matrix<T, R, C>   convert (const Eigen::MatrixBase<DerivedF>& from,
 
 template< int R,  int C, typename DerivedF>
 const ExtendedFloatMatrix<R, C> convert (const Eigen::MatrixBase<DerivedF>& from,
-                                         const Dimension<ExtendedFloatMatrix<R, C> >& dim,
-                                         typename std::enable_if<std::is_same<DerivedF, Eigen::RowVectorXi>::value || std::is_same<DerivedF, Eigen::VectorXi>::value>::type* = 0)
+    const Dimension<ExtendedFloatMatrix<R, C>>& dim,
+    typename std::enable_if<std::is_same<DerivedF, Eigen::RowVectorXi>::value || std::is_same<DerivedF, Eigen::VectorXi>::value>::type* = 0)
 
 {
   return ExtendedFloatMatrix<R, C>(from.derived().template cast<double>(), 0); // matrixXi -> efmatrix
@@ -626,16 +651,16 @@ const ExtendedFloatMatrix<R, C> convert (const Eigen::MatrixBase<DerivedF>& from
 
 template<typename T,  int Rows,  int Cols, typename DerivedF>
 const DerivedF& convert (const Eigen::MatrixBase<DerivedF>& from,
-                         const Dimension<Eigen::Matrix<T, Rows, Cols> >& dim,
-                         typename std::enable_if<!(std::is_same<DerivedF, Eigen::RowVectorXi>::value || std::is_same<DerivedF, Eigen::VectorXi>::value)>::type* = 0)
+    const Dimension<Eigen::Matrix<T, Rows, Cols>>& dim,
+    typename std::enable_if<!(std::is_same<DerivedF, Eigen::RowVectorXi>::value || std::is_same<DerivedF, Eigen::VectorXi>::value)>::type* = 0)
 {
   return from.derived (); // matrix -> matrix, conversion will be done in the assignment
 }
 
 template< int R,  int C, typename DerivedF>
 const ExtendedFloatMatrix<R, C> convert (const Eigen::MatrixBase<DerivedF>& from,
-                                         const Dimension<ExtendedFloatMatrix<R, C> >& dim,
-                                         typename std::enable_if<!(std::is_same<DerivedF, Eigen::RowVectorXi>::value || std::is_same<DerivedF, Eigen::VectorXi>::value)>::type* = 0)
+    const Dimension<ExtendedFloatMatrix<R, C>>& dim,
+    typename std::enable_if<!(std::is_same<DerivedF, Eigen::RowVectorXi>::value || std::is_same<DerivedF, Eigen::VectorXi>::value)>::type* = 0)
 {
   return ExtendedFloatMatrix<R, C>(from.derived (), 0); // matrix -> matrix, conversion will be done in the assignment
 }
@@ -646,14 +671,14 @@ const ExtendedFloatMatrix<R, C> convert (const Eigen::MatrixBase<DerivedF>& from
 
 template< int R,  int C, typename DerivedF>
 const DerivedF& convert (const ExtendedFloatEigenBase<DerivedF>& from,
-                         const Dimension<ExtendedFloatMatrix<R, C> >& dim)
+    const Dimension<ExtendedFloatMatrix<R, C>>& dim)
 {
   return from.derived(); // efmatrix -> efmatrix
 }
 
 template< int R,  int C>
 const Eigen::Matrix<double, R, C> convert (const ExtendedFloatMatrix<R, C>& from,
-                                           const Dimension<Eigen::Matrix<double, R, C> >& dim)
+    const Dimension<Eigen::Matrix<double, R, C>>& dim)
 {
   return from.float_part() * constexpr_power<double>(ExtendedFloat::radix, from.exponent_part()); // efmatrix -> matrix
 }
@@ -766,7 +791,7 @@ std::string debug (const ExtendedFloat& t)
 }
 
 template<typename Derived>
-std::string debug (const Eigen::MatrixBase<Derived>& m)// , typename std::enable_if<!std::is_same<Derived, Parameter const&>::value>::type* = 0) {
+std::string debug (const Eigen::MatrixBase<Derived>& m) // , typename std::enable_if<!std::is_same<Derived, Parameter const&>::value>::type* = 0) {
 // With matrices, check some numeric properties and encode results as text
 {
   using std::to_string;
@@ -804,7 +829,7 @@ std::string debug (const ExtendedFloatEigenBase<Derived>& m)
 }
 
 template<typename T = TransitionFunction>
-std::string debug (const TransitionFunction& f)// , typename std::enable_if<!std::is_same<Derived, Parameter const&>::value>::type* = 0) {
+std::string debug (const TransitionFunction& f) // , typename std::enable_if<!std::is_same<Derived, Parameter const&>::value>::type* = 0) {
 // With matrices, check some numeric properties and encode results as text
 {
   return "TransitionFunction";
@@ -925,7 +950,7 @@ template<typename T> struct NumericalDependencyTransform
 /// The T dependency should be transposed before computation.
 template<typename T> struct Transposed;
 /// Implementation for a dependency transposition.
-template<typename T> struct NumericalDependencyTransform<Transposed<T> >
+template<typename T> struct NumericalDependencyTransform<Transposed<T>>
 {
   // Get DepType by recursion
   using DepType = typename NumericalDependencyTransform<T>::DepType;
@@ -1266,7 +1291,7 @@ public:
     // Select node
     if (std::is_same<R, F>::value)
     {
-      return convertRef<Value<R> >(deps[0]);
+      return convertRef<Value<R>>(deps[0]);
     }
     else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero))
     {
@@ -1278,7 +1303,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -1345,7 +1370,7 @@ public:
     checkDependencyVectorSize (typeid (Self), deps, 1);
     checkNthDependencyIsValue<R>(typeid (Self), deps, 0);
 
-    return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim, id));
+    return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim, id));
   }
 
   Identity (NodeRefVec&& deps, const Dimension<R>& dim, size_t id)
@@ -1466,34 +1491,34 @@ extern template class Convert<ExtendedFloatVectorXd, double>;
 extern template class Convert<ExtendedFloatVectorXd, ExtendedFloatVectorXd>;
 extern template class Convert<ExtendedFloatVectorXd, Eigen::VectorXd>;
 extern template class Convert<ExtendedFloatVectorXd, Eigen::VectorXi>;
-extern template class Convert<ExtendedFloatVectorXd, Transposed<ExtendedFloatRowVectorXd> >;
-extern template class Convert<ExtendedFloatVectorXd, Transposed<Eigen::RowVectorXd> >;
+extern template class Convert<ExtendedFloatVectorXd, Transposed<ExtendedFloatRowVectorXd>>;
+extern template class Convert<ExtendedFloatVectorXd, Transposed<Eigen::RowVectorXd>>;
 
 extern template class Convert<ExtendedFloatRowVectorXd, double>;
 extern template class Convert<ExtendedFloatRowVectorXd, ExtendedFloatRowVectorXd>;
 extern template class Convert<ExtendedFloatRowVectorXd, Eigen::RowVectorXd>;
 extern template class Convert<ExtendedFloatRowVectorXd, Eigen::RowVectorXi>;
-extern template class Convert<ExtendedFloatRowVectorXd, Transposed<ExtendedFloatVectorXd> >;
-extern template class Convert<ExtendedFloatRowVectorXd, Transposed<Eigen::VectorXd> >;
+extern template class Convert<ExtendedFloatRowVectorXd, Transposed<ExtendedFloatVectorXd>>;
+extern template class Convert<ExtendedFloatRowVectorXd, Transposed<Eigen::VectorXd>>;
 
 extern template class Convert<ExtendedFloatMatrixXd, double>;
 extern template class Convert<ExtendedFloatMatrixXd, ExtendedFloatMatrixXd>;
 extern template class Convert<ExtendedFloatMatrixXd, Eigen::MatrixXd>;
-extern template class Convert<ExtendedFloatMatrixXd, Transposed<ExtendedFloatMatrixXd> >;
-extern template class Convert<ExtendedFloatMatrixXd, Transposed<Eigen::MatrixXd> >;
+extern template class Convert<ExtendedFloatMatrixXd, Transposed<ExtendedFloatMatrixXd>>;
+extern template class Convert<ExtendedFloatMatrixXd, Transposed<Eigen::MatrixXd>>;
 
 extern template class Convert<Eigen::VectorXd, double>;
 extern template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
 extern template class Convert<Eigen::VectorXd, Eigen::VectorXi>;
-extern template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd> >;
+extern template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
 
 extern template class Convert<Eigen::RowVectorXd, double>;
 extern template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXd>;
 extern template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXi>;
-extern template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd> >;
+extern template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
 
 extern template class Convert<Eigen::MatrixXd, double>;
 extern template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
-extern template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd> >;
+extern template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
 } // namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOWNUMERIC_H

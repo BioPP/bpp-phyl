@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SEQUENCEPHYLOLIKELIHOOD_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/AlignmentData.h>
@@ -31,7 +30,6 @@ class SequencePhyloLikelihoodInterface :
   public virtual SingleDataPhyloLikelihoodInterface
 {
 protected:
-
   virtual ~SequencePhyloLikelihoodInterface() {}
 
   SequencePhyloLikelihoodInterface* clone() const override = 0;
@@ -46,7 +44,6 @@ public:
   virtual std::shared_ptr<const SequenceEvolution> getSequenceEvolution() const = 0;
 
   virtual const size_t getSequenceEvolutionNumber() const = 0;
-
 };
 
 class AbstractSequencePhyloLikelihood :
@@ -72,16 +69,16 @@ public:
       size_t nData = 0) :
     AbstractPhyloLikelihood(context),
     AbstractSingleDataPhyloLikelihood(
-	context, 0,
-       	(se->getSubstitutionProcessNumbers().size() != 0) ? se->substitutionProcess(se->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+      context, 0,
+      (se->getSubstitutionProcessNumbers().size() != 0) ? se->substitutionProcess(se->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
     seqEvol_(se),
     nSeqEvol_(nSE)
   {}
 
-  AbstractSequencePhyloLikelihood(const AbstractSequencePhyloLikelihood& aspl):
-      AbstractSingleDataPhyloLikelihood(aspl),
-      seqEvol_(aspl.seqEvol_),
-      nSeqEvol_(aspl.nSeqEvol_)
+  AbstractSequencePhyloLikelihood(const AbstractSequencePhyloLikelihood& aspl) :
+    AbstractSingleDataPhyloLikelihood(aspl),
+    seqEvol_(aspl.seqEvol_),
+    nSeqEvol_(aspl.nSeqEvol_)
   {}
 
   AbstractSequencePhyloLikelihood& operator=(const AbstractSequencePhyloLikelihood& aspl)
@@ -126,7 +123,6 @@ public:
 };
 
 
-
 class AbstractParametrizableSequencePhyloLikelihood :
   public virtual AbstractSequencePhyloLikelihood,
   public virtual AbstractParametrizable
@@ -145,9 +141,9 @@ public:
     addParameters_(se->getIndependentParameters());
   }
 
-  AbstractParametrizableSequencePhyloLikelihood(const AbstractParametrizableSequencePhyloLikelihood& apspl):
-      AbstractSequencePhyloLikelihood(apspl),
-      AbstractParametrizable(apspl)
+  AbstractParametrizableSequencePhyloLikelihood(const AbstractParametrizableSequencePhyloLikelihood& apspl) :
+    AbstractSequencePhyloLikelihood(apspl),
+    AbstractParametrizable(apspl)
   {}
 
   AbstractParametrizableSequencePhyloLikelihood& operator=(const AbstractParametrizableSequencePhyloLikelihood& apspl)

@@ -36,7 +36,7 @@ StochasticMapping::StochasticMapping(std::shared_ptr<LikelihoodCalculationSingle
   fractionalProbabilities_(),
   ConditionalProbabilities_(),
   nodesCounter_(0),
-  numOfMappings_(numOfMappings)// ,
+  numOfMappings_(numOfMappings) // ,
   // nodeIdToIndex_()
 {
   giveNamesToInternalNodes(*tree_);                     // set names for the internal nodes of the tree, in case of absence
@@ -50,7 +50,7 @@ StochasticMapping::~StochasticMapping()
 
 /******************************************************************************/
 
-void StochasticMapping::generateStochasticMapping(vector<shared_ptr<PhyloTree> >& mappings)
+void StochasticMapping::generateStochasticMapping(vector<shared_ptr<PhyloTree>>& mappings)
 {
   for (size_t i = 0; i < numOfMappings_; ++i)
   {
@@ -90,7 +90,7 @@ void StochasticMapping::setExpectedAncestrals(shared_ptr<PhyloTree> expectedMapp
 
 /******************************************************************************/
 
-shared_ptr<PhyloTree> StochasticMapping::generateExpectedMapping(vector<shared_ptr<PhyloTree> >& mappings, size_t divMethod)
+shared_ptr<PhyloTree> StochasticMapping::generateExpectedMapping(vector<shared_ptr<PhyloTree>>& mappings, size_t divMethod)
 {
   // // initialize the expected history
   // nodesCounter_ = dynamic_cast<TreeTemplate<Node>*>(baseTree_)->getNodes().size() - 1;
@@ -448,7 +448,7 @@ void StochasticMapping::ComputeConditionals()
 
 /******************************************************************************/
 
-void StochasticMapping::computeStatesFrequencies(VVDouble& ancestralStatesFrequencies, vector<shared_ptr<PhyloTree> >& mappings)
+void StochasticMapping::computeStatesFrequencies(VVDouble& ancestralStatesFrequencies, vector<shared_ptr<PhyloTree>>& mappings)
 {
   // // some auxiliiary variables
   // size_t statesNum = tl_->getNumberOfStates();

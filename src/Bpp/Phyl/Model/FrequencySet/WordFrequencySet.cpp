@@ -9,7 +9,7 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface> >& freqVector)
+size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface>>& freqVector)
 {
   size_t s = 1;
   size_t l = freqVector.size();
@@ -144,7 +144,7 @@ void WordFromIndependentFrequencySet::updateFrequencies()
 {
   size_t l = vFreq_.size();
   size_t s = getWordAlphabet()->getSize();
-  vector< vector<double> > f(l);
+  vector< vector<double>> f(l);
 
   size_t i, p, t, i2;
 

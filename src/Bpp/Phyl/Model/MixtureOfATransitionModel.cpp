@@ -15,11 +15,11 @@ using namespace std;
 
 
 MixtureOfATransitionModel::MixtureOfATransitionModel(
-  shared_ptr<const Alphabet> alpha,
-  unique_ptr<TransitionModelInterface> model,
-  std::map<std::string, unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
-  int ffrom,
-  int tto) :
+    shared_ptr<const Alphabet> alpha,
+    unique_ptr<TransitionModelInterface> model,
+    std::map<std::string, unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
+    int ffrom,
+    int tto) :
   AbstractParameterAliasable(model->getNamespace()),
   AbstractTransitionModel(alpha, model->getStateMap(), model->getNamespace()),
   AbstractMixedTransitionModel(alpha, getStateMap(), model->getNamespace()),
@@ -84,7 +84,8 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
   {
     const Parameter& pm = model->parameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it.first)));
     pd = it.second.get();
-    if (pm.hasConstraint()) {
+    if (pm.hasConstraint())
+    {
       pd->restrictToConstraint(*pm.getConstraint());
     }
 
@@ -96,8 +97,9 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
         addParameter_(pl[i].clone());
       }
     }
-    else {
-      //addParameter_(new Parameter(it.first, pd->getCategory(0), (pd->parameter("value").getConstraint()) ? shared_ptr<ConstraintInterface>(pd->parameter("value").getConstraint()->clone()) : nullptr));
+    else
+    {
+      // addParameter_(new Parameter(it.first, pd->getCategory(0), (pd->parameter("value").getConstraint()) ? shared_ptr<ConstraintInterface>(pd->parameter("value").getConstraint()->clone()) : nullptr));
       addParameter_(new Parameter(it.first, pd->getCategory(0), pm.hasConstraint() ? shared_ptr<ConstraintInterface>(pm.getConstraint()->clone()) : nullptr));
     }
   }
@@ -241,14 +243,15 @@ Vuint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
 
       if (msubn.find(s) != msubn.end())
       {
-        if (msubn[s] == l) {
-	  stopped ++;
-	}
+        if (msubn[s] == l)
+        {
+          stopped++;
+        }
       }
 
       j = j / it.second->getNumberOfCategories();
     }
-    if (stopped==msubn.size())  // All requests are fulfilled
+    if (stopped == msubn.size())// All requests are fulfilled
       submodnb.push_back(uint(i));
   }
 

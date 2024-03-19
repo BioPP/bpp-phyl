@@ -22,8 +22,8 @@ using namespace std;
 /******************************************************************************/
 
 TripletSubstitutionModel::TripletSubstitutionModel(
-  shared_ptr<const CodonAlphabet> palph,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod) :
+    shared_ptr<const CodonAlphabet> palph,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod) :
   AbstractParameterAliasable("Triplet."),
   WordSubstitutionModel(palph, make_shared<CanonicalStateMap>(palph, false), "Triplet.")
 {
@@ -48,10 +48,10 @@ TripletSubstitutionModel::TripletSubstitutionModel(
 }
 
 TripletSubstitutionModel::TripletSubstitutionModel(
-  shared_ptr<const CodonAlphabet> palph,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod3) :
+    shared_ptr<const CodonAlphabet> palph,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3) :
   AbstractParameterAliasable("Triplet."),
   WordSubstitutionModel(palph, make_shared<CanonicalStateMap>(palph, false), "Triplet.")
 {
@@ -97,4 +97,3 @@ string TripletSubstitutionModel::getName() const
 
   return s;
 }
-

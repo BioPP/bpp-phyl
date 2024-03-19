@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_ALIGNEDPHYLOLIKELIHOOD_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 
@@ -131,7 +130,6 @@ protected:
   }
 
 public:
-  
   virtual ~AbstractAlignedPhyloLikelihood() {}
 
   size_t getNumberOfSites() const { return nbSites_; }

@@ -29,16 +29,16 @@ private:
 
 public:
   AbstractTreeParsimonyScore(
-    std::shared_ptr<TreeTemplate<Node>> tree,
-    std::shared_ptr<const SiteContainerInterface> data,
-    bool verbose,
-    bool includeGaps);
+      std::shared_ptr<TreeTemplate<Node>> tree,
+      std::shared_ptr<const SiteContainerInterface> data,
+      bool verbose,
+      bool includeGaps);
 
   AbstractTreeParsimonyScore(
-    std::shared_ptr<TreeTemplate<Node>> tree,
-    std::shared_ptr<const SiteContainerInterface> data,
-    std::shared_ptr<const StateMapInterface> statesMap,
-    bool verbose);
+      std::shared_ptr<TreeTemplate<Node>> tree,
+      std::shared_ptr<const SiteContainerInterface> data,
+      std::shared_ptr<const StateMapInterface> statesMap,
+      bool verbose);
 
   virtual ~AbstractTreeParsimonyScore() {}
 

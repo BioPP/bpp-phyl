@@ -39,7 +39,7 @@ namespace bpp
  */
 
 class AwareNode // :
-  // public std::enable_shared_from_this<AwareNode>
+// public std::enable_shared_from_this<AwareNode>
 {
 protected:
   unsigned int id_;
@@ -103,7 +103,6 @@ public:
    * @brief update information from TreeObserver
    *
    */
-
   template<class N, class E, class I>
   void updateTree(AssociationTreeGraphImplObserver<N, E, I>* tree, unsigned int index);
 
@@ -341,9 +340,9 @@ void AwareNode::updateTree(AssociationTreeGraphImplObserver<N, E, I>* tree, unsi
   father_ = tree->hasFather(thisN) ? dynamic_cast<AwareNode*>(tree->getFatherOfNode(thisN).get()) : 0;
 
   sons_.clear();
-  std::vector< std::shared_ptr<N> > vS = tree->getSons(thisN);
+  std::vector< std::shared_ptr<N>> vS = tree->getSons(thisN);
 
-  for (typename std::vector<std::shared_ptr<N> >::iterator it = vS.begin(); it != vS.end(); it++)
+  for (typename std::vector<std::shared_ptr<N>>::iterator it = vS.begin(); it != vS.end(); it++)
   {
     sons_.push_back(dynamic_cast<AwareNode*>(it->get()));
   }

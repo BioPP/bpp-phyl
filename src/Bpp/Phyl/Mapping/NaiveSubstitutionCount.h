@@ -84,7 +84,7 @@ public:
     }
   }
 
-  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
+  std::unique_ptr< Matrix<double>> getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
 
   void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override;
 
@@ -138,9 +138,9 @@ public:
     return label_(initialState, finalState);
   }
 
-  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override
+  std::unique_ptr< Matrix<double>> getAllNumbersOfSubstitutions(double length, size_t type = 1) const override
   {
-    return std::unique_ptr< Matrix<double> >(label_.clone());
+    return std::unique_ptr< Matrix<double>>(label_.clone());
   }
 
   void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override

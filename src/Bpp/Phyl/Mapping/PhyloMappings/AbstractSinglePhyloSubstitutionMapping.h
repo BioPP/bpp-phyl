@@ -22,7 +22,6 @@ struct ModelBranch
 };
 
 
-	
 /**
  * @brief The AbstractSinglePhyloSubstitutionMapping class: substitution
  * mapping linked with a Single Process PhyloLikelihood
@@ -65,7 +64,7 @@ private:
    * @brief a map <model index, vector of branch ids>
    *
    */
-  std::map<size_t, std::vector<uint> > mModBrid_;
+  std::map<size_t, std::vector<uint>> mModBrid_;
 
 public:
   AbstractSinglePhyloSubstitutionMapping(

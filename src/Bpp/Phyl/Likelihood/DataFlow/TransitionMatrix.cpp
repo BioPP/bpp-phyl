@@ -14,7 +14,7 @@ using namespace bpp;
 // TransitionMatrix node
 
 ConfiguredTransitionMatrix::ConfiguredTransitionMatrix (Context& context, NodeRefVec&& deps, std::unique_ptr<HmmTransitionMatrix>&& hmm)
-  : Value<const HmmTransitionMatrix*>(std::move (deps), hmm.get ()), AbstractParametrizable(hmm->getNamespace())// , context_(context)
+  : Value<const HmmTransitionMatrix*>(std::move (deps), hmm.get ()), AbstractParametrizable(hmm->getNamespace()) // , context_(context)
   , hmm_(std::move(hmm))
 {
   for (const auto& dep:dependencies())
@@ -65,7 +65,7 @@ NodeRef ConfiguredTransitionMatrix::recreate (Context& c, NodeRefVec&& deps)
 // EquilibriumFrequenciesFromTransitionMatrix
 
 EquilibriumFrequenciesFromTransitionMatrix::EquilibriumFrequenciesFromTransitionMatrix (
-  NodeRefVec&& deps, const Dimension<T>& dim)
+    NodeRefVec&& deps, const Dimension<T>& dim)
   : Value<T>(std::move (deps)), targetDimension_ (dim) {}
 
 std::string EquilibriumFrequenciesFromTransitionMatrix::debugInfo () const
@@ -86,13 +86,13 @@ NodeRef EquilibriumFrequenciesFromTransitionMatrix::derive (Context& c, const No
   auto hmmDep = this->dependency (0);
   auto& hmm = static_cast<Dep&>(*hmmDep);
   auto buildFWithNewTransitionMatrix = [this, &c](NodeRef&& newTransitionMatrix) {
-                                         return ConfiguredParametrizable::createVector<Dep, Self>(c, {std::move (newTransitionMatrix)}, targetDimension_);
-                                       };
+        return ConfiguredParametrizable::createVector<Dep, Self>(c, {std::move (newTransitionMatrix)}, targetDimension_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T>(
-    c, hmm, node, targetDimension_, buildFWithNewTransitionMatrix);
+        c, hmm, node, targetDimension_, buildFWithNewTransitionMatrix);
 
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef EquilibriumFrequenciesFromTransitionMatrix::recreate (Context& c, NodeRefVec&& deps)
@@ -113,7 +113,7 @@ void EquilibriumFrequenciesFromTransitionMatrix::compute ()
 // TransitionMatrixFromTransitionMatrix
 
 TransitionMatrixFromTransitionMatrix::TransitionMatrixFromTransitionMatrix (NodeRefVec&& deps,
-                                                                            const Dimension<Eigen::MatrixXd>& dim)
+    const Dimension<Eigen::MatrixXd>& dim)
   : Value<Eigen::MatrixXd>(std::move (deps)), targetDimension_ (dim) {}
 
 std::string TransitionMatrixFromTransitionMatrix::debugInfo () const
@@ -136,13 +136,13 @@ NodeRef TransitionMatrixFromTransitionMatrix::derive (Context& c, const Node_DF&
   // TransitionMatrix part
   auto& hmm = static_cast<Dep&>(*hmmDep);
   auto buildFWithNewTransitionMatrix = [this, &c](NodeRef&& newTransitionMatrix) {
-                                         return ConfiguredParametrizable::createMatrix<Dep, Self>(c, {std::move (newTransitionMatrix)}, targetDimension_);
-                                       };
+        return ConfiguredParametrizable::createMatrix<Dep, Self>(c, {std::move (newTransitionMatrix)}, targetDimension_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T>(
-    c, hmm, node, targetDimension_, buildFWithNewTransitionMatrix);
+        c, hmm, node, targetDimension_, buildFWithNewTransitionMatrix);
 
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef TransitionMatrixFromTransitionMatrix::recreate (Context& c, NodeRefVec&& deps)

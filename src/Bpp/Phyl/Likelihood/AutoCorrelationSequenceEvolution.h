@@ -30,8 +30,8 @@ private:
 
 public:
   AutoCorrelationSequenceEvolution(
-    std::shared_ptr<SubstitutionProcessCollection> processColl,
-    std::vector<size_t>& nProc);
+      std::shared_ptr<SubstitutionProcessCollection> processColl,
+      std::vector<size_t>& nProc);
 
   AutoCorrelationSequenceEvolution(const AutoCorrelationSequenceEvolution& mlc) :
     MultiProcessSequenceEvolution(mlc),

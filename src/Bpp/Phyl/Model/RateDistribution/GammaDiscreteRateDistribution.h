@@ -6,7 +6,6 @@
 #define BPP_PHYL_MODEL_RATEDISTRIBUTION_GAMMADISCRETERATEDISTRIBUTION_H
 
 
-
 // From bpp-core
 #include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
 

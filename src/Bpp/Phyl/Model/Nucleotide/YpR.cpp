@@ -58,9 +58,9 @@ void YpR::updateMatrices_()
 
 
 void YpR::updateMatrices_(double CgT, double cGA,
-                         double TgC, double tGA,
-                         double CaT, double cAG,
-                         double TaC, double tAC)
+    double TgC, double tGA,
+    double CaT, double cAG,
+    double TaC, double tAC)
 {
   //  check_model(pmodel_);
 
@@ -417,7 +417,7 @@ YpR_Gen::YpR_Gen(
     double CgT, double cGA,
     double TgC, double tGA,
     double CaT, double cAG,
-    double TaC, double tAG) : 
+    double TaC, double tAG) :
   AbstractParameterAliasable("YpR_Gen."),
   YpR(alph, std::move(pm), "YpR_Gen.")
 {

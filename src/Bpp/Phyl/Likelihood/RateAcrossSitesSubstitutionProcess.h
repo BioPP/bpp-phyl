@@ -25,16 +25,16 @@ private:
 
 public:
   RateAcrossSitesSubstitutionProcess(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rdist,
-    std::shared_ptr<const PhyloTree> tree = nullptr,
-    std::shared_ptr<FrequencySetInterface> rootFrequencies = nullptr);
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
+      std::shared_ptr<const PhyloTree> tree = nullptr,
+      std::shared_ptr<FrequencySetInterface> rootFrequencies = nullptr);
 
   RateAcrossSitesSubstitutionProcess(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rdist,
-    std::shared_ptr<ParametrizablePhyloTree> tree,
-    std::shared_ptr<FrequencySetInterface> rootFrequencies = nullptr);
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
+      std::shared_ptr<ParametrizablePhyloTree> tree,
+      std::shared_ptr<FrequencySetInterface> rootFrequencies = nullptr);
 
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp);
 
@@ -42,7 +42,7 @@ public:
 
 public:
   RateAcrossSitesSubstitutionProcess* clone() const override
-  { 
+  {
     return new RateAcrossSitesSubstitutionProcess(*this);
   }
 

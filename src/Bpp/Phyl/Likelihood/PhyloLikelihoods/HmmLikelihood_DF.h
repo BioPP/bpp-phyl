@@ -117,11 +117,11 @@ public:
    */
 
   HmmLikelihood_DF(
-    Context& context,
-    std::shared_ptr<HmmStateAlphabet> hiddenAlphabet,
-    std::shared_ptr<HmmTransitionMatrix> transitionMatrix,
-    std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities,
-    const std::string& prefix = "");
+      Context& context,
+      std::shared_ptr<HmmStateAlphabet> hiddenAlphabet,
+      std::shared_ptr<HmmTransitionMatrix> transitionMatrix,
+      std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities,
+      const std::string& prefix = "");
 
   HmmLikelihood_DF(const HmmLikelihood_DF& lik) :
     AlignedLikelihoodCalculation(lik),

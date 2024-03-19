@@ -23,11 +23,11 @@ using namespace std;
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
-  const Tree& tree,
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose) :
+    const Tree& tree,
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -38,12 +38,12 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
-  const Tree& tree,
-  const AlignmentDataInterface& data,
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose) :
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -57,8 +57,8 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 void DRHomogeneousTreeLikelihood::init_()
 {
   likelihoodData_ = make_unique<DRASDRTreeLikelihoodData>(
-    tree_,
-    rateDistribution_->getNumberOfCategories());
+        tree_,
+        rateDistribution_->getNumberOfCategories());
 }
 
 /******************************************************************************/
@@ -101,7 +101,7 @@ void DRHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites)
 
   if (verbose_)
     ApplicationTools::displayResult("Number of distinct sites",
-                                    TextTools::toString(nbDistinctSites_));
+        TextTools::toString(nbDistinctSites_));
   initialized_ = false;
 }
 
@@ -553,7 +553,7 @@ void DRHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node* nod
       {
         const Node* son = father->getSon(n);
         if (son->getId() != node->getId())
-          nodes.push_back(son);                                   // This is a real brother, not current node!
+          nodes.push_back(son); // This is a real brother, not current node!
       }
       // Now the real stuff... We've got to compute the likelihoods for the
       // subtree defined by node 'father'.
@@ -780,14 +780,14 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodAtNode_(const Node* node, VVV
 /******************************************************************************/
 
 void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
-  const vector<const VVVdouble*>& iLik,
-  const vector<const VVVdouble*>& tProb,
-  VVVdouble& oLik,
-  size_t nbNodes,
-  size_t nbDistinctSites,
-  size_t nbClasses,
-  size_t nbStates,
-  bool reset)
+    const vector<const VVVdouble*>& iLik,
+    const vector<const VVVdouble*>& tProb,
+    VVVdouble& oLik,
+    size_t nbNodes,
+    size_t nbDistinctSites,
+    size_t nbClasses,
+    size_t nbStates,
+    bool reset)
 {
   if (reset)
     resetLikelihoodArray(oLik);
@@ -829,16 +829,16 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
 /******************************************************************************/
 
 void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
-  const vector<const VVVdouble*>& iLik,
-  const vector<const VVVdouble*>& tProb,
-  const VVVdouble* iLikR,
-  const VVVdouble* tProbR,
-  VVVdouble& oLik,
-  size_t nbNodes,
-  size_t nbDistinctSites,
-  size_t nbClasses,
-  size_t nbStates,
-  bool reset)
+    const vector<const VVVdouble*>& iLik,
+    const vector<const VVVdouble*>& tProb,
+    const VVVdouble* iLikR,
+    const VVVdouble* tProbR,
+    VVVdouble& oLik,
+    size_t nbNodes,
+    size_t nbDistinctSites,
+    size_t nbClasses,
+    size_t nbStates,
+    bool reset)
 {
   if (reset)
     resetLikelihoodArray(oLik);

@@ -58,10 +58,10 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new CodonDistancePhaseFrequenciesSubstitutionModel object
@@ -77,12 +77,12 @@ public:
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
    */
   CodonDistancePhaseFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~CodonDistancePhaseFrequenciesSubstitutionModel() {}
 
@@ -113,7 +113,6 @@ public:
   {
     return AbstractCodonPhaseFrequenciesSubstitutionModel::hasCodonFrequencySet();
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_CODONDISTANCEPHASEFREQUENCIESSUBSTITUTIONMODEL_H

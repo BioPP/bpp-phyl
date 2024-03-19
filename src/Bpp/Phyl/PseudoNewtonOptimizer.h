@@ -97,7 +97,6 @@ public:
   void setMaximumNumberOfCorrections(unsigned int mx) { maxCorrection_ = mx; }
 
   void disableCG() { useCG_ = false; }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PSEUDONEWTONOPTIMIZER_H

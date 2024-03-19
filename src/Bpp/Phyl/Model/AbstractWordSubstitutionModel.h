@@ -38,7 +38,7 @@ public:
    *
    * !! All pointers of the vector will be emptied.
    */
-  
+
   ModelList(std::vector<std::unique_ptr<SubstitutionModelInterface>>& models) :
     models_(models.size()), wordAlphabet_(nullptr)
   {
@@ -51,7 +51,7 @@ public:
     wordAlphabet_ = std::make_shared<WordAlphabet>(alphabets);
   }
 
- private:
+private:
   ModelList(const ModelList& ml) {}
 
   ModelList& operator=(const ModelList& ml) { return *this; }
@@ -109,12 +109,11 @@ private:
   bool newAlphabet_;
 
 protected:
-  
   /**
    * Vector of shared_ptr, to allow multiple positions to share the same model.
    */
   std::vector<std::shared_ptr<SubstitutionModelInterface>> VSubMod_;
-  
+
   std::vector<std::string> VnestedPrefix_;
 
   std::vector<double> Vrate_;
@@ -146,8 +145,8 @@ public:
    * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
-    ModelList& modelList,
-    const std::string& prefix);
+      ModelList& modelList,
+      const std::string& prefix);
 
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a
@@ -160,9 +159,9 @@ public:
    * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface> model,
-    unsigned int num,
-    const std::string& prefix);
+      std::unique_ptr<SubstitutionModelInterface> model,
+      unsigned int num,
+      const std::string& prefix);
 
   AbstractWordSubstitutionModel(const AbstractWordSubstitutionModel&);
 
@@ -182,7 +181,6 @@ protected:
       const std::string& prefix);
 
 public:
-
   /**
    * @brief returns the ith model, or throw an exception if i is not a valid number.
    */

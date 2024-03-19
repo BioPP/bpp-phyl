@@ -60,7 +60,7 @@ public:
     std::shared_ptr<FrequencySetInterface> rootFreqs,
     const Tree& tree,
     const std::map<std::string, std::string>& aliasFreqNames,
-    const std::map<std::string, std::vector<Vint> >& globalParameterNames
+    const std::map<std::string, std::vector<Vint>>& globalParameterNames
     );
 };
 } // end of namespace bpp.

@@ -6,7 +6,6 @@
 #define BPP_PHYL_MODEL_CODON_ABSTRACTCODONFITNESSSUBSTITUTIONMODEL_H
 
 
-
 # ifndef _ABSTRACTCODONFITNESSSUBSTITUTIONMODEL_H_
 # define _ABSTRACTCODONFITNESSSUBSTITUTIONMODEL_H_
 
@@ -44,9 +43,9 @@ private:
 
 public:
   AbstractCodonFitnessSubstitutionModel(
-    std::unique_ptr<FrequencySetInterface> pfitset,
-    std::shared_ptr<const GeneticCode> pgencode,
-    const std::string& prefix);
+      std::unique_ptr<FrequencySetInterface> pfitset,
+      std::shared_ptr<const GeneticCode> pgencode,
+      const std::string& prefix);
 
   AbstractCodonFitnessSubstitutionModel(const AbstractCodonFitnessSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -76,7 +75,7 @@ public:
 
   void setFreq(std::map<int, double>& frequencies) override;
 
-  //const FrequencySet& getFreq() const { return *pfitset_; }
+  // const FrequencySet& getFreq() const { return *pfitset_; }
 
   void setNamespace (const std::string& prefix) override
   {
@@ -87,9 +86,9 @@ public:
   double getCodonsMulRate(size_t i, size_t j) const override;
 
   const FrequencySetInterface& fitness() const { return *pfitset_; }
-  
-  //TODO (jdutheil 30/12/22) not allowed if fully encapsulated.
-  //std::shared_ptr<const FrequencySetInterface> getFitness() const { return pfitset_; }
+
+  // TODO (jdutheil 30/12/22) not allowed if fully encapsulated.
+  // std::shared_ptr<const FrequencySetInterface> getFitness() const { return pfitset_; }
 
   const CodonFrequencySetInterface& codonFrequencySet() const override
   {
@@ -100,7 +99,6 @@ public:
   {
     return false;
   }
-
 };
 } // end of namespace bpp
 # endif

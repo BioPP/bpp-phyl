@@ -54,12 +54,12 @@ protected:
    */
   std::vector<unsigned int> rootWeights_;
 
-  std::shared_ptr<const TreeTemplate<Node> > tree_;
+  std::shared_ptr<const TreeTemplate<Node>> tree_;
 
   std::shared_ptr<const Alphabet> alphabet_;
 
 public:
-  AbstractTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node> > tree) :
+  AbstractTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node>> tree) :
     rootPatternLinks_(), rootWeights_(), tree_(tree), alphabet_(0) {}
 
   AbstractTreeLikelihoodData(const AbstractTreeLikelihoodData& atd) :
@@ -99,7 +99,7 @@ public:
 
   std::shared_ptr<const Alphabet> getAlphabet() const { return alphabet_; }
 
-  std::shared_ptr< const TreeTemplate<Node> > getTree() const { return tree_; }
+  std::shared_ptr< const TreeTemplate<Node>> getTree() const { return tree_; }
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_ABSTRACTTREELIKELIHOODDATA_H

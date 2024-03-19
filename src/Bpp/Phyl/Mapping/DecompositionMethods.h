@@ -41,7 +41,7 @@ protected:
   /**
    * @brief computation matrices
    */
-  std::vector< RowMatrix<double> > bMatrices_, insideProducts_, insideIProducts_;
+  std::vector< RowMatrix<double>> bMatrices_, insideProducts_, insideIProducts_;
 
 public:
   DecompositionMethods(
@@ -114,7 +114,7 @@ protected:
 
   void computeExpectations(RowMatrix<double>& mapping, double length) const;
 
-  void computeExpectations(std::vector< RowMatrix<double> >& mappings, double length) const;
+  void computeExpectations(std::vector< RowMatrix<double>>& mappings, double length) const;
 
   /**
    * @brief Compute the integral part of the computation

@@ -101,14 +101,14 @@ std::unique_ptr<Sequence> LegacyMarginalAncestralStateReconstruction::getAncestr
       allStates[i] = model->getAlphabetStateAsInt(states[rootPatternLinks[i]]);
     }
   }
-  std::shared_ptr<const Alphabet> alpha = alphabet_; //Copy needed because of const
+  std::shared_ptr<const Alphabet> alpha = alphabet_; // Copy needed because of const
   return make_unique<Sequence>(name, allStates, alpha);
 }
 
 void LegacyMarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
-  const Node* node,
-  map<int, vector<size_t> >& ancestors,
-  AlignedSequenceContainer& data) const
+    const Node* node,
+    map<int, vector<size_t>>& ancestors,
+    AlignedSequenceContainer& data) const
 {
   if (node->isLeaf())
   {
@@ -145,4 +145,3 @@ unique_ptr<SiteContainerInterface> LegacyMarginalAncestralStateReconstruction::g
   }
   return asc;
 }
-

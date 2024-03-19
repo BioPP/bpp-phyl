@@ -43,13 +43,11 @@ class AbstractDFPSubstitutionModel :
   public AbstractSubstitutionModel
 {
 private:
-	
   std::shared_ptr<const GeneticCode> gCode_;
 
   double tr_, trr_, tvv_, trv_, tsub_;
 
 public:
-
   /**
    * @brief Build a new AbstractDFPSubstitutionModel object
    */
@@ -82,13 +80,12 @@ public:
   AbstractDFPSubstitutionModel* clone() const override = 0;
 
 public:
-  
   std::shared_ptr<const GeneticCode> getGeneticCode() const override { return gCode_; }
 
   void fireParameterChanged(const ParameterList& parameters) override;
 
   using BranchModelInterface::getNumberOfStates;
-  
+
   size_t getNumberOfStates() { return 64; }
 
   /**
@@ -97,7 +94,6 @@ public:
   double getCodonsMulRate(size_t i, size_t j) const override;
 
 protected:
-
   /**
    * @brief Method inherited from AbstractSubstitutionModel
    *
@@ -105,7 +101,6 @@ protected:
    * set the generator given parameters.
    */
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTDFPSUBSTITUTIONMODEL_H

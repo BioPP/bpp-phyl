@@ -48,7 +48,7 @@ public:
   {}
 
   SimpleSubstitutionProcessSequenceSimulator* clone() const override
-  { 
+  {
     return new SimpleSubstitutionProcessSequenceSimulator(*this);
   }
 
@@ -80,7 +80,7 @@ public:
    * @{
    */
   std::shared_ptr<const Alphabet> getAlphabet() const override { return siteSim_->getAlphabet(); }
-  
+
   const Alphabet& alphabet() const override { return siteSim_->alphabet(); }
   /** @} */
 

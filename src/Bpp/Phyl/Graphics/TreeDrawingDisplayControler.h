@@ -40,7 +40,7 @@ private:
     listeners_(), registeredTreeDrawings_(tddc.registeredTreeDrawings_)
   {
     for (std::map<std::string, TreeDrawingListener*>::const_iterator it = tddc.listeners_.begin();
-         it != tddc.listeners_.end(); ++it)
+        it != tddc.listeners_.end(); ++it)
     {
       listeners_[it->first] = dynamic_cast<TreeDrawingListener*>(it->second->clone());
     }
@@ -50,7 +50,7 @@ private:
     listeners_.clear();
     registeredTreeDrawings_ = tddc.registeredTreeDrawings_;
     for (std::map<std::string, TreeDrawingListener*>::const_iterator it = tddc.listeners_.begin();
-         it != tddc.listeners_.end(); ++it)
+        it != tddc.listeners_.end(); ++it)
     {
       listeners_[it->first] = dynamic_cast<TreeDrawingListener*>(it->second->clone());
     }
@@ -91,7 +91,7 @@ public:
     if (std::find(registeredTreeDrawings_.begin(), registeredTreeDrawings_.end(), td) != registeredTreeDrawings_.end())
       throw Exception("TreeDrawingDisplayControler::registerTreeDrawing. TreeDrawing is already associated to this controler.");
     for (std::map<std::string, TreeDrawingListener*>::iterator it = listeners_.begin();
-         it != listeners_.end(); ++it)
+        it != listeners_.end(); ++it)
     {
       td->addTreeDrawingListener(it->second);
     }

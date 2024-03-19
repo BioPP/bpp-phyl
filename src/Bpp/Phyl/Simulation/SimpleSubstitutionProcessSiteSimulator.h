@@ -35,7 +35,7 @@ private:
   VVdouble cumProb_;
 
   // Sons in case of mixture node
-  std::vector<std::shared_ptr<SimProcessNode> > sons_;
+  std::vector<std::shared_ptr<SimProcessNode>> sons_;
 
 public:
   SimProcessNode(const ProcessComputationNode& pcn) :
@@ -63,9 +63,6 @@ public:
 typedef AssociationTreeGlobalGraphObserver<SimProcessNode, SimProcessEdge>  SPTree;
 
 
-
-
-
 /**
  * @brief Site simulation under a unique substitution process.
  */
@@ -73,7 +70,6 @@ class SimpleSubstitutionProcessSiteSimulator :
   public virtual DetailedSiteSimulatorInterface
 {
 protected:
-  
   std::shared_ptr<const SubstitutionProcessInterface> process_;
   std::shared_ptr<const ParametrizablePhyloTree> phyloTree_;
 
@@ -108,7 +104,7 @@ protected:
    * @brief Map between species Indexes & used nodes, may change at
    * each simulation.
    */
-  mutable std::map<size_t, std::shared_ptr<SimProcessNode> > speciesNodes_;
+  mutable std::map<size_t, std::shared_ptr<SimProcessNode>> speciesNodes_;
 
   size_t nbNodes_;
   size_t nbClasses_;
@@ -127,7 +123,7 @@ protected:
 
 public:
   SimpleSubstitutionProcessSiteSimulator(
-    std::shared_ptr<const SubstitutionProcessInterface> process);
+      std::shared_ptr<const SubstitutionProcessInterface> process);
 
   virtual ~SimpleSubstitutionProcessSiteSimulator() {}
 
@@ -167,7 +163,7 @@ public:
   }
 
   SimpleSubstitutionProcessSiteSimulator* clone() const override
-  { 
+  {
     return new SimpleSubstitutionProcessSiteSimulator(*this);
   }
 
@@ -207,7 +203,7 @@ public:
    * @{
    */
   std::shared_ptr<const Alphabet> getAlphabet() const override { return process_->stateMap().getAlphabet(); }
-  
+
   const Alphabet& alphabet() const override { return process_->stateMap().alphabet(); }
   /** @} */
 
@@ -233,7 +229,7 @@ public:
    * @return The substitution process associated to this instance.
    */
   std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const
-  { 
+  {
     return process_;
   }
 
@@ -243,7 +239,7 @@ public:
    * @return The Tree object associated to this instance.
    */
   std::shared_ptr<const ParametrizablePhyloTree> getTree() const
-  { 
+  {
     return phyloTree_;
   }
 
@@ -279,16 +275,16 @@ protected:
    * This method uses the states_ variable for saving ancestral states.
    */
   void evolveInternal(
-      std::shared_ptr<SimProcessNode> node, 
-      size_t rateClass, SiteSimulationResult* ssr = nullptr) const;
+    std::shared_ptr<SimProcessNode> node,
+    size_t rateClass, SiteSimulationResult* ssr = nullptr) const;
 
   /**
    * This method uses the states_ variable for saving ancestral states.
    */
   void evolveInternal(
-      std::shared_ptr<SimProcessNode> node,
-      double rate,
-      SiteSimulationResult* ssr = nullptr) const;
+    std::shared_ptr<SimProcessNode> node,
+    double rate,
+    SiteSimulationResult* ssr = nullptr) const;
 
   /** @} */
 };

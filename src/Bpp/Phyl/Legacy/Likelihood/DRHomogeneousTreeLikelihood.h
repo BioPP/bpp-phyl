@@ -51,11 +51,11 @@ public:
    * @throw Exception in an error occured.
    */
   DRHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Build a new DRHomogeneousTreeLikelihood object and compute the corresponding likelihood.
@@ -72,12 +72,12 @@ public:
    * @throw Exception in an error occured.
    */
   DRHomogeneousTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Copy constructor.

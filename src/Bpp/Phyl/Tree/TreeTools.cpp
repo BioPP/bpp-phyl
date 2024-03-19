@@ -409,7 +409,7 @@ vector<int> TreeTools::getPathBetweenAnyTwoNodes(const Tree& tree, int nodeId1, 
     path.push_back(pathMatrix1[y]);
   }
   if (includeAncestor)
-    path.push_back(pathMatrix1[tmp1]);                                          // pushing once, the Node that was common to both.
+    path.push_back(pathMatrix1[tmp1]); // pushing once, the Node that was common to both.
   for (size_t j = tmp2; j > 0; --j)
   {
     path.push_back(pathMatrix2[j - 1]);
@@ -548,12 +548,12 @@ void TreeTools::initBranchLengthsGrafen(Tree& tree)
 /******************************************************************************/
 
 void TreeTools::computeBranchLengthsGrafen(
-  Tree& tree,
-  int nodeId,
-  double power,
-  double total,
-  double& height,
-  double& heightRaised)
+    Tree& tree,
+    int nodeId,
+    double power,
+    double total,
+    double& height,
+    double& heightRaised)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::computeBranchLengthsGrafen", nodeId);
@@ -906,7 +906,7 @@ int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool che
 
 /******************************************************************************/
 
-unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<unique_ptr<Tree> >& vecTr, vector<size_t>& bipScore)
+unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<unique_ptr<Tree>>& vecTr, vector<size_t>& bipScore)
 {
   vector<unique_ptr<BipartitionList>> vecBipL;
   unique_ptr<BipartitionList> mergedBipL;
@@ -966,7 +966,7 @@ unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<uniqu
 
 /******************************************************************************/
 
-unique_ptr<TreeTemplate<Node>> TreeTools::thresholdConsensus(const vector<unique_ptr<Tree> >& vecTr, double threshold, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::thresholdConsensus(const vector<unique_ptr<Tree>>& vecTr, double threshold, bool checkNames)
 {
   vector<size_t> bipScore;
   vector<string> tr0leaves;
@@ -1016,31 +1016,31 @@ unique_ptr<TreeTemplate<Node>> TreeTools::thresholdConsensus(const vector<unique
 
 /******************************************************************************/
 
-unique_ptr<TreeTemplate<Node>> TreeTools::fullyResolvedConsensus(const vector<unique_ptr<Tree> >& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::fullyResolvedConsensus(const vector<unique_ptr<Tree>>& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 0., checkNames);
 }
 
 /******************************************************************************/
 
-unique_ptr<TreeTemplate<Node>> TreeTools::majorityConsensus(const vector<unique_ptr<Tree > >& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::majorityConsensus(const vector<unique_ptr<Tree >>& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 0.5, checkNames);
 }
 
 /******************************************************************************/
 
-unique_ptr<TreeTemplate<Node>> TreeTools::strictConsensus(const vector<unique_ptr<Tree> >& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::strictConsensus(const vector<unique_ptr<Tree>>& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 1., checkNames);
 }
 
 /******************************************************************************/
 
-unique_ptr<Tree> TreeTools::MRP(const vector<unique_ptr<Tree> >& vecTr)
+unique_ptr<Tree> TreeTools::MRP(const vector<unique_ptr<Tree>>& vecTr)
 {
   throw Exception("TreeTools::MRP not updated.");
-  
+
   // // matrix representation
   // VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
 
@@ -1069,14 +1069,14 @@ unique_ptr<Tree> TreeTools::MRP(const vector<unique_ptr<Tree> >& vecTr)
 
 /******************************************************************************/
 
-void TreeTools::computeBootstrapValues(Tree& tree, const vector<unique_ptr<Tree> >& vecTr, bool verbose, int format)
+void TreeTools::computeBootstrapValues(Tree& tree, const vector<unique_ptr<Tree>>& vecTr, bool verbose, int format)
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, &index);
   vector<size_t> occurences;
   auto bpList = bipartitionOccurrences(vecTr, occurences);
 
-  vector< Number<double> > bootstrapValues(bpTree.getNumberOfBipartitions());
+  vector< Number<double>> bootstrapValues(bpTree.getNumberOfBipartitions());
 
   for (size_t i = 0; i < bpTree.getNumberOfBipartitions(); i++)
   {
@@ -1119,7 +1119,7 @@ int TreeTools::getLastCommonAncestor(const Tree& tree, const vector<int>& nodeId
 {
   if (nodeIds.size() == 0)
     throw Exception("TreeTools::getLastCommonAncestor(). You must provide at least one node id.");
-  vector< vector<int> > ancestors(nodeIds.size());
+  vector< vector<int>> ancestors(nodeIds.size());
   for (size_t i = 0; i < nodeIds.size(); i++)
   {
     ancestors[i] = getAncestors(tree, nodeIds[i]);
@@ -1233,7 +1233,7 @@ TreeTools::Moments_ TreeTools::statFromNode_(Tree& tree, int rootId)
 Tree* TreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
 {
   throw Exception("TreeTools::MRPMultilabel not updated.");
-  
+
   // // matrix representation
   // VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
 

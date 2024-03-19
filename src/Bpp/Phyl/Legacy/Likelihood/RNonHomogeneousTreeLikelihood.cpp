@@ -18,12 +18,12 @@ using namespace std;
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
-  const Tree& tree,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<DiscreteDistributionInterface> rDist,
-  bool verbose,
-  bool usePatterns,
-  bool reparametrizeRoot) :
+    const Tree& tree,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose,
+    bool usePatterns,
+    bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -36,13 +36,13 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
-  const Tree& tree,
-  const AlignmentDataInterface& data,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<DiscreteDistributionInterface> rDist,
-  bool verbose,
-  bool usePatterns,
-  bool reparametrizeRoot) :
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose,
+    bool usePatterns,
+    bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -58,15 +58,15 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 void RNonHomogeneousTreeLikelihood::init_(bool usePatterns)
 {
   likelihoodData_ = make_shared<DRASRTreeLikelihoodData>(
-    tree_,
-    rateDistribution_->getNumberOfCategories(),
-    usePatterns);
+        tree_,
+        rateDistribution_->getNumberOfCategories(),
+        usePatterns);
 }
 
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
-  const RNonHomogeneousTreeLikelihood& lik) :
+    const RNonHomogeneousTreeLikelihood& lik) :
   AbstractNonHomogeneousTreeLikelihood(lik),
   likelihoodData_(),
   minusLogLik_(lik.minusLogLik_)
@@ -78,7 +78,7 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood& RNonHomogeneousTreeLikelihood::operator=(
-  const RNonHomogeneousTreeLikelihood& lik)
+    const RNonHomogeneousTreeLikelihood& lik)
 {
   AbstractNonHomogeneousTreeLikelihood::operator=(lik);
   likelihoodData_ = shared_ptr<DRASRTreeLikelihoodData>(lik.likelihoodData_->clone());
@@ -109,7 +109,7 @@ void RNonHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites)
 
   if (verbose_)
     ApplicationTools::displayResult("Number of distinct sites",
-                                    TextTools::toString(nbDistinctSites_));
+        TextTools::toString(nbDistinctSites_));
   initialized_ = false;
 }
 
@@ -284,8 +284,8 @@ double RNonHomogeneousTreeLikelihood::getValue() const
 *                           First Order Derivatives                          *
 ******************************************************************************/
 double RNonHomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
-  size_t site,
-  size_t rateClass) const
+    size_t site,
+    size_t rateClass) const
 {
   double dl = 0;
   Vdouble* dla = &likelihoodData_->getDLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
@@ -755,8 +755,8 @@ void RNonHomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node* no
 *                           Second Order Derivatives                         *
 ******************************************************************************/
 double RNonHomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
-  size_t site,
-  size_t rateClass) const
+    size_t site,
+    size_t rateClass) const
 {
   double d2l = 0;
   Vdouble* d2la = &likelihoodData_->getD2LikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];

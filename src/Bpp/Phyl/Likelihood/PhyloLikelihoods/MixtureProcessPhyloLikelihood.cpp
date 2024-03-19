@@ -13,20 +13,20 @@ using namespace numeric;
 /******************************************************************************/
 
 MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
-  shared_ptr<const AlignmentDataInterface> data,
-  shared_ptr<MixtureSequenceEvolution> processSeqEvol,
-  shared_ptr<CollectionNodes> collNodes,
-  size_t nSeqEvol,
-  size_t nData) :
+    shared_ptr<const AlignmentDataInterface> data,
+    shared_ptr<MixtureSequenceEvolution> processSeqEvol,
+    shared_ptr<CollectionNodes> collNodes,
+    size_t nSeqEvol,
+    size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
-      collNodes->context(),
-      data->getNumberOfSites(),
-      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
+    collNodes->context(),
+    data->getNumberOfSites(),
+    (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
           ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates()
-	  : 0,
-      nData),
+    : 0,
+    nData),
   AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nData),
   AbstractParametrizable(""),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData),
@@ -62,7 +62,7 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex, Eigen::RowVectorXd>(context(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
 
   // get RowVectorXd for each single Calculation
-  std::vector<std::shared_ptr<Node_DF> > vSL;
+  std::vector<std::shared_ptr<Node_DF>> vSL;
 
   for (auto& lik : vLikCal_)
   {

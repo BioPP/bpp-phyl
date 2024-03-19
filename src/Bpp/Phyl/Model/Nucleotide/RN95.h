@@ -52,11 +52,11 @@ namespace bpp
  * \gamma + \lambda + \delta + \kappa=1\\
  * c_1 = \kappa + \delta + \sigma + \beta\\
  * c_2 = \lambda + \gamma - (\sigma + \beta)  = 1 - c_1\\
- * c_3 = \lambda + \gamma + \alpha + \epsilon \\ 
+ * c_3 = \lambda + \gamma + \alpha + \epsilon \\
  * c_4 = \kappa + \delta - (\alpha + \epsilon) = 1 - c_3 \\
  * \end{cases}
  *\f]
- 
+
  * The stationnary distribution is then:
  * \f[
  * \pi = \frac{\delta\,(\lambda+\gamma)+\epsilon\,(\kappa+\delta)}{c_3} ,
@@ -89,7 +89,7 @@ namespace bpp
  * \f]
  *
  *
- * and 4 other positive parameters: \f[ \alpha, \beta, \epsilon, \sigma \f] 
+ * and 4 other positive parameters: \f[ \alpha, \beta, \epsilon, \sigma \f]
  *
  * The eigen values are \f$\left(-\frac{1}{P}, - \frac{c_3}{P}, -\frac{c_1}{P}, 0\right)\f$,
  *
@@ -103,7 +103,7 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
- * 
+ *
  * and the left eigen vectors are, by row:
  * \f[
  * U = \begin{pmatrix}
@@ -132,30 +132,27 @@ private:
 
 public:
   RN95(
-    std::shared_ptr<const NucleicAlphabet> alphabet,
-    double alpha = 1,
-    double beta = 1,
-    double gamma = 0.25,
-    double delta = 0.25,
-    double epsilon = 1,
-    double kappa = 0.25,
-    double lambda = 0.25,
-    double sigma = 1);
+      std::shared_ptr<const NucleicAlphabet> alphabet,
+      double alpha = 1,
+      double beta = 1,
+      double gamma = 0.25,
+      double delta = 0.25,
+      double epsilon = 1,
+      double kappa = 0.25,
+      double lambda = 0.25,
+      double sigma = 1);
 
   virtual ~RN95() {}
 
   RN95* clone() const override { return new RN95(*this); }
 
 public:
-
   std::string getName() const override { return "RN95"; }
 
   void setFreq(std::map<int, double>&) override;
 
 protected:
-
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_RN95_H

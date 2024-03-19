@@ -70,12 +70,12 @@ public:
    * @throw Exception in an error occured.
    */
   RNonHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose = true,
-    bool usePatterns = true,
-    bool reparametrizeRoot = false);
+      const Tree& tree,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true,
+      bool usePatterns = true,
+      bool reparametrizeRoot = false);
 
   /**
    * @brief Build a new NonHomogeneousTreeLikelihood object and compute the corresponding likelihood.
@@ -92,13 +92,13 @@ public:
    * @throw Exception in an error occured.
    */
   RNonHomogeneousTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose = true,
-    bool usePatterns = true,
-    bool reparametrizeRoot = false);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true,
+      bool usePatterns = true,
+      bool reparametrizeRoot = false);
 
   RNonHomogeneousTreeLikelihood(const RNonHomogeneousTreeLikelihood& lik);
 

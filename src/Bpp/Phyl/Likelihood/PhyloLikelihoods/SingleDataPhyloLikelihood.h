@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SINGLEDATAPHYLOLIKELIHOOD_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/AlignmentData.h>

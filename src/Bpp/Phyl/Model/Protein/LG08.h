@@ -106,7 +106,7 @@ public:
       return *freqSet_;
     throw NullPointerException("LG08::frequencySet(). No associated FrequencySet.");
   }
-    
+
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 };
 } // end of namespace bpp.

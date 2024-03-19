@@ -183,7 +183,7 @@ public:
       return *freqSet_;
     throw NullPointerException("JCprot::frequencySet(). No associated FrequencySet.");
   }
-    
+
   void setNamespace(const std::string& prefix) override
   {
     AbstractParameterAliasable::setNamespace(prefix);
@@ -193,7 +193,6 @@ public:
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
 protected:
-  
   /**
    * In the case of the model of Jukes & Cantor, this method is useless since
    * the generator is fixed! No matrice can be changed... This method is only

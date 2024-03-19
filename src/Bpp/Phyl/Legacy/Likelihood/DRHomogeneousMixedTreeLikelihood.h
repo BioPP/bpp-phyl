@@ -54,12 +54,12 @@ public:
    * @throw Exception in an error occured.
    */
   DRHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true,
-    bool rootArray = false);
+      const Tree& tree,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true,
+      bool rootArray = false);
 
   /**
    * @brief Build a new DRHomogeneousMixedTreeLikelihood object with data.
@@ -78,13 +78,13 @@ public:
    * @throw Exception in an error occured.
    */
   DRHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true,
-    bool rootArray = false);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true,
+      bool rootArray = false);
 
   DRHomogeneousMixedTreeLikelihood(const DRHomogeneousMixedTreeLikelihood& lik);
 

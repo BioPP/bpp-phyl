@@ -15,7 +15,7 @@ void GeneralSubstitutionRegister::updateTypes_()
     for (size_t j = 0; j < size_; j++)
     {
       size_t type = matrix_(i, j);
-      map<size_t, vector<size_t> > reg = types_[type];
+      map<size_t, vector<size_t>> reg = types_[type];
       reg[i].push_back(j);
     }
   }

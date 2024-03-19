@@ -41,9 +41,9 @@ YNGP_M8::YNGP_M8(
   auto psdd = make_unique<SimpleDiscreteDistribution>(val, std::move(prob));
 
   vector<unique_ptr<DiscreteDistributionInterface>> v_distr;
-  v_distr.push_back(std::move(pbdd)); 
+  v_distr.push_back(std::move(pbdd));
   v_distr.push_back(std::move(psdd));
-  prob.clear(); 
+  prob.clear();
   prob.push_back(0.5);
   prob.push_back(0.5);
 
@@ -65,7 +65,7 @@ YNGP_M8::YNGP_M8(
   ParameterList pl = mixedModelPtr_->getParameters();
   for (size_t i = 0; i < pl.size(); ++i)
   {
-    if (neutral_ && pl[i].getName()=="YN98.omega_Mixture.2_Simple.V1")
+    if (neutral_ && pl[i].getName() == "YN98.omega_Mixture.2_Simple.V1")
       continue;
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
@@ -91,8 +91,8 @@ YNGP_M8::YNGP_M8(
   {
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     if (it.second != "omegas")
-      addParameter_(new Parameter(getName()+"." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
+      addParameter_(new Parameter(getName() + "." + it.second, mixedModelPtr_->getParameterValue(st),
+            mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   if (!neutral_)
@@ -135,4 +135,3 @@ void YNGP_M8::updateMatrices_()
 
   mixedModelPtr_->setVRates(vd);
 }
-

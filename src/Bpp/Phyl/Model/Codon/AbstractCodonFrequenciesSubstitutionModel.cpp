@@ -48,4 +48,3 @@ double AbstractCodonFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, siz
 }
 
 /******************************************************************************/
-

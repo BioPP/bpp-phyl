@@ -20,7 +20,7 @@ L95::L95(
     double alpha, double beta, double gamma, double kappa, double theta) :
   AbstractParameterAliasable("L95."),
   AbstractNucleotideSubstitutionModel(
-    alphabet, 
+    alphabet,
     make_shared<CanonicalStateMap>(alphabet, false),
     "L95."),
   alpha_(alpha), beta_(beta), gamma_(gamma), kappa_(kappa), theta_(theta)

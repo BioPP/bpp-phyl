@@ -127,11 +127,11 @@ public:
 
 public:
   const StateMapInterface& stateMap() const override { return *stateMap_; }
-  
+
   std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
 
   const Alphabet& alphabet() const override { return *stateMap_->getAlphabet(); }
-  
+
   std::shared_ptr<const Alphabet> getAlphabet() const override { return stateMap_->getAlphabet(); }
 
   const std::string& getName() const override
@@ -284,7 +284,7 @@ private:
   /**
    * @brief the vector of pointers to SubstitutionRegisters.
    */
-  std::vector< std::shared_ptr<SubstitutionRegisterInterface> > vSubReg_;
+  std::vector< std::shared_ptr<SubstitutionRegisterInterface>> vSubReg_;
 
 public:
   VectorOfSubstitionRegisters(std::shared_ptr<const StateMapInterface> stateMap) :
@@ -402,7 +402,7 @@ protected:
    *
    * This is the reverse information of matrix_
    */
-  std::map<size_t, std::map<size_t, std::vector<size_t> > > types_;
+  std::map<size_t, std::map<size_t, std::vector<size_t>>> types_;
 
 public:
   GeneralSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap) :
@@ -779,7 +779,7 @@ public:
     int x = stateMap().getAlphabetStateAsInt(fromState);
     int y = stateMap().getAlphabetStateAsInt(toState);
     if (x == y)
-      return 0;                                        // nothing happens
+      return 0; // nothing happens
 
 
     if (genCode_)
@@ -807,7 +807,7 @@ public:
     while (d != 0)
     {
       if (d == 2)
-        return 1;                                          // This is a transition
+        return 1; // This is a transition
       else
         d /= 4;
     }
@@ -891,7 +891,7 @@ public:
     int x = stateMap().getAlphabetStateAsInt(fromState);
     int y = stateMap().getAlphabetStateAsInt(toState);
     if (x == y)
-      return 0;                                        // nothing happens
+      return 0; // nothing happens
 
     int nd, na;
     if (genCode_)
@@ -1025,7 +1025,7 @@ public:
         || genCode_->isStop(y))
       return 0;
     if (x == y)
-      return 0;                                        // nothing happens
+      return 0; // nothing happens
     if (!countMultiple_)
     {
       size_t countPos = 0;
@@ -1075,7 +1075,7 @@ class KrKcSubstitutionRegister :
   public AbstractSubstitutionRegister
 {
 private:
-  std::vector< std::vector<bool> > types_;
+  std::vector< std::vector<bool>> types_;
 
   // In case of codon model
   std::shared_ptr<const GeneticCode> genCode_;
@@ -1224,7 +1224,7 @@ public:
   size_t getType(size_t fromState, size_t toState) const
   {
     if (fromState == toState)
-      return 0;                     // nothing happens
+      return 0; // nothing happens
     int x = stateMap().getAlphabetStateAsInt(fromState);
     int y = stateMap().getAlphabetStateAsInt(toState);
 

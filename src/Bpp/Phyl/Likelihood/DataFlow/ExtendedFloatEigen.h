@@ -64,12 +64,12 @@ using EFArray = Eigen::Array<double, R, C>;
  */
 
 template< int R,  int C, template< int R2,  int C2> class EigenType>
-class ExtendedFloatEigen : public ExtendedFloatEigenBase<ExtendedFloatEigen<R, C, EigenType> >
+class ExtendedFloatEigen : public ExtendedFloatEigenBase<ExtendedFloatEigen<R, C, EigenType>>
 {
   using ExtType =  int;
   using MatType = EigenType<R, C>;
 
-  using RefMatType = Eigen::Ref<EigenType<R, C> >;
+  using RefMatType = Eigen::Ref<EigenType<R, C>>;
 
   using Self = ExtendedFloatEigen<R, C, EigenType>;
 
@@ -124,7 +124,7 @@ public:
   {}
 
   ExtendedFloatEigen(Eigen::DenseBase<MatType>& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat.derived()),
     exp_(exp),
@@ -132,7 +132,7 @@ public:
   {}
 
   ExtendedFloatEigen(MatType& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat),
     exp_(exp),
@@ -140,7 +140,7 @@ public:
   {}
 
   ExtendedFloatEigen(const Eigen::DenseBase<MatType>& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat.derived()),
     exp_(exp),
@@ -148,7 +148,7 @@ public:
   {}
 
   ExtendedFloatEigen(const Eigen::internal::traits<MatType>& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat),
     exp_(exp),
@@ -169,7 +169,7 @@ public:
     EFtmp_(*this) {}
 
   ExtendedFloatEigen(const MatType& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat),
     exp_(exp),
@@ -189,7 +189,7 @@ public:
     EFtmp_(*this) {}
 
   virtual ~ExtendedFloatEigen() {}
-  
+
   // Specific constructors
 
   static Self Zero(Eigen::Index rows, Eigen::Index cols)
@@ -295,17 +295,20 @@ public:
 
   bool normalize_small ()
   {
-    const auto& fabs= float_part().cwiseAbs();
-    auto max=fabs.maxCoeff();
-    if (max > 0){
+    const auto& fabs = float_part().cwiseAbs();
+    auto max = fabs.maxCoeff();
+    if (max > 0)
+    {
       // not a vector of zeros
-      auto min=fabs.unaryExpr([max](double d){return d>0?d:max;}).minCoeff();
+      auto min = fabs.unaryExpr([max](double d){return d > 0 ? d : max;}).minCoeff();
       bool normalized = false;
-      while (min< ExtendedFloat::smallest_normalized_value) {
-        //to prevent overflow
-        if (max * ExtendedFloat::normalize_small_factor >=ExtendedFloat::biggest_normalized_value){
+      while (min < ExtendedFloat::smallest_normalized_value)
+      {
+        // to prevent overflow
+        if (max * ExtendedFloat::normalize_small_factor >= ExtendedFloat::biggest_normalized_value)
+        {
           break;
-        } 
+        }
         float_part() *= (double)ExtendedFloat::normalize_small_factor;
         min *= (double)ExtendedFloat::normalize_small_factor;
         max *= (double)ExtendedFloat::normalize_small_factor;
@@ -316,7 +319,7 @@ public:
     }
     return false;
   }
-  
+
   void normalize () noexcept
   {
     if (!normalize_big())
@@ -443,10 +446,9 @@ public:
    * Operators
    *
    */
-
   template<typename T>
   typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value
-                          || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+      || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
   inline operator+(const T& rhs) const
   {
     auto r = denorm_add (*this, rhs);
@@ -464,7 +466,7 @@ public:
 
   template<typename T>
   typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value
-                          || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+      || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
   inline operator-(const T& rhs) const
   {
     auto r = denorm_sub (*this, rhs);
@@ -554,7 +556,6 @@ public:
    * Modifying operators
    *
    */
-
   template<typename T>
   typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value, Self&>::type
   inline operator*=(const T& rhs)
@@ -756,7 +757,7 @@ public:
   }
 
   template<typename M = MatType>
-  typename std::enable_if<std::is_same<M, EFMatrix<R, C> >::value, ExtendedFloatCol<R, C, EigenType > >::type
+  typename std::enable_if<std::is_same<M, EFMatrix<R, C>>::value, ExtendedFloatCol<R, C, EigenType >>::type
   col(Eigen::Index pos)
   {
     return ExtendedFloatCol<R, C, EigenType>(*this, pos);
@@ -768,7 +769,7 @@ public:
   }
 
   template<typename M = MatType>
-  typename std::enable_if<std::is_same<M, EFMatrix<R, C> >::value, ExtendedFloatRow<R, C, EigenType > >::type
+  typename std::enable_if<std::is_same<M, EFMatrix<R, C>>::value, ExtendedFloatRow<R, C, EigenType >>::type
   row(Eigen::Index pos)
   {
     return ExtendedFloatRow<R, C, EigenType>(*this, pos);
@@ -804,7 +805,7 @@ public:
   }
 
   template<typename M = MatType>
-  typename std::enable_if<std::is_same<M, EFArray<R, C> >::value, const ExtendedFloat&>::type
+  typename std::enable_if<std::is_same<M, EFArray<R, C>>::value, const ExtendedFloat&>::type
   operator[](Eigen::Index pos) const
   {
     EFtmp_.set_exponent_part(exponent_part());
@@ -929,8 +930,8 @@ inline ExtendedFloatArray<R, C> pow (const ExtendedFloatArray<R, C>& obj, int ex
 
 template<int R, int C, template< int R2 = R,  int C2 = C> class MatType, typename T>
 typename std::enable_if<std::is_same<T, ExtendedFloat>::value
-  || std::is_floating_point<T>::value || std::is_integral<T>::value,
-                        ExtendedFloatEigen<R, C, MatType> >::type
+    || std::is_floating_point<T>::value || std::is_integral<T>::value,
+    ExtendedFloatEigen<R, C, MatType>>::type
 inline operator+(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 {
   return rhs + d;
@@ -938,8 +939,8 @@ inline operator+(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 
 template<int R, int C, template< int R2 = R, int C2 = C> class MatType, typename T>
 typename std::enable_if<std::is_same<T, ExtendedFloat>::value
-                        || std::is_floating_point<T>::value || std::is_integral<T>::value,
-                        ExtendedFloatEigen<R, C, MatType> >::type
+    || std::is_floating_point<T>::value || std::is_integral<T>::value,
+    ExtendedFloatEigen<R, C, MatType>>::type
 inline operator-(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 {
   return -(rhs - d);
@@ -947,8 +948,8 @@ inline operator-(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 
 template<int R, int C, template< int R2 = R,  int C2 = C> class MatType, typename T>
 typename std::enable_if<std::is_same<T, ExtendedFloat>::value
-                        || std::is_floating_point<T>::value || std::is_integral<T>::value,
-                        ExtendedFloatEigen<R, C, MatType> >::type
+    || std::is_floating_point<T>::value || std::is_integral<T>::value,
+    ExtendedFloatEigen<R, C, MatType>>::type
 inline operator*(const T& fact, const ExtendedFloatEigen<R, C, MatType> mat)
 {
   auto r = ExtendedFloatEigen<R, C, MatType>::denorm_mul (mat, fact);
@@ -958,7 +959,7 @@ inline operator*(const T& fact, const ExtendedFloatEigen<R, C, MatType> mat)
 
 template<typename Derived, typename EFType>
 inline EFType operator*(const Eigen::EigenBase<Derived>& lhs,
-                        const ExtendedFloatEigenBase<EFType>& rhs)
+    const ExtendedFloatEigenBase<EFType>& rhs)
 {
   auto r = EFType::denorm_mul(lhs.derived(), rhs);
   r.normalize ();
@@ -1028,7 +1029,7 @@ public:
 
 template<int R, int C>
 inline ExtendedFloatArray<R, C> operator*(const ExtendedFloatArray<R, C>& lhs,
-                                          const ExtendedFloatArrayWrapper<R, C>& rhs)
+    const ExtendedFloatArrayWrapper<R, C>& rhs)
 {
   return rhs * lhs; // cwise * is commutative
 }

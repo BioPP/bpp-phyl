@@ -32,19 +32,19 @@ public:
   const std::string getFormatName() const { return "Phylip"; }
 
   const std::string getFormatDescription() const {  return "Multiline space-delimited columns."; }
-  
+
   std::unique_ptr<DistanceMatrix> readDistanceMatrix(const std::string& path) const
   {
     return AbstractIDistanceMatrix::readDistanceMatrix(path);
   }
-  
+
   std::unique_ptr<DistanceMatrix> readDistanceMatrix(std::istream& in) const;
 
   void writeDistanceMatrix(const DistanceMatrix& dist, const std::string& path, bool overwrite = true) const
   {
     AbstractODistanceMatrix::writeDistanceMatrix(dist, path, overwrite);
   }
-  
+
   void writeDistanceMatrix(const DistanceMatrix& dist, std::ostream& out) const;
 };
 } // end of namespace bpp.

@@ -25,53 +25,58 @@
 using namespace bpp;
 using namespace std;
 
-class DummyFunction:
+class DummyFunction :
   public virtual FunctionInterface,
   public AbstractParametrizable
 {
-  public:
-    DummyFunction(const SubstitutionModelInterface& model):
-      AbstractParametrizable("")
-    {
-      addParameters_(model.getParameters());
-    }
+public:
+  DummyFunction(const SubstitutionModelInterface& model) :
+    AbstractParametrizable("")
+  {
+    addParameters_(model.getParameters());
+  }
 
-    DummyFunction* clone() const { return new DummyFunction(*this); }
+  DummyFunction* clone() const { return new DummyFunction(*this); }
 
-    void setParameters(const ParameterList& pl) {
-      matchParametersValues(pl);
-    }
+  void setParameters(const ParameterList& pl)
+  {
+    matchParametersValues(pl);
+  }
 
-    double getValue() const { return 0; }
+  double getValue() const { return 0; }
 
-    void fireParameterChanged(const bpp::ParameterList&) {}
-
+  void fireParameterChanged(const bpp::ParameterList&) {}
 };
 
-bool testModel(SubstitutionModelInterface& model) {
+bool testModel(SubstitutionModelInterface& model)
+{
   ParameterList pl = model.getParameters();
   auto df = make_shared<DummyFunction>(model);
   ReparametrizationFunctionWrapper redf(df, pl, false);
 
-  //Try to modify randomly each parameter and check that the new parameter apply correctly:
-  for (unsigned int i = 0; i < 10; ++i) {
-    //Get random parameters (unconstrained):
+  // Try to modify randomly each parameter and check that the new parameter apply correctly:
+  for (unsigned int i = 0; i < 10; ++i)
+  {
+    // Get random parameters (unconstrained):
     ParameterList pl2 = redf.getParameters();
-    for (size_t j = 0; j < pl.size(); ++j) {
+    for (size_t j = 0; j < pl.size(); ++j)
+    {
       double value = (RandomTools::flipCoin() ? 1. : -1) * RandomTools::giveRandomNumberBetweenZeroAndEntry(1);
       pl2[j].setValue(value);
     }
-    //Apply unconstrained parameters:
+    // Apply unconstrained parameters:
     redf.setParameters(pl2);
-    //Retrieve transformed parameters:
+    // Retrieve transformed parameters:
     pl2 = df->getParameters();
-    //pl2.printParameters(cout);
-    //Now apply the new parameters and retrieve them again:
+    // pl2.printParameters(cout);
+    // Now apply the new parameters and retrieve them again:
     model.matchParametersValues(pl2);
     ParameterList pl3 = model.getParameters();
-    //Compare the two lists:
-    for (size_t j = 0; j < pl.size(); ++j) {
-      if (abs(pl2[j].getValue() - pl3[j].getValue()) > 0.0000001) {
+    // Compare the two lists:
+    for (size_t j = 0; j < pl.size(); ++j)
+    {
+      if (abs(pl2[j].getValue() - pl3[j].getValue()) > 0.0000001)
+      {
         cerr << "ERROR for parameter " << pl2[j].getName() << ": " << pl2[j].getValue() << "<>" << pl3[j].getValue() << endl;
         return false;
       }
@@ -81,18 +86,21 @@ bool testModel(SubstitutionModelInterface& model) {
   return true;
 }
 
-int main() {
-  //Nucleotide models:
+int main()
+{
+  // Nucleotide models:
   auto gtr = std::make_unique<GTR>(AlphabetTools::DNA_ALPHABET);
-  
-  if (!testModel(*gtr)) return 1;
 
-  //Codon models:
+  if (!testModel(*gtr))
+    return 1;
+
+  // Codon models:
   auto gc = make_shared<StandardGeneticCode>(AlphabetTools::DNA_ALPHABET);
   auto fset = CodonFrequencySetInterface::getFrequencySetForCodons(CodonFrequencySetInterface::F3X4, gc);
   YN98 yn98(gc, move(fset));
-  
-  if (!testModel(yn98)) return 1;
+
+  if (!testModel(yn98))
+    return 1;
 
   // Allelic models
 
@@ -100,13 +108,13 @@ int main() {
   auto fit = std::make_unique<FullNucleotideFrequencySet>(AlphabetTools::DNA_ALPHABET);
 
   auto statemod = move(gtr);
-   
+
   // AllelicAlphabet allalph(AlphabetTools::PROTEIN_ALPHABET, 4);
   // auto fit = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
   // auto freq = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
 
   // auto statemod = std::make_shared<JTT92>(&AlphabetTools::PROTEIN_ALPHABET, freq);
-  
+
   POMO pomo(allalph, move(statemod), move(fit));
 
   auto& Q = pomo.generator();
@@ -114,6 +122,6 @@ int main() {
   MatrixTools::printForR(Q, "Q", cerr);
 
   VectorTools::printForR(pomo.getFrequencies(), "freq", cerr);
-  
+
   return 0;
 }

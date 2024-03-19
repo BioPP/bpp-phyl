@@ -102,13 +102,11 @@ public:
   {
     return dynamic_cast<const CodonSameAARateSubstitutionModel&>(nModel(0)).proteinModel();
   }
-  
+
   std::string getName() const override { return "DFP07"; }
 
 protected:
-
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_DFP07_H

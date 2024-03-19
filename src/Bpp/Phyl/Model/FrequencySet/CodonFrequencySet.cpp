@@ -246,7 +246,7 @@ void FullPerAACodonFrequencySet::updateFrequencies_()
     {
       // NB: only one alphabet state per model state here, as it is a CodonFreqSet.
       getFreq_(stateMap().getModelStates(vc[j])[0]) =
-        static_cast<double>(vc.size()) * ppfs_->getFrequencies()[i] * vS_[i].prob(j);
+          static_cast<double>(vc.size()) * ppfs_->getFrequencies()[i] * vS_[i].prob(j);
     }
   }
   normalize();
@@ -522,10 +522,10 @@ void CodonFromIndependentFrequencySet::updateFrequencies()
 
 
 CodonFromUniqueFrequencySet::CodonFromUniqueFrequencySet(
-  shared_ptr<const GeneticCode> gCode,
-  unique_ptr<FrequencySetInterface> pfreq,
-  const string& name,
-  const string& mgmtStopCodon) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<FrequencySetInterface> pfreq,
+    const string& name,
+    const string& mgmtStopCodon) :
   WordFromUniqueFrequencySet(gCode->getCodonAlphabet(), std::move(pfreq), "", name),
   mStopNeigh_(),
   mgmtStopCodon_(2),
@@ -639,18 +639,23 @@ void CodonFromUniqueFrequencySet::updateFrequencies()
 /*********************************************************************/
 
 unique_ptr<CodonFrequencySetInterface> CodonFrequencySetInterface::getFrequencySetForCodons(
-    short option, 
+    short option,
     shared_ptr<const GeneticCode> gCode,
     const string& mgmtStopCodon,
     unsigned short method)
 {
   unique_ptr<CodonFrequencySetInterface> codonFreqs;
 
-  if (option == F0) {
+  if (option == F0)
+  {
     codonFreqs.reset(new FixedCodonFrequencySet(gCode, "F0"));
-  } else if (option == F1X4) {
+  }
+  else if (option == F1X4)
+  {
     codonFreqs.reset(new CodonFromUniqueFrequencySet(gCode, make_unique<FullNucleotideFrequencySet>(gCode->codonAlphabet().getNucleicAlphabet()), "F1X4", mgmtStopCodon));
-  } else if (option == F3X4) {
+  }
+  else if (option == F3X4)
+  {
     vector<unique_ptr<FrequencySetInterface>> v_AFS(3);
     v_AFS[0] = make_unique<FullNucleotideFrequencySet>(gCode->codonAlphabet().getNucleicAlphabet());
     v_AFS[1] = make_unique<FullNucleotideFrequencySet>(gCode->codonAlphabet().getNucleicAlphabet());

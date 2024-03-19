@@ -32,8 +32,7 @@ public:
   virtual ~PhyloLikelihoodFormula() {}
 
 protected:
-
-  PhyloLikelihoodFormula(const PhyloLikelihoodFormula& sd):
+  PhyloLikelihoodFormula(const PhyloLikelihoodFormula& sd) :
     AbstractPhyloLikelihood(sd),
     AbstractParametrizable(sd),
     AbstractPhyloLikelihoodSet(sd),

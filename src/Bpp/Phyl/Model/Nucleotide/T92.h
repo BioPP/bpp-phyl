@@ -124,13 +124,11 @@ class T92 :
   public AbstractReversibleNucleotideSubstitutionModel
 {
 private:
-	
   double kappa_, theta_, k_, r_, piA_, piC_, piG_, piT_;
   mutable double exp1_, exp2_, l_;
   mutable RowMatrix<double> p_;
 
 public:
-
   T92(std::shared_ptr<const NucleicAlphabet> alpha, double kappa = 1., double theta = 0.5);
 
   virtual ~T92() {}
@@ -153,7 +151,6 @@ public:
   void setFreq(std::map<int, double>& freqs) override;
 
 protected:
-
   void updateMatrices_() override;
 };
 } // end of namespace bpp.

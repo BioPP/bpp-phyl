@@ -85,11 +85,9 @@ public:
   const SubstitutionModelInterface& nestedModel() const { return *model_; }
 
   void setNamespace(const std::string&) override;
-  
+
 protected:
-
   void updateMatrices_() override;
-
 };
 }
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_GBGC_H

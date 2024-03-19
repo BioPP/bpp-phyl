@@ -17,12 +17,12 @@ using namespace bpp;
 using namespace std;
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
-  const Tree& tree,
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose,
-  bool usePatterns) :
+    const Tree& tree,
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose,
+    bool usePatterns) :
   RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns),
   treeLikelihoodsContainer_(),
   probas_()
@@ -34,25 +34,25 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   for (size_t i = 0; i < s; ++i)
   {
     treeLikelihoodsContainer_.push_back(
-      make_shared<RHomogeneousTreeLikelihood>(
-	  tree,
-	  unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()),
-	  rDist,
-	  checkRooted,
-	  false,
-	  usePatterns));
+        make_shared<RHomogeneousTreeLikelihood>(
+        tree,
+        unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()),
+        rDist,
+        checkRooted,
+        false,
+        usePatterns));
     probas_.push_back(mixedmodel->getNProbability(i));
   }
 }
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
-  const Tree& tree,
-  const AlignmentDataInterface& data,
-  std::shared_ptr<TransitionModelInterface> model,
-  std::shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose,
-  bool usePatterns) :
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose,
+    bool usePatterns) :
   RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns),
   treeLikelihoodsContainer_(),
   probas_()
@@ -66,13 +66,13 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   for (size_t i = 0; i < s; i++)
   {
     treeLikelihoodsContainer_.push_back(
-      make_shared<RHomogeneousTreeLikelihood>(
-	  tree, 
-	  unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()),
-	  rDist,
-	  checkRooted,
-	  false,
-	  usePatterns));
+        make_shared<RHomogeneousTreeLikelihood>(
+        tree,
+        unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()),
+        rDist,
+        checkRooted,
+        false,
+        usePatterns));
     probas_.push_back(mixedmodel->getNProbability(i));
   }
   setData(data);

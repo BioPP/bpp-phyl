@@ -6,7 +6,6 @@
 #define BPP_PHYL_MAPPING_PHYLOMAPPINGS_PHYLOSUBSTITUTIONMAPPING_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/ParametrizableCollection.h>
@@ -54,8 +53,8 @@ public:
    */
 
   virtual void computeNormalizations(const ParameterList& nullParams,
-                                     short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
-                                     bool verbose = true) = 0;
+      short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
+      bool verbose = true) = 0;
 
   /**
    * @brief return if normalizations have been performed.
@@ -74,7 +73,7 @@ public:
    */
 
   virtual void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
-                             double threshold = -1, bool verbose = true) = 0;
+      double threshold = -1, bool verbose = true) = 0;
 
   /**
    * @brief Return the tree of counts

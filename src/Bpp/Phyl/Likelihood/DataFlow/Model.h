@@ -30,7 +30,7 @@ inline RowVectorDimension equilibriumFrequenciesDimension (std::size_t nbState)
 /**
  * @brief Likelihood transition model.
  */
-//class TransitionModelInterface;
+// class TransitionModelInterface;
 
 /** @brief Data flow node representing a Model configured with parameter values.
  *
@@ -92,7 +92,7 @@ private:
   std::shared_ptr<BranchModelInterface> model_;
 };
 
-/** 
+/**
  * equilibriumFrequencies = f(model).
  * equilibriumFrequencies: RowVector(nbState).
  * model: ConfiguredModel.
@@ -231,7 +231,7 @@ public:
   static std::shared_ptr<Self> create(Context& c, NodeRefVec&& deps, const Dimension<T>& dim);
 };
 
-/** 
+/**
  * dtransitionMatrix/dbrlen = f(model, branchLen).
  * dtransitionMatrix/dbrlen: Matrix(fromState, toState).
  * model: ConfiguredModel.
@@ -308,4 +308,4 @@ public:
   static std::shared_ptr<Self> create (Context& c, NodeRefVec&& deps, size_t nCat);
 };
 } // namespace bpp
-#endif// BPP_PHYL_LIKELIHOOD_DATAFLOW_MODEL_H
+#endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_MODEL_H

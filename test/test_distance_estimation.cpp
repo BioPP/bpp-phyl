@@ -15,14 +15,14 @@
 using namespace bpp;
 using namespace std;
 
-int main() {
+int main()
+{
+  // Note: this only tests instanciation and exceptions. The correctness of calculations is not assessed.
 
-  //Note: this only tests instanciation and exceptions. The correctness of calculations is not assessed.
-  
-  try {
-  
+  try
+  {
     // Creates a sequence alignment, with missing data:
-    
+
     shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
     shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
 
@@ -36,14 +36,15 @@ int main() {
     auto seqD = make_unique<Sequence>("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet);
     sites->addSequence("D", seqD);
 
-    //SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+    // SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
     // Test with a JC model:
     auto model1 = make_shared<JCnuc>(nucAlphabet);
     auto rdist = make_shared<ConstantRateDistribution>();
     DistanceEstimation de(model1, rdist, sites, 1, true);
-
-  } catch (exception& e) {
+  }
+  catch (exception& e)
+  {
     cout << e.what() << endl;
     return 1;
   }

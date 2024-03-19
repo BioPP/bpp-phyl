@@ -99,7 +99,7 @@ public:
     checkDependencyVectorSize (typeid (Self), deps, 1);
     checkNthDependencyIsValue<T>(typeid (Self), deps, 0);
 
-    return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   CWiseFill (NodeRefVec&& deps, const Dimension<R>& dim)
@@ -223,9 +223,9 @@ public:
     checkNthDependencyIsValue<PatternType>(typeid(Self), deps, 1);
     // Remove 0s from deps
     if (deps[1]->hasNumericalProperty (NumericalProperty::ConstantOne))
-      return convertRef<Value<R> >(deps[0]);
+      return convertRef<Value<R>>(deps[0]);
     else
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   CWisePattern (NodeRefVec&& deps, const Dimension<R>& dim)
@@ -289,7 +289,7 @@ private:
 
 typedef Eigen::Matrix<size_t, -1, 2> MatchingType;
 
-template<typename R, typename T> class CWiseMatching<R, ReductionOf<T> > : public Value<R>
+template<typename R, typename T> class CWiseMatching<R, ReductionOf<T>> : public Value<R>
 {
   class matching_functor
   {
@@ -307,7 +307,7 @@ public:
 
     template<typename T2 = T>
     const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-                                      typename std::enable_if< !std::is_same<T2, typename R::Scalar>::value, T*>::type* = 0) const
+        typename std::enable_if< !std::is_same<T2, typename R::Scalar>::value, T*>::type* = 0) const
     {
       return (*m_arg_[matching_(col, 0)])(row, Eigen::Index(matching_(col, 1)));
     }
@@ -316,7 +316,7 @@ public:
     // Specific case of Eigen::RowVector made from several elements
     template<typename T2 = T>
     const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-                                      typename std::enable_if< std::is_same<T2, typename R::Scalar>::value, T*>::type* = 0) const
+        typename std::enable_if< std::is_same<T2, typename R::Scalar>::value, T*>::type* = 0) const
     {
       return *m_arg_[matching_(col, 0)];
     }
@@ -348,7 +348,7 @@ public:
 
     // Remove 0s from deps
 
-    return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   CWiseMatching (NodeRefVec&& deps, const Dimension<R>& dim)
@@ -414,7 +414,7 @@ private:
  *
  */
 
-template<typename R, typename T>  class CWiseCompound<R, ReductionOf<T> > : public Value<R>
+template<typename R, typename T>  class CWiseCompound<R, ReductionOf<T>> : public Value<R>
 {
   class compound_functor
   {
@@ -431,14 +431,14 @@ public:
 
     template<typename T2 = T>
     const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-                                      typename std::enable_if< std::is_same<T2, RowLik>::value, T*>::type* = 0) const
+        typename std::enable_if< std::is_same<T2, RowLik>::value, T*>::type* = 0) const
     {
       return (*m_arg_[size_t(row)])(col);
     }
 
     template<typename T2 = T>
     const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-                                      typename std::enable_if< std::is_same<T2, VectorLik>::value, T*>::type* = 0) const
+        typename std::enable_if< std::is_same<T2, VectorLik>::value, T*>::type* = 0) const
     {
       return (*m_arg_[size_t(col)])(row);
     }
@@ -467,7 +467,7 @@ public:
     checkDependenciesNotNull (typeid (Self), deps);
     checkDependencyRangeIsValue<T>(typeid (Self), deps, 0, deps.size ());
 
-    return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   CWiseCompound (NodeRefVec&& deps, const Dimension<R>& dim)
@@ -532,13 +532,13 @@ extern template class CWiseFill<MatrixLik, RowLik>;
 extern template class CWisePattern<RowLik>;
 extern template class CWisePattern<MatrixLik>;
 
-extern template class CWiseMatching<RowLik, ReductionOf<RowLik> >;
-extern template class CWiseMatching<MatrixLik, ReductionOf<MatrixLik> >;
-extern template class CWiseMatching<MatrixLik, ReductionOf<RowLik> >;
-extern template class CWiseMatching<RowLik, ReductionOf<double> >;
+extern template class CWiseMatching<RowLik, ReductionOf<RowLik>>;
+extern template class CWiseMatching<MatrixLik, ReductionOf<MatrixLik>>;
+extern template class CWiseMatching<MatrixLik, ReductionOf<RowLik>>;
+extern template class CWiseMatching<RowLik, ReductionOf<double>>;
 
-extern template class CWiseCompound<MatrixLik, ReductionOf<RowLik> >;
-extern template class CWiseCompound<MatrixLik, ReductionOf<VectorLik> >;
-extern template class CWiseCompound<RowLik, ReductionOf<double> >;
+extern template class CWiseCompound<MatrixLik, ReductionOf<RowLik>>;
+extern template class CWiseCompound<MatrixLik, ReductionOf<VectorLik>>;
+extern template class CWiseCompound<RowLik, ReductionOf<double>>;
 } // namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOWCWISE_H

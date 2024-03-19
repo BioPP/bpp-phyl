@@ -14,7 +14,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief General interface for distance matrix I/O.
  */

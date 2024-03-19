@@ -83,9 +83,7 @@ public:
   }
 
 protected:
-
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M9_H

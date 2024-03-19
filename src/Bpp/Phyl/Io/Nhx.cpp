@@ -77,7 +77,7 @@ unique_ptr<TreeTemplate<Node>> Nhx::readTreeTemplate(istream& in) const
   }
 
   // We concatenate all line in file till we reach the ending semi colon:
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   // Main loop : for all file lines
   while (!in.eof())
   {
@@ -108,7 +108,7 @@ unique_ptr<PhyloTree> Nhx::readPhyloTree(istream& in) const
   }
 
   // We concatenate all line in file till we reach the ending semi colon:
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   // Main loop : for all file lines
   while (!in.eof())
   {
@@ -139,7 +139,7 @@ void Nhx::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
   }
 
   // Main loop : for all file lines
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   string::size_type index;
   vector<string> beginnings, endings;
   beginnings.push_back("[&&NHX:");
@@ -174,7 +174,7 @@ void Nhx::readPhyloTrees(istream& in, vector<unique_ptr<PhyloTree>>& trees) cons
   }
 
   // Main loop : for all file lines
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   string::size_type index;
   vector<string> beginnings, endings;
   beginnings.push_back("[&&NHX:");
@@ -411,7 +411,7 @@ unique_ptr<PhyloTree> Nhx::parenthesisToPhyloTree(const string& description) con
   if (semi == string::npos)
     throw Exception("Nhx::parenthesisToPhyloTree(). Bad format: no semi-colon found.");
   string content = description.substr(0, semi);
-  
+
   auto tree = make_unique<PhyloTree>();
   shared_ptr<PhyloNode> root = parenthesisToNode(*tree, 0, content);
 
@@ -433,7 +433,7 @@ void Nhx::checkNodesId_(PhyloTree& tree) const
   std::unique_ptr<PhyloTree::NodeIterator> nIT = tree.allNodesIterator();
 
   Vuint nid;
-  vector<shared_ptr<PhyloNode> > vNode;
+  vector<shared_ptr<PhyloNode>> vNode;
 
   for ( ; !nIT->end(); nIT->next())
   {
@@ -672,7 +672,7 @@ void Nhx::changeTagsToNames(PhyloTree& tree, shared_ptr<PhyloNode> node) const
     }
   }
 
-  vector<shared_ptr<PhyloNode> > vs = tree.getSons(node);
+  vector<shared_ptr<PhyloNode>> vs = tree.getSons(node);
 
   for (unsigned int i = 0; i < vs.size(); ++i)
   {
@@ -709,7 +709,7 @@ void Nhx::changeNamesToTags(PhyloTree& tree, shared_ptr<PhyloNode> node) const
     }
   }
 
-  vector<shared_ptr<PhyloNode> > vs = tree.getSons(node);
+  vector<shared_ptr<PhyloNode>> vs = tree.getSons(node);
 
   for (unsigned int i = 0; i < vs.size(); ++i)
   {
@@ -869,9 +869,9 @@ string Nhx::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Phylo
   {
     s << "(";
 
-    vector<shared_ptr<PhyloNode> > vSons = tree.getSons(node);
+    vector<shared_ptr<PhyloNode>> vSons = tree.getSons(node);
 
-    for (vector<shared_ptr<PhyloNode> >::const_iterator it = vSons.begin(); it != vSons.end(); it++)
+    for (vector<shared_ptr<PhyloNode>>::const_iterator it = vSons.begin(); it != vSons.end(); it++)
     {
       if (it != vSons.begin())
         s << ",";
@@ -899,7 +899,7 @@ string Nhx::treeToParenthesis(const PhyloTree& tree) const
   s << "(";
 
   shared_ptr<PhyloNode>  root = tree.getRoot();
-  std::vector<shared_ptr<PhyloNode> > rSons = tree.getSons(root);
+  std::vector<shared_ptr<PhyloNode>> rSons = tree.getSons(root);
 
   if (tree.isRooted())
   {

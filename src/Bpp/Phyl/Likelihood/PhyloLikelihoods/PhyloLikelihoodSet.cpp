@@ -147,4 +147,3 @@ ParameterList AbstractPhyloLikelihoodSet::getRootFrequenciesParameters() const
 
   return pl;
 }
-

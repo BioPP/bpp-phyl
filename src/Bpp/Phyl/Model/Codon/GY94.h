@@ -48,14 +48,11 @@ class GY94 :
   public AbstractBiblioSubstitutionModel,
   public virtual ReversibleSubstitutionModelInterface
 {
-
 private:
-
   std::shared_ptr<const GranthamAAChemicalDistance> gacd_;
   std::unique_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
 public:
-
   GY94(
       std::shared_ptr<const GeneticCode> gc,
       std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
@@ -69,7 +66,6 @@ public:
   GY94* clone() const override { return new GY94(*this); }
 
 public:
-
   std::string getName() const override { return "GY94"; }
 
   const SubstitutionModelInterface& substitutionModel() const override { return *pmodel_; }
@@ -79,7 +75,6 @@ public:
   double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
 
 protected:
-  
   SubstitutionModelInterface& substitutionModel_() override { return *pmodel_; }
 };
 } // end of namespace bpp.

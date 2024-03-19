@@ -27,18 +27,18 @@ protected:
 
 public:
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose = true
-    );
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true
+      );
 
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-    const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl) :
+      const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl) :
     AbstractTreeLikelihood(tl),
     rateDistribution_(tl.rateDistribution_)
   {}
 
   AbstractDiscreteRatesAcrossSitesTreeLikelihood& operator=(
-    const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl)
+      const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl)
   {
     AbstractTreeLikelihood::operator=(tl);
     rateDistribution_ = tl.rateDistribution_;

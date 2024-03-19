@@ -53,11 +53,11 @@ public:
    * @throw Exception in an error occured.
    */
   DRNonHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose = true,
-    bool reparametrizeRoot = false);
+      const Tree& tree,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true,
+      bool reparametrizeRoot = false);
 
   /**
    * @brief Build a new DRNonHomogeneousTreeLikelihood object and compute the corresponding likelihood.
@@ -74,12 +74,12 @@ public:
    * @throw Exception in an error occured.
    */
   DRNonHomogeneousTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose = true,
-    bool reparametrizeRoot = false);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true,
+      bool reparametrizeRoot = false);
 
   /**
    * @brief Copy constructor.
@@ -167,7 +167,7 @@ public:
   // Specific methods:
 
   DRASDRTreeLikelihoodData& likelihoodData() { return *likelihoodData_; }
-  
+
   const DRASDRTreeLikelihoodData& likelihoodData() const { return *likelihoodData_; }
 
   virtual void computeLikelihoodAtNode(int nodeId, VVVdouble& likelihoodArray) const

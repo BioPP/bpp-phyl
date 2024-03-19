@@ -35,7 +35,7 @@ AlignedPhyloLikelihoodMixture::AlignedPhyloLikelihoodMixture(
   // make Simplex DF & Frequencies from it
 
   simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(this->context(), simplex, paramList, "");
-  
+
   // for derivates
   auto deltaNode = NumericMutable<double>::create(this->context(), 0.001);
   auto config = NumericalDerivativeType::ThreePoints;

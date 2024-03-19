@@ -17,12 +17,12 @@ using namespace bpp;
 using namespace std;
 
 DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
-  const Tree& tree,
-  std::shared_ptr<TransitionModelInterface> model,
-  std::shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose,
-  bool rootArray) :
+    const Tree& tree,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose,
+    bool rootArray) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   treeLikelihoodsContainer_(),
   probas_(),
@@ -37,19 +37,19 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   for (size_t i = 0; i < s; ++i)
   {
     treeLikelihoodsContainer_.push_back(
-      new DRHomogeneousTreeLikelihood(tree, unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()), rDist, checkRooted, false));
+        new DRHomogeneousTreeLikelihood(tree, unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()), rDist, checkRooted, false));
     probas_.push_back(mixedmodel->getNProbability(i));
   }
 }
 
 DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
-  const Tree& tree,
-  const AlignmentDataInterface& data,
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose,
-  bool rootArray) :
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose,
+    bool rootArray) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   treeLikelihoodsContainer_(),
   probas_(),
@@ -65,7 +65,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   for (size_t i = 0; i < s; i++)
   {
     treeLikelihoodsContainer_.push_back(
-      new DRHomogeneousTreeLikelihood(tree, unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()), rDist, checkRooted, false));
+        new DRHomogeneousTreeLikelihood(tree, unique_ptr<TransitionModelInterface>(mixedmodel->nModel(i).clone()), rDist, checkRooted, false));
     probas_.push_back(mixedmodel->getNProbability(i));
   }
   setData(data);

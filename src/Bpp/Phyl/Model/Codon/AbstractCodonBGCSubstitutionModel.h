@@ -58,8 +58,8 @@ public:
    * @param prefix the Namespace
    */
   AbstractCodonBGCSubstitutionModel(
-    std::shared_ptr<const GeneticCode> pgencode,
-    const std::string& prefix);
+      std::shared_ptr<const GeneticCode> pgencode,
+      const std::string& prefix);
 
   AbstractCodonBGCSubstitutionModel(const AbstractCodonBGCSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -70,7 +70,7 @@ public:
   {}
 
   AbstractCodonBGCSubstitutionModel& operator=(
-    const AbstractCodonBGCSubstitutionModel& model)
+      const AbstractCodonBGCSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
     pgencode_ = model.pgencode_;
@@ -89,7 +89,6 @@ public:
   virtual ~AbstractCodonBGCSubstitutionModel() {}
 
 public:
-
   void fireParameterChanged(const ParameterList& parameters) override;
 
   double getCodonsMulRate(size_t i, size_t j) const override;

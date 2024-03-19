@@ -39,14 +39,12 @@ class YNGP_M8 :
   public YNGP_M
 {
 private:
-
   /**
    * @brief If parameter omega=1
    */
   bool neutral_;
 
 public:
-  
   /**
    * @brief Constructor that requires the number of classes of the
    * BetaDiscreteDistribution.
@@ -75,13 +73,11 @@ public:
     neutral_ = mod2.neutral_;
     return *this;
   }
-  
+
   std::string getName() const override { return neutral_ ? "YNGP_M8a" : "YNGP_M8"; }
 
 protected:
-
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M8_H

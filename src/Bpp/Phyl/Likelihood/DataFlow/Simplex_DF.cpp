@@ -14,7 +14,7 @@ namespace bpp
 // Simplex node
 
 ConfiguredSimplex::ConfiguredSimplex (const Context& context, NodeRefVec&& deps, std::unique_ptr<Simplex>&& simplex)
-  : Value<const Simplex*>(std::move (deps), simplex.get ()), AbstractParametrizable(simplex->getNamespace())// , context_(context)
+  : Value<const Simplex*>(std::move (deps), simplex.get ()), AbstractParametrizable(simplex->getNamespace()) // , context_(context)
   , simplex_(std::move(simplex))
 {
   for (const auto& dep:dependencies())
@@ -69,7 +69,7 @@ NodeRef ConfiguredSimplex::recreate (Context& c, NodeRefVec&& deps)
 // FrequenciesFromSimplex
 
 FrequenciesFromSimplex::FrequenciesFromSimplex (
-  NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
+    NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
   : Value<Eigen::RowVectorXd>(std::move (deps)), targetDimension_ (dim) {}
 
 std::string FrequenciesFromSimplex::debugInfo () const
@@ -90,13 +90,13 @@ NodeRef FrequenciesFromSimplex::derive (Context& c, const Node_DF& node)
   auto simplexDep = this->dependency (0);
   auto& simplex = static_cast<ConfiguredSimplex&>(*simplexDep);
   auto buildFWithNewSimplex = [this, &c](NodeRef&& newSimplex) {
-                                return ConfiguredParametrizable::createRowVector<ConfiguredSimplex, Self>(c, {std::move (newSimplex)}, targetDimension_);
-                              };
+        return ConfiguredParametrizable::createRowVector<ConfiguredSimplex, Self>(c, {std::move (newSimplex)}, targetDimension_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredSimplex, T >(
-    c, simplex, node, targetDimension_, buildFWithNewSimplex);
+        c, simplex, node, targetDimension_, buildFWithNewSimplex);
 
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef FrequenciesFromSimplex::recreate (Context& c, NodeRefVec&& deps)

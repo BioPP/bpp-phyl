@@ -33,11 +33,10 @@ class MultinomialFromTransitionModel :
   typedef bool lessEigenType(Eigen::VectorXd const&, Eigen::VectorXd const&);
 
 private:
-
   /**
    * @brief The related model.
    */
-  std::shared_ptr<TransitionModelInterface> subModel_;  // -> shared? 
+  std::shared_ptr<TransitionModelInterface> subModel_;  // -> shared?
 
   /*
    * The number of states
@@ -204,7 +203,6 @@ private:
    * recalcultation.
    *
    */
-  
   double getFact_(const Eigen::VectorXd& counts) const
   {
     auto it = mapFact_.find(counts);

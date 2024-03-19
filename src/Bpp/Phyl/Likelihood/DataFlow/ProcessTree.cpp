@@ -18,7 +18,7 @@ using namespace bpp;
 using namespace std;
 
 ProcessTree::ProcessTree(Context& context,
-                         const ParametrizablePhyloTree& tree) :
+    const ParametrizablePhyloTree& tree) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()),
   context_(context)
 {
@@ -35,7 +35,7 @@ ProcessTree::ProcessTree(Context& context,
 
   // Set Edges
 
-  std::vector<std::shared_ptr<PhyloBranchParam> > vB = tree.getAllEdges();
+  std::vector<std::shared_ptr<PhyloBranchParam>> vB = tree.getAllEdges();
 
   for (auto& branch:vB)
   {
@@ -51,7 +51,7 @@ ProcessTree::ProcessTree(Context& context,
 }
 
 ProcessTree::ProcessTree(const ProcessTree& tree,
-                         ValueRef<double> rate) :
+    ValueRef<double> rate) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree)
 {
   // Adjust Edges
@@ -63,7 +63,7 @@ ProcessTree::ProcessTree(const ProcessTree& tree,
 
     if (edge->getBrLen())
     {
-      auto mulref = CWiseMul<double, std::tuple<double, double> >::create (context_, {edge->getBrLen()->dependency(0), rate}, Dimension<double>());
+      auto mulref = CWiseMul<double, std::tuple<double, double>>::create (context_, {edge->getBrLen()->dependency(0), rate}, Dimension<double>());
       auto confpar = std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(context_, {std::move(mulref)}));
       edge->setBrLen(confpar);
     }
@@ -72,9 +72,9 @@ ProcessTree::ProcessTree(const ProcessTree& tree,
 }
 
 ProcessTree::ProcessTree(Context& context,
-                         const ParametrizablePhyloTree& tree,
-                         const ParameterList& parList,
-                         const std::string& suff) :
+    const ParametrizablePhyloTree& tree,
+    const ParameterList& parList,
+    const std::string& suff) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()),
   context_(context)
 {
@@ -91,7 +91,7 @@ ProcessTree::ProcessTree(Context& context,
 
   // Set Edges
 
-  std::vector<std::shared_ptr<PhyloBranchParam> > vB = tree.getAllEdges();
+  std::vector<std::shared_ptr<PhyloBranchParam>> vB = tree.getAllEdges();
 
   for (auto& branch:vB)
   {
@@ -121,8 +121,8 @@ ProcessTree::ProcessTree(Context& context,
 }
 
 ProcessTree::ProcessTree(const ProcessComputationTree& tree,
-                         ParametrizableCollection<ConfiguredModel>& modelColl,
-                         const ProcessTree& phyloTree) :
+    ParametrizableCollection<ConfiguredModel>& modelColl,
+    const ProcessTree& phyloTree) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()), context_(phyloTree.context_)
 {
   // Set Nodes
@@ -221,7 +221,7 @@ shared_ptr<ProcessTree> ProcessTree::makeProcessTree(
 
   if (!parTree)
     throw Exception("ProcessTree::makeProcessTree: missing Tree in process.");
-  
+
   auto modelColl = makeConfiguredModelCollection(context, *process, parList);
 
   ProcessTree pt(context, *parTree, parList, suff); // tree with only branches
@@ -240,9 +240,9 @@ DAGindexes ProcessTree::getDAGEdgesIndexes(const Speciesindex speciesIndex) cons
   DAGindexes dag;
   for (auto& branch:vB)
   {
-    if (branch->getSpeciesIndex()==speciesIndex)
+    if (branch->getSpeciesIndex() == speciesIndex)
       dag.push_back(getEdgeIndex(branch));
   }
 
-  return(dag);
+  return dag;
 }

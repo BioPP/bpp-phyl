@@ -11,9 +11,9 @@ using namespace numeric;
 /******************************************************************************/
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
-  Context& context,
-  shared_ptr<OneProcessSequenceEvolution> evol,
-  size_t nSeqEvol) :
+    Context& context,
+    shared_ptr<OneProcessSequenceEvolution> evol,
+    size_t nSeqEvol) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   AbstractSingleDataPhyloLikelihood(context, 0, (evol->getSubstitutionProcessNumbers().size() != 0) ? evol->substitutionProcess(evol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, 0),
@@ -34,11 +34,11 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 /******************************************************************************/
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
-  Context& context,
-  shared_ptr<const AlignmentDataInterface> data,
-  shared_ptr<OneProcessSequenceEvolution> evol,
-  size_t nSeqEvol,
-  size_t nData) :
+    Context& context,
+    shared_ptr<const AlignmentDataInterface> data,
+    shared_ptr<OneProcessSequenceEvolution> evol,
+    size_t nSeqEvol,
+    size_t nData) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(context, data->getNumberOfSites(), (evol->getSubstitutionProcessNumbers().size() != 0) ? evol->substitutionProcess(evol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
@@ -58,11 +58,11 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 /******************************************************************************/
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
-  shared_ptr<const AlignmentDataInterface> data,
-  shared_ptr<OneProcessSequenceEvolution> evol,
-  shared_ptr<CollectionNodes> collNodes,
-  size_t nSeqEvol,
-  size_t nData) :
+    shared_ptr<const AlignmentDataInterface> data,
+    shared_ptr<OneProcessSequenceEvolution> evol,
+    shared_ptr<CollectionNodes> collNodes,
+    size_t nSeqEvol,
+    size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(collNodes->context(), data->getNumberOfSites(), (evol->getSubstitutionProcessNumbers().size() != 0) ? evol->substitutionProcess(evol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),

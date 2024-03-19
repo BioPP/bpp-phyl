@@ -13,10 +13,10 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
-  shared_ptr<ProteinSubstitutionModelInterface> pmodel,
-  shared_ptr<const GeneticCode> pgencode,
-  const string& prefix,
-  bool paramSynRate) :
+    shared_ptr<ProteinSubstitutionModelInterface> pmodel,
+    shared_ptr<const GeneticCode> pgencode,
+    const string& prefix,
+    bool paramSynRate) :
   AbstractParameterAliasable(prefix),
   pAAmodel_(pmodel),
   pgencode_(pgencode),
@@ -51,5 +51,5 @@ double AbstractCodonAARateSubstitutionModel::getCodonsMulRate(size_t i, size_t j
 
   return pgencode_->areSynonymous(si, sj) ? gamma_ :
          beta_* pAAmodel_->Qij(pAAmodel_->getModelStates(pgencode_->translate(si))[0],
-                               pAAmodel_->getModelStates(pgencode_->translate(sj))[0]);
+             pAAmodel_->getModelStates(pgencode_->translate(sj))[0]);
 }

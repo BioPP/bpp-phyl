@@ -97,8 +97,8 @@ public:
    * @warning providing a vpModel with size 0 will generate a segmentation fault!
    */
   MixtureOfTransitionModels(
-    std::shared_ptr<const Alphabet> alpha,
-    std::vector<std::unique_ptr<TransitionModelInterface>>& vpModel);
+      std::shared_ptr<const Alphabet> alpha,
+      std::vector<std::unique_ptr<TransitionModelInterface>>& vpModel);
 
   /**
    * @brief Constructor of a MixtureOfTransitionModels.
@@ -114,9 +114,9 @@ public:
    * the vectors.
    */
   MixtureOfTransitionModels(
-    std::shared_ptr<const Alphabet> alpha,
-    std::vector<std::unique_ptr<TransitionModelInterface>>& vpModel,
-    Vdouble& vproba, Vdouble& vrate);
+      std::shared_ptr<const Alphabet> alpha,
+      std::vector<std::unique_ptr<TransitionModelInterface>>& vpModel,
+      Vdouble& vproba, Vdouble& vrate);
 
   MixtureOfTransitionModels(const MixtureOfTransitionModels&);
 
@@ -124,7 +124,8 @@ public:
 
   virtual ~MixtureOfTransitionModels();
 
-  MixtureOfTransitionModels* clone() const override {
+  MixtureOfTransitionModels* clone() const override
+  {
     return new MixtureOfTransitionModels(*this);
   }
 

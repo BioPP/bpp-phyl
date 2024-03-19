@@ -77,4 +77,3 @@ LabelSubstitutionCount::LabelSubstitutionCount(
     }
   }
 }
-

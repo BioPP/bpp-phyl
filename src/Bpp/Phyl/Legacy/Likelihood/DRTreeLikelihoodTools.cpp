@@ -11,8 +11,8 @@ using namespace bpp;
 // -----------------------------------------------------------------------------------------
 
 VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(
-  const DRTreeLikelihoodInterface& drl,
-  int nodeId)
+    const DRTreeLikelihoodInterface& drl,
+    int nodeId)
 {
   size_t nSites   = drl.likelihoodData().getNumberOfDistinctSites();
   size_t nClasses = drl.getNumberOfClasses();
@@ -86,8 +86,8 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(
 // -----------------------------------------------------------------------------------------
 
 Vdouble DRTreeLikelihoodTools::getPosteriorStateFrequencies(
-  const DRTreeLikelihoodInterface& drl,
-  int nodeId)
+    const DRTreeLikelihoodInterface& drl,
+    int nodeId)
 {
   VVVdouble probs = getPosteriorProbabilitiesPerStatePerRate(drl, nodeId);
   Vdouble freqs(drl.getNumberOfStates());

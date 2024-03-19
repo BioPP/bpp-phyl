@@ -17,7 +17,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Listener used internally by the optimizeTreeNNI method.
  */
@@ -334,9 +333,6 @@ public:
     unsigned int verbose                           = 1,
     const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
-
-
-
 private:
   class ScaleFunction :
     public virtual FunctionInterface,
@@ -388,7 +384,7 @@ protected:
   };
 
 public:
- /**
+  /**
    * @brief Optimize the scale of a TreeLikelihood.
    *
    * This method only works on branch lengths parameters.
@@ -418,7 +414,7 @@ public:
     std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
     unsigned int verbose                         = 1);
 
-  
+
   /**
    * @brief Optimize all parameters from a TreeLikelihood object, including tree topology using Nearest Neighbor Interchanges.
    *
@@ -543,7 +539,6 @@ public:
   static std::shared_ptr<DRTreeParsimonyScore> optimizeTreeNNI(
     std::shared_ptr<DRTreeParsimonyScore> tp,
     unsigned int verbose = 1);
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_OPTIMIZATIONTOOLS_H

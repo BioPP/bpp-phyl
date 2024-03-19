@@ -99,7 +99,7 @@ namespace bpp
  * - Tavaré S (1986), Lect_. Math. Life Sci._ 17 57-86.
  * - Rodriguez F (1990, Journal_ Of Theoretical Biology_ 142(4) 485-501.
  */
-  
+
 class GTR :
   public AbstractReversibleNucleotideSubstitutionModel
 {
@@ -108,23 +108,22 @@ protected:
 
 public:
   GTR(
-    std::shared_ptr<const NucleicAlphabet> alpha,
-    double a = 1.,
-    double b = 1.,
-    double c = 1.,
-    double d = 1.,
-    double e = 1.,
-    double piA = 0.25,
-    double piC = 0.25,
-    double piG = 0.25,
-    double piT = 0.25);
+      std::shared_ptr<const NucleicAlphabet> alpha,
+      double a = 1.,
+      double b = 1.,
+      double c = 1.,
+      double d = 1.,
+      double e = 1.,
+      double piA = 0.25,
+      double piC = 0.25,
+      double piG = 0.25,
+      double piT = 0.25);
 
   virtual ~GTR() {}
 
   GTR* clone() const override { return new GTR(*this); }
 
 public:
-
   std::string getName() const override { return "GTR"; }
 
   /**
@@ -134,7 +133,6 @@ public:
 
 protected:
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_GTR_H

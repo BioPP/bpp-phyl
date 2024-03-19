@@ -81,11 +81,14 @@ bool MixedSubstitutionModelSet::complete()
   size_t nbm = getNumberOfModels();
   for (i = 0; i < nbm; i++)
   {
-    try {
+    try
+    {
       auto& pSM = dynamic_cast<const MixedTransitionModelInterface&>(model(i));
       if (nhn.getNode(i).size() != pSM.getNumberOfModels())
         break;
-    } catch (exception&) {}
+    }
+    catch (exception&)
+    {}
   }
 
   if (i == nbm)
@@ -94,7 +97,8 @@ bool MixedSubstitutionModelSet::complete()
   addEmptyHyperNode();
   for (i = 0; i < nbm; i++)
   {
-    try {
+    try
+    {
       auto& pSM = dynamic_cast<const MixedTransitionModelInterface&>(model(i));
       const MixedSubstitutionModelSet::HyperNode::Node& nd = nhn.getNode(i);
       auto snd = nd.size();
@@ -111,7 +115,9 @@ bool MixedSubstitutionModelSet::complete()
         j++;
       }
       addToHyperNode(i, an);
-    } catch (exception&) {}
+    }
+    catch (exception&)
+    {}
   }
 
   return true;
@@ -241,7 +247,8 @@ double MixedSubstitutionModelSet::getHyperNodeProbability(const HyperNode& hn) c
   for (size_t fmM = 0; fmM < nbm; fmM++)
   {
     const MixedSubstitutionModelSet::HyperNode::Node& fnd = hn.getNode(fmM);
-    try {
+    try
+    {
       auto& pfSM = dynamic_cast<const MixedTransitionModelInterface&>(model(fmM));
       double x = 0;
 
@@ -251,7 +258,9 @@ double MixedSubstitutionModelSet::getHyperNodeProbability(const HyperNode& hn) c
       }
 
       fprob *= x;
-    } catch (exception&) {}
+    }
+    catch (exception&)
+    {}
   }
 
   return fprob;

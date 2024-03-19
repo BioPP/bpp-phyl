@@ -22,11 +22,11 @@ using namespace std;
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
-  const Tree& tree,
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose) :
+    const Tree& tree,
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   model_(0),
   brLenParameters_(),
@@ -51,7 +51,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
-  const AbstractHomogeneousTreeLikelihood& lik) :
+    const AbstractHomogeneousTreeLikelihood& lik) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   model_(lik.model_),
   brLenParameters_(lik.brLenParameters_),
@@ -77,7 +77,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
-  const AbstractHomogeneousTreeLikelihood& lik)
+    const AbstractHomogeneousTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   model_           = lik.model_;
@@ -103,11 +103,11 @@ AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
 /******************************************************************************/
 
 void AbstractHomogeneousTreeLikelihood::init_(
-  const Tree& tree,
-  std::shared_ptr<TransitionModelInterface> model,
-  std::shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose)
+    const Tree& tree,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose)
 {
   TreeTools::checkIds(tree, true);
   tree_ = make_unique<TreeTemplate<Node>>(tree);
@@ -146,7 +146,7 @@ void AbstractHomogeneousTreeLikelihood::setModel(std::shared_ptr<TransitionModel
   if (data_)
   {
     if (model->getNumberOfStates() != model_->getNumberOfStates())
-      setData(*data_);                                                  // Have to reinitialize the whole data structure.
+      setData(*data_); // Have to reinitialize the whole data structure.
   }
 
   nbStates_ = model->getNumberOfStates();

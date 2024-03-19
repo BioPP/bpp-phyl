@@ -26,7 +26,6 @@ public:
   NucleotideSubstitutionModelInterface* clone() const override = 0;
 
 public:
-
   virtual std::shared_ptr<const NucleicAlphabet> getNucleicAlphabet() const = 0;
 };
 
@@ -42,7 +41,6 @@ public:
   virtual ~NucleotideReversibleSubstitutionModelInterface() {}
 
   NucleotideReversibleSubstitutionModelInterface* clone() const override = 0;
-
 };
 
 
@@ -61,7 +59,7 @@ public:
     AbstractSubstitutionModel(alpha, stateMap, prefix) {}
 
   virtual ~AbstractNucleotideSubstitutionModel() {}
-  
+
   AbstractNucleotideSubstitutionModel* clone() const override = 0;
 
 public:
@@ -69,7 +67,6 @@ public:
   {
     return std::dynamic_pointer_cast<const NucleicAlphabet>(alphabet_);
   }
-
 };
 
 /**
@@ -95,7 +92,6 @@ public:
   {
     return std::dynamic_pointer_cast<const NucleicAlphabet>(alphabet_);
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_NUCLEOTIDESUBSTITUTIONMODEL_H

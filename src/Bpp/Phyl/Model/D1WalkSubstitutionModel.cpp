@@ -27,12 +27,16 @@ D1WalkSubstitutionModel::D1WalkSubstitutionModel(std::shared_ptr<const IntegerAl
 
   addParameters_(freqSet_->getParameters());
   // Exchangeability Matrix:
-  for (unsigned int i = 0; i < size_-1; i++)
-    exchangeability_(i, i+1) = 1;
+  for (unsigned int i = 0; i < size_ - 1; i++)
+  {
+    exchangeability_(i, i + 1) = 1;
+  }
 
   for (unsigned int i = 1; i < size_; i++)
-    exchangeability_(i, i-1) = 1;
-  
+  {
+    exchangeability_(i, i - 1) = 1;
+  }
+
   updateMatrices_();
 }
 

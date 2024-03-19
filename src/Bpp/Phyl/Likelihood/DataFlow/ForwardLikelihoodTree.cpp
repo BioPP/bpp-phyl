@@ -27,7 +27,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
     for (auto state = 0; state < nbState_; ++state)
     {
       initCondLik (Eigen::Index (state), Eigen::Index (site)) =
-        sites (site, sequenceIndex, statemap_.getAlphabetStateAsInt(size_t(state)));
+          sites (site, sequenceIndex, statemap_.getAlphabetStateAsInt(size_t(state)));
     }
   }
 
@@ -56,9 +56,9 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge(
       auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel, Eigen::MatrixXd>(context_, {model, brlen, zero, nMod}, transitionMatrixDimension (size_t(nbState_)));
 
       processEdge->setTransitionMatrix(transitionMatrix);
-      
+
       forwardEdge = ForwardTransition::create (
-        context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
+            context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
     }
     else
     {
@@ -70,7 +70,7 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge(
   else if (brprob)
   {
     forwardEdge = ForwardProportion::create(
-      context_, {brprob, childConditionalLikelihood}, likelihoodMatrixDim_);
+          context_, {brprob, childConditionalLikelihood}, likelihoodMatrixDim_);
   }
   else // junction branch above a mixture node
   {
@@ -115,7 +115,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
   if (childBranches.empty ())
   {
     forwardNode = makeInitialConditionalLikelihood (processNode->getName (), sites);
-    
+
     if (!hasNodeIndex(forwardNode))
     {
       createNode(forwardNode);
@@ -140,10 +140,10 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
 
     if (processNode->isSpeciation())
       forwardNode = SpeciationForward::create(context_, std::move(deps),
-                                              likelihoodMatrixDim_);
+            likelihoodMatrixDim_);
     else if (processNode->isMixture())
       forwardNode = MixtureForward::create(context_, std::move(deps),
-                                           likelihoodMatrixDim_);
+            likelihoodMatrixDim_);
     else
       throw Exception("ForwardLikelihoodTree::makeConditionalLikelihoodAtNode : event not recognized for node " + TextTools::toString(processNode->getSpeciesIndex()));
 

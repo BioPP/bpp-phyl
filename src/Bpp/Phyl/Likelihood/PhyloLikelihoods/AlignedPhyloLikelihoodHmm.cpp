@@ -50,4 +50,3 @@ void AlignedPhyloLikelihoodHmm::fireParameterChanged(const ParameterList& parame
   // hpep_->update();
   hmm_->matchParametersValues(parameters);
 }
-

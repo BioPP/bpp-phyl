@@ -46,16 +46,14 @@ private:
   mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
 
 public:
-
   MixtureProcessPhyloLikelihood(
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<MixtureSequenceEvolution> processSeqEvol,
-    std::shared_ptr<CollectionNodes> collNodes,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<MixtureSequenceEvolution> processSeqEvol,
+      std::shared_ptr<CollectionNodes> collNodes,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
 protected:
-
   MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
     AbstractAlignedPhyloLikelihood(mlc),
@@ -76,12 +74,11 @@ protected:
   }
 
   MixtureProcessPhyloLikelihood* clone() const override
-  { 
+  {
     return new MixtureProcessPhyloLikelihood(*this);
   }
 
 public:
-  
   /**
    * @brief return the probability of a subprocess
    *
@@ -97,7 +94,7 @@ public:
    *
    * @{
    */
-  LikelihoodCalculation& likelihoodCalculation () const override 
+  LikelihoodCalculation& likelihoodCalculation () const override
   {
     return *likCal_;
   }

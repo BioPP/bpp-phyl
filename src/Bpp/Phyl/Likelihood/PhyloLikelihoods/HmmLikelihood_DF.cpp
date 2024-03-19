@@ -12,11 +12,11 @@ using namespace bpp;
 using namespace std;
 
 HmmLikelihood_DF::HmmLikelihood_DF(
-  Context& context,
-  std::shared_ptr<HmmStateAlphabet> hiddenAlphabet,
-  std::shared_ptr<HmmTransitionMatrix> transitionMatrix,
-  std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities,
-  const std::string& prefix) :
+    Context& context,
+    std::shared_ptr<HmmStateAlphabet> hiddenAlphabet,
+    std::shared_ptr<HmmTransitionMatrix> transitionMatrix,
+    std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities,
+    const std::string& prefix) :
   AlignedLikelihoodCalculation(context),
   context_(context),
   hiddenAlphabet_(hiddenAlphabet),
@@ -104,11 +104,11 @@ HmmLikelihood_DF::HmmLikelihood_DF(
 
   auto forwardNode = dynamic_pointer_cast<ForwardHmmLikelihood_DF>(forwardLik_);
 
-  hiddenPostProb_ = CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd> >::create(context_, {forwardNode->getForwardCondLikelihood(), backwardLik_}, MatrixDimension(nbStates_, nbSites_));
+  hiddenPostProb_ = CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>::create(context_, {forwardNode->getForwardCondLikelihood(), backwardLik_}, MatrixDimension(nbStates_, nbSites_));
 
   // and site likelihoods
 
-  auto statesLog = CWiseMul<MatrixLik, std::tuple<Eigen::MatrixXd, MatrixLik> >::create(context_, {hiddenPostProb_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
+  auto statesLog = CWiseMul<MatrixLik, std::tuple<Eigen::MatrixXd, MatrixLik>>::create(context_, {hiddenPostProb_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
 
   setSiteLikelihoods(CWiseAdd<RowLik, MatrixLik>::create(context_, {statesLog}, RowVectorDimension(nbSites_)));
 }

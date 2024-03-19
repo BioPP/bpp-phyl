@@ -48,8 +48,8 @@ LLG08_EHO::LLG08_EHO(
     st = mixedModelPtr_->getParameterNameWithoutNamespace(name);
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LLG08_EHO." + st,
-                                mixedModelPtr_->getParameterValue(st),
-                                mixedModelPtr_->parameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : nullptr));
+          mixedModelPtr_->getParameterValue(st),
+          mixedModelPtr_->parameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : nullptr));
   }
 
   updateMatrices_();
@@ -70,4 +70,3 @@ LLG08_EHO::EmbeddedModel::EmbeddedModel(
 #include "__LLG08_EHORatesProps"
   updateMatrices_();
 }
-

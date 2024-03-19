@@ -16,12 +16,12 @@ using namespace std;
 /******************************************************************************/
 
 F84::F84(
-  shared_ptr<const NucleicAlphabet> alpha,
-  double kappa,
-  double piA,
-  double piC,
-  double piG,
-  double piT) :
+    shared_ptr<const NucleicAlphabet> alpha,
+    double kappa,
+    double piA,
+    double piC,
+    double piG,
+    double piT) :
   AbstractParameterAliasable("F84."),
   AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "F84."),
   kappa_(kappa), piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),

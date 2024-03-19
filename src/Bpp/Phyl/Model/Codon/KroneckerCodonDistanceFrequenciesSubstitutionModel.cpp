@@ -11,15 +11,15 @@ using namespace std;
 /******************************************************************************/
 
 KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFrequenciesSubstitutionModel(
-  shared_ptr<const GeneticCode> gCode,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-  unique_ptr<CodonFrequencySetInterface> pfreq,
-  shared_ptr<const AlphabetIndex2> pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerWordSubstitutionModel(
-      gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      "KronCodonDistFreq."),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    "KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, std::move(pmod), "KronCodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(std::move(pfreq), "KronCodonDistFreq.")
@@ -29,16 +29,16 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
 }
 
 KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFrequenciesSubstitutionModel(
-  shared_ptr<const GeneticCode> gCode,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-  const std::vector<std::set<size_t>>& vPos,
-  unique_ptr<CodonFrequencySetInterface> pfreq,
-  shared_ptr<const AlphabetIndex2> pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    const std::vector<std::set<size_t>>& vPos,
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerWordSubstitutionModel(
-      gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      "KronCodonDistFreq."),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    "KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, std::move(pmod), vPos, "KronCodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(std::move(pfreq), "KronCodonDistFreq.")
@@ -48,17 +48,17 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
 }
 
 KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFrequenciesSubstitutionModel(
-  shared_ptr<const GeneticCode> gCode,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-  unique_ptr<CodonFrequencySetInterface> pfreq,
-  shared_ptr<const AlphabetIndex2> pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerWordSubstitutionModel(
-      gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      "KronCodonDistFreq."),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    "KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), "KronCodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(std::move(pfreq), "KronCodonDistFreq.")
@@ -68,18 +68,18 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
 }
 
 KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFrequenciesSubstitutionModel(
-  shared_ptr<const GeneticCode> gCode,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-  unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-  const std::vector<std::set< size_t> >& vPos,
-  unique_ptr<CodonFrequencySetInterface> pfreq,
-  shared_ptr<const AlphabetIndex2> pdist) :
+    shared_ptr<const GeneticCode> gCode,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    const std::vector<std::set< size_t>>& vPos,
+    unique_ptr<CodonFrequencySetInterface> pfreq,
+    shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerWordSubstitutionModel(
-      gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
-      "KronCodonDistFreq."),
+    gCode->getSourceAlphabet(),
+    shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+    "KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), vPos, "KronCodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(std::move(pfreq), "KronCodonDistFreq.")

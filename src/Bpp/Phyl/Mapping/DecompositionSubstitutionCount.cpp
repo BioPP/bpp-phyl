@@ -38,7 +38,7 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(
 
 DecompositionSubstitutionCount::DecompositionSubstitutionCount(
     shared_ptr<const SubstitutionRegisterInterface> reg,
-    shared_ptr<const AlphabetIndex2> weights, 
+    shared_ptr<const AlphabetIndex2> weights,
     shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
@@ -132,7 +132,7 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
 /******************************************************************************/
 
 unique_ptr<Matrix<double>> DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(
-  double length, size_t type) const
+    double length, size_t type) const
 {
   if (!model_)
     throw Exception("DecompositionSubstitutionCount::getAllNumbersOfSubstitutions: model not defined.");

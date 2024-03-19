@@ -105,15 +105,14 @@ public:
     addParameters_(freqSet_->getParameters());
   }
 
-   const FrequencySetInterface& frequencySet() const override
+  const FrequencySetInterface& frequencySet() const override
   {
     if (freqSet_)
       return *freqSet_;
     throw NullPointerException("WAG01::frequencySet(). No associated FrequencySet.");
   }
-    
-  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
+  void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_WAG01_H

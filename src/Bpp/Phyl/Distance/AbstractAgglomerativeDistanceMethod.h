@@ -35,7 +35,6 @@ protected:
   bool rootTree_;
 
 public:
-
   AbstractAgglomerativeDistanceMethod(
       bool verbose = true,
       bool rootTree = false) :
@@ -86,14 +85,14 @@ public:
 
   bool hasTree() const override
   {
-    return (tree_ != nullptr);
+    return tree_ != nullptr;
   }
 
   const Tree& tree() const override
   {
     if (tree_)
       return *tree_;
-    
+
     throw NullPointerException("AbstractAgglomerativeDistanceMethod::tree(). No tree was computed.");
   }
 

@@ -37,8 +37,10 @@ void ForwardHmmLikelihood_DF::compute()
   cwise(tmp) = cwise(parCondLik_[0]) * cwise(hmmEmis.col(0));
   tscales[0] = tmp.sum();
 
-  for (auto s=0;s<nbStates;s++)
-    condLik(s,0) = convert(tmp(s) / tscales[0]);
+  for (auto s = 0; s < nbStates; s++)
+  {
+    condLik(s, 0) = convert(tmp(s) / tscales[0]);
+  }
   // tmp = condLik * scales
 
   // Iteration
@@ -46,12 +48,14 @@ void ForwardHmmLikelihood_DF::compute()
   {
     parCondLik_[(size_t)i] =  hmmTrans * condLik.col(i - 1);
 
-    cwise(tmp) = cwise(parCondLik_[(size_t)i]) * cwise(hmmEmis.col(i));    
+    cwise(tmp) = cwise(parCondLik_[(size_t)i]) * cwise(hmmEmis.col(i));
     tscales[(size_t)i] = tmp.sum();
 
     // tmp = condLik * scales
-    for (auto s=0;s<nbStates;s++)
-      condLik(s,i) = convert(tmp(s) / tscales[(size_t)i]);
+    for (auto s = 0; s < nbStates; s++)
+    {
+      condLik(s, i) = convert(tmp(s) / tscales[(size_t)i]);
+    }
   }
 
   copyBppToEigen(tscales, this->accessValueMutable ());
@@ -118,7 +122,7 @@ void ForwardHmmDLikelihood_DF::compute()
 
   auto nbSites = hmmEmis.cols();
   const int nbStates = (int)hmmEmis.rows();
-  
+
   VDataLik tdScales((size_t)nbSites);
 
   auto& dCondLik = dynamic_pointer_cast<CondLikelihood>(dCondLik_)->accessValueMutable();
@@ -129,14 +133,16 @@ void ForwardHmmDLikelihood_DF::compute()
   dParCondLik_[0] = dHmmTrans * hmmEq + hmmTrans * dHmmEq;
 
   cwise(dtmp) = (cwise(dParCondLik_[0]) * cwise(hmmEmis.col(0))
-                +  cwise(dHmmEmis.col(0)) *  cwise(parCondLik[0]));
+      +  cwise(dHmmEmis.col(0)) *  cwise(parCondLik[0]));
   tdScales[0] = dtmp.sum();
 
   // dtmp = dCondLik * scales + CondLik * dScales
 
-  for (auto s=0;s<nbStates;s++)
-    dCondLik(s,0)=convert((dtmp(s) - condLik(s,0) * tdScales[0])/scales(0));
-  
+  for (auto s = 0; s < nbStates; s++)
+  {
+    dCondLik(s, 0) = convert((dtmp(s) - condLik(s, 0) * tdScales[0]) / scales(0));
+  }
+
   // Iteration
   for (auto i = 1; i < nbSites; i++)
   {
@@ -145,8 +151,10 @@ void ForwardHmmDLikelihood_DF::compute()
     cwise(dtmp) = cwise(dParCondLik_[(size_t)i]) * cwise(hmmEmis.col(i)) + cwise(parCondLik[(size_t)i]) * cwise(dHmmEmis.col(i));
     tdScales[(size_t)i] = dtmp.sum();
 
-    for (auto s=0;s<nbStates;s++)
-      dCondLik(s,i)=convert((dtmp(s) - condLik(s,i) * tdScales[(size_t)i])/scales(i));
+    for (auto s = 0; s < nbStates; s++)
+    {
+      dCondLik(s, i) = convert((dtmp(s) - condLik(s, i) * tdScales[(size_t)i]) / scales(i));
+    }
   }
 
   copyBppToEigen(tdScales, this->accessValueMutable ());
@@ -198,7 +206,7 @@ NodeRef ForwardHmmDLikelihood_DF::derive (Context& c, const Node_DF& node)
     this->dependency(5)->derive (c, node),
     this->dependency(6)->derive (c, node)},
 
-                                            targetDimension_);
+        targetDimension_);
 }
 
 
@@ -255,7 +263,7 @@ void ForwardHmmD2Likelihood_DF::compute()
   VDataLik td2Scales(static_cast<size_t>(nbSites));
 
   Eigen::VectorXd d2CondLik(static_cast<int>(hmmEmis.rows()));
- 
+
   Eigen::VectorXd d2ParCondLik;
   VectorLik d2tmp(nbStates);
 
@@ -263,31 +271,34 @@ void ForwardHmmD2Likelihood_DF::compute()
   d2ParCondLik = d2HmmTrans * hmmEq + 2 * dHmmTrans * dHmmEq + hmmTrans * d2HmmEq;
 
   cwise(d2tmp) = cwise(d2ParCondLik) * cwise(hmmEmis.col(0))
-               + 2 * cwise(parDCondLik[0]) * cwise(dHmmEmis.col(0))
-               + cwise(parCondLik[0]) * cwise(d2HmmEmis.col(0));
+      + 2 * cwise(parDCondLik[0]) * cwise(dHmmEmis.col(0))
+      + cwise(parCondLik[0]) * cwise(d2HmmEmis.col(0));
 
   td2Scales[0] = d2tmp.sum();
 
   // d2tmp = d2CondLik * scales + 2 * dCondLik * dScales + CondLik * d2Scales
-  
-  for (auto s=0;s<nbStates;s++)
-    d2CondLik(s,0) = convert((d2tmp(s) - 2 * dCondLik(s,0) * dScales(0) - condLik(s,0) * td2Scales[0]) / scales(0));
- 
+
+  for (auto s = 0; s < nbStates; s++)
+  {
+    d2CondLik(s, 0) = convert((d2tmp(s) - 2 * dCondLik(s, 0) * dScales(0) - condLik(s, 0) * td2Scales[0]) / scales(0));
+  }
+
   // Iteration
   for (auto i = 1; i < nbSites; i++)
   {
     d2ParCondLik = d2HmmTrans * condLik.col(i)
-                   + 2 * dHmmTrans * dCondLik.col(i) + hmmTrans * d2CondLik;
+        + 2 * dHmmTrans * dCondLik.col(i) + hmmTrans * d2CondLik;
 
     cwise(d2tmp) = cwise(d2ParCondLik) * cwise(hmmEmis.col(i))
-                 + 2 * cwise(parDCondLik[(size_t)i]) * cwise(dHmmEmis.col(i))
-                 + cwise(parCondLik[(size_t)i]) * cwise(d2HmmEmis.col(i));
+        + 2 * cwise(parDCondLik[(size_t)i]) * cwise(dHmmEmis.col(i))
+        + cwise(parCondLik[(size_t)i]) * cwise(d2HmmEmis.col(i));
 
     td2Scales[(size_t)i] = d2tmp.sum();
 
-    for (auto s=0;s<nbStates;s++)
-      d2CondLik(s,i) = convert((d2tmp(s) - 2 * dCondLik(s,i) * dScales(i) - condLik(s,i) * td2Scales[(size_t)i]) / scales(i));
-
+    for (auto s = 0; s < nbStates; s++)
+    {
+      d2CondLik(s, i) = convert((d2tmp(s) - 2 * dCondLik(s, i) * dScales(i) - condLik(s, i) * td2Scales[(size_t)i]) / scales(i));
+    }
   }
 
   copyBppToEigen(td2Scales, this->accessValueMutable ());
@@ -318,13 +329,15 @@ void BackwardHmmLikelihood_DF::compute()
   for (auto i = nbSites - 1; i > 0; i--)
   {
     tScales[(size_t)(i - 1)].resize(nbStates);
-    
+
     cwise(tmp) = cwise(hmmEmis.col(i)) * cwise(tScales[(size_t)i]);
 
     auto tmp2 = hmmTrans * tmp;
 
-    for (auto s=0;s<nbStates;s++)
-      tScales[(size_t)(i - 1)](s) = convert(tmp2(s)/scales(i));
+    for (auto s = 0; s < nbStates; s++)
+    {
+      tScales[(size_t)(i - 1)](s) = convert(tmp2(s) / scales(i));
+    }
   }
 
   copyBppToEigen(tScales, this->accessValueMutable ());

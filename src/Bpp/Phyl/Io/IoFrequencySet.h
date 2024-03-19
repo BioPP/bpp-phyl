@@ -18,7 +18,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief General interface for model I/O.
  */

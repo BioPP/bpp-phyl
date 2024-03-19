@@ -42,9 +42,9 @@ public:
   virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
 
   virtual const SubstitutionProcessInterface& substitutionProcess(size_t number) const = 0;
-  
+
   virtual std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess(size_t number) const = 0;
-  
+
   const StateMapInterface& stateMap() const
   {
     return substitutionProcess(getSubstitutionProcessNumbers()[0]).stateMap();

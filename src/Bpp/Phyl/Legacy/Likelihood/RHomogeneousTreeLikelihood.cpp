@@ -18,12 +18,12 @@ using namespace std;
 /******************************************************************************/
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
-  const Tree& tree,
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose,
-  bool usePatterns) :
+    const Tree& tree,
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose,
+    bool usePatterns) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -34,13 +34,13 @@ RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
-  const Tree& tree,
-  const AlignmentDataInterface& data,
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool checkRooted,
-  bool verbose,
-  bool usePatterns) :
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool checkRooted,
+    bool verbose,
+    bool usePatterns) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -54,15 +54,15 @@ RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
 void RHomogeneousTreeLikelihood::init_(bool usePatterns)
 {
   likelihoodData_ = new DRASRTreeLikelihoodData(
-    tree_,
-    rateDistribution_->getNumberOfCategories(),
-    usePatterns);
+        tree_,
+        rateDistribution_->getNumberOfCategories(),
+        usePatterns);
 }
 
 /******************************************************************************/
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
-  const RHomogeneousTreeLikelihood& lik) :
+    const RHomogeneousTreeLikelihood& lik) :
   AbstractHomogeneousTreeLikelihood(lik),
   likelihoodData_(0),
   minusLogLik_(lik.minusLogLik_)
@@ -74,7 +74,7 @@ RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 RHomogeneousTreeLikelihood& RHomogeneousTreeLikelihood::operator=(
-  const RHomogeneousTreeLikelihood& lik)
+    const RHomogeneousTreeLikelihood& lik)
 {
   AbstractHomogeneousTreeLikelihood::operator=(lik);
   if (likelihoodData_)
@@ -109,7 +109,7 @@ void RHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites)
 
   if (verbose_)
     ApplicationTools::displayResult("Number of distinct sites",
-                                    TextTools::toString(nbDistinctSites_));
+        TextTools::toString(nbDistinctSites_));
   initialized_ = false;
 }
 
@@ -265,8 +265,8 @@ double RHomogeneousTreeLikelihood::getValue() const
 *                           First Order Derivatives                          *
 ******************************************************************************/
 double RHomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
-  size_t site,
-  size_t rateClass) const
+    size_t site,
+    size_t rateClass) const
 {
   double dl = 0;
   Vdouble* dla = &likelihoodData_->getDLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
@@ -518,8 +518,8 @@ void RHomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node* node)
 *                           Second Order Derivatives                         *
 ******************************************************************************/
 double RHomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
-  size_t site,
-  size_t rateClass) const
+    size_t site,
+    size_t rateClass) const
 {
   double d2l = 0;
   Vdouble* d2la = &likelihoodData_->getD2LikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];

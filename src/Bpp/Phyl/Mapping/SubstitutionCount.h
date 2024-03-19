@@ -104,7 +104,7 @@ public:
    * @param type         The type of susbstitution to count.
    * @return A matrix with all numbers of substitutions for each initial and final states.
    */
-  virtual std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type) const = 0;
+  virtual std::unique_ptr< Matrix<double>> getAllNumbersOfSubstitutions(double length, size_t type) const = 0;
 
   /**
    * @brief Stores the numbers of susbstitutions on a branch, for
@@ -171,7 +171,6 @@ public:
 
 protected:
   virtual void substitutionRegisterHasChanged() = 0;
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MAPPING_SUBSTITUTIONCOUNT_H

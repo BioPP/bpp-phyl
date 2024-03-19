@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_ONEPROCESSSEQUENCEEVOLUTION_H
 
 
-
 // From bpp-core:
 #include <Bpp/Numeric/ParameterAliasable.h>
 
@@ -103,7 +102,6 @@ public:
    *
    * @return The tree of this OneProcessSequenceEvolution object.
    */
-  
   std::shared_ptr<const ParametrizablePhyloTree> tree() const
   {
     return subsProc_->getParametrizablePhyloTree();

@@ -60,10 +60,10 @@ public:
    * relative rates (default: false)
    */
   AbstractCodonSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    const std::string& st,
-    bool paramRates = false);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      const std::string& st,
+      bool paramRates = false);
 
   /**
    * @brief Build a new AbstractCodonSubstitutionModel object
@@ -80,12 +80,12 @@ public:
    * relative rates (default: false)
    */
   AbstractCodonSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    const std::string& st,
-    bool paramRates = false);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      const std::string& st,
+      bool paramRates = false);
 
   virtual ~AbstractCodonSubstitutionModel() {}
 
@@ -122,7 +122,6 @@ protected:
   void updateMatrices_() override;
 
 public:
-
   std::shared_ptr<const GeneticCode> getGeneticCode() const override { return gCode_; }
 };
 } // end of namespace bpp.

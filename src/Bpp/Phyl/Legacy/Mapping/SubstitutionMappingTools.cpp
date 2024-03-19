@@ -26,10 +26,10 @@ using namespace std;
 /******************************************************************************/
 
 unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTools::computeSubstitutionVectors(
-  std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-  const vector<int>& nodeIds,
-  std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-  bool verbose)
+    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+    const vector<int>& nodeIds,
+    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+    bool verbose)
 {
   // Preamble:
   if (!drtl->isInitialized())
@@ -252,7 +252,7 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
         {
           VVdouble& nxy_c_t = nxy_c[t];
           auto nijt = substitutionCount->getAllNumbersOfSubstitutions(d * rc, t + 1);
-           
+
           nxy_c_t.resize(nbStates);
           for (size_t x = 0; x < nbStates; ++x)
           {
@@ -293,8 +293,8 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
             for (size_t y = 0; y < nbStates; ++y)
             {
               double likelihood_cxy = likelihoodsFatherConstantPart_i_c_x
-                                      * pxy_c_x[y]
-                                      * likelihoodsFather_node_i_c[y];
+                  * pxy_c_x[y]
+                  * likelihoodsFather_node_i_c[y];
 
               for (size_t t = 0; t < nbTypes; ++t)
               {
@@ -309,7 +309,6 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
               }
             }
           }
-          
         }
       }
     }
@@ -336,11 +335,11 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
 /******************************************************************************/
 
 unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTools::computeSubstitutionVectors(
-  std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-  const SubstitutionModelSet& modelSet,
-  const vector<int>& nodeIds,
-  std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-  bool verbose)
+    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+    const SubstitutionModelSet& modelSet,
+    const vector<int>& nodeIds,
+    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+    bool verbose)
 {
   // Preamble:
   if (!drtl->isInitialized())
@@ -604,8 +603,8 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
             for (size_t y = 0; y < nbStates; ++y)
             {
               double likelihood_cxy = likelihoodsFatherConstantPart_i_c_x
-                                      * pxy_c_x[y]
-                                      * likelihoodsFather_node_i_c[y];
+                  * pxy_c_x[y]
+                  * likelihoodsFather_node_i_c[y];
 
               for (size_t t = 0; t < nbTypes; ++t)
               {
@@ -646,9 +645,9 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
 /**************************************************************************************************/
 
 unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(
-  std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-  std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-  bool verbose)
+    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+    bool verbose)
 {
   // Preamble:
   if (!drtl->isInitialized())
@@ -898,8 +897,8 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
             for (size_t y = 0; y < nbStates; ++y)
             {
               double likelihood_cxy = likelihoodsFatherConstantPart_i_c_x
-                                      * pxy_c_x[y]
-                                      * likelihoodsFather_node_i_c[y];
+                  * pxy_c_x[y]
+                  * likelihoodsFather_node_i_c[y];
               pairProbabilities(x, y) += likelihood_cxy; // Sum over all rate classes.
               for (size_t t = 0; t < nbTypes; ++t)
               {
@@ -939,9 +938,9 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
 /**************************************************************************************************/
 
 unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(
-  shared_ptr<const DRTreeLikelihoodInterface> drtl,
-  std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-  bool verbose)
+    shared_ptr<const DRTreeLikelihoodInterface> drtl,
+    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+    bool verbose)
 {
   // Preamble:
   if (!drtl->isInitialized())
@@ -1039,7 +1038,7 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
           for (size_t t = 0; t < nbTypes; ++t)
           {
             substitutionsForCurrentNode[i][t] = 0;
-          }                                                    // To be conservative! Only in case there are generic characters.
+          }// To be conservative! Only in case there are generic characters.
         else
           for (size_t t = 0; t < nbTypes; ++t)
           {
@@ -1069,9 +1068,9 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
 /**************************************************************************************************/
 
 unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTools::computeSubstitutionVectorsMarginal(
-  std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-  std::shared_ptr<SubstitutionCountInterface> substitutionCount,
-  bool verbose)
+    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+    std::shared_ptr<SubstitutionCountInterface> substitutionCount,
+    bool verbose)
 {
   // Preamble:
   if (!drtl->isInitialized())
@@ -1212,10 +1211,10 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::writeToStream(
-  const LegacyProbabilisticSubstitutionMapping& substitutions,
-  const SiteContainerInterface& sites,
-  size_t type,
-  ostream& out)
+    const LegacyProbabilisticSubstitutionMapping& substitutions,
+    const SiteContainerInterface& sites,
+    size_t type,
+    ostream& out)
 {
   if (!out)
     throw IOException("LegacySubstitutionMappingTools::writeToFile. Can't write to stream.");
@@ -1241,9 +1240,9 @@ void LegacySubstitutionMappingTools::writeToStream(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::readFromStream(
-  istream& in, 
-  LegacyProbabilisticSubstitutionMapping& substitutions,
-  size_t type)
+    istream& in,
+    LegacyProbabilisticSubstitutionMapping& substitutions,
+    size_t type)
 {
   try
   {
@@ -1285,8 +1284,8 @@ void LegacySubstitutionMappingTools::readFromStream(
 /**************************************************************************************************/
 
 vector<double> LegacySubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerBranch(
-  const LegacySubstitutionMappingInterface& smap,
-  size_t siteIndex)
+    const LegacySubstitutionMappingInterface& smap,
+    size_t siteIndex)
 {
   size_t nbBranches = smap.getNumberOfBranches();
   size_t nbTypes    = smap.getNumberOfSubstitutionTypes();
@@ -1305,8 +1304,8 @@ vector<double> LegacySubstitutionMappingTools::computeTotalSubstitutionVectorFor
 /**************************************************************************************************/
 
 vector<double> LegacySubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(
-  const LegacySubstitutionMappingInterface& smap,
-  size_t siteIndex)
+    const LegacySubstitutionMappingInterface& smap,
+    size_t siteIndex)
 {
   size_t nbBranches = smap.getNumberOfBranches();
   size_t nbTypes    = smap.getNumberOfSubstitutionTypes();
@@ -1315,8 +1314,9 @@ vector<double> LegacySubstitutionMappingTools::computeTotalSubstitutionVectorFor
   {
     v[t] = 0;
     for (size_t l = 0; l < nbBranches; ++l)
+    {
       v[t] += smap(l, siteIndex, t);
-
+    }
   }
   return v;
 }
@@ -1324,8 +1324,8 @@ vector<double> LegacySubstitutionMappingTools::computeTotalSubstitutionVectorFor
 /**************************************************************************************************/
 
 double LegacySubstitutionMappingTools::computeNormForSite(
-  const LegacySubstitutionMappingInterface& smap,
-  size_t siteIndex)
+    const LegacySubstitutionMappingInterface& smap,
+    size_t siteIndex)
 {
   double sumSquare = 0;
   for (size_t l = 0; l < smap.getNumberOfBranches(); ++l)
@@ -1343,8 +1343,8 @@ double LegacySubstitutionMappingTools::computeNormForSite(
 /**************************************************************************************************/
 
 vector<double> LegacySubstitutionMappingTools::computeSumForBranch(
-  const LegacySubstitutionMappingInterface& smap,
-  size_t branchIndex)
+    const LegacySubstitutionMappingInterface& smap,
+    size_t branchIndex)
 {
   size_t nbSites = smap.getNumberOfSites();
   size_t nbTypes = smap.getNumberOfSubstitutionTypes();
@@ -1362,8 +1362,8 @@ vector<double> LegacySubstitutionMappingTools::computeSumForBranch(
 /**************************************************************************************************/
 
 vector<double> LegacySubstitutionMappingTools::computeSumForSite(
-  const LegacySubstitutionMappingInterface& smap,
-  size_t siteIndex)
+    const LegacySubstitutionMappingInterface& smap,
+    size_t siteIndex)
 {
   size_t nbBranches = smap.getNumberOfBranches();
   size_t nbTypes = smap.getNumberOfSubstitutionTypes();
@@ -1381,17 +1381,17 @@ vector<double> LegacySubstitutionMappingTools::computeSumForSite(
 /**************************************************************************************************/
 
 vector<vector<double>> LegacySubstitutionMappingTools::getCountsPerBranch(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelInterface> model,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  double threshold,
-  bool verbose)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    double threshold,
+    bool verbose)
 {
   auto count = make_shared<UniformizationSubstitutionCount>(model, reg);
   auto mapping = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, count, false);
 
-  vector< vector<double> > counts(ids.size());
+  vector< vector<double>> counts(ids.size());
   size_t nbSites = mapping->getNumberOfSites();
   size_t nbTypes = mapping->getNumberOfSubstitutionTypes();
 
@@ -1460,18 +1460,18 @@ ERROR:
 /**************************************************************************************************/
 
 vector<vector<double>> LegacySubstitutionMappingTools::getCountsPerBranch(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  const SubstitutionModelSet& modelSet,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  double threshold,
-  bool verbose)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    const SubstitutionModelSet& modelSet,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    double threshold,
+    bool verbose)
 {
   auto count = make_shared<UniformizationSubstitutionCount>(modelSet.getSubstitutionModel(0), reg);
 
   auto mapping = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, modelSet, ids, count, false);
 
-  vector< vector<double> > counts(ids.size());
+  vector< vector<double>> counts(ids.size());
   size_t nbSites = mapping->getNumberOfSites();
   size_t nbTypes = mapping->getNumberOfSubstitutionTypes();
 
@@ -1540,11 +1540,11 @@ ERROR:
 /**************************************************************************************************/
 
 vector<vector<double>> LegacySubstitutionMappingTools::getNormalizationsPerBranch(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<const SubstitutionModelInterface> nullModel,
-  const SubstitutionRegisterInterface& reg,
-  bool verbose)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<const SubstitutionModelInterface> nullModel,
+    const SubstitutionRegisterInterface& reg,
+    bool verbose)
 {
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
   size_t nbStates = nullModel->alphabet().getSize();
@@ -1554,10 +1554,13 @@ vector<vector<double>> LegacySubstitutionMappingTools::getNormalizationsPerBranc
   // compute the AlphabetIndex for each substitutionType
   vector<shared_ptr<UserAlphabetIndex1>> usai(nbTypes);
 
-  for (size_t nbt = 0; nbt < nbTypes; nbt++) {
+  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+  {
     usai[nbt] = make_shared<UserAlphabetIndex1>(nullModel->getAlphabet());
     for (size_t i = 0; i < nbStates; i++)
+    {
       usai[nbt]->setIndex(supportedStates[i], 0);
+    }
   }
 
   for (size_t i = 0; i < nbStates; i++)
@@ -1610,11 +1613,11 @@ vector<vector<double>> LegacySubstitutionMappingTools::getNormalizationsPerBranc
 /**************************************************************************************************/
 
 vector<vector<double>> LegacySubstitutionMappingTools::getNormalizationsPerBranch(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<const SubstitutionModelSet> nullModelSet,
-  const SubstitutionRegisterInterface& reg,
-  bool verbose)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<const SubstitutionModelSet> nullModelSet,
+    const SubstitutionRegisterInterface& reg,
+    bool verbose)
 {
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
   size_t nbStates = nullModelSet->alphabet().getSize();
@@ -1632,20 +1635,26 @@ vector<vector<double>> LegacySubstitutionMappingTools::getNormalizationsPerBranc
 
   vector<std::shared_ptr<UserAlphabetIndex1>> usai(nbTypes);
   for (size_t i = 0; i < nbTypes; ++i)
+  {
     usai[i] = make_shared<UserAlphabetIndex1>(nullModelSet->getAlphabet());
+  }
 
   for (size_t nbm = 0; nbm < nbModels; nbm++)
   {
     vector<int> mids = VectorTools::vectorIntersection(ids, nullModelSet->getNodesWithModel(nbm));
-    
+
     if (mids.size() > 0)
     {
       auto modn = nullModelSet->getSubstitutionModel(nbm);
       vector<int> supportedStates = modn->getAlphabetStates();
 
       for (size_t nbt = 0; nbt < nbTypes; nbt++)
+      {
         for (size_t i = 0; i < nbStates; i++)
+        {
           usai[nbt]->setIndex(supportedStates[i], 0);
+        }
+      }
 
       for (size_t i = 0; i < nbStates; i++)
       {
@@ -1662,9 +1671,9 @@ vector<vector<double>> LegacySubstitutionMappingTools::getNormalizationsPerBranc
 
       for (size_t nbt = 0; nbt < nbTypes; nbt++)
       {
-        auto reward = make_shared<DecompositionReward>(nullModelSet->getSubstitutionModel(nbm), usai[nbt]);       
+        auto reward = make_shared<DecompositionReward>(nullModelSet->getSubstitutionModel(nbm), usai[nbt]);
         auto mapping = LegacyRewardMappingTools::computeRewardVectors(drtl, mids, reward, false);
-        
+
         for (size_t k = 0; k < mids.size(); k++)
         {
           double s = 0;
@@ -1681,7 +1690,7 @@ vector<vector<double>> LegacySubstitutionMappingTools::getNormalizationsPerBranc
             else
               s += tmp;
           }
-          
+
           rewards[VectorTools::which(ids, mids[k])][nbt] = s;
         }
       }
@@ -1694,15 +1703,15 @@ vector<vector<double>> LegacySubstitutionMappingTools::getNormalizationsPerBranc
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelInterface> model,
-  std::shared_ptr<SubstitutionModelInterface> nullModel,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVdouble& result,
-  bool perTime,
-  bool perWord,
-  bool verbose)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelInterface> model,
+    std::shared_ptr<SubstitutionModelInterface> nullModel,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVdouble& result,
+    bool perTime,
+    bool perWord,
+    bool verbose)
 {
   vector<vector<double>> factors;
 
@@ -1715,7 +1724,7 @@ void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
   auto wAlp = dynamic_pointer_cast<const CoreWordAlphabet>(nullModel->getAlphabet());
 
   float sizeWord = float((wAlp && !perWord) ? wAlp->getLength() : 1);
-  
+
 
   size_t nbTypes = result[0].size();
 
@@ -1743,21 +1752,20 @@ void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
       }
     }
   }
-  
 }
 
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<SubstitutionModelSet> nullModelSet,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVdouble& result,
-  bool perTime,
-  bool perWord,
-  bool verbose)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<SubstitutionModelSet> nullModelSet,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVdouble& result,
+    bool perTime,
+    bool perWord,
+    bool verbose)
 {
   vector<vector<double>> factors;
 
@@ -1771,14 +1779,14 @@ void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
   auto wAlp = dynamic_pointer_cast<const CoreWordAlphabet>(nullModelSet->getAlphabet());
 
   float sizeWord = float((wAlp && !perWord) ? wAlp->getLength() : 1);
-  
+
 
   for (size_t k = 0; k < ids.size(); ++k)
   {
     for (size_t t = 0; t < nbTypes; ++t)
     {
       if (factors[k][t] != 0)
-        result[k][t] /= (factors[k][t]*sizeWord);
+        result[k][t] /= (factors[k][t] * sizeWord);
     }
   }
 
@@ -1802,13 +1810,13 @@ void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelInterface> model,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVdouble& result,
-  double threshold,
-  bool verbose)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVdouble& result,
+    double threshold,
+    bool verbose)
 {
   result = getCountsPerBranch(drtl, ids, model, reg, threshold, verbose);
 
@@ -1846,11 +1854,11 @@ void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerSitePerBranch(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelInterface> model,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVdouble& result)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVdouble& result)
 {
   auto count = make_shared<UniformizationSubstitutionCount>(model, reg);
   auto smap = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, count, false);
@@ -1869,10 +1877,12 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranch(
   for (size_t k = 0; k < nbSites; ++k)
   {
     vector<double> countsf = LegacySubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerBranch(*smap, k);
-    Vdouble* resS=&result[k];
-    
+    Vdouble* resS = &result[k];
+
     for (size_t i = 0; i < nbBr; ++i)
-      (*resS)[i]= countsf[sdi[i]];
+    {
+      (*resS)[i] = countsf[sdi[i]];
+    }
   }
 }
 
@@ -1880,11 +1890,11 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranch(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelInterface> model,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVdouble& result)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVdouble& result)
 {
   auto count = make_shared<UniformizationSubstitutionCount>(model, reg);
   auto smap = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, count, false);
@@ -1895,15 +1905,17 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
   VectorTools::resize2(result, nbSites, nbTypes);
 
   vector<unique_ptr<LegacyProbabilisticRewardMapping>> rmap;
-  
+
   for (size_t k = 0; k < nbSites; ++k)
   {
     vector<double> countsf = LegacySubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(*smap, k);
 
-    Vdouble* resS=&result[k];
-    
+    Vdouble* resS = &result[k];
+
     for (size_t i = 0; i < nbTypes; ++i)
+    {
       (*resS)[i] = countsf[i];
+    }
   }
 }
 
@@ -1911,16 +1923,15 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelInterface> model,
-  std::shared_ptr<SubstitutionModelInterface> nullModel,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVdouble& result,
-  bool perTime,
-  bool perWord)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelInterface> model,
+    std::shared_ptr<SubstitutionModelInterface> nullModel,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVdouble& result,
+    bool perTime,
+    bool perWord)
 {
-  
   auto count = make_shared<UniformizationSubstitutionCount>(model, reg);
   auto smap = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, count, false);
 
@@ -1934,10 +1945,13 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
   // compute the AlphabetIndex for each substitutionType
   vector<std::shared_ptr<UserAlphabetIndex1>> usai(nbTypes);
 
-  for (size_t nbt = 0; nbt < nbTypes; nbt++) {
+  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+  {
     usai[nbt] = make_shared<UserAlphabetIndex1>(nullModel->getAlphabet());
     for (size_t i = 0; i < nbStates; i++)
+    {
       usai[nbt]->setIndex(supportedStates[i], 0);
+    }
   }
 
   for (size_t i = 0; i < nbStates; i++)
@@ -1960,7 +1974,7 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
   {
     rewards[k].resize(nbTypes);
   }
-  
+
   for (size_t nbt = 0; nbt < nbTypes; nbt++)
   {
     auto reward = make_shared<DecompositionReward>(nullModel, usai[nbt]);
@@ -1984,14 +1998,16 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
   }
 
   // Compute the sum of lengths of concerned branchs
-  
+
   double brlen = 0;
 
   if (!perTime)
   {
     const TreeTemplate<Node> tree(drtl->tree());
     for (size_t k = 0; k < ids.size(); ++k)
+    {
       brlen += tree.getNode(ids[k])->getDistanceToFather();
+    }
   }
   else
     brlen = 1;
@@ -2001,14 +2017,14 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
   auto wAlp = dynamic_pointer_cast<const CoreWordAlphabet>(nullModel->getAlphabet());
 
   float sizeWord = float((wAlp && !perWord) ? wAlp->getLength() : 1);
-  
+
   // output
-  
+
   for (size_t k = 0; k < nbSites; ++k)
   {
     vector<double> countsf = LegacySubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(*smap, k);
 
-    Vdouble& resS=result[k];
+    Vdouble& resS = result[k];
     for (size_t i = 0; i < nbTypes; ++i)
     {
       resS[i] = countsf[i] / rewards[k][i] * brlen / sizeWord;
@@ -2020,14 +2036,14 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<SubstitutionModelSet> nullModelSet,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVdouble& result,
-  bool perTime,
-  bool perWord)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<SubstitutionModelSet> nullModelSet,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVdouble& result,
+    bool perTime,
+    bool perWord)
 {
   auto count = make_shared<UniformizationSubstitutionCount>(modelSet->getSubstitutionModel(0), reg);
   auto smap = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, count, false);
@@ -2038,32 +2054,35 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
   size_t nbModels = nullModelSet->getNumberOfModels();
 
   VectorTools::resize2(result, nbSites, nbTypes);
-  
+
   // compute the normalization for each site for each substitutionType
-  vector< vector<double> > rewards(nbSites);
+  vector< vector<double>> rewards(nbSites);
 
   for (size_t k = 0; k < nbSites; ++k)
   {
     rewards[k].resize(nbTypes);
   }
-  
+
   vector<std::shared_ptr<UserAlphabetIndex1>> usai(nbTypes);
 
   for (size_t nbm = 0; nbm < nbModels; nbm++)
   {
     vector<int> mids = VectorTools::vectorIntersection(ids, nullModelSet->getNodesWithModel(nbm));
-    
-    if (mids.size()>0)
+
+    if (mids.size() > 0)
     {
       const std::shared_ptr<SubstitutionModelInterface> modn = nullModelSet->getSubstitutionModel(nbm);
       vector<int> supportedStates = modn->getAlphabetStates();
-      
-      for (size_t nbt = 0; nbt < nbTypes; nbt++) {
+
+      for (size_t nbt = 0; nbt < nbTypes; nbt++)
+      {
         usai[nbt] = make_shared<UserAlphabetIndex1>(nullModelSet->getAlphabet());
         for (size_t i = 0; i < nbStates; i++)
+        {
           usai[nbt]->setIndex(supportedStates[i], 0);
+        }
       }
-      
+
       for (size_t i = 0; i < nbStates; i++)
       {
         for (size_t j = 0; j < nbStates; j++)
@@ -2081,7 +2100,7 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
       {
         auto reward = make_shared<DecompositionReward>(nullModelSet->getSubstitutionModel(nbm), usai[nbt]);
         auto mapping = LegacyRewardMappingTools::computeRewardVectors(drtl, mids, reward, false);
-        
+
         for (size_t i = 0; i < nbSites; ++i)
         {
           double s = 0;
@@ -2102,33 +2121,36 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
       }
     }
   }
-  
+
   // Compute the sum of lengths of concerned branchs
-  
+
 
   double brlen = 0;
 
-  if (!perTime){
+  if (!perTime)
+  {
     const TreeTemplate<Node> tree(drtl->tree());
     for (size_t k = 0; k < ids.size(); ++k)
+    {
       brlen += tree.getNode(ids[k])->getDistanceToFather();
+    }
   }
   else
     brlen = 1.;
-  
-      
+
+
   // check if perWord
   auto wAlp = dynamic_pointer_cast<const CoreWordAlphabet>(nullModelSet->getAlphabet());
   float sizeWord = float((wAlp && !perWord) ? wAlp->getLength() : 1);
- 
+
   // output
-  
+
   for (size_t k = 0; k < nbSites; ++k)
   {
     vector<double> countsf = LegacySubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(*smap, k);
 
     Vdouble& resS = result[k];
-    
+
     for (size_t i = 0; i < nbTypes; ++i)
     {
       resS[i] = countsf[i] / rewards[k][i] * brlen / sizeWord;
@@ -2140,27 +2162,27 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelInterface> model,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVVdouble& result)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVVdouble& result)
 {
   auto count = make_shared<UniformizationSubstitutionCount>(model, reg);
   auto smap = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, count, false);
 
   size_t nbSites = smap->getNumberOfSites();
   size_t nbBr = ids.size();
-  size_t nbTypes= reg->getNumberOfSubstitutionTypes();
+  size_t nbTypes = reg->getNumberOfSubstitutionTypes();
 
   VectorTools::resize3(result, nbSites, nbBr, nbTypes);
-  
+
   for (size_t i = 0; i < nbTypes; ++i)
   {
     for (size_t j = 0; j < nbSites; ++j)
     {
-      VVdouble& resS=result[j];
-      
+      VVdouble& resS = result[j];
+
       for (size_t k = 0; k < nbBr; ++k)
       {
         resS[k][i] = (*smap)(smap->getNodeIndex(ids[k]), j, i);
@@ -2172,18 +2194,18 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelInterface> model,
-  std::shared_ptr<SubstitutionModelInterface> nullModel,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVVdouble& result,
-  bool perTime,
-  bool perWord)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelInterface> model,
+    std::shared_ptr<SubstitutionModelInterface> nullModel,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVVdouble& result,
+    bool perTime,
+    bool perWord)
 {
   auto count = make_shared<UniformizationSubstitutionCount>(model, reg);
   auto smap = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, count, false);
-  
+
   size_t nbSites = smap->getNumberOfSites();
   size_t nbTypes = smap->getNumberOfSubstitutionTypes();
   size_t nbStates = nullModel->alphabet().getSize();
@@ -2192,20 +2214,25 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
   VectorTools::resize3(result, nbSites, nbBr, nbTypes);
 
   // compute the normalization for each site for each substitutionType
-  map<int, vector< vector<double> > > rewards;
+  map<int, vector< vector<double>>> rewards;
 
   for (auto id : ids)
+  {
     VectorTools::resize2(rewards[id], nbSites, nbTypes);
+  }
 
   vector<int> supportedStates = nullModel->getAlphabetStates();
 
   // compute the AlphabetIndex for each substitutionType
   vector<std::shared_ptr<UserAlphabetIndex1>> usai(nbTypes);
 
-  for (size_t nbt = 0; nbt < nbTypes; nbt++) {
+  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+  {
     usai[nbt] = make_shared<UserAlphabetIndex1>(nullModel->getAlphabet());
     for (size_t i = 0; i < nbStates; i++)
+    {
       usai[nbt]->setIndex(supportedStates[i], 0);
+    }
   }
 
   for (size_t i = 0; i < nbStates; i++)
@@ -2234,7 +2261,7 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
 
         if (std::isnan(tmp))
           tmp = 0;
-        
+
         rewards[ids[k]][i][nbt] = tmp;
       }
     }
@@ -2243,7 +2270,7 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
   // check if perWord
   auto wAlp = dynamic_pointer_cast<const CoreWordAlphabet>(nullModel->getAlphabet());
   float sizeWord = float((wAlp && !perWord) ? wAlp->getLength() : 1);
-  
+
 
   // output
   const TreeTemplate<Node>& tree = drtl->tree();
@@ -2252,11 +2279,11 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
   {
     for (size_t j = 0; j < nbSites; ++j)
     {
-      VVdouble& resS=result[j];
-      
+      VVdouble& resS = result[j];
+
       for (size_t k = 0; k < nbBr; ++k)
       {
-        resS[k][i] = (*smap)(smap->getNodeIndex(ids[k]), j, i)/rewards[ids[k]][j][i] * (perTime ? 1 : tree.getNode(ids[k])->getDistanceToFather()) / sizeWord;
+        resS[k][i] = (*smap)(smap->getNodeIndex(ids[k]), j, i) / rewards[ids[k]][j][i] * (perTime ? 1 : tree.getNode(ids[k])->getDistanceToFather()) / sizeWord;
       }
     }
   }
@@ -2265,18 +2292,18 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
-  std::shared_ptr<DRTreeLikelihoodInterface> drtl,
-  const vector<int>& ids,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<SubstitutionModelSet> nullModelSet,
-  std::shared_ptr<const SubstitutionRegisterInterface> reg,
-  VVVdouble& result,
-  bool perTime,
-  bool perWord)
+    std::shared_ptr<DRTreeLikelihoodInterface> drtl,
+    const vector<int>& ids,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<SubstitutionModelSet> nullModelSet,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    VVVdouble& result,
+    bool perTime,
+    bool perWord)
 {
   auto count = make_shared<UniformizationSubstitutionCount>(modelSet->getSubstitutionModel(0), reg);
   auto smap = LegacySubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, count, false);
-  
+
   size_t nbSites = smap->getNumberOfSites();
   size_t nbTypes = smap->getNumberOfSubstitutionTypes();
   size_t nbStates = nullModelSet->alphabet().getSize();
@@ -2289,25 +2316,33 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
   map<int, vector<vector<double>>> rewards;
 
   for (auto id : ids)
+  {
     VectorTools::resize2(rewards[id], nbSites, nbTypes);
-  
+  }
+
   vector<std::shared_ptr<UserAlphabetIndex1>> usai(nbTypes);
   for (size_t i = 0; i < nbTypes; ++i)
+  {
     usai[i] = make_shared<UserAlphabetIndex1>(nullModelSet->getAlphabet());
+  }
 
   for (size_t nbm = 0; nbm < nbModels; nbm++)
   {
     vector<int> mids = VectorTools::vectorIntersection(ids, nullModelSet->getNodesWithModel(nbm));
-    
-    if (mids.size()>0)
+
+    if (mids.size() > 0)
     {
       auto modn = nullModelSet->getSubstitutionModel(nbm);
       vector<int> supportedStates = modn->getAlphabetStates();
-      
+
       for (size_t nbt = 0; nbt < nbTypes; nbt++)
+      {
         for (size_t i = 0; i < nbStates; i++)
+        {
           usai[nbt]->setIndex(supportedStates[i], 0);
-      
+        }
+      }
+
       for (size_t i = 0; i < nbStates; i++)
       {
         for (size_t j = 0; j < nbStates; j++)
@@ -2325,7 +2360,7 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
       {
         auto reward = make_shared<DecompositionReward>(nullModelSet->getSubstitutionModel(nbm), usai[nbt]);
         auto mapping = LegacyRewardMappingTools::computeRewardVectors(drtl, mids, reward, false);
-        
+
         for (size_t i = 0; i < nbSites; ++i)
         {
           for (size_t k = 0; k < mids.size(); k++)
@@ -2345,7 +2380,7 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
   // check if perWord
   auto wAlp = dynamic_pointer_cast<const CoreWordAlphabet>(nullModelSet->getAlphabet());
   float sizeWord = float((wAlp && !perWord) ? wAlp->getLength() : 1);
-  
+
 
   // output
   const TreeTemplate<Node>& tree = drtl->tree();
@@ -2354,11 +2389,11 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
   {
     for (size_t j = 0; j < nbSites; ++j)
     {
-      VVdouble& resS=result[j];
-      
+      VVdouble& resS = result[j];
+
       for (size_t k = 0; k < nbBr; ++k)
       {
-        resS[k][i] = (*smap)(smap->getNodeIndex(ids[k]), j, i)/rewards[ids[k]][j][i]*(perTime?1:tree.getNode(ids[k])->getDistanceToFather())/sizeWord;
+        resS[k][i] = (*smap)(smap->getNodeIndex(ids[k]), j, i) / rewards[ids[k]][j][i] * (perTime ? 1 : tree.getNode(ids[k])->getDistanceToFather()) / sizeWord;
       }
     }
   }
@@ -2368,15 +2403,15 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::outputPerSitePerBranch(
-  const string& filename,
-  const vector<int>& ids,
-  const VVdouble& counts)
+    const string& filename,
+    const vector<int>& ids,
+    const VVdouble& counts)
 {
   size_t nbSites = counts.size();
   if (nbSites == 0)
     return;
   size_t nbBr = counts[0].size();
-  
+
   ofstream file;
   file.open(filename.c_str());
 
@@ -2389,7 +2424,7 @@ void LegacySubstitutionMappingTools::outputPerSitePerBranch(
 
   for (size_t k = 0; k < nbSites; ++k)
   {
-    const Vdouble& countS=counts[k];
+    const Vdouble& countS = counts[k];
     file << k;
     for (size_t i = 0; i < nbBr; ++i)
     {
@@ -2404,19 +2439,18 @@ void LegacySubstitutionMappingTools::outputPerSitePerBranch(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::outputPerSitePerType(
-  const string& filename,
-  const SubstitutionRegisterInterface& reg,
-  const VVdouble& counts)
+    const string& filename,
+    const SubstitutionRegisterInterface& reg,
+    const VVdouble& counts)
 {
-  
   size_t nbSites = counts.size();
   if (nbSites == 0)
     return;
   size_t nbTypes = counts[0].size();
-  
+
   ofstream file;
   file.open(filename.c_str());
-  
+
   file << "sites";
   for (size_t i = 0; i < nbTypes; ++i)
   {
@@ -2427,7 +2461,7 @@ void LegacySubstitutionMappingTools::outputPerSitePerType(
   for (size_t k = 0; k < nbSites; ++k)
   {
     file << k;
-    const Vdouble& resS=counts[k];
+    const Vdouble& resS = counts[k];
     for (size_t i = 0; i < nbTypes; ++i)
     {
       file << "\t" << resS[i];
@@ -2441,10 +2475,10 @@ void LegacySubstitutionMappingTools::outputPerSitePerType(
 /**************************************************************************************************/
 
 void LegacySubstitutionMappingTools::outputPerSitePerBranchPerType(
-  const string& filenamePrefix,
-  const vector<int>& ids,
-  const SubstitutionRegisterInterface& reg,
-  const VVVdouble& counts)
+    const string& filenamePrefix,
+    const vector<int>& ids,
+    const SubstitutionRegisterInterface& reg,
+    const VVVdouble& counts)
 {
   size_t nbSites = counts.size();
   if (nbSites == 0)
@@ -2458,15 +2492,15 @@ void LegacySubstitutionMappingTools::outputPerSitePerBranchPerType(
 
   for (size_t i = 0; i < nbTypes; ++i)
   {
-    string name = reg.getTypeName(i+1);
+    string name = reg.getTypeName(i + 1);
     if (name == "")
       name = TextTools::toString(i + 1);
 
     string path = filenamePrefix + name + string(".count");
-    
+
     ApplicationTools::displayResult(string("Output counts of type ") + TextTools::toString(i + 1) + string(" to file"), path);
     file.open(path.c_str());
-  
+
     file << "sites";
     for (size_t k = 0; k < nbBr; ++k)
     {
@@ -2476,8 +2510,8 @@ void LegacySubstitutionMappingTools::outputPerSitePerBranchPerType(
 
     for (size_t j = 0; j < nbSites; ++j)
     {
-      const VVdouble& resS=counts[j];
-      
+      const VVdouble& resS = counts[j];
+
       file << j;
       for (size_t k = 0; k < nbBr; ++k)
       {

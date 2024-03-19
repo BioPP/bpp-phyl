@@ -52,9 +52,9 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
   return ancestors;
 }
 
-map<uint, vector<size_t> > MarginalAncestralReconstruction::getAllAncestralStates() const
+map<uint, vector<size_t>> MarginalAncestralReconstruction::getAllAncestralStates() const
 {
-  map<uint, vector<size_t> > ancestors;
+  map<uint, vector<size_t>> ancestors;
   // Clone the data into a AlignedSequenceContainer for more efficiency:
   shared_ptr<AlignmentDataInterface> data = make_shared<AlignedSequenceContainer>(dynamic_cast<const SiteContainerInterface&>(likelihood_->shrunkData()));
   recursiveMarginalAncestralStates(tree_->getRoot(), ancestors, *data);
@@ -74,26 +74,31 @@ unique_ptr<Sequence> MarginalAncestralReconstruction::getAncestralSequenceForNod
   {
     auto states = getAncestralStatesForNode(nodeId, *probs, sample);
     for (size_t i = 0; i < nbSites_; ++i)
+    {
       allStates[i] = stateMap.getAlphabetStateAsInt(states[i]);
+    }
   }
   else
   {
     auto states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     for (size_t i = 0; i < nbSites_; ++i)
+    {
       allStates[i] = stateMap.getAlphabetStateAsInt(states[i]);
+    }
   }
 
   return make_unique<Sequence>(name, allStates, alphabet_);
 }
 
 void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
-  const std::shared_ptr<PhyloNode> node,
-  map<uint, vector<size_t> >& ancestors,
-  AlignmentDataInterface& data) const
+    const std::shared_ptr<PhyloNode> node,
+    map<uint, vector<size_t>>& ancestors,
+    AlignmentDataInterface& data) const
 {
   if (tree_->isLeaf(node))
   {
-    try {
+    try
+    {
       auto& sc = dynamic_cast<const SiteContainerInterface&>(data);
       const Sequence& seq = sc.sequence(node->getName());
       vector<size_t>* v = &ancestors[tree_->getNodeIndex(node)];
@@ -115,7 +120,7 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   else
   {
     ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
-    vector<shared_ptr<PhyloNode> > vsons = tree_->getSons(node);
+    vector<shared_ptr<PhyloNode>> vsons = tree_->getSons(node);
 
     for (size_t i = 0; i < vsons.size(); i++)
     {
@@ -127,7 +132,7 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
 unique_ptr<AlignedSequenceContainer> MarginalAncestralReconstruction::getAncestralSequences(bool sample) const
 {
   auto asc = make_unique<AlignedSequenceContainer>(alphabet_);
-  vector<shared_ptr<PhyloNode> > inNodes = tree_->getAllInnerNodes();
+  vector<shared_ptr<PhyloNode>> inNodes = tree_->getAllInnerNodes();
   for (size_t i = 0; i < inNodes.size(); ++i)
   {
     auto seq = getAncestralSequenceForNode(tree_->getNodeIndex(inNodes[i]), nullptr, sample);

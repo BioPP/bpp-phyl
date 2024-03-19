@@ -42,17 +42,17 @@ protected:
   /**
    * @brief For Dataflow computing
    */
-  mutable std::unordered_map<std::string, ValueRef<RowLik> > firstOrderDerivativeVectors_;
+  mutable std::unordered_map<std::string, ValueRef<RowLik>> firstOrderDerivativeVectors_;
 
   mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>,
-                             StringPairHash>
+      StringPairHash>
   secondOrderDerivativeVectors_;
 
 public:
   SingleProcessPhyloLikelihood (Context& context,
-                                std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-                                const ParameterList& variableNodes,
-                                size_t nProc = 0, size_t nData = 0) :
+      std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
+      const ParameterList& variableNodes,
+      size_t nProc = 0, size_t nData = 0) :
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->stateMap().getNumberOfModelStates(), nData),
@@ -66,8 +66,8 @@ public:
    * @brief: the parameters the independent parameters of the LikelihoodCalculation
    */
   SingleProcessPhyloLikelihood (Context& context,
-                                std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-                                size_t nProc = 0, size_t nData = 0) :
+      std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
+      size_t nProc = 0, size_t nData = 0) :
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->stateMap().getNumberOfModelStates(), nData),
@@ -143,7 +143,6 @@ public:
    * the LikelihoodCalculationSingleProcess.
    *
    */
-  
   std::shared_ptr<const ParametrizablePhyloTree> tree() const
   {
     return likelihoodCalculationSingleProcess().substitutionProcess().getParametrizablePhyloTree();
@@ -178,7 +177,6 @@ public:
   /**
    * @return 'true' is the likelihood function has been initialized.
    */
-  
   bool isInitialized() const override
   {
     return likelihoodCalculationSingleProcess().isInitialized();
@@ -244,7 +242,6 @@ public:
    *
    * @}
    */
-
   LikelihoodCalculation& likelihoodCalculation() const override
   {
     return *likCal_;
@@ -269,7 +266,7 @@ public:
   {
     return *likCal_;
   }
-  
+
   std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculationSingleProcess() const
   {
     return likCal_;
@@ -303,13 +300,13 @@ public:
   }
 
   ValueRef<RowLik> getSecondOrderDerivativeVector (const std::string& variable1,
-                                                   const std::string& variable2) const
+      const std::string& variable2) const
   {
     return secondOrderDerivativeVector (variable1, variable2);
   }
 
   ValueRef<RowLik> secondOrderDerivativeVector (const std::string& variable1,
-                                                const std::string& variable2) const
+      const std::string& variable2) const
   {
     const auto key = std::make_pair (variable1, variable2);
     const auto it = secondOrderDerivativeVectors_.find (key);
@@ -321,7 +318,7 @@ public:
     {
       // Reuse firstOrderDerivative() to generate the first derivative with caching
       auto vector =
-        firstOrderDerivativeVector (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
+          firstOrderDerivativeVector (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
       secondOrderDerivativeVectors_.emplace (key, vector);
       return vector;
     }

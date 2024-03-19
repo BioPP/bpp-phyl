@@ -29,7 +29,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Interface for all Branch models.
  *
@@ -298,11 +297,10 @@ public:
 protected:
   virtual Vdouble& getFrequencies_() = 0;
 
-friend class AbstractTotallyWrappedTransitionModel;
-friend class AbstractFromSubstitutionModelTransitionModel;
-friend class InMixedSubstitutionModel;
+  friend class AbstractTotallyWrappedTransitionModel;
+  friend class AbstractFromSubstitutionModelTransitionModel;
+  friend class InMixedSubstitutionModel;
 };
-
 
 
 /**
@@ -413,7 +411,7 @@ protected:
   /**
    * @brief A method for computing all necessary matrices
    */
-  //virtual void updateMatrices() = 0;
+  // virtual void updateMatrices() = 0;
 
 public:
   /**

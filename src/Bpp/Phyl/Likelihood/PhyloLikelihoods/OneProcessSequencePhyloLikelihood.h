@@ -38,7 +38,6 @@ class OneProcessSequencePhyloLikelihood :
   public AbstractParametrizableSequencePhyloLikelihood
 {
 private:
-
   /**
    * @brief to avoid the dynamic casts
    */
@@ -47,39 +46,36 @@ private:
   /**
    * @brief For Dataflow computing
    */
-  mutable std::unordered_map<std::string, ValueRef<RowLik> > firstOrderDerivativeVectors_;
+  mutable std::unordered_map<std::string, ValueRef<RowLik>> firstOrderDerivativeVectors_;
 
   mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>,
-                             StringPairHash>
+      StringPairHash>
   secondOrderDerivativeVectors_;
 
 protected:
-
   mutable std::shared_ptr<LikelihoodCalculationSingleProcess> likCal_;
 
 public:
+  OneProcessSequencePhyloLikelihood(
+      Context& context,
+      std::shared_ptr<OneProcessSequenceEvolution> evol,
+      size_t nSeqEvol = 0);
 
   OneProcessSequencePhyloLikelihood(
-    Context& context,
-    std::shared_ptr<OneProcessSequenceEvolution> evol,
-    size_t nSeqEvol = 0);
+      Context& context,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<OneProcessSequenceEvolution> evol,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
   OneProcessSequencePhyloLikelihood(
-    Context& context,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<OneProcessSequenceEvolution> evol,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
-
-  OneProcessSequencePhyloLikelihood(
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<OneProcessSequenceEvolution> evol,
-    std::shared_ptr<CollectionNodes> collNodes,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<OneProcessSequenceEvolution> evol,
+      std::shared_ptr<CollectionNodes> collNodes,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
 protected:
-
   OneProcessSequencePhyloLikelihood(const OneProcessSequencePhyloLikelihood& lik) :
     AbstractPhyloLikelihood(lik),
     AbstractAlignedPhyloLikelihood(lik),
@@ -100,16 +96,14 @@ protected:
   }
 
   OneProcessSequencePhyloLikelihood* clone() const override
-  { 
+  {
     return new OneProcessSequencePhyloLikelihood(*this);
   }
-  
+
 public:
-  
   virtual ~OneProcessSequencePhyloLikelihood() {}
 
 public:
-  
   /**
    * @name Handling of data
    *
@@ -154,7 +148,7 @@ public:
    * the LikelihoodCalculationSingleProcess.
    */
   const SubstitutionProcessInterface& substitutionProcess() const { return mSeqEvol_->substitutionProcess(); }
-  
+
   std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const { return mSeqEvol_->getSubstitutionProcess(); }
 
   /**
@@ -169,7 +163,6 @@ public:
    * Warning; the process parameter values may not be up to date
    * with some of the LikelihoodCalculationSingleProcess
    */
-  
   std::shared_ptr<const ParametrizablePhyloTree> tree() const
   {
     return mSeqEvol_->substitutionProcess().getParametrizablePhyloTree();
@@ -239,13 +232,13 @@ public:
   }
 
   ValueRef<RowLik> getSecondOrderDerivativeVector (const std::string& variable1,
-                                                   const std::string& variable2) const
+      const std::string& variable2) const
   {
     return secondOrderDerivativeVector (variable1, variable2);
   }
 
   ValueRef<RowLik> secondOrderDerivativeVector (const std::string& variable1,
-                                                const std::string& variable2) const
+      const std::string& variable2) const
   {
     const auto key = std::make_pair (variable1, variable2);
     const auto it = secondOrderDerivativeVectors_.find (key);
@@ -257,7 +250,7 @@ public:
     {
       // Reuse firstOrderDerivative() to generate the first derivative with caching
       auto vector =
-        firstOrderDerivativeVector (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
+          firstOrderDerivativeVector (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
       secondOrderDerivativeVectors_.emplace (key, vector);
       return vector;
     }

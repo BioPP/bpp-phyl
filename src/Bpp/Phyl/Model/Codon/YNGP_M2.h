@@ -42,14 +42,13 @@ public:
       std::shared_ptr<const GeneticCode> gc,
       std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
 
-  YNGP_M2* clone() const override{ return new YNGP_M2(*this); }
+  YNGP_M2* clone() const override { return new YNGP_M2(*this); }
 
 public:
   std::string getName() const override { return "YNGP_M2"; }
 
 protected:
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M2_H

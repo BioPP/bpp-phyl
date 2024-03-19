@@ -46,7 +46,6 @@ private:
   Eigen::Index pos_;
 
 public:
-  
   /**
    * @brief Build a Site Simulator of histories from the a posteriori likelihoods at a given site
    *
@@ -54,13 +53,13 @@ public:
    * @param pos the position of the site to imitate
    * @paream shrunked if the given position is on the shrunked data (default: false)
    */
-  GivenDataSubstitutionProcessSiteSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos, bool shrunked = false) : 
+  GivenDataSubstitutionProcessSiteSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos, bool shrunked = false) :
     SimpleSubstitutionProcessSiteSimulator(calcul->getSubstitutionProcess()),
     calcul_(calcul),
     pos_(shrunked ? Eigen::Index(pos) : Eigen::Index(calcul->getRootArrayPosition(pos)))
   {
     init();
-    //Continuous rates not possible for this, since there is no a posteriori for all rates.
+    // Continuous rates not possible for this, since there is no a posteriori for all rates.
     continuousRates_ = false;
   }
 
