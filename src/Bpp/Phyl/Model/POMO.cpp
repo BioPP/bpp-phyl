@@ -51,7 +51,7 @@ void POMO::updateMatrices_()
 
   // Per couple of alleles
 
-  // position of the bloc of alleles
+  // position of the block of alleles
   size_t nbloc = nbStates;
 
   // for all couples starting with i

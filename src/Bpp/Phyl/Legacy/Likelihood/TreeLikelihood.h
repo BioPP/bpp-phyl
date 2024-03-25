@@ -49,7 +49,7 @@ public:
   };
 
   /**
-   * @brief An iterator over a set of sites, speicfied by their position.
+   * @brief An iterator over a set of sites, specified by their position.
    *
    * In most cases, the position will reflect the index of an inner array used for likelihood storage.
    */

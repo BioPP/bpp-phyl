@@ -110,7 +110,7 @@ public:
   PhyloTree& operator+=(const PhyloTree& phylotree);
 
   /**
-   * @brief Substracts the lengths of branches of another phylotree to this
+   * @brief Subtracts the lengths of branches of another phylotree to this
    * one. Just branch ids are considered, whatever the topology of
    * the trees.
    *

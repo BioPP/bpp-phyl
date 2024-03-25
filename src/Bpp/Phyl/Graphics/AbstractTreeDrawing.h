@@ -11,7 +11,7 @@
 #include "TreeDrawing.h"
 #include "TreeDrawingListener.h"
 
-// From ths STL:
+// From the STL:
 #include <vector>
 #include <string>
 #include <memory>

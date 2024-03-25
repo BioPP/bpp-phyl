@@ -39,7 +39,7 @@ namespace bpp
  * @f$\mu@f$ is a normalization factor.
  *
  * This model includes 2 parameters (@f$\kappa@f$ and @f$V@f$). The
- * codon frequencies @f$\pi_j@f$ are either observed or infered.
+ * codon frequencies @f$\pi_j@f$ are either observed or inferred.
  *
  * Reference:
  * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736.

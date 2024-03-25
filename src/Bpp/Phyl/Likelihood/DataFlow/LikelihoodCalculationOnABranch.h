@@ -141,7 +141,7 @@ public:
   std::shared_ptr<SiteWeights> rootWeights_;
 
   /*
-   * @brief Node for the probabilites of the rate classes
+   * @brief Node for the probabilities of the rate classes
    *
    */
 

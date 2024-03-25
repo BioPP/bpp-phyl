@@ -1949,7 +1949,7 @@ struct ContextState : TestAccessibleContextState
 
   bool help;             // to print the help
   bool version;          // to print the version
-  bool count;            // if only the count of matching tests is to be retreived
+  bool count;            // if only the count of matching tests is to be retrieved
   bool list_test_cases;  // to list all tests matching the filters
   bool list_test_suites; // to list all suites matching the filters
 

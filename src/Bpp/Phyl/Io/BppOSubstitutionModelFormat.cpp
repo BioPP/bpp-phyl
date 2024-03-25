@@ -398,7 +398,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (TextTools::isEmpty(nestedModelDescription))
       throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'YpR_sym'.");
     if (verbose_)
-      ApplicationTools::displayResult("Symetric YpR model", modelName);
+      ApplicationTools::displayResult("Symmetric YpR model", modelName);
     BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, false, false, false, verbose_, warningLevel_);
     auto tmpModel = nestedReader.readSubstitutionModel(prny->getLetterAlphabet(), nestedModelDescription, data, false);
     unique_ptr<NucleotideSubstitutionModelInterface> nestedModel(dynamic_cast<NucleotideSubstitutionModelInterface*>(tmpModel.release()));
@@ -943,7 +943,7 @@ void BppOSubstitutionModelFormat::updateParameters_(
       if (pval == pname2)
       {
         // This is an alias...
-        // NB: this may throw an exception if uncorrect! We leave it as is for now :s
+        // NB: this may throw an exception if incorrect! We leave it as is for now :s
         model.aliasParameters(pname2, pname);
         if (verbose_)
           ApplicationTools::displayResult("Parameter alias found", pname + "->" + pname2);
@@ -1152,7 +1152,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     if ((!dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].get())) ||
         ((v_nestedModelDescription.size() == 3) &&
         (!dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].get()) || !dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].get()))))
-      throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+      throw Exception("Non simple NucleotideSubstitutionModel embedded in " + modelName + " model.");
 
     if (args.find("genetic_code") != args.end())
     {

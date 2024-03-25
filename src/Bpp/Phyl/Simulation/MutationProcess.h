@@ -171,7 +171,7 @@ public:
   /**
    * @brief Retrieve the final state of this path.
    *
-   * @return The initial state if no mutation occured, otherwise sends the state after last mutation event.
+   * @return The initial state if no mutation occurred, otherwise sends the state after last mutation event.
    */
   size_t getFinalState() const
   {
@@ -183,7 +183,7 @@ public:
 /**
  * @brief Interface for simulations.
  *
- * A mutation process defines the rules for mutations to occure.
+ * A mutation process defines the rules for mutations to occur.
  * The MutationProcess interface provides two methods, one for mutating a character in
  * state i in another character, another for achieving this task n times.
  */
@@ -222,7 +222,7 @@ public:
    * according to the given substitution model and send the final state.
    *
    * @param initialState The state before beginning evolution.
-   * @param time         The time during which evolution must occure.
+   * @param time         The time during which evolution must occur.
    * @return The resulting state after evolution is completed.
    */
   virtual size_t evolve(size_t initialState, double time) const = 0;
@@ -233,7 +233,7 @@ public:
    * with all intermediate states and times between mutation events.
    *
    * @param initialState The state before beginning evolution.
-   * @param time         The time during which evolution must occure.
+   * @param time         The time during which evolution must occur.
    * @return The resulting mutation path.
    */
   virtual MutationPath detailedEvolve(size_t initialState, double time) const = 0;
@@ -246,7 +246,7 @@ public:
    *
    * @param initialState The state before beginning evolution.
    * @param finalState The state after  evolution.
-   * @param time         The time during which evolution must occure.
+   * @param time         The time during which evolution must occur.
    * @return The resulting mutation path.
    */
   virtual MutationPath detailedEvolve(size_t initialState, size_t finalState, double time) const = 0;
@@ -260,7 +260,7 @@ public:
 };
 
 /**
- * @brief Partial implmentation of the MutationProcess interface.
+ * @brief Partial implementation of the MutationProcess interface.
  *
  * This class provides an implementation of the MutationProcess interface.
  * It assumes that there are size_ states allowed for the character of interest,
@@ -341,7 +341,7 @@ public:
    * @brief Method redefinition for better performance.
    *
    * @param initialState The state before beginning evolution.
-   * @param time         The time during which evolution must occure.
+   * @param time         The time during which evolution must occur.
    * @return The resulting state after evolution is completed.
    */
   size_t evolve(size_t initialState, double time) const;

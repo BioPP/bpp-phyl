@@ -823,7 +823,7 @@ unique_ptr<LegacyProbabilisticSubstitutionMapping> LegacySubstitutionMappingTool
     }
 
     // Then, we deal with the node of interest.
-    // We first average uppon 'y' to save computations, and then uppon 'x'.
+    // We first average upon 'y' to save computations, and then upon 'x'.
     // ('y' is the state at 'node' and 'x' the state at 'father'.)
 
     // Iterate over all site partitions:
@@ -1837,7 +1837,7 @@ void LegacySubstitutionMappingTools::computeCountsPerTypePerBranch(
         freqsTypes[c - 1] += freqs[i];
       }
 
-      // We devide the counts by the frequencies and rescale:
+      // We divide the counts by the frequencies and rescale:
       double s = VectorTools::sum(result[k]);
       for (size_t t = 0; t < nbTypes; ++t)
       {
@@ -1997,7 +1997,7 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
     }
   }
 
-  // Compute the sum of lengths of concerned branchs
+  // Compute the sum of lengths of concerned branches
 
   double brlen = 0;
 
@@ -2122,7 +2122,7 @@ void LegacySubstitutionMappingTools::computeCountsPerSitePerType(
     }
   }
 
-  // Compute the sum of lengths of concerned branchs
+  // Compute the sum of lengths of concerned branches
 
 
   double brlen = 0;

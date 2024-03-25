@@ -12,7 +12,7 @@
 namespace bpp
 {
 /**
- * @brief Abstract class for modelling of CpG -> CpA or TpG (symetric)
+ * @brief Abstract class for modelling of CpG -> CpA or TpG (symmetric)
  *  hypermutability substitution rate inside codons. Note that the
  *  neihbouring effects between codons are not considered.
  *

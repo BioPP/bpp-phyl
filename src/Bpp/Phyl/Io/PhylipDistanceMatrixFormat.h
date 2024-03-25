@@ -15,7 +15,7 @@ namespace bpp
  *
  * Entry names must be 10 characters long. If 'extended' is set to true, then
  * entry names can be of any size, and should be separated from the data by at least two spaces.
- * Names should therefor not contian more than one consecutive space.
+ * Names should therefore not contain more than one consecutive space.
  */
 class PhylipDistanceMatrixFormat :
   public AbstractIDistanceMatrix,

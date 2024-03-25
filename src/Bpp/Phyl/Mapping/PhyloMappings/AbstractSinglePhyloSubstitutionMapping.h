@@ -199,7 +199,7 @@ public:
   }
 
   /**
-   * @brief add a Substitition Model in the map, and on all branches
+   * @brief add a Substitution Model in the map, and on all branches
    * with given Ids.
    *
    * @param index the index of the model

@@ -25,7 +25,7 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(
   counts_(reg->getNumberOfSubstitutionTypes()),
   currentLength_(0)
 {
-  // Check compatiblity between model and substitution register:
+  // Check compatibility between model and substitution register:
   if (typeid(model->getAlphabet()) != typeid(reg->getAlphabet()))
     throw Exception("DecompositionSubstitutionCount (constructor): alphabets do not match between register and model.");
 
@@ -219,7 +219,7 @@ std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsPerT
 void DecompositionSubstitutionCount::setSubstitutionModel(
     shared_ptr<const SubstitutionModelInterface> model)
 {
-  // Check compatiblity between model and substitution register:
+  // Check compatibility between model and substitution register:
   if (typeid(model->getAlphabet()) != typeid(register_->getAlphabet()))
     throw Exception("DecompositionMethods::setSubstitutionModel: alphabets do not match between register and model.");
 
@@ -242,7 +242,7 @@ void DecompositionSubstitutionCount::substitutionRegisterHasChanged()
   if (!model_)
     return;
 
-  // Check compatiblity between model and substitution register:
+  // Check compatibility between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("DecompositionMethods::substitutionRegisterHasChanged: alphabets do not match between register and model.");
 

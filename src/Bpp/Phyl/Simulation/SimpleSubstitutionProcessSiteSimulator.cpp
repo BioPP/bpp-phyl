@@ -182,7 +182,7 @@ unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite() const
 
 unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(double rate) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   // Use rate class 0
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[0]);
@@ -205,7 +205,7 @@ unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(double rat
 
 unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t rateClass) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[rateClass]);
 
@@ -263,7 +263,7 @@ unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimula
 
 unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimulateSite(double rate) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   // Use rate class 0
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[0]);
@@ -280,7 +280,7 @@ unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimula
 
 unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size_t rateClass) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   // Use rate class 0
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[rateClass]);

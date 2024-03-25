@@ -39,8 +39,8 @@ public:
    *
    * @param model The substitution model for which this substitution count is parametrized.
    *              The model is not used in the calculation, only for specifying the modeled states.
-   * @param reg A pointer toward a substitution register object which discribes the type of substitutions to map.
-   * @param allowSelf Tells if "self" mutations, from X to X should be counted together with the ones of type X to Y where X and Y are in the same category, if relevent.
+   * @param reg A pointer toward a substitution register object which describes the type of substitutions to map.
+   * @param allowSelf Tells if "self" mutations, from X to X should be counted together with the ones of type X to Y where X and Y are in the same category, if relevant.
    * The default is "no", to be consistent with other types of substitution counts which account for multiple substitutions, in which case it does not make sense to count "X to X".
    * @param weights the weights of the counts
    */

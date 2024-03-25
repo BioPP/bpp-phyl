@@ -65,7 +65,7 @@ public:
  *
  * This class is for use with the DRASDRTreeLikelihoodData class.
  *
- * Store for each neighbor node an array with conditionnal likelihoods.
+ * Store for each neighbor node an array with conditional likelihoods.
  *
  * @see DRASDRTreeLikelihoodData
  */
@@ -366,7 +366,7 @@ public:
    *
    * @param sites The sequences to use as data.
    * @param model The substitution model to use.
-   * @throw Exception if an error occures.
+   * @throw Exception if an error occurs.
    */
   void initLikelihoods(const AlignmentDataInterface& sites, const TransitionModelInterface& model);
 

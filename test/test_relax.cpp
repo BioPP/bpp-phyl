@@ -68,7 +68,7 @@ int main()
         params["nonhomogeneous"]="general";
         params["nonhomogeneous.number_of_models"] = "2";
         params["nonhomogeneous.stationarity"] = "yes";
-        params["site.number_of_paths"] = "2";                               // the 3rd path mapping omega3 in the branches under chatacter states 0 and 1 is imlies the the other two paths
+        params["site.number_of_paths"] = "2";                               // the 3rd path mapping omega3 in the branches under character states 0 and 1 is imlies the the other two paths
         params["site.path1"] = "model1[YN98.omega_1]&model2[YN98.omega_1]"; // map omega1 in the branches under character state 0 (=model1) to omega1 in the branches under character state 1 (=model2)
         params["site.path2"] = "model1[YN98.omega_2]&model2[YN98.omega_2]"; // these to complement the path of omega2
         params["model1.nodes_id"] = "0";
@@ -113,10 +113,10 @@ int main()
             //return 1;
         }
 
-        // set k to 2 -> fit two YNGP_M2 copies with the induced omega values and make sure the smae likelihood is obtained
+        // set k to 2 -> fit two YNGP_M2 copies with the induced omega values and make sure the same likelihood is obtained
         RELAXTreeLikelihood_2->setParameterValue("RELAX.k_2", 2);
     RELAXTreeLikelihood_2->computeTreeLikelihood();
-        // make sure that updating other parameters except for k is done sucessfully
+        // make sure that updating other parameters except for k is done successfully
         double RELAXLogLikelihood_3 = -1*RELAXTreeLikelihood_2->getValue();
 
         params["model1"] = "YNGP_M2(kappa=2.0,omega0=0.1,omega2=2.0,theta1=0.5,theta2=0.8,Frequency=F0)";

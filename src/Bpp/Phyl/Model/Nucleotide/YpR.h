@@ -156,12 +156,12 @@ public:
 namespace bpp
 {
 /**
- * @brief symetrical YpR  model.
+ * @brief symmetrical YpR  model.
  *
- * Model YpR, on RNY triplets with symetrical dependency parameters
+ * Model YpR, on RNY triplets with symmetrical dependency parameters
  *
  * The neighbour dependency parameters are noted as: XyZ for
- *  XpY -> ZpY substitution. Since the process are symetrical,
+ *  XpY -> ZpY substitution. Since the process are symmetrical,
  *  only these are necessary.
  * @see YpR
  *

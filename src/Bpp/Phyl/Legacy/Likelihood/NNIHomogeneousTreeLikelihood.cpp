@@ -253,7 +253,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const
   while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId())
     pos++;
   if (pos == nodes_.size())
-    throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Unvalid node id.");
+    throw Exception("NNIHomogeneousTreeLikelihood::testNNI. Invalid node id.");
   Parameter brLen = parameter("BrLen" + TextTools::toString(pos));
   brLen.setName("BrLen");
   parameters.addParameter(brLen);
@@ -299,7 +299,7 @@ void NNIHomogeneousTreeLikelihood::doNNI(int nodeId)
   while (pos < nodes_.size() && nodes_[pos]->getId() != parent->getId())
     pos++;
   if (pos == nodes_.size())
-    throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Unvalid node id.");
+    throw Exception("NNIHomogeneousTreeLikelihood::doNNI. Invalid node id.");
 
   string name = "BrLen" + TextTools::toString(pos);
   if (brLenNNIValues_.find(nodeId) != brLenNNIValues_.end())

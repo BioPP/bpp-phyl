@@ -228,7 +228,7 @@ void PhyloTree::addSubTree(std::shared_ptr<PhyloNode> phyloNode, const Node& nod
     // the link
     createNode(phyloNode, soni, branchi);
 
-    // recrusion
+    // recursion
     addSubTree(soni, fils);
   }
 }

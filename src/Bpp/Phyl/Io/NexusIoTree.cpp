@@ -89,7 +89,7 @@ void NexusIOTree::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
       string tok = TextTools::removeSurroundingWhiteSpaces(st.nextToken());
       NestedStringTokenizer nst(tok, "'", "'", " \t");
       if (nst.numberOfRemainingTokens() != 2)
-        throw Exception("NexusIOTree::readTrees(). Unvalid translation description.");
+        throw Exception("NexusIOTree::readTrees(). Invalid translation description.");
       string name = nst.nextToken();
       string tln  = nst.nextToken();
       translation[name] = tln;
@@ -106,10 +106,10 @@ void NexusIOTree::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
   while (cmdFound && cmdName != "END")
   {
     if (cmdName != "TREE")
-      throw Exception("NexusIOTree::readTrees(). Unvalid command found: " + cmdName);
+      throw Exception("NexusIOTree::readTrees(). Invalid command found: " + cmdName);
     string::size_type pos = cmdArgs.find("=");
     if (pos == string::npos)
-      throw Exception("NexusIOTree::readTrees(). unvalid format, should be tree-name=tree-description");
+      throw Exception("NexusIOTree::readTrees(). invalid format, should be tree-name=tree-description");
     string description = cmdArgs.substr(pos + 1);
     auto tree = TreeTemplateTools::parenthesisToTree(description + ";", true);
 
@@ -183,7 +183,7 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloT
       string tok = TextTools::removeSurroundingWhiteSpaces(st.nextToken());
       NestedStringTokenizer nst(tok, "'", "'", " \t");
       if (nst.numberOfRemainingTokens() != 2)
-        throw Exception("NexusIOTree::readTrees(). Unvalid translation description.");
+        throw Exception("NexusIOTree::readTrees(). Invalid translation description.");
       string name = nst.nextToken();
       string tln  = nst.nextToken();
       translation[name] = tln;
@@ -200,10 +200,10 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloT
   while (cmdFound && cmdName != "END")
   {
     if (cmdName != "TREE")
-      throw Exception("NexusIOTree::readTrees(). Unvalid command found: " + cmdName);
+      throw Exception("NexusIOTree::readTrees(). Invalid command found: " + cmdName);
     string::size_type pos = cmdArgs.find("=");
     if (pos == string::npos)
-      throw Exception("NexusIOTree::readTrees(). unvalid format, should be tree-name=tree-description");
+      throw Exception("NexusIOTree::readTrees(). invalid format, should be tree-name=tree-description");
     string description = cmdArgs.substr(pos + 1);
 
     Newick treeReader;

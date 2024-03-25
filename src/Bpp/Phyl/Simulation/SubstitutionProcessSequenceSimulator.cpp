@@ -68,7 +68,7 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
     setMap(pse->getProcessNumbersPerSite());
   }
   else
-    throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(SequenceEvolution) not set for this type of process. Ask developpers.");
+    throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(SequenceEvolution) not set for this type of process. Ask developers.");
 }
 
 /******************************************************************************/

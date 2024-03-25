@@ -30,7 +30,7 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(
   counts_(reg->getNumberOfSubstitutionTypes()),
   currentLength_(0)
 {
-  // Check compatiblity between model and substitution register:
+  // Check compatibility between model and substitution register:
   if (model->getAlphabet()->getAlphabetType() != reg->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount (constructor): alphabets do not match between register and model.");
 
@@ -283,7 +283,7 @@ void UniformizationSubstitutionCount::setSubstitutionModel(
   if (!model_)
     return;
 
-  // Check compatiblity between model and substitution register:
+  // Check compatibility between model and substitution register:
   if (model->alphabet().getAlphabetType() != register_->alphabet().getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::setSubstitutionModel: alphabets do not match between register and model.");
 
@@ -319,7 +319,7 @@ void UniformizationSubstitutionCount::substitutionRegisterHasChanged()
   if (!model_)
     return;
 
-  // Check compatiblity between model and substitution register:
+  // Check compatibility between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::substitutionRegisterHasChanged: alphabets do not match between register and model.");
 

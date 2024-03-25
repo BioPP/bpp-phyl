@@ -665,7 +665,7 @@ unique_ptr<CodonFrequencySetInterface> CodonFrequencySetInterface::getFrequencyS
   else if (option == F61)
     codonFreqs.reset(new FullCodonFrequencySet(gCode, false, method, "F61"));
   else
-    throw Exception("FrequencySet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
+    throw Exception("FrequencySet::getFrequencySetForCodons(). Invalid codon frequency set argument.");
 
   return codonFreqs;
 }

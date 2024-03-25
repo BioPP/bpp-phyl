@@ -225,7 +225,7 @@ public:
   virtual void setMinimumBranchLength(double minimum)
   {
     if (minimum > maximumBrLen_)
-      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
+      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length should be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
     minimumBrLen_ = minimum;
     brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
     initBranchLengthsParameters();
@@ -234,7 +234,7 @@ public:
   virtual void setMaximumBranchLength(double maximum)
   {
     if (maximum < minimumBrLen_)
-      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
+      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length should be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
     maximumBrLen_ = maximum;
     brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
     initBranchLengthsParameters();

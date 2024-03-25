@@ -21,7 +21,7 @@ namespace bpp
  *
  * This class is for use with the DRASRTreeParsimonyData class.
  *
- * Store all conditionnal likelihoods:
+ * Store all conditional likelihoods:
  * <pre>
  * x[i][c][s]
  *   |---------> Site i
@@ -99,7 +99,7 @@ private:
    * Providing the likelihood array is known for nodes n11 and n12,
    * the likelihood array for node n1 and site <i>i</i> (_likelihood[n1][i]) must be computed
    * using arrays patternLinks_[n1][n11][i] and patternLinks_[n1][n12][i].
-   * This network is intialized once for all in the constructor of this class.
+   * This network is initialized once for all in the constructor of this class.
    *
    * The double map contains the position of the site to use (second dimension)
    * of the likelihoods array.

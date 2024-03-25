@@ -77,7 +77,7 @@ using ForwardProportion =
  *
  * Stores all the inner computations:
  * - conditional likelihoods for each node,
- * - correspondance between sites in the dataset and array indices.
+ * - correspondence between sites in the dataset and array indices.
  *
  * The structure is initiated according to a tree topology, and
  * data can be retrieved through node ids.
@@ -146,7 +146,7 @@ public:
 private:
   /**
    * @brief Compute ConditionalLikelihood after reading edge on
-   * the forward proces (ie at top of the edge).
+   * the forward process (ie at top of the edge).
    */
   ForwardLikelihoodBelowRef makeForwardLikelihoodAtEdge(
       std::shared_ptr<ProcessEdge> edge,
@@ -154,7 +154,7 @@ private:
 
   /*
    * @brief Compute ConditionalLikelihood after reading node on
-   * the forward proces (ie just above node).
+   * the forward process (ie just above node).
    */
   ConditionalLikelihoodForwardRef makeForwardLikelihoodAtNode(
       std::shared_ptr<ProcessNode> node,

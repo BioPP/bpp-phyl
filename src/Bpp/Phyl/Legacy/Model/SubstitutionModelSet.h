@@ -30,7 +30,7 @@ namespace bpp
  * @brief Substitution models manager for non-homogeneous / non-reversible models of evolution.
  *
  * This class contains a set of substitution models, and their
- * assigment toward the branches of a phylogenetic tree. Each branch
+ * assignment toward the branches of a phylogenetic tree. Each branch
  * in the tree corresponds to a model in the set, but a susbstitution
  * model may correspond to several branches. The particular case where
  * all branches point toward a unique model is the homogeneous case.
@@ -49,18 +49,18 @@ namespace bpp
  *
  * In the non-homogeneous and homogeneous non-reversible cases, the likelihood depends on the position of the root.
  * The states frequencies at the root of the tree are hence distinct parameters.
- * Theses are accounted by a FrequencySet objet, managed by the SubstitutionModelSet class.
- * The corresponding parameters, if any, are added at the begining of the global parameter list.
+ * These are accounted by a FrequencySet object, managed by the SubstitutionModelSet class.
+ * The corresponding parameters, if any, are added at the beginning of the global parameter list.
  *
  * If the heterogenity of the model does not affect the equilibrium frequencies, the model can be considered as stationary.
  * In such a model, the process is supposed to be at equilibrium all along the trees, including at the root.
  * Whether a model should be considered as stationary or not is left to the user. If the "asumme stationarity" option is set when
  * building the set, then no FrequencySet object is used, but the frequencies are taken to be the same as the one at the first
- * model in the set. Nothing hence prevents you to build a "supposingly stationary model which actually is not", so be careful!!
+ * model in the set. Nothing hence prevents you to build a "supposedly stationary model which actually is not", so be careful!!
  *
  * This class provides several methods to specify which model and/or which parameter is associated to which branch/clade.
  * Several check points are provided, but some are probably missing due to the large set of possible models that this class allows to build,
- * so be carefull!
+ * so be careful!
  *
  * @see SubstitutionModelSetTools for methods that provide instances of the SubstitutionModelSet for general cases.
  */
@@ -96,7 +96,7 @@ private:
    * @brief Parameters for each model in the set.
    *
    * The parameters_ field, inherited from AbstractSubstitutionModel contains all parameters, with unique names.
-   * To make the correspondance with parameters for each model in the set, we duplicate them in this array.
+   * To make the correspondence with parameters for each model in the set, we duplicate them in this array.
    * In most cases, this is something like 'theta_1 <=> theta', 'theta_2 <=> theta', etc.
    */
   std::vector<ParameterList> modelParameters_;
@@ -238,7 +238,7 @@ public:
     auto m = std::dynamic_pointer_cast<const SubstitutionModelInterface>(getModel(i));
     if (m) return m;
     else
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + model(i).getName() + " is  not a sustitution model.");
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + model(i).getName() + " is  not a substitution model.");
   }
 
 
@@ -247,7 +247,7 @@ public:
     auto m = std::dynamic_pointer_cast<SubstitutionModelInterface>(getModel(i));
     if (m) return m;
     else
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + model(i).getName() + " is  not a sustitution model.");
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + model(i).getName() + " is  not a substitution model.");
   }
 
   const SubstitutionModelInterface& substitutionModel(size_t i) const
@@ -259,7 +259,7 @@ public:
     }
     catch (Exception& ex)
     {
-      throw Exception("SubstitutionModelSet::substitutionModel : " + model(i).getName() + " is not a sustitution model.");
+      throw Exception("SubstitutionModelSet::substitutionModel : " + model(i).getName() + " is not a substitution model.");
     }
   }
 
@@ -363,19 +363,19 @@ public:
   void addModel(std::shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId); // , const std::vector<std::string>& newParams);
 
   /**
-   * @brief Sets an assignment of a given modle index to a given onde id
+   * @brief Sets an assignment of a given model index to a given onde id
    *
    * @param modelIndex The index of the model in the set.
    * @param nodeId      The node ID
    *
-   * @throw Exception if the modle index doesn't correspond to an existing modle in the modelSet
+   * @throw Exception if the model index doesn't correspond to an existing model in the modelSet
    */
-  void setNodeToModel(size_t modelIndex, int nodeId); // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
+  void setNodeToModel(size_t modelIndex, int nodeId); // Keren: added on my own to allow alternation of nodes assignments to existing nodes
 
   /**
    * @brief Reset model indices to node ids assignment
    */
-  void resetModelToNodeIds();  // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
+  void resetModelToNodeIds();  // Keren: added on my own to allow alternation of nodes assignments to existing nodes
 
   /**
    * @brief Replace a model in the set, and all corresponding

@@ -36,7 +36,7 @@ namespace bpp
  *
  * This class is made the more general as possible, while keeping it very simple. It contains:</p>
  * - An identity tag, to identity it in the tree;
- * - A name, necessary for leaf nodes, optionnal else;
+ * - A name, necessary for leaf nodes, optional else;
  * - A pointer toward the father node;
  * - A std::vector of pointer toward son nodes;
  * - The distance from the father node:

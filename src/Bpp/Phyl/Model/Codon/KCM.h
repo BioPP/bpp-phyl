@@ -31,7 +31,7 @@ namespace bpp
  * substitution rates,
  * - parameters of the equilibrium frequencies
 
- * The codon frequencies @f$\pi_j@f$ are either observed or infered.
+ * The codon frequencies @f$\pi_j@f$ are either observed or inferred.
  *
  * Reference:
  * -  Zaheri, M. and Dib, L. and Salamin, N. A Generalized

@@ -170,8 +170,8 @@ public:
   CanonicalStateMap(std::shared_ptr<const Alphabet> alphabet, bool includeGaps);
 
   /**
-   * @brief this contructors takes an existing StateMap and adds one model states for gaps.
-   * If the original StateMap alread had a state for gaps, a new one will be appended.
+   * @brief this constructors takes an existing StateMap and adds one model states for gaps.
+   * If the original StateMap already had a state for gaps, a new one will be appended.
    */
   CanonicalStateMap(const StateMapInterface& sm, bool includeGaps);
 

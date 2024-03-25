@@ -215,7 +215,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
       else if (format == "NHX")
         treeReader = new Nhx();
       else
-        throw Exception("Unknow format for tree reading: " + format);
+        throw Exception("Unknown format for tree reading: " + format);
 
       vector<unique_ptr<PhyloTree>> trees;
       treeReader->readPhyloTrees(treeFilePath, trees);
@@ -287,7 +287,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
     }
     else if (treeName == "random")
     {
-      throw Exception("Random Phylotrees not updated. Ask developpers.");
+      throw Exception("Random Phylotrees not updated. Ask developers.");
 
       size_t seqNum;
 
@@ -477,7 +477,7 @@ std::unique_ptr<SubstitutionModelInterface> PhylogeneticsApplicationTools::getSu
   {
     modelDescription = ApplicationTools::getStringParameter("model", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModel(): a GeneticCode instance is required for instanciating a codon model.");
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModel(): a GeneticCode instance is required for instantiating a codon model.");
     bIO.setGeneticCode(gCode);
   }
   else if (AlphabetTools::isWordAlphabet(alphabet.get()))
@@ -510,7 +510,7 @@ std::unique_ptr<BranchModelInterface> PhylogeneticsApplicationTools::getBranchMo
   {
     modelDescription = ApplicationTools::getStringParameter("model", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::getBranchModel(): a GeneticCode instance is required for instanciating a codon model.");
+      throw Exception("PhylogeneticsApplicationTools::getBranchModel(): a GeneticCode instance is required for instantiating a codon model.");
     bIO.setGeneticCode(gCode);
   }
   else if (AlphabetTools::isWordAlphabet(alphabet.get()))
@@ -603,7 +603,7 @@ map<size_t, std::unique_ptr<BranchModelInterface>> PhylogeneticsApplicationTools
     int warn)
 {
   if (dynamic_pointer_cast<const CodonAlphabet>(alphabet) && !gCode)
-    throw Exception("PhylogeneticsApplicationTools::getBranchModels(): a GeneticCode instance is required for instanciating codon models.");
+    throw Exception("PhylogeneticsApplicationTools::getBranchModels(): a GeneticCode instance is required for instantiating codon models.");
 
   string ModelFilePath = ApplicationTools::getAFilePath("models.file", params, false, false, suffix, suffixIsOptional,  "none", 1);
 
@@ -709,7 +709,7 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getFrequen
   if (AlphabetTools::isCodonAlphabet(alphabet.get()))
   {
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
+      throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instantiating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
   auto pFS = bIO.readFrequencySet(alphabet, freqDescription, data, true);
@@ -776,7 +776,7 @@ map<size_t, std::unique_ptr<FrequencySetInterface>> PhylogeneticsApplicationTool
     int warn)
 {
   if (dynamic_pointer_cast<const CodonAlphabet>(alphabet) && !gCode)
-    throw Exception("PhylogeneticsApplicationTools::getRootFrequencySets(): a GeneticCode instance is required for instanciating codon frequencies sets.");
+    throw Exception("PhylogeneticsApplicationTools::getRootFrequencySets(): a GeneticCode instance is required for instantiating codon frequencies sets.");
 
   string RootFilePath = ApplicationTools::getAFilePath("root_freq.file", params, false, false, suffix, suffixIsOptional,  "none", 1);
   map<string, string> paramRF;
@@ -1047,7 +1047,7 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
         {
           auto pos = path.find("model");
           if (pos == string::npos)
-            throw Exception("PhylogeneticsApplicationTools::getModelScenarios. Missing identifier 'model' in scenarion description: " + path);
+            throw Exception("PhylogeneticsApplicationTools::getModelScenarios. Missing identifier 'model' in scenario description: " + path);
 
           auto poseq = path.find("=", pos);
           size_t num2 = TextTools::to<size_t>(path.substr(poseq + 1));
@@ -2820,7 +2820,7 @@ void PhylogeneticsApplicationTools::writePhyloTrees(
   else if (format == "NHX")
     treeWriter = new Nhx();
   else
-    throw Exception("Unknow format for tree writing: " + format);
+    throw Exception("Unknown format for tree writing: " + format);
 
   if (!checkOnly)
   {
@@ -2857,7 +2857,7 @@ void PhylogeneticsApplicationTools::writePhyloTrees(
   else if (format == "NHX")
     treeWriter = new Nhx();
   else
-    throw Exception("Unknow format for tree writing: " + format);
+    throw Exception("Unknown format for tree writing: " + format);
 
   if (!checkOnly)
   {

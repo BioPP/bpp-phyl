@@ -16,7 +16,7 @@ namespace bpp
  * @brief The PhyloLikelihood interface, for phylogenetic likelihood.
  *
  * This interface defines the common methods needed to compute a likelihood
- * from a sequence alignement, usually involving one or more phylogenetic trees.
+ * from a sequence alignment, usually involving one or more phylogenetic trees.
  */
 class PhyloLikelihoodInterface :
   public virtual SecondOrderDerivable

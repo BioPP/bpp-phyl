@@ -80,7 +80,7 @@ public:
   std::string debugInfo () const override;
 
   /*
-   * @brief setValue is transfered to the double dependency,
+   * @brief setValue is transferred to the double dependency,
    * through the parameter constraints test.
    *
    */
@@ -92,7 +92,7 @@ public:
 
   /*
    * @brief computation of double dependency is done and
-   * transfered to parameter value, with constraint.
+   * transferred to parameter value, with constraint.
    *
    */
   double getValue() const override

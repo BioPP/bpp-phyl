@@ -588,7 +588,7 @@ void TreeTools::computeBranchLengthsGrafen(Tree& tree, double power, bool init)
   {
     initBranchLengthsGrafen(tree);
   }
-  // Scale by total heigth:
+  // Scale by total height:
   double totalHeight = getHeight(tree, rootId);
   double h, hr;
   computeBranchLengthsGrafen(tree, rootId, power, totalHeight, h, hr);

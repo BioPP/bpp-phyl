@@ -54,7 +54,7 @@ private:
 
 public:
   /**
-   * @brief The main contructor
+   * @brief The main constructor
    *
    * @param tr The tree to be coded as bipartitions
    * @param sorted Tells whether leave names should be alphabetically sorted (recommended)
@@ -132,7 +132,7 @@ public:
    * @brief Tells whether all bipartitions in the list are compatible with a given bipartition
    *
    * @param bipart A map representing a bipartition.
-   * @param checkElements Check the correspondance of element sets or not.
+   * @param checkElements Check the correspondence of element sets or not.
    */
   bool areAllCompatibleWith(std::map<std::string, bool>& bipart, bool checkElements = true) const;
 

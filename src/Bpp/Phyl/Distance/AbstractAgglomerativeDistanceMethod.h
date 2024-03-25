@@ -127,7 +127,7 @@ protected:
    * This criterion uses the matrix_ distance matrix.
    *
    * @return A size 2 vector with the indices of the nodes.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual std::vector<size_t> getBestPair() = 0;
 

@@ -24,7 +24,7 @@ namespace bpp
  * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$p0@f$ the weight
  * of the Beta distribution and @f$\omega @f$ the selection parameter
  * above 1 (with weight @f$ 1-p0 @f$)). The codon frequencies @f$
- * \pi_j @f$ are either observed or infered.
+ * \pi_j @f$ are either observed or inferred.
  *
  * In option, the model YNGP_M8a is similar with @f$\omega=1 @f$ fixed
  * (and then only 4 parameters).

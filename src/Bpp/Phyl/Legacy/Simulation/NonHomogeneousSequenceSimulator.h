@@ -57,7 +57,7 @@ typedef NodeTemplate<SimData> SNode;
  * Former class maintained for backward compatibility only.
  * The old class has been ported to the new interfaces, but some methods are left unimplemented.
  *
- * Rate across sites variation is supported, using a DiscreteDistribution object or by specifying explicitely the rate of the sites to simulate.
+ * Rate across sites variation is supported, using a DiscreteDistribution object or by specifying explicitly the rate of the sites to simulate.
  */
 class NonHomogeneousSequenceSimulator :
   public DetailedSiteSimulatorInterface,
@@ -86,7 +86,7 @@ private:
 
   bool continuousRates_;
 
-  // Should we ouptut internal sequences as well?
+  // Should we output internal sequences as well?
   bool outputInternalSequences_;
 
   /**

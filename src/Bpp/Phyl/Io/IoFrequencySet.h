@@ -46,12 +46,12 @@ public:
   /**
    * @brief Read a frequencies set from a string.
    *
-   * @param alphabet         The alpabet to use in the model.
+   * @param alphabet         The alphabet to use in the model.
    * @param freqDescription  A string describing the frequencies set.
-   * @param data             A SiteContainer with the data to use to initialize fequency parameters. Can be set to 0.
+   * @param data             A SiteContainer with the data to use to initialize frequency parameters. Can be set to 0.
    * @param parseArguments   Attempt to parse function arguments. If not, only store them and use default values instead.
    * @return A new FrequencySet object according to options specified.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   virtual std::unique_ptr<FrequencySetInterface> readFrequencySet(
       std::shared_ptr<const Alphabet> alphabet,

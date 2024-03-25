@@ -137,7 +137,7 @@ public:
    *
    * Then, for each of the models, the following information must be provided:
    * - model1='model name(parameters'='value',...)
-   * Model names and parameters follow the same syntaxe as for the getSubstitutionModel method.
+   * Model names and parameters follow the same syntax as for the getSubstitutionModel method.
    * - model1.nodes='list of nodes id, separated by comas'.
    * And then
    * - model2=...
@@ -168,7 +168,7 @@ public:
    * but will require more memory and use more CPU, since some calculations will be performed twice.
    *
    * @param modelSet         The modified SubstitutionModelSet object according to options specified.
-   * @param alphabet         The alpabet to use in all models.
+   * @param alphabet         The alphabet to use in all models.
    * @param gcode            The genetic code to use (only for codon models, otherwise can be set to 0).
    *                         If set to NULL and a codon model is requested, an Exception will be thrown.
    * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
@@ -217,7 +217,7 @@ public:
    * submodels of model1 are denoted model1[kappa_1], ...,
    * model1[kappa_4], and the submodels of model2 are denoted
    * model2[kappa_1,theta_1], ..., model2[kappa_5, theta_3].
-   * Additionnaly, for instance, model2[kappa_2] denotes all the
+   * Additionally, for instance, model2[kappa_2] denotes all the
    * submodels whose description has kappa_2.
    *
    * By default, when switching from model1 to model2, a site is
@@ -243,7 +243,7 @@ public:
    * information.
    *
    * @param mixedModelSet    The modified MixedSubstitutionModelSet object according to options specified.
-   * @param alphabet         The alpabet to use in all models.
+   * @param alphabet         The alphabet to use in all models.
    * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
    *                         The alphabet associated to the data must be of the same type as the one specified for the model.
    *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -276,7 +276,7 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    * @return A pointer toward the final likelihood object.
    * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
-   * clone this object. We may change this bahavior in the future...
+   * clone this object. We may change this behavior in the future...
    * You hence should write something like
    * @code
    * tl = PhylogeneticsApplicationToolsOld::optimizeParameters(tl, ...);
@@ -295,7 +295,7 @@ public:
   /**
    * @brief Write a tree according to options.
    *
-   * See the Bio++ Program Suite manual for a descriptio of all available options.
+   * See the Bio++ Program Suite manual for a description of all available options.
    *
    * @param trees            The trees to write.
    * @param params           The attribute map where options may be found.

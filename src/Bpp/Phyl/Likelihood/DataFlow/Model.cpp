@@ -285,7 +285,7 @@ NodeRef TransitionFunctionFromModel::derive (Context& c, const Node_DF& node)
 {
   // df(v)/dn = sum_i df(v)/dx_i * dx_i/dn + df(v)/dbrlen * dbrlen/dn + df(v)/dv * dv/dn (x_i = model parameters, v = variable of f).
   if (&node == &NodeX)
-    throw Exception("TransitionFunctionFromModel::derive : Jacobian not implemented. Ask developpers.");
+    throw Exception("TransitionFunctionFromModel::derive : Jacobian not implemented. Ask developers.");
 
   auto modelDep = this->dependency (0);
   auto brlenDep = this->dependency (1);

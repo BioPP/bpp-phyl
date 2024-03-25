@@ -86,7 +86,7 @@ void EvolutionSequenceSimulator::resetSiteSimulators(size_t numberOfSites) const
           }
         }
         else
-          throw Exception("EvolutionSequenceSimulator::resetSiteSimulators : unknow Sequence Evolution.");
+          throw Exception("EvolutionSequenceSimulator::resetSiteSimulators : unknown Sequence Evolution.");
       }
     }
   }

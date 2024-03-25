@@ -490,7 +490,7 @@ public:
    */
 
   /**
-   * @brief Methods that sum on branchs need raw mapping trees, or
+   * @brief Methods that sum on branches need raw mapping trees, or
    * raw mapping trees and normalization trees (ie computed with
    * computeCounts and computeNormalizations).
    *

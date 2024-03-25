@@ -353,7 +353,7 @@ restrictive! (now 1e-6).
 27/03/08 Nicolas Galtier & Julien Dutheil
 * Bug solved in NNIHomogeneousTreeLikelihood: branch lengths are now correctly
   actualized after a NNI movement. This bug was introduced with version 1.5.
-	It mainly caused an exception to be thrown inapropriately.
+	It mainly caused an exception to be thrown inappropriately.
 
 20/03/08 Julien Dutheil
 * Kappa parameter can no longer be 0 (avoid likelihood to be 0 in some cases)
@@ -427,7 +427,7 @@ format.
 * New class NonHomogeneousTreeLikelihood, which deal with non-homogeneous
   models of sequence evolution (fixed topology).
 * SubstitutionModels parameters are now cloned propoerly (no more Constraint issue).
-* ClockTreeLikelihood has been chaged to HomogeneousClockLikelihood, and a
+* ClockTreeLikelihood has been changed to HomogeneousClockLikelihood, and a
   NonHomogeneousClockTreeLikelihood was created. The ClockTreeLikelihood is
 	now a common (empty) interface for both, which a specialisation of
 	TreeLikelihood.
@@ -435,7 +435,7 @@ format.
   moved to NumCalc.
 
 05/10/07 Julien Dutheil
-* New PhylogeneticApplicationTools (more general) method to instanciate substitution models.
+* New PhylogeneticApplicationTools (more general) method to instantiate substitution models.
 * New method PhylogeneticsApplicationTools::getSubstitutionModelSet.
 
 28/09/07 Julien Dutheil
@@ -506,14 +506,14 @@ format.
 
 07/04/07 Benoît Nabholz and Julien Dutheil
 * New ClockTreeLikelihood class.
-* New NNIHomogeneousTreeLikelihood class, splitted appart from DRHomogeneousTreeLikelihood.
+* New NNIHomogeneousTreeLikelihood class, split apart from DRHomogeneousTreeLikelihood.
 * DRHomogeneousTreeLikelihood a little bit improved (derivatives computation).
 * New method initialize() in TreeLikelihood classes.
 
 03/04/07 Julien Dutheil
 * VIRTUAL_COV variable changed to NO_VIRTUAL_COV. configure.ac file updated.
   => Default behaviour is now /really/ to use covariant return type with
-	virtual inheritence, even when importing the files in an IDE. To use the old
+	virtual inheritance, even when importing the files in an IDE. To use the old
 	compilers behaviour, one must set the NO_VIRTUAL_COV preproc variable.
 * Several useless 'VIRTUAL_COV' test removed.
 * A few more virtual inheritences removed for optimization sake. 
@@ -543,7 +543,7 @@ MarkovModulatedSubstitutionModel.
 lengths.
 
 05/02/07 Bastien Boussau & Julien Dutheil
-* Node properties are now splitted into NodeProperties and BranchProperties.
+* Node properties are now split into NodeProperties and BranchProperties.
   Bootstrap values belong to the last category, and are now properly updated
 	when rerooting a tree.
 
@@ -555,7 +555,7 @@ getValue to getTopologyValue.
   This solve a bug in DRHomogeneousTreeLikelihood and avoid confusion with
 	TreeLikelihood::getTree method, although both methods are identical.
 * No more dynamic_cast in NNITopologySearch + bug solved in methods FAST and BETTER.
-* Remove non required virtual inheritence to solve linker errors.
+* Remove non required virtual inheritance to solve linker errors.
 
 19/01/07 -*- Version 1.3 -*-
 
@@ -583,8 +583,8 @@ getValue to getTopologyValue.
 * New continuous rate simulation option in HomogeneousSiteSimulator.
 
 13/10/06 Julien Dutheil
-* TreeTools class was reorganized, augmented, more documented and splitted into TreeTools and TreeTemplateTools.
-* Tree, TreeTemplate and Node imporved (Exception support, etc.).
+* TreeTools class was reorganized, augmented, more documented and split into TreeTools and TreeTemplateTools.
+* Tree, TreeTemplate and Node improved (Exception support, etc.).
 * Small bugs fixed in TreeTemplate.
 
 04/10/06 Julien Dutheil
@@ -615,10 +615,10 @@ getValue to getTopologyValue.
 
 31/05/06 Julien Dutheil
 * HomogeneousTreeLikelihood classes now have a minimum for branch length, the default being 0.000001 (included).
-* Improved PseudoNewtonOptimizer, faster and no more stucked in local maximum (B. Nabohlz data test).
+* Improved PseudoNewtonOptimizer, faster and no more stuck in local maximum (B. Nabohlz data test).
 
 30/05/06 Julien Dutheil
-* Improved TreeTools::nodeToParenthesis[Tree] method and Newick parser for writting.
+* Improved TreeTools::nodeToParenthesis[Tree] method and Newick parser for writing.
 
 23/05/06 Julien Dutheil
 * New F84 model.
@@ -645,7 +645,7 @@ getValue to getTopologyValue.
 * TreeLikelihood classes have now the setData() method to compute likelihood of a new dataset without changing parameters.
 Constructors now have a tree pointer as argument, and a new constructor without dataset has been added.
 02/03/06 Julien Dutheil
-* Bug fixed in TreeTools::cloneSubtree(), bad contructor call for class Node.
+* Bug fixed in TreeTools::cloneSubtree(), bad constructor call for class Node.
 16/01/06 Julien Dutheil
 * TreeTemplate(Tree) copy constructor.
 16/01/06 Julien Dutheil

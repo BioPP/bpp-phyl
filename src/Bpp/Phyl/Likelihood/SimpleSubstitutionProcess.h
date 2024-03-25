@@ -79,7 +79,7 @@ public:
 
   const std::vector<unsigned int> getNodesWithModel(size_t i) const override
   {
-    throw Exception("SimpleSubstitutionProcess::getNodesWithModel not finished. Ask developpers.");
+    throw Exception("SimpleSubstitutionProcess::getNodesWithModel not finished. Ask developers.");
     return Vuint(0);
   }
 

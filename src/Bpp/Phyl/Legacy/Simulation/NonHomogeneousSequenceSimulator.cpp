@@ -133,7 +133,7 @@ void NonHomogeneousSequenceSimulator::init()
 
 unique_ptr<Site> NonHomogeneousSequenceSimulator::simulateSite() const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   size_t initialStateIndex = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
@@ -262,7 +262,7 @@ std::unique_ptr<Site> NonHomogeneousSequenceSimulator::simulateSite(size_t ances
 
 unique_ptr<Site> NonHomogeneousSequenceSimulator::simulateSite(double rate) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   size_t ancestralStateIndex = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
@@ -331,7 +331,7 @@ unique_ptr<SiteContainerInterface> NonHomogeneousSequenceSimulator::simulate(siz
 
 std::unique_ptr<SiteSimulationResult> NonHomogeneousSequenceSimulator::dSimulateSite() const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   size_t ancestralStateIndex = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
@@ -388,7 +388,7 @@ unique_ptr<SiteSimulationResult> NonHomogeneousSequenceSimulator::dSimulateSite(
 
 unique_ptr<SiteSimulationResult> NonHomogeneousSequenceSimulator::dSimulateSite(double rate) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   size_t ancestralStateIndex = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;

@@ -72,7 +72,7 @@ public:
    *
    * @param path The file path.
    * @return A new tree object.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual std::unique_ptr<Tree> readTree(const std::string& path) const = 0;
 
@@ -81,7 +81,7 @@ public:
    *
    * @param in The input stream.
    * @return A new tree object.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual std::unique_ptr<Tree> readTree(std::istream& in) const = 0;
 };
@@ -102,7 +102,7 @@ public:
    *
    * @param path The file path.
    * @return A new tree object.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual std::unique_ptr<PhyloTree> readPhyloTree(const std::string& path) const = 0;
 
@@ -111,7 +111,7 @@ public:
    *
    * @param in The input stream.
    * @return A new tree object.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual std::unique_ptr<PhyloTree> readPhyloTree(std::istream& in) const = 0;
 };
@@ -135,7 +135,7 @@ public:
    * @param path The file path.
    * @param overwrite Tell if existing file must be overwritten.
    * Otherwise append to the file.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writeTree(const Tree& tree, const std::string& path, bool overwrite) const = 0;
 
@@ -144,7 +144,7 @@ public:
    *
    * @param tree A tree object.
    * @param out The output stream.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writeTree(const Tree& tree, std::ostream& out) const = 0;
 };
@@ -167,7 +167,7 @@ public:
    * @param path The file path.
    * @param overwrite Tell if existing file must be overwritten.
    * Otherwise append to the file.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writePhyloTree(const PhyloTree& tree, const std::string& path, bool overwrite) const = 0;
 
@@ -176,7 +176,7 @@ public:
    *
    * @param tree A tree object.
    * @param out The output stream.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writePhyloTree(const PhyloTree& tree, std::ostream& out) const =  0;
 };
@@ -333,7 +333,7 @@ public:
    *
    * @param path The file path.
    * @param trees The output trees container.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void readTrees(const std::string& path, std::vector<std::unique_ptr<Tree>>& trees) const = 0;
 
@@ -342,7 +342,7 @@ public:
    *
    * @param in The input stream.
    * @param trees The output trees container.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void readTrees(std::istream& in, std::vector<std::unique_ptr<Tree>>& trees) const = 0;
 };
@@ -360,7 +360,7 @@ public:
    *
    * @param path The file path.
    * @param trees The output trees container.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void readPhyloTrees(const std::string& path, std::vector<std::unique_ptr<PhyloTree>>& trees) const = 0;
 
@@ -369,7 +369,7 @@ public:
    *
    * @param in The input stream.
    * @param trees The output trees container.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void readPhyloTrees(std::istream& in, std::vector<std::unique_ptr<PhyloTree>>& trees) const = 0;
 };
@@ -392,7 +392,7 @@ public:
    * @param path The file path.
    * @param overwrite Tell if existing file must be overwritten.
    * Otherwise append to the file.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writeTrees(
       const std::vector<const Tree*>& trees,
@@ -404,7 +404,7 @@ public:
    *
    * @param trees A vector of tree objects.
    * @param out The output stream.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writeTrees(
       const std::vector<const Tree*>& trees,
@@ -429,7 +429,7 @@ public:
    * @param path The file path.
    * @param overwrite Tell if existing file must be overwritten.
    * Otherwise append to the file.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writePhyloTrees(
       const std::vector<const PhyloTree*>& trees,
@@ -441,7 +441,7 @@ public:
    *
    * @param trees A vector of tree objects.
    * @param out The output stream.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writePhyloTrees(
       const std::vector<const PhyloTree*>& trees,

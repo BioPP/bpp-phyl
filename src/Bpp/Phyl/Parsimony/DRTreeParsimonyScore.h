@@ -111,7 +111,7 @@ public:
    * @brief Compute bitsets and scores from an array of arrays.
    *
    * This method is the more general score computation.
-   * Depending on what is passed as input, it may computes scroes fo a subtree
+   * Depending on what is passed as input, it may computes scores of a subtree
    * or the whole tree.
    *
    * @param iBitsets The vector of bitset arrays to use.

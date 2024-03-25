@@ -27,7 +27,7 @@ namespace bpp
  *
  * This model includes 3 parameters (@f$\kappa@f$, @f$ p0 @f$ and
  * @f$\omega@f$). The codon frequencies @f$\pi_j@f$ are either
- * observed or infered.
+ * observed or inferred.
  *
  * References:
  *

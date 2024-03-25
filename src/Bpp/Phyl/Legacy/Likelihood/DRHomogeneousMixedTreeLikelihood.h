@@ -51,7 +51,7 @@ public:
    * @param verbose Should I display some info?
    * @param rootArray is true if the array of the likelihoods at the root
    *    should be computed (useful for ancestral reconstruction).
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   DRHomogeneousMixedTreeLikelihood(
       const Tree& tree,
@@ -75,7 +75,7 @@ public:
    * @param verbose Should I display some info?
    * @param rootArray is true if the array of the likelihoods at the root
    *    should be computed (useful for ancestral reconstruction).
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   DRHomogeneousMixedTreeLikelihood(
       const Tree& tree,

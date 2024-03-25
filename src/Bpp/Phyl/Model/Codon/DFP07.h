@@ -28,7 +28,7 @@ namespace bpp
  * https://doi.org/10.1093/molbev/msl175
  *
  * This class should be used with models which equilibrium
- * distribution is fixed, ans does not depend on the parameters.
+ * distribution is fixed, and does not depend on the parameters.
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *

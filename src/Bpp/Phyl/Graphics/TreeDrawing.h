@@ -204,7 +204,7 @@ public:
  * of each node on the graph. These coordinates may be retrieved by dedicated functions.
  * The drawing is performed on a GraphicDevice object.
  *
- * The TreeDrwing class is in charge of the tree reprensentation, and offer tools to retireve
+ * The TreeDrwing class is in charge of the tree representation, and offer tools to retrieve
  * the coordinates of nodes. Using these functions to plot annotation may turn to be unefficient
  * however, particularly for large trees, as they involve a search on the whole tree. For easier
  * tuning of the drawing extensions, the interface defines the drawProperty,

@@ -19,7 +19,7 @@ namespace bpp
 /**
  * @brief Data structure to store the result of a DetailedSiteSimulator.
  *
- * This data structure stores each transitional state, and the time when it occured.
+ * This data structure stores each transitional state, and the time when it occurred.
  */
 class SiteSimulationResult
 {
@@ -179,7 +179,7 @@ public:
 /**
  * @brief Data structure to store the result of a DetailedSiteSimulator.
  *
- * This sructure inherits from the SequenceSimulationResult class, and add support for
+ * This structure inherits from the SequenceSimulationResult class, and add support for
  * rate variation across sites.
  */
 class RASiteSimulationResult :

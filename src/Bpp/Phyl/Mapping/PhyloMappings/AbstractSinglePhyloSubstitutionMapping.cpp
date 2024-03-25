@@ -18,7 +18,7 @@ AbstractSinglePhyloSubstitutionMapping::AbstractSinglePhyloSubstitutionMapping(c
   modelColl_(sppm.modelColl_),
   mModBrid_(sppm.mModBrid_)
 {
-  // assign correct adresses
+  // assign correct addresses
   unique_ptr<modelTree::EdgeIterator> nIT = allEdgesIterator();
 
   vector<size_t> keys = modelColl_.keys();
@@ -61,7 +61,7 @@ AbstractSinglePhyloSubstitutionMapping& AbstractSinglePhyloSubstitutionMapping::
 
   mModBrid_ = sppm.mModBrid_;
 
-  // assign correct adresses
+  // assign correct addresses
   unique_ptr<modelTree::EdgeIterator> nIT = allEdgesIterator();
   vector<size_t> keys = modelColl_.keys();
 

@@ -24,7 +24,7 @@ namespace bpp
  * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$ \alpha @f$ and
  * @f$\beta@f$ of the @f$ Gamma(\alpha,\beta) @f$
  * distribution,@f$p0@f$ the weight of the Beta distribution. The
- * codon frequencies @f$ \pi_j @f$ are either observed or infered.
+ * codon frequencies @f$ \pi_j @f$ are either observed or inferred.
  *
  * References:
  *

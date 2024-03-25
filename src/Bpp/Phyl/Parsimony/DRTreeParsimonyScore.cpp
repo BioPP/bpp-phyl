@@ -204,7 +204,7 @@ void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData& p
   const Node* node = pData.getNode();
   size_t nbNeighbors = node->degree();
   vector<const Node*> neighbors = node->getNeighbors();
-  // First initialize the vectors fro input:
+  // First initialize the vectors from input:
   vector< const vector<Bitset>*> iBitsets(nbNeighbors);
   vector< const vector<unsigned int>*> iScores(nbNeighbors);
   for (unsigned int k = 0; k < nbNeighbors; k++)
@@ -384,7 +384,7 @@ void DRTreeParsimonyScore::doNNI(int nodeId)
 //
 // size_t DRTreeParsimonyScore::getNodeState(const Node* node)
 // {
-//   return (dynamic_cast<const Number<size_t>*>(node->getNodeProperty(STATE)))->getValue(); // exception on root on the true history - why didn't the root recieve a state?
+//   return (dynamic_cast<const Number<size_t>*>(node->getNodeProperty(STATE)))->getValue(); // exception on root on the true history - why didn't the root receive a state?
 // }
 //
 // /******************************************************************************/

@@ -26,8 +26,8 @@ public:
    * @param alpha pointer to the Alphabet
    * @param model pointer to the SubstitutionModel that will be mixed
    * @param parametersDistributionsList list from parameters names towards discrete distributions to will define the mixtures.
-   * @param ffrom   index of the starting codon that will be used to homogeneize the rates of the submodels
-   * @param tto     index of the arriving codon that will be used to homogeneize the rates of the submodels
+   * @param ffrom   index of the starting codon that will be used to homogenize the rates of the submodels
+   * @param tto     index of the arriving codon that will be used to homogenize the rates of the submodels
    *
    *   If ffrom and tto are not -1, for all submodels the transition
    *   rate ffrom->tto is the same. Otherwise, all submodels are
@@ -78,7 +78,7 @@ protected:
 
 public:
   /**
-   * @brief retrieve a pointer to the subsitution model with the given name.
+   * @brief retrieve a pointer to the substitution model with the given name.
    */
   const SubstitutionModelInterface& subModel(const std::string& name) const
   {

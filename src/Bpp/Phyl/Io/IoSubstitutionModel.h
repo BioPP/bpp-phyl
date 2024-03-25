@@ -50,12 +50,12 @@ public:
   /**
    * @brief Read a substitution model from a string.
    *
-   * @param alphabet         The alpabet to use in the model.
+   * @param alphabet         The alphabet to use in the model.
    * @param modelDescription A string describing the model in the format.
-   * @param data             A pointer toward a AlignedValuesContainer, which can be used to initial some parmaeters like frequencies.
+   * @param data             A pointer toward a AlignedValuesContainer, which can be used to initial some parameters like frequencies.
    * @param parseArguments Attempt to parse function arguments. If not, only store them and use default values instead.
    * @return A new SubstitutionModel object according to options specified.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   virtual std::unique_ptr<SubstitutionModelInterface> readSubstitutionModel(
       std::shared_ptr<const Alphabet> alphabet,
@@ -88,7 +88,7 @@ public:
    * @param globalAliases parameters linked to global alias.
    * @param writtenNames is the vector of the written
    * parameters so far [in, out];
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   virtual void write(
       const BranchModelInterface& model,

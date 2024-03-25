@@ -62,7 +62,7 @@ private:
   ValueRef<Eigen::MatrixXd> transitionMatrix_;
 
   /**
-   * @brief Probablity of the edge, used in case of mixture models.
+   * @brief Probability of the edge, used in case of mixture models.
    */
   ValueRef<double> brprob_;
 
@@ -254,7 +254,7 @@ public:
  * described in the SubstitutionProcess, and sharing
  * ConfiguredParameters from a ParameterList.
  *
- * Paremeter names from the ParameterList may have "_suff"
+ * Parameter names from the ParameterList may have "_suff"
  * terminations, with suff matching the numbers of the models in the
  * process.
  *
