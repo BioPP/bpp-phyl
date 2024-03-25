@@ -14,7 +14,7 @@ namespace bpp
  * @brief Branch model I/O in BppO format.
  *
  * Creates a new branch model object according to model description syntax
- * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
+ * (see the Bio++ Program Suite manual for a detailed description of this syntax).
  *
  */
 

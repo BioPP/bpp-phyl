@@ -484,7 +484,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
       VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
       for (size_t c = 0; c < nbClasses_; c++)
       {
-        // For each rate classe,
+        // For each rate class,
         Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
         for (size_t x = 0; x < nbStates_; x++)
         {
@@ -513,7 +513,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
         VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
         for (size_t c = 0; c < nbClasses_; c++)
         {
-          // For each rate classe,
+          // For each rate class,
           Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
           Vdouble* _vt_likelihoods_node_i_c = &(*_vt_likelihoods_node)[i][c];
           for (size_t x = 0; x < nbStates_; x++)
@@ -610,7 +610,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& va
           VVdouble* _dLikelihoods_father_i = &(*_dLikelihoods_father)[i];
           for (size_t c = 0; c < nbClasses_; c++)
           {
-            // For each rate classe,
+            // For each rate class,
             Vdouble* _dLikelihoods_father_i_c = &(*_dLikelihoods_father_i)[c];
             Vdouble* _vt_dLikelihoods_father_i_c = &(*_vt_dLikelihoods_father)[i][c];
             for (size_t x = 0; x < nbStates_; x++)
@@ -713,7 +713,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& v
           VVdouble* _d2Likelihoods_father_i = &(*_d2Likelihoods_father)[i];
           for (size_t c = 0; c < nbClasses_; c++)
           {
-            // For each rate classe,
+            // For each rate class,
             Vdouble* _d2Likelihoods_father_i_c = &(*_d2Likelihoods_father_i)[c];
             Vdouble* _vt_d2Likelihoods_father_i_c = &(*_vt_d2Likelihoods_father)[i][c];
             for (size_t x = 0; x < nbStates_; x++)

@@ -76,7 +76,7 @@ int main()
       }
     }
 
-    // make sure the transtition matrix is set correctly
+    // make sure the transition matrix is set correctly
     RowMatrix<double> refTransition;
     refTransition.resize(alphabet->getSize(), alphabet->getSize());
     double branchLen = 1;

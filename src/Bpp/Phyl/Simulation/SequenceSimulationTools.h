@@ -31,7 +31,7 @@ public:
    *
    * This method is rather slow.
    * consider using a discrete rate distribution and a SequenceSimulator,
-   * which is realy faster.
+   * which is really faster.
    * This method should be used only for continuous rate distribution, or
    * as estimated from posterior rates for instance.
    *
@@ -49,7 +49,7 @@ public:
    *
    * This method is rather slow.
    * consider using a discrete rate distribution and a SequenceSimulator,
-   * which is realy faster.
+   * which is really faster.
    * This method should be used only for continuous rate distribution, or
    * as estimated from posterior rates for instance.
    *

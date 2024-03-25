@@ -19,7 +19,7 @@ namespace bpp
  * RHomogeneousTreeLikelihood defined from a Mixed Substitution
  * Model.
  *
- * In all the calculs, the average of the likelihoods, probabilities
+ * In all the calculus, the average of the likelihoods, probabilities
  * are computed.
  **/
 
@@ -46,7 +46,7 @@ public:
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RHomogeneousMixedTreeLikelihood(
       const Tree& tree,
@@ -69,7 +69,7 @@ public:
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RHomogeneousMixedTreeLikelihood(
       const Tree& tree,

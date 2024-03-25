@@ -305,7 +305,7 @@ protected:
   /**
    * @brief The exchangeability matrix \f$S\f$ of the model, defined
    * as \f$ S_{ij}=\frac{Q_{ij}}{\pi_j}\f$. When the model is
-   * reversible, this matrix is symetric.
+   * reversible, this matrix is symmetric.
    */
   RowMatrix<double> exchangeability_;
 

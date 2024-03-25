@@ -53,7 +53,7 @@ PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::readPairedSiteLikelihoo
     if (delim_pos == string::npos)
     {
       ostringstream msg;
-      msg << "IOTreepuzzlePairedSiteLikelihoods::read: Couldn't find delimiter. The beggining of the line was : "
+      msg << "IOTreepuzzlePairedSiteLikelihoods::read: Couldn't find delimiter. The beginning of the line was : "
           << endl << line.substr(0, 100);
       throw Exception(msg.str());
     }

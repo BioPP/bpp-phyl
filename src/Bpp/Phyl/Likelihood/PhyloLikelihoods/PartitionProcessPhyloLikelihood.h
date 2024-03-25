@@ -110,7 +110,7 @@ public:
    * @brief Set the dataset for which the likelihood must be evaluated.
    *
    * @param data The data set to use.
-   * @param nData the number of the data (optionnal, default = 0)
+   * @param nData the number of the data (optional, default = 0)
    */
 
   void setData(std::shared_ptr<const AlignmentDataInterface> data, size_t nData = 0) override;

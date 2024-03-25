@@ -16,7 +16,7 @@ namespace bpp
  * the generator directly.
  *
  * Directly inherits from AbstractSubstitutionModel, hence uses the
- * computation methods developped in it.
+ * computation methods developed in it.
  */
 class AnonymousSubstitutionModel :
   public AbstractSubstitutionModel

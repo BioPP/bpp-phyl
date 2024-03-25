@@ -19,7 +19,7 @@ namespace bpp
  *
  * A non uniform distribution of rates among the sites is allowed (ASRV models).</p>
  *
- * This class uses an instance of the DRASRTreeLikelihoodData for conditionnal likelihood storage.
+ * This class uses an instance of the DRASRTreeLikelihoodData for conditional likelihood storage.
  *
  * This class can also use a simple or recursive site compression.
  * In the simple case, computations for identical sites are not duplicated.
@@ -38,9 +38,9 @@ namespace bpp
  * relationships. Whether to use or not patterns depends on what you actllay need:
  * - The more you compute likelihoods without changing the data or topology, the more patterns are interesting
  *   (this divides the cost of computing patterns by the number of computation performed).
- *   Patterns are hence usefull when you have a high number of computation to perform, while optimizing numerical
+ *   Patterns are hence useful when you have a high number of computation to perform, while optimizing numerical
  *   parameters for instance).
- * - Patterns are more likely to occur whith small alphabet (nucleotides).
+ * - Patterns are more likely to occur with small alphabet (nucleotides).
  *
  * Important note: The input tree will be considered as rooted, since the likelihood of non-stationary models
  * depends on the position of the root. If the input tree is not rooted, it will be considered as a rotted tree
@@ -67,7 +67,7 @@ public:
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
    * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousTreeLikelihood(
       const Tree& tree,
@@ -89,7 +89,7 @@ public:
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
    * @param reparametrizeRoot Should we reparametrize the branch lengths at root?
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousTreeLikelihood(
       const Tree& tree,

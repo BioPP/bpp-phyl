@@ -703,7 +703,7 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
 ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getForwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
 {
   // compute forward likelihoods for all nodes (not the quickest, but
-  // in pratice they are all needed)
+  // in practice they are all needed)
 
   if (!getLikelihoodNode_())
     makeLikelihoods();
@@ -717,7 +717,7 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getForwardLikelihoo
 ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getConditionalLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
 {
   // compute likelihoods for all edges with similar species index
-  // (not the quickest, but in pratice they are all needed)
+  // (not the quickest, but in practice they are all needed)
 
   makeLikelihoodsAtDAGNode_(nodeId);
 
@@ -730,7 +730,7 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getConditionalLikel
 SiteLikelihoodsRef LikelihoodCalculationSingleProcess::getLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
 {
   // compute likelihoods for all edges with similar species index
-  // (not the quickest, but in pratice they are all needed)
+  // (not the quickest, but in practice they are all needed)
 
   makeLikelihoodsAtDAGNode_(nodeId);
 
@@ -744,7 +744,7 @@ SiteLikelihoodsRef LikelihoodCalculationSingleProcess::getLikelihoodsAtNodeForCl
 ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtEdgeForClass(uint edgeId, size_t nCat)
 {
   // compute likelihoods for all edges with similar species index
-  // (not the quickest, but in pratice they are all needed)
+  // (not the quickest, but in practice they are all needed)
 
   auto spId = getTreeNode(nCat)->getEdge(edgeId)->getSpeciesIndex();
 
@@ -760,7 +760,7 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikeliho
 ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
 {
   // compute likelihoods for all nodes with similar species index
-  // (not the quickest, but in pratice they are all needed)
+  // (not the quickest, but in practice they are all needed)
 
   makeLikelihoodsAtDAGNode_(nodeId);
 

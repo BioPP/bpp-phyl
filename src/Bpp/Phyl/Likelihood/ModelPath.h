@@ -197,7 +197,7 @@ public:
   ModelPath& operator+=(const ModelPath&);
 
   /**
-   * @brief Remove from the PathNodes of this objet the matching ones of the ModelPath.
+   * @brief Remove from the PathNodes of this object the matching ones of the ModelPath.
    */
   ModelPath& operator-=(const ModelPath&);
 
@@ -214,7 +214,7 @@ public:
 
   /**
    * @brief checks if this ModelPath intersects another one. Which
-   * means that one submodel explicitely declared in a ModelPath is
+   * means that one submodel explicitly declared in a ModelPath is
    * in the other.
    */
   bool intersects(const ModelPath&) const;

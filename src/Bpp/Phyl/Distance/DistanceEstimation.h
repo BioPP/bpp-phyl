@@ -129,7 +129,7 @@ public:
   }
 
   /**
-   * @brief Assigment operator.
+   * @brief Assignment operator.
    *
    * Only the distance matrix is hard-copied, if there is one.
    *

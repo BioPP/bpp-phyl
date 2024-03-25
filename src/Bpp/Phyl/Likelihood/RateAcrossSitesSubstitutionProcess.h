@@ -85,7 +85,7 @@ public:
 
   const std::vector<unsigned int> getNodesWithModel(size_t i) const override
   {
-    throw Exception("RateAcrossSitesSubstitutionProcess::getNodesWithModel not finished. Ask developpers.");
+    throw Exception("RateAcrossSitesSubstitutionProcess::getNodesWithModel not finished. Ask developers.");
     return Vuint(0);
   }
 

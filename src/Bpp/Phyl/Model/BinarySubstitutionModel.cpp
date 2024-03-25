@@ -37,7 +37,7 @@ void BinarySubstitutionModel::updateMatrices_()
   kappa_ = getParameterValue("kappa"); // alpha/beta
   lambda_ = (kappa_ + 1) * (kappa_ + 1) / (2 * kappa_);
 
-  // Frequences:
+  // Frequencies:
   freq_[0] = 1 / (kappa_ + 1);
   freq_[1] = kappa_ / (kappa_ + 1);
 

@@ -25,7 +25,7 @@ typedef vector<vector<vector<double>>> VVVDouble;
 typedef vector<vector<double>> VVDouble;
 typedef vector<double> VDouble;
 
-/* class for reprenting the framework of Stochastic mapping
+/* class for representing the framework of Stochastic mapping
  *
  *   A StochasticMapping instance can be used to sample histories of
  *   state transitions along a tree, given a substitution model and the
@@ -126,7 +126,7 @@ public:
   std::shared_ptr<PhyloTree> generateExpectedMapping(std::vector<std::shared_ptr<PhyloTree>>& mappings, size_t divMethod = 0);
 
   /**
-   *@brief Creates a single expected (i.e, average) history based the rewards provided by te algorithm of Minin and Suchard (2008)
+   *@brief Creates a single expected (i.e, average) history based the rewards provided by the algorithm of Minin and Suchard (2008)
    * the function assumes that there is only one site to simulate history for
    *
    *@param divMethod The method used in the case that the son and
@@ -156,12 +156,12 @@ private:
    */
   void setNodeState(PhyloNode* node, size_t state);
 
-  /* set the character states of the leafs as properties of thier nodes instances
+  /* set the character states of the leafs as properties of their nodes instances
    * @param mapping - the tree to sets the properties in
    */
   void setLeafsStates(std::shared_ptr<PhyloTree> mapping);
 
-  /* compute the fractional probabilities of all the nodes assignements
+  /* compute the fractional probabilities of all the nodes assignments
    * @param                     A vector of the fractional probabilities probabilities to fill in (node**state combinaion in each entry)
    */
   void computeFractionals();

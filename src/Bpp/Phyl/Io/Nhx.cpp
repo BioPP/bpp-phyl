@@ -1029,7 +1029,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type)
     if (castedPptObject)
       return castedPptObject->toSTL();
     else
-      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class BppString.");
+      throw Exception("Nhx::propertyToString_. Invalid property type, should be of class BppString.");
   }
   else if (type == 1)
   {
@@ -1037,7 +1037,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type)
     if (castedPptObject)
       return TextTools::toString(castedPptObject->getValue());
     else
-      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class Number<int>.");
+      throw Exception("Nhx::propertyToString_. Invalid property type, should be of class Number<int>.");
   }
   else if (type == 2)
   {
@@ -1045,7 +1045,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type)
     if (castedPptObject)
       return TextTools::toString(castedPptObject->getValue());
     else
-      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class Number<double>.");
+      throw Exception("Nhx::propertyToString_. Invalid property type, should be of class Number<double>.");
   }
   else if (type == 3)
   {
@@ -1053,7 +1053,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type)
     if (castedPptObject)
       return TextTools::toString(castedPptObject->getValue());
     else
-      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class BppBoolean.");
+      throw Exception("Nhx::propertyToString_. Invalid property type, should be of class BppBoolean.");
   }
   else
   {

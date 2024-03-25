@@ -16,7 +16,7 @@
  *
  * In the alphabet from which the AllelicAlphabet is built, this model
  * needs a given mutation model with generator (aka SubstitutionModel
- * in Bio++), and allele selection coefficients from a finess vector
+ * in Bio++), and allele selection coefficients from a finesse vector
  * (aka FrequencySet in Bio++).
  *
  * If we denote @f$F@f$ this fitness, the drift term towards the

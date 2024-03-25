@@ -17,7 +17,7 @@ namespace bpp
  * @brief Frequencies set I/O in BppO format.
  *
  * Allow to create a new frequencies set object according to model description syntax
- * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
+ * (see the Bio++ Program Suite manual for a detailed description of this syntax).
  */
 class BppOFrequencySetFormat :
   public virtual IFrequencySet,

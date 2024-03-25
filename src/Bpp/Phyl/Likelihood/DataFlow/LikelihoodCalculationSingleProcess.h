@@ -203,7 +203,7 @@ public:
   std::vector<RateCategoryTrees> vRateCatTrees_;
 
   /*
-   * Node for the probabilites of the rate classes
+   * Node for the probabilities of the rate classes
    *
    */
 

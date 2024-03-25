@@ -17,7 +17,7 @@ using namespace std;
 
 int main()
 {
-  // Note: this only tests instanciation and exceptions. The correctness of calculations is not assessed.
+  // Note: this only tests instantiation and exceptions. The correctness of calculations is not assessed.
 
   try
   {

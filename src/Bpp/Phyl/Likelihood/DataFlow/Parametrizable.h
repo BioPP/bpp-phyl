@@ -148,7 +148,7 @@ public:
       if (!parList.hasParameter(name) && suff == "")
       {
         if (!parList.hasParameter(lParams[i].getName() + "_1"))
-          throw Exception("createConfigured: unknow ConfiguredParameter " + name);
+          throw Exception("createConfigured: unknown ConfiguredParameter " + name);
         else name = lParams[i].getName() + "_1";
       }
       auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getParameter(name).get());
@@ -231,7 +231,7 @@ public:
    * computation nodes. Assuming we have a v = f(object, stuff)
    * node, with v of type T. df/dn = sum_i df/dx_i * dx_i/dn +
    * df/dstuff * dstuff/dn.
-   * This function returns a NodeRefVec containings the nodes:
+   * This function returns a NodeRefVec containing the nodes:
    * {df/dx_i * dx_i/dn} for i in order.
    *
    * buildFWithFreqSet(newFreqSet) should create the f(newFS,

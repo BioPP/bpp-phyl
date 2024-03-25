@@ -1004,7 +1004,7 @@ VVdouble SubstitutionMappingTools::computeCountsPerTypePerBranch(
         freqsTypes[c - 1] += freqs[i];
       }
 
-      // We devide the counts by the frequencies and rescale:
+      // We divide the counts by the frequencies and rescale:
 
       double s = VectorTools::sum(result[k]);
       for (size_t t = 0; t < nbTypes; ++t)

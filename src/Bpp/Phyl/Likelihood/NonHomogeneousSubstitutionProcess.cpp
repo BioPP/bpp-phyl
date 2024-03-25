@@ -89,7 +89,7 @@ void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsign
 void NonHomogeneousSubstitutionProcess::addModel(shared_ptr<BranchModelInterface> model, const vector<unsigned int>& nodesId)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
-    throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
+    throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
@@ -120,7 +120,7 @@ void NonHomogeneousSubstitutionProcess::addModel(shared_ptr<BranchModelInterface
 void NonHomogeneousSubstitutionProcess::setModel(shared_ptr<BranchModelInterface> model, size_t modelIndex)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
-    throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
+    throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 

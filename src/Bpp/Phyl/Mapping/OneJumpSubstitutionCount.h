@@ -12,7 +12,7 @@
 namespace bpp
 {
 /**
- * @brief Computes the probability that at least one jump occured on a branch, given the initial and final state.
+ * @brief Computes the probability that at least one jump occurred on a branch, given the initial and final state.
  *
  * This probability is defined as
  * @f[

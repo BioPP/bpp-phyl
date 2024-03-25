@@ -18,7 +18,7 @@ namespace bpp
  * @brief The Rivas-Eddy substitution model with gap characters.
  *
  * This model expends any reversible substitution model with gaps as an additional state.
- * Although the conditionnal subtitution process is reversible, the insertion/deletion process
+ * Although the conditional substitution process is reversible, the insertion/deletion process
  * needs not be. The model hence adds two parameters for insertion and deletions, @f$\lambda@f$ and @f$\mu@f$.
  * If we note @f$Q@f$ the (simple) transition matrix (= Markov generator) and @f$Q^\epsilon@f$ the extended one, we have:
  * @f[

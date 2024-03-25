@@ -329,7 +329,7 @@ public:
       std::transform(m_arg_.begin(), m_arg_.end(), vexp.begin(), [](const T* t){return t->exponent_part();});
 
       if (!std::equal(vexp.begin() + 1, vexp.end(), vexp.begin()) )
-        throw Exception("DataFlowCwise::CWiseMatching not possible on ExtendedFloatEigen data with different exponents. Ask developpers.");
+        throw Exception("DataFlowCwise::CWiseMatching not possible on ExtendedFloatEigen data with different exponents. Ask developers.");
 
       return vexp[0];
     }
@@ -451,7 +451,7 @@ public:
       std::transform(m_arg_.begin(), m_arg_.end(), vexp.begin(), [](const T* t){return t->exponent_part();});
 
       if (!std::equal(vexp.begin() + 1, vexp.end(), vexp.begin()) )
-        throw Exception("DataFlowCwise::CWiseCompound not possible on ExtendedFloatEigen data with different exponents. Ask developpers.");
+        throw Exception("DataFlowCwise::CWiseCompound not possible on ExtendedFloatEigen data with different exponents. Ask developers.");
 
       return vexp[0];
     }

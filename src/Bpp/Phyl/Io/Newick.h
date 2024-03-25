@@ -235,7 +235,7 @@ protected:
  *
  * @param tree The tree
  * @param node The node defining the subtree.
- * @param bootstrap Tell is bootstrap values must be writen.
+ * @param bootstrap Tell is bootstrap values must be written.
  * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
  * The property should be a Number<double> object.
  * Otherwise, the content of the property with name 'propertyName' will be written.
@@ -262,7 +262,7 @@ protected:
  * @brief Get the parenthesis description of a tree.
  *
  * @param tree The tree to convert.
- * @param bootstrap Tell is bootstrap values must be writen.
+ * @param bootstrap Tell is bootstrap values must be written.
  * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
  * The property should be a Number<double> object.
  * Otherwise, the content of the property with name 'propertyName' will be written.

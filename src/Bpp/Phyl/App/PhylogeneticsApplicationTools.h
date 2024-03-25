@@ -139,7 +139,7 @@ public:
    * object according to options.
    *
    * Creates a new branch model object according to model description
-   * syntax (see the Bio++ Progam Suite manual for a detailed
+   * syntax (see the Bio++ Program Suite manual for a detailed
    * description of this syntax). The function also parses the
    * parameter values and set them accordingly.
    *
@@ -180,7 +180,7 @@ public:
    * a BranchModel with a generator).
    *
    * Creates a new substitution model object according to model description syntax
-   * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
+   * (see the Bio++ Program Suite manual for a detailed description of this syntax). The
    * function also parses the parameter values and set them accordingly.
    *
    * @param alphabet   The alphabet to use in the model.
@@ -233,7 +233,7 @@ public:
   /**
    * @brief Get A FrequencySet object for root frequencies (NH models) according to options.
    *
-   * @param alphabet         The alpabet to use.
+   * @param alphabet         The alphabet to use.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
    * @param data   A pointer toward the AlignmentDataInterface<std::string> for which the root frequencies are designed.
@@ -279,10 +279,10 @@ public:
   /**
    * @brief Get A FrequencySet object according to options.
    *
-   * @param alphabet         The alpabet to use.
+   * @param alphabet         The alphabet to use.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-   * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.
+   * @param freqDescription  A string in the keyval syntax describing the frequency set to use.
    * @param data A pointer toward an AlignmentDataInterface<std::string> used for
    *             the initialization of the frequency set when this
    *             data is needed (typically use_observed_freq option).
@@ -390,7 +390,7 @@ public:
    * See the Bio++ Program Suite manual for a description of
    * available options.
    *
-   * @param alphabet The alpabet to use in all models.
+   * @param alphabet The alphabet to use in all models.
    * @param gCode The genetic code to use (only for codon alphabets,
    *              otherwise can be set to 0). If set to NULL and a
    *              codon frequencies set is requested, an Exception
@@ -422,9 +422,9 @@ public:
       int warn = 1);
 
   /**
-   * @brief Builds a  SubstitutionProcessCollection from meny maps of relevant objects.
+   * @brief Builds a  SubstitutionProcessCollection from many maps of relevant objects.
    *
-   * @param alphabet The alpabet to use in all models.
+   * @param alphabet The alphabet to use in all models.
    * @param gCode The genetic code to use (only for codon alphabets,
    *              otherwise can be set to 0). If set to NULL and a
    *              codon frequencies set is requested, an Exception
@@ -535,7 +535,7 @@ public:
    * @brief Build a DiscreteDistribution object according to options.
    *
    * Creates a new rate distribution object according to distribution description syntax
-   * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
+   * (see the Bio++ Program Suite manual for a detailed description of this syntax). The
    * function also parses the parameter values and set them accordingly.
    *
    * @param params  The attribute map where options may be found.
@@ -576,7 +576,7 @@ public:
    * @return A pointer toward the final likelihood object.
    *
    * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
-   * clone this object. We may change this bahavior in the future...
+   * clone this object. We may change this behavior in the future...
    * You hence should write something like
    * @code
    * tl = PhylogeneticsApplicationTools::optimizeParameters(tl, ...);
@@ -630,7 +630,7 @@ public:
   /**
    * @brief Write a tree according to options.
    *
-   * See the Bio++ Program Suite manual for a descriptio of all available options.
+   * See the Bio++ Program Suite manual for a description of all available options.
    *
    * @param tree    The tree to write.
    * @param params  The attribute map where options may be found.
@@ -655,7 +655,7 @@ public:
   /**
    * @brief Write a tree according to options.
    *
-   * See the Bio++ Program Suite manual for a descriptio of all available options.
+   * See the Bio++ Program Suite manual for a description of all available options.
    *
    * @param trees            The trees to write.
    * @param params           The attribute map where options may be found.
@@ -682,7 +682,7 @@ public:
   /**
    * @brief Write a tree according to options.
    *
-   * See the Bio++ Program Suite manual for a descriptio of all available options.
+   * See the Bio++ Program Suite manual for a description of all available options.
    *
    * @param spc              The SubstitutionProcessCollection of all objects
    * @param params           The attribute map where options may be found.

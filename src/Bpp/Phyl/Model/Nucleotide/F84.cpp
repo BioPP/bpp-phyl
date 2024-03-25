@@ -54,7 +54,7 @@ void F84::updateMatrices_()
   k1_ = 1;
   k2_ = kappa_ + 1;
 
-  // Frequences:
+  // Frequencies:
   freq_[0] = piA_;
   freq_[1] = piC_;
   freq_[2] = piG_;

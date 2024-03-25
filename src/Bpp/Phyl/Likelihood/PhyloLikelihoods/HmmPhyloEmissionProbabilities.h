@@ -70,7 +70,7 @@ public:
   /**
    * @brief Set the new hidden state alphabet.
    * @param stateAlphabet The new state alphabet.
-   * @throw UnvalidStateAlphabetException if the new alphabet is uncorrect (for instance is NULL pointer).
+   * @throw UnvalidStateAlphabetException if the new alphabet is incorrect (for instance is NULL pointer).
    */
 
   void setHmmStateAlphabet(std::shared_ptr<HmmStateAlphabet> stateAlphabet);

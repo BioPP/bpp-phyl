@@ -136,7 +136,7 @@ shared_ptr<PhyloTree> StochasticMapping::generateExpectedMapping(vector<shared_p
   //     for (size_t state = 0; state < statesNum; ++state)
   //     {
   //       AverageDwellingTimes[state] /= static_cast<double>(mappings.size());
-  //       if (AverageDwellingTimes[state] == branchLength) // if one of the dwelling times equals the branch length, then there is only one state along te branch and there is no need to edit it
+  //       if (AverageDwellingTimes[state] == branchLength) // if one of the dwelling times equals the branch length, then there is only one state along the branch and there is no need to edit it
   //       {
   //         updateBranch = false;
   //       }
@@ -156,7 +156,7 @@ shared_ptr<PhyloTree> StochasticMapping::generateExpectedMapping(vector<shared_p
 
 shared_ptr<PhyloTree> StochasticMapping::generateAnalyticExpectedMapping(size_t divMethod)
 {
-  // /* Compute the posterior assignment probabilities to internal nodes, based on the fractional probablities computed earlier */
+  // /* Compute the posterior assignment probabilities to internal nodes, based on the fractional probabilities computed earlier */
   // const vector<int> states =  tl_->getAlphabetStates();
   // vector<int> nodeIds = baseTree_->getNodesId();
   // size_t nodeId;
@@ -164,7 +164,7 @@ shared_ptr<PhyloTree> StochasticMapping::generateAnalyticExpectedMapping(size_t 
   // posteriorProbabilities.clear();
   // posteriorProbabilities.resize(baseTree_->getNumberOfNodes(), VDouble(states.size()));
   // double nodeDataProb;
-  // // because the sum of partial likelihoods (i.e, the fractional probabilities) is in fact the probablity of the data, it is sufficient to standardize the vector of fractional probabilires for each node to obtain the posterior probabilities
+  // // because the sum of partial likelihoods (i.e, the fractional probabilities) is in fact the probability of the data, it is sufficient to standardize the vector of fractional probabilires for each node to obtain the posterior probabilities
   // for (size_t n = 0; n < baseTree_->getNumberOfNodes(); ++n)
   // {
   //   nodeId = static_cast<size_t>(nodeIds[n]); //Note@Laurent (Julien 17/06/20): what is nodeId is negative?
@@ -186,7 +186,7 @@ shared_ptr<PhyloTree> StochasticMapping::generateAnalyticExpectedMapping(size_t 
   // setExpectedAncestrals(expectedMapping, posteriorProbabilities);
 
   // /* Compute the reward per state per site - expect two entries per site (that is, two entries in total).
-  //    Let r0 be the reward of state 0 nd r1 the reward of state 1. */
+  //    Let r0 be the reward of state 0 and r1 the reward of state 1. */
   // UserAlphabetIndex1* alpha = new UserAlphabetIndex1(tl_->getAlphabet());
   // DiscreteDistribution* rDist = new ConstantRateDistribution();
   // TransitionModel* tlModel = tl_->getModelForSite(0, 0)->clone();
@@ -211,7 +211,7 @@ shared_ptr<PhyloTree> StochasticMapping::generateAnalyticExpectedMapping(size_t 
   //   {
   //     if (m != s)
   //     {
-  //       alpha->setIndex(states[m], 0); //Note@Laurent (Julien 17/06/20): can you chack my correction there and above? I changed s/m to states[s] and states[m], is that correct?
+  //       alpha->setIndex(states[m], 0); //Note@Laurent (Julien 17/06/20): can you check my correction there and above? I changed s/m to states[s] and states[m], is that correct?
   //     }
   //   }
   //   unique_ptr<Reward> reward(new DecompositionReward(model, alpha));
@@ -343,7 +343,7 @@ void StochasticMapping::computeFractionals()
   // {
   //   int nodeId = nodes[i]->getId();
   //   string nodeName = nodes[i]->getName();
-  //   if (nodes[i]->isLeaf()) // if the node is a leaf, set the fractional probability of its state to 1, and the rest ot 0
+  //   if (nodes[i]->isLeaf()) // if the node is a leaf, set the fractional probability of its state to 1, and the rest to 0
   //   {
   //     size_t leafState = static_cast<int>(tl_->getAlphabetStateAsInt(leafsStates->getSequence(nodeName).getValue(0)));
   //     for (size_t nodeState = 0; nodeState < statesNum; ++nodeState)
@@ -395,7 +395,7 @@ void StochasticMapping::ComputeConditionals()
   // fractionalProbabilities_.resize(nodes.size(), VDouble(statesNum));
   // computeFractionals();
 
-  // /*  compute the conditional probabilities: for each combination of nodes son, father, compute Pr(son recieves sonState | father has fatherState) */
+  // /*  compute the conditional probabilities: for each combination of nodes son, father, compute Pr(son receives sonState | father has fatherState) */
   // ConditionalProbabilities_.clear();
   // ConditionalProbabilities_.resize((nodes.size()));
 
@@ -425,7 +425,7 @@ void StochasticMapping::ComputeConditionals()
   //         }
   //       }
   //     }
-  //     else                            // else -> follfow equation (10) from the paper to compute the consitional assingment probabilities given the ones of his father
+  //     else                            // else -> follow equation (10) from the paper to compute the conditional assignment probabilities given the ones of his father
   //     {
   //       for (size_t fatherState = 0; fatherState < statesNum; ++fatherState)
   //       {
@@ -549,7 +549,7 @@ void StochasticMapping::sampleMutationsGivenAncestrals(shared_ptr<PhyloTree> map
 {
 //   TreeTemplate<Node>* ttree = dynamic_cast<TreeTemplate<Node>*>(mapping);
 //   vector<Node*> nodes = ttree->getNodes();
-//   nodesCounter_ = nodes.size() - 1; // intialize nodesCounter_ according ot the number of nodes in the base tree
+//   nodesCounter_ = nodes.size() - 1; // initialize nodesCounter_ according to the number of nodes in the base tree
 //   for (size_t i = 0; i < nodes.size(); ++i)
 //   {
 //     Node* son = nodes[i];
@@ -587,7 +587,7 @@ void StochasticMapping::updateBranchMapping(PhyloNode* son, const MutationPath& 
   //     originalFather->removeSon(curNode); // also removes originalFather as the father of curNode
   //     // set nextNode to be the new father of curNode
   //     curNode->setFather(nextNode); // also adds curNode to the sons of nextNode
-  //     // set curNode's original father ot be the father of nextNode
+  //     // set curNode's original father to be the father of nextNode
   //     nextNode->setFather(originalFather); // also adds nextNode to the sons of originalFather - or not? make sure this is the father at all times
   //     curNode = nextNode;
   //   }
@@ -626,24 +626,24 @@ void StochasticMapping::sampleMutationsGivenAncestralsPerBranch(PhyloNode* son, 
   //     timeTillChange = mappingParameters_->getTimeBeforeNextMutationEvent(fatherState); // draw the time until a transition from exponential distribution with the rate of leaving fatherState
   //   }
 
-  //   while (disFromNode + timeTillChange < branchLength)  // a jump occured but not passed the whole branch ->
+  //   while (disFromNode + timeTillChange < branchLength)  // a jump occurred but not passed the whole branch ->
   //   {
   //     tryMapping.addEvent(curState, timeTillChange);                                        // add the current state and time to branch history
 
   //     disFromNode += timeTillChange;
   //     timeTillChange = mappingParameters_->getTimeBeforeNextMutationEvent(curState);        // draw the time until a transition from exponential distribution with the rate of leaving curState
-  //     curState = mappingParameters_->mutate(curState);                                      // draw the state to transition to after from initial state curState based on the relative tranistion rates distribution (see MutationProcess.cpp line 50)
+  //     curState = mappingParameters_->mutate(curState);                                      // draw the state to transition to after from initial state curState based on the relative transition rates distribution (see MutationProcess.cpp line 50)
   //   }
-  //   // the last jump passed the length of the branch -> finish the simulation and check if it's sucessfull (i.e, mapping is finished at the son's state)
+  //   // the last jump passed the length of the branch -> finish the simulation and check if it's successful (i.e, mapping is finished at the son's state)
   //   if (curState != sonState) // if the simulation failed, try again
   //   {
   //     continue;
   //   }
-  //   else                      // if the simulation was sucessfully, add it to the build mapping
+  //   else                      // if the simulation was successfully, add it to the build mapping
   //   {
   //     double timeOfJump = branchLength - disFromNode;
   //     son->setDistanceToFather(timeOfJump);
-  //     updateBranchMapping(son, tryMapping);     // add the successfull simulation to the build mapping
+  //     updateBranchMapping(son, tryMapping);     // add the successful simulation to the build mapping
   //     return;
   //   }
   // }

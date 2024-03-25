@@ -112,7 +112,7 @@ protected:
 
   bool continuousRates_;
 
-  // Should we ouptut internal sequences as well?
+  // Should we output internal sequences as well?
   bool outputInternalSites_;
 
   /**

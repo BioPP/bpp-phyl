@@ -26,7 +26,7 @@ class OneChangeRegisterTransitionModel :
 {
 private:
   /**
-   * Boolean matrix of the sustitutions that are NOT considered (ie
+   * Boolean matrix of the substitutions that are NOT considered (ie
    * for which the changes generator equal the ones of the original model).
    */
   RowMatrix<uint> noChangedStates_;

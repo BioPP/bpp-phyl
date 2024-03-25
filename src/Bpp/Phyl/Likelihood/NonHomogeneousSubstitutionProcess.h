@@ -50,9 +50,9 @@ namespace bpp
  * In the non-homogeneous and homogeneous non-reversible cases, the
  * likelihood depends on the position of the root. The states
  * frequencies at the root of the tree are hence distinct parameters.
- * Theses are accounted by a FrequencySet objet, managed by the
+ * These are accounted by a FrequencySet object, managed by the
  * NonHomogeneousSubstitutionProcess class. The corresponding
- * parameters, if any, are added at the begining of the global
+ * parameters, if any, are added at the beginning of the global
  * parameter list.
  *
  * If the heterogenity of the model does not affect the equilibrium
@@ -63,14 +63,14 @@ namespace bpp
  * stationarity" option is set when building the set, then no
  * FrequencySet object is used, but the frequencies are taken to be
  * the same as the one at the first model in the set. Nothing hence
- * prevents you to build a "supposingly stationary model which
+ * prevents you to build a "supposedly stationary model which
  * actually is not", so be careful!!
  *
  * This class provides several methods to specify which model and/or
  * which parameter is associated to which branch/clade. Several check
  * points are provided, but some are probably missing due to the large
  * set of possible models that this class allows to build, so be
- * carefull!
+ * careful!
  *
  */
 

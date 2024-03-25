@@ -53,8 +53,8 @@ public:
  * @brief TreeLikelihood data structure.
  *
  * Stores all the inner computations:
- * - conditionnal likelihoods for each node,
- * - correspondance between sites in the dataset and array indices.
+ * - conditional likelihoods for each node,
+ * - correspondence between sites in the dataset and array indices.
  *
  * @see TreeLikelihoodNodeData
  */

@@ -92,7 +92,7 @@ void checkIfMappingLegal(
             {
                 if (curNode->hasFather())
                 {
-                    branchLengthInMapping += curNode->getDistanceToFather(); // failes on node with id 9, but returns exception on node with id 6 (which is the root)
+                    branchLengthInMapping += curNode->getDistanceToFather(); // fails on node with id 9, but returns exception on node with id 6 (which is the root)
                     curNode = curNode->getFather();
                 }
                 else
@@ -108,7 +108,7 @@ void checkIfMappingLegal(
             }
         }
     }
-    // make sure there are no two nodes in a row such that both don't exist in the base tree and both recieve the same state (indicator of illegal transition)
+    // make sure there are no two nodes in a row such that both don't exist in the base tree and both receive the same state (indicator of illegal transition)
     for (size_t i=0; i<origNodes.size(); ++i)
     {
         if (origNodes[i]->hasFather())
@@ -168,7 +168,7 @@ void computePosteriors(VVDouble& posteriorProbabilities, Tree* baseTree, RHomoge
     {
         int nodeId = nodes[i]->getId();
         string nodeName = nodes[i]->getName();
-        if (nodes[i]->isLeaf()) // if the node is a leaf, set the posterior probability of its state to 1, and the rest ot 0
+        if (nodes[i]->isLeaf()) // if the node is a leaf, set the posterior probability of its state to 1, and the rest to 0
 
         {
             size_t leafState = static_cast<int>(tl->getAlphabetStateAsInt(leafsStates->getSequence(nodeName).getValue(0)));
@@ -204,7 +204,7 @@ void computePosteriors(VVDouble& posteriorProbabilities, Tree* baseTree, RHomoge
                 dataProb += posteriorProbabilities[nodeIdToIndex[nodeId]][nodeState];
             }
             // now, compute from the so far compued partial likelihoods the posterior probabilities by dividing by the probability of the data (prior(data)=1 in ML world)
-            // because the sum of partial likelihoods is in fact the probablity of the data, it is sufficient to standardize the vector
+            // because the sum of partial likelihoods is in fact the probability of the data, it is sufficient to standardize the vector
 
             for (size_t nodeState=0; nodeState<statesNum; ++nodeState)
         {

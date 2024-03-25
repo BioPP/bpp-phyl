@@ -112,10 +112,10 @@ public:
    * In this method, all ancestral states are estimated using marginal likelihoods,
    * putatively intregated over several rate classes.
    * For each branch, the number of substitution given marginal states is used.
-   * This method, used with a SimpleSubstitutionCount objet is equivalent to
+   * This method, used with a SimpleSubstitutionCount object is equivalent to
    * Tufféry and Darlu's (2000) computation of substitution vectors.
    *
-   * Use with another substitution count objet is in most cases irrelevent.
+   * Use with another substitution count object is in most cases irrelevant.
    *
    * @param drtl              A DRTreeLikelihood object.
    * @param substitutionCount The substitutionsCount to use.
@@ -190,7 +190,7 @@ public:
    *
    * @param in            The input stream where to read the vectors.
    * @param substitutions The mapping object to fill.
-   * @param type          The type of substitutions that are read. Should be in supported by the substittuion count obect assiciated to the mapping, if any.
+   * @param type          The type of substitutions that are read. Should be in supported by the substittuion count object associated to the mapping, if any.
    * @throw IOException If an input error happens.
    */
   static void readFromStream(std::istream& in, LegacyProbabilisticSubstitutionMapping& substitutions, size_t type);

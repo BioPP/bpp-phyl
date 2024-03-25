@@ -50,7 +50,7 @@ public:
   virtual std::vector<unsigned int> getScorePerSite() const = 0;
 
   /**
-   * @brief Get the tree for wich scores are computed.
+   * @brief Get the tree for which scores are computed.
    *
    * @return The tree associated to this object.
    */

@@ -468,7 +468,7 @@ void DRHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node* no
         VVdouble* _likelihoods_node_son_i = &(*_likelihoods_node_son)[i];
         for (size_t c = 0; c < nbClasses_; c++)
         {
-          // For each rate classe,
+          // For each rate class,
           Vdouble* _likelihoods_node_son_i_c = &(*_likelihoods_node_son_i)[c];
           for (size_t x = 0; x < nbStates_; x++)
           {
@@ -534,7 +534,7 @@ void DRHomogeneousTreeLikelihood::computeSubtreeLikelihoodPrefix(const Node* nod
         VVdouble* _likelihoods_node_father_i = &(*_likelihoods_node_father)[i];
         for (size_t c = 0; c < nbClasses_; c++)
         {
-          // For each rate classe,
+          // For each rate class,
           Vdouble* _likelihoods_node_father_i_c = &(*_likelihoods_node_father_i)[c];
           for (size_t x = 0; x < nbStates_; x++)
           {
@@ -659,7 +659,7 @@ void DRHomogeneousTreeLikelihood::computeRootLikelihood()
     (*rootLikelihoodsSR)[i] = 0;
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      // For each rate classe,
+      // For each rate class,
       Vdouble* rootLikelihoods_i_c = &(*rootLikelihoods_i)[c];
       double* rootLikelihoodsS_i_c = &(*rootLikelihoodsS_i)[c];
       (*rootLikelihoodsS_i_c) = 0;
@@ -805,7 +805,7 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
 
       for (size_t c = 0; c < nbClasses; c++)
       {
-        // For each rate classe,
+        // For each rate class,
         const Vdouble* iLik_n_i_c = &(*iLik_n_i)[c];
         Vdouble* oLik_i_c = &(*oLik_i)[c];
         const VVdouble* pxy_n_c = &(*pxy_n)[c];
@@ -818,7 +818,7 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
           {
             likelihood += (*pxy_n_c_x)[y] * (*iLik_n_i_c)[y];
           }
-          // We store this conditionnal likelihood into the corresponding array:
+          // We store this conditional likelihood into the corresponding array:
           (*oLik_i_c)[x] *= likelihood;
         }
       }
@@ -856,7 +856,7 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
 
       for (size_t c = 0; c < nbClasses; c++)
       {
-        // For each rate classe,
+        // For each rate class,
         const Vdouble* iLik_n_i_c = &(*iLik_n_i)[c];
         Vdouble* oLik_i_c = &(*oLik_i)[c];
         const VVdouble* pxy_n_c = &(*pxy_n)[c];
@@ -872,7 +872,7 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
             likelihood += (*pxy_n_c_x)[y] * (*iLik_n_i_c)[y];
             // cout << i << "\t" << c << "\t" << x << "\t" << y << "\t" <<  (* pxy__son_c_x)[y] << "\t" << (* likelihoods_root_son_i_c)[y] << endl;
           }
-          // We store this conditionnal likelihood into the corresponding array:
+          // We store this conditional likelihood into the corresponding array:
           (*oLik_i_c)[x] *= likelihood;
         }
       }
@@ -888,7 +888,7 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
 
     for (size_t c = 0; c < nbClasses; c++)
     {
-      // For each rate classe,
+      // For each rate class,
       const Vdouble* iLikR_i_c = &(*iLikR_i)[c];
       Vdouble* oLik_i_c = &(*oLik_i)[c];
       const VVdouble* pxyR_c = &(*tProbR)[c];
@@ -901,7 +901,7 @@ void DRHomogeneousTreeLikelihood::computeLikelihoodFromArrays(
           const Vdouble* pxyR_c_y = &(*pxyR_c)[y];
           likelihood += (*pxyR_c_y)[x] * (*iLikR_i_c)[y];
         }
-        // We store this conditionnal likelihood into the corresponding array:
+        // We store this conditional likelihood into the corresponding array:
         (*oLik_i_c)[x] *= likelihood;
       }
     }

@@ -25,7 +25,7 @@ namespace bpp
 /**
  * @brief Utilitary methods to compute site patterns.
  *
- * Theses methods are mainly designed to save computation in likelihood
+ * These methods are mainly designed to save computation in likelihood
  * and parsimony methods.
  */
 class PatternTools
@@ -38,7 +38,7 @@ public:
    * @param node        The root node of the subtree to check.
    * @param tree        The tree owing the node.
    * @return A new site container with corresponding sequences.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   template<class N, class E, class I>
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
@@ -52,7 +52,7 @@ public:
    * @param sequenceSet The container to look in.
    * @param node        The root node of the subtree to check.
    * @return A new site container with corresponding sequences.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
       const AlignmentDataInterface& sequenceSet,
@@ -64,7 +64,7 @@ public:
    * @param sequenceSet The container to look in.
    * @param names       The names of the sequences to look for.
    * @return A new site container with corresponding sequences.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
       const AlignmentDataInterface& sequenceSet,
@@ -75,14 +75,14 @@ public:
    *
    * @param sequenceSet The container to look in.
    * @return A new site container with unique sites.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(
       const AlignmentDataInterface& sequenceSet);
 
   /**
-   * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
-   * position of the first occurence, or -1 if not found.
+   * @brief Look for the occurrence of each site in sequences1 in sequences2 and send the
+   * position of the first occurrence, or -1 if not found.
    *
    * @param sequences1 First container.
    * @param sequences2 Second container.

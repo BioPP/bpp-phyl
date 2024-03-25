@@ -80,7 +80,7 @@ private:
    *  If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousMixedTreeLikelihood(
       const Tree& tree,
@@ -110,7 +110,7 @@ private:
    *  If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousMixedTreeLikelihood(
       const Tree& tree,
@@ -143,7 +143,7 @@ public:
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousMixedTreeLikelihood(
       const Tree& tree,
@@ -165,7 +165,7 @@ public:
    * @param rDist The rate across sites distribution to use.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousMixedTreeLikelihood(
       const Tree& tree,

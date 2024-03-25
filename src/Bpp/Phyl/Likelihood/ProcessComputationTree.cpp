@@ -90,7 +90,7 @@ ProcessComputationTree::ProcessComputationTree(
     mMrca[mnode.first] = ptree->getNodeIndex(nrca);
   }
 
-  // Then construcion of the tree
+  // Then construction of the tree
 
   auto nroot = make_shared<ProcessComputationNode>(*root, ptree->getRootIndex());
   createNode(nroot);

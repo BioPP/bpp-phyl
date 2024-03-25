@@ -21,7 +21,7 @@ DecompositionReward::DecompositionReward(
   rewards_(nbStates_, nbStates_),
   currentLength_(-1.)
 {
-  // Check compatiblity between model and alphabet Index:
+  // Check compatibility between model and alphabet Index:
   if (typeid(model->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward (constructor): alphabets do not match between alphabet index and model.");
 
@@ -149,7 +149,7 @@ void DecompositionReward::setSubstitutionModel(
   if (!model)
     return;
 
-  // Check compatiblity between model and substitution register:
+  // Check compatibility between model and substitution register:
   if (typeid(model->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward::setSubstitutionModel: alphabets do not match between alphabet index and model.");
 
@@ -171,7 +171,7 @@ void DecompositionReward::alphabetIndexHasChanged()
   if (!model_)
     return;
 
-  // Check compatiblity between model and substitution register:
+  // Check compatibility between model and substitution register:
   if (typeid(model_->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward::AlphabetIndexHasChanged: alphabets do not match between alphbaet index and model.");
 

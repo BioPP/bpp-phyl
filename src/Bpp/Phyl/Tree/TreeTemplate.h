@@ -290,7 +290,7 @@ public:
    *
    * This method compares recursively all subtrees. The comparison is performed only on the nodes names and the parental relationships.
    * Nodes ids are ignored, and so are branch lengths and any branch/node properties. The default is to ignore the ordering of the descendants,
-   * that is (A,B),C) will be considered as having the same topology as (B,A),C). Multifurcations are permited.
+   * that is (A,B),C) will be considered as having the same topology as (B,A),C). Multifurcations are permitted.
    * If ordering is ignored, a copy of the two trees to be compared is performed and are ordered before comparison, making the whole comparison
    * slower and more memory greedy.
    *

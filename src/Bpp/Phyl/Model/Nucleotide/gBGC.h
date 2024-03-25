@@ -25,7 +25,7 @@ namespace bpp
  *
  * modelling of GC biased gene-conversion.
  *
- * This model adds strand symetric GC biased gene conversion to a
+ * This model adds strand symmetric GC biased gene conversion to a
  * given nucleotidic substitution model.
  *
  * In addition to the parameters of the basic nucleic model, the

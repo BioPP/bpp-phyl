@@ -110,7 +110,7 @@ public:
 class InOrderTreeIterator : public TreeIterator
 {
 public:
-  /* constrcutors and destrcutors */
+  /* constructors and destructors */
   explicit InOrderTreeIterator(const TreeTemplate<Node>& tree) :
     TreeIterator(tree)
   {

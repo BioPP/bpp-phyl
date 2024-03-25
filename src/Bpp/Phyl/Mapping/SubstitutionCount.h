@@ -129,7 +129,7 @@ public:
   virtual std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const = 0;
 
   /**
-   * @brief Set the substitution model associated with this count, if relevent.
+   * @brief Set the substitution model associated with this count, if relevant.
    *
    * @param model The substitution model to use with this count.
    */

@@ -145,7 +145,7 @@ enum class NumericalProperty
  *
  * Specific features are present in the base class as virtual functions.
  * This include derivation (numerical values), debug, etc.
- * These features have no-op or failure defaults which can be overriden in derived classes.
+ * These features have no-op or failure defaults which can be overridden in derived classes.
  */
 
 class Node_DF : public std::enable_shared_from_this<Node_DF>
@@ -394,7 +394,7 @@ public:
   /**
    * @brief General case for modification of the T object.
    *
-   * Takes a callable object (lamda, function pointer) that performs the modification.
+   * Takes a callable object (lambda, function pointer) that performs the modification.
    * It must take a single T& as argument, which will refer to the T object to modify.
    * The callable is called exactly once.
    *

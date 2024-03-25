@@ -93,7 +93,7 @@ public:
 
 public:
   /**
-   * @brief retrieve a pointer to the subsitution model with the given name.
+   * @brief retrieve a pointer to the substitution model with the given name.
    */
   const SubstitutionModelInterface& subModel(const std::string& name) const
   {

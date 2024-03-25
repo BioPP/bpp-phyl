@@ -58,7 +58,7 @@ template< int R,  int C>
 using EFArray = Eigen::Array<double, R, C>;
 
 /*
- * Class associating Eigen::Matrix & exponant to hanble underflow.
+ * Class associating Eigen::Matrix & exponent to hanble underflow.
  *
  *
  */

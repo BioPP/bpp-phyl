@@ -130,7 +130,7 @@ map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
       else if (format == "NHX")
         treeReader.reset(new Nhx());
       else
-        throw Exception("Unknow format for tree reading: " + format);
+        throw Exception("Unknown format for tree reading: " + format);
 
       vector<unique_ptr<Tree>> trees;
       treeReader->readTrees(treeFilePath, trees);
@@ -504,7 +504,7 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (AlphabetTools::isCodonAlphabet(alphabet.get()))
   {
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instanciating a codon model.");
+      throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instantiating a codon model.");
     bIO.setGeneticCode(gCode);
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
   }
@@ -1165,7 +1165,7 @@ void LegacyPhylogeneticsApplicationTools::writeTrees(
   else if (format == "NHX")
     treeWriter = new Nhx();
   else
-    throw Exception("Unknow format for tree writing: " + format);
+    throw Exception("Unknown format for tree writing: " + format);
 
   if (!checkOnly)
     treeWriter->writeTrees(trees, file, true);
@@ -1188,7 +1188,7 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
 
   // Get the parameter links:
   map< size_t, vector<string>> modelLinks; // for each model index, stores the list of global parameters.
-  map< string, set<size_t>> parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
+  map< string, set<size_t>> parameterLinks; // for each parameter name, stores the list of model indices, which should be sorted.
   vector<string> writtenNames;
 
   // Loop over all models:

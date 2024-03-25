@@ -20,11 +20,11 @@ public:
   /**
    * @brief Get the rate distribution estimated from a dataset.
    *
-   * This methods takes an objet implementing the DiscreteRatesAcroossSites
+   * This methods takes an object implementing the DiscreteRatesAcroossSites
    * interface as input and use the posterior probabilities of rates for each site
    * to generate the corresponding distribution.
    *
-   * @param treeLikelihood A Likelihood calculation implmenting the RAS model interface.
+   * @param treeLikelihood A Likelihood calculation implementing the RAS model interface.
    * @return The posterior distribution of rate classes.
    */
   static std::unique_ptr<DiscreteDistributionInterface> getPosteriorRateDistribution(

@@ -21,7 +21,7 @@ namespace bpp
  *
  * This model includes 3 parameters (@f$\kappa@f$, @f$ p @f$ and
  * @f$q@f$) of the Beta distribution. The codon frequencies
- * @f$\pi_j@f$ are either observed or infered.
+ * @f$\pi_j@f$ are either observed or inferred.
  *
  * References:
  *

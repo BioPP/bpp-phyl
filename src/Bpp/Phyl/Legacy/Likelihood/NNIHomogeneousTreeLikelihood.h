@@ -157,7 +157,7 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   NNIHomogeneousTreeLikelihood(
       const Tree& tree,
@@ -176,7 +176,7 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   NNIHomogeneousTreeLikelihood(
       const Tree& tree,

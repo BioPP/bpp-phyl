@@ -44,7 +44,7 @@ public:
    *
    * @param path The file path.
    * @return A new distance matrix object.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual std::unique_ptr<DistanceMatrix> readDistanceMatrix(const std::string& path) const = 0;
   /**
@@ -52,7 +52,7 @@ public:
    *
    * @param in The input stream.
    * @return A new distance matrix object.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual std::unique_ptr<DistanceMatrix> readDistanceMatrix(std::istream& in) const = 0;
 };
@@ -75,7 +75,7 @@ public:
    * @param path The file path.
    * @param overwrite Tell if existing file must be overwritten.
    * Otherwise append to the file.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writeDistanceMatrix(const DistanceMatrix& dist, const std::string& path, bool overwrite) const = 0;
   /**
@@ -83,7 +83,7 @@ public:
    *
    * @param dist A distance matrix object.
    * @param out The output stream.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual void writeDistanceMatrix(const DistanceMatrix& dist, std::ostream& out) const = 0;
 };

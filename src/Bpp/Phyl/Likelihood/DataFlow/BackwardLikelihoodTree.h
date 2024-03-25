@@ -83,7 +83,7 @@ class BackwardLikelihoodTree : public AssociationDAGlobalGraphObserver<Condition
 {
   using DAClass = AssociationDAGlobalGraphObserver<ConditionalLikelihood, BackwardLikelihoodAbove>;
 
-  /** For a given rate catagory, stores ProcessTree,
+  /** For a given rate category, stores ProcessTree,
    * ForwardlikelihoodTree and BackwardLikelihoodTree
    **/
 

@@ -164,7 +164,7 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
 
     auto vNb = edge->subModelNumbers();
     if (vNb.size() > 1)
-      throw Exception("ProcessTree::ProcessTree : only simple submodels are used, not combinations. Ask developpers");
+      throw Exception("ProcessTree::ProcessTree : only simple submodels are used, not combinations. Ask developers");
 
     if (!edge->useProb()) // model transition is used
     {

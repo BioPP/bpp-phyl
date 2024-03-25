@@ -116,7 +116,7 @@ ValueRef<DataLik> PhyloLikelihoodFormula::makeLikelihoodsFromOperator(std::share
     else if (name == "log")
       return CWiseLog<DataLik>::create(context_, {sonDF}, Dimension<DataLik> ());
     else
-      throw Exception("PhyloLikelihoodFormula::Makelikelihoodsfromoperator : unknown function " + name + ". Ask developpers.");
+      throw Exception("PhyloLikelihoodFormula::Makelikelihoodsfromoperator : unknown function " + name + ". Ask developers.");
   }
 
 

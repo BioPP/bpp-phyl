@@ -15,7 +15,7 @@ namespace bpp
  * @brief Transition model I/O in BppO format.
  *
  * Creates a new transition model object according to model description syntax
- * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
+ * (see the Bio++ Program Suite manual for a detailed description of this syntax).
  */
 class BppOTransitionModelFormat :
   public BppOSubstitutionModelFormat

@@ -14,7 +14,7 @@ namespace bpp
  * @brief Rate Distribution I/O in BppO format.
  *
  * Creates a new discrete distribution object according to
- * distribution description syntax (see the Bio++ Progam Suite
+ * distribution description syntax (see the Bio++ Program Suite
  * manual for a detailed description of this syntax).
  *
  * Rate distributions are normalized and have a mean of 1, so that branch lengths are measured in mean number of substitutions per site.
@@ -32,7 +32,7 @@ public:
   /**
    * @brief Build a new BppORateDistributionFormat object.
    *
-   * @param allowConstant Is contant distribution allowed.
+   * @param allowConstant Is constant distribution allowed.
    */
   BppORateDistributionFormat(bool allowConstant) :
     BppODiscreteDistributionFormat(),

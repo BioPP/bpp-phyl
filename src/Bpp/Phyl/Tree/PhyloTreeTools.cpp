@@ -137,7 +137,7 @@ void PhyloTreeTools::computeBranchLengthsGrafen(PhyloTree& tree, double power, b
   {
     initBranchLengthsGrafen(tree);
   }
-  // Scale by total heigth:
+  // Scale by total height:
   double totalHeight = getHeight(tree, root);
   double h, hr;
   computeBranchLengthsGrafen(tree, root, power, totalHeight, h, hr);

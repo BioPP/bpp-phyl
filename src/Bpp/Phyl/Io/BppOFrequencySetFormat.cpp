@@ -175,7 +175,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   else if (freqName == "GC")
   {
     if (!AlphabetTools::isNucleicAlphabet(alphabet.get()))
-      throw Exception("Error, unvalid frequencies " + freqName + " with non-nucleic alphabet.");
+      throw Exception("Error, invalid frequencies " + freqName + " with non-nucleic alphabet.");
     if (alphabetCode_ & NUCLEOTIDE)
       pFS = make_unique<GCFrequencySet>(dynamic_pointer_cast<const NucleicAlphabet>(alphabet));
     else
@@ -555,7 +555,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       if (pval == pname2)
       {
         // This is an alias...
-        // NB: this may throw an exception if uncorrect! We leave it as is for now :s
+        // NB: this may throw an exception if incorrect! We leave it as is for now :s
         pFS->aliasParameters(pname2, pname);
         if (verbose_)
           ApplicationTools::displayResult("Parameter alias found", pname + "->" + pname2);
@@ -831,7 +831,7 @@ void BppOFrequencySetFormat::initialize_(
     }
     else if (init == "balanced")
     {
-      // Nothing to do here, this is the default instanciation.
+      // Nothing to do here, this is the default instantiation.
     }
     else
       throw Exception("Unknown init argument");
