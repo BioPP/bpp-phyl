@@ -1247,7 +1247,7 @@ void SubstitutionMappingTools::outputPerSitePerBranch(
   file.precision(10);
   file.open(filename.c_str());
 
-  file << "sites";
+  file << "[Site]";
   for (size_t i = 0; i < nbBr; ++i)
   {
     file << "\t" << ids[i];
@@ -1257,7 +1257,7 @@ void SubstitutionMappingTools::outputPerSitePerBranch(
   for (size_t k = 0; k < nbSites; ++k)
   {
     const Vdouble& countS = counts[k];
-    file << sites.site(k).getCoordinate();
+    file << "[" << sites.site(k).getCoordinate() << "]";
     for (size_t i = 0; i < nbBr; ++i)
     {
       file << "\t" << countS[i];
@@ -1285,7 +1285,7 @@ void SubstitutionMappingTools::outputPerSitePerType(
   file.precision(10);
   file.open(filename.c_str());
 
-  file << "sites";
+  file << "[Site]";
   for (size_t i = 0; i < nbTypes; ++i)
   {
     file << "\t" << reg.getTypeName(i + 1);
@@ -1294,7 +1294,7 @@ void SubstitutionMappingTools::outputPerSitePerType(
 
   for (size_t k = 0; k < nbSites; ++k)
   {
-    file << sites.site(k).getCoordinate();
+    file << "[" << sites.site(k).getCoordinate() << "]";
     const Vdouble& resS = counts[k];
     for (size_t i = 0; i < nbTypes; ++i)
     {
@@ -1368,7 +1368,7 @@ void SubstitutionMappingTools::outputPerSitePerBranchPerType(
     ApplicationTools::displayResult(string("Output counts of type ") + TextTools::toString(i + 1) + string(" to file"), path);
     file.open(path.c_str());
 
-    file << "sites";
+    file << "[Site]";
     for (size_t k = 0; k < nbBr; ++k)
     {
       file << "\t" << ids[k];
@@ -1379,7 +1379,7 @@ void SubstitutionMappingTools::outputPerSitePerBranchPerType(
     {
       const VVdouble& resS = counts[j];
 
-      file << sites.site(j).getCoordinate();
+      file << "[" << sites.site(j).getCoordinate() << "]";
 
       for (size_t k = 0; k < nbBr; ++k)
       {
@@ -1401,7 +1401,7 @@ void SubstitutionMappingTools::writeToStream(
     ostream& out)
 {
   if (!out)
-    throw IOException("SubstitutionMappingTools::writeToFile. Can't write to stream.");
+    throw IOException("SubstitutionMappingTools::writeToStream. Can't write to stream.");
   out << "Branches";
   out << "\tMean";
   for (size_t i = 0; i < substitutions.getNumberOfSites(); ++i)

@@ -641,7 +641,7 @@ public:
    */
 
   /**
-   * @brief Output Per Site Per Branch
+   * @brief Output Per Site Per Branch in SGED format.
    */
   static void outputPerSitePerBranch(const std::string& filename,
       const std::vector<uint>& ids,
@@ -649,7 +649,7 @@ public:
       const VVdouble& counts);
 
   /**
-   * @brief Output Per Site Per Type
+   * @brief Output Per Site Per Type in SGED format.
    */
   static void outputPerSitePerType(const std::string& filename,
       const SubstitutionRegisterInterface& reg,
@@ -665,7 +665,7 @@ public:
       const VVdouble& counts);
 
   /**
-   * @brief Output Per Site Per Branch Per Type
+   * @brief Output Per Site Per Branch Per Type, one SGED file per type.
    */
   static void outputPerSitePerBranchPerType(const std::string& filenamePrefix,
       const std::vector<uint>& ids,
