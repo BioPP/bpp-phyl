@@ -26,7 +26,7 @@ GY94::GY94(
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(
         gc,
         make_unique<K80>(gc->codonAlphabet().getNucleicAlphabet()),
-        move(codonFreqs),
+        std::move(codonFreqs),
         gacd_))
 {
   addParameter_(new Parameter("GY94.kappa", 1, Parameter::R_PLUS_STAR));

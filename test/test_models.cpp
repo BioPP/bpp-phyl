@@ -97,7 +97,7 @@ int main()
   // Codon models:
   auto gc = make_shared<StandardGeneticCode>(AlphabetTools::DNA_ALPHABET);
   auto fset = CodonFrequencySetInterface::getFrequencySetForCodons(CodonFrequencySetInterface::F3X4, gc);
-  YN98 yn98(gc, move(fset));
+  YN98 yn98(gc, std::move(fset));
 
   if (!testModel(yn98))
     return 1;
@@ -107,7 +107,7 @@ int main()
   auto allalph = make_shared<AllelicAlphabet>(AlphabetTools::DNA_ALPHABET, 4);
   auto fit = std::make_unique<FullNucleotideFrequencySet>(AlphabetTools::DNA_ALPHABET);
 
-  auto statemod = move(gtr);
+  auto statemod = std::move(gtr);
 
   // AllelicAlphabet allalph(AlphabetTools::PROTEIN_ALPHABET, 4);
   // auto fit = std::make_shared<FullProteinFrequencySet>(&AlphabetTools::PROTEIN_ALPHABET);
@@ -115,7 +115,7 @@ int main()
 
   // auto statemod = std::make_shared<JTT92>(&AlphabetTools::PROTEIN_ALPHABET, freq);
 
-  POMO pomo(allalph, move(statemod), move(fit));
+  POMO pomo(allalph, std::move(statemod), std::move(fit));
 
   auto& Q = pomo.generator();
 

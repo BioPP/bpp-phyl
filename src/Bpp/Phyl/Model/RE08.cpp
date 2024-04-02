@@ -18,7 +18,7 @@ RE08::RE08(
     double mu) :
   AbstractParameterAliasable("RE08."),
   AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), make_shared<CanonicalStateMap>(simpleModel->stateMap(), true), "RE08."),
-  simpleModel_(move(simpleModel)),
+  simpleModel_(std::move(simpleModel)),
   simpleGenerator_(),
   simpleExchangeabilities_(),
   exp_(), p_(), lambda_(lambda), mu_(mu),

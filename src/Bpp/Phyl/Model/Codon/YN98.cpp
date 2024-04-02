@@ -24,7 +24,7 @@ YN98::YN98(
   AbstractWrappedSubstitutionModel("YN98."),
   AbstractTotallyWrappedSubstitutionModel("YN98."),
   AbstractBiblioSubstitutionModel("YN98."),
-  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, make_unique<K80>(gc->codonAlphabet().getNucleicAlphabet()), move(codonFreqs)))
+  pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, make_unique<K80>(gc->codonAlphabet().getNucleicAlphabet()), std::move(codonFreqs)))
 {
   computeFrequencies(false);
 

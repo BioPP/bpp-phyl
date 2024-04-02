@@ -118,7 +118,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   size_t i;
 
   string t = "";
-  shared_ptr<SubstitutionModelInterface> pmodel2 = move(pmodel);
+  shared_ptr<SubstitutionModelInterface> pmodel2 = std::move(pmodel);
   for (i = 0; i < num; i++)
   {
     VSubMod_.push_back(pmodel2);

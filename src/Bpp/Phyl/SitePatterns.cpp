@@ -121,7 +121,7 @@ unique_ptr<AlignmentDataInterface> SitePatterns::getSites() const
     for (auto& s : sites_)
     {
       auto ptr = unique_ptr<Site>(dynamic_cast<Site*>(s->clone()));
-      vSites.push_back(move(ptr));
+      vSites.push_back(std::move(ptr));
     }
     sites.reset(new VectorSiteContainer(vSites, alpha_));
     sites->setSequenceNames(names_, true);

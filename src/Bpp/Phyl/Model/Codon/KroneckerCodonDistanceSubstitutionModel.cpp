@@ -18,7 +18,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
       gCode->getSourceAlphabet(),
       shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       "KronCodonDist."),
-  AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod), "KronCodonDist."),
+  AbstractKroneckerCodonSubstitutionModel(gCode, std::move(pmod), "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
@@ -36,7 +36,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
       gCode->getSourceAlphabet(),
       shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       "KronCodonDist."),
-  AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), "KronCodonDist."),
+  AbstractKroneckerCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
@@ -53,7 +53,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
       gCode->getSourceAlphabet(),
       shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       "KronCodonDist."),
-  AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod), vPos, "KronCodonDist."),
+  AbstractKroneckerCodonSubstitutionModel(gCode, std::move(pmod), vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
@@ -72,7 +72,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
       gCode->getSourceAlphabet(),
       shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       "KronCodonDist."),
-  AbstractKroneckerCodonSubstitutionModel(gCode, move(pmod1), move(pmod2), move(pmod3), vPos, "KronCodonDist."),
+  AbstractKroneckerCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
