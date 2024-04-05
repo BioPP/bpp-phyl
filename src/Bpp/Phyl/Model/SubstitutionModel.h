@@ -29,7 +29,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Interface for all Branch models.
  *
@@ -298,11 +297,10 @@ public:
 protected:
   virtual Vdouble& getFrequencies_() = 0;
 
-friend class AbstractTotallyWrappedTransitionModel;
-friend class AbstractFromSubstitutionModelTransitionModel;
-friend class InMixedSubstitutionModel;
+  friend class AbstractTotallyWrappedTransitionModel;
+  friend class AbstractFromSubstitutionModelTransitionModel;
+  friend class InMixedSubstitutionModel;
 };
-
 
 
 /**
@@ -413,7 +411,7 @@ protected:
   /**
    * @brief A method for computing all necessary matrices
    */
-  //virtual void updateMatrices() = 0;
+  // virtual void updateMatrices() = 0;
 
 public:
   /**
@@ -432,7 +430,7 @@ public:
    * (ii) \f$ \sum_i Q_{i,i} \times \pi_i = -1\f$.
    * This means that, under normalization, the mean rate of replacement at
    * equilibrium is 1 and that time \f$t\f$ are measured in units of
-   * expected number of changes per site. Additionnaly, the rate_ attibute provides
+   * expected number of changes per site. Additionally, the rate_ attribute provides
    * the possibility to increase or decrease this mean rate.
    *
    * See Kosiol and Goldman (2005), Molecular Biology And Evolution 22(2) 193-9.
@@ -543,7 +541,7 @@ public:
  *
  * For reversible models,
  * \f[ Q = S . \pi, \f]
- * where \f$S\f$ is a symetric matrix called the exchangeability matrix, and
+ * where \f$S\f$ is a symmetric matrix called the exchangeability matrix, and
  * \f$\Pi\f$ the diagonal matrix with all equilibrium frequencies.
  * The frequencies may be retrieved as a vector by the getFrequencies() method
  * or individually by the freq() method.

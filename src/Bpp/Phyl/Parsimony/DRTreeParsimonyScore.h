@@ -28,16 +28,16 @@ private:
 
 public:
   DRTreeParsimonyScore(
-    std::shared_ptr<TreeTemplate<Node>> tree,
-    std::shared_ptr<const SiteContainerInterface> data,
-    bool verbose = true,
-    bool includeGaps = false);
+      std::shared_ptr<TreeTemplate<Node>> tree,
+      std::shared_ptr<const SiteContainerInterface> data,
+      bool verbose = true,
+      bool includeGaps = false);
 
   DRTreeParsimonyScore(
-    std::shared_ptr<TreeTemplate<Node>> tree,
-    std::shared_ptr<const SiteContainerInterface> data,
-    std::shared_ptr<const StateMapInterface> statesMap,
-    bool verbose = true);
+      std::shared_ptr<TreeTemplate<Node>> tree,
+      std::shared_ptr<const SiteContainerInterface> data,
+      std::shared_ptr<const StateMapInterface> statesMap,
+      bool verbose = true);
 
   DRTreeParsimonyScore(const DRTreeParsimonyScore& tp);
 
@@ -78,9 +78,9 @@ public:
    * @param rScores  The score array where to write the resulting scores.
    */
   static void computeScoresPostorderForNode(
-    const DRTreeParsimonyNodeData& pData,
-    std::vector<Bitset>& rBitsets,
-    std::vector<unsigned int>& rScores);
+      const DRTreeParsimonyNodeData& pData,
+      std::vector<Bitset>& rBitsets,
+      std::vector<unsigned int>& rScores);
 
   /**
    * @brief Compute bitsets and scores for each site for a node, in preorder.
@@ -91,10 +91,10 @@ public:
    * @param rScores  The score array where to write the resulting scores.
    */
   static void computeScoresPreorderForNode(
-    const DRTreeParsimonyNodeData& pData,
-    const Node* source,
-    std::vector<Bitset>& rBitsets,
-    std::vector<unsigned int>& rScores);
+      const DRTreeParsimonyNodeData& pData,
+      const Node* source,
+      std::vector<Bitset>& rBitsets,
+      std::vector<unsigned int>& rScores);
 
   /**
    * @brief Compute bitsets and scores for each site for a node, in all directions.
@@ -104,14 +104,14 @@ public:
    * @param rScores  The score array where to write the resulting scores.
    */
   static void computeScoresForNode(
-    const DRTreeParsimonyNodeData& pData, std::vector<Bitset>& rBitsets,
-    std::vector<unsigned int>& rScores);
+      const DRTreeParsimonyNodeData& pData, std::vector<Bitset>& rBitsets,
+      std::vector<unsigned int>& rScores);
 
   /**
    * @brief Compute bitsets and scores from an array of arrays.
    *
    * This method is the more general score computation.
-   * Depending on what is passed as input, it may computes scroes fo a subtree
+   * Depending on what is passed as input, it may computes scores of a subtree
    * or the whole tree.
    *
    * @param iBitsets The vector of bitset arrays to use.
@@ -120,10 +120,10 @@ public:
    * @param oScores  The score array where to write the resulting scores.
    */
   static void computeScoresFromArrays(
-    const std::vector<const std::vector<Bitset>*>& iBitsets,
-    const std::vector<const std::vector<unsigned int>*>& iScores,
-    std::vector<Bitset>& oBitsets,
-    std::vector<unsigned int>& oScores);
+      const std::vector<const std::vector<Bitset>*>& iBitsets,
+      const std::vector<const std::vector<unsigned int>*>& iScores,
+      std::vector<Bitset>& oBitsets,
+      std::vector<unsigned int>& oScores);
 
   /**
    * @name Thee NNISearchable interface.

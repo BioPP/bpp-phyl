@@ -65,7 +65,7 @@ public:
  *
  * This class is for use with the DRASDRTreeLikelihoodData class.
  *
- * Store for each neighbor node an array with conditionnal likelihoods.
+ * Store for each neighbor node an array with conditional likelihoods.
  *
  * @see DRASDRTreeLikelihoodData
  */
@@ -197,7 +197,7 @@ private:
   size_t nbDistinctSites_;
 
 public:
-  DRASDRTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node> > tree, size_t nbClasses) :
+  DRASDRTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node>> tree, size_t nbClasses) :
     AbstractTreeLikelihoodData(tree),
     nodeData_(), leafData_(), rootLikelihoods_(), rootLikelihoodsS_(), rootLikelihoodsSR_(),
     shrunkData_(nullptr), nbSites_(0), nbStates_(0), nbClasses_(nbClasses), nbDistinctSites_(0)
@@ -250,7 +250,7 @@ public:
    *
    * @param tree The tree to be associated to this data.
    */
-  void setTree(std::shared_ptr< const TreeTemplate<Node> > tree)
+  void setTree(std::shared_ptr< const TreeTemplate<Node>> tree)
   {
     tree_ = tree;
     for (auto& it : nodeData_)
@@ -358,7 +358,7 @@ public:
   size_t getNumberOfClasses() const { return nbClasses_; }
 
   std::shared_ptr<const AlignmentDataInterface> getShrunkData() const { return shrunkData_; }
-  
+
   const AlignmentDataInterface& shrunkData() const { return *shrunkData_; }
 
   /**
@@ -366,7 +366,7 @@ public:
    *
    * @param sites The sequences to use as data.
    * @param model The substitution model to use.
-   * @throw Exception if an error occures.
+   * @throw Exception if an error occurs.
    */
   void initLikelihoods(const AlignmentDataInterface& sites, const TransitionModelInterface& model);
 

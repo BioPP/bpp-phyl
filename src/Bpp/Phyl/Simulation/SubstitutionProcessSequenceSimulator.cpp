@@ -27,10 +27,10 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
 {
   vector<size_t> nProc = evol.getSubstitutionProcessNumbers();
 
-  vector<shared_ptr<PhyloNode> > vpn = evol.substitutionProcess(nProc[0]).getParametrizablePhyloTree()->getAllLeaves();
+  vector<shared_ptr<PhyloNode>> vpn = evol.substitutionProcess(nProc[0]).getParametrizablePhyloTree()->getAllLeaves();
 
   // set ups seqnames for all processes
-  for (auto & vi : vpn)
+  for (auto& vi : vpn)
   {
     seqNames_.push_back(vi->getName());
   }
@@ -43,7 +43,7 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
 
     vector<string> seqNames2;
 
-    vector<shared_ptr<PhyloNode> > vpn2 = sp->getParametrizablePhyloTree()->getAllLeaves();
+    vector<shared_ptr<PhyloNode>> vpn2 = sp->getParametrizablePhyloTree()->getAllLeaves();
     for (size_t i2 = 0; i2 < vpn2.size(); i2++)
     {
       seqNames2.push_back(vpn2[i2]->getName());
@@ -68,7 +68,7 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
     setMap(pse->getProcessNumbersPerSite());
   }
   else
-    throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(SequenceEvolution) not set for this type of process. Ask developpers.");
+    throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(SequenceEvolution) not set for this type of process. Ask developers.");
 }
 
 /******************************************************************************/
@@ -150,7 +150,7 @@ unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulat
     size_t numberOfSites) const
 {
   if (numberOfSites > vMap_.size())
-    throw BadIntegerException("SubstitutionProcessSequenceSimulator::simulate. Too many sites to simulate.",(int)numberOfSites);
+    throw BadIntegerException("SubstitutionProcessSequenceSimulator::simulate. Too many sites to simulate.", (int)numberOfSites);
 
   auto sites = make_unique<VectorSiteContainer>(seqNames_, getAlphabet());
   sites->setSequenceNames(seqNames_, true);
@@ -176,7 +176,7 @@ unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulat
 /******************************************************************************/
 
 unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
-  const vector<double>& rates) const
+    const vector<double>& rates) const
 {
   size_t numberOfSites = rates.size();
 
@@ -207,7 +207,7 @@ unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulat
 /******************************************************************************/
 
 unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
-  const vector<size_t>& states) const
+    const vector<size_t>& states) const
 {
   size_t numberOfSites = states.size();
 
@@ -235,8 +235,8 @@ unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulat
 /******************************************************************************/
 
 unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
-  const vector<double>& rates,
-  const vector<size_t>& states) const
+    const vector<double>& rates,
+    const vector<size_t>& states) const
 {
   size_t numberOfSites = rates.size();
   if (states.size() != numberOfSites)

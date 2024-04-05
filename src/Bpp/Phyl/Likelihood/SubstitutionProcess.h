@@ -54,13 +54,13 @@ public:
    */
 
   virtual const StateMapInterface& stateMap() const = 0;
-  
+
   virtual std::shared_ptr<const StateMapInterface> getStateMap() const = 0;
 
   virtual bool isCompatibleWith(const AlignmentDataInterface& data) const = 0;
 
   virtual const ParametrizablePhyloTree& parametrizablePhyloTree() const = 0;
-  
+
   virtual std::shared_ptr<const ParametrizablePhyloTree> getParametrizablePhyloTree() const = 0;
 
   virtual size_t getNumberOfClasses() const = 0;

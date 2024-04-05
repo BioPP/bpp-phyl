@@ -72,14 +72,14 @@ public:
    * @return A new vector of Tree objects according to the specified options.
    */
   static std::map<size_t, std::shared_ptr<Tree>> getTrees(
-    const std::map<std::string, std::string>& params,
-    const std::map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
-    std::map<std::string, std::string>& unparsedParams,
-    const std::string& prefix = "input.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      const std::map<std::string, std::string>& params,
+      const std::map<size_t, std::shared_ptr<AlignmentDataInterface>>& mSeq,
+      std::map<std::string, std::string>& unparsedParams,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Set parameter initial values of a given model in a set according to options.
@@ -103,12 +103,12 @@ public:
    * @param verbose Print some info to the 'message' output stream.
    */
   static void setSubstitutionModelParametersInitialValuesWithAliases(
-    BranchModelInterface& model,
-    std::map<std::string, std::string>& unparsedParameterValues,
-    size_t modelNumber,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::map<std::string, std::string>& sharedParams,
-    bool verbose);
+      BranchModelInterface& model,
+      std::map<std::string, std::string>& unparsedParameterValues,
+      size_t modelNumber,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::map<std::string, std::string>& sharedParams,
+      bool verbose);
 
   /**
    * @brief Gets a SubstitutionModelSet object according to options.
@@ -117,14 +117,14 @@ public:
    * methods.
    */
   static std::unique_ptr<SubstitutionModelSet> getSubstitutionModelSet(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gcode,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gcode,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
@@ -137,7 +137,7 @@ public:
    *
    * Then, for each of the models, the following information must be provided:
    * - model1='model name(parameters'='value',...)
-   * Model names and parameters follow the same syntaxe as for the getSubstitutionModel method.
+   * Model names and parameters follow the same syntax as for the getSubstitutionModel method.
    * - model1.nodes='list of nodes id, separated by comas'.
    * And then
    * - model2=...
@@ -168,7 +168,7 @@ public:
    * but will require more memory and use more CPU, since some calculations will be performed twice.
    *
    * @param modelSet         The modified SubstitutionModelSet object according to options specified.
-   * @param alphabet         The alpabet to use in all models.
+   * @param alphabet         The alphabet to use in all models.
    * @param gcode            The genetic code to use (only for codon models, otherwise can be set to 0).
    *                         If set to NULL and a codon model is requested, an Exception will be thrown.
    * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
@@ -181,15 +181,15 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
   static void setSubstitutionModelSet(
-    SubstitutionModelSet& modelSet,
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gcode,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      SubstitutionModelSet& modelSet,
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gcode,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Complete a MixedSubstitutionModelSet object according to
@@ -217,7 +217,7 @@ public:
    * submodels of model1 are denoted model1[kappa_1], ...,
    * model1[kappa_4], and the submodels of model2 are denoted
    * model2[kappa_1,theta_1], ..., model2[kappa_5, theta_3].
-   * Additionnaly, for instance, model2[kappa_2] denotes all the
+   * Additionally, for instance, model2[kappa_2] denotes all the
    * submodels whose description has kappa_2.
    *
    * By default, when switching from model1 to model2, a site is
@@ -243,7 +243,7 @@ public:
    * information.
    *
    * @param mixedModelSet    The modified MixedSubstitutionModelSet object according to options specified.
-   * @param alphabet         The alpabet to use in all models.
+   * @param alphabet         The alphabet to use in all models.
    * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
    *                         The alphabet associated to the data must be of the same type as the one specified for the model.
    *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
@@ -254,14 +254,14 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    */
   static void completeMixedSubstitutionModelSet(
-    MixedSubstitutionModelSet& mixedModelSet,
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      MixedSubstitutionModelSet& mixedModelSet,
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Optimize parameters according to options.
@@ -276,26 +276,26 @@ public:
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
    * @return A pointer toward the final likelihood object.
    * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
-   * clone this object. We may change this bahavior in the future...
+   * clone this object. We may change this behavior in the future...
    * You hence should write something like
    * @code
    * tl = PhylogeneticsApplicationToolsOld::optimizeParameters(tl, ...);
    * @endcode
    */
   static std::shared_ptr<TreeLikelihoodInterface> optimizeParameters(
-    std::shared_ptr<TreeLikelihoodInterface> tl,
-    const ParameterList& parameters,
-    const std::map<std::string, std::string>& params,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<TreeLikelihoodInterface> tl,
+      const ParameterList& parameters,
+      const std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
 
   /**
    * @brief Write a tree according to options.
    *
-   * See the Bio++ Program Suite manual for a descriptio of all available options.
+   * See the Bio++ Program Suite manual for a description of all available options.
    *
    * @param trees            The trees to write.
    * @param params           The attribute map where options may be found.
@@ -310,24 +310,24 @@ public:
    * >0 display warnings on demand).
    */
   static void writeTrees(
-    const std::vector<const Tree*>& trees,
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "output.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    bool checkOnly = false,
-    int warn = 1);
+      const std::vector<const Tree*>& trees,
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1);
 
   static void writeTrees(
-    const std::vector<const TreeTemplate<Node>* >& trees,
-    const std::map<std::string, std::string>& params,
-    const std::string& prefix = "output.",
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    bool checkOnly = false,
-    int warn = 1);
+      const std::vector<const TreeTemplate<Node>* >& trees,
+      const std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1);
 
   /**
    * @brief Output a SubstitutionModelSet description to a file.
@@ -340,7 +340,6 @@ public:
    *                      : true).
    */
   static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn = 1, bool withAlias = true);
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_APP_PHYLOGENETICSAPPLICATIONTOOLS_H

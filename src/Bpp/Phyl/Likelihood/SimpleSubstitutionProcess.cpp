@@ -71,7 +71,7 @@ void SimpleSubstitutionProcess::setModelScenario(shared_ptr<ModelScenario> model
   auto mixed_ = dynamic_pointer_cast<MixedTransitionModelInterface>(model_);
   if (!mixed_)
     throw Exception("SimpleSubstitutionProcess::setModelScenario: model must be mixed.");
-    
+
   if (vmod[0] != mixed_)
     throw Exception("SimpleSubstitutionProcess::setModelScenario: models are different " + vmod[0]->getNModel(0)->getName() + " != " + mixed_->getNModel(0)->getName());
 

@@ -117,7 +117,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
       /* Get likelihoods on this node for all states at this position*/
 
       const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(calcul_->getForwardLikelihoodTree(c)->getSon(outid), c)->targetValue().col(pos_);
-      
+
       for (size_t x = 0; x < size_t(nbStates_); x++)
       {
         for (size_t y = 0; y < size_t(nbStates_); y++)
@@ -145,7 +145,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
     if (node->isMixture()) // set probas to chose
     {
       auto outEdges = tree_.getOutgoingEdges(node);
-      std::vector<std::vector<DataLik> > vprob;
+      std::vector<std::vector<DataLik>> vprob;
       vprob.resize(nbClasses_);
 
       for (auto edge : outEdges)

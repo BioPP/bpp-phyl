@@ -83,7 +83,6 @@ public:
   virtual ~Newick() {}
 
 public:
-  
   void enableExtendedBootstrapProperty(const std::string& propertyName)
   {
     useBootstrap_ = false;
@@ -119,7 +118,6 @@ public:
   std::unique_ptr<PhyloTree> readPhyloTree(std::istream& in) const override;
 
 private:
-
   std::shared_ptr<PhyloNode> parenthesisToNode(
       PhyloTree& tree,
       std::shared_ptr<PhyloNode> father,
@@ -131,7 +129,6 @@ private:
       bool verbose) const;
 
 public:
-
   std::unique_ptr<PhyloTree> parenthesisToPhyloTree(
       const std::string& description,
       bool bootstrap = false,
@@ -148,7 +145,6 @@ public:
    */
 
 public:
-  
   using AbstractOTree::writeTree;
 
   void writeTree(const Tree& tree, std::ostream& out) const override
@@ -171,7 +167,7 @@ public:
    */
 
   using AbstractIMultiTree::readTrees;
-  
+
   void readTrees(
       std::istream& in,
       std::vector<std::unique_ptr<Tree>>& trees) const override;
@@ -189,7 +185,7 @@ public:
    *
    * @{
    */
-  
+
   using AbstractOMultiTree::writeTrees;
 
   void writeTrees(const std::vector<const Tree*>& trees, std::ostream& out) const override
@@ -239,7 +235,7 @@ protected:
  *
  * @param tree The tree
  * @param node The node defining the subtree.
- * @param bootstrap Tell is bootstrap values must be writen.
+ * @param bootstrap Tell is bootstrap values must be written.
  * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
  * The property should be a Number<double> object.
  * Otherwise, the content of the property with name 'propertyName' will be written.
@@ -266,7 +262,7 @@ protected:
  * @brief Get the parenthesis description of a tree.
  *
  * @param tree The tree to convert.
- * @param bootstrap Tell is bootstrap values must be writen.
+ * @param bootstrap Tell is bootstrap values must be written.
  * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
  * The property should be a Number<double> object.
  * Otherwise, the content of the property with name 'propertyName' will be written.

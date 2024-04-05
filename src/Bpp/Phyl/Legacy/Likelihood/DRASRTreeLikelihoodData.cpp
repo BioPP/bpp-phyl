@@ -27,8 +27,8 @@ void DRASRTreeLikelihoodData::initLikelihoods(
   if (sites.getAlphabet()->getAlphabetType()
       != model.getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("DRASDRTreeLikelihoodData::initLikelihoods. Data and model must have the same alphabet type.",
-                                    sites.getAlphabet(),
-                                    model.getAlphabet());
+          sites.getAlphabet(),
+          model.getAlphabet());
   alphabet_ = sites.getAlphabet();
   nbStates_ = model.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
@@ -58,7 +58,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(
 /******************************************************************************/
 
 void DRASRTreeLikelihoodData::initLikelihoods(
-    const Node* node, 
+    const Node* node,
     const AlignmentDataInterface& sequences,
     const TransitionModelInterface& model)
 {
@@ -134,7 +134,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(
   else
   {
     // 'node' is an internal node.
-    std::map<int, std::vector<size_t> >* patternLinks__node = &patternLinks_[node->getId()];
+    std::map<int, std::vector<size_t>>* patternLinks__node = &patternLinks_[node->getId()];
     size_t nbSonNodes = node->getNumberOfSons();
     for (size_t l = 0; l < nbSonNodes; l++)
     {
@@ -243,7 +243,7 @@ std::unique_ptr<SitePatterns> DRASRTreeLikelihoodData::initLikelihoodsWithPatter
   else
   {
     // 'node' is an internal node.
-    std::map<int, std::vector<size_t> >* patternLinks__node = &patternLinks_[node->getId()];
+    std::map<int, std::vector<size_t>>* patternLinks__node = &patternLinks_[node->getId()];
 
     // Now initialize pattern links:
     size_t nbSonNodes = node->getNumberOfSons();

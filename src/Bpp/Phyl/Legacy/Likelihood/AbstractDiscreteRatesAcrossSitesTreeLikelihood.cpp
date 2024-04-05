@@ -16,8 +16,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractDiscreteRatesAcrossSitesTreeLikelihood::AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool verbose) :
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose) :
   rateDistribution_(rDist)
 {
   AbstractTreeLikelihood::enableDerivatives(true);
@@ -229,7 +229,7 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbPe
 /******************************************************************************/
 
 void AbstractDiscreteRatesAcrossSitesTreeLikelihood::resetLikelihoodArray(
-  VVVdouble& likelihoodArray)
+    VVVdouble& likelihoodArray)
 {
   size_t nbSites   = likelihoodArray.size();
   size_t nbClasses = likelihoodArray[0].size();
@@ -249,7 +249,7 @@ void AbstractDiscreteRatesAcrossSitesTreeLikelihood::resetLikelihoodArray(
 /******************************************************************************/
 
 void AbstractDiscreteRatesAcrossSitesTreeLikelihood::displayLikelihoodArray(
-  const VVVdouble& likelihoodArray)
+    const VVVdouble& likelihoodArray)
 {
   size_t nbSites   = likelihoodArray.size();
   size_t nbClasses = likelihoodArray[0].size();

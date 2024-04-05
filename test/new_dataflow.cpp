@@ -19,7 +19,7 @@ static void dotOutput(const std::string& testName, const std::vector<const Node_
   {
     using bpp::DotOptions;
     writeGraphToDot(
-      "debug_" + testName + ".dot", nodes, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
+        "debug_" + testName + ".dot", nodes, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
   }
 }
 
@@ -33,8 +33,7 @@ struct DoNothingNode : public Node_DF
   DoNothingNode() = default;
   DoNothingNode(NodeRefVec&& deps)
     : Node_DF(std::move(deps))
-  {
-  }
+  {}
 
   using Node_DF::invalidateRecursively; // Make it public to test it
 
@@ -47,9 +46,9 @@ TEST_CASE("dataflow_dependent_list")
 {
   auto l = std::make_shared<DoNothingNode>();
   const auto count = [&l](const Node_DF* dependent) {
-    const auto& dependents = l->dependentNodes();
-    return std::count(dependents.begin(), dependents.end(), dependent);
-  };
+        const auto& dependents = l->dependentNodes();
+        return std::count(dependents.begin(), dependents.end(), dependent);
+      };
 
   CHECK(l->dependentNodes().empty());
 
@@ -295,12 +294,12 @@ TEST_CASE("CWiseAdd")
 
   // Check wrong dependency detection (tuple<A,B>)
   CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, float>>::create(c, {d, d}, Dimension<double>())),
-                  Exception&);
+      Exception&);
   CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {nullptr, d}, Dimension<double>())),
-                  Exception&);
+      Exception&);
   CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {d}, Dimension<double>())), Exception&);
   CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {d, d, d}, Dimension<double>())),
-                  Exception&);
+      Exception&);
   // Check wrong dependency detection (reduction<A>)
   CHECK_THROWS_AS((CWiseAdd<double, ReductionOf<double>>::create(c, {nullptr}, Dimension<double>())), Exception&);
   CHECK_THROWS_AS((CWiseAdd<double, ReductionOf<float>>::create(c, {d}, Dimension<double>())), Exception&);
@@ -326,7 +325,7 @@ TEST_CASE("CWiseAdd")
 
   // Matrix + scalar
   auto add_m_d =
-    CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, double>>::create(c, {m, d}, MatrixDimension(1, 2));
+      CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, double>>::create(c, {m, d}, MatrixDimension(1, 2));
   const auto& add_m_d_value = add_m_d->targetValue();
   CHECK(MatrixDimension(add_m_d_value) == MatrixDimension(1, 2));
   CHECK(add_m_d_value(0, 0) == 42 * 2);
@@ -343,15 +342,15 @@ TEST_CASE("CWiseAdd")
   CHECK(dx_dd->targetValue() == 3);
 
   dotOutput("CWiseAdd",
-            {add_d_d.get(),
-             add_0_d.get(),
-             add_1_d.get(),
-             add_2_d.get(),
-             add_3_d.get(),
-             add_m_m.get(),
-             add_m_d.get(),
-             dx_dx.get(),
-             dx_dd.get()});
+      {add_d_d.get(),
+       add_0_d.get(),
+       add_1_d.get(),
+       add_2_d.get(),
+       add_3_d.get(),
+       add_m_m.get(),
+       add_m_d.get(),
+       dx_dx.get(),
+       dx_dd.get()});
   // Not tested: Constant simplifications
 }
 
@@ -363,12 +362,12 @@ TEST_CASE("CWiseMul")
 
   // Check wrong dependency detection (tuple<A,B>)
   CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, float>>::create(c, {d, d}, Dimension<double>())),
-                  Exception&);
+      Exception&);
   CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {nullptr, d}, Dimension<double>())),
-                  Exception&);
+      Exception&);
   CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {d}, Dimension<double>())), Exception&);
   CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {d, d, d}, Dimension<double>())),
-                  Exception&);
+      Exception&);
   // Check wrong dependency detection (reduction<A>)
   CHECK_THROWS_AS((CWiseMul<double, ReductionOf<double>>::create(c, {nullptr}, Dimension<double>())), Exception&);
   CHECK_THROWS_AS((CWiseMul<double, ReductionOf<float>>::create(c, {d}, Dimension<double>())), Exception&);
@@ -394,7 +393,7 @@ TEST_CASE("CWiseMul")
 
   // Matrix * scalar
   auto mul_m_d =
-    CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, double>>::create(c, {m, d}, MatrixDimension(1, 2));
+      CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, double>>::create(c, {m, d}, MatrixDimension(1, 2));
   const auto& mul_m_d_value = mul_m_d->targetValue();
   CHECK(MatrixDimension(mul_m_d_value) == MatrixDimension(1, 2));
   CHECK(mul_m_d_value(0, 0) == 42 * 42);
@@ -411,15 +410,15 @@ TEST_CASE("CWiseMul")
   CHECK(dx_dd->targetValue() == 3 * d->targetValue() * d->targetValue());
 
   dotOutput("CWiseMul",
-            {mul_d_d.get(),
-             mul_0_d.get(),
-             mul_1_d.get(),
-             mul_2_d.get(),
-             mul_3_d.get(),
-             mul_m_m.get(),
-             mul_m_d.get(),
-             dx_dx.get(),
-             dx_dd.get()});
+      {mul_d_d.get(),
+       mul_0_d.get(),
+       mul_1_d.get(),
+       mul_2_d.get(),
+       mul_3_d.get(),
+       mul_m_m.get(),
+       mul_m_d.get(),
+       dx_dx.get(),
+       dx_dd.get()});
   // Not tested: Constant simplifications
 }
 
@@ -439,8 +438,7 @@ struct OpaqueTestFunction : public Value<double>
   }
   OpaqueTestFunction(NodeRefVec&& deps)
     : Value<double>(std::move(deps))
-  {
-  }
+  {}
 
   // OpaqueTestFunction additional arguments = (). Entirely defined by deps.
   bool compareAdditionalArguments(const Node_DF& other) const final
@@ -460,18 +458,18 @@ struct OpaqueTestFunction : public Value<double>
       if (!dxi_dn->hasNumericalProperty(NumericalProperty::ConstantZero))
       {
         auto buildFWithNewXi = [this, i, &c](ValueRef<double> newDep) {
-          // Build a duplicate of Self (OpaqueTestFunction) with replaced dependency.
-          // The function supports a general case for sub-expressions.
-          NodeRefVec newDeps = this->dependencies();
-          newDeps[i] = std::move(newDep);
-          auto newNode = Self::create(c, std::move(newDeps));
-          newNode->config = this->config; // Duplicate config
-          return newNode;
-        };
+              // Build a duplicate of Self (OpaqueTestFunction) with replaced dependency.
+              // The function supports a general case for sub-expressions.
+              NodeRefVec newDeps = this->dependencies();
+              newDeps[i] = std::move(newDep);
+              auto newNode = Self::create(c, std::move(newDeps));
+              newNode->config = this->config; // Duplicate config
+              return newNode;
+            };
         auto df_dxi =
-          generateNumericalDerivative<double, double>(c, config, this->dependency(i), dim, dim, buildFWithNewXi);
+            generateNumericalDerivative<double, double>(c, config, this->dependency(i), dim, dim, buildFWithNewXi);
         derivativeSumDeps.emplace_back(CWiseMul<double, std::tuple<double, double>>::create(
-          c, {std::move(df_dxi), std::move(dxi_dn)}, Dimension<double>()));
+              c, {std::move(df_dxi), std::move(dxi_dn)}, Dimension<double>()));
       }
     }
     return CWiseAdd<double, ReductionOf<double>>::create(c, std::move(derivativeSumDeps), Dimension<double>());

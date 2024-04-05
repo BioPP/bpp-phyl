@@ -39,7 +39,7 @@ namespace bpp
  *
  * defines 3*4*5=60 different HKY85 nested models with rate one.
  *
- * Optionnal arguments are used to homogeneize the rates of the nested
+ * Optional arguments are used to homogenize the rates of the nested
  * models. Default values sets all the rates to 1, and given values
  * are the two letters (from_ & to_) between which the substitution
  * rates are the same in all nested models.
@@ -58,7 +58,7 @@ namespace bpp
  * this parameter, there is an Exception at the creation of the
  * wrong model, if any.
  *
- * When used through a MixedTreeLikelihood objets, all the models have
+ * When used through a MixedTreeLikelihood objects, all the models have
  * a specific probability, defined through the probabilities of the
  * several parameter distributions. The computing of the likelihoods
  * and probabilities are the expectation of the "simple" models
@@ -76,10 +76,10 @@ protected:
 
 public:
   MixtureOfATransitionModel(
-    std::shared_ptr<const Alphabet> alpha,
-    std::unique_ptr<TransitionModelInterface> model,
-    std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
-    int ffrom = -1, int tto = -1);
+      std::shared_ptr<const Alphabet> alpha,
+      std::unique_ptr<TransitionModelInterface> model,
+      std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
+      int ffrom = -1, int tto = -1);
 
   MixtureOfATransitionModel(const MixtureOfATransitionModel&);
 
@@ -113,7 +113,7 @@ public:
   {
     return AbstractMixedTransitionModel::nModel(i);
   }
-  
+
   /**
    * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description of the parameters numbers.
@@ -137,7 +137,7 @@ public:
    */
   bool hasDistribution(std::string& parName) const
   {
-    return (distributionMap_.find(parName) != distributionMap_.end());
+    return distributionMap_.find(parName) != distributionMap_.end();
   }
 
   /**
@@ -165,9 +165,7 @@ public:
   int to() const { return to_; }
 
 protected:
-
   void updateMatrices_() override;
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_MIXTUREOFATRANSITIONMODEL_H

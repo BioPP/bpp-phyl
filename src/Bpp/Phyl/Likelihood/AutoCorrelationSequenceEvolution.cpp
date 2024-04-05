@@ -10,8 +10,8 @@ using namespace bpp;
 /******************************************************************************/
 
 AutoCorrelationSequenceEvolution::AutoCorrelationSequenceEvolution(
-  std::shared_ptr<SubstitutionProcessCollection> processColl,
-  std::vector<size_t>& nProc) :
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
+    std::vector<size_t>& nProc) :
   MultiProcessSequenceEvolution(processColl, nProc),
   hmmAlph_(),
   autoCorrTransMat_()

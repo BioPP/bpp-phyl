@@ -57,11 +57,11 @@ void DistanceEstimation::computeMatrix()
       }
 
       Context context;
-  
+
       auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(" + names[i] + ":0.01," + names[j] + ":0.01);", false, "", false, false));
 
       auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model_, rateDist_, phyloTree);
-      
+
       auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites_, process);
 
       auto llh = std::make_shared<SingleProcessPhyloLikelihood>(context, lik);
@@ -83,7 +83,6 @@ void DistanceEstimation::computeMatrix()
       optimizer_->optimize();
       // Store results:
       (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0") + llh->getParameterValue("BrLen1");
-
     }
     if (verbose_ > 1 && ApplicationTools::message)
       ApplicationTools::message->endLine();

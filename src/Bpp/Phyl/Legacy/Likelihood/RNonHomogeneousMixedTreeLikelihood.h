@@ -34,12 +34,11 @@ class RNonHomogeneousMixedTreeLikelihood :
   public RNonHomogeneousTreeLikelihood
 {
 private:
-
   /**
    * @brief the map of the branch numbers to the vectors of the
    * TreeLikelihoods for the expanded model on this branch.
    */
-  std::map<int, std::vector< std::shared_ptr<RNonHomogeneousMixedTreeLikelihood> > > mvTreeLikelihoods_;
+  std::map<int, std::vector< std::shared_ptr<RNonHomogeneousMixedTreeLikelihood>>> mvTreeLikelihoods_;
 
   /**
    * @brief A specific HyperNode in which the computation is
@@ -81,16 +80,16 @@ private:
    *  If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousMixedTreeLikelihood(
-     const Tree& tree,
-     std::shared_ptr<MixedSubstitutionModelSet> modelSet,
-     const MixedSubstitutionModelSet::HyperNode& hyperNode,
-     int upperNode,
-     std::shared_ptr<DiscreteDistributionInterface> rDist,
-     bool verbose,
-     bool usePatterns);
+      const Tree& tree,
+      std::shared_ptr<MixedSubstitutionModelSet> modelSet,
+      const MixedSubstitutionModelSet::HyperNode& hyperNode,
+      int upperNode,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose,
+      bool usePatterns);
 
   /**
    * @brief Build a new RNonHomogeneousMixeTreeLikelihood object
@@ -111,7 +110,7 @@ private:
    *  If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousMixedTreeLikelihood(
       const Tree& tree,
@@ -144,14 +143,14 @@ public:
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<MixedSubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose = true,
-    bool usePatterns = true);
+      const Tree& tree,
+      std::shared_ptr<MixedSubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true,
+      bool usePatterns = true);
 
   /**
    * @brief Build a new RNonHomogeneousMixedTreeLikelihood object
@@ -166,7 +165,7 @@ public:
    * @param rDist The rate across sites distribution to use.
    * @param verbose Should I display some info?
    * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   RNonHomogeneousMixedTreeLikelihood(
       const Tree& tree,

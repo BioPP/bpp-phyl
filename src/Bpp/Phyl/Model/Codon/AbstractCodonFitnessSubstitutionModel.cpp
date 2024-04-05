@@ -63,4 +63,3 @@ double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_t 
 }
 
 /****************************************************************************************/
-

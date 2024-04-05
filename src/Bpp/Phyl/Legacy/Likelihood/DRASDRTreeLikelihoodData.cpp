@@ -24,8 +24,8 @@ void DRASDRTreeLikelihoodData::initLikelihoods(
   if (sites.getAlphabet()->getAlphabetType()
       != model.getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("DRASDRTreeLikelihoodData::initLikelihoods. Data and model must have the same alphabet type.",
-                                    sites.getAlphabet(),
-                                    model.getAlphabet());
+          sites.getAlphabet(),
+          model.getAlphabet());
   alphabet_ = sites.getAlphabet();
   nbStates_ = model.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();

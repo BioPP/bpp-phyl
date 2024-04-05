@@ -82,8 +82,8 @@ public:
   void setRate(double rate) override { return transitionModel_().setRate(rate); }
 
   double getInitValue(size_t i, int state) const override
-  { 
-    return model().getInitValue(i, state); 
+  {
+    return model().getInitValue(i, state);
   }
 
   std::string getName() const override

@@ -285,7 +285,7 @@ public:
   /**
    * @brief Compute branch lengths using Grafen's method.
    *
-   * The 'height' of each node is devided by the total height of the tree, and the ratio is raised at power 'rho'.
+   * The 'height' of each node is divided by the total height of the tree, and the ratio is raised at power 'rho'.
    * A value of rho=0 hence returns a star tree.
    *
    * Reference:
@@ -308,7 +308,7 @@ public:
    * @brief Modify a tree's branch lengths to make a clock tree, by rebalancing branch lengths.
    *
    * The height of each node is set to the mean height of all son nodes.
-   * This may however lead to negative branch lengths, since the mean heigth
+   * This may however lead to negative branch lengths, since the mean height
    * may be inferior to one of the son heights, due to short branch lengths.
    * If the 'noneg' is set to yes, the mean height is checked against all son
    * heights. If it is inferior to one of the son heights, the maximum son
@@ -409,7 +409,7 @@ public:
    *
    * @param tree The tree
    * @param nodeId The node defining the subtree.
-   * @param bootstrap Tell is bootstrap values must be writen.
+   * @param bootstrap Tell is bootstrap values must be written.
    * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
    * The property should be a Number<double> object.
    * Otherwise, the content of the property with name 'propertyName' will be written.
@@ -435,7 +435,7 @@ public:
    * @brief Get the parenthesis description of a tree.
    *
    * @param tree The tree to convert.
-   * @param bootstrap Tell is bootstrap values must be writen.
+   * @param bootstrap Tell is bootstrap values must be written.
    * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
    * The property should be a Number<double> object.
    * Otherwise, the content of the property with name 'propertyName' will be written.
@@ -502,7 +502,7 @@ public:
    *
    * @param tree The tree to check.
    * @param throwException If set to true, the function throws qn exception if a duplicated is found.
-   * @return true if the tree has uniqe ids.
+   * @return true if the tree has unique ids.
    */
   static bool checkIds(const Tree& tree, bool throwException);
 
@@ -571,7 +571,7 @@ public:
    * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
    * @return A BipartitionList object including only distinct bipartitions
    */
-  static std::unique_ptr<BipartitionList> bipartitionOccurrences(const std::vector<std::unique_ptr<Tree> >& vecTr, std::vector<size_t>& bipScore);
+  static std::unique_ptr<BipartitionList> bipartitionOccurrences(const std::vector<std::unique_ptr<Tree>>& vecTr, std::vector<size_t>& bipScore);
 
   /**
    * @brief General greedy consensus tree method
@@ -586,7 +586,7 @@ public:
    * @param threshold Minimal acceptable score =number of occurrence of a bipartition/number of trees (0.<=threshold<=1.)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static std::unique_ptr<TreeTemplate<Node>> thresholdConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, double threshold, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> thresholdConsensus(const std::vector<std::unique_ptr<Tree>>& vecTr, double threshold, bool checkNames = true);
 
   /**
    * @brief Fully-resolved greedy consensus tree method
@@ -598,7 +598,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static std::unique_ptr<TreeTemplate<Node>> fullyResolvedConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> fullyResolvedConsensus(const std::vector<std::unique_ptr<Tree>>& vecTr, bool checkNames = true);
 
   /**
    * @brief Majority consensus tree method
@@ -609,7 +609,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static std::unique_ptr<TreeTemplate<Node>> majorityConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> majorityConsensus(const std::vector<std::unique_ptr<Tree>>& vecTr, bool checkNames = true);
 
   /**
    * @brief Strict consensus tree method
@@ -620,7 +620,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static std::unique_ptr<TreeTemplate<Node>> strictConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> strictConsensus(const std::vector<std::unique_ptr<Tree>>& vecTr, bool checkNames = true);
 
   /** @} */
 
@@ -640,13 +640,13 @@ public:
   /**
    * @brief Compute bootstrap values.
    *
-   * @param tree Input tree. the BOOTSTRAP banch property of the tree will be modified if it already exists.
+   * @param tree Input tree. the BOOTSTRAP branch property of the tree will be modified if it already exists.
    * @param vecTr A list of trees to compare to 'tree'.
    * @param verbose Tell if a progress bar should be displayed.
    * @param format The output format of the tree.
    */
 
-  static void computeBootstrapValues(Tree& tree, const std::vector<std::unique_ptr<Tree> >& vecTr, bool verbose = true, int format = 0);
+  static void computeBootstrapValues(Tree& tree, const std::vector<std::unique_ptr<Tree>>& vecTr, bool verbose = true, int format = 0);
 
   /**
    * @brief Determine the mid-point position of the root along the branch that already contains the root. Consequently, the topology of the rooted tree remains identical.

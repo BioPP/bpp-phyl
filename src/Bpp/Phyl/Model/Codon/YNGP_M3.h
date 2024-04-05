@@ -19,14 +19,14 @@ namespace bpp
  * mixture being defined on the selection parameter to allow it to
  * vary among sites. There are $K$ selection parameters @f$ \omega_0 <
  * ... \omega_{K-1} @f$, with their respective probabilities @f$ p_0,
- * ..., p_{K-1} @f$ with @f$ p_0+p_1+...+p_{K-1}=1@f$. To garantee
+ * ..., p_{K-1} @f$ with @f$ p_0+p_1+...+p_{K-1}=1@f$. To guarantee
  * that the @f$\omega_i@f$ are in increasing order, we define
  * @f$\delta_i=\omega_i - \omega_{i-1}@f$.
  *
  * This model includes 2*K parameters (@f$\kappa@f$, relative
  * probabilities @f$ theta1, theta2, ..., thetaK-1 @f$ and @f$omega0,
  * delta1, deltaK-1@f$). The codon frequencies @f$\pi_j@f$ are either
- * observed or infered.
+ * observed or inferred.
  *
  * References:
  *
@@ -50,7 +50,6 @@ public:
 
 protected:
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M3_H

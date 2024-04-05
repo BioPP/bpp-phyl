@@ -18,4 +18,3 @@ ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
 
   return pl;
 }
-

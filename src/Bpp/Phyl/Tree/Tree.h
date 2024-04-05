@@ -63,7 +63,7 @@
  *   The possibility of compressing sites save comptation time and memory.
  * - The bpp::DRHomogeneousTreeLikelihood class is similar to the previous one, but uses a double-recursive algorithm.
  *   It is more CPU expensive when computing likelihoods, and uses more memory. Computation of branch length analytical
- *   derivatives is nonetheless faster, since they do not involve any additionnal recursion.
+ *   derivatives is nonetheless faster, since they do not involve any additional recursion.
  *   You also have to use this class in order to perform substitution mapping (bpp::SubstitutionMappingTools) or reconstruct
  *   ancestral sequences (bpp::AncestralStateReconstruction).
  * - The bpp::NNIHomogeneousTreeLikelihood class inherits from bpp::DRHomogeneousTreeLikelihood, and implements the bpp::NNISearchable

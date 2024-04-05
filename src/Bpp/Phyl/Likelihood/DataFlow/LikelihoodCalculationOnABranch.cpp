@@ -17,13 +17,13 @@ using namespace numeric;
 using namespace Eigen;
 
 LikelihoodCalculationOnABranch::LikelihoodCalculationOnABranch(
-  Context& context,
-  LikelihoodCalculationSingleProcess& likcalsp,
-  uint edgeId) :
+    Context& context,
+    LikelihoodCalculationSingleProcess& likcalsp,
+    uint edgeId) :
   AlignedLikelihoodCalculation(context),
   numberOfSites_(likcalsp.getNumberOfSites()),
   likelihoodMatrixDim_({likcalsp.stateMap().getNumberOfModelStates(), likcalsp.getNumberOfDistinctSites()}),
-  model_(likcalsp.getNumberOfClasses()?likcalsp.getTreeNode(0)->getEdge(edgeId)->getModel():0),
+  model_(likcalsp.getNumberOfClasses() ? likcalsp.getTreeNode(0)->getEdge(edgeId)->getModel() : 0),
   rootPatternLinks_(likcalsp.getRootPatternLinks()),
   rootWeights_(likcalsp.getRootWeights()),
   catProb_(likcalsp.catProb_), vRateCatEdges_()
@@ -31,12 +31,12 @@ LikelihoodCalculationOnABranch::LikelihoodCalculationOnABranch(
   auto nbCl = likcalsp.getNumberOfClasses();
   // ensure that all likelihoods exist
   likcalsp.makeLikelihoodsTree();
-  for (size_t ncl = 0; ncl<nbCl;ncl++)
+  for (size_t ncl = 0; ncl < nbCl; ncl++)
   {
     auto tr = likcalsp.getTreeNode(ncl);
 
     const auto& dagId = likcalsp.getEdgesIds(edgeId, ncl);
-    auto catEdge = make_shared<RateCategoryEdge>();    
+    auto catEdge = make_shared<RateCategoryEdge>();
     for (const auto& did:dagId)
     {
       auto ft = likcalsp.getForwardLikelihoodTree(ncl);
@@ -59,8 +59,7 @@ LikelihoodCalculationOnABranch::LikelihoodCalculationOnABranch(const LikelihoodC
   rootWeights_(lik.rootWeights_),
   catProb_(lik.catProb_),
   vRateCatEdges_(lik.vRateCatEdges_)
-{
-}
+{}
 
 RowLik LikelihoodCalculationOnABranch::getSiteLikelihoodsForAClass(size_t nCat, bool shrunk)
 {
@@ -79,7 +78,7 @@ AllRatesSiteLikelihoods LikelihoodCalculationOnABranch::getSiteLikelihoodsForAll
   {
     allLk->row(Eigen::Index(nCat)) = getSiteLikelihoodsForAClass(nCat, shrunk);
   }
- 
+
   return *allLk;
 }
 
@@ -87,7 +86,6 @@ AllRatesSiteLikelihoods LikelihoodCalculationOnABranch::getSiteLikelihoodsForAll
 /****************************************
 * Construction methods
 ****************************************/
-
 void LikelihoodCalculationOnABranch::makeLikelihoods()
 {
   if (!model_)
@@ -101,12 +99,12 @@ void LikelihoodCalculationOnABranch::makeLikelihoods()
   SiteLikelihoodsRef distinctSiteLikelihoodsNode;
 
   auto one = ConstantOne<Eigen::RowVectorXd>::create(getContext_(), RowVectorDimension (nbState));
-  
+
   const auto model = getModel();
 
   auto zero = getContext_().getZero();
 
-  std::vector<std::shared_ptr<Node_DF> > vCond;
+  std::vector<std::shared_ptr<Node_DF>> vCond;
 
   std::vector<NodeRef> vLikRate;
 
@@ -117,12 +115,12 @@ void LikelihoodCalculationOnABranch::makeLikelihoods()
     for (size_t i = 0; i < rateCat.vBotLik_.size(); i++)
     {
       auto forwardEdge = ForwardTransition::create (
-        getContext_(), {transitionMatrix, rateCat.vBotLik_[i]}, likelihoodMatrixDim_);
+            getContext_(), {transitionMatrix, rateCat.vBotLik_[i]}, likelihoodMatrixDim_);
 
       cond = BuildConditionalLikelihood::create (
-        getContext_(), {rateCat.vTopLik_[i], forwardEdge}, likelihoodMatrixDim_);
+            getContext_(), {rateCat.vTopLik_[i], forwardEdge}, likelihoodMatrixDim_);
 
-      if (rateCat.vBotLik_.size()>1)
+      if (rateCat.vBotLik_.size() > 1)
         vCond.push_back(cond);
     }
 
@@ -133,11 +131,11 @@ void LikelihoodCalculationOnABranch::makeLikelihoods()
      */
 
 
-    if (vCond.size()>1)
-      cond = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >::create(getContext_(), std::move(vCond), likelihoodMatrixDim_);
+    if (vCond.size() > 1)
+      cond = CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>::create(getContext_(), std::move(vCond), likelihoodMatrixDim_);
 
     rateCat.siteLik_ = LikelihoodFromRootConditionalAtRoot::create (
-      getContext_(), {one, cond}, RowVectorDimension (nbDistSite));
+          getContext_(), {one, cond}, RowVectorDimension (nbDistSite));
 
     vLikRate.push_back(rateCat.siteLik_);
   }
@@ -151,13 +149,13 @@ void LikelihoodCalculationOnABranch::makeLikelihoods()
   else
     distinctSiteLikelihoodsNode = vRateCatEdges_[0].siteLik_;
 
-  
+
   // likelihoods per distinct site
   setSiteLikelihoods(distinctSiteLikelihoodsNode, true);
-  
+
   // likelihoods per site
   setSiteLikelihoods(expandVector(patternedSiteLikelihoods_), false);
-  
+
   // global likelihood
   ValueRef<DataLik> val;
   if (rootPatternLinks_)
@@ -178,4 +176,3 @@ void LikelihoodCalculationOnABranch::cleanAllLikelihoods()
 
   AlignedLikelihoodCalculation::cleanAllLikelihoods();
 }
-   

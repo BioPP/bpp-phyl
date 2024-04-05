@@ -95,7 +95,7 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
   return inode;
 }
 
-void SubstitutionModelSet::addModel(shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId)// , const vector<string>& newParams)
+void SubstitutionModelSet::addModel(shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId) // , const vector<string>& newParams)
 {
   if (model->alphabet().getAlphabetType() != alphabet_->getAlphabetType())
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");

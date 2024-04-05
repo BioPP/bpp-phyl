@@ -22,7 +22,7 @@ namespace bpp
  *  The generator is the dot product between a reversible matrix \f[ S
  *  \f] and an equilibrium vector \f[ \pi \f] with
  *
- * \f[  
+ * \f[
  * S = \begin{pmatrix}
  *  \cdots & 1    & 0 & \ldots & \ldots  & \ldots & \ldots \\
  *  1  & \cdots & 1 & 0      & \\ldots  & \ldots & \ldots \\
@@ -52,7 +52,7 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
- * with \f$P = 2 \sum_i^{N-1} \pi_i . \pi_{i+1} \f$ 
+ * with \f$P = 2 \sum_i^{N-1} \pi_i . \pi_{i+1} \f$
  *
  * This model hence include N parameters for frequencies, and N-1 free
  * parameters that are denoted \c "theta1", \c "theta2", ...
@@ -68,75 +68,74 @@ namespace bpp
  * See AbstractSubstitutionModel for details of how the probabilities are computed.
  *
  */
-  
-  class D1WalkSubstitutionModel :
-    public AbstractReversibleSubstitutionModel
+
+class D1WalkSubstitutionModel :
+  public AbstractReversibleSubstitutionModel
+{
+private:
+  /**
+   * @brief The Equilibrium Frequency Set
+   *
+   **/
+
+  std::shared_ptr<FullFrequencySet> freqSet_;
+
+public:
+  /**
+   * @brief Build a D1Walk model on a given IntegerAlphabet.
+   *
+   * @param alpha the IntegerAlphabet.
+   * @param method the method used to compute the equilibrium
+   * frequencies from the theta parameters.
+   */
+
+
+  D1WalkSubstitutionModel(std::shared_ptr<const IntegerAlphabet> alpha, unsigned short method = 1);
+
+  D1WalkSubstitutionModel(const D1WalkSubstitutionModel& model) :
+    AbstractParameterAliasable(model),
+    AbstractReversibleSubstitutionModel(model),
+    freqSet_(model.freqSet_->clone())
+  {}
+
+  D1WalkSubstitutionModel& operator=(const D1WalkSubstitutionModel& model)
   {
-  private:
+    AbstractParameterAliasable::operator=(model);
+    AbstractReversibleSubstitutionModel::operator=(model);
+    freqSet_ = std::shared_ptr<FullFrequencySet>(model.freqSet_->clone());
+    return *this;
+  }
 
-    /**
-     * @brief The Equilibrium Frequency Set
-     *
-     **/
-    
-    std::shared_ptr<FullFrequencySet> freqSet_;
-  public:
-    /**
-     * @brief Build a D1Walk model on a given IntegerAlphabet.
-     *
-     * @param alpha the IntegerAlphabet.
-     * @param method the method used to compute the equilibrium
-     * frequencies from the theta parameters.
-     */
+  virtual ~D1WalkSubstitutionModel() {}
 
-    
-    D1WalkSubstitutionModel(std::shared_ptr<const IntegerAlphabet> alpha, unsigned short method = 1);
+  D1WalkSubstitutionModel* clone() const override { return new D1WalkSubstitutionModel(*this); }
 
-    D1WalkSubstitutionModel(const D1WalkSubstitutionModel& model) :
-      AbstractParameterAliasable(model),
-      AbstractReversibleSubstitutionModel(model),
-      freqSet_(model.freqSet_->clone())
-    {}
+public:
+  std::string getName() const override
+  {
+    return "D1Walk";
+  }
 
-    D1WalkSubstitutionModel& operator=(const D1WalkSubstitutionModel& model)
-    {
-      AbstractParameterAliasable::operator=(model);
-      AbstractReversibleSubstitutionModel::operator=(model);
-      freqSet_ = std::shared_ptr<FullFrequencySet>(model.freqSet_->clone());
-      return *this;
-    }
+  void fireParameterChanged(const ParameterList& parameters) override
+  {
+    freqSet_->matchParametersValues(parameters);
+    AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
+  }
 
-    virtual ~D1WalkSubstitutionModel() {}
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return *freqSet_;
+  }
 
-    D1WalkSubstitutionModel* clone() const override { return new D1WalkSubstitutionModel(*this); }
+  void setFreq(std::map<int, double>& freq) override;
 
-  public:
-
-    std::string getName() const override
-    {
-      return "D1Walk";
-    }
-
-    void fireParameterChanged(const ParameterList& parameters) override
-    {
-      freqSet_->matchParametersValues(parameters);
-      AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
-    }
-
-    const FrequencySetInterface& frequencySet() const override
-    {
-      return *freqSet_;
-    }
-
-    void setFreq(std::map<int, double>& freq) override;
-
-  protected:
-    /**
-     * In the case of the model of Jukes & Cantor, this method is useless since
-     * the generator is fixed! No matrice can be changed... This method is only
-     * used in the constructor of the class.
-     */
-    void updateMatrices_() override;
-  };
+protected:
+  /**
+   * In the case of the model of Jukes & Cantor, this method is useless since
+   * the generator is fixed! No matrice can be changed... This method is only
+   * used in the constructor of the class.
+   */
+  void updateMatrices_() override;
+};
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_D1WALKSUBSTITUTIONMODEL_H

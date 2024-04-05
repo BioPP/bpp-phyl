@@ -12,7 +12,7 @@ using namespace std;
 AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTransitionModel(
     unique_ptr<SubstitutionModelInterface> subModel,
     const std::string& prefix) :
-  //AbstractParameterAliasable(prefix + subModel->getNamespace()),
+  // AbstractParameterAliasable(prefix + subModel->getNamespace()),
   subModel_(std::move(subModel)),
   size_(subModel_->getNumberOfStates()),
   pij_t(size_, size_),
@@ -28,7 +28,7 @@ AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTrans
 /******************************************************************************/
 
 AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTransitionModel(const AbstractFromSubstitutionModelTransitionModel& fmsm) :
-  //AbstractParameterAliasable(fmsm),
+  // AbstractParameterAliasable(fmsm),
   subModel_(fmsm.subModel_->clone()),
   size_(fmsm.size_),
   pij_t(fmsm.pij_t),

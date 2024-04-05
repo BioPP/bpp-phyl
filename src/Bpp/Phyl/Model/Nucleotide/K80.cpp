@@ -32,7 +32,7 @@ void K80::updateMatrices_()
   k_ = (kappa_ + 1.) / 2.;
   r_ = isScalable() ? 4. / (kappa_ + 2.) : 4;
 
-  // Frequences:
+  // Frequencies:
   freq_[0] = freq_[1] = freq_[2] = freq_[3] = 1. / 4.;
 
   // Generator:

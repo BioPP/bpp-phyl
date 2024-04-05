@@ -30,11 +30,11 @@ public:
   AbstractSubstitutionProcess() :
     AbstractParameterAliasable("")
   {}
-  
+
   size_t getNumberOfClasses() const
   {
-    auto dist=getRateDistribution();
-    return dist?dist->getNumberOfCategories():1;
+    auto dist = getRateDistribution();
+    return dist ? dist->getNumberOfCategories() : 1;
   }
 
   size_t getNumberOfStates() const
@@ -58,7 +58,6 @@ public:
    **/
 
   ParameterList getNonDerivableParameters() const;
-
 };
 } // end namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_ABSTRACTSUBSTITUTIONPROCESS_H

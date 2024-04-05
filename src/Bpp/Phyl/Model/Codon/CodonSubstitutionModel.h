@@ -6,7 +6,6 @@
 #define BPP_PHYL_MODEL_CODON_CODONSUBSTITUTIONMODEL_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 #include "../SubstitutionModel.h"
@@ -39,9 +38,9 @@ public:
   virtual double getCodonsMulRate(size_t, size_t) const = 0;
 
   virtual const CodonFrequencySetInterface& codonFrequencySet() const = 0;
-  
+
   virtual bool hasCodonFrequencySet() const = 0;
-  
+
   virtual void setFreq(std::map<int, double>& frequencies) = 0;
 };
 

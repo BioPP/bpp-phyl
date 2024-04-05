@@ -102,7 +102,7 @@ public:
 
   ProbabilisticSubstitutionMapping* clone() const override
   {
-    return new ProbabilisticSubstitutionMapping(*this); 
+    return new ProbabilisticSubstitutionMapping(*this);
   }
 
   ProbabilisticSubstitutionMapping(const ProbabilisticSubstitutionMapping& psm) :

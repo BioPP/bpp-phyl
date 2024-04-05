@@ -13,11 +13,11 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
-  shared_ptr<const AlignmentDataInterface> data,
-  shared_ptr<HmmSequenceEvolution> processSeqEvol,
-  shared_ptr<CollectionNodes> collNodes,
-  size_t nSeqEvol,
-  size_t nData) :
+    shared_ptr<const AlignmentDataInterface> data,
+    shared_ptr<HmmSequenceEvolution> processSeqEvol,
+    shared_ptr<CollectionNodes> collNodes,
+    size_t nSeqEvol,
+    size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
@@ -25,7 +25,7 @@ HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
       data->getNumberOfSites(),
       (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
           ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates()
-	  : 0,
+    : 0,
       nData),
   AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nData),
   AbstractParametrizable(""),

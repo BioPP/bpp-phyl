@@ -141,7 +141,7 @@ public:
   {
     return VectorTools::whichAll(states_, alphabet_->charToInt(code));
   }
-  
+
   bool operator==(const StateMapInterface& sm) const override
   {
     if (alphabet_->getAlphabetType() != sm.alphabet().getAlphabetType()) return false;
@@ -167,15 +167,14 @@ class CanonicalStateMap :
   public AbstractStateMap
 {
 public:
-
   CanonicalStateMap(std::shared_ptr<const Alphabet> alphabet, bool includeGaps);
 
   /**
-   * @brief this contructors takes an existing StateMap and adds one model states for gaps.
-   * If the original StateMap alread had a state for gaps, a new one will be appended.
+   * @brief this constructors takes an existing StateMap and adds one model states for gaps.
+   * If the original StateMap already had a state for gaps, a new one will be appended.
    */
   CanonicalStateMap(const StateMapInterface& sm, bool includeGaps);
-    
+
   virtual CanonicalStateMap* clone() const { return new CanonicalStateMap(*this); }
 
   virtual std::string getStateDescription(size_t index) const { return getAlphabetStateAsChar(index); }
@@ -200,5 +199,5 @@ public:
 
   virtual std::string getStateDescription(size_t index) const { return getAlphabetStateAsChar(index) + TextTools::toString(index % nbClasses_); }
 };
-}// end of namespace bpp
+} // end of namespace bpp
 #endif // BPP_PHYL_MODEL_STATEMAP_H

@@ -46,8 +46,8 @@ public:
     alphabet_        (drl->stateMap().getAlphabet()),
     nbSites_         (drl->getNumberOfSites()),
     nbDistinctSites_ (drl->getNumberOfDistinctSites()),
-  nbStates_        (drl->stateMap().getNumberOfModelStates()),
-  rootPatternLinks_(drl->getRootArrayPositions())
+    nbStates_        (drl->stateMap().getNumberOfModelStates()),
+    rootPatternLinks_(drl->getRootArrayPositions())
   {
     if (!tree_)
       throw Exception("MarginalAncestralReconstruction::MarginalAncestralReconstruction: missing ParametrizablePhyloTree.");
@@ -59,10 +59,9 @@ public:
     alphabet_        (masr.alphabet_),
     nbSites_         (masr.nbSites_),
     nbDistinctSites_ (masr.nbDistinctSites_),
-  nbStates_        (masr.nbStates_),
-  rootPatternLinks_(masr.rootPatternLinks_)
-  {
-  }
+    nbStates_        (masr.nbStates_),
+    rootPatternLinks_(masr.rootPatternLinks_)
+  {}
 
   MarginalAncestralReconstruction& operator=(const MarginalAncestralReconstruction& masr)
   {
@@ -86,7 +85,7 @@ public:
   {
     return alphabet_;
   }
-  
+
   /**
    * @brief Get ancestral states  for a given node as a vector of int.
    *
@@ -115,7 +114,7 @@ public:
     return getAncestralStatesForNode(nodeId, probs, false);
   }
 
-  std::map<uint, std::vector<size_t> > getAllAncestralStates() const override;
+  std::map<uint, std::vector<size_t>> getAllAncestralStates() const override;
 
   /**
    * @brief Get an ancestral sequence for a given node.
@@ -150,9 +149,9 @@ public:
 
 private:
   void recursiveMarginalAncestralStates(
-    const std::shared_ptr<PhyloNode> node,
-    std::map<uint, std::vector<size_t> >& ancestors,
-    AlignmentDataInterface& data) const;
+      const std::shared_ptr<PhyloNode> node,
+      std::map<uint, std::vector<size_t>>& ancestors,
+      AlignmentDataInterface& data) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_MARGINALANCESTRALRECONSTRUCTION_H

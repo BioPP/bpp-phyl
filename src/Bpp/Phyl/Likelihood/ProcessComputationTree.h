@@ -159,7 +159,6 @@ class ProcessComputationTree :
   public BaseTree
 {
 private:
-  
   std::shared_ptr<const SubstitutionProcessInterface> process_;
 
   /**
@@ -177,7 +176,6 @@ private:
       uint>& mMrca);
 
 public:
-
   /**
    * @brief construction of a ProcessComputationTree from a SubstitutionProcess
    *

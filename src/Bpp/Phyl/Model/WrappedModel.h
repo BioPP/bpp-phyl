@@ -35,7 +35,6 @@ public:
   virtual ~WrappedTransitionModelInterface() {}
 
   virtual const TransitionModelInterface& transitionModel() const = 0;
-
 };
 
 
@@ -49,8 +48,6 @@ public:
   virtual ~WrappedSubstitutionModelInterface() {}
 
   virtual const SubstitutionModelInterface& substitutionModel() const = 0;
-
 };
-
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_WRAPPEDMODEL_H

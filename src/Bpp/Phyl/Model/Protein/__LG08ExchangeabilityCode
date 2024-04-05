@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
+//
+// SPDX-License-Identifier: CECILL-2.1
+
 exchangeability_(10,17)=0.61963;
 exchangeability_(17,10)=0.61963;
 exchangeability_(6,11)=1.80718;

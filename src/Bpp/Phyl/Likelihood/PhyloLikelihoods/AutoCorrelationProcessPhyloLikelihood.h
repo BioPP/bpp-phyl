@@ -36,11 +36,11 @@ private:
 
 public:
   AutoCorrelationProcessPhyloLikelihood(
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<AutoCorrelationSequenceEvolution> processSeqEvol,
-    std::shared_ptr<CollectionNodes> collNodes,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<AutoCorrelationSequenceEvolution> processSeqEvol,
+      std::shared_ptr<CollectionNodes> collNodes,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
 protected:
   AutoCorrelationProcessPhyloLikelihood(const AutoCorrelationProcessPhyloLikelihood& mlc) :
@@ -55,7 +55,7 @@ protected:
   {}
 
   AutoCorrelationProcessPhyloLikelihood& operator=(const AutoCorrelationProcessPhyloLikelihood& mlc)
-  { 
+  {
     MultiProcessSequencePhyloLikelihood::operator=(mlc);
     Hpep_ = mlc.Hpep_;
     hmm_ = mlc.hmm_;
@@ -66,7 +66,7 @@ public:
   virtual ~AutoCorrelationProcessPhyloLikelihood() {}
 
   AutoCorrelationProcessPhyloLikelihood* clone() const override
-  { 
+  {
     return new AutoCorrelationProcessPhyloLikelihood(*this);
   }
 
@@ -84,7 +84,7 @@ public:
   {
     return *hmm_;
   }
-  
+
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const override
   {
     return hmm_;

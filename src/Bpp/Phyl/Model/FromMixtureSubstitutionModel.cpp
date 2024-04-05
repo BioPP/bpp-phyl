@@ -10,8 +10,8 @@ using namespace std;
 /******************************************************************************/
 
 FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(
-    const MixedTransitionModelInterface& mixedModel, 
-    const std::string& subModelName, 
+    const MixedTransitionModelInterface& mixedModel,
+    const std::string& subModelName,
     const std::string& mixtDesc) :
   AbstractParameterAliasable(mixedModel.getName() + "_" + subModelName + "."),
   AbstractWrappedModel(mixedModel.getName() + "_" + subModelName + "."),
@@ -22,18 +22,24 @@ FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(
   subModel_(),
   mixtName_(mixtDesc)
 {
-  try {
+  try
+  {
     auto& tm = mixedModel.model(subModelName);
-    try {
+    try
+    {
       auto& sm = dynamic_cast<const SubstitutionModelInterface&>(tm);
       subModel_ = std::unique_ptr<SubstitutionModelInterface>(sm.clone());
       subModel_->setNamespace(getNamespace());
       subModel_->setRate(1);
       addParameters_(subModel_->getParameters());
-    } catch (bad_cast&) {
+    }
+    catch (bad_cast&)
+    {
       throw Exception("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : model " + subModelName + " is not a substitution model.");
     }
-  } catch (NullPointerException&) {
+  }
+  catch (NullPointerException&)
+  {
     throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : unknown model name", subModelName);
   }
 }
@@ -55,13 +61,16 @@ FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(
     throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
 
   auto& tm = mixedModel.nModel(subModelNumber);
-  try {
+  try
+  {
     auto& sm = dynamic_cast<const SubstitutionModelInterface&>(tm);
     subModel_ = std::unique_ptr<SubstitutionModelInterface>(sm.clone());
     subModel_->setNamespace(getNamespace());
     subModel_->setRate(1);
     addParameters_(subModel_->getParameters());
-  } catch (bad_cast&) {
+  }
+  catch (bad_cast&)
+  {
     throw Exception("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : model with number " + TextTools::toString(subModelNumber) + " is not a substitution model.");
   }
 }

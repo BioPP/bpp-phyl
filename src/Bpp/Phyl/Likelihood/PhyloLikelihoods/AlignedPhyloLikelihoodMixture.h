@@ -46,7 +46,6 @@ public:
   virtual ~AlignedPhyloLikelihoodMixture() {}
 
 protected:
-  
   AlignedPhyloLikelihoodMixture(const AlignedPhyloLikelihoodMixture& mlc) :
     AbstractPhyloLikelihood(mlc),
     AbstractParametrizable(""),

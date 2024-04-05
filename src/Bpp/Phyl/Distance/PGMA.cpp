@@ -102,8 +102,8 @@ Node* PGMA::getParentNode(int id, Node* son1, Node* son2)
 {
   PGMAInfos infos;
   infos.numberOfLeaves =
-    dynamic_cast<NodeTemplate<PGMAInfos>*>(son1)->getInfos().numberOfLeaves
-    + dynamic_cast<NodeTemplate<PGMAInfos>*>(son2)->getInfos().numberOfLeaves;
+      dynamic_cast<NodeTemplate<PGMAInfos>*>(son1)->getInfos().numberOfLeaves
+      + dynamic_cast<NodeTemplate<PGMAInfos>*>(son2)->getInfos().numberOfLeaves;
   infos.time = dynamic_cast<NodeTemplate<PGMAInfos>*>(son1)->getInfos().time + son1->getDistanceToFather();
   Node* parent = new NodeTemplate<PGMAInfos>(id);
   dynamic_cast<NodeTemplate<PGMAInfos>*>(parent)->setInfos(infos);

@@ -43,18 +43,18 @@ std::string OptimizationTools::OPTIMIZATION_BFGS = "BFGS";
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters(
-  shared_ptr<PhyloLikelihoodInterface> lik,
-  const ParameterList& parameters,
-  shared_ptr<OptimizationListener> listener,
-  unsigned int nstep,
-  double tolerance,
-  unsigned int tlEvalMax,
-  shared_ptr<OutputStream> messageHandler,
-  shared_ptr<OutputStream> profiler,
-  bool reparametrization,
-  unsigned int verbose,
-  const std::string& optMethodDeriv,
-  const std::string& optMethodModel)
+    shared_ptr<PhyloLikelihoodInterface> lik,
+    const ParameterList& parameters,
+    shared_ptr<OptimizationListener> listener,
+    unsigned int nstep,
+    double tolerance,
+    unsigned int tlEvalMax,
+    shared_ptr<OutputStream> messageHandler,
+    shared_ptr<OutputStream> profiler,
+    bool reparametrization,
+    unsigned int verbose,
+    const std::string& optMethodDeriv,
+    const std::string& optMethodModel)
 {
   shared_ptr<SecondOrderDerivable> f = lik;
   ParameterList pl = parameters;
@@ -147,17 +147,17 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-  shared_ptr<PhyloLikelihoodInterface> lik,
-  const ParameterList& parameters,
-  shared_ptr<OptimizationListener> listener,
-  double tolerance,
-  unsigned int tlEvalMax,
-  shared_ptr<OutputStream> messageHandler,
-  shared_ptr<OutputStream> profiler,
-  bool reparametrization,
-  bool useClock,
-  unsigned int verbose,
-  const std::string& optMethodDeriv)
+    shared_ptr<PhyloLikelihoodInterface> lik,
+    const ParameterList& parameters,
+    shared_ptr<OptimizationListener> listener,
+    double tolerance,
+    unsigned int tlEvalMax,
+    shared_ptr<OutputStream> messageHandler,
+    shared_ptr<OutputStream> profiler,
+    bool reparametrization,
+    bool useClock,
+    unsigned int verbose,
+    const std::string& optMethodDeriv)
 {
   shared_ptr<SecondOrderDerivable> f = lik;
   ParameterList pl = parameters;
@@ -247,17 +247,17 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-  shared_ptr<SingleProcessPhyloLikelihood> lik,
-  const ParameterList& parameters,
-  shared_ptr<OptimizationListener> listener,
-  double tolerance,
-  unsigned int tlEvalMax,
-  shared_ptr<OutputStream> messageHandler,
-  shared_ptr<OutputStream> profiler,
-  bool reparametrization,
-  bool useClock,
-  unsigned int verbose,
-  const string& optMethodDeriv)
+    shared_ptr<SingleProcessPhyloLikelihood> lik,
+    const ParameterList& parameters,
+    shared_ptr<OptimizationListener> listener,
+    double tolerance,
+    unsigned int tlEvalMax,
+    shared_ptr<OutputStream> messageHandler,
+    shared_ptr<OutputStream> profiler,
+    bool reparametrization,
+    bool useClock,
+    unsigned int verbose,
+    const string& optMethodDeriv)
 {
   shared_ptr<SecondOrderDerivable> f = lik;
   ParameterList pl = parameters;
@@ -332,7 +332,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 }
 
 
-
 /******************************************************************************/
 
 std::string OptimizationTools::DISTANCEMETHOD_INIT       = "init";
@@ -342,10 +341,10 @@ std::string OptimizationTools::DISTANCEMETHOD_ITERATIONS = "iterations";
 /******************************************************************************/
 
 unique_ptr<DistanceMatrix> OptimizationTools::estimateDistanceMatrix(
-  DistanceEstimation& estimationMethod,
-  const ParameterList& parametersToIgnore,
-  const std::string& param,
-  unsigned int verbose)
+    DistanceEstimation& estimationMethod,
+    const ParameterList& parametersToIgnore,
+    const std::string& param,
+    unsigned int verbose)
 {
   if (param != DISTANCEMETHOD_PAIRWISE && param != DISTANCEMETHOD_INIT)
     throw Exception("OptimizationTools::estimateDistanceMatrix. Invalid option param=" + param + ".");
@@ -363,7 +362,7 @@ unique_ptr<DistanceMatrix> OptimizationTools::estimateDistanceMatrix(
     ApplicationTools::displayTask("Estimating distance matrix", true);
   estimationMethod.computeMatrix();
   auto matrix = estimationMethod.getMatrix();
-  
+
   if (verbose > 0)
     ApplicationTools::displayTaskDone();
 
@@ -373,16 +372,16 @@ unique_ptr<DistanceMatrix> OptimizationTools::estimateDistanceMatrix(
 /******************************************************************************/
 
 unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
-  DistanceEstimation& estimationMethod,
-  AgglomerativeDistanceMethodInterface& reconstructionMethod,
-  const ParameterList& parametersToIgnore,
-  bool optimizeBrLen,
-  const std::string& param,
-  double tolerance,
-  unsigned int tlEvalMax,
-  shared_ptr<OutputStream> profiler,
-  shared_ptr<OutputStream> messenger,
-  unsigned int verbose)
+    DistanceEstimation& estimationMethod,
+    AgglomerativeDistanceMethodInterface& reconstructionMethod,
+    const ParameterList& parametersToIgnore,
+    bool optimizeBrLen,
+    const std::string& param,
+    double tolerance,
+    unsigned int tlEvalMax,
+    shared_ptr<OutputStream> profiler,
+    shared_ptr<OutputStream> messenger,
+    unsigned int verbose)
 {
   estimationMethod.resetAdditionalParameters();
   estimationMethod.setVerbose(verbose);
@@ -427,13 +426,13 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
        while (test)
        {
        // Compute matrice:
-       if (verbose > 0) 
+       if (verbose > 0)
        ApplicationTools::displayTask("Estimating distance matrix", true);
        estimationMethod.computeMatrix();
        DistanceMatrix* matrix = estimationMethod.getMatrix();
        if (verbose > 0)
        ApplicationTools::displayTaskDone();
-       
+
        // Compute tree:
        if (matrix->size() == 2)
        {
@@ -451,7 +450,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
        tree.setNodeIndex(n2, 2);
        break;
        }
-    */
+     */
     if (verbose > 0)
       ApplicationTools::displayTask("Building tree");
     reconstructionMethod.setDistanceMatrix(*matrix);
@@ -468,11 +467,11 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
       test = (rf == 0);
     }
     if (param != DISTANCEMETHOD_ITERATIONS)
-      break;                              // Ends here.
+      break; // Ends here.
 
     // Now, re-estimate parameters:
     Context context;
-  
+
     shared_ptr<BranchModelInterface> model(estimationMethod.model().clone());
     shared_ptr<DiscreteDistributionInterface> rdist(estimationMethod.rateDistribution().clone());
     auto phyloT  = PhyloTreeTools::buildFromTreeTemplate(*tree);

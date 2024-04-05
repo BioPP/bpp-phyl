@@ -16,7 +16,7 @@ namespace bpp
  * @brief The PhyloLikelihood interface, for phylogenetic likelihood.
  *
  * This interface defines the common methods needed to compute a likelihood
- * from a sequence alignement, usually involving one or more phylogenetic trees.
+ * from a sequence alignment, usually involving one or more phylogenetic trees.
  */
 class PhyloLikelihoodInterface :
   public virtual SecondOrderDerivable
@@ -40,7 +40,7 @@ public:
   virtual bool isInitialized() const = 0;
 
   virtual const Context& context() const = 0;
-  
+
   virtual Context& context() = 0;
 
   /**
@@ -128,8 +128,6 @@ public:
    * @return A shared pointer toward the LikelihoodCalculation.
    */
   virtual std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const = 0;
-
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_PHYLOLIKELIHOOD_H

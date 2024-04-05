@@ -24,7 +24,7 @@ namespace bpp
  * @author Laurent GuÃÂ©guen
  *
  * This class should be used with models which equilibrium
- * distribution is fixed, ans does not depend on the parameters.
+ * distribution is fixed, and does not depend on the parameters.
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
@@ -71,10 +71,10 @@ public:
    *        distance object.
    */
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
@@ -91,11 +91,11 @@ public:
    *        distance object.
    */
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    const std::vector<std::set< size_t> >& vPos,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      const std::vector<std::set< size_t>>& vPos,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
@@ -114,12 +114,12 @@ public:
    *   distance object.
    */
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   /**
    * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
@@ -138,13 +138,13 @@ public:
    *   distance object.
    */
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    const std::vector<std::set< size_t> >& vPos,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      const std::vector<std::set< size_t>>& vPos,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~KroneckerCodonDistanceFrequenciesSubstitutionModel() {}
 
@@ -173,7 +173,6 @@ public:
   {
     return AbstractCodonFrequenciesSubstitutionModel::hasCodonFrequencySet();
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_KRONECKERCODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H

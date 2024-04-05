@@ -47,7 +47,7 @@ public:
   virtual void setMinimumBranchLength(double minimum)
   {
     if (minimum > maximumBrLen_)
-      throw Exception("ParametrizablePhyloTree::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
+      throw Exception("ParametrizablePhyloTree::setMinimumBranchLength. Minimum branch length should be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
     minimumBrLen_ = minimum;
     if (!brLenConstraint_)
     {
@@ -61,7 +61,7 @@ public:
   virtual void setMaximumBranchLength(double maximum)
   {
     if (maximum < minimumBrLen_)
-      throw Exception("ParametrizablePhyloTree::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
+      throw Exception("ParametrizablePhyloTree::setMaximumBranchLength. Maximum branch length should be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
     maximumBrLen_ = maximum;
     if (!brLenConstraint_)
     {

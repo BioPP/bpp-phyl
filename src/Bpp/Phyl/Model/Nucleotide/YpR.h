@@ -119,8 +119,8 @@ public:
 
 protected:
   void updateMatrices_(double, double, double, double,
-                      double, double, double, double);
-  
+      double, double, double, double);
+
   virtual void updateMatrices_() override;
 
   string getNestedPrefix() const
@@ -132,7 +132,7 @@ public:
   //  virtual std::string getName() const;
 
   const NucleotideSubstitutionModelInterface& nestedModel() const { return *pmodel_; }
-  
+
   size_t getNumberOfStates() const override { return 36; }
 
   virtual void setNamespace(const std::string&) override;
@@ -143,10 +143,9 @@ public:
     pmodel_->matchParametersValues(parameters);
     updateMatrices_();
   }
-  
+
   // Check that the model is good for YpR
   void checkModel(const SubstitutionModelInterface& model) const;
-
 };
 }
 
@@ -157,12 +156,12 @@ public:
 namespace bpp
 {
 /**
- * @brief symetrical YpR  model.
+ * @brief symmetrical YpR  model.
  *
- * Model YpR, on RNY triplets with symetrical dependency parameters
+ * Model YpR, on RNY triplets with symmetrical dependency parameters
  *
  * The neighbour dependency parameters are noted as: XyZ for
- *  XpY -> ZpY substitution. Since the process are symetrical,
+ *  XpY -> ZpY substitution. Since the process are symmetrical,
  *  only these are necessary.
  * @see YpR
  *
@@ -193,9 +192,7 @@ public:
   std::string getName() const override;
 
 protected:
-
   void updateMatrices_() override;
-  
 };
 
 // //////////////////////////////////////
@@ -239,7 +236,6 @@ public:
   std::string getName() const override;
 
 protected:
-
   void updateMatrices_() override;
 };
 }

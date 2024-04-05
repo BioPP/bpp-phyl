@@ -8,7 +8,7 @@ using namespace bpp;
 using namespace std;
 
 AbstractBiblioTransitionModel::AbstractBiblioTransitionModel(const std::string& prefix) :
-  //AbstractParameterAliasable(prefix),
+  // AbstractParameterAliasable(prefix),
   mapParNamesFromPmodel_(),
   lParPmodel_()
 {}
@@ -16,7 +16,7 @@ AbstractBiblioTransitionModel::AbstractBiblioTransitionModel(const std::string& 
 /******************************************************************************/
 
 AbstractBiblioTransitionModel::AbstractBiblioTransitionModel(const AbstractBiblioTransitionModel& model) :
-  //AbstractParameterAliasable(model),
+  // AbstractParameterAliasable(model),
   mapParNamesFromPmodel_(model.mapParNamesFromPmodel_),
   lParPmodel_(model.lParPmodel_)
 {}

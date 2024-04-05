@@ -17,7 +17,7 @@ namespace bpp
  * only one time per identical sites.
  *
  * The compression is achieved by the TreeParsimonyScore object.
- * The correspondance between sites in the dataset and the arrays in the structures is given
+ * The correspondence between sites in the dataset and the arrays in the structures is given
  * by the rootPatternLinks_ array: the array indice for site @f$i@f$ if given by:
  * @code
  * rootPatternLinks_[i]
@@ -72,7 +72,7 @@ public:
   }
 
   const TreeTemplate<Node>& tree() const override { return *tree_; }
-  
+
   std::shared_ptr<const TreeTemplate<Node>> getTree() const override { return tree_; }
 
 protected:

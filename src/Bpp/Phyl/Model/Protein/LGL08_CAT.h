@@ -48,9 +48,9 @@ private:
 
 public:
     EmbeddedModel(
-	std::shared_ptr<const ProteicAlphabet> alpha,
-	std::string name,
-	unsigned int nbCat = 10);
+        std::shared_ptr<const ProteicAlphabet> alpha,
+        std::string name,
+        unsigned int nbCat = 10);
 
     virtual ~EmbeddedModel() {}
 

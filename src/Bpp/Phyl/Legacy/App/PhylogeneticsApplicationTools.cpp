@@ -64,14 +64,14 @@ using namespace std;
 
 
 map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
-  const map<string, string>& params,
-  const map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
-  map<string, string>& unparsedParams,
-  const string& prefix,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+    const map<string, string>& params,
+    const map<size_t, std::shared_ptr<AlignmentDataInterface>>& mSeq,
+    map<string, string>& unparsedParams,
+    const string& prefix,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
@@ -130,7 +130,7 @@ map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
       else if (format == "NHX")
         treeReader.reset(new Nhx());
       else
-        throw Exception("Unknow format for tree reading: " + format);
+        throw Exception("Unknown format for tree reading: " + format);
 
       vector<unique_ptr<Tree>> trees;
       treeReader->readTrees(treeFilePath, trees);
@@ -343,12 +343,12 @@ map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
 /******************************************************************************/
 
 void LegacyPhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
-  BranchModelInterface& model,
-  map<string, string>& unparsedParameterValues,
-  size_t modelNumber,
-  std::shared_ptr<const AlignmentDataInterface> data,
-  map<string, string>& sharedParams,
-  bool verbose)
+    BranchModelInterface& model,
+    map<string, string>& unparsedParameterValues,
+    size_t modelNumber,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    map<string, string>& sharedParams,
+    bool verbose)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, 2);
 
@@ -357,7 +357,8 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelParametersInitialV
 
   if (initFreqs != "")
   {
-    try {
+    try
+    {
       auto& tmodel = dynamic_cast<TransitionModelInterface&>(model);
       if (initFreqs == "observed")
       {
@@ -380,7 +381,9 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelParametersInitialV
       }
       else
         throw Exception("Unknown initFreqs argument");
-    } catch(exception&e) {
+    }
+    catch (exception& e)
+    {
       ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
     }
   }
@@ -427,14 +430,14 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelParametersInitialV
 /******************************************************************************/
 
 unique_ptr<SubstitutionModelSet> LegacyPhylogeneticsApplicationTools::getSubstitutionModelSet(
-  shared_ptr<const Alphabet> alphabet,
-  shared_ptr<const GeneticCode> gCode,
-  shared_ptr<const AlignmentDataInterface> data,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+    shared_ptr<const Alphabet> alphabet,
+    shared_ptr<const GeneticCode> gCode,
+    shared_ptr<const AlignmentDataInterface> data,
+    const map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("A value is needed for this parameter: nonhomogeneous.number_of_models .");
@@ -471,15 +474,15 @@ unique_ptr<SubstitutionModelSet> LegacyPhylogeneticsApplicationTools::getSubstit
 /******************************************************************************/
 
 void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
-  SubstitutionModelSet& modelSet,
-  shared_ptr<const Alphabet> alphabet,
-  shared_ptr<const GeneticCode> gCode,
-  shared_ptr<const AlignmentDataInterface> data,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+    SubstitutionModelSet& modelSet,
+    shared_ptr<const Alphabet> alphabet,
+    shared_ptr<const GeneticCode> gCode,
+    shared_ptr<const AlignmentDataInterface> data,
+    const map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
@@ -501,7 +504,7 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (AlphabetTools::isCodonAlphabet(alphabet.get()))
   {
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instanciating a codon model.");
+      throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instantiating a codon model.");
     bIO.setGeneticCode(gCode);
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
   }
@@ -572,10 +575,10 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
 
 
     setSubstitutionModelParametersInitialValuesWithAliases(
-      *model,
-      unparsedModelParameters, i + 1, data,
-      sharedParameters,
-      verbose);
+        *model,
+        unparsedModelParameters, i + 1, data,
+        sharedParameters,
+        verbose);
 
     unparsedParameters.insert(sharedParameters.begin(), sharedParameters.end());
 
@@ -608,14 +611,14 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
 /******************************************************************************/
 
 void LegacyPhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
-  MixedSubstitutionModelSet& mixedModelSet,
-  shared_ptr<const Alphabet> alphabet,
-  shared_ptr<const AlignmentDataInterface> data,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+    MixedSubstitutionModelSet& mixedModelSet,
+    shared_ptr<const Alphabet> alphabet,
+    shared_ptr<const AlignmentDataInterface> data,
+    const map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   // /////////////////////////////////////////
   // Looks for the allowed paths
@@ -694,7 +697,6 @@ void LegacyPhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
 }
 
 
-
 /*************************************************************/
 /*****  OPTIMIZATORS *****************************************/
 /*************************************************************/
@@ -702,13 +704,13 @@ void LegacyPhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
 /******************************************************************************/
 
 shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimizeParameters(
-  shared_ptr<TreeLikelihoodInterface> tl,
-  const ParameterList& parameters,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+    shared_ptr<TreeLikelihoodInterface> tl,
+    const ParameterList& parameters,
+    const map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
   if (optimization == "None")
@@ -721,17 +723,17 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
 
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional);
   shared_ptr<OutputStream> messageHandler =
-    (mhPath == "none") ? nullptr :
-    (mhPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
+      (mhPath == "none") ? nullptr :
+      (mhPath == "std") ? ApplicationTools::message :
+      make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
   shared_ptr<OutputStream> profiler =
-    (prPath == "none") ? nullptr :
-    (prPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
+      (prPath == "none") ? nullptr :
+      (prPath == "std") ? ApplicationTools::message :
+      make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
@@ -750,11 +752,11 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
     if (verbose)
       ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
     LegacyOptimizationTools::optimizeTreeScale(
-      tl,
-      tolerance,
-      nbEvalMax,
-      messageHandler,
-      profiler);
+        tl,
+        tolerance,
+        nbEvalMax,
+        messageHandler,
+        profiler);
     if (verbose)
       ApplicationTools::displayResult("New tree likelihood", -tl->getValue());
   }
@@ -1061,17 +1063,17 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
       double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional, warn + 1);
       double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, warn + 1);
       tl = LegacyOptimizationTools::optimizeTreeNNI(
-        dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
-        optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-        reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
+            dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
+            optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
+            reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
     }
 
     if (verbose && nstep > 1)
       ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     parametersToEstimate.matchParametersValues(tl->getParameters());
     n = LegacyOptimizationTools::optimizeNumericalParameters(
-      dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
-      backupListener, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
+          dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
+          backupListener, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
   }
   else if (optName == "FullD")
   {
@@ -1084,15 +1086,15 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
       double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional, warn + 1);
       double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional, warn + 1);
       tl = LegacyOptimizationTools::optimizeTreeNNI2(
-        dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
-        optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-        reparam, optVerbose, optMethodDeriv, nniAlgo);
+            dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
+            optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
+            reparam, optVerbose, optMethodDeriv, nniAlgo);
     }
 
     parametersToEstimate.matchParametersValues(tl->getParameters());
     n = LegacyOptimizationTools::optimizeNumericalParameters2(
-      dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
-      backupListener, tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+          dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
+          backupListener, tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
   }
   else
     throw Exception("Unknown optimization method: " + optName);
@@ -1144,14 +1146,14 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
 /******************************************************************************/
 
 void LegacyPhylogeneticsApplicationTools::writeTrees(
-  const vector<const Tree*>& trees,
-  const map<string, string>& params,
-  const string& prefix,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  bool checkOnly,
-  int warn)
+    const vector<const Tree*>& trees,
+    const map<string, string>& params,
+    const string& prefix,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    bool checkOnly,
+    int warn)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional, "none", warn);
@@ -1163,7 +1165,7 @@ void LegacyPhylogeneticsApplicationTools::writeTrees(
   else if (format == "NHX")
     treeWriter = new Nhx();
   else
-    throw Exception("Unknow format for tree writing: " + format);
+    throw Exception("Unknown format for tree writing: " + format);
 
   if (!checkOnly)
     treeWriter->writeTrees(trees, file, true);
@@ -1185,8 +1187,8 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
     (out << "nonhomogeneous.stationarity = yes");
 
   // Get the parameter links:
-  map< size_t, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
-  map< string, set<size_t> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
+  map< size_t, vector<string>> modelLinks; // for each model index, stores the list of global parameters.
+  map< string, set<size_t>> parameterLinks; // for each parameter name, stores the list of model indices, which should be sorted.
   vector<string> writtenNames;
 
   // Loop over all models:
@@ -1254,4 +1256,3 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
     bIO.writeFrequencySet(*pFS, out, aliases, writtenNames);
   }
 }
-

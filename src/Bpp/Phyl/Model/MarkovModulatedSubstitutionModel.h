@@ -175,7 +175,7 @@ public:
 
 public:
   const Alphabet& alphabet() const override { return model_->alphabet(); }
-  
+
   std::shared_ptr<const Alphabet> getAlphabet() const override { return model_->getAlphabet(); }
 
   size_t getNumberOfStates() const override { return stateMap_->getNumberOfModelStates(); }
@@ -235,11 +235,13 @@ public:
     updateMatrices_();
   }
 
-  const FrequencySetInterface& frequencySet() const override {
+  const FrequencySetInterface& frequencySet() const override
+  {
     throw NullPointerException("MarkovModulatedSubstitutionModel::frequencySet. No FrequencySet associated to this model. Frequencies are computed from the FrequencySet of the modulated model.");
   }
-  
-  const ReversibleSubstitutionModelInterface& nestedModel() const {
+
+  const ReversibleSubstitutionModelInterface& nestedModel() const
+  {
     return *model_;
   }
 
@@ -277,7 +279,7 @@ public:
 
   void setDiagonal() override;
 
-  double getScale() const override 
+  double getScale() const override
   {
     std::vector<double> v;
     MatrixTools::diag(generator_, v);

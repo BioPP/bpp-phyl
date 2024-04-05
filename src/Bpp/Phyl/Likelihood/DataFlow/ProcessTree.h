@@ -23,21 +23,20 @@ namespace bpp
 {
 class CollectionNodes;
 
-/** 
+/**
  * @brief Helper: create a map with mutable dataflow nodes for each
  *  branch of the tree.
  *  The map is indexed by branch ids.
  */
 
-  using DAGindexes = std::vector<uint>;
-  using Speciesindex = uint;
+using DAGindexes = std::vector<uint>;
+using Speciesindex = uint;
 
 
 // Branch specific DataFlow objects
 class ProcessEdge
 {
 private:
-
   /**
    * @brief the index of the species in the phyloTree matching this node.
    */
@@ -58,12 +57,12 @@ private:
   // Not just "size_t nMod_" because dataflow dependency is needed
   // for createMatrix for TransitionMatrixFromModel
 
-  std::shared_ptr<NumericConstant<size_t> > nMod_;
+  std::shared_ptr<NumericConstant<size_t>> nMod_;
 
   ValueRef<Eigen::MatrixXd> transitionMatrix_;
- 
+
   /**
-   * @brief Probablity of the edge, used in case of mixture models.
+   * @brief Probability of the edge, used in case of mixture models.
    */
   ValueRef<double> brprob_;
 
@@ -72,15 +71,15 @@ public:
    * @brief Construction with model and brlen.
    */
   ProcessEdge(uint speciesIndex,
-              std::shared_ptr<ConfiguredParameter> brlen,
-              std::shared_ptr<ConfiguredModel> model,
-              std::shared_ptr<NumericConstant<size_t> > nMod = 0) : speciesIndex_(speciesIndex), brlen_(brlen), model_(model), nMod_(nMod), transitionMatrix_(0), brprob_(0){}
+      std::shared_ptr<ConfiguredParameter> brlen,
+      std::shared_ptr<ConfiguredModel> model,
+      std::shared_ptr<NumericConstant<size_t>> nMod = 0) : speciesIndex_(speciesIndex), brlen_(brlen), model_(model), nMod_(nMod), transitionMatrix_(0), brprob_(0){}
 
   /**
    * @brief Construction with probability ref from Mixture model
    */
   ProcessEdge(uint speciesIndex,
-              ValueRef<double> brprob) : speciesIndex_(speciesIndex), brlen_(0), model_(0), nMod_(0), transitionMatrix_(0), brprob_(brprob){}
+      ValueRef<double> brprob) : speciesIndex_(speciesIndex), brlen_(0), model_(0), nMod_(0), transitionMatrix_(0), brprob_(brprob){}
 
   /**
    * @brief Copy construction
@@ -132,7 +131,7 @@ public:
   //   nMod_=nMod;
   // }
 
-  std::shared_ptr<NumericConstant<size_t> > getNMod()
+  std::shared_ptr<NumericConstant<size_t>> getNMod()
   {
     return nMod_;
   }
@@ -161,13 +160,13 @@ public:
    * are created
    */
   ProcessTree(Context& context,
-              const ParametrizablePhyloTree& tree);
+      const ParametrizablePhyloTree& tree);
 
   /**
    * @brief Copy a ProcessTree with all BrLen multiplied by a given rate DF double    *
    */
   ProcessTree(const ProcessTree& tree,
-              ValueRef<double> rate);
+      ValueRef<double> rate);
 
   /**
    * @brief Build a ProcessTree with same topology as a given
@@ -175,9 +174,9 @@ public:
    * linked to those of a ParameterList, with names BrLen_"suff".
    */
   ProcessTree(Context& context,
-              const ParametrizablePhyloTree& tree,
-              const ParameterList& parList,
-              const std::string& suff);
+      const ParametrizablePhyloTree& tree,
+      const ParameterList& parList,
+      const std::string& suff);
 
   /**
    * @brief Build a ProcessTree following a given
@@ -189,8 +188,8 @@ public:
    * SubstitutionProcess.
    */
   ProcessTree(const ProcessComputationTree& tree,
-              ParametrizableCollection<ConfiguredModel>& modelColl,
-              const ProcessTree& phyloTree);
+      ParametrizableCollection<ConfiguredModel>& modelColl,
+      const ProcessTree& phyloTree);
 
 
   ProcessTree* clone() const override
@@ -215,7 +214,7 @@ public:
    * @brief Get the edges indexes of the DAG that correspond to
    * the species Index (of the Process tree).
    */
-  
+
   DAGindexes getDAGEdgesIndexes(const Speciesindex speciesIndex) const;
 
   /*
@@ -231,7 +230,7 @@ public:
    *
    */
 
-  /** 
+  /**
    * @briefCreate a Process Tree following a Substitution Process. Tree
    * Node parameters are got from ConfiguredParameters PREVIOUSLY
    * built and stored in a ParameterList.
@@ -242,7 +241,7 @@ public:
       ParameterList& parList,
       const std::string& suff = "");
 
-  /** 
+  /**
    * @brief Create a Process Tree following a Substitution Process in a Collection. Tree
    * Node parameters are got from ConfiguredParameters PREVIOUSLY
    * built and stored in a ParameterList.
@@ -255,15 +254,15 @@ public:
  * described in the SubstitutionProcess, and sharing
  * ConfiguredParameters from a ParameterList.
  *
- * Paremeter names from the ParameterList may have "_suff"
+ * Parameter names from the ParameterList may have "_suff"
  * terminations, with suff matching the numbers of the models in the
  * process.
  *
  */
 inline ParametrizableCollection<ConfiguredModel> makeConfiguredModelCollection(
-  Context& context,
-  const SubstitutionProcessInterface& process,
-  ParameterList& parList)
+    Context& context,
+    const SubstitutionProcessInterface& process,
+    ParameterList& parList)
 {
   ParametrizableCollection<ConfiguredModel> modelColl;
 

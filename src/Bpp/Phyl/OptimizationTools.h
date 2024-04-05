@@ -55,7 +55,6 @@ public:
 };
 
 
-
 /**
  * @brief Optimization methods for phylogenetic inference.
  *
@@ -103,18 +102,18 @@ public:
    * @throw Exception any exception thrown by the Optimizer.
    */
   static unsigned int optimizeNumericalParameters(
-    std::shared_ptr<PhyloLikelihoodInterface> lik,
-    const ParameterList& parameters,
-    std::shared_ptr<OptimizationListener> listener = nullptr,
-    unsigned int nstep                             = 1,
-    double tolerance                               = 0.000001,
-    unsigned int tlEvalMax                         = 1000000,
-    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
-    bool reparametrization                         = false,
-    unsigned int verbose                           = 1,
-    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON,
-    const std::string& optMethodModel              = OPTIMIZATION_BRENT);
+      std::shared_ptr<PhyloLikelihoodInterface> lik,
+      const ParameterList& parameters,
+      std::shared_ptr<OptimizationListener> listener = nullptr,
+      unsigned int nstep                             = 1,
+      double tolerance                               = 0.000001,
+      unsigned int tlEvalMax                         = 1000000,
+      std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+      bool reparametrization                         = false,
+      unsigned int verbose                           = 1,
+      const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON,
+      const std::string& optMethodModel              = OPTIMIZATION_BRENT);
 
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -140,30 +139,30 @@ public:
    */
 
   static unsigned int optimizeNumericalParameters2(
-    std::shared_ptr<PhyloLikelihoodInterface> lik,
-    const ParameterList& parameters,
-    std::shared_ptr<OptimizationListener> listener = nullptr,
-    double tolerance                               = 0.000001,
-    unsigned int tlEvalMax                         = 1000000,
-    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
-    bool reparametrization                         = false,
-    bool useClock                                  = false,
-    unsigned int verbose                           = 1,
-    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
+      std::shared_ptr<PhyloLikelihoodInterface> lik,
+      const ParameterList& parameters,
+      std::shared_ptr<OptimizationListener> listener = nullptr,
+      double tolerance                               = 0.000001,
+      unsigned int tlEvalMax                         = 1000000,
+      std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+      bool reparametrization                         = false,
+      bool useClock                                  = false,
+      unsigned int verbose                           = 1,
+      const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
   static unsigned int optimizeNumericalParameters2(
-    std::shared_ptr<SingleProcessPhyloLikelihood> lik,
-    const ParameterList& parameters,
-    std::shared_ptr<OptimizationListener> listener = nullptr,
-    double tolerance                               = 0.000001,
-    unsigned int tlEvalMax                         = 1000000,
-    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
-    bool reparametrization                         = false,
-    bool useClock                                  = false,
-    unsigned int verbose                           = 1,
-    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
+      std::shared_ptr<SingleProcessPhyloLikelihood> lik,
+      const ParameterList& parameters,
+      std::shared_ptr<OptimizationListener> listener = nullptr,
+      double tolerance                               = 0.000001,
+      unsigned int tlEvalMax                         = 1000000,
+      std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+      bool reparametrization                         = false,
+      bool useClock                                  = false,
+      unsigned int verbose                           = 1,
+      const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
   /**
    * @brief Estimate a distance matrix using maximum likelihood.
@@ -182,10 +181,10 @@ public:
    * @see buildDistanceTree for a procedure to jointly estimate the distance matrix and underlying tree.
    */
   static std::unique_ptr<DistanceMatrix> estimateDistanceMatrix(
-    DistanceEstimation& estimationMethod,
-    const ParameterList& parametersToIgnore,
-    const std::string& param = DISTANCEMETHOD_INIT,
-    unsigned int verbose = 0);
+      DistanceEstimation& estimationMethod,
+      const ParameterList& parametersToIgnore,
+      const std::string& param = DISTANCEMETHOD_INIT,
+      unsigned int verbose = 0);
 
   /**
    * @brief Build a tree using a distance method.
@@ -212,16 +211,16 @@ public:
    * @param verbose Verbose level.
    */
   static std::unique_ptr<TreeTemplate<Node>> buildDistanceTree(
-    DistanceEstimation& estimationMethod,
-    AgglomerativeDistanceMethodInterface& reconstructionMethod,
-    const ParameterList& parametersToIgnore,
-    bool optimizeBrLen = false,
-    const std::string& param = DISTANCEMETHOD_INIT,
-    double tolerance = 0.000001,
-    unsigned int tlEvalMax = 1000000,
-    std::shared_ptr<OutputStream> profiler = nullptr,
-    std::shared_ptr<OutputStream> messenger = nullptr,
-    unsigned int verbose = 0);
+      DistanceEstimation& estimationMethod,
+      AgglomerativeDistanceMethodInterface& reconstructionMethod,
+      const ParameterList& parametersToIgnore,
+      bool optimizeBrLen = false,
+      const std::string& param = DISTANCEMETHOD_INIT,
+      double tolerance = 0.000001,
+      unsigned int tlEvalMax = 1000000,
+      std::shared_ptr<OutputStream> profiler = nullptr,
+      std::shared_ptr<OutputStream> messenger = nullptr,
+      unsigned int verbose = 0);
 
 public:
   static std::string DISTANCEMETHOD_INIT;

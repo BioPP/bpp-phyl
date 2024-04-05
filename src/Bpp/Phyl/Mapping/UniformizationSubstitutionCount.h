@@ -27,11 +27,11 @@ class UniformizationSubstitutionCount :
 private:
   std::shared_ptr<const SubstitutionModelInterface> model_;
   size_t nbStates_;
-  std::vector< RowMatrix<double> > bMatrices_;
-  mutable std::vector< RowMatrix<double> > power_;
-  mutable std::vector< std::vector< RowMatrix<double> > > s_;
+  std::vector< RowMatrix<double>> bMatrices_;
+  mutable std::vector< RowMatrix<double>> power_;
+  mutable std::vector< std::vector< RowMatrix<double>>> s_;
   double miu_;
-  mutable std::vector< RowMatrix<double> > counts_;
+  mutable std::vector< RowMatrix<double>> counts_;
   mutable double currentLength_;
 
 public:
@@ -84,7 +84,7 @@ public:
 public:
   double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const override;
 
-  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
+  std::unique_ptr< Matrix<double>> getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
 
   void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override;
 

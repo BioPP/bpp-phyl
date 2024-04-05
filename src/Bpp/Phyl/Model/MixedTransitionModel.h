@@ -34,9 +34,9 @@ public:
    * @brief Returns a specific model from the mixture
    */
   virtual const TransitionModelInterface& nModel(size_t i) const = 0;
-  
+
   virtual std::shared_ptr<const TransitionModelInterface> getNModel(size_t i) const = 0;
-  
+
   /**
    * @brief Returns the  probability of a specific model from the mixture
    */
@@ -91,7 +91,6 @@ public:
   virtual Vuint getSubmodelNumbers(const std::string& desc) const = 0;
 
 protected:
-
   virtual TransitionModelInterface& nModel_(size_t i) = 0;
 
   friend class AbstractBiblioMixedTransitionModel;

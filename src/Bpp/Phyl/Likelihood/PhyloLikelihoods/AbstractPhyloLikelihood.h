@@ -41,10 +41,10 @@ protected:
   /**
    * @brief For Dataflow computing
    */
-  mutable std::unordered_map<std::string, ValueRef<DataLik> > firstOrderDerivativeNodes_;
+  mutable std::unordered_map<std::string, ValueRef<DataLik>> firstOrderDerivativeNodes_;
 
   mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<DataLik>,
-                             StringPairHash>
+      StringPairHash>
   secondOrderDerivativeNodes_;
 
 public:
@@ -71,7 +71,7 @@ public:
   virtual ~AbstractPhyloLikelihood() {}
 
   const Context& context() const override { return context_; }
-  
+
   Context& context() override { return context_; }
 
   /**
@@ -84,7 +84,6 @@ public:
   }
 
 public:
-
   /**
    * @brief Share Parameters, that are DF_parameters
    */
@@ -159,7 +158,7 @@ public:
   }
 
   double getSecondOrderDerivative (const std::string& variable1,
-                                   const std::string& variable2) const override
+      const std::string& variable2) const override
   {
     using namespace std; // for isinf
     using namespace numeric; // for isinf
@@ -167,7 +166,7 @@ public:
   }
 
   ValueRef<DataLik> secondOrderDerivativeNode (const std::string& variable1,
-                                               const std::string& variable2) const
+      const std::string& variable2) const
   {
     const auto key = std::make_pair (variable1, variable2);
     const auto it = secondOrderDerivativeNodes_.find (key);
@@ -179,7 +178,7 @@ public:
     {
       // Reuse firstOrderDerivative() to generate the first derivative with caching
       auto node =
-        firstOrderDerivativeNode (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
+          firstOrderDerivativeNode (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
       secondOrderDerivativeNodes_.emplace (key, node);
       return node;
     }

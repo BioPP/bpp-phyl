@@ -26,13 +26,13 @@ using namespace std;
 /******************************************************************************/
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  ModelList& modelList,
-  const std::string& prefix) :
+    ModelList& modelList,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(
-    modelList.getWordAlphabet(),
-    std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
-    prefix),
+      modelList.getWordAlphabet(),
+      std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
+      prefix),
   newAlphabet_(true),
   VSubMod_      (),
   VnestedPrefix_(),
@@ -91,9 +91,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  shared_ptr<const Alphabet> alph,
-  shared_ptr<const StateMapInterface> stateMap,
-  const string& prefix) :
+    shared_ptr<const Alphabet> alph,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(alph, stateMap, prefix),
   newAlphabet_(false),
@@ -103,9 +103,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 {}
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const std::string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(make_unique<WordAlphabet>(pmodel->getAlphabet(), num), 0, prefix),
   newAlphabet_(true),
@@ -118,7 +118,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   size_t i;
 
   string t = "";
-  shared_ptr<SubstitutionModelInterface> pmodel2 = move(pmodel);
+  shared_ptr<SubstitutionModelInterface> pmodel2 = std::move(pmodel);
   for (i = 0; i < num; i++)
   {
     VSubMod_.push_back(pmodel2);
@@ -131,7 +131,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  const AbstractWordSubstitutionModel& wrsm) :
+    const AbstractWordSubstitutionModel& wrsm) :
   AbstractParameterAliasable(wrsm),
   AbstractSubstitutionModel(wrsm),
   newAlphabet_(wrsm.newAlphabet_),
@@ -156,7 +156,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel& AbstractWordSubstitutionModel::operator=(
-  const AbstractWordSubstitutionModel& model)
+    const AbstractWordSubstitutionModel& model)
 {
   AbstractParameterAliasable::operator=(model);
   AbstractSubstitutionModel::operator=(model);

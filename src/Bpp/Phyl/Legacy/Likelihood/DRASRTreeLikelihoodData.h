@@ -21,7 +21,7 @@ namespace bpp
  *
  * This class is for use with the DRASRTreeParsimonyData class.
  *
- * Store all conditionnal likelihoods:
+ * Store all conditional likelihoods:
  * <pre>
  * x[i][c][s]
  *   |---------> Site i
@@ -99,12 +99,12 @@ private:
    * Providing the likelihood array is known for nodes n11 and n12,
    * the likelihood array for node n1 and site <i>i</i> (_likelihood[n1][i]) must be computed
    * using arrays patternLinks_[n1][n11][i] and patternLinks_[n1][n12][i].
-   * This network is intialized once for all in the constructor of this class.
+   * This network is initialized once for all in the constructor of this class.
    *
    * The double map contains the position of the site to use (second dimension)
    * of the likelihoods array.
    */
-  mutable std::map<int, std::map<int, std::vector<size_t> > > patternLinks_;
+  mutable std::map<int, std::map<int, std::vector<size_t>>> patternLinks_;
   std::shared_ptr<AlignmentDataInterface> shrunkData_;
   size_t nbSites_;
   size_t nbStates_;
@@ -113,7 +113,7 @@ private:
   bool usePatterns_;
 
 public:
-  DRASRTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node> > tree, size_t nbClasses, bool usePatterns = true) :
+  DRASRTreeLikelihoodData(std::shared_ptr< const TreeTemplate<Node>> tree, size_t nbClasses, bool usePatterns = true) :
     AbstractTreeLikelihoodData(tree),
     nodeData_(), patternLinks_(), shrunkData_(), nbSites_(0), nbStates_(0),
     nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
@@ -163,7 +163,7 @@ public:
    *
    * @param tree The tree to be associated to this data.
    */
-  void setTree(std::shared_ptr< const TreeTemplate<Node> > tree)
+  void setTree(std::shared_ptr< const TreeTemplate<Node>> tree)
   {
     tree_ = tree;
     for (auto& it : nodeData_)

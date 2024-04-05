@@ -11,7 +11,7 @@
 #include "TreeDrawing.h"
 #include "TreeDrawingListener.h"
 
-// From ths STL:
+// From the STL:
 #include <vector>
 #include <string>
 #include <memory>
@@ -116,7 +116,7 @@ class AbstractTreeDrawing :
   public virtual TreeDrawing
 {
 private:
-  std::unique_ptr<TreeTemplate<INode> > tree_;
+  std::unique_ptr<TreeTemplate<INode>> tree_;
   double xUnit_;
   double yUnit_;
   const TreeDrawingSettings* settings_;
@@ -214,8 +214,8 @@ public:
    * @param angle The rotation value of the text.
    */
   virtual void drawAtNode(GraphicDevice& gDevice, const INode& node, const std::string& text,
-                          double xOffset = 0, double yOffset = 0,
-                          short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
+      double xOffset = 0, double yOffset = 0,
+      short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
 
   /**
    * @brief Draw some text at a particular branch position.

@@ -19,7 +19,7 @@ namespace bpp
  *
  * @see SequenceSimulator interface for simulating whole sequence sets.
  */
-class SiteSimulatorInterface:
+class SiteSimulatorInterface :
   public virtual Clonable
 {
 public:
@@ -38,9 +38,9 @@ public:
   virtual std::unique_ptr<Site> simulateSite(size_t ancestralStateIndex, double rate) const = 0;
 
   virtual std::vector<std::string> getSequenceNames() const = 0;
-  
+
   virtual std::shared_ptr<const Alphabet> getAlphabet() const = 0;
-  
+
   virtual const Alphabet& alphabet() const = 0;
 
   virtual void outputInternalSites(bool yn) = 0;

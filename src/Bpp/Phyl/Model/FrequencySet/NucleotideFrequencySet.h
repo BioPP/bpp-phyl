@@ -131,7 +131,7 @@ class FixedNucleotideFrequencySet :
 public:
   FixedNucleotideFrequencySet(
       std::shared_ptr<const NucleicAlphabet> alphabet,
-      const std::vector<double>& initFreqs, 
+      const std::vector<double>& initFreqs,
       const std::string& name = "Fixed") :
     FixedFrequencySet(std::make_shared<const CanonicalStateMap>(alphabet, false), initFreqs, name) {}
 

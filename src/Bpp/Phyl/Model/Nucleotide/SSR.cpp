@@ -18,11 +18,11 @@ using namespace std;
 /******************************************************************************/
 
 SSR::SSR(
-  shared_ptr<const NucleicAlphabet> alpha,
-  double beta,
-  double gamma,
-  double delta,
-  double theta) :
+    shared_ptr<const NucleicAlphabet> alpha,
+    double beta,
+    double gamma,
+    double delta,
+    double theta) :
   AbstractParameterAliasable("SSR."),
   AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "SSR."),
   beta_(beta), gamma_(gamma), delta_(delta), theta_(theta),

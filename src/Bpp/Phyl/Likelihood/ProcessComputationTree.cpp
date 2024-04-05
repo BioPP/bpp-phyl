@@ -12,13 +12,13 @@ using namespace std;
 ProcessComputationTree::ProcessComputationTree(
     shared_ptr<const SubstitutionProcessInterface> process) :
   BaseTree(process->getModelScenario() ? 0 :
-           (process->getParametrizablePhyloTree() ? process->getParametrizablePhyloTree()->getGraph() : 0)),
+      (process->getParametrizablePhyloTree() ? process->getParametrizablePhyloTree()->getGraph() : 0)),
   process_(process)
 {
   shared_ptr<const ParametrizablePhyloTree> ptree = process->getParametrizablePhyloTree();
   if (!ptree)
     throw Exception("ProcessComputationTree::ProcessComputationTree: missing tree.");
-  
+
   // if no model scenario, copy the basic tree
   auto scenario = process->getModelScenario();
 
@@ -52,7 +52,7 @@ ProcessComputationTree::ProcessComputationTree(
   map<shared_ptr<MixedTransitionModelInterface>, uint> mMrca;
 
   auto vMod = scenario->getModels();
-  map<shared_ptr<MixedTransitionModelInterface>, vector<shared_ptr<PhyloNode> > > mnodes;
+  map<shared_ptr<MixedTransitionModelInterface>, vector<shared_ptr<PhyloNode>>> mnodes;
 
   auto vNodes = ptree->getAllNodes();
 
@@ -78,7 +78,7 @@ ProcessComputationTree::ProcessComputationTree(
       continue;
 
     if (mnodes.find(mok) == mnodes.end())
-      mnodes[mok] = vector<shared_ptr<PhyloNode> >();
+      mnodes[mok] = vector<shared_ptr<PhyloNode>>();
     mnodes[mok].push_back(node);
   }
 
@@ -90,7 +90,7 @@ ProcessComputationTree::ProcessComputationTree(
     mMrca[mnode.first] = ptree->getNodeIndex(nrca);
   }
 
-  // Then construcion of the tree
+  // Then construction of the tree
 
   auto nroot = make_shared<ProcessComputationNode>(*root, ptree->getRootIndex());
   createNode(nroot);
@@ -161,7 +161,7 @@ void ProcessComputationTree::buildFollowingScenario_(
 
       // If it is a mixture model, check its decomposition in the modelpaths
 
-      map<Vuint, vector<shared_ptr<ModelPath> > > vMP;
+      map<Vuint, vector<shared_ptr<ModelPath>>> vMP;
 
       auto v0 = Vuint(); // ie model not seen in the model path
       for (size_t i = 0; i < nbpath; i++)
@@ -170,7 +170,7 @@ void ProcessComputationTree::buildFollowingScenario_(
         if (!smp->hasModel(mixMod))
         {
           if (vMP.find(Vuint()) == vMP.end())
-            vMP[v0] = vector<shared_ptr<ModelPath> >(1, smp);
+            vMP[v0] = vector<shared_ptr<ModelPath>>(1, smp);
           else
             vMP[v0].push_back(smp);
           continue;
@@ -178,7 +178,7 @@ void ProcessComputationTree::buildFollowingScenario_(
 
         const Vuint np(smp->getPathNode(mixMod));
         if (vMP.find(np) == vMP.end())
-          vMP[np] = vector<shared_ptr<ModelPath> >(1, smp);
+          vMP[np] = vector<shared_ptr<ModelPath>>(1, smp);
         else
           vMP[np].push_back(smp);
       }
@@ -241,7 +241,7 @@ void ProcessComputationTree::buildFollowingScenario_(
     father->setProperty("event", NodeEvent::mixtureEvent);
 
     // Check decomposition in the modelpaths
-    map<Vuint, vector<shared_ptr<ModelPath> > > vMP;
+    map<Vuint, vector<shared_ptr<ModelPath>>> vMP;
 
     auto v0 = Vuint(); // ie model not seen in the model path
     for (size_t i = 0; i < nbpath; i++)
@@ -258,12 +258,12 @@ void ProcessComputationTree::buildFollowingScenario_(
 
       const Vuint np(smp->getPathNode(mrca));
       if (vMP.find(np) == vMP.end())
-        vMP[np] = vector<shared_ptr<ModelPath> >(1, smp);
+        vMP[np] = vector<shared_ptr<ModelPath>>(1, smp);
       else
         vMP[np].push_back(smp);
     }
 
-    size_t nmodel=0; // number model of the model split at this mrca node
+    size_t nmodel = 0; // number model of the model split at this mrca node
     bool modok(false);
 
     auto modNbs = process_->getModelNumbers();

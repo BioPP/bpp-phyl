@@ -45,4 +45,3 @@ Vuint AbstractBiblioMixedTransitionModel::getSubmodelNumbers(const string& desc)
 
   return mixedModel().getSubmodelNumbers(desc2);
 }
-

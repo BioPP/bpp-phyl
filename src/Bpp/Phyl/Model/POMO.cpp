@@ -10,9 +10,9 @@ using namespace std;
 /******************************************************************************/
 
 POMO::POMO(
-  shared_ptr<const AllelicAlphabet> allAlph,
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unique_ptr<FrequencySetInterface> pfitness) :
+    shared_ptr<const AllelicAlphabet> allAlph,
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unique_ptr<FrequencySetInterface> pfitness) :
   AbstractParameterAliasable("POMO."),
   AbstractSubstitutionModel(allAlph, make_shared<CanonicalStateMap>(allAlph, false), "POMO."),
   nbAlleles_(allAlph->getNbAlleles()),
@@ -51,7 +51,7 @@ void POMO::updateMatrices_()
 
   // Per couple of alleles
 
-  // position of the bloc of alleles
+  // position of the block of alleles
   size_t nbloc = nbStates;
 
   // for all couples starting with i
@@ -135,7 +135,7 @@ void POMO::updateMatrices_()
 
       snum += 2 * mu * pNm2[i] * pN[j] * (pN[i] != pN[j] ? (phi_i - phi_j) / (pN[i] - pN[j]) : (1. / nbAlleles));
       sden += mu * 2 * pNm[i] + ((phi_i + phi_j) *
-                                 ((phi_i != phi_j) ? ((pNm[i] - pNm[j]) / (phi_i - phi_j)) : (nbAlleles - 1)));
+          ((phi_i != phi_j) ? ((pNm[i] - pNm[j]) / (phi_i - phi_j)) : (nbAlleles - 1)));
     }
   }
 

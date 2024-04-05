@@ -53,7 +53,7 @@ using namespace numeric;
 //   {
 //     Eigen::VectorXd probas;
 //     copyBppToEigen(rates->getProbabilities(), probas);
-    
+
 //     auto vvLik = getLikelihoodCalculationSingleProcess()->getSiteLikelihoodsForAllClasses();
 //     for (size_t i = 0; i < nbS; i++)
 //     {

@@ -43,23 +43,21 @@ protected:
    * vector of pointers towards LikelihoodCalculationSingleProcess, used
    * for the global likelihood.
    */
-  mutable std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess> > vLikCal_;
+  mutable std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess>> vLikCal_;
 
 public:
-
   MultiProcessSequencePhyloLikelihood(
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<MultiProcessSequenceEvolution> processSeqEvol,
-    std::shared_ptr<CollectionNodes> collNodes,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<MultiProcessSequenceEvolution> processSeqEvol,
+      std::shared_ptr<CollectionNodes> collNodes,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
 protected:
-  
-  MultiProcessSequencePhyloLikelihood(const MultiProcessSequencePhyloLikelihood& mpspl):
-      AbstractParametrizableSequencePhyloLikelihood(mpspl),
-      mSeqEvol_(mpspl.mSeqEvol_),
-      vLikCal_(mpspl.vLikCal_)
+  MultiProcessSequencePhyloLikelihood(const MultiProcessSequencePhyloLikelihood& mpspl) :
+    AbstractParametrizableSequencePhyloLikelihood(mpspl),
+    mSeqEvol_(mpspl.mSeqEvol_),
+    vLikCal_(mpspl.vLikCal_)
   {}
 
   MultiProcessSequencePhyloLikelihood& operator=(const MultiProcessSequencePhyloLikelihood& mpspl)
@@ -71,9 +69,8 @@ protected:
   }
 
 public:
-
   virtual ~MultiProcessSequencePhyloLikelihood() {}
-  
+
 public:
   /**
    * @name The Likelihood interface.
@@ -137,7 +134,7 @@ public:
    * @brief Set the dataset for which the likelihood must be evaluated.
    *
    * @param sites The data set to use.
-   * @param nData the number of the data (optionnal, default 0).
+   * @param nData the number of the data (optional, default 0).
    */
 
   void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0) override;

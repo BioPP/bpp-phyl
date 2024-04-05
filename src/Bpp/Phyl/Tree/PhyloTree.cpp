@@ -11,14 +11,12 @@ using namespace std;
 PhyloTree::PhyloTree(bool rooted) :
   AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranch>(rooted),
   name_("")
-{
-}
+{}
 
 PhyloTree::PhyloTree(const PhyloTree* tree) :
-  AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranch>(tree?*tree:false),
-  name_(tree?tree->name_:"")
-{
-}
+  AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranch>(tree ? *tree : false),
+  name_(tree ? tree->name_ : "")
+{}
 
 PhyloTree::PhyloTree(const ParametrizablePhyloTree& tree) :
   AssociationTreeGlobalGraphObserver<PhyloNode, PhyloBranch>(tree),
@@ -27,7 +25,7 @@ PhyloTree::PhyloTree(const ParametrizablePhyloTree& tree) :
 
 void PhyloTree::resetNodesId()
 {
-  std::vector<shared_ptr<PhyloNode> > nodes = getAllNodes();
+  std::vector<shared_ptr<PhyloNode>> nodes = getAllNodes();
   for (unsigned int i = 0; i < nodes.size(); i++)
   {
     setNodeIndex(nodes[i], i);
@@ -39,14 +37,14 @@ void PhyloTree::resetNodesId()
 
 std::shared_ptr<PhyloNode> PhyloTree::getPhyloNode(const std::string& name) const
 {
-  vector<shared_ptr<PhyloNode> > vpn = getAllNodes();
+  vector<shared_ptr<PhyloNode>> vpn = getAllNodes();
 
   for (auto it:vpn)
   {
-    if (it->hasName() && it->getName()==name)
+    if (it->hasName() && it->getName() == name)
       return it;
   }
-  
+
   return std::make_shared<PhyloNode>();
 }
 
@@ -54,9 +52,9 @@ std::vector<std::string> PhyloTree::getAllLeavesNames() const
 {
   vector<string> vn;
 
-  vector<shared_ptr<PhyloNode> > vpn = getAllLeaves();
+  vector<shared_ptr<PhyloNode>> vpn = getAllLeaves();
 
-  for (vector<shared_ptr<PhyloNode> >::const_iterator it = vpn.begin(); it != vpn.end(); it++)
+  for (vector<shared_ptr<PhyloNode>>::const_iterator it = vpn.begin(); it != vpn.end(); it++)
   {
     vn.push_back((*it)->getName());
   }
@@ -66,8 +64,8 @@ std::vector<std::string> PhyloTree::getAllLeavesNames() const
 
 void PhyloTree::scaleTree(shared_ptr<PhyloNode> node, double factor)
 {
-  vector<shared_ptr<PhyloBranch> > branches = getSubtreeEdges(node);
-  for (vector<shared_ptr<PhyloBranch> >::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)
+  vector<shared_ptr<PhyloBranch>> branches = getSubtreeEdges(node);
+  for (vector<shared_ptr<PhyloBranch>>::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)
   {
     if ((*currBranch)->hasLength())
       (*currBranch)->setLength((*currBranch)->getLength() * factor);
@@ -83,26 +81,25 @@ void PhyloTree::scaleTree(double factor)
 
 void PhyloTree::pruneTree(std::vector<string> leaves)
 {
-  vector<shared_ptr<PhyloNode> > vpn = getAllLeaves();
+  vector<shared_ptr<PhyloNode>> vpn = getAllLeaves();
 
   for (auto& leaf:vpn)
   {
-    if (std::find(leaves.begin(), leaves.end(), leaf->getName())==leaves.end())
+    if (std::find(leaves.begin(), leaves.end(), leaf->getName()) == leaves.end())
     {
       while (leaf && isLeaf(leaf)) // to get rid of internal nodes as leaves
       {
         auto fat = getFatherOfNode(leaf);
         deleteNode(leaf);
-        leaf=fat;
+        leaf = fat;
       }
     }
   }
-
 }
 
 void PhyloTree::setBranchLengths(double l)
 {
-  vector<shared_ptr<PhyloBranch> > vpn = getAllEdges();
+  vector<shared_ptr<PhyloBranch>> vpn = getAllEdges();
 
   for (auto& it: vpn)
   {
@@ -114,7 +111,7 @@ Vdouble PhyloTree::getBranchLengths() const
 {
   Vdouble vl;
 
-  vector<shared_ptr<PhyloBranch> > vpn = getAllEdges();
+  vector<shared_ptr<PhyloBranch>> vpn = getAllEdges();
 
   for (auto& it: vpn)
   {
@@ -126,7 +123,7 @@ Vdouble PhyloTree::getBranchLengths() const
 
 PhyloTree& PhyloTree::operator+=(const PhyloTree& phylotree)
 {
-  vector<shared_ptr<PhyloBranch> > vpn = getAllEdges();
+  vector<shared_ptr<PhyloBranch>> vpn = getAllEdges();
 
   for (auto& it: vpn)
   {
@@ -145,7 +142,7 @@ PhyloTree& PhyloTree::operator+=(const PhyloTree& phylotree)
 
 PhyloTree& PhyloTree::operator-=(const PhyloTree& phylotree)
 {
-  vector<shared_ptr<PhyloBranch> > vpn = getAllEdges();
+  vector<shared_ptr<PhyloBranch>> vpn = getAllEdges();
 
   for (auto& it: vpn)
   {
@@ -164,7 +161,7 @@ PhyloTree& PhyloTree::operator-=(const PhyloTree& phylotree)
 
 PhyloTree& PhyloTree::operator/=(const PhyloTree& phylotree)
 {
-  vector<shared_ptr<PhyloBranch> > vpn = getAllEdges();
+  vector<shared_ptr<PhyloBranch>> vpn = getAllEdges();
 
   for (auto& it: vpn)
   {
@@ -183,7 +180,7 @@ PhyloTree& PhyloTree::operator/=(const PhyloTree& phylotree)
 
 PhyloTree& PhyloTree::operator*=(const PhyloTree& phylotree)
 {
-  vector<shared_ptr<PhyloBranch> > vpn = getAllEdges();
+  vector<shared_ptr<PhyloBranch>> vpn = getAllEdges();
 
   for (auto& it: vpn)
   {
@@ -204,17 +201,19 @@ void PhyloTree::addSubTree(std::shared_ptr<PhyloNode> phyloNode, const Node& nod
 {
   for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
   {
-    const Node& fils=*node[i];
+    const Node& fils = *node[i];
 
     // the son
-    auto soni=std::make_shared<PhyloNode>(fils.hasName()?fils.getName():"");
+    auto soni = std::make_shared<PhyloNode>(fils.hasName() ? fils.getName() : "");
     setNodeIndex(soni, (uint)fils.getId());
 
     auto propi = fils.getNodePropertyNames();
     for (const auto& prop:propi)
+    {
       soni->setProperty(prop, *fils.getNodeProperty(prop));
+    }
 
-    auto branchi=std::make_shared<PhyloBranch> ();
+    auto branchi = std::make_shared<PhyloBranch> ();
     if (fils.hasDistanceToFather())
       branchi->setLength(fils.getDistanceToFather());
     setEdgeIndex(branchi, (uint)fils.getId());
@@ -222,14 +221,14 @@ void PhyloTree::addSubTree(std::shared_ptr<PhyloNode> phyloNode, const Node& nod
     // the branch to the son
     propi = fils.getBranchPropertyNames();
     for (const auto& prop:propi)
+    {
       branchi->setProperty(prop, *fils.getBranchProperty(prop));
+    }
 
     // the link
     createNode(phyloNode, soni, branchi);
 
-    // recrusion
+    // recursion
     addSubTree(soni, fils);
   }
 }
-
-

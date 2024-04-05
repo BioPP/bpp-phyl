@@ -58,7 +58,7 @@ private:
    * A map from each BranchModel number to the SubProcess
    * members that are linked to it.
    */
-  std::map<size_t, std::vector<size_t> > mModelToSubPro_;
+  std::map<size_t, std::vector<size_t>> mModelToSubPro_;
 
   /**
    * A collection of Frequencies Sets
@@ -69,7 +69,7 @@ private:
    * A map from each FrequencySet number to the SubProcess members
    * that are linked to it.
    */
-  std::map<size_t, std::vector<size_t> > mFreqToSubPro_;
+  std::map<size_t, std::vector<size_t>> mFreqToSubPro_;
 
   /**
    * A collection of DiscreteDistributions
@@ -83,13 +83,13 @@ private:
    * These ConstantDistributions are stored in distColl_ with numbers
    * 10000*(numberOfDiscreteDistribution+1) + numberOfTheCategory.
    */
-  std::map<size_t, std::vector<size_t> > mVConstDist_;
+  std::map<size_t, std::vector<size_t>> mVConstDist_;
 
   /**
    * A map from each DiscreteDistribution number to the SubProcess
    * members that are linked to it.
    */
-  std::map<size_t, std::vector<size_t> > mDistToSubPro_;
+  std::map<size_t, std::vector<size_t>> mDistToSubPro_;
 
   /**
    * A collection of trees
@@ -100,17 +100,17 @@ private:
    * A map from each Tree number to the SubProcess members that are
    * linked to it.
    */
-  std::map<size_t, std::vector<size_t> > mTreeToSubPro_;
+  std::map<size_t, std::vector<size_t>> mTreeToSubPro_;
 
   /**
    * A map of ModelScenario
    */
-  std::map<size_t, std::shared_ptr<ModelScenario> > mModelScenario_;
+  std::map<size_t, std::shared_ptr<ModelScenario>> mModelScenario_;
 
   /**
    * A map of SubstitutionProcessCollectionMember
    */
-  std::map<size_t, std::shared_ptr<SubstitutionProcessCollectionMember> > mSubProcess_; //Need a specific deleter because the destructor is private.
+  std::map<size_t, std::shared_ptr<SubstitutionProcessCollectionMember>> mSubProcess_; // Need a specific deleter because the destructor is private.
 
 public:
   /**
@@ -260,7 +260,6 @@ public:
    * @param frequenciesIndex The index of the frequencies set in the collection.
    * @return the got FrequencySet*.
    */
-
   FrequencySetInterface& frequencySet(size_t frequenciesIndex)
   {
     return *freqColl_[frequenciesIndex];
@@ -301,7 +300,7 @@ public:
   {
     return *distColl_[distributionIndex];
   }
-  
+
   const DiscreteDistributionInterface& rateDistribution(size_t distributionIndex) const
   {
     return *distColl_[distributionIndex];
@@ -479,7 +478,7 @@ public:
    * @throw an Exception if the built SubstitutionModelSet is not complete or well built.
    *
    */
-  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate, size_t nFreq);
+  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int>> mModBr, size_t nTree, size_t nRate, size_t nFreq);
 
   /*
    * @brief Method to add a SubstitutionProcess.
@@ -492,7 +491,7 @@ public:
    * @throw an Exception if the built SubstitutionModelSet is not complete or well built.
    *
    */
-  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate);
+  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int>> mModBr, size_t nTree, size_t nRate);
 
   /*
    * @brief Method to add a one per branch SubstitutionProcess. A new

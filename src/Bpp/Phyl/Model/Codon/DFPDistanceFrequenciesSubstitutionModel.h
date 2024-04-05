@@ -26,7 +26,7 @@ namespace bpp
  *
  *
  * This class should be used with models which equilibrium
- * distribution is fixed, ans does not depend on the parameters.
+ * distribution is fixed, and does not depend on the parameters.
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
@@ -71,9 +71,9 @@ public:
    *        distance object.
    */
   DFPDistanceFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr);
 
   virtual ~DFPDistanceFrequenciesSubstitutionModel() {}
 
@@ -83,7 +83,6 @@ public:
   }
 
 public:
-  
   void fireParameterChanged(const ParameterList& parameterlist) override;
 
   std::string getName() const override;
@@ -108,7 +107,6 @@ public:
   {
     return AbstractCodonFrequenciesSubstitutionModel::hasCodonFrequencySet();
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_DFPDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H

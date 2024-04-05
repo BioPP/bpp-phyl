@@ -51,15 +51,15 @@ public:
    * @param verbose Should I display some info?
    * @param rootArray is true if the array of the likelihoods at the root
    *    should be computed (useful for ancestral reconstruction).
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   DRHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true,
-    bool rootArray = false);
+      const Tree& tree,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true,
+      bool rootArray = false);
 
   /**
    * @brief Build a new DRHomogeneousMixedTreeLikelihood object with data.
@@ -75,16 +75,16 @@ public:
    * @param verbose Should I display some info?
    * @param rootArray is true if the array of the likelihoods at the root
    *    should be computed (useful for ancestral reconstruction).
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   DRHomogeneousMixedTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true,
-    bool rootArray = false);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true,
+      bool rootArray = false);
 
   DRHomogeneousMixedTreeLikelihood(const DRHomogeneousMixedTreeLikelihood& lik);
 

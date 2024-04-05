@@ -66,7 +66,6 @@ public:
   {
     return std::dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
   }
-
 };
 
 /**
@@ -84,7 +83,7 @@ public:
     AbstractReversibleSubstitutionModel(alpha, stateMap, prefix) {}
 
   virtual ~AbstractReversibleProteinSubstitutionModel() {}
-  
+
   AbstractReversibleProteinSubstitutionModel* clone() const override = 0;
 
 public:
@@ -92,7 +91,6 @@ public:
   {
     return std::dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_PROTEIN_PROTEINSUBSTITUTIONMODEL_H

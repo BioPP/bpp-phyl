@@ -72,8 +72,8 @@ protected:
   }
 
   AlignedPhyloLikelihoodHmm* clone() const override
-  { 
-    return new AlignedPhyloLikelihoodHmm(*this); 
+  {
+    return new AlignedPhyloLikelihoodHmm(*this);
   }
 
 public:

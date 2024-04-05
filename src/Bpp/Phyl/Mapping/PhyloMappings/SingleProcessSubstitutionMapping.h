@@ -37,7 +37,7 @@ private:
 
 public:
   SingleProcessSubstitutionMapping(
-      std::shared_ptr<SingleProcessPhyloLikelihood> spp, 
+      std::shared_ptr<SingleProcessPhyloLikelihood> spp,
       std::shared_ptr<SubstitutionRegisterInterface> reg,
       std::shared_ptr<const AlphabetIndex2> weights,
       std::shared_ptr<const AlphabetIndex2> distances,
@@ -67,18 +67,18 @@ public:
   void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO, double threshold = -1, bool verbose = true)
   {
     counts_ = SubstitutionMappingTools::computeCounts(
-        getLikelihoodCalculationSingleProcess(),
-	getSubstitutionRegister(),
-	getWeights(),
-	getDistances(),
-        unresolvedOption,
-	threshold,
-	verbose);
+          getLikelihoodCalculationSingleProcess(),
+          getSubstitutionRegister(),
+          getWeights(),
+          getDistances(),
+          unresolvedOption,
+          threshold,
+          verbose);
   }
 
   void computeNormalizations(const ParameterList& nullParams,
-                             short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
-                             bool verbose = true);
+      short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
+      bool verbose = true);
 
   /*
    * @brief Return the tree of counts

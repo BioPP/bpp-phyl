@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SETOFALIGNEDPHYLOLIKELIHOOD_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Seq/Container/AlignmentData.h>
 
@@ -52,7 +51,6 @@ public:
    * @return The log likelihood for site <i>site</i>.
    */
   virtual double getLogLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const = 0;
-
 };
 
 /**
@@ -76,12 +74,11 @@ public:
   AbstractAlignedPhyloLikelihoodSet(
       Context& context,
       std::shared_ptr<PhyloLikelihoodContainer> pC,
-      const std::vector<size_t>& nPhylo, 
+      const std::vector<size_t>& nPhylo,
       bool inCollection = true,
       const std::string& prefix = "");
 
 protected:
-
   AbstractAlignedPhyloLikelihoodSet(const AbstractAlignedPhyloLikelihoodSet& soap) :
     AbstractPhyloLikelihood(soap),
     AbstractPhyloLikelihoodSet(soap),
@@ -96,7 +93,6 @@ protected:
   }
 
 public:
-
   virtual ~AbstractAlignedPhyloLikelihoodSet() {}
 
   /**

@@ -37,11 +37,11 @@ YNGP_M2::YNGP_M2(
   auto psdd = make_unique<SimpleDiscreteDistribution>(v1, v2);
 
   map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
-  mpdd["omega"] = move(psdd);
+  mpdd["omega"] = std::move(psdd);
 
-  auto yn98 = make_unique<YN98>(gc, move(codonFreqs));
+  auto yn98 = make_unique<YN98>(gc, std::move(codonFreqs));
 
-  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), move(yn98), mpdd));
+  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), std::move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
   vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();
@@ -75,7 +75,7 @@ YNGP_M2::YNGP_M2(
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     if (it.second.substr(0, 5) != "omega")
       addParameter_(new Parameter("YNGP_M2." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
+            mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   addParameter_(new Parameter("YNGP_M2.omega0", 0.5, std::make_shared<IntervalConstraint>(0.002, 1, true, false)));

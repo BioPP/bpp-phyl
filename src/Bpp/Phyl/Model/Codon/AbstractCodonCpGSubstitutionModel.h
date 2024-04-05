@@ -12,7 +12,7 @@
 namespace bpp
 {
 /**
- * @brief Abstract class for modelling of CpG -> CpA or TpG (symetric)
+ * @brief Abstract class for modelling of CpG -> CpA or TpG (symmetric)
  *  hypermutability substitution rate inside codons. Note that the
  *  neihbouring effects between codons are not considered.
  *
@@ -42,8 +42,8 @@ public:
    * @param prefix the Namespace
    */
   AbstractCodonCpGSubstitutionModel(
-    std::shared_ptr<const CodonAlphabet> alphabet,
-    const std::string& prefix);
+      std::shared_ptr<const CodonAlphabet> alphabet,
+      const std::string& prefix);
 
   AbstractCodonCpGSubstitutionModel(const AbstractCodonCpGSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -52,7 +52,7 @@ public:
   {}
 
   AbstractCodonCpGSubstitutionModel& operator=(
-    const AbstractCodonCpGSubstitutionModel& model)
+      const AbstractCodonCpGSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
     rho_ = model.rho_;

@@ -24,7 +24,7 @@ namespace bpp
  * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$ \alpha @f$ and
  * @f$\beta@f$ of the @f$ 1 + Gamma(\alpha,\beta) @f$
  * distribution,@f$p0@f$ the weight of the Beta distribution. The
- * codon frequencies @f$ \pi_j @f$ are either observed or infered.
+ * codon frequencies @f$ \pi_j @f$ are either observed or inferred.
  *
  * References:
  *
@@ -36,11 +36,9 @@ class YNGP_M10 :
   public YNGP_M
 {
 private:
-	
   unsigned int nBeta_, nGamma_;
 
 public:
-  
   /**
    * @brief Constructor that requires the number of classes of the
    * BetaDiscreteDistribution and the GammaDiscreteDistribution.
@@ -73,11 +71,9 @@ public:
   }
 
 protected:
-  
   void updateMatrices_() override;
 
 public:
-
   std::string getName() const override { return "YNGP_M10"; }
 
   unsigned int getNBeta() const

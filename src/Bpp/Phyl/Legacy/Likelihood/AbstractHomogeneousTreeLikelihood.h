@@ -70,10 +70,10 @@ protected:
 
   // some values we'll need:
   size_t nbSites_,         // the number of sites in the container
-         nbDistinctSites_, // the number of distinct sites
-         nbClasses_,       // the number of rate classes
-         nbStates_,        // the number of states in the alphabet
-         nbNodes_;         // the number of nodes in the tree
+      nbDistinctSites_, // the number of distinct sites
+      nbClasses_,       // the number of rate classes
+      nbStates_,        // the number of states in the alphabet
+      nbNodes_;         // the number of nodes in the tree
 
   bool verbose_;
 
@@ -83,11 +83,11 @@ protected:
 
 public:
   AbstractHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Copy constructor
@@ -110,10 +110,10 @@ private:
    * @brief Method called by constructor.
    */
   void init_(const Tree& tree,
-             std::shared_ptr<TransitionModelInterface> model,
-             std::shared_ptr<DiscreteDistributionInterface> rDist,
-             bool checkRooted,
-             bool verbose);
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted,
+      bool verbose);
 
 public:
   /**

@@ -12,7 +12,7 @@ using namespace std;
 namespace bpp
 {
 ConfiguredDistribution::ConfiguredDistribution (Context& context, NodeRefVec&& deps, std::unique_ptr<DiscreteDistributionInterface>&& distrib)
-  : Value<const DiscreteDistributionInterface*>(std::move(deps), distrib.get()), AbstractParametrizable(distrib->getNamespace())// , context_(context)
+  : Value<const DiscreteDistributionInterface*>(std::move(deps), distrib.get()), AbstractParametrizable(distrib->getNamespace()) // , context_(context)
   , distrib_(std::move(distrib))
 {
   for (const auto& dep:dependencies())
@@ -65,7 +65,7 @@ NodeRef ConfiguredDistribution::recreate(Context& c, NodeRefVec&& deps)
 // ProbabilitiesFromDiscreteDistribution
 
 ProbabilitiesFromDiscreteDistribution::ProbabilitiesFromDiscreteDistribution(
-  NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
+    NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
   : Value<Eigen::RowVectorXd>(std::move (deps)), nbClass_ (dim) {}
 
 
@@ -87,12 +87,12 @@ NodeRef ProbabilitiesFromDiscreteDistribution::derive(Context& c, const Node_DF&
   auto distribDep = this->dependency (0);
   auto& distrib = static_cast<Dep&>(*distribDep);
   auto buildPWithNewDistrib = [this, &c](NodeRef&& newDistrib) {
-                                return ConfiguredParametrizable::createRowVector<Dep, Self>(c, {std::move(newDistrib)}, nbClass_);
-                              };
+        return ConfiguredParametrizable::createRowVector<Dep, Self>(c, {std::move(newDistrib)}, nbClass_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredDistribution, T >(
-    c, distrib, node, nbClass_, buildPWithNewDistrib);
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), nbClass_);
+        c, distrib, node, nbClass_, buildPWithNewDistrib);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), nbClass_);
 }
 
 NodeRef ProbabilitiesFromDiscreteDistribution::recreate (Context& c, NodeRefVec&& deps)
@@ -123,7 +123,7 @@ std::shared_ptr<ProbabilitiesFromDiscreteDistribution> ProbabilitiesFromDiscrete
 // ProbabilityFromDiscreteDistribution
 
 ProbabilityFromDiscreteDistribution::ProbabilityFromDiscreteDistribution (
-  NodeRefVec&& deps, uint nCat)
+    NodeRefVec&& deps, uint nCat)
   : Value<double>(std::move (deps)), nCat_ (nCat) {}
 
 
@@ -154,12 +154,12 @@ NodeRef ProbabilityFromDiscreteDistribution::derive (Context& c, const Node_DF& 
   auto distribDep = this->dependency (0);
   auto& distrib = static_cast<Dep&>(*distribDep);
   auto buildPWithNewDistrib = [this, &c](NodeRef&& newDistrib) {
-                                return this->create (c, {std::move (newDistrib)}, nCat_);
-                              };
+        return this->create (c, {std::move (newDistrib)}, nCat_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T >(
-    c, distrib, node, 1, buildPWithNewDistrib);
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), 1);
+        c, distrib, node, 1, buildPWithNewDistrib);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), 1);
 }
 
 NodeRef ProbabilityFromDiscreteDistribution::recreate (Context& c, NodeRefVec&& deps)
@@ -177,7 +177,7 @@ void ProbabilityFromDiscreteDistribution::compute ()
 // CategoryFromDiscreteDistribution
 
 CategoryFromDiscreteDistribution::CategoryFromDiscreteDistribution (
-  NodeRefVec&& deps, uint nCat)
+    NodeRefVec&& deps, uint nCat)
   : Value<double>(std::move (deps)), nCat_ (nCat) {}
 
 
@@ -208,12 +208,12 @@ NodeRef CategoryFromDiscreteDistribution::derive (Context& c, const Node_DF& nod
   auto distribDep = this->dependency (0);
   auto& distrib = static_cast<Dep&>(*distribDep);
   auto buildPWithNewDistrib = [this, &c](NodeRef&& newDistrib) {
-                                return this->create (c, {std::move (newDistrib)}, nCat_);
-                              };
+        return this->create (c, {std::move (newDistrib)}, nCat_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T >(
-    c, distrib, node, 1, buildPWithNewDistrib);
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), 1);
+        c, distrib, node, 1, buildPWithNewDistrib);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), 1);
 }
 
 NodeRef CategoryFromDiscreteDistribution::recreate (Context& c, NodeRefVec&& deps)

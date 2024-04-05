@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_HMMPHYLOALPHABET_H
 
 
-
 // From Numeric
 #include <Bpp/Numeric/Hmm/HmmStateAlphabet.h>
 
@@ -33,7 +32,7 @@ private:
    * @brief vector of aligned phylolikelihoods. These
    * phylolikelihoods are not owned by the alphabet.
    */
-  std::vector<std::shared_ptr<AlignedPhyloLikelihoodInterface> > vAP_;
+  std::vector<std::shared_ptr<AlignedPhyloLikelihoodInterface>> vAP_;
 
   size_t nbSites_;
 

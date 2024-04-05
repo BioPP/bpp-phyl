@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_ALIGNEDPHYLOLIKELIHOOD_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 
@@ -23,7 +22,7 @@ namespace bpp
  * @brief The AlignedPhyloLikelihood interface, for phylogenetic likelihood.
  *
  * This interface defines the common methods needed to compute a
- * likelihood from an alignement of data (involving several process
+ * likelihood from an alignment of data (involving several process
  * & alphabets, if needed), where all sites are independent (eq it
  * does not match for HMM phylolikelihoods).
  *
@@ -131,7 +130,6 @@ protected:
   }
 
 public:
-  
   virtual ~AbstractAlignedPhyloLikelihood() {}
 
   size_t getNumberOfSites() const { return nbSites_; }

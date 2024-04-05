@@ -30,7 +30,7 @@ PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::readPairedSiteLikelihoo
 
   // Then each line contains a model name and site loglikelihoods under this model
   vector<string> names;
-  vector<vector<double> > loglikelihoods;
+  vector<vector<double>> loglikelihoods;
   loglikelihoods.reserve(nmodels);
 
   // The exact format is determined upon the first line
@@ -53,7 +53,7 @@ PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::readPairedSiteLikelihoo
     if (delim_pos == string::npos)
     {
       ostringstream msg;
-      msg << "IOTreepuzzlePairedSiteLikelihoods::read: Couldn't find delimiter. The beggining of the line was : "
+      msg << "IOTreepuzzlePairedSiteLikelihoods::read: Couldn't find delimiter. The beginning of the line was : "
           << endl << line.substr(0, 100);
       throw Exception(msg.str());
     }
@@ -120,8 +120,8 @@ void IOTreepuzzlePairedSiteLikelihoods::writePairedSiteLikelihoods(const bpp::Pa
     {
       os << psl.getModelNames().at(i) << "\t";
       for (vector<double>::const_iterator sitelik = psl.getLikelihoods().at(i).begin();
-           sitelik != psl.getLikelihoods().at(i).end();
-           ++sitelik)
+          sitelik != psl.getLikelihoods().at(i).end();
+          ++sitelik)
       {
         if (sitelik == psl.getLikelihoods().at(i).end() - 1)
           os << *sitelik;
@@ -138,8 +138,8 @@ void IOTreepuzzlePairedSiteLikelihoods::writePairedSiteLikelihoods(const bpp::Pa
     // First we must get the length of the names field
     vector<size_t> name_sizes;
     for (vector<string>::const_iterator name = psl.getModelNames().begin();
-         name != psl.getModelNames().end();
-         ++name)
+        name != psl.getModelNames().end();
+        ++name)
     {
       name_sizes.push_back(name->size());
     }
@@ -156,8 +156,8 @@ void IOTreepuzzlePairedSiteLikelihoods::writePairedSiteLikelihoods(const bpp::Pa
 
       // site-likelihoods field
       for (vector<double>::const_iterator sitelik = psl.getLikelihoods().at(i).begin();
-           sitelik != psl.getLikelihoods().at(i).end();
-           ++sitelik)
+          sitelik != psl.getLikelihoods().at(i).end();
+          ++sitelik)
       {
         if (sitelik == psl.getLikelihoods().at(i).end() - 1)
           os << *sitelik;

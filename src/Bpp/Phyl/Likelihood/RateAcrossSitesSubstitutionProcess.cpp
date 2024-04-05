@@ -10,10 +10,10 @@ using namespace bpp;
 using namespace std;
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
-  shared_ptr<BranchModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rdist,
-  std::shared_ptr<const PhyloTree> tree,
-  std::shared_ptr<FrequencySetInterface> rootFrequencies) :
+    shared_ptr<BranchModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rdist,
+    std::shared_ptr<const PhyloTree> tree,
+    std::shared_ptr<FrequencySetInterface> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model),
@@ -31,10 +31,10 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
 }
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
-  shared_ptr<BranchModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rdist,
-  std::shared_ptr<ParametrizablePhyloTree> tree,
-  std::shared_ptr<FrequencySetInterface> rootFrequencies) :
+    shared_ptr<BranchModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rdist,
+    std::shared_ptr<ParametrizablePhyloTree> tree,
+    std::shared_ptr<FrequencySetInterface> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model),

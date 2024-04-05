@@ -6,7 +6,6 @@
 #define BPP_PHYL_LEGACY_LIKELIHOOD_PAIREDSITELIKELIHOODS_H
 
 
-
 // From the STL:
 #include <vector>
 #include <string>
@@ -27,7 +26,7 @@ namespace bpp
 class PairedSiteLikelihoods
 {
 private:
-  std::vector<std::vector<double> > logLikelihoods_;
+  std::vector<std::vector<double>> logLikelihoods_;
   std::vector<std::string> modelNames_;
 
 public:
@@ -43,9 +42,9 @@ public:
    * or if the number of names and site loglikelihood records differ.
    */
   PairedSiteLikelihoods(
-    const std::vector<std::vector<double> >& siteLogLikelihoods,
-    const std::vector<std::string>& modelNames = std::vector<std::string>()
-    );
+      const std::vector<std::vector<double>>& siteLogLikelihoods,
+      const std::vector<std::string>& modelNames = std::vector<std::string>()
+      );
 
   ~PairedSiteLikelihoods() {}
 
@@ -58,8 +57,8 @@ public:
    * @throw Exception If the number of sites is not the same as in the container.
    */
   void appendModel(
-    const std::vector<double>& siteLogLikelihoods,
-    const std::string& modelName = "");
+      const std::vector<double>& siteLogLikelihoods,
+      const std::string& modelName = "");
 
   /**
    * @brief Append a model.
@@ -82,7 +81,7 @@ public:
   /**
    * @return The site-likelihoods of all models.
    */
-  const std::vector<std::vector<double> >& getLikelihoods() const
+  const std::vector<std::vector<double>>& getLikelihoods() const
   {
     return logLikelihoods_;
   }
@@ -142,7 +141,7 @@ public:
    *
    * @param replicates The number of pseudoreplicates over which the weights are to be averaged.
    */
-  std::pair< std::vector<std::string>, std::vector<double> > computeExpectedLikelihoodWeights(int replicates = 10000) const;
+  std::pair< std::vector<std::string>, std::vector<double>> computeExpectedLikelihoodWeights(int replicates = 10000) const;
 
   /**
    * @brief Draw a nonparametric pseudoreplicate

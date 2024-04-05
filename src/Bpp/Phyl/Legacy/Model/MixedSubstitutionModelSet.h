@@ -11,7 +11,7 @@
 #include "../../Model/AbstractSubstitutionModel.h"
 #include "SubstitutionModelSet.h"
 
-//From the STL:
+// From the STL:
 #include <memory>
 
 namespace bpp
@@ -159,7 +159,7 @@ private:
     double proba_;
 
 public:
-    HyperNode(std::shared_ptr<const MixedSubstitutionModelSet>);
+    HyperNode(std::shared_ptr<const MixedSubstitutionModelSet> );
     HyperNode(const HyperNode&);
     HyperNode& operator=(const HyperNode&);
     ~HyperNode(){}

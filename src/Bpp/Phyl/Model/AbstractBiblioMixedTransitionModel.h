@@ -141,7 +141,6 @@ public:
   }
 
 protected:
-  
   TransitionModelInterface& transitionModel_() override
   {
     return *mixedModelPtr_;
@@ -153,8 +152,6 @@ protected:
   {
     return mixedModel_().nModel_(i);
   }
-
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTBIBLIOMIXEDTRANSITIONMODEL_H

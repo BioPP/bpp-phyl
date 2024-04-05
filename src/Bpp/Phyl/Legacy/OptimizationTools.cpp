@@ -76,12 +76,12 @@ double LegacyOptimizationTools::ScaleFunction::getValue() const
 /******************************************************************************/
 
 unsigned int LegacyOptimizationTools::optimizeTreeScale(
-  shared_ptr<TreeLikelihoodInterface> tl,
-  double tolerance,
-  unsigned int tlEvalMax,
-  shared_ptr<OutputStream> messageHandler,
-  shared_ptr<OutputStream> profiler,
-  unsigned int verbose)
+    shared_ptr<TreeLikelihoodInterface> tl,
+    double tolerance,
+    unsigned int tlEvalMax,
+    shared_ptr<OutputStream> messageHandler,
+    shared_ptr<OutputStream> profiler,
+    unsigned int verbose)
 {
   auto sf = make_shared<ScaleFunction>(tl);
   BrentOneDimension bod(sf);
@@ -91,7 +91,7 @@ unsigned int LegacyOptimizationTools::optimizeTreeScale(
   singleParameter.addParameter(Parameter("scale factor", 0));
   bod.setInitialInterval(-0.5, 0.5);
   bod.init(singleParameter);
-  auto PS =make_shared<ParametersStopCondition>(&bod, tolerance);
+  auto PS = make_shared<ParametersStopCondition>(&bod, tolerance);
   bod.setStopCondition(PS);
   bod.setMaximumNumberOfEvaluations(tlEvalMax);
   bod.optimize();
@@ -104,18 +104,18 @@ unsigned int LegacyOptimizationTools::optimizeTreeScale(
 /******************************************************************************/
 
 unsigned int LegacyOptimizationTools::optimizeNumericalParameters(
-  shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
-  const ParameterList& parameters,
-  shared_ptr<OptimizationListener> listener,
-  unsigned int nstep,
-  double tolerance,
-  unsigned int tlEvalMax,
-  shared_ptr<OutputStream> messageHandler,
-  shared_ptr<OutputStream> profiler,
-  bool reparametrization,
-  unsigned int verbose,
-  const string& optMethodDeriv,
-  const string& optMethodModel)
+    shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+    const ParameterList& parameters,
+    shared_ptr<OptimizationListener> listener,
+    unsigned int nstep,
+    double tolerance,
+    unsigned int tlEvalMax,
+    shared_ptr<OutputStream> messageHandler,
+    shared_ptr<OutputStream> profiler,
+    bool reparametrization,
+    unsigned int verbose,
+    const string& optMethodDeriv,
+    const string& optMethodModel)
 {
   shared_ptr<SecondOrderDerivable> f = tl;
   ParameterList pl = parameters;
@@ -206,17 +206,17 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters(
 /******************************************************************************/
 
 unsigned int LegacyOptimizationTools::optimizeNumericalParameters2(
-  shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
-  const ParameterList& parameters,
-  shared_ptr<OptimizationListener> listener,
-  double tolerance,
-  unsigned int tlEvalMax,
-  shared_ptr<OutputStream> messageHandler,
-  shared_ptr<OutputStream> profiler,
-  bool reparametrization,
-  bool useClock,
-  unsigned int verbose,
-  const std::string& optMethodDeriv)
+    shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+    const ParameterList& parameters,
+    shared_ptr<OptimizationListener> listener,
+    double tolerance,
+    unsigned int tlEvalMax,
+    shared_ptr<OutputStream> messageHandler,
+    shared_ptr<OutputStream> profiler,
+    bool reparametrization,
+    bool useClock,
+    unsigned int verbose,
+    const std::string& optMethodDeriv)
 {
   shared_ptr<SecondOrderDerivable> f = tl;
   shared_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
@@ -244,7 +244,7 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters2(
   }
 
   shared_ptr<AbstractNumericalDerivative> fnum;
-  
+
   // Build optimizer:
   unique_ptr<OptimizerInterface> optimizer;
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
@@ -300,15 +300,15 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters2(
 /******************************************************************************/
 
 unsigned int LegacyOptimizationTools::optimizeBranchLengthsParameters(
-  shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
-  const ParameterList& parameters,
-  shared_ptr<OptimizationListener> listener,
-  double tolerance,
-  unsigned int tlEvalMax,
-  shared_ptr<OutputStream> messageHandler,
-  shared_ptr<OutputStream> profiler,
-  unsigned int verbose,
-  const string& optMethodDeriv)
+    shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+    const ParameterList& parameters,
+    shared_ptr<OptimizationListener> listener,
+    double tolerance,
+    unsigned int tlEvalMax,
+    shared_ptr<OutputStream> messageHandler,
+    shared_ptr<OutputStream> profiler,
+    unsigned int verbose,
+    const string& optMethodDeriv)
 {
   // Build optimizer:
   unique_ptr<OptimizerInterface> optimizer;
@@ -436,7 +436,7 @@ shared_ptr<NNIHomogeneousTreeLikelihood> LegacyOptimizationTools::optimizeTreeNN
     LegacyOptimizationTools::optimizeNumericalParameters2(tl, parameters, nullptr, tolBefore, 1000000, messageHandler, profiler, reparametrization, false, verbose, optMethodDeriv);
   }
   // Begin topo search:
-  auto topoSearch = make_shared<NNITopologySearch> (tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
+  auto topoSearch = make_shared<NNITopologySearch>(tl, nniMethod, verbose > 2 ? verbose - 2 : 0);
   auto topoListener = make_shared<NNITopologyListener2>(topoSearch, parameters, tolDuring, messageHandler, profiler, verbose, optMethodDeriv, reparametrization);
   topoListener->setNumericalOptimizationCounter(numStep);
   topoSearch->addTopologyListener(topoListener);
@@ -455,5 +455,3 @@ shared_ptr<DRTreeParsimonyScore> LegacyOptimizationTools::optimizeTreeNNI(
   topoSearch.search();
   return dynamic_pointer_cast<DRTreeParsimonyScore>(topoSearch.getSearchableObject());
 }
-
-

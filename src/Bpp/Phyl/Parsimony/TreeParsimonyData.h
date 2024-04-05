@@ -49,7 +49,7 @@ public:
  *
  * Stores all the inner computations:
  * - subtree scores and ancestral states for each node,
- * - correspondance between sites in the dataset and array indices.
+ * - correspondence between sites in the dataset and array indices.
  *
  * @see TreeParsimonyNodeData
  */

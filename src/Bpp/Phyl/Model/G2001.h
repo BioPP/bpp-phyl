@@ -44,10 +44,10 @@ public:
    * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
    */
   G2001(
-       std::unique_ptr<ReversibleSubstitutionModelInterface> model,
-       std::unique_ptr<DiscreteDistributionInterface> rDist,
-       double nu = 1.,
-       bool normalizeRateChanges = false) :
+      std::unique_ptr<ReversibleSubstitutionModelInterface> model,
+      std::unique_ptr<DiscreteDistributionInterface> rDist,
+      double nu = 1.,
+      bool normalizeRateChanges = false) :
     MarkovModulatedSubstitutionModel(std::move(model), static_cast<unsigned int>(rDist->getNumberOfCategories()), normalizeRateChanges, "G01."),
     rDist_(std::move(rDist)),
     nestedRatePrefix_("rdist_" + rDist->getNamespace())
@@ -96,7 +96,7 @@ public:
    * @return The rate distribution associated to this instance.
    */
   const DiscreteDistributionInterface& rateDistribution() const { return *rDist_; }
-  
+
   void setNamespace(const std::string& prefix) override
   {
     MarkovModulatedSubstitutionModel::setNamespace(prefix);
@@ -112,7 +112,6 @@ public:
   void addRateParameter() override {}
 
 protected:
-  
   void updateRatesModel_() override
   {
     double nu = getParameterValue("nu");

@@ -21,7 +21,7 @@ namespace bpp
  * The substitution model is the same over the tree (homogeneous model).
  * A non-uniform distribution of rates among the sites is allowed (ASRV models).</p>
  *
- * This class uses an instance of the DRASDRTreeLikelihoodData for conditionnal likelihood storage.
+ * This class uses an instance of the DRASDRTreeLikelihoodData for conditional likelihood storage.
  *
  * All nodes share the same site patterns.
  */
@@ -48,14 +48,14 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   DRHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Build a new DRHomogeneousTreeLikelihood object and compute the corresponding likelihood.
@@ -69,15 +69,15 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   DRHomogeneousTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Copy constructor.
@@ -181,7 +181,7 @@ protected:
    */
   virtual void computeSubtreeLikelihoodPostfix(const Node* node); // Recursive method.
   /**
-   * This method initilize the remaining likelihood arrays, corresponding to father nodes.
+   * This method initialize the remaining likelihood arrays, corresponding to father nodes.
    * It must be called after the postfix method because it requires that the arrays for
    * son nodes to be be computed.
    */
@@ -209,7 +209,7 @@ protected:
   /**
    * @brief Compute conditional likelihoods.
    *
-   * This method is the "core" likelihood computation function, performing all the product uppon all nodes, the summation for each ancestral state and each rate class.
+   * This method is the "core" likelihood computation function, performing all the product upon all nodes, the summation for each ancestral state and each rate class.
    * It is designed for inner usage, and a maximum efficiency, so no checking is performed on the input parameters.
    * Use with care!
    *
@@ -220,22 +220,22 @@ protected:
    * @param nbDistinctSites The number of distinct sites (the first dimension of the likelihood array).
    * @param nbClasses The number of rate classes (the second dimension of the likelihood array).
    * @param nbStates The number of states (the third dimension of the likelihood array).
-   * @param reset Tell if the output likelihood array must be initalized prior to computation.
+   * @param reset Tell if the output likelihood array must be initialized prior to computation.
    * If true, the resetLikelihoodArray method will be called.
    */
   static void computeLikelihoodFromArrays(
-    const std::vector<const VVVdouble*>& iLik,
-    const std::vector<const VVVdouble*>& tProb,
-    VVVdouble& oLik, size_t nbNodes,
-    size_t nbDistinctSites,
-    size_t nbClasses,
-    size_t nbStates,
-    bool reset = true);
+      const std::vector<const VVVdouble*>& iLik,
+      const std::vector<const VVVdouble*>& tProb,
+      VVVdouble& oLik, size_t nbNodes,
+      size_t nbDistinctSites,
+      size_t nbClasses,
+      size_t nbStates,
+      bool reset = true);
 
   /**
    * @brief Compute conditional likelihoods.
    *
-   * This method is the "core" likelihood computation function, performing all the product uppon all nodes, the summation for each ancestral state and each rate class.
+   * This method is the "core" likelihood computation function, performing all the product upon all nodes, the summation for each ancestral state and each rate class.
    * This function is specific to non-reversible models: the subtree containing the root is specified separately.
    * It is designed for inner usage, and a maximum efficiency, so no checking is performed on the input parameters.
    * Use with care!
@@ -249,20 +249,20 @@ protected:
    * @param nbDistinctSites The number of distinct sites (the first dimension of the likelihood array).
    * @param nbClasses The number of rate classes (the second dimension of the likelihood array).
    * @param nbStates The number of states (the third dimension of the likelihood array).
-   * @param reset Tell if the output likelihood array must be initalized prior to computation.
+   * @param reset Tell if the output likelihood array must be initialized prior to computation.
    * If true, the resetLikelihoodArray method will be called.
    */
   static void computeLikelihoodFromArrays(
-    const std::vector<const VVVdouble*>& iLik,
-    const std::vector<const VVVdouble*>& tProb,
-    const VVVdouble* iLikR,
-    const VVVdouble* tProbR,
-    VVVdouble& oLik,
-    size_t nbNodes,
-    size_t nbDistinctSites,
-    size_t nbClasses,
-    size_t nbStates,
-    bool reset = true);
+      const std::vector<const VVVdouble*>& iLik,
+      const std::vector<const VVVdouble*>& tProb,
+      const VVVdouble* iLikR,
+      const VVVdouble* tProbR,
+      VVVdouble& oLik,
+      size_t nbNodes,
+      size_t nbDistinctSites,
+      size_t nbClasses,
+      size_t nbStates,
+      bool reset = true);
 
   friend class DRHomogeneousMixedTreeLikelihood;
 };

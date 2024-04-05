@@ -65,7 +65,7 @@ public:
 
 private:
   std::vector<std::string> names_;
-  std::vector< std::shared_ptr<const CoreSiteInterface> > sites_;
+  std::vector< std::shared_ptr<const CoreSiteInterface>> sites_;
   std::vector<unsigned int> weights_;
   IndicesType indices_;
   std::shared_ptr<const Alphabet> alpha_;
@@ -90,9 +90,8 @@ public:
 private:
   void init_(
       const AlignmentDataInterface& sequences,
-      std::vector<std::string> names= {});
+      std::vector<std::string> names = {});
 
-  
 public:
   /**
    * @return The number of times each unique site was found.

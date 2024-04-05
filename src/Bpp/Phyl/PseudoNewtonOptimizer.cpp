@@ -22,8 +22,8 @@ using namespace bpp;
 double PseudoNewtonOptimizer::PNStopCondition::getCurrentTolerance() const
 {
   return NumTools::abs<double>(
-    dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
-    dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_);
+        dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
+        dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_);
 }
 
 /**************************************************************************/
@@ -82,7 +82,7 @@ double PseudoNewtonOptimizer::doStep()
     {
       printMessage("!!! Second order derivative is negative for parameter " + params_[i] + "(" + TextTools::toString(getParameters()[i].getValue()) + "). Moving in the other direction.");
       // movements[i] = 0;  // We want to reach a minimum, not a maximum!
-      // My personnal improvement:
+      // My personal improvement:
       movements[i] = -firstOrderDerivative / secondOrderDerivative;
     }
     else

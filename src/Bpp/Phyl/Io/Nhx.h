@@ -83,7 +83,10 @@ public:
 
 public:
     Property(const std::string& pptName, const std::string& pptTag, bool pptOnBranch = false, short pptType = 0) :
-      name(pptName), tag(pptTag), onBranch(pptOnBranch), type(pptType) {}
+      name(pptName),
+      tag(pptTag),
+      onBranch(pptOnBranch),
+      type(pptType) {}
 
     bool operator<(const Property& ppt) const
     {

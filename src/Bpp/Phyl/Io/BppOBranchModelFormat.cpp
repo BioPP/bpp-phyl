@@ -35,10 +35,10 @@ using namespace bpp;
 using namespace std;
 
 std::unique_ptr<BranchModelInterface> BppOBranchModelFormat::readBranchModel(
-  shared_ptr<const Alphabet> alphabet,
-  const string& modelDescription,
-  const AlignmentDataInterface& data,
-  bool parseArguments)
+    shared_ptr<const Alphabet> alphabet,
+    const string& modelDescription,
+    const AlignmentDataInterface& data,
+    bool parseArguments)
 {
   unparsedArguments_.clear();
   unique_ptr<BranchModelInterface> model;

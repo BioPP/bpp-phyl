@@ -43,7 +43,7 @@ public:
    *
    * @param description A string describing the reader in the keyval syntax.
    * @return A new IMultiTree object according to options specified.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   IMultiTree* readIMultiTree(const std::string& description);
 

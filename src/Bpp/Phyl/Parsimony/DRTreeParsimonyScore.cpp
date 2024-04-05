@@ -27,10 +27,10 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 }
 
 DRTreeParsimonyScore::DRTreeParsimonyScore(
-  shared_ptr<TreeTemplate<Node>> tree,
-  shared_ptr<const SiteContainerInterface> data,
-  shared_ptr<const StateMapInterface> statesMap,
-  bool verbose) :
+    shared_ptr<TreeTemplate<Node>> tree,
+    shared_ptr<const SiteContainerInterface> data,
+    shared_ptr<const StateMapInterface> statesMap,
+    bool verbose) :
   AbstractTreeParsimonyScore(tree, data, statesMap, verbose),
   parsimonyData_(new DRTreeParsimonyData(tree)),
   nbDistinctSites_()
@@ -49,7 +49,7 @@ void DRTreeParsimonyScore::init_(shared_ptr<const SiteContainerInterface> data, 
     ApplicationTools::displayTaskDone();
   if (verbose)
     ApplicationTools::displayResult("Number of distinct sites",
-                                    TextTools::toString(nbDistinctSites_));
+        TextTools::toString(nbDistinctSites_));
 }
 
 /******************************************************************************/
@@ -84,9 +84,9 @@ void DRTreeParsimonyScore::computeScores()
   computeScoresPostorder(treeTemplate().getRootNode());
   computeScoresPreorder(treeTemplate().getRootNode());
   computeScoresForNode(
-    parsimonyData_->nodeData(treeTemplate().getRootId()),
-    parsimonyData_->getRootBitsets(),
-    parsimonyData_->getRootScores());
+      parsimonyData_->nodeData(treeTemplate().getRootId()),
+      parsimonyData_->getRootBitsets(),
+      parsimonyData_->getRootScores());
 }
 
 void DRTreeParsimonyScore::computeScoresPostorder(const Node* node)
@@ -113,9 +113,9 @@ void DRTreeParsimonyScore::computeScoresPostorder(const Node* node)
     else
     {
       computeScoresPostorderForNode(
-        parsimonyData_->nodeData(son->getId()),
-        *bitsets,
-        *scores);
+          parsimonyData_->nodeData(son->getId()),
+          *bitsets,
+          *scores);
     }
   }
 }
@@ -165,10 +165,10 @@ void DRTreeParsimonyScore::computeScoresPreorder(const Node* node)
     else
     {
       computeScoresPreorderForNode(
-        parsimonyData_->nodeData(father->getId()),
-        node,
-        *bitsets,
-        *scores);
+          parsimonyData_->nodeData(father->getId()),
+          node,
+          *bitsets,
+          *scores);
     }
   }
   // Recurse call:
@@ -204,7 +204,7 @@ void DRTreeParsimonyScore::computeScoresForNode(const DRTreeParsimonyNodeData& p
   const Node* node = pData.getNode();
   size_t nbNeighbors = node->degree();
   vector<const Node*> neighbors = node->getNeighbors();
-  // First initialize the vectors fro input:
+  // First initialize the vectors from input:
   vector< const vector<Bitset>*> iBitsets(nbNeighbors);
   vector< const vector<unsigned int>*> iScores(nbNeighbors);
   for (unsigned int k = 0; k < nbNeighbors; k++)
@@ -236,10 +236,10 @@ unsigned int DRTreeParsimonyScore::getScoreForSite(size_t site) const
 
 /******************************************************************************/
 void DRTreeParsimonyScore::computeScoresFromArrays(
-  const vector< const vector<Bitset>*>& iBitsets,
-  const vector< const vector<unsigned int>*>& iScores,
-  vector<Bitset>& oBitsets,
-  vector<unsigned int>& oScores)
+    const vector< const vector<Bitset>*>& iBitsets,
+    const vector< const vector<unsigned int>*>& iScores,
+    vector<Bitset>& oBitsets,
+    vector<unsigned int>& oScores)
 {
   size_t nbPos  = oBitsets.size();
   size_t nbNodes = iBitsets.size();
@@ -384,7 +384,7 @@ void DRTreeParsimonyScore::doNNI(int nodeId)
 //
 // size_t DRTreeParsimonyScore::getNodeState(const Node* node)
 // {
-//   return (dynamic_cast<const Number<size_t>*>(node->getNodeProperty(STATE)))->getValue(); // exception on root on the true history - why didn't the root recieve a state?
+//   return (dynamic_cast<const Number<size_t>*>(node->getNodeProperty(STATE)))->getValue(); // exception on root on the true history - why didn't the root receive a state?
 // }
 //
 // /******************************************************************************/

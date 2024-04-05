@@ -17,7 +17,7 @@ namespace bpp
  * @brief Abstract class of Wrapping model class, where all methods
  * are redirected from model().
  */
-  
+
 class AbstractWrappedModel :
   public virtual AbstractParameterAliasable,
   public virtual WrappedModelInterface
@@ -26,7 +26,7 @@ public:
   AbstractWrappedModel(const std::string& prefix) :
     AbstractParameterAliasable(prefix)
   {}
-  
+
   virtual ~AbstractWrappedModel() {}
 
 public:
@@ -51,15 +51,16 @@ public:
 
 
   const Alphabet& alphabet() const override { return model().alphabet(); }
-  
+
   std::shared_ptr<const Alphabet> getAlphabet() const override { return model().getAlphabet(); }
 
   size_t getNumberOfStates() const override { return model().getNumberOfStates(); }
 
-  const FrequencySetInterface& frequencySet() const override {
+  const FrequencySetInterface& frequencySet() const override
+  {
     return model().frequencySet();
   }
-  
+
   /**
    * @}
    */
@@ -79,16 +80,16 @@ class AbstractWrappedTransitionModel :
   public virtual WrappedTransitionModelInterface
 {
 public:
-  AbstractWrappedTransitionModel(const std::string& prefix):
-      AbstractWrappedModel(prefix)
+  AbstractWrappedTransitionModel(const std::string& prefix) :
+    AbstractWrappedModel(prefix)
   {}
-  
+
 protected:
   BranchModelInterface& model_()
   {
     return transitionModel_();
   }
-  
+
   virtual TransitionModelInterface& transitionModel_() = 0;
 
 public:
@@ -101,7 +102,6 @@ public:
   {
     return transitionModel();
   }
-  
 };
 
 
@@ -109,9 +109,9 @@ class AbstractTotallyWrappedTransitionModel :
   public virtual AbstractWrappedTransitionModel
 {
 public:
-  AbstractTotallyWrappedTransitionModel(const std::string& prefix):
-      AbstractWrappedTransitionModel(prefix) {}
-  
+  AbstractTotallyWrappedTransitionModel(const std::string& prefix) :
+    AbstractWrappedTransitionModel(prefix) {}
+
   virtual ~AbstractTotallyWrappedTransitionModel() {}
 
 public:
@@ -218,9 +218,9 @@ class AbstractTotallyWrappedSubstitutionModel :
   public virtual AbstractWrappedSubstitutionModel
 {
 public:
-  AbstractTotallyWrappedSubstitutionModel(const std::string& prefix):
-       AbstractTotallyWrappedTransitionModel(prefix),
-       AbstractWrappedSubstitutionModel(prefix)
+  AbstractTotallyWrappedSubstitutionModel(const std::string& prefix) :
+    AbstractTotallyWrappedTransitionModel(prefix),
+    AbstractWrappedSubstitutionModel(prefix)
   {}
 
   virtual ~AbstractTotallyWrappedSubstitutionModel() {}

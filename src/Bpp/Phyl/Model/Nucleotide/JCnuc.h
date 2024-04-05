@@ -127,9 +127,8 @@ public:
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override {}
 
 protected:
-  
   /**
-   * In the case of the model of Jukes & Cantor, this method is not usefull since
+   * In the case of the model of Jukes & Cantor, this method is not useful since
    * the generator is fully determined. No matrice can be changed... This method is only
    * used in the constructor of the class.
    */

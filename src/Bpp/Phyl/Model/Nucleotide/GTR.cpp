@@ -16,16 +16,16 @@ using namespace std;
 /******************************************************************************/
 
 GTR::GTR(
-  shared_ptr<const NucleicAlphabet> alpha,
-  double a,
-  double b,
-  double c,
-  double d,
-  double e,
-  double piA,
-  double piC,
-  double piG,
-  double piT) :
+    shared_ptr<const NucleicAlphabet> alpha,
+    double a,
+    double b,
+    double c,
+    double d,
+    double e,
+    double piA,
+    double piC,
+    double piG,
+    double piT) :
   AbstractParameterAliasable("GTR."),
   AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "GTR."),
   a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()

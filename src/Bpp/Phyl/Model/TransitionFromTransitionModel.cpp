@@ -77,4 +77,3 @@ const Eigen::VectorXd& TransitionFromTransitionModel::d2Lik_dt2(const Eigen::Vec
   }
   return d2Pi_;
 }
-

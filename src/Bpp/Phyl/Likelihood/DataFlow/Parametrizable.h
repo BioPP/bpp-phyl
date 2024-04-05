@@ -18,7 +18,7 @@
 
 namespace bpp
 {
-/** 
+/**
  * Helper: create a map with mutable dataflow nodes for each
  *   parameter of the parametrizable.
  * The map is indexed by parameter names.
@@ -38,10 +38,10 @@ createParameterMap(Context& c, const ParameterAliasable& parametrizable);
  * Returned nodes must be Value<double> nodes.
  */
 NodeRefVec createDependencyVector(const Parametrizable& parametrizable,
-                                  const std::function<NodeRef(const std::string&)>& getParameter);
+    const std::function<NodeRef(const std::string&)>& getParameter);
 
 NodeRefVec createDependencyVector(const ParameterAliasable& parametrizable,
-                                  const std::function<NodeRef(const std::string&)>& getParameter);
+    const std::function<NodeRef(const std::string&)>& getParameter);
 
 
 class ConfiguredParametrizable
@@ -56,11 +56,10 @@ public:
    * The number and order of parameters is given by the Object
    * internal ParameterList.
    */
-  
   template<typename Object, typename Self>
   static std::shared_ptr<Self> createConfigured (Context& c, NodeRefVec&& deps,
-                                                 std::unique_ptr<Object>&& object,
-                                                 typename std::enable_if<std::is_base_of<ParameterAliasable, Object>::value>::type* = 0)
+      std::unique_ptr<Object>&& object,
+      typename std::enable_if<std::is_base_of<ParameterAliasable, Object>::value>::type* = 0)
   {
     if (!object)
     {
@@ -83,11 +82,10 @@ public:
    * The number and order of parameters is given by the Object
    * internal ParameterList.
    */
-  
   template<typename Object, typename Self>
   static std::shared_ptr<Self> createConfigured (Context& c, NodeRefVec&& deps,
-                                                 std::unique_ptr<Object>&& object,
-                                                 typename std::enable_if<!std::is_base_of<ParameterAliasable, Object>::value>::type* = 0)
+      std::unique_ptr<Object>&& object,
+      typename std::enable_if<!std::is_base_of<ParameterAliasable, Object>::value>::type* = 0)
   {
     if (!object)
     {
@@ -101,25 +99,24 @@ public:
     return cachedAs<Self>(c, std::make_shared<Self>(c, std::move (deps), std::move (object)));
   }
 
-  
+
   /**
    * @brief Create a new node to a Parameterized object
    * ConfiguredParameters are built from its set of independent Parameters.
    *
    */
-  
   template<typename Object, typename Self>
   static std::shared_ptr<Self> createConfigured (Context& context, std::unique_ptr<Object>&& object)
   {
     auto objectParameters = createParameterMap(context, *object);
 
     auto depvecObject = createDependencyVector(
-      *object, [&objectParameters](const std::string& paramName) { return objectParameters[paramName]; });
+          *object, [&objectParameters](const std::string& paramName) { return objectParameters[paramName]; });
 
     auto objectNode = ConfiguredParametrizable::createConfigured<Object, Self>(
-      context,
-      std::move(depvecObject),
-      std::move(object));
+          context,
+          std::move(depvecObject),
+          std::move(object));
 
 
     return objectNode;
@@ -151,7 +148,7 @@ public:
       if (!parList.hasParameter(name) && suff == "")
       {
         if (!parList.hasParameter(lParams[i].getName() + "_1"))
-          throw Exception("createConfigured: unknow ConfiguredParameter " + name);
+          throw Exception("createConfigured: unknown ConfiguredParameter " + name);
         else name = lParams[i].getName() + "_1";
       }
       auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getParameter(name).get());
@@ -169,7 +166,6 @@ public:
    * ConfiguredObject
    *
    */
-
   template<typename ConfiguredObject, typename Self>
   static ValueRef<double>
   createDouble (Context& c, NodeRefVec&& deps)
@@ -177,7 +173,7 @@ public:
     checkDependenciesNotNull (typeid (Self), deps);
     checkDependencyVectorSize (typeid (Self), deps, 1);
     checkNthDependencyIs<ConfiguredObject>(typeid (Self), deps, 0);
-    return cachedAs<Value<double> >(c, std::make_shared<Self>(std::move (deps)));
+    return cachedAs<Value<double>>(c, std::make_shared<Self>(std::move (deps)));
   }
 
   /** Create a new vector of dependencies node to a RowVectorXd,
@@ -187,27 +183,26 @@ public:
    * Additional dependencies are allowed
    *
    */
-
   template<typename ConfiguredObject, typename Self, typename Row>
   static ValueRef<Row>
   createRowVector (Context& c, NodeRefVec&& deps,
-                   const Dimension<Row>& dim)
+      const Dimension<Row>& dim)
   {
     checkDependencyVectorMinSize (typeid (Self), deps, 1);
     checkNthDependencyNotNull (typeid (Self), deps, 0);
     checkNthDependencyIs<ConfiguredObject>(typeid (Self), deps, 0);
-    return cachedAs<Value<Row> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<Row>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   template<typename ConfiguredObject, typename Self, typename Col>
   static ValueRef<Col>
   createVector (Context& c, NodeRefVec&& deps,
-                const Dimension<Col>& dim)
+      const Dimension<Col>& dim)
   {
     checkDependencyVectorMinSize (typeid (Self), deps, 1);
     checkNthDependencyNotNull (typeid (Self), deps, 0);
     checkNthDependencyIs<ConfiguredObject>(typeid (Self), deps, 0);
-    return cachedAs<Value<Col> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<Col>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   /** Create a new vector of dependencies node to a MatrixXd,
@@ -215,11 +210,10 @@ public:
    * ConfiguredObject and an optional ConfiguredParameter (ie branch length)
    *
    */
-
   template<typename ConfiguredObject, typename Self, typename Matrix>
   static ValueRef<Matrix>
   createMatrix (Context& c, NodeRefVec&& deps,
-                const Dimension<Matrix>& dim)
+      const Dimension<Matrix>& dim)
   {
     checkDependencyVectorMinSize (typeid (Self), deps, 1);
     checkNthDependencyNotNull (typeid (Self), deps, 0);
@@ -229,7 +223,7 @@ public:
     if (deps.size() > 1)
       checkNthDependencyIs<ConfiguredParameter>(typeid (Self), deps, 1);
 
-    return cachedAs<Value<Matrix> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<Matrix>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
 
@@ -237,16 +231,15 @@ public:
    * computation nodes. Assuming we have a v = f(object, stuff)
    * node, with v of type T. df/dn = sum_i df/dx_i * dx_i/dn +
    * df/dstuff * dstuff/dn.
-   * This function returns a NodeRefVec containings the nodes:
+   * This function returns a NodeRefVec containing the nodes:
    * {df/dx_i * dx_i/dn} for i in order.
    *
    * buildFWithFreqSet(newFreqSet) should create the f(newFS,
    * stuff) node.
    */
-
   template<typename ConfiguredObject, typename T, typename B>
   static NodeRefVec generateDerivativeSumDepsForComputations (
-    Context& c, ConfiguredObject& object, const Node_DF& derivationNode, const Dimension<T>& targetDimension, B buildFWithNewObject)
+      Context& c, ConfiguredObject& object, const Node_DF& derivationNode, const Dimension<T>& targetDimension, B buildFWithNewObject)
   {
     NodeRefVec derivativeSumDeps;
 
@@ -260,21 +253,21 @@ public:
       if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero))
       {
         auto buildFWithNewXi = [&c, i, &object, &buildFWithNewObject](std::shared_ptr<ConfiguredParameter> newDep) {
-                                 // The sub-graph that will be replicated with shifted inputs is: f(freqset(x_i), stuff)
-                                 NodeRefVec newObjectDeps = object.dependencies ();
-                                 newObjectDeps[i] = std::move (newDep);
-                                 auto newObject = object.recreate (c, std::move (newObjectDeps));
-                                 return buildFWithNewObject (std::move (newObject));
-                               };
+              // The sub-graph that will be replicated with shifted inputs is: f(freqset(x_i), stuff)
+              NodeRefVec newObjectDeps = object.dependencies ();
+              newObjectDeps[i] = std::move (newDep);
+              auto newObject = object.recreate (c, std::move (newObjectDeps));
+              return buildFWithNewObject (std::move (newObject));
+            };
 
         auto df_dxi = generateNumericalDerivative<T>(
-          c, object.config, object.dependency (i), targetDimension, buildFWithNewXi);
+              c, object.config, object.dependency (i), targetDimension, buildFWithNewXi);
 
         if (dxi_dn->hasNumericalProperty (NumericalProperty::ConstantOne))
           derivativeSumDeps.emplace_back (std::move (df_dxi));
         else
-          derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T> >::create (
-                                            c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
+          derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
+                c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
       }
     }
     return derivativeSumDeps;

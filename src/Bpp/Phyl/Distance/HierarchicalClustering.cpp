@@ -159,8 +159,8 @@ Node* HierarchicalClustering::getParentNode(int id, Node* son1, Node* son2)
 {
   ClusterInfos infos;
   infos.numberOfLeaves =
-    dynamic_cast<NodeTemplate<ClusterInfos>*>(son1)->getInfos().numberOfLeaves
-    + dynamic_cast<NodeTemplate<ClusterInfos>*>(son2)->getInfos().numberOfLeaves;
+      dynamic_cast<NodeTemplate<ClusterInfos>*>(son1)->getInfos().numberOfLeaves
+      + dynamic_cast<NodeTemplate<ClusterInfos>*>(son2)->getInfos().numberOfLeaves;
   infos.length = dynamic_cast<NodeTemplate<ClusterInfos>*>(son1)->getInfos().length + son1->getDistanceToFather();
   Node* parent = new NodeTemplate<ClusterInfos>(id);
   dynamic_cast<NodeTemplate<ClusterInfos>*>(parent)->setInfos(infos);

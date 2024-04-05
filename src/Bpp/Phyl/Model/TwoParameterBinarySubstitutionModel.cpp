@@ -42,7 +42,7 @@ void TwoParameterBinarySubstitutionModel::updateMatrices_()
   pi0_ = getParameterValue("pi0");
   lambda_ = 1;
 
-  // Frequences:
+  // Frequencies:
   freq_[0] = pi0_;
   freq_[1] = 1 - pi0_;
 

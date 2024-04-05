@@ -14,7 +14,7 @@ ParametrizablePhyloTree::ParametrizablePhyloTree(const PhyloTree& tree, const st
   maximumBrLen_(10000),
   brLenConstraint_(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true))
 {
-  vector<shared_ptr<PhyloBranchParam> > vB = getAllEdges();
+  vector<shared_ptr<PhyloBranchParam>> vB = getAllEdges();
 
   for (auto& it:vB)
   {
@@ -52,9 +52,9 @@ std::vector<std::string> ParametrizablePhyloTree::getAllLeavesNames() const
 {
   vector<string> vn;
 
-  vector<shared_ptr<PhyloNode> > vpn = getAllLeaves();
+  vector<shared_ptr<PhyloNode>> vpn = getAllLeaves();
 
-  for (vector<shared_ptr<PhyloNode> >::const_iterator it = vpn.begin(); it != vpn.end(); it++)
+  for (vector<shared_ptr<PhyloNode>>::const_iterator it = vpn.begin(); it != vpn.end(); it++)
   {
     vn.push_back((*it)->getName());
   }
@@ -66,7 +66,7 @@ Vdouble ParametrizablePhyloTree::getBranchLengths() const
 {
   Vdouble vl;
 
-  vector<shared_ptr<PhyloBranchParam> > vpn = getAllEdges();
+  vector<shared_ptr<PhyloBranchParam>> vpn = getAllEdges();
 
   for (auto& it: vpn)
   {

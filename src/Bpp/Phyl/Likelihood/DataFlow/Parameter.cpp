@@ -99,7 +99,7 @@ void ConfiguredParameter::compute ()
 // ValueFromConfiguredParameter
 
 ValueFromConfiguredParameter::ValueFromConfiguredParameter (
-  NodeRefVec&& deps)
+    NodeRefVec&& deps)
   : Value<double>(std::move (deps)) {}
 
 std::string ValueFromConfiguredParameter::debugInfo () const

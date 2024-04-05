@@ -26,7 +26,7 @@ const BranchModelInterface& SubstitutionProcessCollectionMember::model(size_t n)
 {
   return collection().model(n);
 }
-  
+
 std::shared_ptr<const BranchModelInterface> SubstitutionProcessCollectionMember::getModel(size_t n) const
 {
   return collection().getModel(n);
@@ -74,7 +74,7 @@ ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters
 
 ParameterList SubstitutionProcessCollectionMember::getBranchLengthParameters(bool independent) const
 {
-  if (nTree_!=0)
+  if (nTree_ != 0)
     return collection().getBranchLengthParameters(nTree_, independent);
   else
     return ParameterList();
@@ -115,7 +115,7 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
   ParameterList pl;
 
   // Then we update all models in the set:
-  std::map<size_t, std::vector<unsigned int> >::const_iterator it;
+  std::map<size_t, std::vector<unsigned int>>::const_iterator it;
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
     pl.includeParameters(getCollection()->getSubstitutionModelParameters(it->first, independent));
@@ -282,10 +282,10 @@ bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
   {
     if (throwEx)
       throw Exception("SubstitutionProcessCollectionMember::checkOrphanNodes(). No Tree");
-    
+
     return true;
   }
-  
+
   vector<unsigned int> ids = getParametrizablePhyloTree()->getAllNodesIndexes();
   unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
   for (size_t i = 0; i < ids.size(); i++)
@@ -306,10 +306,10 @@ bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
   {
     if (throwEx)
       throw Exception("SubstitutionProcessCollectionMember::checkUnknownNodes(). No Tree");
-    
+
     return true;
   }
-  
+
   vector<unsigned int> ids = getParametrizablePhyloTree()->getAllNodesIndexes();
 
   unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
@@ -349,7 +349,6 @@ bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterL
 /**
  * Inheriting from SubstitutionProcess
  */
-
 double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t classIndex) const
 {
   if (classIndex >= rateDistribution().getNumberOfCategories())
@@ -375,4 +374,3 @@ double SubstitutionProcessCollectionMember::getRateForModel(size_t classIndex) c
     throw IndexOutOfBoundsException("SubstitutionProcessCollectionMember::getRateForModel.", classIndex, 0, getRateDistribution()->getNumberOfCategories());
   return rateDistribution().getCategory(classIndex);
 }
-

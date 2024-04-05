@@ -13,8 +13,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonCpGSubstitutionModel::AbstractCodonCpGSubstitutionModel(
-  std::shared_ptr<const CodonAlphabet> alphabet,
-  const std::string& prefix) :
+    std::shared_ptr<const CodonAlphabet> alphabet,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   rho_(1),
   stateMap_(new CanonicalStateMap(alphabet, false))

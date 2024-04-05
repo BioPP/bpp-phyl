@@ -48,9 +48,9 @@ public:
    */
   BioNJ(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false, bool verbose = true) :
     NeighborJoining(rooted, positiveLengths, verbose),
-  // Use the default constructor, because the other one call computeTree.
-  variance_(matrix),
-  lambda_(0)
+    // Use the default constructor, because the other one call computeTree.
+    variance_(matrix),
+    lambda_(0)
   {
     setDistanceMatrix(matrix);
     outputPositiveLengths(positiveLengths);

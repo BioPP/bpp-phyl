@@ -56,7 +56,7 @@ protected:
     hmm_(mlc.hmm_)
   {}
 
-  AlignedPhyloLikelihoodAutoCorrelation& operator=(const AlignedPhyloLikelihoodAutoCorrelation& mlc) 
+  AlignedPhyloLikelihoodAutoCorrelation& operator=(const AlignedPhyloLikelihoodAutoCorrelation& mlc)
   {
     AbstractAlignedPhyloLikelihoodSet::operator=(mlc);
     hma_ = mlc.hma_;
@@ -72,7 +72,6 @@ protected:
   }
 
 public:
-
   virtual ~AlignedPhyloLikelihoodAutoCorrelation() {}
 
 public:
@@ -89,7 +88,7 @@ public:
   {
     return *hmm_;
   }
-  
+
   std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
   {
     return hmm_;

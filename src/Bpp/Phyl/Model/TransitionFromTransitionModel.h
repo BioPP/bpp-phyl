@@ -146,7 +146,6 @@ public:
   }
 
 protected:
-  
   BranchModelInterface& model_()
   {
     return *subModel_;
@@ -156,7 +155,6 @@ protected:
   {
     return *subModel_;
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_TRANSITIONFROMTRANSITIONMODEL_H

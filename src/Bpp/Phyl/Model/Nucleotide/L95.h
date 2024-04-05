@@ -62,30 +62,27 @@ private:
 
 public:
   L95(
-    std::shared_ptr<const NucleicAlphabet> alphabet,
-    double alpha = 0.5,
-    double beta = 0.5,
-    double gamma = 0.5,
-    double kappa = 1.,
-    double theta = 0.5);
+      std::shared_ptr<const NucleicAlphabet> alphabet,
+      double alpha = 0.5,
+      double beta = 0.5,
+      double gamma = 0.5,
+      double kappa = 1.,
+      double theta = 0.5);
 
   virtual ~L95() {}
 
   L95* clone() const override { return new L95(*this); }
 
 public:
-
   std::string getName() const override { return "L95"; }
 
   /**
    * @brief This method is redefined to actualize the corresponding parameters theta too.
    */
   void setFreq(std::map<int, double>&) override;
-  
+
 protected:
-
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_L95_H

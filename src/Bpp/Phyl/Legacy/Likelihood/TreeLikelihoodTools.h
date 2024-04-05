@@ -36,13 +36,13 @@ public:
    * @param frequencies [out] A map where to store the results, as a vector of double (the
    * size of which being equal to the number of states in the model), and with nodes id as keys.
    * @param alsoForLeaves [opt] Tell if frequencies should also be estimated for terminal nodes.
-   * @throw Exception In case something bad happens, like an unvalid model set.
+   * @throw Exception In case something bad happens, like an invalid model set.
    */
   static void getAncestralFrequencies(
-    const TreeLikelihoodInterface& tl,
-    size_t site,
-    std::map<int, std::vector<double> >& frequencies,
-    bool alsoForLeaves = false);
+      const TreeLikelihoodInterface& tl,
+      size_t site,
+      std::map<int, std::vector<double>>& frequencies,
+      bool alsoForLeaves = false);
 
   /**
    * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
@@ -55,12 +55,12 @@ public:
    * @param frequencies [out] A map where to store the results, as a vector of double (the
    * size of which being equal to the number of states in the model), and with nodes id as keys.
    * @param alsoForLeaves [opt] Tell if frequencies should also be estimated for terminal nodes.
-   * @throw Exception In case something bad happens, like an unvalid model set.
+   * @throw Exception In case something bad happens, like an invalid model set.
    */
   static void getAncestralFrequencies(
-    const TreeLikelihoodInterface& tl,
-    std::map<int, std::vector<double> >& frequencies,
-    bool alsoForLeaves = false);
+      const TreeLikelihoodInterface& tl,
+      std::map<int, std::vector<double>>& frequencies,
+      bool alsoForLeaves = false);
 
 private:
   /**
@@ -69,12 +69,12 @@ private:
    * @see getAncestralFrequencies()
    */
   static void getAncestralFrequencies_(
-    const TreeLikelihoodInterface& tl,
-    size_t siteIndex,
-    int parentId,
-    const std::vector<double>& ancestralFrequencies,
-    std::map<int, std::vector<double> >& frequencies,
-    bool alsoForLeaves);
+      const TreeLikelihoodInterface& tl,
+      size_t siteIndex,
+      int parentId,
+      const std::vector<double>& ancestralFrequencies,
+      std::map<int, std::vector<double>>& frequencies,
+      bool alsoForLeaves);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_LIKELIHOOD_TREELIKELIHOODTOOLS_H

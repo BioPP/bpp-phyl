@@ -35,7 +35,7 @@ private:
    * Convenient for process specific site patterns.
    */
 
-  std::map<size_t, std::vector<size_t> > mProcPos_;
+  std::map<size_t, std::vector<size_t>> mProcPos_;
 
 public:
   /*
@@ -45,8 +45,8 @@ public:
    * @param A vector of the number of the processes along the sequence.
    */
   PartitionSequenceEvolution(
-    std::shared_ptr<SubstitutionProcessCollection> processColl,
-    std::vector<size_t>& posProc);
+      std::shared_ptr<SubstitutionProcessCollection> processColl,
+      std::vector<size_t>& posProc);
 
   PartitionSequenceEvolution(const PartitionSequenceEvolution& mlc) :
     MultiProcessSequenceEvolution(mlc),
@@ -92,12 +92,12 @@ public:
     return vProc_[i];
   }
 
-  std::map<size_t, std::vector<size_t> >& mapOfProcessSites()
+  std::map<size_t, std::vector<size_t>>& mapOfProcessSites()
   {
     return mProcPos_;
   }
 
-  const std::map<size_t, std::vector<size_t> >& mapOfProcessSites() const
+  const std::map<size_t, std::vector<size_t>>& mapOfProcessSites() const
   {
     return mProcPos_;
   }

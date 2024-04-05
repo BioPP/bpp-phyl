@@ -14,7 +14,7 @@ using namespace std;
 /******************************************************************************/
 
 MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(
-  const MarkovModulatedSubstitutionModel& model) :
+    const MarkovModulatedSubstitutionModel& model) :
   AbstractParameterAliasable(model),
   model_               (model.model_->clone()),
   stateMap_            (model.stateMap_),
@@ -41,7 +41,7 @@ MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(
 {}
 
 MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(
-  const MarkovModulatedSubstitutionModel& model)
+    const MarkovModulatedSubstitutionModel& model)
 {
   AbstractParametrizable::operator=(model);
   model_.reset(model.model_->clone());
@@ -81,7 +81,7 @@ void MarkovModulatedSubstitutionModel::updateMatrices_()
   MatrixTools::mult(ratesExchangeability_, Tmp1, ratesGenerator_);
   MatrixTools::kroneckerMult(rates_, model_->generator(), generator_);
 
-  MatrixTools::MatrixTools::getId< RowMatrix<double> >(nbStates_, Tmp1);
+  MatrixTools::MatrixTools::getId< RowMatrix<double>>(nbStates_, Tmp1);
   MatrixTools::kroneckerMult(ratesGenerator_, Tmp1, Tmp2);
   MatrixTools::add(generator_, Tmp2);
 
@@ -162,7 +162,7 @@ void MarkovModulatedSubstitutionModel::setDiagonal()
 const Matrix<double>& MarkovModulatedSubstitutionModel::getPij_t(double t) const
 {
   if (t == 0)
-    MatrixTools::getId< RowMatrix<double> >(nbStates_ * nbRates_, pijt_);
+    MatrixTools::getId< RowMatrix<double>>(nbStates_ * nbRates_, pijt_);
   else
     MatrixTools::mult(rightEigenVectors_, VectorTools::exp(eigenValues_ * t), leftEigenVectors_, pijt_);
   return pijt_;

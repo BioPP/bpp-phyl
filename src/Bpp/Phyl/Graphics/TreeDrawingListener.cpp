@@ -76,8 +76,8 @@ void BranchLengthsTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& ev
       if (settings_)
         gd->setCurrentFont(settings_->fontBranchLengths);
       gd->drawText(cursor.getX(), cursor.getY(),
-                   TextTools::toString(eventC.getINode()->getDistanceToFather()),
-                   GraphicDevice::TEXT_HORIZONTAL_CENTER, GraphicDevice::TEXT_VERTICAL_BOTTOM, cursor.getAngle());
+          TextTools::toString(eventC.getINode()->getDistanceToFather()),
+          GraphicDevice::TEXT_HORIZONTAL_CENTER, GraphicDevice::TEXT_VERTICAL_BOTTOM, cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
   }
@@ -93,8 +93,8 @@ void BranchLengthsTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& ev
       if (settings_)
         gd->setCurrentFont(settings_->fontLeafNames);
       gd->drawText(cursor.getX(), cursor.getY(),
-                   TextTools::toString(td->getTree()->getDistanceToFather(event.getNodeId())),
-                   GraphicDevice::TEXT_HORIZONTAL_CENTER, GraphicDevice::TEXT_VERTICAL_BOTTOM, cursor.getAngle());
+          TextTools::toString(td->getTree()->getDistanceToFather(event.getNodeId())),
+          GraphicDevice::TEXT_HORIZONTAL_CENTER, GraphicDevice::TEXT_VERTICAL_BOTTOM, cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
   }
@@ -115,8 +115,8 @@ void BootstrapValuesTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& 
       if (settings_)
         gd->setCurrentFont(settings_->fontBranchLengths);
       gd->drawText(cursor.getX(), cursor.getY(),
-                   TextTools::toString(dynamic_cast<const Number<double>*>(b)->getValue()),
-                   cursor.getHPos(), GraphicDevice::TEXT_VERTICAL_CENTER, cursor.getAngle());
+          TextTools::toString(dynamic_cast<const Number<double>*>(b)->getValue()),
+          cursor.getHPos(), GraphicDevice::TEXT_VERTICAL_CENTER, cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
   }
@@ -133,8 +133,8 @@ void BootstrapValuesTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& 
       if (settings_)
         gd->setCurrentFont(settings_->fontLeafNames);
       gd->drawText(cursor.getX(), cursor.getY(),
-                   TextTools::toString(dynamic_cast<const Number<double>*>(b)->getValue()),
-                   cursor.getHPos(), GraphicDevice::TEXT_VERTICAL_CENTER, cursor.getAngle());
+          TextTools::toString(dynamic_cast<const Number<double>*>(b)->getValue()),
+          cursor.getHPos(), GraphicDevice::TEXT_VERTICAL_CENTER, cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
   }

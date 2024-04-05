@@ -18,7 +18,7 @@ RE08::RE08(
     double mu) :
   AbstractParameterAliasable("RE08."),
   AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), make_shared<CanonicalStateMap>(simpleModel->stateMap(), true), "RE08."),
-  simpleModel_(move(simpleModel)),
+  simpleModel_(std::move(simpleModel)),
   simpleGenerator_(),
   simpleExchangeabilities_(),
   exp_(), p_(), lambda_(lambda), mu_(mu),
@@ -189,7 +189,7 @@ const Matrix<double>& RE08::getPij_t(double d) const
     for (size_t j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
-                 + freq_[j] + (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
+          + freq_[j] + (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
     }
   }
   for (size_t j = 0; j < size_ - 1; j++)
@@ -216,8 +216,8 @@ const Matrix<double>& RE08::getdPij_dt(double d) const
     for (size_t j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = simpleDP(i, j) * exp(-mu_ * d)
-                 - mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
-                 - (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
+          - mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
+          - (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
     }
   }
   for (size_t j = 0; j < size_ - 1; j++)
@@ -245,9 +245,9 @@ const Matrix<double>& RE08::getd2Pij_dt2(double d) const
     for (size_t j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = simpleD2P(i, j) * exp(-mu_ * d)
-                 - 2 * mu_ * simpleDP(i, j) * exp(-mu_ * d)
-                 + mu_ * mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
-                 + (lambda_ + mu_) * (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
+          - 2 * mu_ * simpleDP(i, j) * exp(-mu_ * d)
+          + mu_ * mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
+          + (lambda_ + mu_) * (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
     }
   }
   for (size_t j = 0; j < size_ - 1; j++)

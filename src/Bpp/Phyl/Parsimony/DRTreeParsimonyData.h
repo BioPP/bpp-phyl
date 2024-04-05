@@ -270,13 +270,13 @@ public:
   size_t getNumberOfStates() const { return nbStates_; }
 
   void init(std::shared_ptr<const SiteContainerInterface> sites,
-	    std::shared_ptr<const StateMapInterface> stateMap);
+      std::shared_ptr<const StateMapInterface> stateMap);
   void reInit();
 
 protected:
   void init_(const Node* node,
-	    std::shared_ptr<const SiteContainerInterface> sites,
-	    std::shared_ptr<const StateMapInterface> stateMap);
+      std::shared_ptr<const SiteContainerInterface> sites,
+      std::shared_ptr<const StateMapInterface> stateMap);
 
   void reInit_(const Node* node);
 };

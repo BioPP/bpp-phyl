@@ -17,7 +17,7 @@ namespace bpp
  * @brief Frequencies set I/O in BppO format.
  *
  * Allow to create a new frequencies set object according to model description syntax
- * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
+ * (see the Bio++ Program Suite manual for a detailed description of this syntax).
  */
 class BppOFrequencySetFormat :
   public virtual IFrequencySet,
@@ -84,10 +84,10 @@ public:
   }
 
   std::unique_ptr<FrequencySetInterface> readFrequencySet(
-    std::shared_ptr<const Alphabet> alphabet,
-    const std::string& freqDescription,
-    const AlignmentDataInterface& data,
-    bool parseArguments = true) override;
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& freqDescription,
+      const AlignmentDataInterface& data,
+      bool parseArguments = true) override;
 
   const std::map<std::string, std::string>& getUnparsedArguments() const override
   {
@@ -95,16 +95,15 @@ public:
   }
 
   void writeFrequencySet(
-    const FrequencySetInterface& freqset,
-    OutputStream& out,
-    std::map<std::string, std::string>& globalAliases,
-    std::vector<std::string>& writtenNames) const override;
+      const FrequencySetInterface& freqset,
+      OutputStream& out,
+      std::map<std::string, std::string>& globalAliases,
+      std::vector<std::string>& writtenNames) const override;
 
   void setVerbose(bool verbose) { verbose_ = verbose; }
 
 private:
   void initialize_(FrequencySetInterface& freqSet, const AlignmentDataInterface& data);
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOFREQUENCYSETFORMAT_H

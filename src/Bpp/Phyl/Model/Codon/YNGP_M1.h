@@ -27,7 +27,7 @@ namespace bpp
  *
  * This model includes 3 parameters (@f$\kappa@f$, @f$ p0 @f$ and
  * @f$\omega@f$). The codon frequencies @f$\pi_j@f$ are either
- * observed or infered.
+ * observed or inferred.
  *
  * References:
  *
@@ -52,7 +52,6 @@ public:
 
 protected:
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M1_H

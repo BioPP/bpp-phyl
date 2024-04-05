@@ -27,7 +27,7 @@ using namespace std;
 
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
     shared_ptr<const ProteicAlphabet> alpha,
-    const string& path, 
+    const string& path,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), prefix),

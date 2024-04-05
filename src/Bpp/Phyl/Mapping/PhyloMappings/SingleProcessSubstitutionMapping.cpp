@@ -44,18 +44,18 @@ SingleProcessSubstitutionMapping::SingleProcessSubstitutionMapping(
 
 
 void SingleProcessSubstitutionMapping::computeNormalizations(const ParameterList& nullParams,
-                                                             short unresolvedOption,
-                                                             bool verbose)
+    short unresolvedOption,
+    bool verbose)
 {
   matchParametersValues(nullParams);
 
   factors_ = SubstitutionMappingTools::computeNormalizations(
-      getLikelihoodCalculationSingleProcess(),
-      shared_from_this(),
-      getSubstitutionRegister(),
-      getDistances(),
-      unresolvedOption,
-      verbose);
+        getLikelihoodCalculationSingleProcess(),
+        shared_from_this(),
+        getSubstitutionRegister(),
+        getDistances(),
+        unresolvedOption,
+        verbose);
 }
 
 void SingleProcessSubstitutionMapping::setBranchedModelSet_()

@@ -21,7 +21,7 @@ namespace bpp
  *
  * This model includes 3 parameters (@f$\kappa@f$, @f$ p @f$ and
  * @f$q@f$) of the Beta distribution. The codon frequencies
- * @f$\pi_j@f$ are either observed or infered.
+ * @f$\pi_j@f$ are either observed or inferred.
  *
  * References:
  *
@@ -57,13 +57,11 @@ public:
     YNGP_M::operator=(mod2);
     return *this;
   }
-  
+
   std::string getName() const override { return "YNGP_M7"; }
 
 protected:
-  
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M7_H

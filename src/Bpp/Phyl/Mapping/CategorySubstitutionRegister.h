@@ -30,8 +30,8 @@ protected:
   size_t nbCategories_;
   mutable std::map<size_t, size_t> categories_;
   std::vector<std::string> categoryNames_;
-  std::vector< std::vector<size_t> > index_;
-  std::vector< std::vector<size_t> > revIndex_;
+  std::vector< std::vector<size_t>> index_;
+  std::vector< std::vector<size_t>> revIndex_;
 
   bool stationarity_;
 

@@ -18,7 +18,7 @@ namespace bpp
  * @brief The Rivas-Eddy substitution model with gap characters.
  *
  * This model expends any reversible substitution model with gaps as an additional state.
- * Although the conditionnal subtitution process is reversible, the insertion/deletion process
+ * Although the conditional substitution process is reversible, the insertion/deletion process
  * needs not be. The model hence adds two parameters for insertion and deletions, @f$\lambda@f$ and @f$\mu@f$.
  * If we note @f$Q@f$ the (simple) transition matrix (= Markov generator) and @f$Q^\epsilon@f$ the extended one, we have:
  * @f[
@@ -162,14 +162,13 @@ public:
   void setNamespace(const std::string& prefix) override;
 
   const ReversibleSubstitutionModelInterface& nestedModel() const
-  { 
-    return *simpleModel_; 
+  {
+    return *simpleModel_;
   }
 
 protected:
-  
   void updateMatrices_() override;
-  
+
   ReversibleSubstitutionModelInterface& nestedModel_() { return *simpleModel_; }
 };
 
@@ -251,14 +250,14 @@ public:
 
   virtual ~RE08Protein() {}
 
-  RE08Protein* clone() const override{ return new RE08Protein(*this); }
+  RE08Protein* clone() const override { return new RE08Protein(*this); }
 
 public:
   std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
     return std::dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
   }
-  
+
   const ProteinReversibleSubstitutionModelInterface& nestedModel() const
   {
     return dynamic_cast<const ProteinReversibleSubstitutionModelInterface&>(RE08::nestedModel());

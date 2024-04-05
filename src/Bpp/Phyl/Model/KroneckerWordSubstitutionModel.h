@@ -53,8 +53,8 @@ public:
    * @param prefix the Namespace.
    */
   KroneckerWordSubstitutionModel(ModelList& modelList,
-                                 const std::vector<std::set< size_t> >& vPos,
-                                 const std::string& prefix = "");
+      const std::vector<std::set< size_t>>& vPos,
+      const std::string& prefix = "");
 
   /**
    * @brief Build a new KroneckerWordSubstitutionModel object from a
@@ -86,17 +86,17 @@ public:
   KroneckerWordSubstitutionModel(
       std::unique_ptr<SubstitutionModelInterface> pmodel,
       unsigned int num,
-      const std::vector<std::set< size_t> >& vPos,
+      const std::vector<std::set< size_t>>& vPos,
       const std::string& prefix = "");
 
   virtual ~KroneckerWordSubstitutionModel() {}
 
-  KroneckerWordSubstitutionModel* clone() const override {
+  KroneckerWordSubstitutionModel* clone() const override
+  {
     return new KroneckerWordSubstitutionModel(*this);
   }
 
 protected:
-
   /**
    * @brief Constructor for the derived classes only
    */

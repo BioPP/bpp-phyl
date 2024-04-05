@@ -17,12 +17,12 @@ using namespace std;
 /******************************************************************************/
 
 HKY85::HKY85(
-  shared_ptr<const NucleicAlphabet> alpha,
-  double kappa,
-  double piA,
-  double piC,
-  double piG,
-  double piT) :
+    shared_ptr<const NucleicAlphabet> alpha,
+    double kappa,
+    double piA,
+    double piC,
+    double piG,
+    double piT) :
   AbstractParameterAliasable("HKY85."),
   AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "HKY85."),
   kappa_(kappa), k1_(), k2_(), r_(),

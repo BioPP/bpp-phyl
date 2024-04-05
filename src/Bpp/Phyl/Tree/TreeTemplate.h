@@ -230,7 +230,7 @@ public:
     {
       N* son1 = dynamic_cast<N*>(root_->getSon(0));
       N* son2 = dynamic_cast<N*>(root_->getSon(1));
-      if (son1->isLeaf() && son2->isLeaf()) return false;                                                             // We can't unroot a single branch!
+      if (son1->isLeaf() && son2->isLeaf()) return false; // We can't unroot a single branch!
 
       // We manage to have a subtree in position 0:
       if (son1->isLeaf())
@@ -290,7 +290,7 @@ public:
    *
    * This method compares recursively all subtrees. The comparison is performed only on the nodes names and the parental relationships.
    * Nodes ids are ignored, and so are branch lengths and any branch/node properties. The default is to ignore the ordering of the descendants,
-   * that is (A,B),C) will be considered as having the same topology as (B,A),C). Multifurcations are permited.
+   * that is (A,B),C) will be considered as having the same topology as (B,A),C). Multifurcations are permitted.
    * If ordering is ignored, a copy of the two trees to be compared is performed and are ordered before comparison, making the whole comparison
    * slower and more memory greedy.
    *
@@ -496,7 +496,7 @@ public:
     {
       for (size_t i = 0; i < root_->getNumberOfSons(); i++)
       {
-        if (root_->getSon(i) == outGroup) return;                                                     // This tree is already rooted appropriately.
+        if (root_->getSon(i) == outGroup) return; // This tree is already rooted appropriately.
       }
       rootId = getRootId();
       unroot();

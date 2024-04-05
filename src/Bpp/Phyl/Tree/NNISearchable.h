@@ -34,8 +34,8 @@ namespace bpp
  * -A and B are the son of F
  * -X is the parent of F and so on.
  * Two NNI's are possible for branch (XF):
- * - swaping B and C, which is the same as D and A
- * - swaping A and C, which is the same as D and B
+ * - swapping B and C, which is the same as D and A
+ * - swapping A and C, which is the same as D and B
  * Because of the rooted representation, we'll consider B \f$\leftrightarrow\f$ C and A \f$\leftrightarrow\f$ C,
  * which are simpler to perform.
  *

@@ -30,7 +30,7 @@ public:
    */
   MixtureOfSubstitutionModels(
       std::shared_ptr<const Alphabet> alpha,
-      std::vector< std::unique_ptr<TransitionModelInterface> >& vpModel) :
+      std::vector< std::unique_ptr<TransitionModelInterface>>& vpModel) :
     AbstractParameterAliasable("Mixture."),
     AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
     MixtureOfTransitionModels(alpha, vpModel)
@@ -57,9 +57,9 @@ public:
    * the vectors.
    */
   MixtureOfSubstitutionModels(
-    std::shared_ptr<const Alphabet> alpha,
-    std::vector< std::unique_ptr<TransitionModelInterface> >& vpModel,
-    Vdouble& vproba, Vdouble& vrate) :
+      std::shared_ptr<const Alphabet> alpha,
+      std::vector< std::unique_ptr<TransitionModelInterface>>& vpModel,
+      Vdouble& vproba, Vdouble& vrate) :
     AbstractParameterAliasable("Mixture."),
     AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
     MixtureOfTransitionModels(alpha, vpModel, vproba, vrate)
@@ -93,7 +93,7 @@ public:
 
 public:
   /**
-   * @brief retrieve a pointer to the subsitution model with the given name.
+   * @brief retrieve a pointer to the substitution model with the given name.
    */
   const SubstitutionModelInterface& subModel(const std::string& name) const
   {

@@ -24,7 +24,7 @@ namespace bpp
  * selected @f$ 1 < \omega_2 @f$ (with probability @f$p_2 @f$). This
  * model includes 5 parameters (@f$kappa@f$, @f$ theta1=p0,
  * theta2=\frac{p1}{p1+p2}, omega0 @f$ and @f$ omega2 @f$). The codon
- * frequencies @f$\pi_j@f$ are either observed or infered.
+ * frequencies @f$\pi_j@f$ are either observed or inferred.
  *
  * References:
  *
@@ -42,14 +42,13 @@ public:
       std::shared_ptr<const GeneticCode> gc,
       std::unique_ptr<CodonFrequencySetInterface> codonFreqs);
 
-  YNGP_M2* clone() const override{ return new YNGP_M2(*this); }
+  YNGP_M2* clone() const override { return new YNGP_M2(*this); }
 
 public:
   std::string getName() const override { return "YNGP_M2"; }
 
 protected:
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_YNGP_M2_H

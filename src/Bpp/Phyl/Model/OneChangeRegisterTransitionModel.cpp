@@ -27,7 +27,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
     throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
 
   // new alphabet to handle pit state
-  auto ialph = make_shared<IntegerAlphabet>(alphabet().getSize()+1);
+  auto ialph = make_shared<IntegerAlphabet>(alphabet().getSize() + 1);
 
   modelChanged_.reset(new AnonymousSubstitutionModel(ialph, make_shared<CanonicalStateMap>(ialph, false)));
   modelChanged_->setScalable(false);
@@ -65,7 +65,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
       throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
   }
 
-  auto ialph = make_shared<IntegerAlphabet>(getAlphabet()->getSize()+1);
+  auto ialph = make_shared<IntegerAlphabet>(getAlphabet()->getSize() + 1);
 
   modelChanged_.reset(new AnonymousSubstitutionModel(ialph, make_shared<CanonicalStateMap>(ialph, false)));
   modelChanged_->setScalable(false);

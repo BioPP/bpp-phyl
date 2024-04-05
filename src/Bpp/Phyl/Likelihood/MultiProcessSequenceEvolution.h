@@ -38,9 +38,9 @@ protected:
 
 public:
   MultiProcessSequenceEvolution(
-    std::shared_ptr<SubstitutionProcessCollection> processColl,
-    std::vector<size_t> nProc,
-    const std::string& prefix = "");
+      std::shared_ptr<SubstitutionProcessCollection> processColl,
+      std::vector<size_t> nProc,
+      const std::string& prefix = "");
 
   MultiProcessSequenceEvolution(const MultiProcessSequenceEvolution& lik) :
     AbstractParameterAliasable(lik),
@@ -63,11 +63,11 @@ public:
    * @brief The collection
    */
   const SubstitutionProcessCollection& collection() const { return *processColl_; }
-  
+
   std::shared_ptr<const SubstitutionProcessCollection> getCollection() const { return processColl_; }
 
   SubstitutionProcessCollection& collection() { return *processColl_; }
-  
+
   std::shared_ptr<SubstitutionProcessCollection> getCollection() { return processColl_; }
 
   /**

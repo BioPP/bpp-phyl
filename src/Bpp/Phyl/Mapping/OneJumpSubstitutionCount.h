@@ -12,7 +12,7 @@
 namespace bpp
 {
 /**
- * @brief Computes the probability that at least one jump occured on a branch, given the initial and final state.
+ * @brief Computes the probability that at least one jump occurred on a branch, given the initial and final state.
  *
  * This probability is defined as
  * @f[
@@ -63,7 +63,7 @@ public:
     else return 1. - model_->Pij_t(initialState, finalState, length);
   }
 
-  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
+  std::unique_ptr< Matrix<double>> getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
 
   void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override;
 

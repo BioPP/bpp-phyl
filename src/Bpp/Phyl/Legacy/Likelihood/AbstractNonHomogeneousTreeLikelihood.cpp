@@ -22,11 +22,11 @@ using namespace std;
 /******************************************************************************/
 
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
-  const Tree& tree,
-  shared_ptr<SubstitutionModelSet> modelSet,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool verbose,
-  bool reparametrizeRoot) :
+    const Tree& tree,
+    shared_ptr<SubstitutionModelSet> modelSet,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose,
+    bool reparametrizeRoot) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   modelSet_(0),
   brLenParameters_(),
@@ -55,7 +55,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
-  const AbstractNonHomogeneousTreeLikelihood& lik) :
+    const AbstractNonHomogeneousTreeLikelihood& lik) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   modelSet_(lik.modelSet_),
   brLenParameters_(lik.brLenParameters_),
@@ -91,7 +91,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::operator=(
-  const AbstractNonHomogeneousTreeLikelihood& lik)
+    const AbstractNonHomogeneousTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   modelSet_          = lik.modelSet_;
@@ -126,13 +126,13 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
 /******************************************************************************/
 
 void AbstractNonHomogeneousTreeLikelihood::init_(
-  const Tree& tree,
-  shared_ptr<SubstitutionModelSet> modelSet,
-  shared_ptr<DiscreteDistributionInterface> rDist,
-  bool verbose)
+    const Tree& tree,
+    shared_ptr<SubstitutionModelSet> modelSet,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose)
 {
   TreeTools::checkIds(tree, true);
-  tree_ = make_unique< TreeTemplate<Node> >(tree);
+  tree_ = make_unique< TreeTemplate<Node>>(tree);
   root1_ = tree_->getRootNode()->getSon(0)->getId();
   root2_ = tree_->getRootNode()->getSon(1)->getId();
   nodes_ = tree_->getNodes();
@@ -157,8 +157,8 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
 /******************************************************************************/
 
 void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(
-     shared_ptr<SubstitutionModelSet> modelSet
-     )
+    shared_ptr<SubstitutionModelSet> modelSet
+    )
 {
   // Check:
   if (data_)

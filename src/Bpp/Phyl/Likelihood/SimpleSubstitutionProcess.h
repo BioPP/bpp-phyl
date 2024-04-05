@@ -79,7 +79,7 @@ public:
 
   const std::vector<unsigned int> getNodesWithModel(size_t i) const override
   {
-    throw Exception("SimpleSubstitutionProcess::getNodesWithModel not finished. Ask developpers.");
+    throw Exception("SimpleSubstitutionProcess::getNodesWithModel not finished. Ask developers.");
     return Vuint(0);
   }
 
@@ -113,7 +113,7 @@ public:
     throw NullPointerException("SimpleSubstitutionProcess::rateDistribution. This process does not model a rate distribution.");
   }
 
- ParameterList getSubstitutionModelParameters(bool independent) const override
+  ParameterList getSubstitutionModelParameters(bool independent) const override
   {
     return independent ? model_->getIndependentParameters() : model_->getParameters();
   }
@@ -173,7 +173,6 @@ public:
 
 protected:
   void fireParameterChanged(const ParameterList& pl) override; // Forward parameters and updates probabilities if needed.
-
 };
 } // end namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_SIMPLESUBSTITUTIONPROCESS_H

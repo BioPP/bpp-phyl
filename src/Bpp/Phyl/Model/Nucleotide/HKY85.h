@@ -150,12 +150,12 @@ private:
 
 public:
   HKY85(
-    std::shared_ptr<const NucleicAlphabet> alpha,
-    double kappa = 1.,
-    double piA = 0.25,
-    double piC = 0.25,
-    double piG = 0.25,
-    double piT = 0.25);
+      std::shared_ptr<const NucleicAlphabet> alpha,
+      double kappa = 1.,
+      double piA = 0.25,
+      double piC = 0.25,
+      double piG = 0.25,
+      double piT = 0.25);
 
   virtual ~HKY85() {}
 

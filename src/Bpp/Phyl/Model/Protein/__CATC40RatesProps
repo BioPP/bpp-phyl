@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
+//
+// SPDX-License-Identifier: CECILL-2.1
+
 if (getName()=="C1"){
 	rate_ = 1.;
 	proportion_ = 0.0223853788;

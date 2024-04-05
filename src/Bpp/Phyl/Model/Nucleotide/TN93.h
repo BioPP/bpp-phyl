@@ -100,13 +100,13 @@ private:
 
 public:
   TN93(
-    std::shared_ptr<const NucleicAlphabet> alpha,
-    double kappa1 = 1.,
-    double kappa2 = 1.,
-    double piA = 0.25,
-    double piC = 0.25,
-    double piG = 0.25,
-    double piT = 0.25);
+      std::shared_ptr<const NucleicAlphabet> alpha,
+      double kappa1 = 1.,
+      double kappa2 = 1.,
+      double piA = 0.25,
+      double piC = 0.25,
+      double piG = 0.25,
+      double piT = 0.25);
 
   virtual ~TN93() {}
 
@@ -128,7 +128,6 @@ public:
   void setFreq(std::map<int, double>& freqs) override;
 
 protected:
-
   void updateMatrices_() override;
 };
 } // end of namespace bpp.

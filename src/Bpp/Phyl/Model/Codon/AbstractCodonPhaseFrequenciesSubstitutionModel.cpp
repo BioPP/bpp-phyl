@@ -40,8 +40,8 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
       }
     }
     posFreqSet_.reset(new CodonFromIndependentFrequencySet(
-                        pfreq->getGeneticCode(),
-                        vFS, ""));
+          pfreq->getGeneticCode(),
+          vFS, ""));
 
     posFreqSet_->setFrequencies(pfreq->getFrequencies());
   }
@@ -89,4 +89,3 @@ double AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(size_t i
 }
 
 /******************************************************************************/
-

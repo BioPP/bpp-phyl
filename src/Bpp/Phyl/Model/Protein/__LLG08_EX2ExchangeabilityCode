@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
+//
+// SPDX-License-Identifier: CECILL-2.1
+
 if (getName()=="Exposed"){
 	exchangeability_(10,17)=1.13072;
 	exchangeability_(17,10)=1.13072;

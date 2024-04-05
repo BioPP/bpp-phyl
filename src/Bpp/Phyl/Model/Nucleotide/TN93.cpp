@@ -18,13 +18,13 @@ using namespace bpp;
 /******************************************************************************/
 
 TN93::TN93(
-  shared_ptr<const NucleicAlphabet> alpha,
-  double kappa1,
-  double kappa2,
-  double piA,
-  double piC,
-  double piG,
-  double piT) :
+    shared_ptr<const NucleicAlphabet> alpha,
+    double kappa1,
+    double kappa2,
+    double piA,
+    double piC,
+    double piG,
+    double piT) :
   AbstractParameterAliasable("TN93."),
   AbstractReversibleNucleotideSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "TN93."),
   kappa1_(kappa1), kappa2_(kappa2),

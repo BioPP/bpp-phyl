@@ -6,7 +6,7 @@ cmake_minimum_required (VERSION 3.5)
 project (bpp-phyl3 CXX)
 
 # Compile options
-set (CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wshadow -Wconversion")
+add_compile_options(-std=c++14 -Wall -Wshadow -Wconversion)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING

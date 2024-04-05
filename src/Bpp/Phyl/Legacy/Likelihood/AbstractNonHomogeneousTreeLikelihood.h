@@ -80,10 +80,10 @@ protected:
 
   // some values we'll need:
   size_t nbSites_,         // the number of sites in the container
-         nbDistinctSites_, // the number of distinct sites
-         nbClasses_,       // the number of rate classes
-         nbStates_,        // the number of states in the alphabet
-         nbNodes_;         // the number of nodes in the tree
+      nbDistinctSites_, // the number of distinct sites
+      nbClasses_,       // the number of rate classes
+      nbStates_,        // the number of states in the alphabet
+      nbNodes_;         // the number of nodes in the tree
 
   bool verbose_;
 
@@ -96,11 +96,11 @@ protected:
 
 public:
   AbstractNonHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose = true,
-    bool reparametrizeRoot = true);
+      const Tree& tree,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true,
+      bool reparametrizeRoot = true);
 
   /**
    * @brief Copy constructor
@@ -123,10 +123,10 @@ private:
    * @brief Method called by constructor.
    */
   void init_(
-    const Tree& tree,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool verbose);
+      const Tree& tree,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose);
 
 public:
   /**
@@ -189,11 +189,11 @@ public:
    * @{
    */
   std::shared_ptr<const SubstitutionModelSet> getSubstitutionModelSet() const override { return modelSet_; }
-  
+
   const SubstitutionModelSet& substitutionModelSet() const override { return *modelSet_; }
 
   std::shared_ptr<SubstitutionModelSet> getSubstitutionModelSet() override { return modelSet_; }
-  
+
   SubstitutionModelSet& substitutionModelSet() override { return *modelSet_; }
 
   void setSubstitutionModelSet(std::shared_ptr<SubstitutionModelSet> modelSet) override;
@@ -225,7 +225,7 @@ public:
   virtual void setMinimumBranchLength(double minimum)
   {
     if (minimum > maximumBrLen_)
-      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
+      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length should be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
     minimumBrLen_ = minimum;
     brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
     initBranchLengthsParameters();
@@ -234,7 +234,7 @@ public:
   virtual void setMaximumBranchLength(double maximum)
   {
     if (maximum < minimumBrLen_)
-      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
+      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length should be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
     maximumBrLen_ = maximum;
     brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
     initBranchLengthsParameters();

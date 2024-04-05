@@ -38,9 +38,8 @@ public:
   virtual ~PhyloTreeTools() {}
 
 public:
-
   static std::shared_ptr<PhyloTree> buildFromTreeTemplate(const TreeTemplate<Node>& treetemp);
-  
+
   /**
    * @brief Get the height of the subtree defined by node 'node', i.e. the maximum
    * distance between leaves and the root of the subtree.
@@ -72,7 +71,7 @@ public:
   /**
    * @brief Compute branch lengths using Grafen's method.
    *
-   * The 'height' of each node is devided by the total height of the tree, and the ratio is raised at power 'rho'.
+   * The 'height' of each node is divided by the total height of the tree, and the ratio is raised at power 'rho'.
    * A value of rho=0 hence returns a star tree.
    *
    * Reference:
@@ -95,7 +94,7 @@ public:
    * @brief Modify a tree's branch lengths to make a clock tree, by rebalancing branch lengths.
    *
    * The height of each node is set to the mean height of all son nodes.
-   * This may however lead to negative branch lengths, since the mean heigth
+   * This may however lead to negative branch lengths, since the mean height
    * may be inferior to one of the son heights, due to short branch lengths.
    * If the 'noneg' is set to yes, the mean height is checked against all son
    * heights. If it is inferior to one of the son heights, the maximum son
@@ -145,7 +144,6 @@ public:
    * @brief Bootstrap tag.
    */
   static const std::string BOOTSTRAP;
-
 
 private:
   struct Moments_

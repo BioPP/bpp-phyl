@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_PRODUCTOFALIGNEDPHYLOLIKELIHOOD_H
 
 
-
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/AlignmentData.h>
@@ -42,7 +41,6 @@ public:
   virtual ~AlignedPhyloLikelihoodProduct() {}
 
 protected:
-
   AlignedPhyloLikelihoodProduct(const AlignedPhyloLikelihoodProduct& sd) :
     AbstractPhyloLikelihood(sd),
     AbstractParametrizable(""),

@@ -14,7 +14,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Abstract Kronecker Word Model.
  *
@@ -52,12 +51,12 @@ private:
    * Shortcut : if empty, any number of any positions can change
    * simultaneously
    */
-  std::vector<std::set< size_t> > sChangingPos_;
+  std::vector<std::set< size_t>> sChangingPos_;
 
   /**
    * @brief vector of generators for computation purposes
    */
-  std::vector< RowMatrix<double> > vGenerators_;
+  std::vector< RowMatrix<double>> vGenerators_;
 
 protected:
   void initGenerators_();
@@ -68,14 +67,12 @@ protected:
   bool checkChangingPositions_();
 
 private:
-  
   /**
    * @brief First fill of the generator, from the position model
    */
   void fillBasicGenerator_();
 
 public:
-
   /**
    * @brief Build a new AbstractKroneckerWordSubstitutionModel
    * object from a vector of pointers to SubstitutionModels,
@@ -89,8 +86,8 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    ModelList& modelList,
-    const std::string& prefix);
+      ModelList& modelList,
+      const std::string& prefix);
 
   /**
    * @brief Build a new AbstractKroneckerWordSubstitutionModel
@@ -107,9 +104,9 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    ModelList& modelList,
-    const std::vector<std::set< size_t> >& vPos,
-    const std::string& prefix);
+      ModelList& modelList,
+      const std::vector<std::set< size_t>>& vPos,
+      const std::string& prefix);
 
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a
@@ -122,9 +119,9 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface> pmodel,
-    unsigned int num,
-    const std::string& prefix);
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
+      unsigned int num,
+      const std::string& prefix);
 
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a
@@ -139,10 +136,10 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface> pmodel,
-    unsigned int num,
-    const std::vector<std::set< size_t> >& vPos,
-    const std::string& prefix);
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
+      unsigned int num,
+      const std::vector<std::set< size_t>>& vPos,
+      const std::string& prefix);
 
 
   virtual ~AbstractKroneckerWordSubstitutionModel() {}
@@ -152,7 +149,6 @@ public:
   AbstractKroneckerWordSubstitutionModel& operator=(const AbstractKroneckerWordSubstitutionModel&);
 
 protected:
-  
   /**
    * @brief Constructor for the derived classes only
    */
@@ -161,8 +157,7 @@ protected:
       std::shared_ptr<const StateMapInterface> stateMap,
       const std::string& prefix);
 
-  void setChangingPositions(const std::vector<std::set<size_t> >& vPos);
+  void setChangingPositions(const std::vector<std::set<size_t>>& vPos);
 };
-
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTKRONECKERWORDSUBSTITUTIONMODEL_H

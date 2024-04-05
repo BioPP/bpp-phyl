@@ -24,7 +24,7 @@ RELAX::RELAX(
   AbstractWrappedTransitionModel("RELAX."),
   AbstractTotallyWrappedTransitionModel("RELAX."),
   AbstractBiblioTransitionModel("RELAX."),
-  YNGP_M("RELAX.") // RELAX currenly inherits from YNGP_M as well, since it uses kappa and instead of the 5 GTR parameters
+  YNGP_M("RELAX.") // RELAX currently inherits from YNGP_M as well, since it uses kappa and instead of the 5 GTR parameters
 {
   // set the initial omegas distribution
   vector<double> omega_initials, omega_frequencies_initials;
@@ -36,7 +36,7 @@ RELAX::RELAX(
   map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
   mpdd["omega"] = std::move(psdd);
 
-  // build the submodel as a basic Yang Nielsen model (with kappa instead of 5 GTR nucleotide substituion rate parameters)
+  // build the submodel as a basic Yang Nielsen model (with kappa instead of 5 GTR nucleotide substitution rate parameters)
   auto yn98 = make_unique<YN98>(gc, std::move(codonFreqs));
 
   // initialize the site model with the initial omegas distribution
@@ -80,11 +80,11 @@ RELAX::RELAX(
     if (it.second.substr(0, 5) != "omega" && it.second.substr(0, 5) != "p")
     {
       addParameter_(new Parameter("RELAX." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
+            mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
     }
   }
 
-  /* set the below parameters that are used for parameterizing the omega parameters of the sumodels of type YN98 as autoparameters to supress exceptions when constraints of the YN98 omega parameters are exceeded
+  /* set the below parameters that are used for parameterizing the omega parameters of the sumodels of type YN98 as autoparameters to suppress exceptions when constraints of the YN98 omega parameters are exceeded
      YN98_0.omega = (RELAX.p * RELAX.omega1) ^ RELAX.k
      YN98_1.omega = RELAX.omega1 ^ RELAX.k
      YN98_2.omega = RELAX.omega2 ^ RELAX.k */
@@ -190,4 +190,3 @@ void RELAX::updateMatrices_()
 
   mixedModelPtr_->setVRates(vd);
 }
-

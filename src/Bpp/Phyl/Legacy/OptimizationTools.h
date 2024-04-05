@@ -17,7 +17,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Listener used internally by the optimizeTreeNNI method.
  */
@@ -46,7 +45,7 @@ public:
    *
    * @param ts         The NNITopologySearch object attached to this listener.
    * @param parameters The list of parameters to optimize. Use tl->getIndependentParameters() in order to estimate all parameters.
-   * @param tolerance  Tolerance to use during optimizaton.
+   * @param tolerance  Tolerance to use during optimization.
    * @param messenger  Where to output messages.
    * @param profiler   Where to output optimization steps.
    * @param verbose    Verbose level during optimization.
@@ -144,7 +143,7 @@ public:
    *
    * @param ts         The NNITopologySearch object attached to this listener.
    * @param parameters The list of parameters to optimize. Use ts->getIndependentParameters() in order to estimate all parameters.
-   * @param tolerance  Tolerance to use during optimizaton.
+   * @param tolerance  Tolerance to use during optimization.
    * @param messenger  Where to output messages.
    * @param profiler   Where to output optimization steps.
    * @param verbose    Verbose level during optimization.
@@ -254,18 +253,18 @@ public:
    * @throw Exception any exception thrown by the Optimizer.
    */
   static unsigned int optimizeNumericalParameters(
-    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
-    const ParameterList& parameters,
-    std::shared_ptr<OptimizationListener> listener = nullptr,
-    unsigned int nstep                             = 1,
-    double tolerance                               = 0.000001,
-    unsigned int tlEvalMax                         = 1000000,
-    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
-    bool reparametrization                         = false,
-    unsigned int verbose                           = 1,
-    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON,
-    const std::string& optMethodModel              = OPTIMIZATION_BRENT);
+      std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+      const ParameterList& parameters,
+      std::shared_ptr<OptimizationListener> listener = nullptr,
+      unsigned int nstep                             = 1,
+      double tolerance                               = 0.000001,
+      unsigned int tlEvalMax                         = 1000000,
+      std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+      bool reparametrization                         = false,
+      unsigned int verbose                           = 1,
+      const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON,
+      const std::string& optMethodModel              = OPTIMIZATION_BRENT);
 
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -290,17 +289,17 @@ public:
    * @throw Exception any exception thrown by the Optimizer.
    */
   static unsigned int optimizeNumericalParameters2(
-    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
-    const ParameterList& parameters,
-    std::shared_ptr<OptimizationListener> listener = nullptr,
-    double tolerance                               = 0.000001,
-    unsigned int tlEvalMax                         = 1000000,
-    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
-    bool reparametrization                         = false,
-    bool useClock                                  = false,
-    unsigned int verbose                           = 1,
-    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
+      std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+      const ParameterList& parameters,
+      std::shared_ptr<OptimizationListener> listener = nullptr,
+      double tolerance                               = 0.000001,
+      unsigned int tlEvalMax                         = 1000000,
+      std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+      bool reparametrization                         = false,
+      bool useClock                                  = false,
+      unsigned int verbose                           = 1,
+      const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
   /**
    * @brief Optimize branch lengths parameters of a TreeLikelihood function.
@@ -324,18 +323,15 @@ public:
    * @throw Exception any exception thrown by the Optimizer.
    */
   static unsigned int optimizeBranchLengthsParameters(
-    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
-    const ParameterList& parameters,
-    std::shared_ptr<OptimizationListener> listener = nullptr,
-    double tolerance                               = 0.000001,
-    unsigned int tlEvalMax                         = 1000000,
-    std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
-    unsigned int verbose                           = 1,
-    const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
-
-
-
+      std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+      const ParameterList& parameters,
+      std::shared_ptr<OptimizationListener> listener = nullptr,
+      double tolerance                               = 0.000001,
+      unsigned int tlEvalMax                         = 1000000,
+      std::shared_ptr<OutputStream> messageHandler   = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler         = ApplicationTools::message,
+      unsigned int verbose                           = 1,
+      const std::string& optMethodDeriv              = OPTIMIZATION_NEWTON);
 
 private:
   class ScaleFunction :
@@ -388,13 +384,13 @@ protected:
   };
 
 public:
- /**
+  /**
    * @brief Optimize the scale of a TreeLikelihood.
    *
    * This method only works on branch lengths parameters.
    * It multiply all branch length by a factor 'x' which is optimized
    * using Brent's algorithm in one dimension.
-   * This method may be usefull for scaling a tree whose branch lengths
+   * This method may be useful for scaling a tree whose branch lengths
    * come from the Neighbor-Joining algorithm for instance.
    *
    * Practically, and contrarily to what one may expect, this does not
@@ -411,21 +407,21 @@ public:
    * @throw Exception any exception thrown by the optimizer.
    */
   static unsigned int optimizeTreeScale(
-    std::shared_ptr<TreeLikelihoodInterface> tl,
-    double tolerance                             = 0.000001,
-    unsigned int tlEvalMax                       = 1000000,
-    std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
-    unsigned int verbose                         = 1);
+      std::shared_ptr<TreeLikelihoodInterface> tl,
+      double tolerance                             = 0.000001,
+      unsigned int tlEvalMax                       = 1000000,
+      std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
+      unsigned int verbose                         = 1);
 
-  
+
   /**
    * @brief Optimize all parameters from a TreeLikelihood object, including tree topology using Nearest Neighbor Interchanges.
    *
    * This function takes as input a TreeLikelihood object implementing the NNISearchable interface.
    *
    * Details:
-   * A NNITopologySearch object is instanciated and is associated an additional TopologyListener.
+   * A NNITopologySearch object is instantiated and is associated an additional TopologyListener.
    * This listener is used to re-estimate numerical parameters after one or several topology change.
    * By default, the PHYML option is used for the NNITopologySearch object, and numerical parameters are re-estimated
    * every 4 NNI runs (as in the phyml software).
@@ -451,7 +447,7 @@ public:
    * @param nniMethod         NNI algorithm to use.
    * @return A pointer toward the final likelihood object.
    * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
-   * clone this object. We may change this bahavior in the future...
+   * clone this object. We may change this behavior in the future...
    * You hence should write something like
    * @code
    * tl = OptimizationTools::optimizeTreeNNI(tl, ...);
@@ -459,20 +455,20 @@ public:
    * @throw Exception any exception thrown by the optimizer.
    */
   static std::shared_ptr<NNIHomogeneousTreeLikelihood> optimizeTreeNNI(
-    std::shared_ptr<NNIHomogeneousTreeLikelihood> tl,
-    const ParameterList& parameters,
-    bool optimizeNumFirst                        = true,
-    double tolBefore                             = 100,
-    double tolDuring                             = 100,
-    unsigned int tlEvalMax                       = 1000000,
-    unsigned int numStep                         = 1,
-    std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
-    bool reparametrization                       = false,
-    unsigned int verbose                         = 1,
-    const std::string& optMethod                 = OptimizationTools::OPTIMIZATION_NEWTON,
-    unsigned int nStep                           = 1,
-    const std::string& nniMethod                 = NNITopologySearch::PHYML);
+      std::shared_ptr<NNIHomogeneousTreeLikelihood> tl,
+      const ParameterList& parameters,
+      bool optimizeNumFirst                        = true,
+      double tolBefore                             = 100,
+      double tolDuring                             = 100,
+      unsigned int tlEvalMax                       = 1000000,
+      unsigned int numStep                         = 1,
+      std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
+      bool reparametrization                       = false,
+      unsigned int verbose                         = 1,
+      const std::string& optMethod                 = OptimizationTools::OPTIMIZATION_NEWTON,
+      unsigned int nStep                           = 1,
+      const std::string& nniMethod                 = NNITopologySearch::PHYML);
 
   /**
    * @brief Optimize all parameters from a TreeLikelihood object, including tree topology using Nearest Neighbor Interchanges.
@@ -480,7 +476,7 @@ public:
    * This function takes as input a TreeLikelihood object implementing the NNISearchable interface.
    *
    * Details:
-   * A NNITopologySearch object is instanciated and is associated an additional TopologyListener.
+   * A NNITopologySearch object is instantiated and is associated an additional TopologyListener.
    * This listener is used to re-estimate numerical parameters after one or several topology change.
    * By default, the PHYML option is used for the NNITopologySearch object, and numerical parameters are re-estimated
    * every 4 NNI runs (as in the phyml software).
@@ -505,7 +501,7 @@ public:
    * @param nniMethod         NNI algorithm to use.
    * @return A pointer toward the final likelihood object.
    * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
-   * clone this object. We may change this bahavior in the future...
+   * clone this object. We may change this behavior in the future...
    * You hence should write something like
    * @code
    * tl = OptimizationTools::optimizeTreeNNI2(tl, ...);
@@ -513,19 +509,19 @@ public:
    * @throw Exception any exception thrown by the optimizer.
    */
   static std::shared_ptr<NNIHomogeneousTreeLikelihood> optimizeTreeNNI2(
-    std::shared_ptr<NNIHomogeneousTreeLikelihood> tl,
-    const ParameterList& parameters,
-    bool optimizeNumFirst                        = true,
-    double tolBefore                             = 100,
-    double tolDuring                             = 100,
-    unsigned int tlEvalMax                       = 1000000,
-    unsigned int numStep                         = 1,
-    std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
-    std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
-    bool reparametrization                       = false,
-    unsigned int verbose                         = 1,
-    const std::string& optMethod                 = OptimizationTools::OPTIMIZATION_NEWTON,
-    const std::string& nniMethod                 = NNITopologySearch::PHYML);
+      std::shared_ptr<NNIHomogeneousTreeLikelihood> tl,
+      const ParameterList& parameters,
+      bool optimizeNumFirst                        = true,
+      double tolBefore                             = 100,
+      double tolDuring                             = 100,
+      unsigned int tlEvalMax                       = 1000000,
+      unsigned int numStep                         = 1,
+      std::shared_ptr<OutputStream> messageHandler = ApplicationTools::message,
+      std::shared_ptr<OutputStream> profiler       = ApplicationTools::message,
+      bool reparametrization                       = false,
+      unsigned int verbose                         = 1,
+      const std::string& optMethod                 = OptimizationTools::OPTIMIZATION_NEWTON,
+      const std::string& nniMethod                 = NNITopologySearch::PHYML);
 
   /**
    * @brief Optimize tree topology from a DRTreeParsimonyScore using Nearest Neighbor Interchanges.
@@ -534,16 +530,15 @@ public:
    * @param verbose          The verbose level.
    * @return A pointer toward the final parsimony score object.
    * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
-   * clone this object. We may change this bahavior in the future...
+   * clone this object. We may change this behavior in the future...
    * You hence should write something like
    * @code
    * tp = OptimizationTools::optimizeTreeNNI(tp, ...);
    * @endcode
    */
   static std::shared_ptr<DRTreeParsimonyScore> optimizeTreeNNI(
-    std::shared_ptr<DRTreeParsimonyScore> tp,
-    unsigned int verbose = 1);
-
+      std::shared_ptr<DRTreeParsimonyScore> tp,
+      unsigned int verbose = 1);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_OPTIMIZATIONTOOLS_H

@@ -41,7 +41,7 @@ protected:
   std::vector<std::string> seqNames_;
 
   /**
-   * @brief correspondance map of seqNames positions of the several trees.
+   * @brief correspondence map of seqNames positions of the several trees.
    * Reference is the tree of the first process of the map.
    *
    * mvPosNames[process id][i] is the position in the id_th tree
@@ -88,7 +88,6 @@ public:
   /**
    * @brief the number of mapped sites.
    */
-  
   size_t getNumberOfSites() const
   {
     return vMap_.size();
@@ -103,7 +102,7 @@ public:
   std::unique_ptr<SiteContainerInterface> simulate(const std::vector<double>& rates, const std::vector<size_t>& states) const;
 
   std::shared_ptr<const Alphabet> getAlphabet() const override;
-  
+
   const Alphabet& alphabet() const override;
 };
 } // end of namespace bpp.

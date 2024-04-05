@@ -25,7 +25,7 @@ class CodonAdHocSubstitutionModel :
   public AbstractCodonSubstitutionModel
 {
 private:
-  std::vector< std::unique_ptr<CoreCodonSubstitutionModelInterface> > vModel_;
+  std::vector< std::unique_ptr<CoreCodonSubstitutionModelInterface>> vModel_;
 
   std::string name_;
 
@@ -48,10 +48,10 @@ public:
    * @param name the name of the model
    */
   CodonAdHocSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::vector<std::unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
-    const std::string& name);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      std::vector<std::unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
+      const std::string& name);
 
   /**
    * @brief Build a new CodonAdHocSubstitutionModel object
@@ -65,12 +65,12 @@ public:
    * @param name the name of the model
    */
   CodonAdHocSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::vector<std::unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
-    const std::string& name);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      std::vector<std::unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
+      const std::string& name);
 
   CodonAdHocSubstitutionModel(const CodonAdHocSubstitutionModel& model);
 
@@ -121,9 +121,8 @@ public:
 
   bool hasCodonFrequencySet() const override
   {
-    return (freqSet_ != nullptr);
+    return freqSet_ != nullptr;
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_CODONADHOCSUBSTITUTIONMODEL_H

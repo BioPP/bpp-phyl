@@ -21,11 +21,11 @@ using namespace std;
 /* Store the countings on a DAG similar to the computing DAG */
 
 
-typedef vector<vector<vector<double> > > VVVDouble;
-typedef vector<vector<double> > VVDouble;
+typedef vector<vector<vector<double>>> VVVDouble;
+typedef vector<vector<double>> VVDouble;
 typedef vector<double> VDouble;
 
-/* class for reprenting the framework of Stochastic mapping
+/* class for representing the framework of Stochastic mapping
  *
  *   A StochasticMapping instance can be used to sample histories of
  *   state transitions along a tree, given a substitution model and the
@@ -82,9 +82,9 @@ public:
     likelihood_(sm.likelihood_),
     tree_(sm.tree_),
 //      mappingParameters_(likelihood_->getSubstitutionProcess()),
-  fractionalProbabilities_(sm.fractionalProbabilities_),
-  ConditionalProbabilities_(sm.ConditionalProbabilities_),
-  nodesCounter_(0), numOfMappings_(sm.numOfMappings_)
+    fractionalProbabilities_(sm.fractionalProbabilities_),
+    ConditionalProbabilities_(sm.ConditionalProbabilities_),
+    nodesCounter_(0), numOfMappings_(sm.numOfMappings_)
   { }
 
   /**
@@ -104,7 +104,7 @@ public:
    *
    */
 
-  void generateStochasticMapping(std::vector<std::shared_ptr<PhyloTree> >& mappings);
+  void generateStochasticMapping(std::vector<std::shared_ptr<PhyloTree>>& mappings);
 
   /**
    *@brief Creates a single expected (i.e, average) history based on
@@ -123,10 +123,10 @@ public:
    *
    **/
 
-  std::shared_ptr<PhyloTree> generateExpectedMapping(std::vector<std::shared_ptr<PhyloTree> >& mappings, size_t divMethod = 0);
+  std::shared_ptr<PhyloTree> generateExpectedMapping(std::vector<std::shared_ptr<PhyloTree>>& mappings, size_t divMethod = 0);
 
   /**
-   *@brief Creates a single expected (i.e, average) history based the rewards provided by te algorithm of Minin and Suchard (2008)
+   *@brief Creates a single expected (i.e, average) history based the rewards provided by the algorithm of Minin and Suchard (2008)
    * the function assumes that there is only one site to simulate history for
    *
    *@param divMethod The method used in the case that the son and
@@ -156,12 +156,12 @@ private:
    */
   void setNodeState(PhyloNode* node, size_t state);
 
-  /* set the character states of the leafs as properties of thier nodes instances
+  /* set the character states of the leafs as properties of their nodes instances
    * @param mapping - the tree to sets the properties in
    */
   void setLeafsStates(std::shared_ptr<PhyloTree> mapping);
 
-  /* compute the fractional probabilities of all the nodes assignements
+  /* compute the fractional probabilities of all the nodes assignments
    * @param                     A vector of the fractional probabilities probabilities to fill in (node**state combinaion in each entry)
    */
   void computeFractionals();
@@ -175,7 +175,7 @@ private:
    * @param                     A vector of the posterior probabilities probabilities to fill in (node**state combinaion in each entry)
    * @param                     A vector of mappings to base the frequencies on
    */
-  void computeStatesFrequencies(VVDouble& ancestralStatesFreuquencies, vector<shared_ptr<PhyloTree> >& mappings);
+  void computeStatesFrequencies(VVDouble& ancestralStatesFreuquencies, vector<shared_ptr<PhyloTree>>& mappings);
 
   /* auxiliary function that samples a state based on a given discrete distribution
    * @param distibution       The distribution to sample states based on

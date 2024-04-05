@@ -14,8 +14,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  ModelList& modelList,
-  const std::string& prefix) :
+    ModelList& modelList,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(modelList, prefix),
   sChangingPos_(),
@@ -31,9 +31,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  ModelList& modelList,
-  const std::vector<std::set<size_t> >& vPos,
-  const std::string& prefix) :
+    ModelList& modelList,
+    const std::vector<std::set<size_t>>& vPos,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(modelList, prefix),
   sChangingPos_(vPos),
@@ -52,9 +52,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(std::move(pmodel), num, prefix),
   sChangingPos_(),
@@ -70,10 +70,10 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const std::vector<std::set<size_t> >& vPos,
-  const std::string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const std::vector<std::set<size_t>>& vPos,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(std::move(pmodel), num, prefix),
   sChangingPos_(vPos),
@@ -92,9 +92,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  shared_ptr<const Alphabet> alph,
-  shared_ptr<const StateMapInterface> stateMap,
-  const string& prefix) :
+    shared_ptr<const Alphabet> alph,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(alph, stateMap, prefix),
   sChangingPos_(),
@@ -108,7 +108,7 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  const AbstractKroneckerWordSubstitutionModel& wrsm) :
+    const AbstractKroneckerWordSubstitutionModel& wrsm) :
   AbstractParameterAliasable(wrsm),
   AbstractWordSubstitutionModel(wrsm),
   sChangingPos_(wrsm.sChangingPos_),
@@ -119,7 +119,7 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 
 
 AbstractKroneckerWordSubstitutionModel& AbstractKroneckerWordSubstitutionModel::operator=(
-  const AbstractKroneckerWordSubstitutionModel& model)
+    const AbstractKroneckerWordSubstitutionModel& model)
 {
   AbstractParameterAliasable::operator=(model);
   AbstractWordSubstitutionModel::operator=(model);
@@ -130,7 +130,7 @@ AbstractKroneckerWordSubstitutionModel& AbstractKroneckerWordSubstitutionModel::
 }
 
 
-void AbstractKroneckerWordSubstitutionModel::setChangingPositions(const vector<std::set<size_t> >& vPos)
+void AbstractKroneckerWordSubstitutionModel::setChangingPositions(const vector<std::set<size_t>>& vPos)
 {
   sChangingPos_ = vPos;
 

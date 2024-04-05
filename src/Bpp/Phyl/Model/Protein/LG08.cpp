@@ -65,4 +65,3 @@ void LG08::setFreqFromData(const SequenceDataInterface& data, double pseudoCount
 }
 
 /******************************************************************************/
-

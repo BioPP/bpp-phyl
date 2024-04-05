@@ -114,28 +114,25 @@ private:
 
 public:
   RN95s(std::shared_ptr<const NucleicAlphabet> alphabet,
-        double alpha = 0.25,
-        double beta = 0.25,
-        double gamma = 0.25,
-        double delta = 0.25);
+      double alpha = 0.25,
+      double beta = 0.25,
+      double gamma = 0.25,
+      double delta = 0.25);
 
   virtual ~RN95s() {}
 
   RN95s* clone() const override { return new RN95s(*this); }
 
 public:
-
   std::string getName() const override { return "RN95s"; }
 
   /**
    * @brief This method takes the average value between observed @f$\pi_A@f$ and @f$\pi_T@f$.
    */
   void setFreq(std::map<int, double>&) override;
-  
-protected:
-  
-  void updateMatrices_() override;
 
+protected:
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_RN95S_H

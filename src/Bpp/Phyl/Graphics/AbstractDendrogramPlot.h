@@ -14,7 +14,7 @@ namespace bpp
  * @brief Basic implementation of dendrogram plots.
  *
  * Dendrograms are oriented plots, with all the leaves on one side of the plot, and the root node at the opposite side.
- * This implementation offers to option for ploting form left to right or right to left. This will affect the direction
+ * This implementation offers to option for plotting form left to right or right to left. This will affect the direction
  * of plot annotations. The drawing can always be transformed using the regular translation/rotation operation on the
  * GraphicDevice.
  */

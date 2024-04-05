@@ -19,7 +19,7 @@ namespace bpp
  * @brief Substitution model I/O in BppO format.
  *
  * Creates a new substitution model object according to model description syntax
- * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
+ * (see the Bio++ Program Suite manual for a detailed description of this syntax).
  */
 class BppOSubstitutionModelFormat :
   public ISubstitutionModel,
@@ -129,7 +129,7 @@ public:
    * output will be "name=alias_name";
    * @param writtenNames is the vector of the written
    * parameters so far [in, out];
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   void write(const BranchModelInterface& model,
       OutputStream& out,
@@ -169,12 +169,11 @@ protected:
    * @param data   A pointer toward the AlignmentDataInterface for which the substitution model is designed.
    *               The alphabet associated to the data must be of the same type as the one specified for the model.
    *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   void initialize_(
       BranchModelInterface& model,
       const AlignmentDataInterface& data);
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOSUBSTITUTIONMODELFORMAT_H

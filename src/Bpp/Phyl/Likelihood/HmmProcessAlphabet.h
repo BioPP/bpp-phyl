@@ -6,7 +6,6 @@
 #define BPP_PHYL_LIKELIHOOD_HMMPROCESSALPHABET_H
 
 
-
 // From Numeric
 #include <Bpp/Numeric/Hmm/HmmStateAlphabet.h>
 

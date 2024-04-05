@@ -111,13 +111,13 @@ MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, size_t
     }
 
     size_t currentState = initialState;
-    while (t < time)  // a jump occured but not passed the whole time
+    while (t < time)  // a jump occurred but not passed the whole time
     {
       currentState = mutate(currentState);
       mp.addEvent(currentState, t);      // add the current state and time to branch history
-      t += getTimeBeforeNextMutationEvent(currentState);        // draw the time until a transition from exponential distribution with the rate of leaving currentState from initial state curState based on the relative tranistion rates distribution
+      t += getTimeBeforeNextMutationEvent(currentState);        // draw the time until a transition from exponential distribution with the rate of leaving currentState from initial state curState based on the relative transition rates distribution
     }
-    //   // the last jump passed the length of the branch -> finish the simulation and check if it's sucessfull (i.e, mapping is finished at the son's state)
+    //   // the last jump passed the length of the branch -> finish the simulation and check if it's successful (i.e, mapping is finished at the son's state)
     if (currentState != finalState) // if the simulation failed, try again
     {
       continue;
@@ -135,7 +135,7 @@ MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, size_t
 /******************************************************************************/
 
 SimpleMutationProcess::SimpleMutationProcess(
-  shared_ptr<const SubstitutionModelInterface> model) :
+    shared_ptr<const SubstitutionModelInterface> model) :
   AbstractMutationProcess(model)
 {
   size_ = model->getNumberOfStates();
@@ -166,7 +166,7 @@ SimpleMutationProcess::SimpleMutationProcess(
         }
         else
           repartition_[i][j] = -1;
-        // Forbiden value: does not correspond to a change.
+        // Forbidden value: does not correspond to a change.
       }
     }
   }

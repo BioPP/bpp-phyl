@@ -14,7 +14,7 @@ namespace bpp
 // FrequencySet node
 
 ConfiguredFrequencySet::ConfiguredFrequencySet (const Context& context, NodeRefVec&& deps, std::unique_ptr<FrequencySetInterface>&& freqset)
-  : Value<const FrequencySetInterface*>(std::move (deps), freqset.get ()), AbstractParametrizable(freqset->getNamespace())// , context_(context)
+  : Value<const FrequencySetInterface*>(std::move (deps), freqset.get ()), AbstractParametrizable(freqset->getNamespace()) // , context_(context)
   , freqset_(std::move(freqset))
 {
   for (const auto& dep:dependencies())
@@ -68,7 +68,7 @@ NodeRef ConfiguredFrequencySet::recreate (Context& c, NodeRefVec&& deps)
 // FrequenciesFromFrequencySet
 
 FrequenciesFromFrequencySet::FrequenciesFromFrequencySet (
-  NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
+    NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
   : Value<Eigen::RowVectorXd>(std::move (deps)), targetDimension_ (dim) {}
 
 std::string FrequenciesFromFrequencySet::debugInfo () const
@@ -89,12 +89,12 @@ NodeRef FrequenciesFromFrequencySet::derive (Context& c, const Node_DF& node)
   auto freqSetDep = this->dependency (0);
   auto& freqset = static_cast<ConfiguredFrequencySet&>(*freqSetDep);
   auto buildFWithNewFreqSet = [this, &c](NodeRef&& newFreqSet) {
-                                return ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, Self>(c, {std::move (newFreqSet)}, targetDimension_);
-                              };
+        return ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, Self>(c, {std::move (newFreqSet)}, targetDimension_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredFrequencySet, T >(
-    c, freqset, node, targetDimension_, buildFWithNewFreqSet);
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+        c, freqset, node, targetDimension_, buildFWithNewFreqSet);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef FrequenciesFromFrequencySet::recreate (Context& c, NodeRefVec&& deps)

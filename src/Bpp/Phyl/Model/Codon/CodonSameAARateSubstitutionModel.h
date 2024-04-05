@@ -92,13 +92,13 @@ public:
    * @param pgencode the genetic code
    */
   CodonSameAARateSubstitutionModel(
-    std::unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
-    std::unique_ptr<CodonSubstitutionModelInterface> pCodonModel,
-    std::unique_ptr<CodonFrequencySetInterface> pFreq,
-    std::shared_ptr<const GeneticCode> pgencode);
+      std::unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
+      std::unique_ptr<CodonSubstitutionModelInterface> pCodonModel,
+      std::unique_ptr<CodonFrequencySetInterface> pFreq,
+      std::shared_ptr<const GeneticCode> pgencode);
 
   CodonSameAARateSubstitutionModel(
-    const CodonSameAARateSubstitutionModel& model) :
+      const CodonSameAARateSubstitutionModel& model) :
     AbstractParameterAliasable(model),
     AbstractSubstitutionModel(model),
     pAAmodel_ (model.pAAmodel_->clone()),
@@ -113,7 +113,7 @@ public:
   }
 
   CodonSameAARateSubstitutionModel& operator=(
-    const CodonSameAARateSubstitutionModel& model)
+      const CodonSameAARateSubstitutionModel& model)
   {
     AbstractSubstitutionModel::operator=(model);
 
@@ -169,7 +169,7 @@ public:
   {
     return pCodonModel_->codonFrequencySet();
   }
- 
+
   bool hasCodonFrequencySet() const override
   {
     return pCodonModel_->hasCodonFrequencySet();

@@ -31,18 +31,17 @@ static void dotOutput(const std::string& testName, const std::vector<const Node_
   {
     using bpp::DotOptions;
     writeGraphToDot(
-      "debug_" + testName + ".dot", nodes);//, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
+        "debug_" + testName + ".dot", nodes); // , DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
   }
 }
 
 
-int main() {
-  
-
+int main()
+{
   Newick reader;
   shared_ptr<PhyloTree> pTree(reader.parenthesisToPhyloTree("(((A:0.01, B:0.02):0.03,C:0.01):0.01,D:0.1);", false, "", false, false));
 
-  //-------------
+  // -------------
 
   shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
   shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
@@ -50,7 +49,7 @@ int main() {
   Pasta pasta;
   auto sites = make_shared<ProbabilisticVectorSiteContainer>(alphabet);
   pasta.readAlignment("counts.pa", *sites);
-  
+
 
   // model
   auto t92 = make_shared<T92>(nucAlphabet, 3.);
@@ -59,27 +58,27 @@ int main() {
 
 
   auto rdist = make_shared<ConstantRateDistribution>();
-  auto process = make_shared<NonHomogeneousSubstitutionProcess> (rdist, pTree);
+  auto process = make_shared<NonHomogeneousSubstitutionProcess>(rdist, pTree);
 
-  
+
   // internal leaves
-  process->addModel(t92, {2,4}); // internal branches
-  process->addModel(multimodel, {0,1,3,5}); // leaves
+  process->addModel(t92, {2, 4}); // internal branches
+  process->addModel(multimodel, {0, 1, 3, 5}); // leaves
 
   if (!process->isFullySetUp())
     throw Exception("test_likelihood_multinomial: process not fully set up.");
 
   process->getParameters().printParameters(cerr);
 
-  process->aliasParameters("MultinomialFrom.T92.kappa_2","T92.kappa_1");
-  process->aliasParameters("MultinomialFrom.T92.theta_2","T92.theta_1");
+  process->aliasParameters("MultinomialFrom.T92.kappa_2", "T92.kappa_1");
+  process->aliasParameters("MultinomialFrom.T92.theta_2", "T92.theta_1");
 
   process->getIndependentParameters().printParameters(cerr);
 
   cerr << endl;
-  
+
   Context context;
-  
+
   auto lik = make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   auto newtl = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
@@ -96,5 +95,3 @@ int main() {
 
   return 0;
 }
-
-

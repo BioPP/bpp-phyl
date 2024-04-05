@@ -50,7 +50,7 @@ unique_ptr<TreeTemplate<Node>> Newick::readTreeTemplate(istream& in) const
   }
 
   // We concatenate all line in file till we reach the ending semi colon:
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   // Main loop : for all file lines
   while (getline(in, temp, '\n'))
   {
@@ -82,7 +82,7 @@ unique_ptr<PhyloTree> Newick::readPhyloTree(istream& in) const
   }
 
   // We concatenate all line in file till we reach the ending semi colon:
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   // Main loop : for all file lines
   while (getline(in, temp, '\n'))
   {
@@ -114,7 +114,7 @@ void Newick::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
   }
 
   // Main loop : for all file lines
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   string::size_type index;
   // We concatenate all line in file till we reach the ending semi colon:
   while (getline(in, temp, '\n'))
@@ -145,7 +145,7 @@ void Newick::readPhyloTrees(istream& in, vector<unique_ptr<PhyloTree>>& trees) c
   }
 
   // Main loop : for all file lines
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   string::size_type index;
   // We concatenate all line in file till we reach the ending semi colon:
   while (getline(in, temp, '\n'))
@@ -300,10 +300,10 @@ shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<Phy
       }
       node->setName(realName.str());
       tree.setNodeIndex(node, static_cast<PhyloTree::NodeIndex>(
-                          TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
+            TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
       if (branch)
         tree.setEdgeIndex(branch, static_cast<PhyloTree::NodeIndex>(
-                            TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
+              TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
     }
     else
       node->setName(name);
@@ -493,9 +493,9 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
   {
     s << "(";
 
-    vector<shared_ptr<PhyloNode> > vSons = tree.getSons(node);
+    vector<shared_ptr<PhyloNode>> vSons = tree.getSons(node);
 
-    for (vector<shared_ptr<PhyloNode> >::const_iterator it = vSons.begin(); it != vSons.end(); it++)
+    for (vector<shared_ptr<PhyloNode>>::const_iterator it = vSons.begin(); it != vSons.end(); it++)
     {
       if (it != vSons.begin())
         s << ",";
@@ -538,9 +538,9 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
   {
     s << "(";
 
-    vector<shared_ptr<PhyloNode> > vSons = tree.getSons(node);
+    vector<shared_ptr<PhyloNode>> vSons = tree.getSons(node);
 
-    for (vector<shared_ptr<PhyloNode> >::const_iterator it = vSons.begin(); it != vSons.end(); it++)
+    for (vector<shared_ptr<PhyloNode>>::const_iterator it = vSons.begin(); it != vSons.end(); it++)
     {
       if (it != vSons.begin())
         s << ",";
@@ -580,7 +580,7 @@ string Newick::treeToParenthesis(const PhyloTree& tree, bool writeId) const
 
   shared_ptr<PhyloNode>  root = tree.getRoot();
 
-  std::vector<shared_ptr<PhyloNode> > rSons = tree.getSons(root);
+  std::vector<shared_ptr<PhyloNode>> rSons = tree.getSons(root);
 
   if (tree.isRooted())
   {
@@ -623,7 +623,7 @@ string Newick::treeToParenthesis(const PhyloTree& tree, bool bootstrap, const st
 
   shared_ptr<PhyloNode>  root = tree.getRoot();
 
-  std::vector<shared_ptr<PhyloNode> > rSons = tree.getSons(root);
+  std::vector<shared_ptr<PhyloNode>> rSons = tree.getSons(root);
 
   if (tree.isRooted())
   {

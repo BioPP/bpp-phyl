@@ -33,7 +33,7 @@ AbstractAlignedPhyloLikelihoodSet::AbstractAlignedPhyloLikelihoodSet(
 /*************************************************************/
 
 AbstractAlignedPhyloLikelihoodSet::AbstractAlignedPhyloLikelihoodSet(
-    Context& context, 
+    Context& context,
     std::shared_ptr<PhyloLikelihoodContainer> pC,
     const std::vector<size_t>& nPhylo,
     bool inCollection,
@@ -77,4 +77,3 @@ bool AbstractAlignedPhyloLikelihoodSet::addPhyloLikelihood(size_t nPhyl, const s
 }
 
 /******************************************************************************/
-

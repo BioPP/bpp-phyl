@@ -60,10 +60,10 @@ public:
    *       (default=false).
    */
   AbstractCodonAARateSubstitutionModel(
-    std::shared_ptr<ProteinSubstitutionModelInterface> pmodel,
-    std::shared_ptr<const GeneticCode> pgencode,
-    const std::string& prefix,
-    bool paramSynRate = false);
+      std::shared_ptr<ProteinSubstitutionModelInterface> pmodel,
+      std::shared_ptr<const GeneticCode> pgencode,
+      const std::string& prefix,
+      bool paramSynRate = false);
 
 
   AbstractCodonAARateSubstitutionModel(const AbstractCodonAARateSubstitutionModel& model) :
@@ -76,7 +76,7 @@ public:
   {}
 
   AbstractCodonAARateSubstitutionModel& operator=(
-    const AbstractCodonAARateSubstitutionModel& model)
+      const AbstractCodonAARateSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
     pAAmodel_ = model.pAAmodel_;

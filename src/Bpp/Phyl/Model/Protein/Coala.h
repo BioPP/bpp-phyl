@@ -45,9 +45,9 @@ protected:
 
 public:
   Coala(std::shared_ptr<const ProteicAlphabet> alpha,
-        const ProteinSubstitutionModelInterface& model,
-        unsigned int nbAxes = 0,
-        bool param = true);
+      const ProteinSubstitutionModelInterface& model,
+      unsigned int nbAxes = 0,
+      bool param = true);
 
   virtual ~Coala() {}
 

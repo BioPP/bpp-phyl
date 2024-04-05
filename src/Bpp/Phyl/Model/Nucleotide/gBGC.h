@@ -25,7 +25,7 @@ namespace bpp
  *
  * modelling of GC biased gene-conversion.
  *
- * This model adds strand symetric GC biased gene conversion to a
+ * This model adds strand symmetric GC biased gene conversion to a
  * given nucleotidic substitution model.
  *
  * In addition to the parameters of the basic nucleic model, the
@@ -85,11 +85,9 @@ public:
   const SubstitutionModelInterface& nestedModel() const { return *model_; }
 
   void setNamespace(const std::string&) override;
-  
+
 protected:
-
   void updateMatrices_() override;
-
 };
 }
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_GBGC_H

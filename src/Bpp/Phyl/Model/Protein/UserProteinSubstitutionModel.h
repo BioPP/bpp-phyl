@@ -42,9 +42,9 @@ public:
    * @param prefix The parameter namespace to use.
    */
   UserProteinSubstitutionModel(
-    std::shared_ptr<const ProteicAlphabet> alpha,
-    const std::string& path,
-    const std::string& prefix);
+      std::shared_ptr<const ProteicAlphabet> alpha,
+      const std::string& path,
+      const std::string& prefix);
 
   /**
    * @brief Build a protein model from a PAML file, with special equilibrium frequencies.
@@ -57,12 +57,12 @@ public:
    * Otherwise, the values of the set will be used.
    */
   UserProteinSubstitutionModel(
-    std::shared_ptr<const ProteicAlphabet> alpha,
-    const std::string& path,
-    std::unique_ptr<ProteinFrequencySetInterface> freqSet,
-    const std::string& prefix,
-    bool initFreqs = false
-    );
+      std::shared_ptr<const ProteicAlphabet> alpha,
+      const std::string& path,
+      std::unique_ptr<ProteinFrequencySetInterface> freqSet,
+      const std::string& prefix,
+      bool initFreqs = false
+      );
 
   UserProteinSubstitutionModel(const UserProteinSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -86,7 +86,7 @@ public:
 
 public:
   std::string getName() const override;
-  
+
   const std::string& getPath() const { return path_; }
 
   void fireParameterChanged(const ParameterList& parameters) override
@@ -115,7 +115,7 @@ public:
       return *freqSet_;
     throw NullPointerException("UserProteinSubstitutionModel::frequencySet(). No associated FrequencySet.");
   }
-    
+
   void setFreqFromData(const SequenceDataInterface& data, double pseudoCount = 0) override;
 
 protected:

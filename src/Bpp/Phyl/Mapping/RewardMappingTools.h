@@ -46,11 +46,11 @@ public:
    * @throw Exception If the likelihood object is not initialized.
    */
   static std::unique_ptr<ProbabilisticRewardMapping> computeRewardVectors(
-    LikelihoodCalculationSingleProcess& rltc,
-    const std::vector<uint>& edgeIds,
-    Reward& reward,
-    short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
-    bool verbose = true);
+      LikelihoodCalculationSingleProcess& rltc,
+      const std::vector<uint>& edgeIds,
+      Reward& reward,
+      short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
+      bool verbose = true);
 
 
   /**
@@ -63,9 +63,9 @@ public:
    * @throw IOException If an output error happens.
    */
   static void writeToStream(
-    const ProbabilisticRewardMapping& rewards,
-    const AlignmentDataInterface& sites,
-    std::ostream& out);
+      const ProbabilisticRewardMapping& rewards,
+      const AlignmentDataInterface& sites,
+      std::ostream& out);
 
 
   /**

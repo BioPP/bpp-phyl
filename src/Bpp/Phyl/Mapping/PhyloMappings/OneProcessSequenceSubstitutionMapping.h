@@ -36,9 +36,9 @@ private:
 
 public:
   OneProcessSequenceSubstitutionMapping(
-      std::shared_ptr<OneProcessSequencePhyloLikelihood> spp, 
+      std::shared_ptr<OneProcessSequencePhyloLikelihood> spp,
       std::shared_ptr<SubstitutionRegisterInterface> reg,
-      std::shared_ptr<const AlphabetIndex2> weights, 
+      std::shared_ptr<const AlphabetIndex2> weights,
       std::shared_ptr<const AlphabetIndex2> distances);
 
   OneProcessSequenceSubstitutionMapping(const OneProcessSequenceSubstitutionMapping& sppm) :
@@ -57,30 +57,29 @@ public:
   virtual ~OneProcessSequenceSubstitutionMapping() {}
 
   OneProcessSequenceSubstitutionMapping* clone() const override
-  { 
-    return new OneProcessSequenceSubstitutionMapping(*this); 
+  {
+    return new OneProcessSequenceSubstitutionMapping(*this);
   }
 
   /**
    * @brief ComputeCounts
    */
-
   void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
-                     double threshold = -1, bool verbose = true) override
+      double threshold = -1, bool verbose = true) override
   {
     counts_ = SubstitutionMappingTools::computeCounts(
-      getLikelihoodCalculationSingleProcess(),
-      getSubstitutionRegister(),
-      getWeights(),
-      getDistances(),
-      unresolvedOption,
-      threshold,
-      verbose);
+          getLikelihoodCalculationSingleProcess(),
+          getSubstitutionRegister(),
+          getWeights(),
+          getDistances(),
+          unresolvedOption,
+          threshold,
+          verbose);
   }
 
   void computeNormalizations(const ParameterList& nullParams,
-                             short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO, 
-                             bool verbose = true) override;
+      short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
+      bool verbose = true) override;
 
 
   size_t getNumberOfModels() const override

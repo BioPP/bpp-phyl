@@ -26,10 +26,10 @@ using namespace std;
 /******************************************************************************/
 
 Coala::Coala(
-  shared_ptr<const ProteicAlphabet> alpha,
-  const ProteinSubstitutionModelInterface& model,
-  unsigned int nbAxes,
-  bool param) :
+    shared_ptr<const ProteicAlphabet> alpha,
+    const ProteinSubstitutionModelInterface& model,
+    unsigned int nbAxes,
+    bool param) :
   AbstractParameterAliasable("Coala."),
   AbstractReversibleProteinSubstitutionModel(alpha, model.getStateMap(), "Coala."),
   CoalaCore(nbAxes),

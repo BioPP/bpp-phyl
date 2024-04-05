@@ -22,12 +22,12 @@ using namespace std;
 /******************************************************************************/
 
 WordSubstitutionModel::WordSubstitutionModel(
-  ModelList& modelList,
-  const std::string& prefix) :
+    ModelList& modelList,
+    const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(
-    modelList,
-    (prefix == "") ? "Word." : prefix)
+      modelList,
+      (prefix == "") ? "Word." : prefix)
 {
   size_t i, nbmod = VSubMod_.size();
 
@@ -45,9 +45,9 @@ WordSubstitutionModel::WordSubstitutionModel(
 }
 
 WordSubstitutionModel::WordSubstitutionModel(
-  shared_ptr<const Alphabet> alph,
-  shared_ptr<const StateMapInterface> stateMap,
-  const string& prefix) :
+    shared_ptr<const Alphabet> alph,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Word." : prefix)
 {
@@ -57,13 +57,13 @@ WordSubstitutionModel::WordSubstitutionModel(
 }
 
 WordSubstitutionModel::WordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const std::string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(std::move(pmodel),
-                                num,
-                                (prefix == "") ? "Word." : prefix)
+      num,
+      (prefix == "") ? "Word." : prefix)
 {
   size_t i;
 

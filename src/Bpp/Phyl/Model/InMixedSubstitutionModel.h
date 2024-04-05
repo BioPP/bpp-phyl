@@ -183,7 +183,7 @@ public:
     return substitutionModel().isScalable();
   }
 
-  void setScalable(bool scalable) override 
+  void setScalable(bool scalable) override
   {
     substitutionModel_().setScalable(scalable);
   }
@@ -254,7 +254,6 @@ public:
   {
     return mixedModelPtr_->getName();
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_INMIXEDSUBSTITUTIONMODEL_H

@@ -39,9 +39,9 @@ private:
 
 public:
   NNITopologySearch(
-    std::shared_ptr<NNISearchable> tree,
-    const std::string& algorithm = FAST,
-    unsigned int verbose = 2) :
+      std::shared_ptr<NNISearchable> tree,
+      const std::string& algorithm = FAST,
+      unsigned int verbose = 2) :
     searchableTree_(tree), algorithm_(algorithm), verbose_(verbose), topoListeners_()
   {}
 

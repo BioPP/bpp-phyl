@@ -18,7 +18,7 @@ namespace bpp
  * @author Laurent GuÃÂ©guen
  *
  * This class should be used with models which equilibrium
- * distribution is fixed, ans does not depend on the parameters.
+ * distribution is fixed, and does not depend on the parameters.
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
@@ -51,8 +51,8 @@ public:
    * @param prefix the Namespace
    */
   AbstractCodonPhaseFrequenciesSubstitutionModel(
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    const std::string& prefix);
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      const std::string& prefix);
 
   AbstractCodonPhaseFrequenciesSubstitutionModel(const AbstractCodonPhaseFrequenciesSubstitutionModel& model) :
     AbstractParameterAliasable(model),
@@ -93,16 +93,15 @@ public:
     return *posFreqSet_;
   }
 
-  const FrequencySetInterface& frequencySet() const 
+  const FrequencySetInterface& frequencySet() const
   {
     return *posFreqSet_;
   }
 
   bool hasCodonFrequencySet() const override
   {
-    return (posFreqSet_ != nullptr);
+    return posFreqSet_ != nullptr;
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_ABSTRACTCODONPHASEFREQUENCIESSUBSTITUTIONMODEL_H

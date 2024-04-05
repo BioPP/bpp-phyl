@@ -13,8 +13,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonBGCSubstitutionModel::AbstractCodonBGCSubstitutionModel(
-  shared_ptr<const GeneticCode> pgencode,
-  const string& prefix) :
+    shared_ptr<const GeneticCode> pgencode,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
   pgencode_(pgencode),
   B_(0),
@@ -36,7 +36,7 @@ double AbstractCodonBGCSubstitutionModel::getCodonsMulRate(size_t i, size_t j) c
   int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
 
   int epsilon = pgencode_->codonAlphabet().getGCinCodon(sj)
-                - pgencode_->codonAlphabet().getGCinCodon(si);
+      - pgencode_->codonAlphabet().getGCinCodon(si);
 
   switch (epsilon)
   {

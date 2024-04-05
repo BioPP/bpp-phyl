@@ -10,10 +10,10 @@ using namespace std;
 /******************************************************************************/
 
 CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
-  unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
-  unique_ptr<CodonSubstitutionModelInterface> pCodonModel,
-  unique_ptr<CodonFrequencySetInterface> pFreq,
-  shared_ptr<const GeneticCode> pgencode) :
+    unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
+    unique_ptr<CodonSubstitutionModelInterface> pCodonModel,
+    unique_ptr<CodonFrequencySetInterface> pFreq,
+    shared_ptr<const GeneticCode> pgencode) :
   AbstractParameterAliasable("SameAARate."),
   AbstractSubstitutionModel(pCodonModel->getAlphabet(), pCodonModel->getStateMap(), "SameAARate."),
   pAAmodel_(std::move(pAAmodel)),
@@ -29,14 +29,14 @@ CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
   pAAmodel_->setNamespace("SameAARate." + pAAmodel_->getNamespace());
   pCodonModel_->setNamespace("SameAARate." + pCodonModel_->getNamespace());
 
-  //TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
+  // TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
   if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel_.get())->codonFrequencySet()))
     pFreq_->setNamespace("SameAARate." + pFreq_->getNamespace());
 
   addParameters_(pAAmodel_->getParameters());
   addParameters_(pCodonModel_->getParameters());
 
-  //TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
+  // TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
   if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel_.get())->codonFrequencySet()))
     addParameters_(pFreq_->getParameters());
 

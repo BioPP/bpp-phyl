@@ -43,11 +43,11 @@ void CladogramPlot::drawDendrogram_(GraphicDevice& gDevice) const
     unsigned int* tipCounter = new unsigned int(0);
     double y;
     recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()),
-                   getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 0 : getWidth() * getXUnit(),
-                   y,
-                   getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 1. : -1.,
-                   getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 1. : -1.,
-                   tipCounter);
+        getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 0 : getWidth() * getXUnit(),
+        y,
+        getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 1. : -1.,
+        getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 1. : -1.,
+        tipCounter);
     fireAfterTreeEvent_(treeEvent);
   }
 }

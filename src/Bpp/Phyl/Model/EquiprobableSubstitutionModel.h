@@ -122,9 +122,9 @@ public:
    * Otherwise, the values of the set will be used.
    */
   EquiprobableSubstitutionModel(
-     std::shared_ptr<const Alphabet> alpha,
-     std::unique_ptr<FrequencySetInterface> freqSet,
-     bool initFreqs = false);
+      std::shared_ptr<const Alphabet> alpha,
+      std::unique_ptr<FrequencySetInterface> freqSet,
+      bool initFreqs = false);
 
   EquiprobableSubstitutionModel(const EquiprobableSubstitutionModel& model) :
     AbstractParameterAliasable(model),

@@ -11,7 +11,7 @@
 #include <Bpp/Numeric/NumTools.h>
 
 // From bpp-seq:
-#include <Bpp/Seq/SiteTools.h> 
+#include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
@@ -32,7 +32,7 @@ using namespace bpp;
 using namespace std;
 
 
-int main() 
+int main()
 {
   try
   {
@@ -58,43 +58,43 @@ int main()
 
     // make sure the generator matrix is set correctly
     RowMatrix<double> refGenerator;
-    refGenerator.resize(alphabet->getSize(),alphabet->getSize());
-    refGenerator(0,0) = -1 * muVal * (1-pi0Val);
-    refGenerator(0,1) = muVal * (1-pi0Val);
-    refGenerator(1,0) = muVal * pi0Val;
-    refGenerator(1,1) = -1* muVal * pi0Val;
-    for (size_t i=0; i < alphabet->getSize(); i++)
+    refGenerator.resize(alphabet->getSize(), alphabet->getSize());
+    refGenerator(0, 0) = -1 * muVal * (1 - pi0Val);
+    refGenerator(0, 1) = muVal * (1 - pi0Val);
+    refGenerator(1, 0) = muVal * pi0Val;
+    refGenerator(1, 1) = -1 * muVal * pi0Val;
+    for (size_t i = 0; i < alphabet->getSize(); i++)
     {
-      for (size_t j=0; j < alphabet->getSize(); j++)
+      for (size_t j = 0; j < alphabet->getSize(); j++)
       {
-        double rate = model->Qij(i,j);
-        if (rate != refGenerator(i,j))
+        double rate = model->Qij(i, j);
+        if (rate != refGenerator(i, j))
         {
-          cerr << "Q matrix definition is faulty. Entry at (" << i << ", " << j << ") is: " << rate << " instead of " << refGenerator(i,j) << endl;
+          cerr << "Q matrix definition is faulty. Entry at (" << i << ", " << j << ") is: " << rate << " instead of " << refGenerator(i, j) << endl;
           return 1;
         }
       }
     }
 
-    // make sure the transtition matrix is set correctly
+    // make sure the transition matrix is set correctly
     RowMatrix<double> refTransition;
-    refTransition.resize(alphabet->getSize(),alphabet->getSize());
+    refTransition.resize(alphabet->getSize(), alphabet->getSize());
     double branchLen = 1;
 
     // case 1: branch of length 1
     double expVal = exp(-1 * muVal * branchLen);
-    refTransition(0,0) = (1 - pi0Val) + pi0Val * expVal;
-    refTransition(0,1) = pi0Val * (1 - expVal);
-    refTransition(1,0) =  (1 - pi0Val) * (1 - expVal);
-    refTransition(1,1) = pi0Val + (1 - pi0Val) * expVal;
-    for (size_t i=0; i < alphabet->getSize(); i++)
+    refTransition(0, 0) = (1 - pi0Val) + pi0Val * expVal;
+    refTransition(0, 1) = pi0Val * (1 - expVal);
+    refTransition(1, 0) =  (1 - pi0Val) * (1 - expVal);
+    refTransition(1, 1) = pi0Val + (1 - pi0Val) * expVal;
+    for (size_t i = 0; i < alphabet->getSize(); i++)
     {
-      for (size_t j=0; j < alphabet->getSize(); j++)
+      for (size_t j = 0; j < alphabet->getSize(); j++)
       {
-        double transProb = model->Pij_t(i,j, branchLen);
-        if (transProb != refTransition(i,j))
+        double transProb = model->Pij_t(i, j, branchLen);
+        if (transProb != refTransition(i, j))
         {
-          cerr << "Transition matrix definition is faulty for branch length " << branchLen << ". Entry (" << i << ", " << j << ") is: " << transProb << " instead of " << refTransition(i,j) << endl;
+          cerr << "Transition matrix definition is faulty for branch length " << branchLen << ". Entry (" << i << ", " << j << ") is: " << transProb << " instead of " << refTransition(i, j) << endl;
           return 1;
         }
       }
@@ -103,24 +103,24 @@ int main()
     // case 2: branch of length 2
     branchLen = 2;
     expVal = exp(-1 * muVal * branchLen);
-    refTransition(0,0) = (1 - pi0Val) + pi0Val * expVal;
-    refTransition(0,1) = pi0Val * (1 - expVal);
-    refTransition(1,0) =  (1 - pi0Val) * (1 - expVal);
-    refTransition(1,1) = pi0Val + (1 - pi0Val) * expVal;
-    for (size_t i=0; i < alphabet->getSize(); i++)
+    refTransition(0, 0) = (1 - pi0Val) + pi0Val * expVal;
+    refTransition(0, 1) = pi0Val * (1 - expVal);
+    refTransition(1, 0) =  (1 - pi0Val) * (1 - expVal);
+    refTransition(1, 1) = pi0Val + (1 - pi0Val) * expVal;
+    for (size_t i = 0; i < alphabet->getSize(); i++)
     {
-      for (size_t j=0; j < alphabet->getSize(); j++)
+      for (size_t j = 0; j < alphabet->getSize(); j++)
       {
-        double transProb = model->Pij_t(i,j, branchLen);
-        if (transProb != refTransition(i,j))
+        double transProb = model->Pij_t(i, j, branchLen);
+        if (transProb != refTransition(i, j))
         {
-          cerr << "Transition matrix definition is faulty for branch length " << branchLen << ". Entry (" << i << ", " << j << ") is: " << transProb << " instead of " << refTransition(i,j) << endl;
+          cerr << "Transition matrix definition is faulty for branch length " << branchLen << ". Entry (" << i << ", " << j << ") is: " << transProb << " instead of " << refTransition(i, j) << endl;
           return 1;
         }
       }
     }
   }
-  catch (exception & e)
+  catch (exception& e)
   {
     cout << e.what() << endl;
     return 1;

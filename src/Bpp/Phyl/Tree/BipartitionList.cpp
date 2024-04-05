@@ -114,8 +114,8 @@ BipartitionList::BipartitionList(const Tree& tr, bool sorted, std::vector<int>* 
 /******************************************************************************/
 
 BipartitionList::BipartitionList(
-  const std::vector<std::string>& elements,
-  const std::vector<int*>& bitBipL) :
+    const std::vector<std::string>& elements,
+    const std::vector<int*>& bitBipL) :
   bitBipartitionList_(),
   elements_(elements),
   sorted_()
@@ -721,13 +721,13 @@ vector<string> BipartitionList::buildBitBipartitions(const Node* nd, vector<int*
   }
 
   if (!nd->hasFather())
-    return underelements_;                              // root node
+    return underelements_; // root node
 
   if (!nd->getFather()->hasFather())
   {
     size_t nbrootson = nd->getFather()->getNumberOfSons();
     if (nbrootson == 2 && nd == nd->getFather()->getSon(1))
-      return underelements_;                                // son 2 of root node when root node has 2 sons
+      return underelements_; // son 2 of root node when root node has 2 sons
   }
 
   bool ones;
@@ -767,7 +767,7 @@ vector<string> BipartitionList::buildBitBipartitions(const Node* nd, vector<int*
 
 RowMatrix<int> BipartitionList::toMatrix() const
 {
-  vector< map<string, bool> > bipl;
+  vector< map<string, bool>> bipl;
   for (size_t i = 0; i < getNumberOfBipartitions(); i++)
   {
     bipl.push_back(getBipartition(i));

@@ -26,8 +26,8 @@ private:
 
 public:
   MixtureSequenceEvolution(
-    std::shared_ptr<SubstitutionProcessCollection> processColl,
-    std::vector<size_t>& nProc);
+      std::shared_ptr<SubstitutionProcessCollection> processColl,
+      std::vector<size_t>& nProc);
 
   MixtureSequenceEvolution(const MixtureSequenceEvolution& mlc) :
     MultiProcessSequenceEvolution(mlc),

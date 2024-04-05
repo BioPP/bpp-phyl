@@ -24,10 +24,10 @@ GY94::GY94(
   AbstractBiblioSubstitutionModel("GY94."),
   gacd_(new GranthamAAChemicalDistance()),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(
-      gc,
-      make_unique<K80>(gc->codonAlphabet().getNucleicAlphabet()), 
-      move(codonFreqs),
-      gacd_))
+        gc,
+        make_unique<K80>(gc->codonAlphabet().getNucleicAlphabet()),
+        std::move(codonFreqs),
+        gacd_))
 {
   addParameter_(new Parameter("GY94.kappa", 1, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("GY94.V", 10000, Parameter::R_PLUS_STAR));

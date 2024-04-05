@@ -13,40 +13,40 @@ using namespace std;
 
 namespace bpp
 {
-std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter> >
+std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
 createParameterMap (Context& c, const ParameterAliasable& parametrizable)
 {
   const auto& parameters = parametrizable.getIndependentParameters ();
   const auto nbParameters = parameters.size ();
-  std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter> > map;
+  std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>> map;
   for (std::size_t i = 0; i < nbParameters; ++i)
   {
     const auto& param = parameters[i];
     auto value = NumericMutable<double>::create (c, param.getValue ());
     map.emplace (param.getName (),
-                 ConfiguredParameter::create (c, {std::move(value)}, param));
+        ConfiguredParameter::create (c, {std::move(value)}, param));
   }
   return map;
 }
 
-std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter> >
+std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
 createParameterMap (Context& c, const Parametrizable& parametrizable)
 {
   const auto& parameters = parametrizable.getParameters ();
   const auto nbParameters = parameters.size ();
-  std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter> > map;
+  std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>> map;
   for (std::size_t i = 0; i < nbParameters; ++i)
   {
     const auto& param = parameters[i];
     auto value = NumericMutable<double>::create (c, param.getValue ());
     map.emplace (param.getName (),
-                 ConfiguredParameter::create (c, {std::move(value)}, param));
+        ConfiguredParameter::create (c, {std::move(value)}, param));
   }
   return map;
 }
 
 NodeRefVec createDependencyVector (const Parametrizable& parametrizable,
-                                   const std::function<NodeRef (const std::string&)>& parameter)
+    const std::function<NodeRef (const std::string&)>& parameter)
 {
   const auto& parameters = parametrizable.getParameters ();
   const auto nbParameters = parameters.size ();
@@ -64,7 +64,7 @@ NodeRefVec createDependencyVector (const Parametrizable& parametrizable,
 }
 
 NodeRefVec createDependencyVector (const ParameterAliasable& parametrizable,
-                                   const std::function<NodeRef (const std::string&)>& parameter)
+    const std::function<NodeRef (const std::string&)>& parameter)
 {
   const auto& parameters = parametrizable.getIndependentParameters ();
   const auto nbParameters = parameters.size ();

@@ -54,9 +54,7 @@ public:
   virtual std::shared_ptr<const PhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl) const = 0;
 
   virtual std::shared_ptr<PhyloLikelihoodInterface> getPhyloLikelihood(size_t nPhyl) = 0;
-
 };
-
 
 
 /**
@@ -84,7 +82,7 @@ protected:
    * vector of pointers towards LikelihoodCalculation, used
    * for the global likelihood.
    */
-  mutable std::vector<std::shared_ptr<LikelihoodCalculation> > vLikCal_;
+  mutable std::vector<std::shared_ptr<LikelihoodCalculation>> vLikCal_;
 
 public:
   /**
@@ -106,7 +104,6 @@ public:
   virtual ~AbstractPhyloLikelihoodSet() {}
 
 protected:
-
   AbstractPhyloLikelihoodSet(const AbstractPhyloLikelihoodSet& sd) :
     AbstractPhyloLikelihood(sd),
     AbstractParametrizable(sd),

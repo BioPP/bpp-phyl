@@ -18,7 +18,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief General interface for model I/O.
  */
@@ -47,18 +46,18 @@ public:
   /**
    * @brief Read a frequencies set from a string.
    *
-   * @param alphabet         The alpabet to use in the model.
+   * @param alphabet         The alphabet to use in the model.
    * @param freqDescription  A string describing the frequencies set.
-   * @param data             A SiteContainer with the data to use to initialize fequency parameters. Can be set to 0.
+   * @param data             A SiteContainer with the data to use to initialize frequency parameters. Can be set to 0.
    * @param parseArguments   Attempt to parse function arguments. If not, only store them and use default values instead.
    * @return A new FrequencySet object according to options specified.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   virtual std::unique_ptr<FrequencySetInterface> readFrequencySet(
-    std::shared_ptr<const Alphabet> alphabet,
-    const std::string& freqDescription,
-    const AlignmentDataInterface& data,
-    bool parseArguments = true) = 0;
+      std::shared_ptr<const Alphabet> alphabet,
+      const std::string& freqDescription,
+      const AlignmentDataInterface& data,
+      bool parseArguments = true) = 0;
 
   /**
    * @return The arguments and their unparsed values from the last call of the read function, if there are any.
@@ -88,10 +87,10 @@ public:
    * parameters so far [in, out];
    */
   virtual void writeFrequencySet(
-    const FrequencySetInterface& pfreqset,
-    OutputStream& out,
-    std::map<std::string, std::string>& globalAliases,
-    std::vector<std::string>& writtenNames) const = 0;
+      const FrequencySetInterface& pfreqset,
+      OutputStream& out,
+      std::map<std::string, std::string>& globalAliases,
+      std::vector<std::string>& writtenNames) const = 0;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_IOFREQUENCYSET_H

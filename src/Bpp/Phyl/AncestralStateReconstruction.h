@@ -6,7 +6,6 @@
 #define BPP_PHYL_ANCESTRALSTATERECONSTRUCTION_H
 
 
-
 // From SeqLib:
 #include <Bpp/Seq/Sequence.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -52,7 +51,7 @@ public:
    * @return A map with nodes id as key, and a vector of states indices as value.
    * @see getAncestralSequenceForNode
    */
-  virtual std::map<uint, std::vector<size_t> > getAllAncestralStates() const = 0;
+  virtual std::map<uint, std::vector<size_t>> getAllAncestralStates() const = 0;
 
   /**
    * @brief Get the ancestral sequence for a given node.

@@ -91,16 +91,16 @@ ValueRef<DataLik> PhyloLikelihoodFormula::makeLikelihoodsFromOperator(std::share
     switch (bin->getSymbol())
     {
     case '+':
-      return CWiseAdd<DataLik, std::tuple<DataLik, DataLik> >::create(context_, {left, right}, Dimension<DataLik> ());
+      return CWiseAdd<DataLik, std::tuple<DataLik, DataLik>>::create(context_, {left, right}, Dimension<DataLik> ());
     case '-':
-      return CWiseSub<DataLik, std::tuple<DataLik, DataLik> >::create(context_, {left, right}, Dimension<DataLik> ());
+      return CWiseSub<DataLik, std::tuple<DataLik, DataLik>>::create(context_, {left, right}, Dimension<DataLik> ());
     case '/':
     {
       auto inv = CWiseInverse<DataLik>::create(context_, {right}, Dimension<DataLik> ());
-      return CWiseMul<DataLik, std::tuple<DataLik, DataLik> >::create(context_, {left, inv}, Dimension<DataLik> ());
+      return CWiseMul<DataLik, std::tuple<DataLik, DataLik>>::create(context_, {left, inv}, Dimension<DataLik> ());
     }
     case '*':
-      return CWiseMul<DataLik, std::tuple<DataLik, DataLik> >::create(context_, {left, right}, Dimension<DataLik> ());
+      return CWiseMul<DataLik, std::tuple<DataLik, DataLik>>::create(context_, {left, right}, Dimension<DataLik> ());
     default:
       return NumericConstant<DataLik>::create(context_, 0);
     }
@@ -116,11 +116,11 @@ ValueRef<DataLik> PhyloLikelihoodFormula::makeLikelihoodsFromOperator(std::share
     else if (name == "log")
       return CWiseLog<DataLik>::create(context_, {sonDF}, Dimension<DataLik> ());
     else
-      throw Exception("PhyloLikelihoodFormula::Makelikelihoodsfromoperator : unknown function " + name + ". Ask developpers.");
+      throw Exception("PhyloLikelihoodFormula::Makelikelihoodsfromoperator : unknown function " + name + ". Ask developers.");
   }
 
 
-  auto func = dynamic_pointer_cast<FunctionOperator<SecondOrderDerivable> >(op);
+  auto func = dynamic_pointer_cast<FunctionOperator<SecondOrderDerivable>>(op);
   if (func)
   {
     auto name = func->getName();

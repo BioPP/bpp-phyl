@@ -9,7 +9,7 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface> >& freqVector)
+size_t AbstractWordFrequencySet::getSizeFromVector(const std::vector<std::unique_ptr<FrequencySetInterface>>& freqVector)
 {
   size_t s = 1;
   size_t l = freqVector.size();
@@ -44,9 +44,9 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
-    make_shared<CanonicalStateMap>(pWA, false),
-    prefix,
-    name),
+      make_shared<CanonicalStateMap>(pWA, false),
+      prefix,
+      name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -72,9 +72,9 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
-    make_shared<CanonicalStateMap>(pWA, false),
-    prefix,
-    name),
+      make_shared<CanonicalStateMap>(pWA, false),
+      prefix,
+      name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -144,7 +144,7 @@ void WordFromIndependentFrequencySet::updateFrequencies()
 {
   size_t l = vFreq_.size();
   size_t s = getWordAlphabet()->getSize();
-  vector< vector<double> > f(l);
+  vector< vector<double>> f(l);
 
   size_t i, p, t, i2;
 
@@ -242,9 +242,9 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
-    make_shared<CanonicalStateMap>(pWA, false),
-    prefix,
-    name),
+      make_shared<CanonicalStateMap>(pWA, false),
+      prefix,
+      name),
   pFreq_(std::move(pabsfreq)),
   NestedPrefix_(pFreq_->getNamespace()),
   length_(pWA->getLength())
@@ -269,9 +269,9 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
-    make_shared<CanonicalStateMap>(pWA, false),
-    prefix,
-    name),
+      make_shared<CanonicalStateMap>(pWA, false),
+      prefix,
+      name),
   pFreq_(std::move(pabsfreq)),
   NestedPrefix_(pFreq_->getNamespace()),
   length_(pWA->getLength())

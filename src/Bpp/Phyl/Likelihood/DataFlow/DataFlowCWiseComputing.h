@@ -80,7 +80,7 @@ public:
     checkNthDependencyIsValue<T>(typeid (Self), deps, 0);
     checkNthDependencyIsValue<F>(typeid (Self), deps, 1);
 
-    return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   CWiseApply (NodeRefVec&& deps, const Dimension<R>& dim)
@@ -125,10 +125,10 @@ public:
     {
       NodeRef dfX = this->dependency(1)->derive(c, NodeX);
       NodeRef dfXX = Self::create(c, {this->dependency(0), dfX}, targetDimension_);
-      dep[1] = CWiseMul<R, std::tuple<VectorLik, R> >::create (c, {dX, dfXX}, targetDimension_);
+      dep[1] = CWiseMul<R, std::tuple<VectorLik, R>>::create (c, {dX, dfXX}, targetDimension_);
     }
 
-    return CWiseAdd<R, std::tuple<R, R> >::create (c, {std::move(dep)}, targetDimension_);
+    return CWiseAdd<R, std::tuple<R, R>>::create (c, {std::move(dep)}, targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -164,26 +164,27 @@ private:
     const auto& func = accessValueConstCast<F>(*this->dependency (1));
 
     for (auto i = 0; i < x0.cols(); i++)
-      bppLik_[(size_t)i]=func(x0.col(i));
+    {
+      bppLik_[(size_t)i] = func(x0.col(i));
+    }
 
     copyBppToEigen(bppLik_, result);
-    
+
 #ifdef DEBUG
     std::cerr << "=== Function Apply === " << this << std::endl;
     std::cerr << "x0= " << x0 << std::endl;
     std::cerr << "res=" << result << std::endl;
     std::cerr << "=== end Function Apply === " << this << std::endl << std::endl;
 #endif
-
   }
 
   /**
    *@brief For computation purpose
    *
    */
-  
+
   std::vector<VectorLik> bppLik_;
-  
+
   Dimension<R> targetDimension_;
 };
 
@@ -202,7 +203,7 @@ private:
  * Generic simplification routine is horrible too.
  */
 
-template<typename R, typename T0, typename T1> class CWiseAdd<R, std::tuple<T0, T1> > : public Value<R>
+template<typename R, typename T0, typename T1> class CWiseAdd<R, std::tuple<T0, T1>> : public Value<R>
 {
 public:
   using Self = CWiseAdd;
@@ -232,7 +233,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -337,7 +338,7 @@ private:
  * The generic version is horrible in C++11 (lack of auto return).
  * Generic simplification routine is horrible too.
  */
-template<typename R, typename T0, typename T1> class CWiseSub<R, std::tuple<T0, T1> > : public Value<R>
+template<typename R, typename T0, typename T1> class CWiseSub<R, std::tuple<T0, T1>> : public Value<R>
 {
 public:
   using Self = CWiseSub;
@@ -367,7 +368,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -436,7 +437,7 @@ private:
  * Values converted to R with the semantics of numeric::convert.
  * Node construction should be done with the create static method.
  */
-template<typename R, typename T> class CWiseAdd<R, ReductionOf<T> > : public Value<R>
+template<typename R, typename T> class CWiseAdd<R, ReductionOf<T>> : public Value<R>
 {
 public:
   using Self = CWiseAdd;
@@ -462,11 +463,11 @@ public:
     }
     else if (deps.size () == 2)
     {
-      return CWiseAdd<R, std::tuple<T, T> >::create (c, std::move (deps), dim);
+      return CWiseAdd<R, std::tuple<T, T>>::create (c, std::move (deps), dim);
     }
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -534,14 +535,14 @@ private:
     }
 
     result = [lT, this](const VectorLik& x)->VectorLik {
-               VectorLik r = zero (Dimension<VectorLik>(targetDimension_.cols, (Eigen::Index)1));
+          VectorLik r = zero (Dimension<VectorLik>(targetDimension_.cols, (Eigen::Index)1));
 
-               for (const auto f:lT)
-               {
-                 cwise(r) += cwise((*f)(x));
-               }
-               return r;
-             };
+          for (const auto f:lT)
+          {
+            cwise(r) += cwise((*f)(x));
+          }
+          return r;
+        };
   }
 
   Dimension<R> targetDimension_;
@@ -575,7 +576,7 @@ public:
       return ConstantZero<R>::create (c, dim);
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -651,7 +652,7 @@ private:
  * Node construction should be done with the create static method.
  */
 
-template<typename R, typename T, typename P> class CWiseMean<R, ReductionOf<T>, ReductionOf<P> > : public Value<R>
+template<typename R, typename T, typename P> class CWiseMean<R, ReductionOf<T>, ReductionOf<P>> : public Value<R>
 {
 public:
   using Self = CWiseMean;
@@ -691,7 +692,7 @@ public:
       return ConstantZero<R>::create (c, dim);
 
     // Select node implementation
-    return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   CWiseMean (NodeRefVec&& deps, const Dimension<R>& dim)
@@ -756,7 +757,7 @@ public:
 
     NodeRef dR_dP = Self::create (c, std::move (derivedDeps_P), targetDimension_);
 
-    return CWiseAdd<R, std::tuple<R, R> >::create(c, {dR_dT, dR_dP}, targetDimension_);
+    return CWiseAdd<R, std::tuple<R, R>>::create(c, {dR_dT, dR_dP}, targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -806,7 +807,7 @@ public:
     }
 
     // Select node implementation
-    return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   CWiseMean (NodeRefVec&& deps, const Dimension<R>& dim)
@@ -861,7 +862,7 @@ public:
     }
     derivedDeps_P[n - 1] = this->dependency (n - 1)->derive (c, node);
     NodeRef dR_dP = Self::create (c, std::move (derivedDeps_P), targetDimension_);
-    return CWiseAdd<R, std::tuple<R, R> >::create(c, {dR_dT, dR_dP}, targetDimension_);
+    return CWiseAdd<R, std::tuple<R, R>>::create(c, {dR_dT, dR_dP}, targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -907,7 +908,7 @@ private:
  * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
  */
 
-template<typename R, typename T0, typename T1> class CWiseMul<R, std::tuple<T0, T1> > : public Value<R>
+template<typename R, typename T0, typename T1> class CWiseMul<R, std::tuple<T0, T1>> : public Value<R>
 {
 public:
   using Self = CWiseMul;
@@ -944,7 +945,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -992,7 +993,7 @@ public:
       ithMulDeps[i] = this->dependency (i)->derive (c, node);
       addDeps[i] = Self::create (c, std::move (ithMulDeps), targetDimension_);
     }
-    return CWiseAdd<R, std::tuple<R, R> >::create (c, std::move (addDeps), targetDimension_);
+    return CWiseAdd<R, std::tuple<R, R>>::create (c, std::move (addDeps), targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -1057,7 +1058,7 @@ private:
     std::cerr << "x1= "     << x1 << std::endl;
     std::cerr << "=== end Mul Transition Function  X Normal  === " << this << std::endl << std::endl;
 #endif
-}
+  }
 
   template<class U, class V>
   typename std::enable_if<!std::is_same<U, TransitionFunction>::value && std::is_same<V, TransitionFunction>::value, void>::type
@@ -1075,7 +1076,7 @@ private:
     std::cerr << "x0= "     << x0 << std::endl;
     std::cerr << "=== end Mul Normal X Transition Function  === " << this << std::endl << std::endl;
 #endif
-}
+  }
 
   Dimension<R> targetDimension_;
 };
@@ -1089,7 +1090,7 @@ private:
  * Values converted to R with the semantics of numeric::convert.
  * Node construction should be done with the create static method.
  */
-template<typename R, typename T> class CWiseMul<R, ReductionOf<T> > : public Value<R>
+template<typename R, typename T> class CWiseMul<R, ReductionOf<T>> : public Value<R>
 {
 public:
   using Self = CWiseMul;
@@ -1122,11 +1123,11 @@ public:
     }
     else if (deps.size () == 2)
     {
-      return CWiseMul<R, std::tuple<T, T> >::create (c, std::move (deps), dim);
+      return CWiseMul<R, std::tuple<T, T>>::create (c, std::move (deps), dim);
     }
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -1159,7 +1160,7 @@ public:
       ithMulDeps[i] = this->dependency (i)->derive (c, node);
       addDeps[i] = Self::create (c, std::move (ithMulDeps), targetDimension_);
     }
-    return CWiseAdd<R, ReductionOf<R> >::create (c, std::move (addDeps), targetDimension_);
+    return CWiseAdd<R, ReductionOf<R>>::create (c, std::move (addDeps), targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -1183,7 +1184,6 @@ private:
 };
 
 
-
 /*************************************************************************
  * @brief r = x0 / x1 for each component.
  * - r: R.
@@ -1195,7 +1195,7 @@ private:
  *
  * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
  */
-template<typename R, typename T0, typename T1> class CWiseDiv<R, std::tuple<T0, T1> > : public Value<R>
+template<typename R, typename T0, typename T1> class CWiseDiv<R, std::tuple<T0, T1>> : public Value<R>
 {
 public:
   using Self = CWiseDiv;
@@ -1214,7 +1214,7 @@ public:
     else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne))
       return CWiseInverse<R>::create (c, {deps[1]}, dim);
     else
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   CWiseDiv (NodeRefVec&& deps, const Dimension<R>& dim)
@@ -1259,12 +1259,12 @@ public:
     auto fp0 = this->dependency (0)->derive (c, node);
     auto fp1 = this->dependency (1)->derive (c, node);
 
-    auto upv = CWiseMul<R, std::tuple<T0, T1> >::create(c, {fp0, f1}, targetDimension_);
-    auto vpu = CWiseMul<R, std::tuple<T0, T1> >::create(c, {fp1, f0}, targetDimension_);
-    auto diff = CWiseSub<R, std::tuple<R, R> >::create(c, {upv, vpu}, targetDimension_);
+    auto upv = CWiseMul<R, std::tuple<T0, T1>>::create(c, {fp0, f1}, targetDimension_);
+    auto vpu = CWiseMul<R, std::tuple<T0, T1>>::create(c, {fp1, f0}, targetDimension_);
+    auto diff = CWiseSub<R, std::tuple<R, R>>::create(c, {upv, vpu}, targetDimension_);
 
-    return CWiseMul<R, std::tuple<R, R> >::create (
-      c, {CWiseConstantPow<R>::create(c, {f1}, -2., 1., targetDimension_), diff}, targetDimension_);
+    return CWiseMul<R, std::tuple<R, R>>::create (
+          c, {CWiseConstantPow<R>::create(c, {f1}, -2., 1., targetDimension_), diff}, targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -1352,7 +1352,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<T> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<T>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -1424,7 +1424,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<T> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<T>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -1451,9 +1451,9 @@ public:
     }
     // -1/x^2 * x'
     const auto& dep = this->dependency (0);
-    return CWiseMul<T, std::tuple<T, T> >::create (
-      c, {CWiseConstantPow<T>::create (c, {dep}, -2., -1., targetDimension_), dep->derive (c, node)},
-      targetDimension_);
+    return CWiseMul<T, std::tuple<T, T>>::create (
+          c, {CWiseConstantPow<T>::create (c, {dep}, -2., -1., targetDimension_), dep->derive (c, node)},
+          targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -1502,7 +1502,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<T> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<T>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -1529,8 +1529,8 @@ public:
     }
     // x'/x
     const auto& dep = this->dependency (0);
-    return CWiseMul<T, std::tuple<T, T> >::create (
-      c, {CWiseInverse<T>::create (c, {dep}, targetDimension_), dep->derive (c, node)}, targetDimension_);
+    return CWiseMul<T, std::tuple<T, T>>::create (
+          c, {CWiseInverse<T>::create (c, {dep}, targetDimension_), dep->derive (c, node)}, targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -1579,7 +1579,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<T> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<T>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -1606,8 +1606,8 @@ public:
     }
     // x'* exp(x)
     const auto& dep = this->dependency (0);
-    return CWiseMul<T, std::tuple<T, T> >::create (
-      c, {this->shared_from_this(), dep->derive (c, node)}, targetDimension_);
+    return CWiseMul<T, std::tuple<T, T>>::create (
+          c, {this->shared_from_this(), dep->derive (c, node)}, targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -1643,7 +1643,7 @@ public:
 
   /// Build a new CWiseConstantPow node with the given output dimensions and factors.
   static ValueRef<T> create (Context& c, NodeRefVec&& deps, double exponent, double factor,
-                             const Dimension<T>& dim)
+      const Dimension<T>& dim)
   {
     // Check dependencies
     checkDependenciesNotNull (typeid (Self), deps);
@@ -1659,20 +1659,20 @@ public:
     else if (exponent == 1.)
     {
       // pow (x, exponent) == x
-      return CWiseMul<T, std::tuple<double, T> >::create (
-        c, {NumericConstant<double>::create (c, factor), deps[0]}, dim);
+      return CWiseMul<T, std::tuple<double, T>>::create (
+            c, {NumericConstant<double>::create (c, factor), deps[0]}, dim);
     }
     else if (exponent == -1.)
     {
       // pow (x, exponent) = 1/x
-      return CWiseMul<T, std::tuple<double, T> >::create (
-        c,
-        {NumericConstant<double>::create (c, factor), CWiseInverse<T>::create (c, std::move (deps), dim)},
-        dim);
+      return CWiseMul<T, std::tuple<double, T>>::create (
+            c,
+            {NumericConstant<double>::create (c, factor), CWiseInverse<T>::create (c, std::move (deps), dim)},
+            dim);
     }
     else
     {
-      return cachedAs<Value<T> >(c, std::make_shared<Self>(std::move (deps), exponent, factor, dim));
+      return cachedAs<Value<T>>(c, std::make_shared<Self>(std::move (deps), exponent, factor, dim));
     }
   }
 
@@ -1709,7 +1709,7 @@ public:
     // factor * (exponent * x^(exponent - 1)) * x'
     const auto& dep = this->dependency (0);
     auto dpow = Self::create (c, {dep}, exponent_ - 1., factor_ * exponent_, targetDimension_);
-    return CWiseMul<T, std::tuple<T, T> >::create (c, {dpow, dep->derive (c, node)}, targetDimension_);
+    return CWiseMul<T, std::tuple<T, T>>::create (c, {dpow, dep->derive (c, node)}, targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -1761,7 +1761,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps)));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps)));
     }
   }
 
@@ -1789,8 +1789,8 @@ public:
     const auto& x1 = this->dependency (1);
     auto dx0_prod = Self::create (c, {x0->derive (c, node), x1});
     auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)});
-    return CWiseAdd<R, std::tuple<R, R> >::create (c, {dx0_prod, dx1_prod},
-                                                   Dimension<R> ());
+    return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod},
+          Dimension<R> ());
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -1838,7 +1838,7 @@ public:
     checkNthDependencyIsValue<F>(typeid (Self), deps, 0);
     if (deps.size() == 2)
       checkNthDependencyIsValue<Eigen::RowVectorXi>(typeid (Self), deps, 1);
-    return cachedAs<Value<DataLik> >(c, std::make_shared<Self>(std::move (deps), mDim));
+    return cachedAs<Value<DataLik>>(c, std::make_shared<Self>(std::move (deps), mDim));
   }
 
   SumOfLogarithms (NodeRefVec&& deps, const Dimension<F>& mDim)
@@ -1869,7 +1869,7 @@ public:
     auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension_);
     if (nbDependencies() == 2 && dependency(1))
     {
-      auto m2 = CWiseMul<F, std::tuple<F, Eigen::RowVectorXi> >::create (c, {m_inverse, dependency (1)}, mTargetDimension_);
+      auto m2 = CWiseMul<F, std::tuple<F, Eigen::RowVectorXi>>::create (c, {m_inverse, dependency (1)}, mTargetDimension_);
       return ScalarProduct<typename F::Scalar, F, F>::create (c, {std::move (dm_dn), std::move (m2)});
     }
     else
@@ -2038,7 +2038,7 @@ public:
     checkNthDependencyIsValue<T0>(typeid (Self), deps, 0);
     checkNthDependencyIsValue<T1>(typeid (Self), deps, 1);
     // Select node
-    return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), mDim));
+    return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), mDim));
   }
 
   LogSumExp (NodeRefVec&& deps, const Dimension<T0>& mDim)
@@ -2064,12 +2064,12 @@ public:
     }
     const auto& v = this->dependency (0);
     const auto& p = this->dependency (1);
-    auto diffvL = CWiseSub<T0, std::tuple<R, T0> >::create(c, {this->shared_from_this(), v}, mTargetDimension_);
+    auto diffvL = CWiseSub<T0, std::tuple<R, T0>>::create(c, {this->shared_from_this(), v}, mTargetDimension_);
     auto expdiffvL = CWiseExp<T0>::create(c, {std::move(diffvL)}, mTargetDimension_);
     auto dp_prod = ScalarProduct<R, T0, T1>::create (c, {expdiffvL, p->derive (c, node)});
-    auto pexpdiffvL = CWiseMul<T0, std::tuple<T0, T1> >::create(c, {expdiffvL, p}, mTargetDimension_);
+    auto pexpdiffvL = CWiseMul<T0, std::tuple<T0, T1>>::create(c, {expdiffvL, p}, mTargetDimension_);
     auto dv_prod = ScalarProduct<R, T0, T1>::create (c, {std::move(pexpdiffvL), v->derive (c, node)});
-    return CWiseAdd<R, std::tuple<R, R> >::create (c, {std::move (dv_prod), std::move (dp_prod)}, Dimension<R>());
+    return CWiseAdd<R, std::tuple<R, R>>::create (c, {std::move (dv_prod), std::move (dp_prod)}, Dimension<R>());
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -2150,7 +2150,7 @@ public:
     }
     else
     {
-      return cachedAs<Value<R> >(c, std::make_shared<Self>(std::move (deps), dim));
+      return cachedAs<Value<R>>(c, std::make_shared<Self>(std::move (deps), dim));
     }
   }
 
@@ -2196,7 +2196,7 @@ public:
     const auto& x1 = this->dependency (1);
     auto dx0_prod = Self::create (c, {x0->derive (c, node), x1}, targetDimension_);
     auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)}, targetDimension_);
-    return CWiseAdd<R, std::tuple<R, R> >::create (c, {dx0_prod, dx1_prod}, targetDimension_);
+    return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod}, targetDimension_);
   }
 
   NodeRef recreate (Context& c, NodeRefVec&& deps) final
@@ -2211,7 +2211,7 @@ private:
     const auto& x0 = accessValueConstCast<DepT0>(*this->dependency (0));
     const auto& x1 = accessValueConstCast<DepT1>(*this->dependency (1));
     result.noalias () =
-      NumericalDependencyTransform<T0>::transform (x0) * NumericalDependencyTransform<T1>::transform (x1);
+        NumericalDependencyTransform<T0>::transform (x0) * NumericalDependencyTransform<T1>::transform (x1);
 #ifdef DEBUG
     if ((x1.cols() + x1.rows() < 100 ) &&  (x0.cols() + x0.rows() < 100))
     {
@@ -2266,11 +2266,11 @@ public:
     // Not a merge, select node implementation.
     if (n == 0 || delta->hasNumericalProperty (NumericalProperty::ConstantZero))
     {
-      return convertRef<Value<T> >(x);
+      return convertRef<Value<T>>(x);
     }
     else
     {
-      return cachedAs<Value<T> >(c, std::make_shared<Self>(std::move (deps), n, dim));
+      return cachedAs<Value<T>>(c, std::make_shared<Self>(std::move (deps), n, dim));
     }
   }
 
@@ -2354,7 +2354,7 @@ public:
 
   /// Build a new CombineDeltaShifted node with the given output dimensions, exponent and weights.
   static ValueRef<T> create (Context& c, NodeRefVec&& deps, int n, std::vector<double>&& coeffs,
-                             const Dimension<T>& dim)
+      const Dimension<T>& dim)
   {
     // Check dependencies
     checkDependenciesNotNull (typeid (Self), deps);
@@ -2363,42 +2363,42 @@ public:
     checkDependencyRangeIsValue<T>(typeid (Self), deps, 1, deps.size ());
     //
     auto cleanAndCreateNode = [&c, &dim](NodeRefVec&& deps2, int n2,
-                                         std::vector<double>&& coeffs2) -> ValueRef<T> {
-                                // Clean deps : remove constant 0, of deps with a 0 factor.
-                                for (std::size_t i = 0; i < coeffs2.size ();)
-                                {
-                                  if (coeffs2[i] == 0. || deps2[i + 1]->hasNumericalProperty (NumericalProperty::ConstantZero))
-                                  {
-                                    coeffs2.erase (coeffs2.begin () + std::ptrdiff_t (i));
-                                    deps2.erase (deps2.begin () + std::ptrdiff_t (i + 1));
-                                  }
-                                  else
-                                  {
-                                    ++i;
-                                  }
-                                }
-                                // Final node selection
-                                if (coeffs2.empty ())
-                                {
-                                  return ConstantZero<T>::create (c, dim);
-                                }
-                                else
-                                {
-                                  return cachedAs<Value<T> >(
-                                    c, std::make_shared<Self>(std::move (deps2), n2, std::move (coeffs2), dim));
-                                }
-                              };
+        std::vector<double>&& coeffs2) -> ValueRef<T> {
+          // Clean deps : remove constant 0, of deps with a 0 factor.
+          for (std::size_t i = 0; i < coeffs2.size ();)
+          {
+            if (coeffs2[i] == 0. || deps2[i + 1]->hasNumericalProperty (NumericalProperty::ConstantZero))
+            {
+              coeffs2.erase (coeffs2.begin () + std::ptrdiff_t (i));
+              deps2.erase (deps2.begin () + std::ptrdiff_t (i + 1));
+            }
+            else
+            {
+              ++i;
+            }
+          }
+          // Final node selection
+          if (coeffs2.empty ())
+          {
+            return ConstantZero<T>::create (c, dim);
+          }
+          else
+          {
+            return cachedAs<Value<T>>(
+                  c, std::make_shared<Self>(std::move (deps2), n2, std::move (coeffs2), dim));
+          }
+        };
     // Detect if we can merge this node with its dependencies
     const auto& delta = deps[0];
     auto isSelfWithSameDelta = [&delta](const NodeRef& dep) -> bool {
-                                 return dynamic_cast<const Self*>(dep.get ()) != nullptr && dep->dependency (0) == delta;
-                               };
+          return dynamic_cast<const Self*>(dep.get ()) != nullptr && dep->dependency (0) == delta;
+        };
     if (!coeffs.empty () && std::all_of (deps.begin () + 1, deps.end (), isSelfWithSameDelta))
     {
       const auto depN = static_cast<const Self&>(*deps[1]).getN ();
       auto useSameNasDep1 = [depN](const NodeRef& dep) {
-                              return static_cast<const Self&>(*dep).getN () == depN;
-                            };
+            return static_cast<const Self&>(*dep).getN () == depN;
+          };
       if (std::all_of (deps.begin () + 2, deps.end (), useSameNasDep1))
       {
         /* Merge with dependencies because they use the same delta and a common N.
@@ -2422,7 +2422,7 @@ public:
             {
               // Found
               const auto subDepIndexInMerged =
-                static_cast<std::size_t>(std::distance (mergedDeps.begin () + 1, it));
+                  static_cast<std::size_t>(std::distance (mergedDeps.begin () + 1, it));
               mergedCoeffs[subDepIndexInMerged] += coeffs[i] * depCoeffs[j];
             }
             else
@@ -2555,15 +2555,15 @@ private:
     }
 
     result = [vT, lambda, this](const VectorLik& x)->VectorLik {
-               using namespace numeric;
-               VectorLik r = zero (Dimension<VectorLik>(this->targetDimension_.cols, (Eigen::Index)1));
+          using namespace numeric;
+          VectorLik r = zero (Dimension<VectorLik>(this->targetDimension_.cols, (Eigen::Index)1));
 
-               for (std::size_t i = 0; i < this->coeffs_.size (); ++i)
-               {
-                 cwise(r) += (lambda * this->coeffs_[i]) * cwise((*vT[i])(x));
-               }
-               return r;
-             };
+          for (std::size_t i = 0; i < this->coeffs_.size (); ++i)
+          {
+            cwise(r) += (lambda * this->coeffs_[i]) * cwise((*vT[i])(x));
+          }
+          return r;
+        };
   }
 
   Dimension<T> targetDimension_;
@@ -2575,30 +2575,30 @@ private:
 
 extern template class CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
 
-extern template class CWiseAdd<double, std::tuple<double, double> >;
-extern template class CWiseAdd<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat> >;
-extern template class CWiseAdd<VectorLik, std::tuple<VectorLik, VectorLik> >;
-extern template class CWiseAdd<RowLik, std::tuple<RowLik, RowLik> >;
-extern template class CWiseAdd<MatrixLik, std::tuple<MatrixLik, MatrixLik> >;
-extern template class CWiseAdd<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction> >;
+extern template class CWiseAdd<double, std::tuple<double, double>>;
+extern template class CWiseAdd<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
+extern template class CWiseAdd<VectorLik, std::tuple<VectorLik, VectorLik>>;
+extern template class CWiseAdd<RowLik, std::tuple<RowLik, RowLik>>;
+extern template class CWiseAdd<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
+extern template class CWiseAdd<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
 
 extern template class CWiseAdd<RowLik, MatrixLik>;
 extern template class CWiseAdd<VectorLik, MatrixLik>;
 extern template class CWiseAdd<DataLik, VectorLik>;
 extern template class CWiseAdd<DataLik, RowLik>;
 
-extern template class CWiseAdd<double, ReductionOf<double> >;
-extern template class CWiseAdd<ExtendedFloat, ReductionOf<ExtendedFloat> >;
-extern template class CWiseAdd<VectorLik, ReductionOf<VectorLik> >;
-extern template class CWiseAdd<RowLik, ReductionOf<RowLik> >;
-extern template class CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
-extern template class CWiseAdd<TransitionFunction, ReductionOf<TransitionFunction> >;
+extern template class CWiseAdd<double, ReductionOf<double>>;
+extern template class CWiseAdd<ExtendedFloat, ReductionOf<ExtendedFloat>>;
+extern template class CWiseAdd<VectorLik, ReductionOf<VectorLik>>;
+extern template class CWiseAdd<RowLik, ReductionOf<RowLik>>;
+extern template class CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>;
+extern template class CWiseAdd<TransitionFunction, ReductionOf<TransitionFunction>>;
 
-extern template class CWiseMean<VectorLik, ReductionOf<VectorLik>, ReductionOf<double> >;
-extern template class CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double> >;
-extern template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, ReductionOf<double> >;
-extern template class CWiseMean<double, ReductionOf<double>, ReductionOf<double> >;
-extern template class CWiseMean<ExtendedFloat, ReductionOf<ExtendedFloat>, ReductionOf<double> >;
+extern template class CWiseMean<VectorLik, ReductionOf<VectorLik>, ReductionOf<double>>;
+extern template class CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double>>;
+extern template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, ReductionOf<double>>;
+extern template class CWiseMean<double, ReductionOf<double>, ReductionOf<double>>;
+extern template class CWiseMean<ExtendedFloat, ReductionOf<ExtendedFloat>, ReductionOf<double>>;
 
 extern template class CWiseMean<VectorLik, ReductionOf<VectorLik>, Eigen::VectorXd>;
 extern template class CWiseMean<RowLik, ReductionOf<RowLik>,  Eigen::VectorXd>;
@@ -2607,36 +2607,36 @@ extern template class CWiseMean<VectorLik, ReductionOf<VectorLik>, Eigen::RowVec
 extern template class CWiseMean<RowLik, ReductionOf<RowLik>, Eigen::RowVectorXd>;
 extern template class CWiseMean<MatrixLik, ReductionOf<MatrixLik>, Eigen::RowVectorXd>;
 
-extern template class CWiseSub<double, std::tuple<double, double> >;
-extern template class CWiseSub<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat> >;
-extern template class CWiseSub<VectorLik, std::tuple<VectorLik, VectorLik> >;
-extern template class CWiseSub<RowLik, std::tuple<RowLik, RowLik> >;
-extern template class CWiseSub<MatrixLik, std::tuple<MatrixLik, MatrixLik> >;
+extern template class CWiseSub<double, std::tuple<double, double>>;
+extern template class CWiseSub<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
+extern template class CWiseSub<VectorLik, std::tuple<VectorLik, VectorLik>>;
+extern template class CWiseSub<RowLik, std::tuple<RowLik, RowLik>>;
+extern template class CWiseSub<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
 
-extern template class CWiseSub<VectorLik, std::tuple<VectorLik, DataLik> >;
-extern template class CWiseSub<RowLik, std::tuple<RowLik, DataLik> >;
+extern template class CWiseSub<VectorLik, std::tuple<VectorLik, DataLik>>;
+extern template class CWiseSub<RowLik, std::tuple<RowLik, DataLik>>;
 
-extern template class CWiseMul<double, std::tuple<double, double> >;
-extern template class CWiseMul<double, std::tuple<double, uint> >;
-extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat> >;
-extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, uint> >;
-extern template class CWiseMul<VectorLik, std::tuple<VectorLik, VectorLik> >;
-extern template class CWiseMul<RowLik, std::tuple<RowLik, RowLik> >;
-extern template class CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik> >;
+extern template class CWiseMul<double, std::tuple<double, double>>;
+extern template class CWiseMul<double, std::tuple<double, uint>>;
+extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
+extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, uint>>;
+extern template class CWiseMul<VectorLik, std::tuple<VectorLik, VectorLik>>;
+extern template class CWiseMul<RowLik, std::tuple<RowLik, RowLik>>;
+extern template class CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
 
-extern template class CWiseMul<RowLik, std::tuple<RowLik, Eigen::RowVectorXi> >;
-extern template class CWiseMul<VectorLik, std::tuple<VectorLik, Eigen::RowVectorXi> >;
-extern template class CWiseMul<VectorLik, std::tuple<DataLik, VectorLik> >;
-extern template class CWiseMul<RowLik, std::tuple<DataLik, RowLik> >;
-extern template class CWiseMul<MatrixLik, std::tuple<DataLik, MatrixLik> >;
-extern template class CWiseMul<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction> >;
-extern template class CWiseMul<TransitionFunction, std::tuple<double, TransitionFunction> >;
+extern template class CWiseMul<RowLik, std::tuple<RowLik, Eigen::RowVectorXi>>;
+extern template class CWiseMul<VectorLik, std::tuple<VectorLik, Eigen::RowVectorXi>>;
+extern template class CWiseMul<VectorLik, std::tuple<DataLik, VectorLik>>;
+extern template class CWiseMul<RowLik, std::tuple<DataLik, RowLik>>;
+extern template class CWiseMul<MatrixLik, std::tuple<DataLik, MatrixLik>>;
+extern template class CWiseMul<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
+extern template class CWiseMul<TransitionFunction, std::tuple<double, TransitionFunction>>;
 
-extern template class CWiseMul<double, ReductionOf<double> >;
-extern template class CWiseMul<ExtendedFloat, ReductionOf<ExtendedFloat> >;
-extern template class CWiseMul<VectorLik, ReductionOf<VectorLik> >;
-extern template class CWiseMul<RowLik, ReductionOf<RowLik> >;
-extern template class CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
+extern template class CWiseMul<double, ReductionOf<double>>;
+extern template class CWiseMul<ExtendedFloat, ReductionOf<ExtendedFloat>>;
+extern template class CWiseMul<VectorLik, ReductionOf<VectorLik>>;
+extern template class CWiseMul<RowLik, ReductionOf<RowLik>>;
+extern template class CWiseMul<MatrixLik, ReductionOf<MatrixLik>>;
 
 extern template class CWiseNegate<double>;
 extern template class CWiseNegate<ExtendedFloat>;
@@ -2680,7 +2680,7 @@ extern template class SumOfLogarithms<RowLik>;
 extern template class MatrixProduct<ExtendedFloatRowVectorXd, Eigen::RowVectorXd, ExtendedFloatMatrixXd>;
 extern template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
 extern template class MatrixProduct<MatrixLik, MatrixLik, Eigen::MatrixXd>;
-extern template class MatrixProduct<MatrixLik, MatrixLik, Transposed<Eigen::MatrixXd> >;
+extern template class MatrixProduct<MatrixLik, MatrixLik, Transposed<Eigen::MatrixXd>>;
 
 extern template class ShiftDelta<double>;
 extern template class ShiftDelta<VectorLik>;
@@ -2720,13 +2720,12 @@ struct NumericalDerivativeConfiguration
  * The pattern of computation points and delta are given by config.
  * After creation, the pattern and node for delta cannot change, but delta value can.
  */
-
 template<typename NodeT, typename DepT, typename B>
 ValueRef<NodeT> generateNumericalDerivative (Context& c, const NumericalDerivativeConfiguration& config,
-                                             NodeRef dep,
-                                             const Dimension<DepT>& depDim,
-                                             Dimension<NodeT>& nodeDim,
-                                             B buildNodeWithDep)
+    NodeRef dep,
+    const Dimension<DepT>& depDim,
+    Dimension<NodeT>& nodeDim,
+    B buildNodeWithDep)
 {
   if (config.delta == nullptr)
   {
@@ -2757,7 +2756,7 @@ ValueRef<NodeT> generateNumericalDerivative (Context& c, const NumericalDerivati
     combineDeps[3] = buildNodeWithDep (std::move (shift_p1));
     combineDeps[4] = buildNodeWithDep (std::move (shift_p2));
     return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1,
-                                               {1. / 12., -2. / 3., 2. / 3., -1. / 12.}, nodeDim);
+          {1. / 12., -2. / 3., 2. / 3., -1. / 12.}, nodeDim);
   } break;
   default:
     failureNumericalDerivationNotConfigured ();
@@ -2766,10 +2765,10 @@ ValueRef<NodeT> generateNumericalDerivative (Context& c, const NumericalDerivati
 
 template<typename NodeT, typename B>
 ValueRef<NodeT> generateNumericalDerivative (Context& c,
-                                             const NumericalDerivativeConfiguration& config,
-                                             NodeRef dep,
-                                             const Dimension<NodeT>& nodeDim,
-                                             B buildNodeWithDep)
+    const NumericalDerivativeConfiguration& config,
+    NodeRef dep,
+    const Dimension<NodeT>& nodeDim,
+    B buildNodeWithDep)
 {
   if (config.delta == nullptr)
   {
@@ -2804,7 +2803,7 @@ ValueRef<NodeT> generateNumericalDerivative (Context& c,
     combineDeps[3] = buildNodeWithDep (std::move (shift_p1));
     combineDeps[4] = buildNodeWithDep (std::move (shift_p2));
     return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1,
-                                               {1. / 12., -2. / 3., 2. / 3., -1. / 12.}, nodeDim);
+          {1. / 12., -2. / 3., 2. / 3., -1. / 12.}, nodeDim);
   } break;
   default:
     failureNumericalDerivationNotConfigured ();

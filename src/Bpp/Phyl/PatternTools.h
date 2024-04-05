@@ -25,7 +25,7 @@ namespace bpp
 /**
  * @brief Utilitary methods to compute site patterns.
  *
- * Theses methods are mainly designed to save computation in likelihood
+ * These methods are mainly designed to save computation in likelihood
  * and parsimony methods.
  */
 class PatternTools
@@ -38,12 +38,12 @@ public:
    * @param node        The root node of the subtree to check.
    * @param tree        The tree owing the node.
    * @return A new site container with corresponding sequences.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   template<class N, class E, class I>
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-      const AlignmentDataInterface& sequenceSet, 
-      const std::shared_ptr<N> node, 
+      const AlignmentDataInterface& sequenceSet,
+      const std::shared_ptr<N> node,
       const AssociationTreeGraphImplObserver<N, E, I>& tree);
 
   /**
@@ -52,7 +52,7 @@ public:
    * @param sequenceSet The container to look in.
    * @param node        The root node of the subtree to check.
    * @return A new site container with corresponding sequences.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
       const AlignmentDataInterface& sequenceSet,
@@ -64,10 +64,10 @@ public:
    * @param sequenceSet The container to look in.
    * @param names       The names of the sequences to look for.
    * @return A new site container with corresponding sequences.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-      const AlignmentDataInterface& sequenceSet, 
+      const AlignmentDataInterface& sequenceSet,
       const std::vector<std::string>& names);
 
   /**
@@ -75,14 +75,14 @@ public:
    *
    * @param sequenceSet The container to look in.
    * @return A new site container with unique sites.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(
       const AlignmentDataInterface& sequenceSet);
 
   /**
-   * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
-   * position of the first occurence, or -1 if not found.
+   * @brief Look for the occurrence of each site in sequences1 in sequences2 and send the
+   * position of the first occurrence, or -1 if not found.
    *
    * @param sequences1 First container.
    * @param sequences2 Second container.
@@ -95,8 +95,8 @@ public:
 
 template<class N, class E, class I>
 std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
-    const AlignmentDataInterface& sequenceSet, 
-    const std::shared_ptr<N> node, 
+    const AlignmentDataInterface& sequenceSet,
+    const std::shared_ptr<N> node,
     const AssociationTreeGraphImplObserver<N, E, I>& tree)
 {
   size_t nbSites = sequenceSet.getNumberOfSites();
@@ -114,7 +114,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     {
       if (i->hasName())
       {
-	//Use sequence name as key.
+        // Use sequence name as key.
         try
         {
           auto newSeq = std::make_unique<Sequence>(sitecontainer.sequence(i->getName()));
@@ -133,7 +133,9 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     }
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
-  } catch(std::bad_cast& e) {}
+  }
+  catch (std::bad_cast& e)
+  {}
 
   try
   {
@@ -141,16 +143,16 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
 
     auto sequenceSubset = std::make_unique<ProbabilisticVectorSiteContainer>(alphabet);
 
-    std::vector<std::shared_ptr<N> > leaves = tree.getLeavesUnderNode(node);
+    std::vector<std::shared_ptr<N>> leaves = tree.getLeavesUnderNode(node);
 
     for (auto i : leaves)
     {
       if (i->hasName())
       {
-	//Use sequence name as key.
+        // Use sequence name as key.
         try
         {
-          auto newSeq = std::make_unique<ProbabilisticSequence> (sitecontainer.sequence(i->getName()));
+          auto newSeq = std::make_unique<ProbabilisticSequence>(sitecontainer.sequence(i->getName()));
           sequenceSubset->addSequence(newSeq->getName(), newSeq);
         }
         catch (std::exception const& e)
@@ -166,7 +168,9 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     }
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
-  } catch(std::bad_cast& e) {}
+  }
+  catch (std::bad_cast& e)
+  {}
 
   throw Exception("PatternTools::getSequenceSubset : unsupported sequence type.");
 }

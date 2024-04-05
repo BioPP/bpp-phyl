@@ -64,7 +64,7 @@ public:
    */
   virtual std::shared_ptr<const Alphabet> getAlphabet() const
   {
-    return getAlphabetIndex()->getAlphabet(); 
+    return getAlphabetIndex()->getAlphabet();
   }
 
   /**
@@ -113,8 +113,6 @@ public:
 };
 
 
-
-
 /**
  * @brief Basic implementation of the the Reward interface.
  *
@@ -159,7 +157,7 @@ public:
   }
 
   std::shared_ptr<const AlphabetIndex1> getAlphabetIndex() const { return alphIndex_; }
-  
+
   const AlphabetIndex1& alphabetIndex() const { return *alphIndex_; }
 
 protected:

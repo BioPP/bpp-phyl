@@ -28,7 +28,7 @@ namespace bpp
  * https://doi.org/10.1093/molbev/msl175
  *
  * This class should be used with models which equilibrium
- * distribution is fixed, ans does not depend on the parameters.
+ * distribution is fixed, and does not depend on the parameters.
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
@@ -102,13 +102,11 @@ public:
   {
     return dynamic_cast<const CodonSameAARateSubstitutionModel&>(nModel(0)).proteinModel();
   }
-  
+
   std::string getName() const override { return "DFP07"; }
 
 protected:
-
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_CODON_DFP07_H

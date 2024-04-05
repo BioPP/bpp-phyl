@@ -226,4 +226,3 @@ void gBGC::setNamespace(const std::string& prefix)
   // We also need to update the namespace of the nested model:
   model_->setNamespace(prefix + nestedPrefix_);
 }
-

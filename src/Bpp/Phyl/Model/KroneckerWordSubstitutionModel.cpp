@@ -22,20 +22,20 @@ using namespace std;
 /******************************************************************************/
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  ModelList& modelList,
-  const string& prefix) :
+    ModelList& modelList,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(
-    modelList,
-    (prefix == "") ? "Kron." : prefix)
+      modelList,
+      (prefix == "") ? "Kron." : prefix)
 {
   updateMatrices_();
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  shared_ptr<const Alphabet> alph,
-  shared_ptr<const StateMapInterface> stateMap,
-  const string& prefix) :
+    shared_ptr<const Alphabet> alph,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Kron." : prefix)
 {
@@ -43,40 +43,40 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
-  AbstractKroneckerWordSubstitutionModel(move(pmodel),
-                                         num,
-                                         (prefix == "") ? "Kron." : prefix)
+  AbstractKroneckerWordSubstitutionModel(std::move(pmodel),
+      num,
+      (prefix == "") ? "Kron." : prefix)
 {
   enableEigenDecomposition(true);
   updateMatrices_();
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  ModelList& modelList,
-  const vector<set< size_t> >& vPos,
-  const string& prefix) :
+    ModelList& modelList,
+    const vector<set< size_t>>& vPos,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(
-    modelList, vPos,
-    (prefix == "") ? "Kron." : prefix)
+      modelList, vPos,
+      (prefix == "") ? "Kron." : prefix)
 {
   enableEigenDecomposition(true);
   updateMatrices_();
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const vector<set< size_t> >& vPos,
-  const string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const vector<set< size_t>>& vPos,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
-  AbstractKroneckerWordSubstitutionModel(move(pmodel),
-                                         num, vPos,
-                                         (prefix == "") ? "Kron." : prefix)
+  AbstractKroneckerWordSubstitutionModel(std::move(pmodel),
+      num, vPos,
+      (prefix == "") ? "Kron." : prefix)
 {
   enableEigenDecomposition(true);
   updateMatrices_();

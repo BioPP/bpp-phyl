@@ -35,7 +35,7 @@ inline MatrixDimension conditionalLikelihoodDimension (Eigen::Index nbState, Eig
  * Using member wise multiply: c = prod_member_i f_i.
  */
 
-using SpeciationForward = CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
+using SpeciationForward = CWiseMul<MatrixLik, ReductionOf<MatrixLik>>;
 
 /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
  * conditionalLikelihood: Matrix(state, site).
@@ -45,7 +45,7 @@ using SpeciationForward = CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
  * Using member wise addition: c = sum_member_i f_i
  */
 
-using MixtureForward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
+using MixtureForward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>;
 
 /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
  * - forwardLikelihood: Matrix(state, site).
@@ -56,10 +56,10 @@ using MixtureForward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
  */
 
 using ForwardTransition =
-  MatrixProduct<MatrixLik, Eigen::MatrixXd, MatrixLik>;
+    MatrixProduct<MatrixLik, Eigen::MatrixXd, MatrixLik>;
 
 using ForwardTransitionFunction =
-  CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
+    CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
 
 /** @brief forwardLikelihood = f(transitionMatrix, proportion).
  * - forwardLikelihood: Matrix(state, site).
@@ -70,14 +70,14 @@ using ForwardTransitionFunction =
  */
 
 using ForwardProportion =
-  CWiseMul<MatrixLik, std::tuple<double, MatrixLik> >;
+    CWiseMul<MatrixLik, std::tuple<double, MatrixLik>>;
 
 /**
  * @brief Interface LikelihoodTree data structure.
  *
  * Stores all the inner computations:
  * - conditional likelihoods for each node,
- * - correspondance between sites in the dataset and array indices.
+ * - correspondence between sites in the dataset and array indices.
  *
  * The structure is initiated according to a tree topology, and
  * data can be retrieved through node ids.
@@ -120,8 +120,8 @@ private:
 
 public:
   ForwardLikelihoodTree(Context& c,
-                        std::shared_ptr<ProcessTree> tree,
-                        const StateMapInterface& statemap) :
+      std::shared_ptr<ProcessTree> tree,
+      const StateMapInterface& statemap) :
     DAClass(),
     context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0)
   {}
@@ -146,7 +146,7 @@ public:
 private:
   /**
    * @brief Compute ConditionalLikelihood after reading edge on
-   * the forward proces (ie at top of the edge).
+   * the forward process (ie at top of the edge).
    */
   ForwardLikelihoodBelowRef makeForwardLikelihoodAtEdge(
       std::shared_ptr<ProcessEdge> edge,
@@ -154,7 +154,7 @@ private:
 
   /*
    * @brief Compute ConditionalLikelihood after reading node on
-   * the forward proces (ie just above node).
+   * the forward process (ie just above node).
    */
   ConditionalLikelihoodForwardRef makeForwardLikelihoodAtNode(
       std::shared_ptr<ProcessNode> node,
@@ -202,7 +202,6 @@ public:
    * @brief Get the edges indexes of the DAG that correspond to
    * the species Index (of the Process tree).
    */
-  
   const DAGindexes& getDAGEdgesIndexes(const Speciesindex speciesIndex) const
   {
     return mapEdgesIndexes_.at(speciesIndex);
@@ -236,13 +235,13 @@ public:
 
 
 using Proba = Value<double>;
-using ProbaRef = std::shared_ptr<Value<double> >;
+using ProbaRef = std::shared_ptr<Value<double>>;
 
 using DAProb = AssociationDAGlobalGraphObserver<Proba, Proba>;
 
-using ProbaMul = CWiseMul<double, std::tuple<double, double> >;
+using ProbaMul = CWiseMul<double, std::tuple<double, double>>;
 
-using ProbaSum = CWiseAdd<double, ReductionOf<double> >;
+using ProbaSum = CWiseAdd<double, ReductionOf<double>>;
 
 class ProbabilityDAG :
   public DAProb

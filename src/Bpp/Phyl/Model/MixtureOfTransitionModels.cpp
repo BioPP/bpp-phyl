@@ -12,8 +12,8 @@ using namespace bpp;
 using namespace std;
 
 MixtureOfTransitionModels::MixtureOfTransitionModels(
-  shared_ptr<const Alphabet> alpha,
-  vector<unique_ptr<TransitionModelInterface>>& vpModel) :
+    shared_ptr<const Alphabet> alpha,
+    vector<unique_ptr<TransitionModelInterface>>& vpModel) :
   AbstractParameterAliasable("Mixture."),
   AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
   AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture.")
@@ -21,7 +21,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
   size_t i, nbmod = vpModel.size();
   if (nbmod == 0)
     throw Exception("MixtureOfTransitionModels::MixtureOfTransitionModels : empty vector of models.");
-  
+
   for (i = 0; i < nbmod; ++i)
   {
     if (!vpModel[i])
@@ -30,7 +30,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
     {
       if (vpModel[i] == vpModel[j])
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
-                        TextTools::toString(j) + " in MixtureOfTransitionModels constructor");
+              TextTools::toString(j) + " in MixtureOfTransitionModels constructor");
     }
   }
 
@@ -64,10 +64,10 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
 }
 
 MixtureOfTransitionModels::MixtureOfTransitionModels(
-  shared_ptr<const Alphabet> alpha,
-  vector<unique_ptr<TransitionModelInterface>>& vpModel,
-  Vdouble& vproba,
-  Vdouble& vrate) :
+    shared_ptr<const Alphabet> alpha,
+    vector<unique_ptr<TransitionModelInterface>>& vpModel,
+    Vdouble& vproba,
+    Vdouble& vrate) :
   AbstractParameterAliasable("Mixture."),
   AbstractTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture."),
   AbstractMixedTransitionModel(alpha, vpModel.size() ? vpModel[0]->getStateMap() : 0, "Mixture.")
@@ -82,7 +82,7 @@ MixtureOfTransitionModels::MixtureOfTransitionModels(
     {
       if (vpModel[i] == vpModel[j])
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
-                        TextTools::toString(j) + " in MixtureOfTransitionModels constructor");
+              TextTools::toString(j) + " in MixtureOfTransitionModels constructor");
     }
   }
 

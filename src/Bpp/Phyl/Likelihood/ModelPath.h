@@ -166,7 +166,7 @@ public:
    * if mMod1 is the lead model, mMod2 becomes the lead model
    */
   void changeModel(std::shared_ptr<MixedTransitionModelInterface> mMod1,
-                   std::shared_ptr<MixedTransitionModelInterface> mMod2);
+      std::shared_ptr<MixedTransitionModelInterface> mMod2);
 
   /**
    * @brief Remove a model
@@ -197,7 +197,7 @@ public:
   ModelPath& operator+=(const ModelPath&);
 
   /**
-   * @brief Remove from the PathNodes of this objet the matching ones of the ModelPath.
+   * @brief Remove from the PathNodes of this object the matching ones of the ModelPath.
    */
   ModelPath& operator-=(const ModelPath&);
 
@@ -214,7 +214,7 @@ public:
 
   /**
    * @brief checks if this ModelPath intersects another one. Which
-   * means that one submodel explicitely declared in a ModelPath is
+   * means that one submodel explicitly declared in a ModelPath is
    * in the other.
    */
   bool intersects(const ModelPath&) const;
@@ -264,7 +264,7 @@ public:
   /**
    * @brief gets the MixedTransitionModel used in the ModelPath
    */
-  std::vector<std::shared_ptr<MixedTransitionModelInterface> > getModels() const;
+  std::vector<std::shared_ptr<MixedTransitionModelInterface>> getModels() const;
 
   /**
    * @brief string description

@@ -27,7 +27,7 @@ double OneChangeTransitionModel::Pij_t(size_t i, size_t j, double t) const
       return (transitionModel().Pij_t(i, j, t) - (i == j ? v : 0)) / (1 - v);
     }
     else
-      return i == j ? 0 : - substitutionModel().Qij(i, j) / qii;
+      return i == j ? 0 : -substitutionModel().Qij(i, j) / qii;
   }
 }
 

@@ -11,10 +11,10 @@ using namespace bpp;
 using namespace std;
 
 unique_ptr<SubstitutionModelSet> SubstitutionModelSetTools::createHomogeneousModelSet(
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<FrequencySetInterface> rootFreqs,
-  const Tree& tree
-  )
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<FrequencySetInterface> rootFreqs,
+    const Tree& tree
+    )
 {
   // Check alphabet:
   if (model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
@@ -44,12 +44,12 @@ unique_ptr<SubstitutionModelSet> SubstitutionModelSetTools::createHomogeneousMod
 }
 
 unique_ptr<SubstitutionModelSet> SubstitutionModelSetTools::createNonHomogeneousModelSet(
-  shared_ptr<TransitionModelInterface> model,
-  shared_ptr<FrequencySetInterface> rootFreqs,
-  const Tree& tree,
-  const map<string, string>& aliasFreqNames,
-  const map<string, vector<Vint> >& globalParameterNames
-  )
+    shared_ptr<TransitionModelInterface> model,
+    shared_ptr<FrequencySetInterface> rootFreqs,
+    const Tree& tree,
+    const map<string, string>& aliasFreqNames,
+    const map<string, vector<Vint>>& globalParameterNames
+    )
 {
   // Check alphabet:
   if (rootFreqs && model->alphabet().getAlphabetType() != rootFreqs->alphabet().getAlphabetType())

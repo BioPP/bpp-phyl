@@ -15,20 +15,18 @@ namespace bpp
 {
 /**
  * @brief Partial implementation of the TransitionModel interface, with function for likelihood computations.
- */	
+ */
 class AbstractLkTransitionModel :
   public virtual TransitionModelInterface
 {
 private:
-
   mutable Eigen::VectorXd lik_;
 
 public:
-  AbstractLkTransitionModel(): lik_() {}
+  AbstractLkTransitionModel() : lik_() {}
   virtual ~AbstractLkTransitionModel() {}
 
 public:
-  
   const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const override
   {
     lik_ = Eigen::VectorXd::Zero(values.size());
@@ -84,7 +82,7 @@ public:
   friend class AbstractFromSubstitutionModelTransitionModel;
   friend class InMixedSubstitutionModel;
 };
-	
+
 /**
  * @brief Partial implementation of the TransitionModel interface.
  *
@@ -175,7 +173,7 @@ public:
   std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
 
   size_t getNumberOfStates() const override { return stateMap_->getNumberOfModelStates();}
-  
+
   const std::vector<int>& getAlphabetStates() const override { return stateMap_->getAlphabetStates(); }
 
   std::string getAlphabetStateAsChar(size_t index) const override { return stateMap_->getAlphabetStateAsChar(index); }
@@ -210,7 +208,7 @@ public:
   {
     throw Exception("TransitionModel::frequencySet(). No associated FrequencySet object.");
   }
-  
+
   /**
    * @brief Tells the model that a parameter value has changed.
    *
@@ -307,7 +305,7 @@ protected:
   /**
    * @brief The exchangeability matrix \f$S\f$ of the model, defined
    * as \f$ S_{ij}=\frac{Q_{ij}}{\pi_j}\f$. When the model is
-   * reversible, this matrix is symetric.
+   * reversible, this matrix is symmetric.
    */
   RowMatrix<double> exchangeability_;
 
@@ -351,7 +349,7 @@ protected:
    * @brief vector of the powers of generator_ for Taylor development (if
    * rightEigenVectors_ is singular).
    */
-  std::vector< RowMatrix<double> > vPowGen_;
+  std::vector< RowMatrix<double>> vPowGen_;
 
   /**
    * @brief For computational issues
@@ -456,7 +454,6 @@ protected:
   virtual void updateMatrices_();
 
 public:
-
   /**
    * @brief sets if model is scalable, ie scale can be changed.
    * Default : true, set to false to avoid normalization for example.
@@ -574,7 +571,6 @@ protected:
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
    */
   virtual void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTSUBSTITUTIONMODEL_H

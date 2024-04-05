@@ -83,7 +83,7 @@ public:
   {
     AbstractWrappedSubstitutionModel::operator=(fmsm);
     AbstractSubstitutionModel::operator=(fmsm);
-    
+
     originalModel_.reset(fmsm.originalModel_->clone());
     registerName_ = fmsm.registerName_;
     vRegStates_ = fmsm.vRegStates_;
@@ -160,76 +160,73 @@ public:
    */
 
 
-   /**
-    * @brief Overrides of AbstractSubstitutionModel and
-    * AbstractWrappedSubstitutionModel.
-    *
-    * @{
-    */
-   const std::vector<int>& getAlphabetStates() const override
-   {
-     return AbstractWrappedSubstitutionModel::getAlphabetStates();
-   }
-  
-   std::vector<size_t> getModelStates(int i) const override
-   {
-     return AbstractWrappedSubstitutionModel::getModelStates(i);
-   }
-  
-   std::vector<size_t> getModelStates(const std::string& s) const override
-   {
-     return AbstractWrappedSubstitutionModel::getModelStates(s);
-   }
-  
-   int getAlphabetStateAsInt(size_t i) const override
-   {
-     return AbstractWrappedSubstitutionModel::getAlphabetStateAsInt(i);
-   }
-  
-   std::string getAlphabetStateAsChar(size_t s) const override
-   {
-     return AbstractWrappedSubstitutionModel::getAlphabetStateAsChar(s);
-   }
-  
-   const Alphabet& alphabet() const override
-   {
-     return AbstractWrappedSubstitutionModel::alphabet();
-   }
-  
-   std::shared_ptr<const Alphabet> getAlphabet() const override
-   {
-     return AbstractWrappedSubstitutionModel::getAlphabet();
-   }
-  
-   const StateMapInterface& stateMap() const override
-   {
-     return AbstractWrappedSubstitutionModel::stateMap();
-   }
-  
-   std::shared_ptr<const StateMapInterface> getStateMap() const override
-   {
-     return AbstractWrappedSubstitutionModel::getStateMap();
-   }
+  /**
+   * @brief Overrides of AbstractSubstitutionModel and
+   * AbstractWrappedSubstitutionModel.
+   *
+   * @{
+   */
+  const std::vector<int>& getAlphabetStates() const override
+  {
+    return AbstractWrappedSubstitutionModel::getAlphabetStates();
+  }
 
-   const FrequencySetInterface& frequencySet() const override
-   {
-     return AbstractWrappedSubstitutionModel::frequencySet();
-   }
+  std::vector<size_t> getModelStates(int i) const override
+  {
+    return AbstractWrappedSubstitutionModel::getModelStates(i);
+  }
 
-   /** @} */
+  std::vector<size_t> getModelStates(const std::string& s) const override
+  {
+    return AbstractWrappedSubstitutionModel::getModelStates(s);
+  }
+
+  int getAlphabetStateAsInt(size_t i) const override
+  {
+    return AbstractWrappedSubstitutionModel::getAlphabetStateAsInt(i);
+  }
+
+  std::string getAlphabetStateAsChar(size_t s) const override
+  {
+    return AbstractWrappedSubstitutionModel::getAlphabetStateAsChar(s);
+  }
+
+  const Alphabet& alphabet() const override
+  {
+    return AbstractWrappedSubstitutionModel::alphabet();
+  }
+
+  std::shared_ptr<const Alphabet> getAlphabet() const override
+  {
+    return AbstractWrappedSubstitutionModel::getAlphabet();
+  }
+
+  const StateMapInterface& stateMap() const override
+  {
+    return AbstractWrappedSubstitutionModel::stateMap();
+  }
+
+  std::shared_ptr<const StateMapInterface> getStateMap() const override
+  {
+    return AbstractWrappedSubstitutionModel::getStateMap();
+  }
+
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return AbstractWrappedSubstitutionModel::frequencySet();
+  }
+
+  /** @} */
 
   void setRate(double rate) override { model_().setRate(rate); }
 
   double getRate() const override { return model().getRate(); }
 
 private:
-
   void setRegStates_();
 
 protected:
-
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_REGISTERRATESSUBSTITUTIONMODEL_H

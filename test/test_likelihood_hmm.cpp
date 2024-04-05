@@ -31,33 +31,36 @@
 using namespace bpp;
 using namespace std;
 
-int main() {
+int main()
+{
   Context context;
-  
+
   Newick reader;
   auto tree1 = reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);");
   auto tree2 = reader.parenthesisToPhyloTree("((A:0.05, C:0.02):0.1,(D:0.01,B:0.03):0.05);");
 
   vector<shared_ptr<PhyloNode>> vl = tree1->getAllLeaves();
-   
+
   vector<string> seqNames;
   for (auto& vi : vl)
+  {
     seqNames.push_back(vi->getName());
-  
+  }
+
   vector<unsigned int> ids = tree1->getNodeIndexes(tree1->getAllNodes());
-  //-------------
+  // -------------
 
   shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
   shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
   auto rootFreqs = make_shared<GCFrequencySet>(nucAlphabet);
-  
-  auto model1 = make_shared<T92>(nucAlphabet, 3.,0.9);
+
+  auto model1 = make_shared<T92>(nucAlphabet, 3., 0.9);
   auto model2 = make_shared<T92>(nucAlphabet, 2., 0.1);
   auto model3 = make_shared<T92>(nucAlphabet, 5., 0.5);
 
-  auto rdist1 = make_shared<ConstantRateDistribution>();//GammaDiscreteRateDistribution>(4, 2.0);
-  auto rdist2 = rdist1;//std::make_shared<GammaDiscreteRateDistribution>(3, 1.0);
-  
+  auto rdist1 = make_shared<ConstantRateDistribution>(); // GammaDiscreteRateDistribution>(4, 2.0);
+  auto rdist2 = rdist1; // std::make_shared<GammaDiscreteRateDistribution>(3, 1.0);
+
   auto parTree1 = make_shared<ParametrizablePhyloTree>(*tree1);
   auto parTree2 = make_shared<ParametrizablePhyloTree>(*tree2);
 
@@ -65,7 +68,7 @@ int main() {
   // Collection Processes
 
   auto modelColl = make_shared<SubstitutionProcessCollection>();
-  
+
   modelColl->addModel(model1, 1);
   modelColl->addModel(model2, 2);
   modelColl->addModel(model3, 3);
@@ -84,11 +87,11 @@ int main() {
   Vuint vP1m2{1, 2, 5};
 
   map<size_t, Vuint> mModBr1;
-  mModBr1[1]=vP1m1;
-  mModBr1[2]=vP1m2;
+  mModBr1[1] = vP1m1;
+  mModBr1[2] = vP1m2;
 
   modelColl->addSubstitutionProcess(1, mModBr1, 1, 1);
-                                   
+
   ///////////////////////////////////////////
   // Second Process
 
@@ -96,8 +99,8 @@ int main() {
   Vuint vP2m2{2, 4, 5};
 
   map<size_t, Vuint> mModBr2;
-  mModBr2[1]=vP2m1;
-  mModBr2[3]=vP2m2;
+  mModBr2[1] = vP2m1;
+  mModBr2[3] = vP2m2;
 
   modelColl->addSubstitutionProcess(2, mModBr2, 2, 2, 1);
 
@@ -114,20 +117,20 @@ int main() {
   sites->addSequence("D", seqD);
 
   //  Hmm of process
-  
+
   vector<size_t> vp(2);
-  vp[0]=1; vp[1]=2;
+  vp[0] = 1; vp[1] = 2;
 
   auto hse = make_shared<AutoCorrelationSequenceEvolution>(modelColl, vp);
 
   auto collNodes = make_shared<CollectionNodes>(context, modelColl);
-  
+
   auto hppl = make_shared<AutoCorrelationProcessPhyloLikelihood>(sites, hse, collNodes);
 
   hppl->getParameters().printParameters(std::cerr);
 
   using bpp::DotOptions;
-  bpp::writeGraphToDot("hppl.dot", {hppl->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
+  bpp::writeGraphToDot("hppl.dot", {hppl->getLikelihoodNode().get()}); // , DotOptions::DetailedNodeInfo | DotOp
   cerr << "Hppl: " << hppl->getValue() << endl;
 
 
@@ -139,7 +142,7 @@ int main() {
   auto dlogLik_dkappa = hppl->getLikelihoodNode()->deriveAsValue(context, *dkappa->dependency(0));
 
   bpp::writeGraphToDot("dhppl_kappa3.dot", {dlogLik_dkappa.get()});
-  
+
   // check posterior probabilities
 
   auto postprob = hppl->getPosteriorProbabilitiesPerSitePerProcess();
@@ -155,7 +158,7 @@ int main() {
   cout << "==========================================" << endl;
   cout << "==========================================" << endl;
   cout << endl;
-  
+
   cout << "Optimization : " << endl;
   cout << endl;
 
@@ -163,12 +166,12 @@ int main() {
   auto messenger = make_shared<StlOutputStream>(make_unique<ofstream>("messages.txt", ios::out));
 
   unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
-    hppl, hppl->getParameters(), 0,
-    0.0001, 10000,
-    messenger, profiler,
-    false, false,
-    1, OptimizationTools::OPTIMIZATION_NEWTON);
-  
+        hppl, hppl->getParameters(), 0,
+        0.0001, 10000,
+        messenger, profiler,
+        false, false,
+        1, OptimizationTools::OPTIMIZATION_NEWTON);
+
   cerr << "Opt M rounds: " << cM << endl;
 
   cerr << "Hppl: " << hppl->getValue() << endl;

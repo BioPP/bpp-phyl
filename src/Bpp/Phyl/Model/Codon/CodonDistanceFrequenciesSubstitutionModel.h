@@ -18,7 +18,7 @@ namespace bpp
  * @author Laurent GuÃÂ©guen
  *
  * This class should be used with models which equilibrium
- * distribution is fixed, ans does not depend on the parameters.
+ * distribution is fixed, and does not depend on the parameters.
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
@@ -71,11 +71,11 @@ public:
    *        (default=false).
    */
   CodonDistanceFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr,
-    bool paramSynRate = false);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr,
+      bool paramSynRate = false);
 
   /**
    * @brief Build a new CodonDistanceFrequenciesSubstitutionModel object
@@ -94,13 +94,13 @@ public:
    *   (default=false).
    */
   CodonDistanceFrequenciesSubstitutionModel(
-    std::shared_ptr<const GeneticCode> gCode,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    std::unique_ptr<CodonFrequencySetInterface> pfreq,
-    std::shared_ptr<const AlphabetIndex2> pdist = nullptr,
-    bool paramSynRate = false);
+      std::shared_ptr<const GeneticCode> gCode,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+      std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+      std::unique_ptr<CodonFrequencySetInterface> pfreq,
+      std::shared_ptr<const AlphabetIndex2> pdist = nullptr,
+      bool paramSynRate = false);
 
   virtual ~CodonDistanceFrequenciesSubstitutionModel() {}
 
@@ -110,7 +110,6 @@ public:
   }
 
 public:
-  
   void fireParameterChanged(const ParameterList& parameterlist) override;
 
   std::string getName() const override;

@@ -15,15 +15,15 @@ using namespace std;
 /******************************************************************************/
 
 RN95::RN95(
-  shared_ptr<const NucleicAlphabet> alphabet,
-  double alpha,
-  double beta,
-  double gamma,
-  double delta,
-  double epsilon,
-  double kappa,
-  double lambda,
-  double sigma) :
+    shared_ptr<const NucleicAlphabet> alphabet,
+    double alpha,
+    double beta,
+    double gamma,
+    double delta,
+    double epsilon,
+    double kappa,
+    double lambda,
+    double sigma) :
   AbstractParameterAliasable("RN95."),
   AbstractNucleotideSubstitutionModel(alphabet, make_shared<CanonicalStateMap>(alphabet, false), "RN95."),
   alpha_(),
@@ -54,9 +54,9 @@ RN95::RN95(
   addParameter_(new Parameter("RN95.gammaP", gammaP, Parameter::PROP_CONSTRAINT_EX));
   addParameter_(new Parameter("RN95.kappaP", kappaP, Parameter::PROP_CONSTRAINT_EX));
 
-  addParameter_(new Parameter("RN95.alpha"  , alpha_  , Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("RN95.sigma"  , sigma_  , Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("RN95.beta"   , beta_   , Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("RN95.alpha", alpha_, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("RN95.sigma", sigma_, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("RN95.beta", beta_, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("RN95.epsilon", epsilon_, Parameter::R_PLUS_STAR));
 
   computeFrequencies(false);
@@ -92,11 +92,11 @@ void RN95::updateMatrices_()
 
   // stationnary frequencies
 
-  freq_[0] = (delta_ * thetaY + epsilon_ * thetaR)/c_3;
-  freq_[1] = (sigma_ * thetaY + gamma_   * thetaR)/c_1;
-  freq_[2] = (kappa_ * thetaY + alpha_   * thetaR)/c_3;
-  freq_[3] = (beta_  * thetaY + lambda_  * thetaR)/c_1;
-  
+  freq_[0] = (delta_ * thetaY + epsilon_ * thetaR) / c_3;
+  freq_[1] = (sigma_ * thetaY + gamma_   * thetaR) / c_1;
+  freq_[2] = (kappa_ * thetaY + alpha_   * thetaR) / c_3;
+  freq_[3] = (beta_  * thetaY + lambda_  * thetaR) / c_1;
+
   // Generator matrix:
 
   generator_(0, 1) = gamma_;
@@ -127,7 +127,9 @@ void RN95::updateMatrices_()
 
   double x = 0;
   for (size_t i = 0; i < 4; i++)
+  {
     x += generator_(i, i) * freq_[i];
+  }
 
   auto r_ = isScalable() ? -1 / x : 1;
 
@@ -153,7 +155,7 @@ void RN95::updateMatrices_()
 
   rightEigenVectors_(0, 2) = sigma_ * lambda_ - beta_ * gamma_;
   rightEigenVectors_(1, 2) = (beta_ - lambda_) * thetaR - beta_ * c_2;
-  rightEigenVectors_(2, 2) = sigma_ * lambda_ - beta_ * gamma_; 
+  rightEigenVectors_(2, 2) = sigma_ * lambda_ - beta_ * gamma_;
   rightEigenVectors_(3, 2) = (gamma_ - sigma_) * thetaR + sigma_ *  c_2;
 
   rightEigenVectors_(0, 3) = 1.;
@@ -166,7 +168,7 @@ void RN95::updateMatrices_()
   if (abs(c_2) < NumConstants::TINY() || abs(c_4) < NumConstants::TINY())
   {
     ApplicationTools::displayMessage("Singularity during diagonalization of RN95. Taylor series used instead.");
-    
+
     isNonSingular_ = false;
     isDiagonalizable_ = false;
     MatrixTools::Taylor(generator_, 30, vPowGen_);
@@ -176,25 +178,25 @@ void RN95::updateMatrices_()
     isNonSingular_ = true;
     isDiagonalizable_ = true;
 
-    leftEigenVectors_(0, 0) = (delta_ - epsilon_)/c_4;
-    leftEigenVectors_(0, 1) = (sigma_ - gamma_)/c_2;
-    leftEigenVectors_(0, 2) = (kappa_ - alpha_)/c_4;
-    leftEigenVectors_(0, 3) = (beta_ - lambda_)/c_2;
+    leftEigenVectors_(0, 0) = (delta_ - epsilon_) / c_4;
+    leftEigenVectors_(0, 1) = (sigma_ - gamma_) / c_2;
+    leftEigenVectors_(0, 2) = (kappa_ - alpha_) / c_4;
+    leftEigenVectors_(0, 3) = (beta_ - lambda_) / c_2;
 
-    leftEigenVectors_(1, 0) = 1/(c_3 * c_4);
+    leftEigenVectors_(1, 0) = 1 / (c_3 * c_4);
     leftEigenVectors_(1, 1) = 0;
-    leftEigenVectors_(1, 2) = -1/(c_3 * c_4);
+    leftEigenVectors_(1, 2) = -1 / (c_3 * c_4);
     leftEigenVectors_(1, 3) = 0;
 
     leftEigenVectors_(2, 0) = 0;
-    leftEigenVectors_(2, 1) = -1/(c_1 * c_2);
+    leftEigenVectors_(2, 1) = -1 / (c_1 * c_2);
     leftEigenVectors_(2, 2) = 0;
-    leftEigenVectors_(2, 3) = 1/(c_1 * c_2);
+    leftEigenVectors_(2, 3) = 1 / (c_1 * c_2);
 
-    leftEigenVectors_(3, 0) = (epsilon_ + (delta_ - epsilon_) * thetaY)/c_3;
-    leftEigenVectors_(3, 1) = (gamma_ + (sigma_ - gamma_) * thetaY)/c_1;
-    leftEigenVectors_(3, 2) = (alpha_ + (kappa_ - alpha_) * thetaY)/c_3;
-    leftEigenVectors_(3, 3) = (lambda_ + (beta_ - lambda_) * thetaY)/c_1;
+    leftEigenVectors_(3, 0) = (epsilon_ + (delta_ - epsilon_) * thetaY) / c_3;
+    leftEigenVectors_(3, 1) = (gamma_ + (sigma_ - gamma_) * thetaY) / c_1;
+    leftEigenVectors_(3, 2) = (alpha_ + (kappa_ - alpha_) * thetaY) / c_3;
+    leftEigenVectors_(3, 3) = (lambda_ + (beta_ - lambda_) * thetaY) / c_1;
   }
 
   // and the exchangeability_
@@ -215,7 +217,7 @@ void RN95::setFreq(map<int, double>& freqs)
   setParameterValue("thetaR", thetaR);
   setParameterValue("gammaP", gamma_ / (1 - thetaR));
   setParameterValue("kappaP", kappa_ / thetaR);
-  
+
   updateMatrices_();
 }
 

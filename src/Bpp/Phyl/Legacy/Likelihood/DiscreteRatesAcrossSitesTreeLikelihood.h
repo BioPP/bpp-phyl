@@ -126,7 +126,7 @@ public:
    * particular rate class.
    *
    * @return A two-dimension vector with all posterior probabilities:
-   * <code>V[i][j] =</code> probablity for site i of belonging to rate class j.
+   * <code>V[i][j] =</code> probability for site i of belonging to rate class j.
    */
   virtual VVdouble getPosteriorProbabilitiesPerRate() const = 0;
 
@@ -155,7 +155,7 @@ public:
   virtual Vdouble getPosteriorRatePerSite() const = 0;
 
   /**
-   * @brief Get the parameters associated to the rate distirbution.
+   * @brief Get the parameters associated to the rate distribution.
    *
    * @return A ParameterList object with all rate distribution parameters.
    */

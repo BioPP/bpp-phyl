@@ -28,7 +28,7 @@ private:
    *
    */
 
-  std::vector<std::shared_ptr<GivenDataSubstitutionProcessSiteSimulator> > vSiteSim_;
+  std::vector<std::shared_ptr<GivenDataSubstitutionProcessSiteSimulator>> vSiteSim_;
 
 public:
   GivenDataSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul) :
@@ -48,7 +48,7 @@ public:
   {}
 
   GivenDataSubstitutionProcessSequenceSimulator* clone() const override
-  { 
+  {
     return new GivenDataSubstitutionProcessSequenceSimulator(*this);
   }
 
@@ -93,7 +93,6 @@ public:
   /**
    * @brief the number of mapped sites.
    */
-  
   size_t getNumberOfSites() const
   {
     return calcul_->getNumberOfSites();

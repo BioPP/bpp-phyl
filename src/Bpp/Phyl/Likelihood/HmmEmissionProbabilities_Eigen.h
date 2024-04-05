@@ -19,7 +19,7 @@ namespace bpp
  * @brief Interface for computing emission probabilities in a Hidden Markov Model.
  *
  * This class is part of the HMM framework. It compute the probabilities of the data
- * conditionned on each hidden state. The emission probabilities class also has in charge
+ * conditioned on each hidden state. The emission probabilities class also has in charge
  * the data, its putative compression, and the number of position in the sequence of
  * observed states.
  *
@@ -37,7 +37,7 @@ public:
   /**
    * @brief Set the new hidden state alphabet.
    * @param stateAlphabet The new state alphabet.
-   * @throw UnvalidStateAlphabetException if the new alphabet is uncorrect (for instance is NULL pointer).
+   * @throw UnvalidStateAlphabetException if the new alphabet is incorrect (for instance is NULL pointer).
    */
 
   virtual void setHmmStateAlphabet(std::shared_ptr<HmmStateAlphabet> stateAlphabet) = 0;

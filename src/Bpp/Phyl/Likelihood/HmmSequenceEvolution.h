@@ -28,8 +28,8 @@ private:
 
 public:
   HmmSequenceEvolution(
-    std::shared_ptr<SubstitutionProcessCollection> processColl,
-    std::vector<size_t>& nProc);
+      std::shared_ptr<SubstitutionProcessCollection> processColl,
+      std::vector<size_t>& nProc);
 
   HmmSequenceEvolution(const HmmSequenceEvolution& mlc) :
     MultiProcessSequenceEvolution(mlc),

@@ -21,10 +21,10 @@ using namespace std;
 /******************************************************************************/
 
 std::unique_ptr<LegacyProbabilisticRewardMapping> LegacyRewardMappingTools::computeRewardVectors(
-  std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
-  const vector<int>& nodeIds,
-  std::shared_ptr<Reward> reward,
-  bool verbose)
+    std::shared_ptr<const DRTreeLikelihoodInterface> drtl,
+    const vector<int>& nodeIds,
+    std::shared_ptr<Reward> reward,
+    bool verbose)
 {
   // Preamble:
   if (!drtl->isInitialized())
@@ -276,8 +276,8 @@ std::unique_ptr<LegacyProbabilisticRewardMapping> LegacyRewardMappingTools::comp
             for (size_t y = 0; y < nbStates; ++y)
             {
               double likelihood_cxy = likelihoodsFatherConstantPart_i_c_x
-                                      * pxy_c_x[y]
-                                      * likelihoodsFather_node_i_c[y];
+                  * pxy_c_x[y]
+                  * likelihoodsFather_node_i_c[y];
 
               // Now the vector computation:
               rewardsForCurrentNode[i] += likelihood_cxy * nxy_c[x][y];
@@ -295,8 +295,9 @@ std::unique_ptr<LegacyProbabilisticRewardMapping> LegacyRewardMappingTools::comp
 
     // Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbSites; ++i)
+    {
       (*rewards)(l, i) = rewardsForCurrentNode[rootPatternLinks[i]] / Lr[rootPatternLinks[i]];
-
+    }
   }
   if (verbose)
   {
@@ -310,9 +311,9 @@ std::unique_ptr<LegacyProbabilisticRewardMapping> LegacyRewardMappingTools::comp
 /**************************************************************************************************/
 
 void LegacyRewardMappingTools::writeToStream(
-  const LegacyProbabilisticRewardMapping& rewards,
-  const SiteContainerInterface& sites,
-  ostream& out)
+    const LegacyProbabilisticRewardMapping& rewards,
+    const SiteContainerInterface& sites,
+    ostream& out)
 {
   if (!out)
     throw IOException("RewardMappingTools::writeToFile. Can't write to stream.");

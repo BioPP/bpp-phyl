@@ -35,7 +35,6 @@ protected:
   bool rootTree_;
 
 public:
-
   AbstractAgglomerativeDistanceMethod(
       bool verbose = true,
       bool rootTree = false) :
@@ -86,14 +85,14 @@ public:
 
   bool hasTree() const override
   {
-    return (tree_ != nullptr);
+    return tree_ != nullptr;
   }
 
   const Tree& tree() const override
   {
     if (tree_)
       return *tree_;
-    
+
     throw NullPointerException("AbstractAgglomerativeDistanceMethod::tree(). No tree was computed.");
   }
 
@@ -128,7 +127,7 @@ protected:
    * This criterion uses the matrix_ distance matrix.
    *
    * @return A size 2 vector with the indices of the nodes.
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   virtual std::vector<size_t> getBestPair() = 0;
 

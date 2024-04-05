@@ -55,10 +55,10 @@ using namespace bpp;
 using namespace std;
 
 unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionModel(
-  std::shared_ptr<const Alphabet> alphabet,
-  const std::string& modelDescription,
-  const AlignmentDataInterface& data,
-  bool parseArguments)
+    std::shared_ptr<const Alphabet> alphabet,
+    const std::string& modelDescription,
+    const AlignmentDataInterface& data,
+    bool parseArguments)
 {
   unparsedArguments_.clear();
   unique_ptr<TransitionModelInterface> model;
@@ -214,11 +214,11 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
 
       BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
       auto tmpP = nestedProtReader.readSubstitutionModel(
-				      geneticCode_->getTargetAlphabet(),
-				      args["protmodel"], data, false);
+            geneticCode_->getTargetAlphabet(),
+            args["protmodel"], data, false);
       auto nestedProtModel = unique_ptr<ProteinSubstitutionModelInterface>(
-		      dynamic_cast<ProteinSubstitutionModelInterface*>(tmpP.release())
-		      );
+            dynamic_cast<ProteinSubstitutionModelInterface*>(tmpP.release())
+            );
 
       auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
       unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
@@ -343,7 +343,7 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
   else if (modelName == "Mixture")
   {
     vector<string> v_nestedModelDescription;
-    vector< std::unique_ptr<TransitionModelInterface> > v_pSM;
+    vector< std::unique_ptr<TransitionModelInterface>> v_pSM;
 
     if (args.find("model1") == args.end())
     {

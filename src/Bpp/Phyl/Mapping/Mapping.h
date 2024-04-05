@@ -95,7 +95,6 @@ public:
   virtual ~AbstractMapping() {}
 
 public:
-
   int getSitePosition(size_t index) const
   {
     return sitesPositions_.size() == 0 ? (int)(index + 1) : sitesPositions_[index];

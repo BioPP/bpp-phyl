@@ -14,7 +14,7 @@ using namespace bpp;
 using namespace std;
 
 unique_ptr<DiscreteDistributionInterface> RASTools::getPosteriorRateDistribution(
-  const DiscreteRatesAcrossSitesTreeLikelihoodInterface& treeLikelihood)
+    const DiscreteRatesAcrossSitesTreeLikelihoodInterface& treeLikelihood)
 {
   // Get all posterior rate classes for each sites:
   vector<size_t> classes = treeLikelihood.getRateClassWithMaxPostProbPerSite();
@@ -35,4 +35,3 @@ unique_ptr<DiscreteDistributionInterface> RASTools::getPosteriorRateDistribution
   // Build a new distribution and return it:
   return make_unique<SimpleDiscreteDistribution>(distribution);
 }
-

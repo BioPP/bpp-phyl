@@ -13,10 +13,10 @@ using namespace std;
 /******************************************************************************/
 
 unique_ptr<SiteContainerInterface> GivenDataSubstitutionProcessSequenceSimulator::simulate(
-  size_t numberOfSites) const
+    size_t numberOfSites) const
 {
   if (numberOfSites > calcul_->getNumberOfSites())
-    throw BadIntegerException("GivenDataSubstitutionProcessSequenceSimulator::simulate. Too many sites to simulate.",(int)numberOfSites);
+    throw BadIntegerException("GivenDataSubstitutionProcessSequenceSimulator::simulate. Too many sites to simulate.", (int)numberOfSites);
 
   auto seqNames = vSiteSim_[0]->getSequenceNames();
   auto sites = make_unique<VectorSiteContainer>(seqNames, getAlphabet());
@@ -32,4 +32,3 @@ unique_ptr<SiteContainerInterface> GivenDataSubstitutionProcessSequenceSimulator
 }
 
 /******************************************************************************/
-

@@ -157,14 +157,14 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   NNIHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Build a new NNIHomogeneousTreeLikelihood object.
@@ -176,15 +176,15 @@ public:
    * @param checkRooted Tell if we have to check for the tree to be unrooted.
    * If true, any rooted tree will be unrooted before likelihood computation.
    * @param verbose Should I display some info?
-   * @throw Exception in an error occured.
+   * @throw Exception in an error occurred.
    */
   NNIHomogeneousTreeLikelihood(
-    const Tree& tree,
-    const AlignmentDataInterface& data,
-    std::shared_ptr<TransitionModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rDist,
-    bool checkRooted = true,
-    bool verbose = true);
+      const Tree& tree,
+      const AlignmentDataInterface& data,
+      std::shared_ptr<TransitionModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool checkRooted = true,
+      bool verbose = true);
 
   /**
    * @brief Copy constructor.

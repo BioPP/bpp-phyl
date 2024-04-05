@@ -23,11 +23,11 @@ using namespace std;
 /******************************************************************************/
 
 unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
-  LikelihoodCalculationSingleProcess& rltc,
-  const vector<uint>& edgeIds,
-  Reward& reward,
-  short unresolvedOption,
-  bool verbose)
+    LikelihoodCalculationSingleProcess& rltc,
+    const vector<uint>& edgeIds,
+    Reward& reward,
+    short unresolvedOption,
+    bool verbose)
 {
   // Preamble:
   if (!rltc.isInitialized())
@@ -37,9 +37,9 @@ unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
 
   if (edgeIds.size() == 0)
     return make_unique<ProbabilisticRewardMapping>(
-        sp.parametrizablePhyloTree(),
-	rltc.getRootArrayPositions(),
-	rltc.getNumberOfDistinctSites());
+          sp.parametrizablePhyloTree(),
+          rltc.getRootArrayPositions(),
+          rltc.getNumberOfDistinctSites());
 
   auto processTree = rltc.getTreeNode(0);
 
@@ -191,22 +191,23 @@ unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
 
         auto bb = (cwise(likelihoodsTopEdge) * cwise(rew)).colwise().sum();
 
-        
+
         Eigen::VectorXd ff(likelihoodsBotEdge.cols());
-        switch(unresolvedOption){
+        switch (unresolvedOption)
+        {
         case SubstitutionMappingTools::UNRESOLVED_ZERO:
         case SubstitutionMappingTools::UNRESOLVED_AVERAGE:
-            
+
           // Nullify counts where sum likelihoods > 1 : ie unknown
-          for (auto i=0;i<ff.size();i++)
+          for (auto i = 0; i < ff.size(); i++)
           {
-            const auto& s=likelihoodsBotEdge.col(i).sum();
-            if (s>=2.)
-              ff[i]=(unresolvedOption==SubstitutionMappingTools::UNRESOLVED_ZERO)?0.:1./convert(s);
+            const auto& s = likelihoodsBotEdge.col(i).sum();
+            if (s >= 2.)
+              ff[i] = (unresolvedOption == SubstitutionMappingTools::UNRESOLVED_ZERO) ? 0. : 1. / convert(s);
             else
-              ff[i]=1;
+              ff[i] = 1;
           }
-          
+
           // Normalizes by likelihood on this node
 
           bb *= ff.array();
@@ -242,9 +243,9 @@ unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
 /**************************************************************************************************/
 
 void RewardMappingTools::writeToStream(
-  const ProbabilisticRewardMapping& rewards,
-  const AlignmentDataInterface& sites,
-  ostream& out)
+    const ProbabilisticRewardMapping& rewards,
+    const AlignmentDataInterface& sites,
+    ostream& out)
 {
   if (!out)
     throw IOException("RewardMappingTools::writeToFile. Can't write to stream.");

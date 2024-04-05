@@ -105,7 +105,7 @@ public:
    * The input BipartitionList objects must share the same set of elements. This will be checked or not
    * depending on checkElements
    */
-  static std::unique_ptr<BipartitionList> mergeBipartitionLists(const std::vector<std::unique_ptr<BipartitionList> >& vecBipartL, bool checkElements = true);
+  static std::unique_ptr<BipartitionList> mergeBipartitionLists(const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL, bool checkElements = true);
 
   /**
    * @brief Construct a BipartitionList containing two bipartitions taken from distinct input lists
@@ -130,17 +130,17 @@ public:
    * according to the MRP supertree method.
    */
   static std::unique_ptr<VectorSiteContainer> MRPEncode(
-    const std::vector<std::unique_ptr<BipartitionList> >& vecBipartL);
+      const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
 
   /**
-   * @brief Create a sequence data set corresponding to the Matrix Representation of the input BipartitionList objects and accomodates multilabel trees
+   * @brief Create a sequence data set corresponding to the Matrix Representation of the input BipartitionList objects and accommodates multilabel trees
    *
    * The input BipartitionList objects can have distinct sets of elements - missing data will be represented as 'N'.
    * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
    * according to the MRP supertree method.
    */
   static std::unique_ptr<VectorSiteContainer> MRPEncodeMultilabel(
-    const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
+      const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_TREE_BIPARTITIONTOOLS_H

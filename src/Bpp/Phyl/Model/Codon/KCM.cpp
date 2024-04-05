@@ -32,14 +32,14 @@ KCM::KCM(
 
   if (oneModel)
     pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(
-        gc,
-       	make_unique<GTR>(nalph)));
+          gc,
+          make_unique<GTR>(nalph)));
   else
     pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(
-	gc,
-       	make_unique<GTR>(nalph),
-       	make_unique<GTR>(nalph),
-       	make_unique<GTR>(nalph)));
+          gc,
+          make_unique<GTR>(nalph),
+          make_unique<GTR>(nalph),
+          make_unique<GTR>(nalph)));
 
   string name = "KCM" + string(oneModel ? "7" : "19") + ".";
 

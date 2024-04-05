@@ -42,5 +42,5 @@ double AbstractCodonClusterAASubstitutionModel::getCodonsMulRate(size_t i, size_
 
   return pgencode_->areSynonymous(si, sj) ? 1 :
          (assign_[static_cast<size_t>(pgencode_->translate(si))] == assign_[static_cast<size_t>(pgencode_->translate(sj))] ? omegaC_ :
-          omegaR_);
+         omegaR_);
 }

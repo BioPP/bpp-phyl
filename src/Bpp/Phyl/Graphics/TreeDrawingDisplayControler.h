@@ -40,7 +40,7 @@ private:
     listeners_(), registeredTreeDrawings_(tddc.registeredTreeDrawings_)
   {
     for (std::map<std::string, TreeDrawingListener*>::const_iterator it = tddc.listeners_.begin();
-         it != tddc.listeners_.end(); ++it)
+        it != tddc.listeners_.end(); ++it)
     {
       listeners_[it->first] = dynamic_cast<TreeDrawingListener*>(it->second->clone());
     }
@@ -50,7 +50,7 @@ private:
     listeners_.clear();
     registeredTreeDrawings_ = tddc.registeredTreeDrawings_;
     for (std::map<std::string, TreeDrawingListener*>::const_iterator it = tddc.listeners_.begin();
-         it != tddc.listeners_.end(); ++it)
+        it != tddc.listeners_.end(); ++it)
     {
       listeners_[it->first] = dynamic_cast<TreeDrawingListener*>(it->second->clone());
     }
@@ -62,7 +62,7 @@ public:
 
 public:
   /**
-   * @brief Add a listener to the controler. The controler then owns the object, and will
+   * @brief Add a listener to the controller. The controller then owns the object, and will
    * copy or delete it when needed.
    */
   void addListener(const std::string& propertyName, TreeDrawingListener* listener);
@@ -89,9 +89,9 @@ public:
   void registerTreeDrawing(TreeDrawing* td)
   {
     if (std::find(registeredTreeDrawings_.begin(), registeredTreeDrawings_.end(), td) != registeredTreeDrawings_.end())
-      throw Exception("TreeDrawingDisplayControler::registerTreeDrawing. TreeDrawing is already associated to this controler.");
+      throw Exception("TreeDrawingDisplayControler::registerTreeDrawing. TreeDrawing is already associated to this controller.");
     for (std::map<std::string, TreeDrawingListener*>::iterator it = listeners_.begin();
-         it != listeners_.end(); ++it)
+        it != listeners_.end(); ++it)
     {
       td->addTreeDrawingListener(it->second);
     }
@@ -109,7 +109,7 @@ public:
  * - Plotting branch lengths,
  * - Plotting plotting bootstrap values.
  *
- * This controler takes as an argument a TreeDrawingSettings object that is used by
+ * This controller takes as an argument a TreeDrawingSettings object that is used by
  * all listeners that require one.
  */
 class BasicTreeDrawingDisplayControler :

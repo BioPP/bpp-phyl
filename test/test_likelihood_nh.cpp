@@ -28,8 +28,8 @@
 using namespace bpp;
 using namespace std;
 
-int main() {
-
+int main()
+{
   auto tree = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.15):0.25,(D:0.35,(E:0.26,F:0.05):0.12):0.16);");
 
   Newick reader;
@@ -37,19 +37,19 @@ int main() {
 
   vector<string> seqNames = tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
-  //-------------
+  // -------------
 
   shared_ptr<const NucleicAlphabet> nucAlphabet = AlphabetTools::DNA_ALPHABET;
   shared_ptr<const Alphabet> alphabet = AlphabetTools::DNA_ALPHABET;
-  
+
   auto rootFreqs = make_shared<GCFrequencySet>(nucAlphabet);
   auto model = make_shared<T92>(nucAlphabet, 3., .1);
   map<string, vector<Vint>> globalParameterVectors;
   globalParameterVectors["T92.kappa"] = vector<Vint>();
-  
-  //Very difficult to optimize on small datasets:
+
+  // Very difficult to optimize on small datasets:
   auto rdist = make_shared<GammaDiscreteRateDistribution>(4, 1.0);
-  
+
   auto rootFreqs2 = shared_ptr<FrequencySetInterface>(rootFreqs->clone());
 
   auto rdist2 = shared_ptr<DiscreteDistributionInterface>(rdist->clone());
@@ -73,9 +73,10 @@ int main() {
   vector<double> thetasEst1(nmodels);
   vector<double> thetasEst1n(nmodels);
 
-  for (size_t i = 0; i < nmodels; ++i) {
+  for (size_t i = 0; i < nmodels; ++i)
+  {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.9) + 0.05;
-    cout << "Theta" << i << " set to " << theta << endl; 
+    cout << "Theta" << i << " set to " << theta << endl;
     subProSim->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas[i] = theta;
   }
@@ -83,16 +84,16 @@ int main() {
   SimpleSubstitutionProcessSequenceSimulator simulator(subProSim);
 
   nrep = 20;
-  
-  for (unsigned int j = 0; j < nrep; ++j) {
 
+  for (unsigned int j = 0; j < nrep; ++j)
+  {
     auto profiler  = make_shared<StlOutputStream>(make_unique<ofstream>("profile.txt", ios::out));
     auto messenger = make_shared<StlOutputStream>(make_unique<ofstream>("messages.txt", ios::out));
 
-    //Simulate data:
+    // Simulate data:
     shared_ptr<SiteContainerInterface> sites = simulator.simulate(nsites);
 
-    //Now fit model:
+    // Now fit model:
 
     auto tl = make_shared<RNonHomogeneousTreeLikelihood>(*tree, *sites, modelSet, rdist, true, true, false);
     tl->initialize();
@@ -105,46 +106,48 @@ int main() {
     cout << setprecision(10) << "NewTL init: "  << ntl->getValue()  << endl;
 
     unsigned int c1 = LegacyOptimizationTools::optimizeNumericalParameters2(
-      tl, tl->getParameters(), 0,
-      0.0001, 10000,
-      messenger, profiler,
-      false, false,
-      1, OptimizationTools::OPTIMIZATION_NEWTON);
-    
+          tl, tl->getParameters(), 0,
+          0.0001, 10000,
+          messenger, profiler,
+          false, false,
+          1, OptimizationTools::OPTIMIZATION_NEWTON);
+
     unsigned int nc1 = OptimizationTools::optimizeNumericalParameters2(
-      ntl, ntl->getParameters(), 0,
-      0.0001, 10000,
-      messenger, profiler,
-      false, false,
-      1, OptimizationTools::OPTIMIZATION_NEWTON);
+          ntl, ntl->getParameters(), 0,
+          0.0001, 10000,
+          messenger, profiler,
+          false, false,
+          1, OptimizationTools::OPTIMIZATION_NEWTON);
 
 
     cout << "OldTL optim: " << c1 << ": " << tl->getValue()  << endl;
     cout << "NewTL optim: " << nc1 << ": " << ntl->getValue() << endl;
 
     cout << "Thetas : " << endl;
-    
-    for (size_t i = 0; i < nmodels; ++i) {
-      cout << tl->substitutionModelSet().model(i).parameter("theta").getValue() << "\t" << ntl->getLikelihoodCalculation()->parameter("T92.theta_"+to_string(i+1)).getValue() << endl;
-      //if (abs(modelSet2->getModel(i)->parameter("theta").getValue() - modelSet3->getModel(i)->parameter("theta").getValue()) > 0.1)
+
+    for (size_t i = 0; i < nmodels; ++i)
+    {
+      cout << tl->substitutionModelSet().model(i).parameter("theta").getValue() << "\t" << ntl->getLikelihoodCalculation()->parameter("T92.theta_" + to_string(i + 1)).getValue() << endl;
+      // if (abs(modelSet2->getModel(i)->parameter("theta").getValue() - modelSet3->getModel(i)->parameter("theta").getValue()) > 0.1)
       //  return 1;
       thetasEst1[i] += tl->substitutionModelSet().model(i).parameter("theta").getValue();
-      thetasEst1n[i] += ntl->likelihoodCalculation().parameter("T92.theta_"+to_string(i+1)).getValue();
+      thetasEst1n[i] += ntl->likelihoodCalculation().parameter("T92.theta_" + to_string(i + 1)).getValue();
     }
   }
   thetasEst1 /= static_cast<double>(nrep);
   thetasEst1n /= static_cast<double>(nrep);
 
-  //Now compare estimated values to real ones:
+  // Now compare estimated values to real ones:
   cout << "Real" << "\t" << "Est_Old1" << "\t";
   cout << "Est_New1" <<  endl;
-  for (size_t i = 0; i < thetas.size(); ++i) {
+  for (size_t i = 0; i < thetas.size(); ++i)
+  {
     cout << thetas[i] << "\t" << thetasEst1[i] << "\t";
     cout << thetasEst1n[i] << endl;
-     double diff1 = abs(thetas[i] - thetasEst1[i]);
-     double diffn1 = abs(thetas[i] - thetasEst1n[i]);
-     if (diff1 > 0.2  || diffn1 > 0.2 )
-       return 1;
+    double diff1 = abs(thetas[i] - thetasEst1[i]);
+    double diffn1 = abs(thetas[i] - thetasEst1n[i]);
+    if (diff1 > 0.2  || diffn1 > 0.2)
+      return 1;
   }
 
   return 0;

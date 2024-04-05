@@ -76,7 +76,7 @@ public:
 public:
   double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const override;
 
-  std::unique_ptr< Matrix<double> > getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
+  std::unique_ptr< Matrix<double>> getAllNumbersOfSubstitutions(double length, size_t type = 1) const override;
 
   void storeAllNumbersOfSubstitutions(double length, size_t type, Eigen::MatrixXd& mat) const override;
 

@@ -123,8 +123,8 @@ public:
     }
 
 public:
-    std::shared_ptr<const TransitionModelInterface> getModel() const override  { return model_; }
-    const TransitionModelInterface& model() const override  { return *model_; }
+    std::shared_ptr<const TransitionModelInterface> getModel() const override { return model_; }
+    const TransitionModelInterface& model() const override { return *model_; }
 
     std::shared_ptr<const SubstitutionModelInterface> getSubstitutionModel() const override
     {
@@ -206,7 +206,7 @@ public:
 
 protected:
   std::unique_ptr<const AlignmentDataInterface> data_;
-  mutable std::shared_ptr< TreeTemplate<Node> > tree_;
+  mutable std::shared_ptr< TreeTemplate<Node>> tree_;
   bool computeFirstOrderDerivatives_;
   bool computeSecondOrderDerivatives_;
   bool initialized_;
@@ -229,7 +229,7 @@ public:
     initialized_(lik.initialized_)
   {
     if (lik.data_) data_ = std::unique_ptr<AlignmentDataInterface>(lik.data_->clone());
-    if (lik.tree_) tree_ = std::unique_ptr< TreeTemplate<Node> >(lik.tree_->clone());
+    if (lik.tree_) tree_ = std::unique_ptr< TreeTemplate<Node>>(lik.tree_->clone());
   }
 
   AbstractTreeLikelihood& operator=(const AbstractTreeLikelihood& lik)
@@ -237,7 +237,7 @@ public:
     AbstractParametrizable::operator=(lik);
     if (lik.data_) data_ = std::unique_ptr<AlignmentDataInterface>(lik.data_->clone());
     else data_ = 0;
-    if (lik.tree_) tree_ = std::unique_ptr< TreeTemplate<Node> >(lik.tree_->clone());
+    if (lik.tree_) tree_ = std::unique_ptr< TreeTemplate<Node>>(lik.tree_->clone());
     else tree_ = 0;
     computeFirstOrderDerivatives_ = lik.computeFirstOrderDerivatives_;
     computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;

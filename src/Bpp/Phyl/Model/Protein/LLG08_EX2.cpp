@@ -46,8 +46,8 @@ LLG08_EX2::LLG08_EX2(shared_ptr<const ProteicAlphabet> alpha) :
     st = mixedModelPtr_->getParameterNameWithoutNamespace(name);
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LLG08_EX2." + st,
-                                mixedModelPtr_->getParameterValue(st),
-                                mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
+          mixedModelPtr_->getParameterValue(st),
+          mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   updateMatrices_();

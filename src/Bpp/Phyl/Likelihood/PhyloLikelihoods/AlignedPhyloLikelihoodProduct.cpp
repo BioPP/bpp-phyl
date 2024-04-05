@@ -8,7 +8,7 @@ using namespace bpp;
 using namespace std;
 
 AlignedPhyloLikelihoodProduct::AlignedPhyloLikelihoodProduct(
-    Context& context, 
+    Context& context,
     std::shared_ptr<PhyloLikelihoodContainer> pC,
     bool inCollection) :
   AbstractPhyloLikelihood(context),
@@ -27,7 +27,7 @@ AlignedPhyloLikelihoodProduct::AlignedPhyloLikelihoodProduct(
     vSL.push_back(alignedPhyloLikelihood(np).alignedLikelihoodCalculation().getSiteLikelihoods(false));
   }
 
-  auto sL = CWiseMul<RowLik, ReductionOf<RowLik> >::create(this->context(), std::move(vSL), RowVectorDimension (nbSites_));
+  auto sL = CWiseMul<RowLik, ReductionOf<RowLik>>::create(this->context(), std::move(vSL), RowVectorDimension (nbSites_));
 
   likCal_->setSiteLikelihoods(sL);
 
@@ -56,7 +56,7 @@ AlignedPhyloLikelihoodProduct::AlignedPhyloLikelihoodProduct(
     vSL.push_back(alignedPhyloLikelihood(np).alignedLikelihoodCalculation().getSiteLikelihoods(false));
   }
 
-  auto sL = CWiseMul<RowLik, ReductionOf<RowLik> >::create(this->context(), std::move(vSL), RowVectorDimension (nbSites_));
+  auto sL = CWiseMul<RowLik, ReductionOf<RowLik>>::create(this->context(), std::move(vSL), RowVectorDimension (nbSites_));
 
   likCal_->setSiteLikelihoods(sL);
 

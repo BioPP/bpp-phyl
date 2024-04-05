@@ -31,11 +31,10 @@ protected:
    * @brief Root frequencies.
    */
   std::shared_ptr<FrequencySetInterface> rootFrequencies_;
-  
+
   std::shared_ptr<ModelScenario> modelScenario_;
 
 protected:
-  
   /**
    * @brief Builds using an optional pointer towards a PhyloTree.
    *
@@ -64,7 +63,6 @@ protected:
   AbstractAutonomousSubstitutionProcess& operator=(const AbstractAutonomousSubstitutionProcess& asp);
 
 public:
-
   /**
    * @brief sets the ParametrizablePhyloTree.
    *
@@ -81,13 +79,13 @@ public:
   {
     return pTree_;
   }
-  
+
   /**
    * @return true if the process has parametrized root frequencies (non-stationary model)
    */
   bool hasRootFrequencySet() const
   {
-    return rootFrequencies_!=0;
+    return rootFrequencies_ != 0;
   }
 
   const FrequencySetInterface& rootFrequencySet() const
@@ -109,7 +107,7 @@ public:
   {
     return rootFrequencies_;
   }
-  
+
   /**
    * @brief set the RootFrequency.
    *
@@ -118,7 +116,7 @@ public:
   void setRootFrequencySet(std::shared_ptr<FrequencySetInterface> rootfrequency)
   {
     if (rootFrequencies_)
-      getParameters_().deleteParameters(rootFrequencies_->getParameters().getParameterNames(),false);
+      getParameters_().deleteParameters(rootFrequencies_->getParameters().getParameterNames(), false);
     rootFrequencies_ = rootfrequency;
     if (rootFrequencies_)
       addParameters_(rootFrequencies_->getParameters());

@@ -6,7 +6,6 @@
 #define BPP_PHYL_MODEL_PROTEIN_COALACORE_H
 
 
-
 // From bpp-core:
 #include <Bpp/Numeric/Matrix/Matrix.h>
 #include <Bpp/Numeric/ParameterList.h>

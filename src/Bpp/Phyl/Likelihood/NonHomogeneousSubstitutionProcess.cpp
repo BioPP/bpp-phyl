@@ -89,7 +89,7 @@ void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsign
 void NonHomogeneousSubstitutionProcess::addModel(shared_ptr<BranchModelInterface> model, const vector<unsigned int>& nodesId)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
-    throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
+    throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
@@ -120,7 +120,7 @@ void NonHomogeneousSubstitutionProcess::addModel(shared_ptr<BranchModelInterface
 void NonHomogeneousSubstitutionProcess::setModel(shared_ptr<BranchModelInterface> model, size_t modelIndex)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
-    throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
+    throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
@@ -238,7 +238,7 @@ bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
   unsigned int id;
   unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
 
-  map<size_t, vector<unsigned int> >::const_iterator it;
+  map<size_t, vector<unsigned int>>::const_iterator it;
 
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
@@ -282,15 +282,15 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(shared_ptr<ModelScenari
 
 
 unique_ptr<AutonomousSubstitutionProcessInterface> NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
-  shared_ptr<BranchModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rdist,
-  shared_ptr<PhyloTree> tree,
-  shared_ptr<FrequencySetInterface> rootFreqs,
-  shared_ptr<ModelScenario> scenario)
+    shared_ptr<BranchModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rdist,
+    shared_ptr<PhyloTree> tree,
+    shared_ptr<FrequencySetInterface> rootFreqs,
+    shared_ptr<ModelScenario> scenario)
 {
   if (!tree)
     throw Exception("NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess: missing tree.");
-  
+
   // Check alphabet:
   if  (rootFreqs && model->alphabet().getAlphabetType() != rootFreqs->alphabet().getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet().get(), rootFreqs->getAlphabet().get());
@@ -312,12 +312,12 @@ unique_ptr<AutonomousSubstitutionProcessInterface> NonHomogeneousSubstitutionPro
 }
 
 unique_ptr<NonHomogeneousSubstitutionProcess> NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-  shared_ptr<BranchModelInterface> model,
-  shared_ptr<DiscreteDistributionInterface> rdist,
-  shared_ptr<PhyloTree> tree,
-  shared_ptr<FrequencySetInterface> rootFreqs,
-  const vector<string>& globalParameterNames,
-  shared_ptr<ModelScenario> scenario)
+    shared_ptr<BranchModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rdist,
+    shared_ptr<PhyloTree> tree,
+    shared_ptr<FrequencySetInterface> rootFreqs,
+    const vector<string>& globalParameterNames,
+    shared_ptr<ModelScenario> scenario)
 {
   if (!tree)
     throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess: missing tree.");
