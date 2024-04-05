@@ -195,7 +195,6 @@ void AbstractSubstitutionModel::updateMatrices_()
           gi++;
       }
 
-
       EigenValue<double> ev(gk);
       eigenValues_ = ev.getRealEigenValues();
       iEigenValues_ = ev.getImagEigenValues();

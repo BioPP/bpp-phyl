@@ -538,6 +538,13 @@ public:
     isDiagonalizable_ = true;
     isNonSingular_    = true;
     computeFreq_      = false;
+
+    // to ensure non null freq_ at construction
+    for (auto& fr : freq_)
+    {
+      fr = 1.0 / static_cast<double>(size_);
+    }
+
   }
 
   virtual ~AbstractReversibleSubstitutionModel() {}
