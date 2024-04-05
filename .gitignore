@@ -15,6 +15,36 @@ install_manifest.txt
 .clang*
 *.sw*
 build
+test/*.fasta
+test/*.dnd
+test/new_dataflow
+test/new_likelihood_example
+test/test_bowker
+test/test_character_model
+test/test_detailed_simulations
+test/test_distance_estimation
+test/test_joint_likelihood_function
+test/test_likelihood
+test/test_likelihood_allelic
+test/test_likelihood_clock
+test/test_likelihood_collection
+test/test_likelihood_hmm
+test/test_likelihood_multinomial
+test/test_likelihood_nh
+test/test_likelihood_probseq
+test/test_mapping
+test/test_mapping_codon
+test/test_models
+test/test_nhx
+test/test_parsimony
+test/test_parsimony_solution
+test/test_relax
+test/test_simulations
+test/test_stochastic_mapping
+test/test_tree
+test/test_tree_getpath
+test/test_tree_iterator
+test/test_tree_rootat
 
 # file to be specifically not ignored by previous rules
 

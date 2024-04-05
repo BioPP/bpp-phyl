@@ -16,20 +16,39 @@
 namespace bpp
 {
 /**
- * @brief The Coala branch-heterogeneous amino-acid substitution model.
+ * @brief The Coala branch-heterogeneous amino-acid substitution
+ * model.
  *
- * This branch-heterogeneous model allows each branch to have its own set of amino acid equilibrium frequencies. It makes use of a Correspondence Analysis to reduce the number of parameters to be
- * optimized through Maximum Likelihood, focusing on most of the compositional variation observed in the data. The same COA is used for all branches.
- * An empirical exchangeability matrix is used, common to all branches. The choice of this matrix is up to the user. A user-defined empirical matrix can also be employed.
- * The model may also be used as a branch-homogeneous but non-stationary model, where the same estimated equilibrium frequencies are used for all branches, but different equilibrium frequencies
- * (that are optimized) are used on the root. Finally, the model may be employed as a branch-homogeneous and stationary model, where the frequencies at the root are similar to the ones on branches.
+ * This branch-heterogeneous model allows each branch to have its own
+ * set of amino acid equilibrium frequencies. It makes use of a
+ * Correspondence Analysis to reduce the number of parameters to be
+ * optimized through Maximum Likelihood, focusing on most of the
+ * compositional variation observed in the data. The same COA is used
+ * for all branches. An empirical exchangeability matrix is used,
+ * common to all branches. The choice of this matrix is up to the
+ * user. A user-defined empirical matrix can also be employed. The
+ * model may also be used as a branch-homogeneous but non-stationary
+ * model, where the same estimated equilibrium frequencies are used
+ * for all branches, but different equilibrium frequencies (that are
+ * optimized) are used on the root. Finally, the model may be employed
+ * as a branch-homogeneous and stationary model, where the frequencies
+ * at the root are similar to the ones on branches.
  *
  * @author Mathieu Groussin
  * @param alpha The alphabet (Protein)
- * @param nbAxes The number of principal axes of the COA that have to be taken into account to optimize the 20 branch-specific equilibrium frequencies. This number is common to all branches, as
- * well as on the root, where frequencies are optimized with a MVAprotein object (See the ProteinFrequencySet class).
- * @param exch The exchangeability matrix. The matrices currently available are DSO78, JTT92, WAG01 or LG08. A user-defined matrix can be specified with the 'file' argument.
+ * @param nbAxes The number of principal axes of the COA that have to
+ * be taken into account to optimize the 20 branch-specific
+ * equilibrium frequencies. This number is common to all branches, as
+ * well as on the root, where frequencies are optimized with a
+ * MVAprotein object (See the ProteinFrequencySet class).
+ * @param exch The exchangeability matrix. The matrices currently
+ * available are DSO78, JTT92, WAG01 or LG08. A user-defined matrix
+ * can be specified with the 'file' argument.
  * @param file [optional] Used only to specify the file containing the user-defined exchangeabilities, written in PAML format.
+ *
+ * See: Groussin, M, Boussau, B, Gouy, M (2013). A
+ * branch-heterogeneous model of protein evolution for efficient
+ * inference of ancestral sequences. Syst Biol, 62, 4:523-38.
  */
 
 class Coala :
