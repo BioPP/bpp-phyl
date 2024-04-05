@@ -843,8 +843,9 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         string nbrOfParametersPerBranch = args["nbrAxes"];
         if (TextTools::isEmpty(nbrOfParametersPerBranch))
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
-        // Now we create the Coala model:
+        // Now we create the Coala model
         model = make_unique<Coala>(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch));
+
         if (data.getNumberOfSites()!=0)
           model->setFreqFromData(data);
       }
@@ -885,6 +886,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     ApplicationTools::displayResult("Substitution model", modelName);
 
   updateParameters_(*model, args);
+
 
   if (parseArguments)
     initialize_(*model, data);
@@ -953,7 +955,9 @@ void BppOSubstitutionModelFormat::updateParameters_(
     throw Exception("useObservedFreqs.pseudoCount argument is obsolete. Please use 'initFreqs.observedPseudoCount' instead.");
 
   if (args.find("initFreqs") != args.end())
-    unparsedArguments_[pref + "initFreqs"] = args["initFreqs"];
+    // Specific case since already used
+    if (pref!="Coala.")
+      unparsedArguments_[pref + "initFreqs"] = args["initFreqs"];
   if (args.find("initFreqs.observedPseudoCount") != args.end())
     unparsedArguments_[pref + "initFreqs.observedPseudoCount"] = args["initFreqs.observedPseudoCount"];
 

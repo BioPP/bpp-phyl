@@ -32,10 +32,9 @@ Coala::Coala(
   bool param) :
   AbstractParameterAliasable("Coala."),
   AbstractReversibleProteinSubstitutionModel(alpha, model.getStateMap(), "Coala."),
-  CoalaCore(nbAxes, model.getName()),
+  CoalaCore(nbAxes),
   init_(true),
   nbrOfAxes_(nbAxes),
-  exch_(model.getName()),
   file_(),
   param_(param)
 {
@@ -144,8 +143,8 @@ void Coala::updateMatrices_()
 void Coala::setFreqFromData(const SequenceDataInterface& data, double pseudoCount)
 {
   // Compute the COA from the observed frequencies, add the axis position parameters and update the Markov matrix
-  ParameterList pList = computeCOA(data, param_);
-  addParameters_(pList);
+  auto plist = computeCOA(data, pseudoCount, param_);
+  addParameters_(plist);
   updateMatrices_();
 }
 

@@ -26,10 +26,9 @@ using namespace std;
 
 /******************************************************************************/
 
-CoalaCore::CoalaCore(size_t nbAxes, const string& exch) :
+CoalaCore::CoalaCore(size_t nbAxes) :
   init_(true),
   nbrOfAxes_(nbAxes),
-  exch_(exch),
   P_(),
   R_(),
   colWeights_(),
@@ -38,7 +37,7 @@ CoalaCore::CoalaCore(size_t nbAxes, const string& exch) :
 
 /******************************************************************************/
 
-ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, bool param)
+ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, double pseudoCount, bool param)
 {
   ParameterList pList;
   // Now we perform the Correspondence Analysis on from the matrix of observed frequencies computed on the alignment, to obtain the matrix of principal axes.
@@ -56,20 +55,31 @@ ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, bool para
         dynamic_cast<CruxSymbolListInterface*>(psc->sequence(seqKeys[i]).clone()));
 
     SymbolListTools::changeGapsToUnknownCharacters(*seq);
-    SequenceTools::getFrequencies(*seq, freqs.at(i));
+    std::map<int, double> counts;
+    SequenceTools::getCounts(*seq, counts);
+
+    // add pseudoCounts
+    for (int k = 0; k < 20; ++k)
+    {
+      counts[k] += pseudoCount;
+    }
+    
     // Unknown characters are now ignored:
     double t = 0;
     for (int k = 0; k < 20; ++k)
     {
-      t += freqs.at(i)[k];
+      t += counts[k];
     }
+    
     for (int k = 0; k < 20; ++k)
     {
-      freqs.at(i)[k] /= t;
+      freqs.at(i)[k] = counts[k]/t;
     }
   }
 
-  // The matrix of observed frequencies is filled. If an amino acid is completely absent from the alignment, its frequency is set to 10^-6.
+  // The matrix of observed frequencies is filled. If an amino acid is
+  // completely absent from the alignment, its frequency is set to
+  // 10^-6.
   RowMatrix<double> freqMatrix(seqKeys.size(), 20);
   for (size_t i = 0; i < freqs.size(); ++i)
   {
@@ -130,10 +140,10 @@ ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, bool para
       double minCoord = VectorTools::min(rCoords);
       double sd = VectorTools::sd<double, double>(rCoords);
       auto constraint = make_shared<IntervalConstraint>(minCoord - sd, maxCoord + sd, true, true);
-      if (paramValues_.find("AxPos" + TextTools::toString(i)) != paramValues_.end())
-        pList.addParameter(Parameter("Coala.AxPos" + TextTools::toString(i), TextTools::toDouble(paramValues_["AxPos" + TextTools::toString(i)].substr(0, 8)), constraint));
+      if (paramValues_.hasParameter("AxPos" + TextTools::toString(i)))
+        pList.addParameter(new Parameter("Coala.AxPos" + TextTools::toString(i), paramValues_.getParameterValue("AxPos" + TextTools::toString(i).substr(0, 8)), constraint));
       else
-        pList.addParameter(Parameter("Coala.AxPos" + TextTools::toString(i), 0., constraint));
+        pList.addParameter(new Parameter("Coala.AxPos" + TextTools::toString(i), 0., constraint));
     }
   }
   return pList;
