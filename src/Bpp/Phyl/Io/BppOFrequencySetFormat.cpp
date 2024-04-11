@@ -54,21 +54,21 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
 
   if (freqName == "Fixed")
   {
-    if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
+    if (AlphabetTools::isNucleicAlphabet(*alphabet))
     {
       if (alphabetCode_ & NUCLEOTIDE)
         pFS = make_unique<FixedNucleotideFrequencySet>(dynamic_pointer_cast<const NucleicAlphabet>(alphabet));
       else
         throw Exception("Nucleotide alphabet not supported.");
     }
-    else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isProteicAlphabet(*alphabet))
     {
       if (alphabetCode_ & PROTEIN)
         pFS = make_unique<FixedProteinFrequencySet>(dynamic_pointer_cast<const ProteicAlphabet>(alphabet));
       else
         throw Exception("Protein alphabet not supported.");
     }
-    else if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+    else if (AlphabetTools::isCodonAlphabet(*alphabet))
     {
       if (alphabetCode_ & CODON)
       {
@@ -97,21 +97,21 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
         method = 3;
     }
 
-    if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
+    if (AlphabetTools::isNucleicAlphabet(*alphabet))
     {
       if (alphabetCode_ & NUCLEOTIDE)
         pFS = make_unique<FullNucleotideFrequencySet>(dynamic_pointer_cast<const NucleicAlphabet>(alphabet));
       else
         throw Exception("Nucleotide alphabet not supported.");
     }
-    else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isProteicAlphabet(*alphabet))
     {
       if (alphabetCode_ & PROTEIN)
         pFS = make_unique<FullProteinFrequencySet>(dynamic_pointer_cast<const ProteicAlphabet>(alphabet), false, method);
       else
         throw Exception("Protein alphabet not supported.");
     }
-    else if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+    else if (AlphabetTools::isCodonAlphabet(*alphabet))
     {
       if (alphabetCode_ & CODON)
       {
@@ -140,21 +140,21 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
     if (args.find("col") != args.end())
       nCol = size_t(TextTools::toInt(args["col"]));
 
-    if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
+    if (AlphabetTools::isNucleicAlphabet(*alphabet))
     {
       if (alphabetCode_ & NUCLEOTIDE)
         pFS = make_unique<UserNucleotideFrequencySet>(dynamic_pointer_cast<const NucleicAlphabet>(alphabet), fname, nCol);
       else
         throw Exception("Nucleotide alphabet not supported.");
     }
-    else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isProteicAlphabet(*alphabet))
     {
       if (alphabetCode_ & PROTEIN)
         pFS = make_unique<UserProteinFrequencySet>(dynamic_pointer_cast<const ProteicAlphabet>(alphabet), fname, nCol);
       else
         throw Exception("Protein alphabet not supported.");
     }
-    else if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+    else if (AlphabetTools::isCodonAlphabet(*alphabet))
     {
       if (alphabetCode_ & CODON)
       {
@@ -174,7 +174,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   }
   else if (freqName == "GC")
   {
-    if (!AlphabetTools::isNucleicAlphabet(alphabet.get()))
+    if (!AlphabetTools::isNucleicAlphabet(*alphabet))
       throw Exception("Error, invalid frequencies " + freqName + " with non-nucleic alphabet.");
     if (alphabetCode_ & NUCLEOTIDE)
       pFS = make_unique<GCFrequencySet>(dynamic_pointer_cast<const NucleicAlphabet>(alphabet));
@@ -187,7 +187,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   {
     if (!(alphabetCode_ & WORD))
       throw Exception("Word alphabet not supported.");
-    if (!AlphabetTools::isWordAlphabet(alphabet.get()))
+    if (!AlphabetTools::isWordAlphabet(*alphabet))
       throw Exception("BppOFrequencySetFormat::readFrequencySet(...).\n\t Bad alphabet type "
             + alphabet->getAlphabetType() + " for frequencies set " + freqName + ".");
 
@@ -272,7 +272,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");
-    if (!AlphabetTools::isCodonAlphabet(alphabet.get()))
+    if (!AlphabetTools::isCodonAlphabet(*alphabet))
       throw Exception("BppOFrequencySetFormat::read.\n\t Bad alphabet type "
             + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
     if (!geneticCode_)
@@ -334,7 +334,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");
-    if (!AlphabetTools::isCodonAlphabet(alphabet.get()))
+    if (!AlphabetTools::isCodonAlphabet(*alphabet))
       throw Exception("BppOFrequencySetFormat::read.\n\t Bad alphabet type "
             + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
 
@@ -372,7 +372,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
 
   // codeml frequencies syntax
 
-  else if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+  else if (AlphabetTools::isCodonAlphabet(*alphabet))
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");

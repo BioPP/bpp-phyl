@@ -174,7 +174,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
         auto vSC = std::dynamic_pointer_cast<SiteContainerInterface>(vData);
         auto pSC = std::dynamic_pointer_cast<ProbabilisticSiteContainerInterface>(vData);
 
-        if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+        if (AlphabetTools::isCodonAlphabet(*alphabet))
         {
           bool f = false;
           size_t s;

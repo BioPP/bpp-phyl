@@ -133,7 +133,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
     if (!geneticCode_)
       throw Exception("BppOTransitionModelFormat::readTransitionModel(). No genetic code specified! Consider using 'setGeneticCode'.");
 
-    if (!AlphabetTools::isCodonAlphabet(alphabet.get()))
+    if (!AlphabetTools::isCodonAlphabet(*alphabet))
       throw Exception("Alphabet should be Codon Alphabet.");
     auto pCA = dynamic_pointer_cast<const CodonAlphabet>(alphabet);
 
@@ -226,7 +226,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
       model = make_unique<DFP07>(geneticCode_, std::move(nestedProtModel), std::move(codonFreqs));
     }
   }
-  else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+  else if (AlphabetTools::isProteicAlphabet(*alphabet))
   {
     if (!(alphabetCode_ & PROTEIN))
       throw Exception("BppOTransitionModelFormat::read. Protein alphabet not supported.");

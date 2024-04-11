@@ -61,7 +61,7 @@ int main()
 
   auto fitness = make_unique<FullNucleotideFrequencySet>(AlphabetTools::DNA_ALPHABET);
 
-  auto model = make_shared<POMO>(alphaall, move(t92), move(fitness));
+  auto model = make_shared<POMO>(alphaall, std::move(t92), std::move(fitness));
 
   auto rootFreqs = make_shared<FullFrequencySet>(model->getStateMap());
 

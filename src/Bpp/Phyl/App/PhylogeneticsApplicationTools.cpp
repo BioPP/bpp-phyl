@@ -480,7 +480,7 @@ std::unique_ptr<SubstitutionModelInterface> PhylogeneticsApplicationTools::getSu
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionModel(): a GeneticCode instance is required for instantiating a codon model.");
     bIO.setGeneticCode(gCode);
   }
-  else if (AlphabetTools::isWordAlphabet(alphabet.get()))
+  else if (AlphabetTools::isWordAlphabet(*alphabet))
     modelDescription = ApplicationTools::getStringParameter("model", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
@@ -513,7 +513,7 @@ std::unique_ptr<BranchModelInterface> PhylogeneticsApplicationTools::getBranchMo
       throw Exception("PhylogeneticsApplicationTools::getBranchModel(): a GeneticCode instance is required for instantiating a codon model.");
     bIO.setGeneticCode(gCode);
   }
-  else if (AlphabetTools::isWordAlphabet(alphabet.get()))
+  else if (AlphabetTools::isWordAlphabet(*alphabet))
     modelDescription = ApplicationTools::getStringParameter("model", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
@@ -706,7 +706,7 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getFrequen
 {
   map<string, string> unparsedParameterValues;
   BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, verbose, warn);
-  if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+  if (AlphabetTools::isCodonAlphabet(*alphabet))
   {
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instantiating a codon frequencies set.");
@@ -4066,7 +4066,7 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
   string weightOption = ApplicationTools::getStringParameter("weight", regArgs, "None", "", true, 1);
   string distanceOption = ApplicationTools::getStringParameter("distance", regArgs, "None", "", true, 1);
 
-  if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+  if (AlphabetTools::isCodonAlphabet(*alphabet))
   {
     weights = SequenceApplicationTools::getAlphabetIndex2(dynamic_pointer_cast<const CodonAlphabet>(alphabet), genCode, weightOption, "Substitution weight scheme:");
     distances = SequenceApplicationTools::getAlphabetIndex2(dynamic_pointer_cast<const CodonAlphabet>(alphabet), genCode, distanceOption, "Substitution distances:");
@@ -4114,7 +4114,7 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
 
 
   // Alphabet dependent registers
-  else if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
+  else if (AlphabetTools::isNucleicAlphabet(*alphabet))
   {
     if (regType == "GC")
       reg = make_unique<GCSubstitutionRegister>(stateMap, false);
@@ -4127,7 +4127,7 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
     else
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unsupported substitution categorization:" + regType + " for alphabet " + alphabet->getAlphabetType());
   }
-  else if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+  else if (AlphabetTools::isCodonAlphabet(*alphabet))
   {
     if (regType == "IntraAA")
       reg = make_unique<AAInteriorSubstitutionRegister>(stateMap, genCode);
@@ -4161,7 +4161,7 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
       throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + alphabet->getAlphabetType());
   }
 
-  else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+  else if (AlphabetTools::isProteicAlphabet(*alphabet))
   {
     if (regType == "KrKc")
       reg = make_unique<KrKcSubstitutionRegister>(stateMap);

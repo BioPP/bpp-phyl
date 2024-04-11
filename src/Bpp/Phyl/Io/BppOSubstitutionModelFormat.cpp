@@ -304,7 +304,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (!geneticCode_)
       throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). No genetic code specified! Consider using 'setGeneticCode'.");
 
-    if (!AlphabetTools::isCodonAlphabet(alphabet.get()))
+    if (!AlphabetTools::isCodonAlphabet(*alphabet))
       throw Exception("Alphabet should be Codon Alphabet.");
 
     auto pCA = dynamic_pointer_cast<const CodonAlphabet>(alphabet);
@@ -460,7 +460,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // Now we create the RE08 substitution model:
-    if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
+    if (AlphabetTools::isNucleicAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & NUCLEOTIDE))
         throw Exception("BppOSubstitutionModelFormat::read. Nucleic alphabet not supported.");
@@ -469,7 +469,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       if (!model)
         throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). Invalid submodel, must be 'reversible' and 'nucleotide'.");
     }
-    else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isProteicAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & PROTEIN))
         throw Exception("BppOSubstitutionModelFormat::read. Protein alphabet not supported.");
@@ -478,7 +478,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       if (!model)
         throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). Invalid submodel, must be 'reversible' and 'protein'.");
     }
-    else if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+    else if (AlphabetTools::isCodonAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & CODON))
         throw Exception("BppOSubstitutionModelFormat::read. Codon alphabet not supported.");
@@ -593,7 +593,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       model.reset(new EquiprobableSubstitutionModel(alphabet));
     ///////////////////////////////////////////////////
     // nucleotidic model
-    else if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isNucleicAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & NUCLEOTIDE))
         throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
@@ -746,7 +746,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit nucleic alphabet.");
     }
-    else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isProteicAlphabet(*alphabet))
     {
       ////////////////////////////////////
       //// Proteic model
@@ -860,7 +860,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       else
         throw Exception("Model '" + modelName + "' is unknown, or does not fit proteic alphabet.");
     }
-    else if (AlphabetTools::isBinaryAlphabet(alphabet.get()))
+    else if (AlphabetTools::isBinaryAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & BINARY))
         throw Exception("BppOSubstitutionModelFormat::read. Binary alphabet not supported.");
@@ -874,7 +874,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit binary alphabet.");
     }
-    else if (AlphabetTools::isIntegerAlphabet(alphabet.get()))
+    else if (AlphabetTools::isIntegerAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & INTEGER))
         throw Exception("BppOSubstitutionModelFormat::read. Integer alphabet not supported.");
@@ -994,8 +994,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
   string s, nestedModelDescription;
   unsigned int nbmodels;
 
-  if (((modelName == "Word" || modelName == "Kron") && !AlphabetTools::isWordAlphabet(alphabet.get())) ||
-      ((!(modelName == "Word" || modelName == "Kron")) && !AlphabetTools::isCodonAlphabet(alphabet.get())))
+  if (((modelName == "Word" || modelName == "Kron") && !AlphabetTools::isWordAlphabet(*alphabet)) ||
+      ((!(modelName == "Word" || modelName == "Kron")) && !AlphabetTools::isCodonAlphabet(*alphabet)))
     throw Exception("Bad alphabet type "
           + alphabet->getAlphabetType() + " for  model " + modelName + ".");
 
