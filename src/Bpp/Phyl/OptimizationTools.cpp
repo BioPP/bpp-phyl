@@ -189,7 +189,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   // Build optimizer:
   unique_ptr<OptimizerInterface> optimizer;
-  shared_ptr<AbstractNumericalDerivative> fnum;
+  shared_ptr<NumericalDerivativeInterface> fnum;
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
@@ -274,7 +274,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   }
 
   // Build optimizer:
-  shared_ptr<AbstractNumericalDerivative> fnum;
+  shared_ptr<NumericalDerivativeInterface> fnum;
   unique_ptr<OptimizerInterface> optimizer;
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
