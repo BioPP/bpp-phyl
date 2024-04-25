@@ -40,6 +40,7 @@ namespace bpp
  *
  * with a normalization factor \f$P\f$:
  *
+ * \f[
  * Q = \frac{1}{P} S . \pi = \frac{1}{P}\begin{pmatrix}
  *  -\pi_2 & \pi_2    & 0 & \ldots & \ldots  & \ldots & \ldots \\
  *  \pi_1  & -(\pi_1+\pi_3) & \pi_3 & 0      & \\ldots  & \ldots & \ldots \\

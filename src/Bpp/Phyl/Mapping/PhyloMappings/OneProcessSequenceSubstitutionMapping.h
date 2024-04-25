@@ -77,6 +77,12 @@ public:
           verbose);
   }
 
+  /*
+   * @param nullParams parameters values used for normalization
+   * @param unresolvedOption  mgmt of gaps in the counts (default: counted as zeros)
+   * @param verbose
+   */
+  
   void computeNormalizations(const ParameterList& nullParams,
       short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
       bool verbose = true) override;

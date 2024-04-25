@@ -156,11 +156,6 @@ public:
   }
 
   /**
-   * @}
-   */
-
-
-  /**
    * @brief Overrides of AbstractSubstitutionModel and
    * AbstractWrappedSubstitutionModel.
    *

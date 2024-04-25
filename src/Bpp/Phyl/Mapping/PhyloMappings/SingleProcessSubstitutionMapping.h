@@ -63,7 +63,11 @@ public:
   /*
    * @brief ComputeCounts
    *
+   * @param unresolvedOption  mgmt of gaps in the counts (default: counted as zeros)
+   * @param threshold
+   * @param verbose
    */
+
   void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO, double threshold = -1, bool verbose = true)
   {
     counts_ = SubstitutionMappingTools::computeCounts(
@@ -76,6 +80,14 @@ public:
           verbose);
   }
 
+  /*
+   * @brief compute Normalization
+   *
+   * @param nullParams  parameters values used for normalization
+   * @param unresolvedOption  mgmt of gaps in the counts (default: counted as zeros)
+   * @param verbose
+   */
+  
   void computeNormalizations(const ParameterList& nullParams,
       short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
       bool verbose = true);

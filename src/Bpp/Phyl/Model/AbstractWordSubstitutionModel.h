@@ -153,11 +153,12 @@ public:
    * pointer to an SubstitutionModel and a number of
    * desired models.
    *
-   * @param pmodel A pointer to the substitution model to use in all
+   * @param model A pointer to the substitution model to use in all
    * the positions. It will be owned by the instance.
    * @param num The number of models involved.
    * @param prefix the Namespace.
    */
+  
   AbstractWordSubstitutionModel(
       std::unique_ptr<SubstitutionModelInterface> model,
       unsigned int num,

@@ -97,9 +97,6 @@ protected:
     return mixedModel_().getFrequencies_();
   }
 
-  /**
-   * @}
-   */
   MixedTransitionModelInterface& mixedModel_()
   {
     return *mixedModelPtr_;

@@ -80,9 +80,6 @@ public:
     subModel_->computeFrequencies(yn);
   }
 
-  /**
-   * @}
-   */
 
 protected:
   Vdouble& getFrequencies_() override
