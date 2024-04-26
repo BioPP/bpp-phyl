@@ -80,11 +80,18 @@ int main()
 
   cout << "NewTL: " << setprecision(20) << llh->getValue() << endl;
 
-  shared_ptr<OutputStream> messenger(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
-  shared_ptr<OutputStream> profiler(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
-  profiler->setPrecision(20);
+  // Set up optimization options
+  OptimizationTools::OptimizationOptions optopt;
 
-  OptimizationTools::optimizeNumericalParameters2(llh, llh->getParameters(), 0, 0.000001, 10000, messenger, profiler, false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
+  optopt.messenger = std::shared_ptr<OutputStream>(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
+  optopt.profiler = std::shared_ptr<OutputStream>(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
+  optopt.profiler->setPrecision(20);
+
+  optopt.parameters = llh->getParameters();
+  optopt.useClock = true;
+  optopt.verbose = 2;
+  
+  OptimizationTools::optimizeNumericalParameters2(llh, optopt);
 
   llh->getParameters().printParameters(cerr);
 

@@ -86,10 +86,14 @@ int main()
   newtl->getParameters().printParameters(cout);
   dotOutput("lik_multinomial_value", {lik->getLikelihoodNode().get()});
 
-  OptimizationTools::optimizeNumericalParameters2(
-      newtl,
-      newtl->getParameters(),
-      0, 0.000001, 1000, 0, 0);
+  OptimizationTools::OptimizationOptions optopt;
+
+  optopt.parameters = newtl->getParameters();
+  optopt.nbEvalMax = 1000;
+  optopt.verbose = 0;
+
+  
+  OptimizationTools::optimizeNumericalParameters2(newtl, optopt);
   cout << "NewLik: " << newtl->getValue() << endl;
   newtl->getParameters().printParameters(cout);
 

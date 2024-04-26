@@ -112,13 +112,14 @@ int main()
           false, false,
           1, OptimizationTools::OPTIMIZATION_NEWTON);
 
-    unsigned int nc1 = OptimizationTools::optimizeNumericalParameters2(
-          ntl, ntl->getParameters(), 0,
-          0.0001, 10000,
-          messenger, profiler,
-          false, false,
-          1, OptimizationTools::OPTIMIZATION_NEWTON);
+    OptimizationTools::OptimizationOptions optopt;
 
+    optopt.parameters = ntl->getParameters();
+    optopt.verbose = 0;
+    optopt.profiler = profiler;
+    optopt.messenger = messenger;
+    
+    unsigned int nc1 = OptimizationTools::optimizeNumericalParameters2(ntl, optopt);
 
     cout << "OldTL optim: " << c1 << ": " << tl->getValue()  << endl;
     cout << "NewTL optim: " << nc1 << ": " << ntl->getValue() << endl;

@@ -235,8 +235,10 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
             auto nb1 = tree->getNumberOfLeaves();
             tree->pruneTree(names);
             auto nb2 = tree->getNumberOfLeaves();
-            if ((nb1 != nb2) && flag)
+            if (nb1 != nb2)
+            {
               ApplicationTools::displayResult("Number of removed leaves", nb1 - nb2);
+            }
           }
         }
       }
@@ -287,8 +289,6 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
     }
     else if (treeName == "random")
     {
-      throw Exception("Random Phylotrees not updated. Ask developers.");
-
       size_t seqNum;
 
       if (args.find("data") == args.end())
@@ -304,16 +304,19 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
         throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
 
       vector<string> names = mSeq.find(seqNum)->second->getSequenceNames();
-//      PhyloTree* tree = TreeTemplateTools::getRandomTree(names);
-      PhyloTree* tree = 0;
-      tree->setBranchLengths(1.);
+
+      // Not optimal process: make random PhlyoTree directly
+      auto treetemp = TreeTemplateTools::getRandomTree(names);
+      treetemp->setBranchLengths(1.);
+      
+      auto tree = PhyloTreeTools::buildFromTreeTemplate(*treetemp);
 
       if (mTree.find(num) != mTree.end())
       {
         ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
         mTree.erase(num);
       }
-      mTree[num] = std::shared_ptr<PhyloTree>(tree);
+      mTree[num] = tree;
       ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
 
@@ -2348,363 +2351,43 @@ unique_ptr<DiscreteDistributionInterface> PhylogeneticsApplicationTools::getRate
 /*****  OPTIMIZATORS *****************************************/
 /*************************************************************/
 
-
 std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimizeParameters(
     std::shared_ptr<PhyloLikelihoodInterface> lik,
-    const ParameterList& parameters,
     const map<string, string>& params,
     const string& suffix,
     bool suffixIsOptional,
     bool verbose,
     int warn)
 {
-  string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
-  if (optimization == "None")
+  OptimizationTools::OptimizationOptions optopt(lik, params,  suffix, suffixIsOptional, verbose, warn);
+  
+  if (optopt.optMethodModel == "None")
     return lik;
-  string optName;
-  map<string, string> optArgs;
-  KeyvalTools::parseProcedure(optimization, optName, optArgs);
 
-  unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional, warn + 1);
-
-  string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
-  shared_ptr<OutputStream> messageHandler =
-      (mhPath == "none") ? nullptr :
-      (mhPath == "std") ? ApplicationTools::message :
-      make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
-  if (verbose)
-    ApplicationTools::displayResult("Message handler", mhPath);
-
-  string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
-  shared_ptr<OutputStream> profiler =
-      (prPath == "none") ? nullptr :
-      (prPath == "std") ? ApplicationTools::message :
-      make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
-  if (profiler)
-    profiler->setPrecision(20);
-  if (verbose)
-    ApplicationTools::displayResult("Profiler", prPath);
-
-  bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, warn + 1);
-  if (scaleFirst)
-  {
-    ApplicationTools::displayError("Sorry, optimization.scale_first not implemented yet for process.");
-    exit(-1);
-  }
-
-  //     // We scale the tree before optimizing each branch length separately:
-  //     if (verbose)
-  //       ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
-  //     double tolerance = ApplicationTools::getDoubleParameter("optimization.scale_first.tolerance", params, .0001, suffix, suffixIsOptional, true);
-  //     if (verbose)
-  //       ApplicationTools::displayResult("Scaling tolerance", TextTools::toString(tolerance));
-  //     int nbEvalMax = ApplicationTools::getIntParameter("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, true);
-  //     if (verbose)
-  //       ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
-
-  //     OptimizationTools::optimizeTreeScale(
-  //                                          tl,
-  //                                          tolerance,
-  //                                          nbEvalMax,
-  //                                          messageHandler,
-  //                                          profiler);
-  //     if (verbose)
-  //       ApplicationTools::displayResult("New tree likelihood", -tl->getValue());
-  //   }
-
-  // Should I ignore some parameters?
-
-  ParameterList parametersToEstimate = parameters;
-  vector<string> parNames = parametersToEstimate.getParameterNames();
-
-  if (params.find("optimization.ignore_parameter") != params.end())
-    throw Exception("optimization.ignore_parameter is deprecated, use optimization.ignore_parameters instead!");
-  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn + 1);
-  StringTokenizer st(paramListDesc, ",");
-  while (st.hasMoreToken())
-  {
-    try
-    {
-      string param = st.nextToken();
-      if (param == "BrLen")
-      {
-        vector<string> vs = lik->getBranchLengthParameters().getParameterNames();
-        parametersToEstimate.deleteParameters(vs);
-        if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", string("Branch lengths"));
-      }
-      else if (param == "Ancient")
-      {
-        vector<string> vs = lik->getRootFrequenciesParameters().getParameterNames();
-        parametersToEstimate.deleteParameters(vs);
-        if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
-      }
-      else if (param == "Model")
-      {
-        vector<string> vs = lik->getSubstitutionModelParameters().getParameterNames();
-        parametersToEstimate.deleteParameters(vs);
-        if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", string("Model"));
-      }
-      else if (param == "*")
-      {
-        parametersToEstimate.reset();
-        if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", string("All"));
-      }
-      else if (param.find("*") != string::npos)
-      {
-        vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
-        bool verbhere = verbose;
-
-        if (vs.size() >= 20)
-        {
-          if (verbose)
-          {
-            ApplicationTools::displayResult("Number of parameters ignored", vs.size());
-            ApplicationTools::displayMessage(" from " + param);
-          }
-          verbhere = false;
-        }
-
-        for (auto& it :  vs)
-        {
-          parametersToEstimate.deleteParameter(it);
-          if (verbhere)
-            ApplicationTools::displayResult("Parameter ignored", it);
-        }
-      }
-      else
-      {
-        parametersToEstimate.deleteParameter(param);
-        if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", param);
-      }
-    }
-    catch (ParameterNotFoundException& pnfe)
-    {
-      ApplicationTools::displayWarning("Parameter '" + pnfe.parameter() + "' not found, and so can't be ignored!");
-    }
-  }
-
-  // Should I constrain some parameters?
-  vector<string> parToEstNames = parametersToEstimate.getParameterNames();
-
-  if (params.find("optimization.constrain_parameter") != params.end())
-    throw Exception("optimization.constrain_parameter is deprecated, use optimization.constrain_parameters instead!");
-  paramListDesc = ApplicationTools::getStringParameter("optimization.constrain_parameters", params, "", suffix, suffixIsOptional, warn + 1);
-
-  string constraint = "";
-  string pc, param = "";
-
-  StringTokenizer st2(paramListDesc, ",");
-  while (st2.hasMoreToken())
-  {
-    try
-    {
-      pc = st2.nextToken();
-      string::size_type index = pc.find("=");
-      if (index == string::npos)
-        throw Exception("PhylogeneticsApplicationTools::optimizeParamaters. Bad constrain syntax, should contain `=' symbol: " + pc);
-      param = pc.substr(0, index);
-      constraint = pc.substr(index + 1);
-      std::shared_ptr<IntervalConstraint> ic(new IntervalConstraint(constraint));
-
-      vector<string> parNames2;
-
-      if (param == "BrLen")
-        parNames2  = lik->getBranchLengthParameters().getParameterNames();
-      else if (param == "Ancient")
-        parNames2 = lik->getRootFrequenciesParameters().getParameterNames();
-      else if (param == "Model")
-      {
-        vector<string> vs = lik->getSubstitutionModelParameters().getParameterNames();
-      }
-      else if (param.find("*") != string::npos)
-        parNames2 = ApplicationTools::matchingParameters(param, parToEstNames);
-      else
-        parNames2.push_back(param);
-
-
-      for (size_t i = 0; i < parNames2.size(); i++)
-      {
-        Parameter& par = parametersToEstimate.parameter(parNames2[i]);
-        if (par.hasConstraint())
-        {
-          par.setConstraint(std::shared_ptr<ConstraintInterface>(*ic & (*par.getConstraint())));
-          if (par.getConstraint()->isEmpty())
-            throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
-        }
-        else
-          par.setConstraint(ic);
-
-        if (verbose)
-          ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
-      }
-    }
-    catch (ParameterNotFoundException& pnfe)
-    {
-      ApplicationTools::displayWarning("Parameter '" + pnfe.parameter() + "' not found, and so can't be constrained!");
-    }
-    catch (ConstraintException& pnfe)
-    {
-      throw Exception("Parameter '" + param + "' does not fit the constraint " + constraint);
-    }
-  }
-
-  unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
-  if (verbose)
-    ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
-
-  double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001, suffix, suffixIsOptional, warn + 1);
-  if (verbose)
-    ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
-
-  // Backing up or restoring?
-  shared_ptr<BackupListener> backupListener;
-  string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
-  if (backupFile != "none")
-  {
-    ApplicationTools::displayResult("Parameters will be backup to", backupFile);
-    backupListener.reset(new BackupListener(backupFile));
-    if (FileTools::fileExists(backupFile))
-    {
-      ApplicationTools::displayMessage("A backup file was found! Try to restore parameters from previous run...");
-      ifstream bck(backupFile.c_str(), ios::in);
-      vector<string> lines = FileTools::putStreamIntoVectorOfStrings(bck);
-      double fval = TextTools::toDouble(lines[0].substr(5));
-      ParameterList pl = lik->getParameters();
-      for (size_t l = 1; l < lines.size(); ++l)
-      {
-        if (!TextTools::isEmpty(lines[l]))
-        {
-          StringTokenizer stp(lines[l], "=");
-          if (stp.numberOfRemainingTokens() != 2)
-          {
-            cerr << "Corrupted backup file!!!" << endl;
-            cerr << "at line " << l << ": " << lines[l] << endl;
-          }
-          string pname  = stp.nextToken();
-          string pvalue = stp.nextToken();
-          if (pl.hasParameter(pname))
-          {
-            size_t p = pl.whichParameterHasName(pname);
-            pl.setParameter(p, AutoParameter(pl[p]));
-            pl[p].setValue(TextTools::toDouble(pvalue));
-          }
-          else
-            ApplicationTools::displayWarning("Unknown parameter in backup file : " + pname);
-        }
-      }
-      bck.close();
-      lik->setParameters(pl);
-      if (convert(abs(lik->getValue() - fval)) > 0.000001)
-        ApplicationTools::displayMessage("Changed likelihood from backup file.");
-      ApplicationTools::displayResult("Restoring log-likelihood", -lik->getValue());
-    }
-  }
-
-  // if (verbose)
-  //   ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
-  // string nniMethod = ApplicationTools::getStringParameter("optimization.topology.algorithm_nni.method", params, "phyml", suffix, suffixIsOptional, warn + 1);
-  // string nniAlgo;
-  // if (nniMethod == "fast")
-  //   {
-  //     nniAlgo = NNITopologySearch::FAST;
-  //   }
-  // else if (nniMethod == "better")
-  //   {
-  //     nniAlgo = NNITopologySearch::BETTER;
-  //   }
-  // else if (nniMethod == "phyml")
-  //   {
-  //     nniAlgo = NNITopologySearch::PHYML;
-  //   }
-  // else
-  //   throw Exception("Unknown NNI algorithm: '" + nniMethod + "'.");
-
-
-  string order = ApplicationTools::getStringParameter("derivatives", optArgs, "Newton", "", true, warn + 1);
-  string optMethodDeriv;
-  if (order == "Gradient")
-  {
-    optMethodDeriv = OptimizationTools::OPTIMIZATION_GRADIENT;
-  }
-  else if (order == "Newton")
-  {
-    optMethodDeriv = OptimizationTools::OPTIMIZATION_NEWTON;
-  }
-  else if (order == "BFGS")
-  {
-    optMethodDeriv = OptimizationTools::OPTIMIZATION_BFGS;
-  }
-  else
-    throw Exception("Unknown derivatives algorithm: '" + order + "'.");
-  if (verbose)
-    ApplicationTools::displayResult("Optimization method", optName);
-  if (verbose)
-    ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
-
-  // See if we should reparametrize:
-  bool reparam = ApplicationTools::getBooleanParameter("optimization.reparametrization", params, false, suffix, suffixIsOptional, warn + 1);
-  if (verbose)
-    ApplicationTools::displayResult("Reparametrization", (reparam ? "yes" : "no"));
-
-  // See if we should use a molecular clock constraint:
-  string clock = ApplicationTools::getStringParameter("optimization.clock", params, "None", suffix, suffixIsOptional, warn + 1);
-  if (clock != "None" && clock != "Global")
-    throw Exception("Molecular clock option not recognized, should be one of 'Global' or 'None'.");
-  bool useClock = (clock == "Global");
-  if (verbose)
-    ApplicationTools::displayResult("Molecular clock", clock);
 
   unsigned int n = 0;
-  if ((optName == "D-Brent") || (optName == "D-BFGS"))
+
+  if ((optopt.optMethodModel == OptimizationTools::OPTIMIZATION_BRENT) || (optopt.optMethodModel == OptimizationTools::OPTIMIZATION_BFGS))
   {
-    // Uses Newton-Brent method or Newton-BFGS method
-    string optMethodModel;
-    if (optName == "D-Brent")
-      optMethodModel = OptimizationTools::OPTIMIZATION_BRENT;
-    else
-      optMethodModel = OptimizationTools::OPTIMIZATION_BFGS;
-
-    unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, warn + 1);
-
-    // if (optimizeTopo)
-    //   {
-    //     bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, warn + 1);
-    //     unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
-    //     double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
-    //     double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
-    //     tl = OptimizationTools::optimizeTreeNNI(
-    //                                             dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
-    //                                             optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-    //                                             reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
-    //   }
-
-    if (verbose && nstep > 1)
-      ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
-    parametersToEstimate.matchParametersValues(lik->getParameters());
-    n = OptimizationTools::optimizeNumericalParameters(
-          lik, parametersToEstimate,
-          backupListener, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
+    if (verbose && optopt.nstep > 1)
+      ApplicationTools::displayResult("# of precision steps", TextTools::toString(optopt.nstep));
+    
+    optopt.parameters.matchParametersValues(lik->getParameters());
+    n = OptimizationTools::optimizeNumericalParameters(lik, optopt);
   }
-  else if (optName == "FullD")
+  else if (optopt.optMethodModel == "FullD")
   {
     // Uses Newton-raphson algorithm with numerical derivatives when required.
-    parametersToEstimate.matchParametersValues(lik->getParameters());
+    optopt.parameters.matchParametersValues(lik->getParameters());
     if (dynamic_pointer_cast<SingleProcessPhyloLikelihood>(lik))
       n = OptimizationTools::optimizeNumericalParameters2(
-            dynamic_pointer_cast<SingleProcessPhyloLikelihood>(lik), parametersToEstimate,
-            backupListener, tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+            dynamic_pointer_cast<SingleProcessPhyloLikelihood>(lik),
+            optopt);
     else
-      n = OptimizationTools::optimizeNumericalParameters2(
-            lik, parametersToEstimate,
-            backupListener, tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+      n = OptimizationTools::optimizeNumericalParameters2(lik, optopt);
   }
   else
-    throw Exception("Unknown optimization method: " + optName);
+    throw Exception("Unknown optimization method: " + optopt.optMethodModel);
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, warn + 1);
   unique_ptr<OptimizerInterface> finalOptimizer = nullptr;
@@ -2723,26 +2406,26 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
 
   if (finalOptimizer)
   {
-    parametersToEstimate.matchParametersValues(lik->getParameters());
+    optopt.parameters.matchParametersValues(lik->getParameters());
     if (verbose)
       ApplicationTools::displayResult("Final optimization step", finalMethod);
-    finalOptimizer->setProfiler(profiler);
-    finalOptimizer->setMessageHandler(messageHandler);
-    finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);
-    finalOptimizer->getStopCondition()->setTolerance(tolerance);
+    finalOptimizer->setProfiler(optopt.profiler);
+    finalOptimizer->setMessageHandler(optopt.messenger);
+    finalOptimizer->setMaximumNumberOfEvaluations(optopt.nbEvalMax);
+    finalOptimizer->getStopCondition()->setTolerance(optopt.tolerance);
     finalOptimizer->setVerbose(verbose);
     finalOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-    finalOptimizer->init(parametersToEstimate);
+    finalOptimizer->init(optopt.parameters);
     finalOptimizer->optimize();
     n += finalOptimizer->getNumberOfEvaluations();
   }
 
   if (verbose)
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
-  if (backupFile != "none")
+  if (optopt.backupFile != "none")
   {
-    string bf = backupFile + ".def";
-    rename(backupFile.c_str(), bf.c_str());
+    string bf = optopt.backupFile + ".def";
+    rename(optopt.backupFile.c_str(), bf.c_str());
   }
   return lik;
 }

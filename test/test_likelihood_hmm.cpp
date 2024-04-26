@@ -162,15 +162,13 @@ int main()
   cout << "Optimization : " << endl;
   cout << endl;
 
-  auto profiler  = make_shared<StlOutputStream>(make_unique<ofstream>("profile.txt", ios::out));
-  auto messenger = make_shared<StlOutputStream>(make_unique<ofstream>("messages.txt", ios::out));
+  OptimizationTools::OptimizationOptions optopt;
 
-  unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
-        hppl, hppl->getParameters(), 0,
-        0.0001, 10000,
-        messenger, profiler,
-        false, false,
-        1, OptimizationTools::OPTIMIZATION_NEWTON);
+  optopt.parameters = hppl->getParameters();
+  optopt.profiler  = make_shared<StlOutputStream>(make_unique<ofstream>("profile.txt", ios::out));
+  optopt.messenger = make_shared<StlOutputStream>(make_unique<ofstream>("messages.txt", ios::out));
+
+  unsigned int cM = OptimizationTools::optimizeNumericalParameters2(hppl, optopt);
 
   cerr << "Opt M rounds: " << cM << endl;
 

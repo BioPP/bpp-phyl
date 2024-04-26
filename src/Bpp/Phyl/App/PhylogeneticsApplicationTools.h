@@ -565,8 +565,6 @@ public:
    * @brief Optimize parameters according to options.
    *
    * @param lik              The PhyloLikelihood function to optimize.
-   * @param parameters       The initial list of parameters to optimize.
-   *                         Use tl->getIndependentParameters() in order to estimate all parameters.
    * @param params           The attribute map where options may be found.
    * @param suffix           A suffix to be applied to each attribute name.
    * @param suffixIsOptional Tell if the suffix is absolutely required.
@@ -584,7 +582,6 @@ public:
    */
   static std::shared_ptr<PhyloLikelihoodInterface> optimizeParameters(
       std::shared_ptr<PhyloLikelihoodInterface> lik,
-      const ParameterList& parameters,
       const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
