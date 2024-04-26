@@ -28,7 +28,6 @@ set (CPP_FILES
   Bpp/Phyl/Io/BppOTransitionModelFormat.cpp
   Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
-  Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
   Bpp/Phyl/Io/IoFrequencySetFactory.cpp
   Bpp/Phyl/Legacy/Io/IoPairedSiteLikelihoods.cpp
   Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
@@ -39,7 +38,6 @@ set (CPP_FILES
   Bpp/Phyl/Io/Newick.cpp
   Bpp/Phyl/Io/NexusIoTree.cpp
   Bpp/Phyl/Io/Nhx.cpp
-  Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
   Bpp/Phyl/Legacy/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp

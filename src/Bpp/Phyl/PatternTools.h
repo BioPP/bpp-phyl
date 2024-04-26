@@ -11,11 +11,11 @@
 #include "Tree/TreeTemplateTools.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/SymbolListTools.h>
 #include <Bpp/Seq/Site.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/AlignmentData.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 // From the STL:
 #include <map>
@@ -44,68 +44,42 @@ public:
   static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
       const AlignmentDataInterface& sequenceSet,
       const std::shared_ptr<N> node,
-      const AssociationTreeGraphImplObserver<N, E, I>& tree);
+      const AssociationTreeGraphImplObserver<N, E, I>& tree)
+  {
+    try
+    {
+      const auto& siteContainer = dynamic_cast<const SiteContainerInterface&>(sequenceSet);
+      return getSequenceSubset(siteContainer, node, tree);
+    }
+    catch (std::bad_cast& e) {}
+
+    try
+    {
+      const auto& siteContainer = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequenceSet);
+      return getSequenceSubset(siteContainer, node, tree);
+    }
+    catch (std::bad_cast& e) {}
+
+    throw Exception("PatternTools::getSequenceSubset : unsupported sequence type.");
+  }
 
   /**
    * @brief Extract the sequences corresponding to a given subtree.
    *
    * @param sequenceSet The container to look in.
    * @param node        The root node of the subtree to check.
+   * @param tree        The tree owing the node.
    * @return A new site container with corresponding sequences.
    * @throw Exception if an error occurred.
    */
-  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-      const AlignmentDataInterface& sequenceSet,
-      const Node& node);
-
-  /**
-   * @brief Extract the sequences corresponding to a given set of names.
-   *
-   * @param sequenceSet The container to look in.
-   * @param names       The names of the sequences to look for.
-   * @return A new site container with corresponding sequences.
-   * @throw Exception if an error occurred.
-   */
-  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
-      const AlignmentDataInterface& sequenceSet,
-      const std::vector<std::string>& names);
-
-  /**
-   * @brief Compress a site container by removing duplicated sites.
-   *
-   * @param sequenceSet The container to look in.
-   * @return A new site container with unique sites.
-   * @throw Exception if an error occurred.
-   */
-  static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(
-      const AlignmentDataInterface& sequenceSet);
-
-  /**
-   * @brief Look for the occurrence of each site in sequences1 in sequences2 and send the
-   * position of the first occurrence, or -1 if not found.
-   *
-   * @param sequences1 First container.
-   * @param sequences2 Second container.
-   * @return A vector of positions.
-   */
-  static Vint getIndexes(
-      const AlignmentDataInterface& sequences1,
-      const AlignmentDataInterface& sequences2);
-};
-
-template<class N, class E, class I>
-std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
-    const AlignmentDataInterface& sequenceSet,
-    const std::shared_ptr<N> node,
-    const AssociationTreeGraphImplObserver<N, E, I>& tree)
-{
-  size_t nbSites = sequenceSet.getNumberOfSites();
-  auto alphabet = sequenceSet.getAlphabet();
-
-  try
+  template<class N, class E, class I>
+  static std::unique_ptr<SiteContainerInterface> getSequenceSubset(
+      const SiteContainerInterface& sequenceSet,
+      const std::shared_ptr<N> node,
+      const AssociationTreeGraphImplObserver<N, E, I>& tree)
   {
-    const auto& sitecontainer = dynamic_cast<const SiteContainerInterface&>(sequenceSet);
-
+    size_t nbSites = sequenceSet.getNumberOfSites();
+    auto alphabet = sequenceSet.getAlphabet();
     auto sequenceSubset = std::make_unique<VectorSiteContainer>(alphabet);
 
     std::vector<std::shared_ptr<N>> leaves = tree.getLeavesUnderNode(node);
@@ -117,7 +91,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
         // Use sequence name as key.
         try
         {
-          auto newSeq = std::make_unique<Sequence>(sitecontainer.sequence(i->getName()));
+          auto newSeq = std::make_unique<Sequence>(sequenceSet.sequence(i->getName()));
           sequenceSubset->addSequence(i->getName(), newSeq);
         }
         catch (std::exception& e)
@@ -134,13 +108,24 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
   }
-  catch (std::bad_cast& e)
-  {}
 
-  try
+  /**
+   * @brief Extract the sequences corresponding to a given subtree.
+   *
+   * @param sequenceSet The container to look in.
+   * @param node        The root node of the subtree to check.
+   * @param tree        The tree owing the node.
+   * @return A new site container with corresponding sequences.
+   * @throw Exception if an error occurred.
+   */
+  template<class N, class E, class I>
+  static std::unique_ptr<ProbabilisticSiteContainerInterface> getSequenceSubset(
+      const ProbabilisticSiteContainerInterface& sequenceSet,
+      const std::shared_ptr<N> node,
+      const AssociationTreeGraphImplObserver<N, E, I>& tree)
   {
-    const ProbabilisticSiteContainerInterface& sitecontainer = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequenceSet);
-
+    size_t nbSites = sequenceSet.getNumberOfSites();
+    auto alphabet = sequenceSet.getAlphabet();
     auto sequenceSubset = std::make_unique<ProbabilisticVectorSiteContainer>(alphabet);
 
     std::vector<std::shared_ptr<N>> leaves = tree.getLeavesUnderNode(node);
@@ -152,7 +137,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
         // Use sequence name as key.
         try
         {
-          auto newSeq = std::make_unique<ProbabilisticSequence>(sitecontainer.sequence(i->getName()));
+          auto newSeq = std::make_unique<ProbabilisticSequence>(sequenceSet.sequence(i->getName()));
           sequenceSubset->addSequence(newSeq->getName(), newSeq);
         }
         catch (std::exception const& e)
@@ -169,10 +154,120 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
     sequenceSubset->setSiteCoordinates(sequenceSet.getSiteCoordinates());
     return sequenceSubset;
   }
-  catch (std::bad_cast& e)
-  {}
 
-  throw Exception("PatternTools::getSequenceSubset : unsupported sequence type.");
-}
+  /**
+   * @brief Extract the sequences corresponding to a given subtree.
+   *
+   * @param sequenceSet The container to look in.
+   * @param node        The root node of the subtree to check.
+   * @return A new site container with corresponding sequences.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
+      const AlignmentDataInterface& sequenceSet,
+      const Node& node);
+
+  /**
+   * @brief Extract the sequences corresponding to a given subtree.
+   *
+   * @param sequenceSet The container to look in.
+   * @param node        The root node of the subtree to check.
+   * @return A new site container with corresponding sequences.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<SiteContainerInterface> getSequenceSubset(
+      const SiteContainerInterface& sequenceSet,
+      const Node& node);
+
+  /**
+   * @brief Extract the sequences corresponding to a given subtree.
+   *
+   * @param sequenceSet The container to look in.
+   * @param node        The root node of the subtree to check.
+   * @return A new site container with corresponding sequences.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<ProbabilisticSiteContainerInterface> getSequenceSubset(
+      const ProbabilisticSiteContainerInterface& sequenceSet,
+      const Node& node);
+
+  /**
+   * @brief Extract the sequences corresponding to a given set of names.
+   *
+   * @param sequenceSet The container to look in.
+   * @param names       The names of the sequences to look for.
+   * @return A new site container with corresponding sequences.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<AlignmentDataInterface> getSequenceSubset(
+      const AlignmentDataInterface& sequenceSet,
+      const std::vector<std::string>& names);
+
+  /**
+   * @brief Extract the sequences in a SiteContainer corresponding to a given set of names.
+   *
+   * @param sequenceSet The container to look in.
+   * @param names       The names of the sequences to look for.
+   * @return A new site container with corresponding sequences.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<SiteContainerInterface> getSequenceSubset(
+      const SiteContainerInterface& sequenceSet,
+      const std::vector<std::string>& names);
+
+  /**
+   * @brief Extract the sequences in a ProbabilisticSiteContainer corresponding to a given set of names.
+   *
+   * @param sequenceSet The container to look in.
+   * @param names       The names of the sequences to look for.
+   * @return A new site container with corresponding sequences.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<ProbabilisticSiteContainerInterface> getSequenceSubset(
+      const ProbabilisticSiteContainerInterface& sequenceSet,
+      const std::vector<std::string>& names);
+
+  /**
+   * @brief Compress a site container by removing duplicated sites.
+   *
+   * @param siteSet The container to look in.
+   * @return A new site container with unique sites.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<AlignmentDataInterface> shrinkSiteSet(
+      const AlignmentDataInterface& siteSet);
+
+  /**
+   * @brief Compress a site container by removing duplicated sites.
+   *
+   * @param siteSet The container to look in.
+   * @return A new site container with unique sites.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<SiteContainerInterface> shrinkSiteSet(
+      const SiteContainerInterface& siteSet);
+
+  /**
+   * @brief Compress a site container by removing duplicated sites.
+   *
+   * @param siteSet The container to look in.
+   * @return A new site container with unique sites.
+   * @throw Exception if an error occurred.
+   */
+  static std::unique_ptr<ProbabilisticSiteContainerInterface> shrinkSiteSet(
+      const ProbabilisticSiteContainerInterface& siteSet);
+
+  /**
+   * @brief Look for the occurrence of each site in sequences1 in sequences2 and send the
+   * position of the first occurrence, or -1 if not found.
+   *
+   * @param sequences1 First container.
+   * @param sequences2 Second container.
+   * @return A vector of positions.
+   */
+  static Vint getIndexes(
+      const AlignmentDataInterface& sequences1,
+      const AlignmentDataInterface& sequences2);
+};
 } // end of namespace bpp.
 #endif // BPP_PHYL_PATTERNTOOLS_H

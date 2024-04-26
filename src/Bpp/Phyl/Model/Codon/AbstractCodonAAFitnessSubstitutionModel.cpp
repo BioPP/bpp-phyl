@@ -18,7 +18,7 @@ AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel
   AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false)),
   protStateMap_(pfitset->getStateMap()), Ns_(1)
 {
-  if (!AlphabetTools::isProteicAlphabet(pfitset_->getAlphabet().get()))
+  if (!AlphabetTools::isProteicAlphabet(pfitset_->alphabet()))
     throw Exception("AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel need Proteic Fitness.");
 
   fitName_ = "fit_" + pfitset_->getNamespace();

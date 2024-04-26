@@ -501,14 +501,14 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
 
   vector<double> rateFreqs;
   string tmpDesc;
-  if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+  if (AlphabetTools::isCodonAlphabet(*alphabet))
   {
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instantiating a codon model.");
     bIO.setGeneticCode(gCode);
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
   }
-  else if (AlphabetTools::isWordAlphabet(alphabet.get()))
+  else if (AlphabetTools::isWordAlphabet(*alphabet))
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
@@ -561,9 +561,9 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
   {
     string prefix = "model" + TextTools::toString(i + 1);
     string modelDesc;
-    if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+    if (AlphabetTools::isCodonAlphabet(*alphabet))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
-    else if (AlphabetTools::isWordAlphabet(alphabet.get()))
+    else if (AlphabetTools::isWordAlphabet(*alphabet))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
@@ -665,7 +665,7 @@ void LegacyPhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
       auto pSM = dynamic_pointer_cast<const MixedTransitionModelInterface>(mixedModelSet.getModel(static_cast<size_t>(num - 1)));
-      if (pSM == NULL)
+      if (!pSM)
         throw BadIntegerException("LegacyPhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", num - 1);
       Vuint submodnb = pSM->getSubmodelNumbers(p2);
 
