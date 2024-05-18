@@ -157,6 +157,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
     bool verbose,
     int warn)
 {
+  
   vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
   map<size_t, shared_ptr<PhyloTree>> mTree;
@@ -488,7 +489,10 @@ std::unique_ptr<SubstitutionModelInterface> PhylogeneticsApplicationTools::getSu
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  auto model = bIO.readSubstitutionModel(alphabet, modelDescription, *data, true);
+  std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
+  mData[1]=data;
+  
+  auto model = bIO.readSubstitutionModel(alphabet, modelDescription, mData, 1, true);
 
   unparsedParams.insert(bIO.getUnparsedArguments().begin(), bIO.getUnparsedArguments().end());
 
@@ -521,7 +525,10 @@ std::unique_ptr<BranchModelInterface> PhylogeneticsApplicationTools::getBranchMo
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  auto model = bIO.readBranchModel(alphabet, modelDescription, *data, true);
+  std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
+  mData[1]=data;
+
+  auto model = bIO.readBranchModel(alphabet, modelDescription, mData, 1, true);
   map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
   unparsedParams.insert(tmpUnparsedParameterValues.begin(), tmpUnparsedParameterValues.end());
@@ -577,11 +584,14 @@ map<size_t, std::shared_ptr<DiscreteDistributionInterface>> PhylogeneticsApplica
 
     string distDescription = ApplicationTools::getStringParameter(vratesName[i], paramDist, "", suffix, suffixIsOptional);
 
-    mDist[num] = std::shared_ptr<DiscreteDistributionInterface>(bIO.readDiscreteDistribution(distDescription, true));
+    if (num!=0)
+      mDist[num] = std::shared_ptr<DiscreteDistributionInterface>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
   if (mDist.size() == 0)
   {
+    ApplicationTools::displayMessage("");
+    ApplicationTools::displayMessage("Rate 1");
     string distDescription = ApplicationTools::getStringParameter("rate_distribution", paramDist, "Constant()", suffix, suffixIsOptional);
     mDist[1] = std::shared_ptr<DiscreteDistributionInterface>(bIO.readDiscreteDistribution(distDescription, true));
   }
@@ -652,38 +662,14 @@ map<size_t, std::unique_ptr<BranchModelInterface>> PhylogeneticsApplicationTools
 
     string modelDescription = ApplicationTools::getStringParameter("model" + TextTools::toString(modelsNum[i]), paramModel, "", suffix, suffixIsOptional, warn);
 
-    map<string, string> args;
-    string modelName;
-
-    KeyvalTools::parseProcedure(modelDescription, modelName, args);
-
-    size_t nData = 0;
-
-    if (args.find("data") != args.end())
-      nData = TextTools::to<size_t>(args["data"]);
-
-
     unique_ptr<BranchModelInterface> model;
-    if (args.find("data") != args.end() && mData.find(nData) != mData.end())
-      model = bIO.readBranchModel(alphabet, modelDescription, *mData.find(nData)->second, true);
-    else
-    {
-      VectorSiteContainer data(alphabet);
-      model = bIO.readBranchModel(alphabet, modelDescription, data, true);
-    }
+    model = bIO.readBranchModel(alphabet, modelDescription, mData, 0, true);
 
     map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
     for (auto& it : tmpUnparsedParameterValues)
     {
       unparsedParams[it.first + "_" + TextTools::toString(modelsNum[i])] = it.second;
-    }
-
-    if (verbose)
-    {
-      //   ApplicationTools::displayResult("substitution Model " + TextTools::toString(modelsNum[i]), model->getName());
-      if (nData != 0)
-        ApplicationTools::displayResult("Data used ", TextTools::toString(nData));
     }
 
     mModel[modelsNum[i]] = std::move(model);
@@ -701,7 +687,8 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getFrequen
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
     const string& freqDescription,
-    const AlignmentDataInterface& data,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData,
     map<string, string>& sharedparams,
     const vector<double>& rateFreqs,
     bool verbose,
@@ -715,7 +702,8 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getFrequen
       throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instantiating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  auto pFS = bIO.readFrequencySet(alphabet, freqDescription, data, true);
+
+  auto pFS = bIO.readFrequencySet(alphabet, freqDescription, mData, nData, true);
 
   map<string, string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -734,7 +722,8 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getFrequen
 std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getRootFrequencySet(
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const GeneticCode> gCode,
-    const AlignmentDataInterface& data,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData,
     const map<string, string>& params,
     map<string, string>& sharedparams,
     const vector<double>& rateFreqs,
@@ -752,7 +741,7 @@ std::unique_ptr<FrequencySetInterface> PhylogeneticsApplicationTools::getRootFre
   {
     map<string, string> unparams;
 
-    auto freq = getFrequencySet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
+    auto freq = getFrequencySet(alphabet, gCode, freqDescription, mData, nData, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
     for (auto& it : unparams)
@@ -827,15 +816,7 @@ map<size_t, std::unique_ptr<FrequencySetInterface>> PhylogeneticsApplicationTool
 
     unique_ptr<FrequencySetInterface> rFS;
 
-    if (args.find("data") != args.end())
-    {
-      rFS = bIO.readFrequencySet(alphabet, freqDescription, *mData.find(nData)->second, true);
-    }
-    else
-    {
-      VectorSiteContainer data(alphabet);
-      rFS = bIO.readFrequencySet(alphabet, freqDescription, data, true);
-    }
+    rFS = bIO.readFrequencySet(alphabet, freqDescription, mData, nData, true);
 
     rFS->setNamespace("root." + rFS->getNamespace());
 

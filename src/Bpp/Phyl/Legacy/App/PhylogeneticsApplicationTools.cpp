@@ -513,7 +513,10 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  shared_ptr<TransitionModelInterface> tmp = bIO.readTransitionModel(alphabet, tmpDesc, *data, false);
+  std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
+  mData[1]=data;
+
+  shared_ptr<TransitionModelInterface> tmp = bIO.readTransitionModel(alphabet, tmpDesc, mData, 1, false);
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
@@ -533,7 +536,7 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
   std::shared_ptr<FrequencySetInterface> rootFrequencies(0);
   if (!stationarity)
   {
-    rootFrequencies = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode, *data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
+    rootFrequencies = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode, mData, 1, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
     stationarity = !rootFrequencies;
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
     if (freqDescription.substr(0, 10) == "MVAprotein")
@@ -568,7 +571,7 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    auto model = bIO.readTransitionModel(alphabet, modelDesc, *data, false);
+    auto model = bIO.readTransitionModel(alphabet, modelDesc, mData, 1, false);
 
     map<string, string> unparsedModelParameters = bIO.getUnparsedArguments();
     map<string, string> sharedParameters;

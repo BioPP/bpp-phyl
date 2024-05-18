@@ -236,9 +236,14 @@ public:
    * @param alphabet         The alphabet to use.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-   * @param data   A pointer toward the AlignmentDataInterface<std::string> for which the root frequencies are designed.
-   *               The alphabet associated to the data must be of the same type as the one specified for the model.
-   *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
+   * @param mData A map <size_t, AlignmentDataInterface> used for
+   *             the initialization of the frequency set when this
+   *             data is needed (typically use_observed_freq option).
+   *             The alphabet associated to the data must be of the
+   *             same type as the one specified for the frequency set. May be
+   *             equal to NULL, but in this case will be unavailable.
+   * @param nData the number of the AlignmentDataInterface used in the mData map.
+   *             0 if this number has not been defined.
    * @param params           The attribute map where options may be found.
    * @param sharedparams     The attribute map of aliases (out).
    * @param rateFreqs        A vector of rate categories frequencies in case of a Markov Modulated Markov Model.
@@ -253,7 +258,8 @@ public:
   static std::unique_ptr<FrequencySetInterface> getRootFrequencySet(
       std::shared_ptr<const Alphabet> alphabet,
       std::shared_ptr<const GeneticCode> gCode,
-      const AlignmentDataInterface& data,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData, 
       const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& sharedparams,
       const std::vector<double>& rateFreqs,
@@ -283,7 +289,7 @@ public:
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
    *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
    * @param freqDescription  A string in the keyval syntax describing the frequency set to use.
-   * @param data A pointer toward an AlignmentDataInterface<std::string> used for
+   * @param data A pointer toward an AlignmentDataInterface used for
    *             the initialization of the frequency set when this
    *             data is needed (typically use_observed_freq option).
    *             The alphabet associated to the data must be of the
@@ -297,16 +303,56 @@ public:
    *
    * @return A new FrequencySet object according to options specified.
    */
+  
   static std::unique_ptr<FrequencySetInterface> getFrequencySet(
       std::shared_ptr<const Alphabet> alphabet,
       std::shared_ptr<const GeneticCode> gCode,
       const std::string& freqDescription,
-      const AlignmentDataInterface& data,
+      std::shared_ptr<const AlignmentDataInterface> data,
       std::map<std::string, std::string>& sharedParams,
       const std::vector<double>& rateFreqs,
       bool verbose = true,
-      int warn = 1);
+      int warn = 1)
+  {
+    std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
+    mData[1]=data;
 
+    return getFrequencySet(alphabet, gCode, freqDescription, mData, 1, sharedParams, rateFreqs, verbose, warn);
+  }
+
+  /**
+   * @brief Get A FrequencySet object according to options.
+   *
+   * @param alphabet         The alphabet to use.
+   * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
+   *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
+   * @param freqDescription  A string in the keyval syntax describing the frequency set to use.
+   * @param mData A map <size_t, AlignmentDataInterface> used for
+   *             the initialization of the frequency set when this
+   *             data is needed (typically use_observed_freq option).
+   *             The alphabet associated to the data must be of the
+   *             same type as the one specified for the frequency set. May be
+   *             equal to NULL, but in this case will be unavailable.
+   * @param nData the number of the AlignmentDataInterface used in the mData map.
+   *             0 if this number has not been defined.
+   * @param sharedParams     (out) remote parameters will be recorded here.
+   * @param rateFreqs        A vector of rate categories frequencies in case of a Markov Modulated Markov Model.
+   *                         Ignored if a vector with size 0 is passed.
+   * @param verbose          Print some info to the 'message' output stream.
+   * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+   *
+   * @return A new FrequencySet object according to options specified.
+   */
+  static std::unique_ptr<FrequencySetInterface> getFrequencySet(
+    std::shared_ptr<const Alphabet> alphabet,
+    std::shared_ptr<const GeneticCode> gCode,
+    const std::string& freqDescription,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData,
+    std::map<std::string, std::string>& sharedParams,
+    const std::vector<double>& rateFreqs,
+    bool verbose = true,
+    int warn = 1);
 
   /**
    * @brief Build map of ModelPaths from a map of BranchModel.

@@ -136,7 +136,7 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters(
 
   auto desc = make_unique<MetaOptimizerInfos>();
   unique_ptr<MetaOptimizer> poptimizer;
-  shared_ptr<NumericalDerivativeInterface> fnum(new ThreePointsNumericalDerivative(f));
+  shared_ptr<AbstractNumericalDerivative> fnum(new ThreePointsNumericalDerivative(f));
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
     desc->addOptimizer("Branch length parameters", make_shared<ConjugateGradientMultiDimensions>(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
@@ -243,7 +243,7 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters2(
     pl = f->getParameters().createSubList(pl.getParameterNames());
   }
 
-  shared_ptr<NumericalDerivativeInterface> fnum;
+  shared_ptr<AbstractNumericalDerivative> fnum;
 
   // Build optimizer:
   unique_ptr<OptimizerInterface> optimizer;

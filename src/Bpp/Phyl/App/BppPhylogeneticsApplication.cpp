@@ -283,8 +283,8 @@ void BppPhylogeneticsApplication::fixLikelihood(
 }
 
 
-void BppPhylogeneticsApplication::displayParameters(const PhyloLikelihoodInterface& tl, bool displaylL) const
-{
+void BppPhylogeneticsApplication::displayParameters(const PhyloLikelihoodInterface& tl, bool displaylL) const{
+
   // Write parameters to screen:
   if (displaylL)
     ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl.getValue(), 15));

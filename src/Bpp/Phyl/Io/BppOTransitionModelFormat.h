@@ -24,7 +24,8 @@ private:
   std::unique_ptr<MixedTransitionModelInterface> readMixed_(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface& data);
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData);
 
 public:
   /**
@@ -57,7 +58,8 @@ public:
   std::unique_ptr<TransitionModelInterface> readTransitionModel(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface& data,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData,
       bool parseArguments = true);
 };
 } // end of namespace bpp.
