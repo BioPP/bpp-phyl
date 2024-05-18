@@ -24,7 +24,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
   try
   {
     const auto& siteContainer = dynamic_cast<const SiteContainerInterface&>(sequenceSet);
-    getSequenceSubset(siteContainer, node);
+    return getSequenceSubset(siteContainer, node);
   }
   catch (std::bad_cast& e)
   {}
@@ -32,7 +32,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::getSequenceSubset(
   try
   {
     const auto& siteContainer = dynamic_cast<const ProbabilisticSiteContainerInterface&>(sequenceSet);
-    getSequenceSubset(siteContainer, node);
+    return getSequenceSubset(siteContainer, node);
   }
   catch (std::bad_cast& e)
   {}
@@ -188,7 +188,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::shrinkSiteSet(
   try
   {
     const auto& sc = dynamic_cast<const SiteContainerInterface&>(siteSet);
-    shrinkSiteSet(sc);
+    return shrinkSiteSet(sc);
   }
   catch (std::bad_cast& e)
   {}
@@ -196,7 +196,7 @@ std::unique_ptr<AlignmentDataInterface> PatternTools::shrinkSiteSet(
   try
   {
     const auto& psc = dynamic_cast<const ProbabilisticSiteContainerInterface&>(siteSet);
-    shrinkSiteSet(psc);
+    return shrinkSiteSet(psc);
   }
   catch (std::bad_cast& e)
   {}

@@ -396,6 +396,21 @@ public:
   const std::shared_ptr<FrequencySetInterface> getRootFrequencySet() const { return rootFrequencies_; }
 
   /**
+   * @return The set of root frequencies.
+   */
+  const FrequencySetInterface& rootFrequencySet() const
+  { 
+    if (rootFrequencies_) 
+    {
+      return *rootFrequencies_;
+    }
+    else
+    {
+      throw NullPointerException("SubstitutionModelSet::rootFrequencySet. No associated root frequencies.");
+    }
+  }
+
+ /**
    * @return The values of the root frequencies.
    */
   std::vector<double> getRootFrequencies() const

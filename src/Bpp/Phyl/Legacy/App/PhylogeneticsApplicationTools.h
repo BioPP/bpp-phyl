@@ -339,7 +339,11 @@ public:
    *                      Parameters instead of the values (default
    *                      : true).
    */
-  static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn = 1, bool withAlias = true);
+  static void printParameters(
+      const SubstitutionModelSet& modelSet,
+      OutputStream& out,
+      int warn = 1,
+      bool withAlias = true);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LEGACY_APP_PHYLOGENETICSAPPLICATIONTOOLS_H

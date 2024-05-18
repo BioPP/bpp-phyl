@@ -1181,12 +1181,16 @@ void LegacyPhylogeneticsApplicationTools::writeTrees(
 
 /******************************************************************************/
 
-void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn, bool withAlias)
+void LegacyPhylogeneticsApplicationTools::printParameters(
+    const SubstitutionModelSet& modelSet,
+    OutputStream& out,
+    int warn,
+    bool withAlias)
 {
   (out << "nonhomogeneous=general").endLine();
-  (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
+  (out << "nonhomogeneous.number_of_models=" << modelSet.getNumberOfModels()).endLine();
 
-  if (modelSet->isStationary())
+  if (modelSet.isStationary())
     (out << "nonhomogeneous.stationarity = yes");
 
   // Get the parameter links:
@@ -1195,9 +1199,9 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
   vector<string> writtenNames;
 
   // Loop over all models:
-  for (size_t i = 0; i < modelSet->getNumberOfModels(); ++i)
+  for (size_t i = 0; i < modelSet.getNumberOfModels(); ++i)
   {
-    shared_ptr<const BranchModelInterface> model = modelSet->getModel(i);
+    shared_ptr<const BranchModelInterface> model = modelSet.getModel(i);
 
     // First get the aliases for this model:
 
@@ -1208,7 +1212,7 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
     {
       for (size_t np = 0; np < pl.size(); np++)
       {
-        string nfrom = modelSet->getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
+        string nfrom = modelSet.getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
         if (nfrom != "")
           aliases[pl[np].getName()] = nfrom;
       }
@@ -1221,7 +1225,7 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
     bIOsm.write(*model, out, aliases, writtenNames);
 
     out.endLine();
-    vector<int> ids = modelSet->getNodesWithModel(i);
+    vector<int> ids = modelSet.getNodesWithModel(i);
     out << "model" << (i + 1) << ".nodes_id=" << ids[0];
     for (size_t j = 1; j < ids.size(); ++j)
     {
@@ -1232,11 +1236,10 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
 
   // First get the aliases for this frequencies set
 
-  if (!modelSet->isStationary())
+  if (!modelSet.isStationary())
   {
-    const auto pFS = modelSet->getRootFrequencySet();
-
-    ParameterList plf = pFS->getParameters();
+    const auto& pFS = modelSet.rootFrequencySet();
+    ParameterList plf = pFS.getParameters();
 
     map<string, string> aliases;
 
@@ -1244,7 +1247,7 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
     {
       for (size_t np = 0; np < plf.size(); np++)
       {
-        string nfrom = modelSet->getFrom(plf[np].getName());
+        string nfrom = modelSet.getFrom(plf[np].getName());
         if (nfrom != "")
           aliases[plf[np].getName()] = nfrom;
       }
@@ -1256,6 +1259,6 @@ void LegacyPhylogeneticsApplicationTools::printParameters(const SubstitutionMode
     out << "nonhomogeneous.root_freq=";
 
     BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
-    bIO.writeFrequencySet(*pFS, out, aliases, writtenNames);
+    bIO.writeFrequencySet(pFS, out, aliases, writtenNames);
   }
 }
