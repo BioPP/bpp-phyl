@@ -1544,7 +1544,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     else
       ns = ns.substr(0, ns.size() - 1);
 
-    out << ",name=" << ns;
+    out << ", name=" << ns;
     comma = true;
   }
   catch (bad_cast&)
@@ -1561,7 +1561,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     {
       const G2001& gModel = dynamic_cast<const G2001&>(model);
       // Also print distribution here:
-      out << ",rdist=";
+      out << ", rdist=";
       const DiscreteDistributionInterface& nestedDist = gModel.rateDistribution();
       const BppODiscreteDistributionFormat bIO;
       bIO.writeDiscreteDistribution(nestedDist, out, globalAliases, writtenNames);
@@ -1675,7 +1675,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
         write(mod0, out, globalAliases, writtenNames);
         for (unsigned int i = 1; i < nmod; ++i)
         {
-          out << ",model" + TextTools::toString(i + 1) + "=";
+          out << ", model" + TextTools::toString(i + 1) + "=";
           write(wM.nModel(i), out, globalAliases, writtenNames);
         }
       }
@@ -1737,7 +1737,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     if (fd.size() != 0)
     {
       if (comma)
-        out << ",";
+        out << ", ";
       out << "frequencies=" + fd;
     }
     comma = true;
@@ -1755,7 +1755,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
       {
         auto& acr = dynamic_cast<const AbstractCodonAARateSubstitutionModel&>(casm.layerModel(i));
         if (comma)
-          out << ",";
+          out << ", ";
         out << "protmodel=";
 
         write(acr.aaModel(), out, globalAliases, writtenNames);
@@ -1768,7 +1768,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
       {
         auto& acf = dynamic_cast<const AbstractCodonAAFitnessSubstitutionModel&>(casm.layerModel(i));
         if (comma)
-          out << ",";
+          out << ", ";
         out << "fitness=";
 
         BppOFrequencySetFormat bIOFreq(PROTEIN, false, warningLevel_);
@@ -1782,14 +1782,14 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
       {
         auto& acc = dynamic_cast<const AbstractCodonClusterAASubstitutionModel&>(casm.layerModel(i));
         if (comma)
-          out << ",";
+          out << ", ";
         out << "partition=(";
         const vector<uint>& vass = acc.getAssign();
 
         for (size_t j = 0; j < vass.size(); ++j)
         {
           if (j != 0)
-            out << ",";
+            out << ", ";
           out << vass[j];
         }
         out << ")";
@@ -1808,7 +1808,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     auto& pCF = dynamic_cast<const SENCA&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
     out << "fitness=";
 
     BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
@@ -1824,7 +1824,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     auto& pM7 = dynamic_cast<const YNGP_M7&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
     out << "n=" << pM7.getNumberOfModels();
     comma = true;
   }
@@ -1835,7 +1835,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     auto& pM8 = dynamic_cast<const YNGP_M8&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
     out << "n=" << pM8.getNumberOfModels() - 1;
     comma = true;
   }
@@ -1846,8 +1846,8 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     auto& pM9 = dynamic_cast<const YNGP_M9&>(model);
     if (comma)
-      out << ",";
-    out << "nbeta=" << pM9.getNBeta() << ",ngamma=" << pM9.getNGamma();
+      out << ", ";
+    out << "nbeta=" << pM9.getNBeta() << ", ngamma=" << pM9.getNGamma();
 
     comma = true;
   }
@@ -1858,8 +1858,8 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     auto& pM10 = dynamic_cast<const YNGP_M10&>(model);
     if (comma)
-      out << ",";
-    out << "nbeta=" << pM10.getNBeta() << ",ngamma=" << pM10.getNGamma();
+      out << ", ";
+    out << "nbeta=" << pM10.getNBeta() << ", ngamma=" << pM10.getNGamma();
 
     comma = true;
   }
@@ -1870,7 +1870,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     auto& pLGL = dynamic_cast<const LGL08_CAT&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
     out << "nbCat=" << pLGL.getNumberOfCategories();
 
     comma = true;
@@ -1882,7 +1882,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     auto& pDFP = dynamic_cast<const DFP07&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
 
     out << "protmodel=";
     write(pDFP.proteinModel(), out, globalAliases, writtenNames);
@@ -1896,7 +1896,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     auto& pSameAA = dynamic_cast<const CodonSameAARateSubstitutionModel&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
 
     out << "codonmodel=";
     write(pSameAA.codonModel(), out, globalAliases, writtenNames);
@@ -1986,7 +1986,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModelInterfac
       write(eM, out, globalAliases, writtenNames);
 
       if (pMS.from() != -1)
-        out << ",from=" << model.getAlphabet()->intToChar(pMS.from()) << ",to=" << model.getAlphabet()->intToChar(pMS.to());
+        out << ", from=" << model.getAlphabet()->intToChar(pMS.from()) << ", to=" << model.getAlphabet()->intToChar(pMS.to());
     }
     catch (bad_cast&)
     {}
