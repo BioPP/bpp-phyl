@@ -115,6 +115,7 @@ ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, double ps
   CorrespondenceAnalysis coa(freqMatrix, 19);
   // Matrix of principal axes:
   RowMatrix<double> ppalAxes = coa.getPrincipalAxes();
+
   // The transpose of the matrix of principal axes is computed:
   MatrixTools::transpose(ppalAxes, P_);
   // The matrix of row coordinates is stored:
@@ -143,7 +144,7 @@ ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, double ps
       if (paramValues_.hasParameter("AxPos" + TextTools::toString(i)))
         pList.addParameter(new Parameter("Coala.AxPos" + TextTools::toString(i), paramValues_.getParameterValue("AxPos" + TextTools::toString(i).substr(0, 8)), constraint));
       else
-        pList.addParameter(new Parameter("Coala.AxPos" + TextTools::toString(i), 0., constraint));
+        pList.addParameter(new Parameter("Coala.AxPos" + TextTools::toString(i), (minCoord+maxCoord)/2, constraint));
     }
   }
   return pList;
