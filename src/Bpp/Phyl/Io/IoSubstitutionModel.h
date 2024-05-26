@@ -52,7 +52,8 @@ public:
    *
    * @param alphabet         The alphabet to use in the model.
    * @param modelDescription A string describing the model in the format.
-   * @param data             A pointer toward a AlignedValuesContainer, which can be used to initial some parameters like frequencies.
+   * @param mData            A map towards pointers of SiteContainer with the data to use to initialize frequency parameters
+   * @param nData            Number of the SiteContainer in the mData. Can be set to 0, if none assigned.
    * @param parseArguments Attempt to parse function arguments. If not, only store them and use default values instead.
    * @return A new SubstitutionModel object according to options specified.
    * @throw Exception if an error occurred.
@@ -60,7 +61,8 @@ public:
   virtual std::unique_ptr<SubstitutionModelInterface> readSubstitutionModel(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface& data,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData,
       bool parseArguments = true) = 0;
 
   /**

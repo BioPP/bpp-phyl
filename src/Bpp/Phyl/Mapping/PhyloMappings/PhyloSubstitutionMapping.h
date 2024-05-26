@@ -49,6 +49,7 @@ public:
   /**
    * @brief compute Normalizations
    * @param nullParams a list of null parameters
+   * @param unresolvedOption  mgmt of gaps in the counts (default: counted as zeros)
    * @param verbose
    */
 
@@ -68,8 +69,9 @@ public:
 
   /**
    * @brief ComputeCounts
-   * @param threshold
-   * @param verbose
+   * @param unresolvedOption  mgmt of gaps in the counts (default: counted as zeros)
+   * @param threshold 
+   * @param verbose 
    */
 
   virtual void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,

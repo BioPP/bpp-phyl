@@ -38,12 +38,20 @@ void fitModelH(shared_ptr<SubstitutionModelInterface> model,
   ApplicationTools::displayResult("* initial likelihood", initValue);
   if (abs(initValue - initialValue) > 0.001)
     throw Exception("Incorrect initial value:" + TextTools::toString(initValue) + "<>" + TextTools::toString(initialValue));
-  shared_ptr<OutputStream> messenger(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
-  shared_ptr<OutputStream> profiler(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
-  profiler->setPrecision(20);
 
+  // Set up optimization options
+  OptimizationTools::OptimizationOptions optopt;
 
-  OptimizationTools::optimizeNumericalParameters2(llh, llh->getParameters(), 0, 0.000001, 10000, messenger, profiler, false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
+  optopt.messenger = std::shared_ptr<OutputStream>(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
+  optopt.profiler = std::shared_ptr<OutputStream>(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
+  optopt.profiler->setPrecision(20);
+
+  optopt.parameters = llh->getParameters();
+  optopt.verbose = 2;
+  optopt.useClock = true;
+  
+  OptimizationTools::optimizeNumericalParameters2(llh, optopt);
+  
   cout << setprecision(20) << llh->getValue() << endl;
   ApplicationTools::displayResult("* likelihood after full optimization", llh->getValue());
   llh->getParameters().printParameters(cout);
@@ -73,11 +81,17 @@ void fitModelHClock(shared_ptr<SubstitutionModelInterface> model,
   ApplicationTools::displayResult("* initial likelihood", initValue);
   if (abs(initValue - initialValue) > 0.001)
     throw Exception("Incorrect initial value:" + TextTools::toString(initValue) + "<>" + TextTools::toString(initialValue));
-  shared_ptr<OutputStream> messenger(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
-  shared_ptr<OutputStream> profiler(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
-  profiler->setPrecision(20);
 
-  OptimizationTools::optimizeNumericalParameters2(llh, llh->getParameters(), 0, 0.000001, 10000, messenger, profiler);
+  // Set up optimization options
+  OptimizationTools::OptimizationOptions optopt;
+
+  optopt.messenger = std::shared_ptr<OutputStream>(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
+  optopt.profiler = std::shared_ptr<OutputStream>(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
+  optopt.profiler->setPrecision(20);
+  optopt.parameters = llh->getParameters();
+
+  OptimizationTools::optimizeNumericalParameters2(llh, optopt);
+  
   cout << setprecision(20) << llh->getValue() << endl;
   ApplicationTools::displayResult("* likelihood after full optimization", llh->getValue());
   llh->getParameters().printParameters(cout);

@@ -210,23 +210,22 @@ int main()
   cout << "Optimization : " << endl;
   cout << endl;
 
-  auto profiler  = make_shared<StlOutputStream>(make_unique<ofstream>("profile.txt", ios::out));
-  auto messenger = make_shared<StlOutputStream>(make_unique<ofstream>("messages.txt", ios::out));
+  OptimizationTools::OptimizationOptions optopt;
 
-  unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
-        spl1, spl1->getParameters(), 0,
-        0.0001, 10000,
-        messenger, profiler,
-        false, false,
-        1, OptimizationTools::OPTIMIZATION_NEWTON);
+  optopt.verbose = 0;
+  optopt.messenger = std::shared_ptr<OutputStream>(new StlOutputStream(make_unique<ofstream>("messages.txt", ios::out)));
+  optopt.profiler = std::shared_ptr<OutputStream>(new StlOutputStream(make_unique<ofstream>("profile.txt", ios::out)));
+  optopt.profiler->setPrecision(20);
+  optopt.parameters = spl1->getParameters();
+  
+  unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(spl1, optopt);
 
   cerr << "Opt 1: rounds " << c1 << endl;
 
   cerr << "--------------------------------" << endl;
 
-  unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
-        spl2, spl2->getParameters(), 0,
-        0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+  optopt.parameters = spl2->getParameters();
+  unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(spl2, optopt);
 
   spl1->getParameters().printParameters(std::cout);
 
@@ -239,12 +238,8 @@ int main()
 
   cerr << "--------------------------------" << endl;
 
-  unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
-        mlc, mlc->getParameters(), 0,
-        0.0001, 10000,
-        messenger, profiler,
-        false, false,
-        1, OptimizationTools::OPTIMIZATION_NEWTON);
+  optopt.parameters = mlc->getParameters();
+  unsigned int cM = OptimizationTools::optimizeNumericalParameters2(mlc, optopt);
 
   cerr << "Opt M rounds: " << cM << endl;
 
@@ -254,12 +249,8 @@ int main()
 
   cerr << "--------------------------------" << endl;
 
-  unsigned int cM2 = OptimizationTools::optimizeNumericalParameters2(
-        moap, moap->getParameters(), 0,
-        0.0001, 10000,
-        messenger, profiler,
-        false, false,
-        1, OptimizationTools::OPTIMIZATION_NEWTON);
+  optopt.parameters = moap->getParameters();
+  unsigned int cM2 = OptimizationTools::optimizeNumericalParameters2(moap, optopt);
 
   cerr << "Opt MOAP rounds: " << cM2 << endl;
 
@@ -278,12 +269,8 @@ int main()
 
   bpp::writeGraphToDot("formula.dot", {tl->getLikelihoodNode().get()}); // , DotOptions::DetailedNodeInfo | DotOp
 
-  unsigned int cMtl = OptimizationTools::optimizeNumericalParameters2(
-        tl, tl->getParameters(), 0,
-        0.0001, 10000,
-        messenger, profiler,
-        false, false,
-        1, OptimizationTools::OPTIMIZATION_NEWTON);
+  optopt.parameters = tl->getParameters();
+  unsigned int cMtl = OptimizationTools::optimizeNumericalParameters2(tl, optopt);
 
   cerr << "Opt tl rounds: " << cMtl << endl;
 

@@ -69,9 +69,6 @@ public:
     return model().getName();
   }
 
-  /**
-   * @}
-   */
 };
 
 class AbstractWrappedTransitionModel :
@@ -288,9 +285,6 @@ public:
     substitutionModel_().setScale(scale);
   }
 
-  /**
-   * @}
-   */
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTWRAPPEDMODEL_H

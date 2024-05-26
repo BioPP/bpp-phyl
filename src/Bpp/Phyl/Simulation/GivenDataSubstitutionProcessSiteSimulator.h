@@ -51,8 +51,9 @@ public:
    *
    * @param calcul the a posteriori likelihood calculation
    * @param pos the position of the site to imitate
-   * @paream shrunked if the given position is on the shrunked data (default: false)
+   * @param shrunked if the given position is on the shrunked data (default: false)
    */
+  
   GivenDataSubstitutionProcessSiteSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos, bool shrunked = false) :
     SimpleSubstitutionProcessSiteSimulator(calcul->getSubstitutionProcess()),
     calcul_(calcul),

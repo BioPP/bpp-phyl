@@ -86,7 +86,10 @@ protected:
 
 public:
   /**
+   * @param context the Context
+   * @param pC  PhyloLikelihoodContainer from which the Set is buit
    * @param inCollection : avoid suffix addition to parameter names
+   * @param prefix optional string
    */
   AbstractPhyloLikelihoodSet(
       Context& context,

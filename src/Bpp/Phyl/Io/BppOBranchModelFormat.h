@@ -50,7 +50,8 @@ public:
   std::unique_ptr<BranchModelInterface> readBranchModel(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface& data,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData,
       bool parseArguments = true);
 };
 } // end of namespace bpp.

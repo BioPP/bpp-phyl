@@ -231,7 +231,7 @@ public:
    */
 
   /**
-   * @briefCreate a Process Tree following a Substitution Process. Tree
+   * @brief Create a Process Tree following a Substitution Process. Tree
    * Node parameters are got from ConfiguredParameters PREVIOUSLY
    * built and stored in a ParameterList.
    */

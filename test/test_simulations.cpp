@@ -74,13 +74,15 @@ int main()
   auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   auto llh = make_shared<SingleProcessPhyloLikelihood>(context, l);
 
-  OptimizationTools::optimizeNumericalParameters2(
-      llh, llh->getParameters(), 0,
-      0.0001, 10000,
-      messenger, profiler,
-      false, false,
-      1, OptimizationTools::OPTIMIZATION_NEWTON);
+  OptimizationTools::OptimizationOptions optopt;
 
+  optopt.parameters = llh->getParameters();
+  optopt.verbose = 0;
+  optopt.messenger = messenger;
+  optopt.profiler = profiler;
+  
+  OptimizationTools::optimizeNumericalParameters2(llh, optopt);
+  
   process->matchParametersValues(llh->getParameters());
 
   // Now compare estimated values to real ones:
@@ -112,13 +114,10 @@ int main()
   auto l2 = make_shared<LikelihoodCalculationSingleProcess>(context, sites2, process2);
   auto llh2 = make_shared<SingleProcessPhyloLikelihood>(context, l2);
 
-  OptimizationTools::optimizeNumericalParameters2(
-      llh2, llh2->getParameters(), 0,
-      0.0001, 10000,
-      messenger, profiler,
-      false, false, 1,
-      OptimizationTools::OPTIMIZATION_NEWTON);
-
+  optopt.parameters = llh2->getParameters();
+  
+  OptimizationTools::optimizeNumericalParameters2(llh2, optopt);
+  
   process2->matchParametersValues(llh2->getParameters());
 
   // Now compare estimated values to real ones:

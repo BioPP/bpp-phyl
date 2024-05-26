@@ -157,7 +157,14 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
         false);
   tlop->initialize();
 
-  LegacyOptimizationTools::optimizeNumericalParameters2(tlop, tlop->getParameters(), 0, 0.000001, nboptim, 0, 0);
+  // Set up optimization options
+  OptimizationTools::OptimizationOptions optopt;
+
+  optopt.parameters = tlop->getParameters();
+  optopt.nbEvalMax = nboptim;
+  optopt.verbose = 0;
+
+  LegacyOptimizationTools::optimizeNumericalParameters2(tlop, optopt.parameters, optopt.listener, optopt.tolerance, optopt.nbEvalMax, optopt.messenger, optopt.profiler, optopt.reparametrization, optopt.useClock);
   cout << setprecision(20) << tlop->getValue() << endl;
   ApplicationTools::displayResult("* lnL after full optimization (old)", tlop->getValue());
   if (abs(tlop->getValue() - finalValue) > 0.001)
@@ -178,7 +185,9 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
 
   ParameterList opln1 = process->getBranchLengthParameters(true);
 
-  OptimizationTools::optimizeNumericalParameters2(llh2, llh2->getParameters(), 0, 0.000001, nboptim, 0, 0);
+  optopt.parameters = llh2->getParameters();
+  OptimizationTools::optimizeNumericalParameters2(llh2, optopt);
+  
   cout << setprecision(20) << llh2->getValue() << endl;
   ApplicationTools::displayResult("* lnL after full optimization (new)", llh2->getValue());
   if (abs(llh2->getValue() - finalValue) > 0.001)

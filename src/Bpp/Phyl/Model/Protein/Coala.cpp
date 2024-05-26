@@ -35,6 +35,7 @@ Coala::Coala(
   CoalaCore(nbAxes),
   init_(true),
   nbrOfAxes_(nbAxes),
+  exch_(model.getName()),
   file_(),
   param_(param)
 {

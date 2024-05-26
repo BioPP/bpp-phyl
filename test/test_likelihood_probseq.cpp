@@ -167,9 +167,14 @@ void fitModelHSR(
 
   ParameterList opln1 = process->getBranchLengthParameters(true);
 
-  OptimizationTools::optimizeNumericalParameters2(
-      newTl, newTl->getParameters(),
-      0, 0.000001, nboptim, 0, 0);
+  OptimizationTools::OptimizationOptions optopt;
+
+  optopt.parameters = newTl->getParameters();
+  optopt.nbEvalMax = nboptim;
+  optopt.verbose = 0;
+
+  OptimizationTools::optimizeNumericalParameters2(newTl, optopt);
+  
   cout << setprecision(20) << newTl->getValue() << endl;
   ApplicationTools::displayResult("* lnL after full optimization (new)", newTl->getValue());
   if (abs(newTl->getValue() - finalValue) > 0.001)

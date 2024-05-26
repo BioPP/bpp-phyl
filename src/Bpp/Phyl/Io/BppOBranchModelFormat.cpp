@@ -37,7 +37,8 @@ using namespace std;
 std::unique_ptr<BranchModelInterface> BppOBranchModelFormat::readBranchModel(
     shared_ptr<const Alphabet> alphabet,
     const string& modelDescription,
-    const AlignmentDataInterface& data,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData,
     bool parseArguments)
 {
   unparsedArguments_.clear();
@@ -45,6 +46,12 @@ std::unique_ptr<BranchModelInterface> BppOBranchModelFormat::readBranchModel(
   string modelName = "";
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
+
+  // get data number
+
+  if (args.find("data") != args.end())
+    nData = TextTools::to<size_t>(args["data"]);
+
 
   // //////////////////////////////////
   // / MIXED MODELS
@@ -60,14 +67,14 @@ std::unique_ptr<BranchModelInterface> BppOBranchModelFormat::readBranchModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    std::shared_ptr<TransitionModelInterface> nestedModel = nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false);
+    std::shared_ptr<TransitionModelInterface> nestedModel = nestedReader.readTransitionModel(alphabet, nestedModelDescription, mData, nData, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     model.reset(new MultinomialFromTransitionModel(nestedModel));
   }
 
   if (!model)
-    model = readTransitionModel(alphabet, modelDescription, data, parseArguments);
+    model = readTransitionModel(alphabet, modelDescription, mData, nData, parseArguments);
   else
   {
     if (verbose_)
@@ -76,8 +83,20 @@ std::unique_ptr<BranchModelInterface> BppOBranchModelFormat::readBranchModel(
     updateParameters_(*model, args);
 
     if (parseArguments)
-      initialize_(*model, data);
+    {
+      if (nData)
+        initialize_(*model, mData.at(nData));
+      else
+        initialize_(*model, 0);
+    }
   }
+
+  if (verbose_)
+  {
+    if (nData != 0)
+      ApplicationTools::displayResult("Data used ", TextTools::toString(nData));
+  }
+
 
   return model;
 }

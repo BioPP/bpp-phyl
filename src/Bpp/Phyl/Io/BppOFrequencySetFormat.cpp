@@ -15,6 +15,7 @@
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -43,7 +44,8 @@ unsigned char BppOFrequencySetFormat::ALL = 1 | 2 | 4 | 8 | 16;
 std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& freqDescription,
-    const AlignmentDataInterface& data,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData,
     bool parseArguments)
 {
   unparsedArguments_.clear();
@@ -208,7 +210,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       }
 
       BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto pFS2 = nestedReader.readFrequencySet(pWA->getNAlphabet(0), sAFS, data, false);
+      auto pFS2 = nestedReader.readFrequencySet(pWA->getNAlphabet(0), sAFS, mData, nData, false);
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
@@ -235,7 +237,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
         BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        pFS = nestedReader.readFrequencySet(pWA->getNAlphabet(i), v_sAFS[i], data, false);
+        pFS = nestedReader.readFrequencySet(pWA->getNAlphabet(i), v_sAFS[i], mData, nData, false);
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
@@ -257,7 +259,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    auto model = nestedReader.readTransitionModel(alphabet, args["model"], data, false);
+    auto model = nestedReader.readTransitionModel(alphabet, args["model"], mData, nData, false);
     pFS = make_unique<FromModelFrequencySet>(std::move(model));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (auto& it : unparsedParameterValuesNested)
@@ -285,7 +287,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       string sAFS = args["frequency"];
 
       BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto pFS2 = nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), sAFS, data, false);
+      auto pFS2 = nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), sAFS, mData, nData, false);
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -314,7 +316,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
       for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
         BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        pFS = nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), v_sAFS[i], data, false);
+        pFS = nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), v_sAFS[i], mData, nData, false);
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (auto& it : unparsedParameterValuesNested)
         {
@@ -356,7 +358,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
     {
       string sPFS = args["protein_frequencies"];
       BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto tmpPtr = nestedReader.readFrequencySet(pPA, sPFS, data, false);
+      auto tmpPtr = nestedReader.readFrequencySet(pPA, sPFS, mData, nData, false);
       unique_ptr<ProteinFrequencySetInterface> pPFS(dynamic_cast<ProteinFrequencySetInterface*>(tmpPtr.release()));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
@@ -410,7 +412,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
         string sAFS = args["frequency"];
 
         BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        auto pFS2 = nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), sAFS, data, false);
+        auto pFS2 = nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), sAFS, mData, nData, false);
         if (pFS2->getName() != "Full")
           throw Exception("BppOFrequencySetFormat::read. The frequency option in F1X4 can only be Full");
 
@@ -468,7 +470,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
           auto sAFS = v_sAFS[i];
           if (sAFS != "")
           {
-            pFS = nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), sAFS, data, false);
+            pFS = nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), sAFS, mData, nData, false);
             if (pFS->getName() != "Full")
               throw Exception("BppOFrequencySetFormat::read. The frequency options in F3X4 can only be Full");
 
@@ -513,8 +515,22 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   // MVAprotein freq set for COaLA model
   else if (freqName == "MVAprotein")
   {
+    if (args.find("model") == args.end())
+      throw Exception("Missing argument 'model' for frequencies " + freqName + ".");
+
+    BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+
+    auto model = nestedReader.readTransitionModel(alphabet, args["model"], mData, nData, false);
+    if (dynamic_cast<Coala*>(model.get())==0)
+      throw Exception("MVAprotein frequency set needs a Coala model");
+
+    auto coala = unique_ptr<Coala>(dynamic_cast<Coala*>(model.release()));
+    //map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
     auto mvaFS = make_unique<MvaFrequencySet>(dynamic_pointer_cast<const ProteicAlphabet>(alphabet));
-    mvaFS->setParamValues(args);
+    //mvaFS->setParamValues(args);
+    mvaFS->initSet(*coala);
+    
     pFS = std::move(mvaFS);
   }
   else
@@ -573,6 +589,10 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   if (args.find("init.observedPseudoCount") != args.end())
     unparsedArguments_["init.observedPseudoCount"] = args["init.observedPseudoCount"];
 
+  std::shared_ptr<const AlignmentDataInterface> data(0);
+  if (nData)
+    data = mData.at(nData);
+  
   if (args.find("values") != args.end())
   {
     unparsedArguments_["init"] = "values" + args["values"];
@@ -800,21 +820,21 @@ void BppOFrequencySetFormat::writeFrequencySet(
 
 void BppOFrequencySetFormat::initialize_(
     FrequencySetInterface& freqSet,
-    const AlignmentDataInterface& data)
+    std::shared_ptr<const AlignmentDataInterface> data)
 {
   if (unparsedArguments_.find("init") != unparsedArguments_.end())
   {
     // Initialization using the "init" option
     string init = unparsedArguments_["init"];
 
-    if (init == "observed")
+    if (init == "observed" && data)
     {
       unsigned int psc = 0;
       if (unparsedArguments_.find("init.observedPseudoCount") != unparsedArguments_.end())
         psc = TextTools::to<unsigned int>(unparsedArguments_["init.observedPseudoCount"]);
 
       map<int, double> freqs;
-      SequenceContainerTools::getFrequencies(data, freqs, psc);
+      SequenceContainerTools::getFrequencies(*data, freqs, psc);
 
       freqSet.setFrequenciesFromAlphabetStatesFrequencies(freqs);
     }

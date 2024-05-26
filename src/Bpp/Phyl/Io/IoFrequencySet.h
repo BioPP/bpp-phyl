@@ -48,7 +48,8 @@ public:
    *
    * @param alphabet         The alphabet to use in the model.
    * @param freqDescription  A string describing the frequencies set.
-   * @param data             A SiteContainer with the data to use to initialize frequency parameters. Can be set to 0.
+   * @param mData            A map towards pointers of SiteContainer with the data to use to initialize frequency parameters
+   * @param nData            Number of the SiteContainer in the mData. Can be set to 0, if none assigned.
    * @param parseArguments   Attempt to parse function arguments. If not, only store them and use default values instead.
    * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occurred.
@@ -56,7 +57,8 @@ public:
   virtual std::unique_ptr<FrequencySetInterface> readFrequencySet(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& freqDescription,
-      const AlignmentDataInterface& data,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData,
       bool parseArguments = true) = 0;
 
   /**
