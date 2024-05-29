@@ -628,6 +628,7 @@ private:
 
   std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);
 
+public:
   void cleanAllLikelihoods();
 
   friend class LikelihoodCalculationOnABranch;

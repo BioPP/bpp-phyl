@@ -324,18 +324,30 @@ NodeRef Context::cached (NodeRef& newNode)
 {
   assert (newNode != nullptr);
   // First remove this object from the set if it is already
-  for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
-  {
-    if (it->ref == newNode)
-      it = nodeCache_.erase(it);
-    else
-      ++it;
-  }
+  // for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
+  // {
+  //   if (it->ref == newNode)
+  //     it = nodeCache_.erase(it);
+  //   else
+  //     ++it;
+  // }
 
   // Try inserting it, which will fail if already present and return the old one
   auto r = nodeCache_.emplace (newNode);
   return r.first->ref;
 }
+
+void Context::clear()
+{
+  while (nodeCache_.size()!=0)
+  {
+    auto it =  nodeCache_.begin();
+    erase(it->ref);
+  }
+
+  nodeCache_.clear();
+}
+
 
 std::vector<const Node_DF*> Context::getAllNodes() const
 {

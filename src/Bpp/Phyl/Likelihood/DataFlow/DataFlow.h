@@ -548,10 +548,7 @@ public:
   /**
    * @brief Clear the context
    */
-  void clear()
-  {
-    nodeCache_.clear();
-  }
+  void clear();
 
   /**
    * @brief Remove an element from the map, only if it has no
