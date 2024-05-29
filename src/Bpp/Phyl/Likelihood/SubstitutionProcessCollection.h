@@ -168,6 +168,8 @@ public:
    */
   void addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters = true);
 
+  void replaceParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters = true);
+
   /**
    * @brief specific methods to add specific objects.
    */
@@ -181,7 +183,17 @@ public:
     addParametrizable(model, modelIndex);
   }
 
+  void replaceModel(std::shared_ptr<BranchModelInterface> model, size_t modelIndex)
+  {
+    replaceParametrizable(model, modelIndex);
+  }
+
   void addFrequencies(std::shared_ptr<FrequencySetInterface> frequencies, size_t frequenciesIndex)
+  {
+    addParametrizable(frequencies, frequenciesIndex);
+  }
+
+  void replaceFrequencies(std::shared_ptr<FrequencySetInterface> frequencies, size_t frequenciesIndex)
   {
     addParametrizable(frequencies, frequenciesIndex);
   }
@@ -194,9 +206,15 @@ public:
       mVConstDist_[distributionIndex / 10000 - 1].push_back(distributionIndex % 10000);
   }
 
+
   void addTree(std::shared_ptr<ParametrizablePhyloTree> tree, size_t treeIndex)
   {
     addParametrizable(tree, treeIndex);
+  }
+
+  void replaceTree(std::shared_ptr<ParametrizablePhyloTree> tree, size_t treeIndex)
+  {
+    replaceParametrizable(tree, treeIndex);
   }
 
   void addScenario(std::shared_ptr<ModelScenario> scen, size_t scenIndex)
