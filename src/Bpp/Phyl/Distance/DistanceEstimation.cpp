@@ -19,6 +19,9 @@
 #include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 #include <Bpp/Seq/DistanceMatrix.h>
 
+// bpp-phyl
+#include <Bpp/Phyl/Likelihood/AutonomousSubstitutionProcess.h>
+
 using namespace bpp;
 
 // From the STL:
@@ -33,14 +36,24 @@ using namespace std;
 
 void DistanceEstimation::computeMatrix()
 {
+  Context context;
+
   size_t n = sites_->getNumberOfSequences();
   vector<string> names = sites_->getSequenceNames();
   dist_ = std::shared_ptr<DistanceMatrix>(new DistanceMatrix(names));
   optimizer_->setVerbose(static_cast<unsigned int>(max(static_cast<int>(verbose_) - 2, 0)));
 
-  // const SiteContainer* sc = dynamic_cast<const SiteContainer*>(sites_);
-  // const VectorProbabilisticSiteContainer* psc = dynamic_cast<const VectorProbabilisticSiteContainer*>(sites_);
   Newick reader;
+
+  auto autoProc = dynamic_pointer_cast<AutonomousSubstitutionProcessInterface>(process_);
+  auto procMb = dynamic_pointer_cast<SubstitutionProcessCollectionMember>(process_);
+  if (!autoProc && !procMb)
+    throw Exception("DistanceMatrix::computeMatrix : unknown process type. Ask developpers.");
+  size_t maxTNb = 0;
+  if (procMb){
+    const auto& vTn = procMb->getCollection()->getTreeNumbers();
+    maxTNb  = *std::max_element(vTn.begin(),vTn.end())+1;
+  }
 
   for (size_t i = 0; i < n; ++i)
   {
@@ -56,24 +69,29 @@ void DistanceEstimation::computeMatrix()
         ApplicationTools::displayGauge(j - i - 1, n - i - 2, '=');
       }
 
-      Context context;
+      auto phyloTree = make_shared<bpp::ParametrizablePhyloTree>(*reader.parenthesisToPhyloTree("(" + names[j] + ":0.01," + names[i] + ":0.01);", false, "", false, false));
 
-      auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(" + names[i] + ":0.01," + names[j] + ":0.01);", false, "", false, false));
+      if (autoProc)
+        autoProc->setPhyloTree(*phyloTree);
+      else
+        if (procMb)
+        {
+          auto& coll = procMb->collection();
+          if (!coll.hasTreeNumber(maxTNb))
+          {
+            coll.addTree(phyloTree, maxTNb);
+            procMb->setTreeNumber(maxTNb, false);
+          }
+          else
+          {
+            coll.replaceTree(phyloTree, maxTNb);
+          }
+        }
 
-      auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model_, rateDist_, phyloTree);
-
-      auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites_, process);
+      auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites_, process_);
 
       auto llh = std::make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
-      // size_t d = sc ?
-      //            SymbolListTools::getNumberOfDistinctPositions(sc->getSequence(i), sc->getSequence(j)) :
-      //            SymbolListTools::getNumberOfDistinctPositions(*psc->getSequence(i), *psc->getSequence(j));
-      // size_t g = sc ?
-      //            SymbolListTools::getNumberOfPositionsWithoutGap(sc->getSequence(i), sc->getSequence(j)) :
-      //            SymbolListTools::getNumberOfPositionsWithoutGap(*psc->getSequence(i), *psc->getSequence(j));
-
-      // llh.setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
       optimizer_->setFunction(llh);
       optimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
@@ -81,8 +99,13 @@ void DistanceEstimation::computeMatrix()
       params.addParameters(parameters_);
       optimizer_->init(params);
       optimizer_->optimize();
+
       // Store results:
-      (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0") + llh->getParameterValue("BrLen1");
+      if (autoProc)
+        (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0") + llh->getParameterValue("BrLen1");
+      else
+        (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0_"+TextTools::toString(maxTNb)) + llh->getParameterValue("BrLen1_"+TextTools::toString(maxTNb));
+
     }
     if (verbose_ > 1 && ApplicationTools::message)
       ApplicationTools::message->endLine();

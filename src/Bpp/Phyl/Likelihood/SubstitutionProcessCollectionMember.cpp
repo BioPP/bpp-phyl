@@ -226,6 +226,21 @@ std::shared_ptr<ParametrizablePhyloTree> SubstitutionProcessCollectionMember::ge
   return collection().hasTreeNumber(nTree_) ? collection().getTree(nTree_) : nullptr;
 }
 
+void SubstitutionProcessCollectionMember::setTreeNumber(size_t nTree, bool check)
+{
+  if (!collection().hasTreeNumber(nTree))
+    throw BadIntException((int)nTree, "SubstitutionProcessCollectionMember::setTreeNumber(). No associated tree.", getAlphabet());
+
+  deleteParameters_(getBranchLengthParameters(true).getParameterNames());
+
+  nTree_ = nTree;
+
+  addParameters_(getBranchLengthParameters(true));
+
+  if (check)
+    isFullySetUp();
+}
+
 void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<unsigned int>& nodesId)
 {
   auto& nmod = getCollection()->model(numModel);

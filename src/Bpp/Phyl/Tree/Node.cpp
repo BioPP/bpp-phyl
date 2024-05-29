@@ -7,6 +7,7 @@
 
 #include "Node.h"
 #include "TreeTools.h"
+#include "PhyloTree.h"
 
 using namespace bpp;
 
@@ -67,6 +68,45 @@ Node& Node::operator=(const Node& node)
 }
 
 /** Sons: *********************************************************************/
+
+void Node::addSubTree(const PhyloTree& tree, std::shared_ptr<PhyloNode> phyloNode)
+{
+  // set Id
+  setId(tree.getNodeIndex(phyloNode));
+
+  // features of the node
+  auto vnames = phyloNode->getPropertyNames();
+  for (const auto& name:vnames)
+    setNodeProperty(name, *phyloNode->getProperty(name));
+
+  if (phyloNode->hasName())
+    setName(phyloNode->getName());
+  
+  // look at sons
+  vector<shared_ptr<PhyloNode>> sons = tree.getSons(phyloNode);
+  for (auto& son : sons)
+  {
+    Node* s1 = new Node();
+
+    // features of the branch
+    const auto phylobranch = tree.getIncomingEdges(son)[0]; // Tree -> one incoming edge
+
+    if (phylobranch->hasLength())
+      s1->setDistanceToFather(phylobranch->getLength());
+
+    auto vnames2 = phylobranch->getPropertyNames();
+    for (const auto& name:vnames2)
+    {
+      s1->setBranchProperty(name, *phylobranch->getProperty(name));
+    }
+
+    // recursive 
+    s1->addSubTree(tree, son);
+
+    // addSon
+    addSon(s1);
+  }
+}
 
 void Node::swap(size_t branch1, size_t branch2)
 {
