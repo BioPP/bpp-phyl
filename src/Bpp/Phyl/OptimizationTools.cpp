@@ -15,7 +15,10 @@
 #include <Bpp/Numeric/Function/ThreePointsNumericalDerivative.h>
 #include <Bpp/Numeric/Function/TwoPointsNumericalDerivative.h>
 #include <Bpp/Numeric/ParameterList.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
 
+// bpp-phyl
+#include "Likelihood/AutonomousSubstitutionProcess.h"
 #include "Io/Newick.h"
 #include "OptimizationTools.h"
 #include "PseudoNewtonOptimizer.h"
@@ -56,7 +59,7 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
   optMethodModel(OPTIMIZATION_BRENT)
 {
   /// Get the method
-  string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
+  string optimization = ApplicationTools::getStringParameter("optimization", params, "Brent(derivatives=Newton)", suffix, suffixIsOptional, warn);
 
   map<string, string> optArgs;
   KeyvalTools::parseProcedure(optimization, optMethodModel, optArgs);
@@ -382,11 +385,12 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     ParameterList plTmp = lik->getSubstitutionModelParameters();
     plTmp.addParameters(lik->getRootFrequenciesParameters());
     ParameterList plsm = optopt.parameters.getCommonParametersWith(plTmp);
+    
     desc->addOptimizer("Substitution model parameters", make_shared<SimpleMultiDimensions>(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-
 
     ParameterList plrd = optopt.parameters.getCommonParametersWith(lik->getRateDistributionParameters());
     desc->addOptimizer("Rate distribution parameters", make_shared<SimpleMultiDimensions>(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    
     poptimizer = make_unique<MetaOptimizer>(f, std::move(desc), optopt.nstep);
   }
   else if (optopt.optMethodModel == OPTIMIZATION_BFGS)
@@ -422,9 +426,12 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   poptimizer->addOptimizationListener(nanListener);
   if (optopt.listener)
     poptimizer->addOptimizationListener(optopt.listener);
+
   poptimizer->init(pl);
   poptimizer->optimize();
 
+//  optopt.parameters.setAllParametersValues(poptimizer->getParameters());
+  
   if (optopt.verbose > 0)
     ApplicationTools::displayMessage("\n");
 
@@ -470,7 +477,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   // Build optimizer:
   unique_ptr<OptimizerInterface> optimizer;
-  shared_ptr<NumericalDerivativeInterface> fnum;
+  shared_ptr<AbstractNumericalDerivative> fnum;
 
   if (optopt.optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
@@ -543,7 +550,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
     }
 
   // Build optimizer:
-  shared_ptr<NumericalDerivativeInterface> fnum;
+  shared_ptr<AbstractNumericalDerivative> fnum;
   unique_ptr<OptimizerInterface> optimizer;
 
   if (optopt.optMethodDeriv == OPTIMIZATION_GRADIENT)
@@ -621,8 +628,9 @@ unique_ptr<DistanceMatrix> OptimizationTools::estimateDistanceMatrix(
   estimationMethod.setVerbose(verbose);
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.model().getIndependentParameters();
-    tmp.addParameters(estimationMethod.rateDistribution().getIndependentParameters());
+    ParameterList tmp = estimationMethod.process().getSubstitutionModelParameters(true);
+    tmp.addParameters(estimationMethod.process().getRateDistributionParameters(true));
+    tmp.addParameters(estimationMethod.process().getRootFrequenciesParameters(true));
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
   }
@@ -646,33 +654,37 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     const std::string& param,
     OptimizationOptions& optopt)
 {
-  // * @param parametersToIgnore A list of parameters to ignore while optimizing parameters.
-  // * @param optimizeBrLen Tell if branch lengths should be optimized together with other parameters. This may lead to more accurate parameter estimation, but is slower.
-  // * @param param String describing the type of optimization to use.
-  // * @param tolerance Threshold on likelihood for stopping the iterative procedure. Used only with param=DISTANCEMETHOD_ITERATIONS.
-  // * @param tlEvalMax Maximum number of likelihood computations to perform when optimizing parameters. Used only with param=DISTANCEMETHOD_ITERATIONS.
-  // * @param profiler Output stream used by optimizer. Used only with param=DISTANCEMETHOD_ITERATIONS.
-  // * @param messenger Output stream used by optimizer. Used only with param=DISTANCEMETHOD_ITERATIONS.
-  // * @param verbose Verbose level.
   estimationMethod.resetAdditionalParameters();
   estimationMethod.setVerbose(optopt.verbose);
+  
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.model().getIndependentParameters();
-    tmp.addParameters(estimationMethod.rateDistribution().getIndependentParameters());
-    tmp.deleteParameters(optopt.parameters.getParameterNames());
+    ParameterList tmp = estimationMethod.process().getSubstitutionModelParameters(true);
+    tmp.addParameters(estimationMethod.process().getRateDistributionParameters(true));
+    tmp.addParameters(estimationMethod.process().getRootFrequenciesParameters(true));
+    tmp = tmp.getCommonParametersWith(optopt.parameters);
     estimationMethod.setAdditionalParameters(tmp);
   }
   unique_ptr<TreeTemplate<Node>> tree = nullptr;
   unique_ptr<TreeTemplate<Node>> previousTree = nullptr;
+
   bool test = true;
+
+  auto process = std::shared_ptr<SubstitutionProcessInterface>(estimationMethod.process().clone());
+  auto autoProc = dynamic_pointer_cast<AutonomousSubstitutionProcessInterface>(process);
+  auto procMb = dynamic_pointer_cast<SubstitutionProcessCollectionMember>(process);
+  if (!autoProc && !procMb)
+    throw Exception("OptimizationTools::buildDistanceTree : unknown process type. Ask developpers.");
+
   while (test)
   {
     // Compute matrice:
     if (optopt.verbose > 0)
       ApplicationTools::displayTask("Estimating distance matrix", true);
+
     estimationMethod.computeMatrix();
     auto matrix = estimationMethod.getMatrix();
+
     if (optopt.verbose > 0)
       ApplicationTools::displayTaskDone();
 
@@ -724,51 +736,73 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
      */
     if (optopt.verbose > 0)
       ApplicationTools::displayTask("Building tree");
+
     reconstructionMethod.setDistanceMatrix(*matrix);
     reconstructionMethod.computeTree();
     previousTree = std::move(tree);
-
+    
     tree = make_unique<TreeTemplate<Node>>(reconstructionMethod.tree());
     if (optopt.verbose > 0)
       ApplicationTools::displayTaskDone();
     if (previousTree && optopt.verbose > 0)
     {
+      auto vn = previousTree->getLeavesNames();
+      auto vn3 = tree->getLeavesNames();
       int rf = TreeTools::robinsonFouldsDistance(*previousTree, *tree, false);
       ApplicationTools::displayResult("Topo. distance with previous iteration", TextTools::toString(rf));
       test = (rf != 0);
     }
-    if (param != DISTANCEMETHOD_ITERATIONS)
+
+    if ((param != DISTANCEMETHOD_ITERATIONS) || !test)
       break; // Ends here.
 
     // Now, re-estimate parameters:
     Context context;
 
-    shared_ptr<BranchModelInterface> model(estimationMethod.model().clone());
-    shared_ptr<DiscreteDistributionInterface> rdist(estimationMethod.rateDistribution().clone());
-    auto phyloT  = PhyloTreeTools::buildFromTreeTemplate(*tree);
-    auto process = make_shared<RateAcrossSitesSubstitutionProcess>(model, rdist, phyloT);
+    auto phyloTree  = make_shared<ParametrizablePhyloTree>(*PhyloTreeTools::buildFromTreeTemplate(*tree));
+    if (autoProc)
+      autoProc->setPhyloTree(*phyloTree);
+    else
+      if (procMb)
+      {
+        auto& coll = procMb->collection();
+        size_t maxTNb = procMb->getTreeNumber();
+
+        coll.replaceTree(phyloTree, maxTNb);
+      }
+    
     auto lik     = make_shared<LikelihoodCalculationSingleProcess>(context, estimationMethod.getData(), process);
     auto tl      = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
-    // ParameterList parameters = tl->getParameters();
-    // if (!optopt.optimizeBrLen)
-    // {
-    //   vector<string> vs = tl->getBranchLengthParameters().getParameterNames();
-    //   parameters.deleteParameters(vs);
-    // }
-
-    optopt.parameters.deleteParameters(optopt.parameters.getParameterNames());
     if (optopt.verbose>0)
       optopt.verbose--;
-        
+
     optimizeNumericalParameters(tl, optopt);
-//    estimationMethod.model().matchParametersValues(tl->getParameters());
+
+    if (autoProc)
+      autoProc->matchParametersValues(tl->getParameters());
+    else
+      if (procMb)
+      {
+        auto& coll = procMb->collection();
+        coll.matchParametersValues(tl->getParameters());
+      }
+
+    auto trtemp = std::make_shared<ParametrizablePhyloTree>(*tl->tree());
+    const PhyloTree trt2(*trtemp);
+    tree.reset(TreeTemplateTools::buildFromPhyloTree(trt2).release());
+
     optopt.verbose++;
     
     if (optopt.verbose > 0)
     {
       process -> matchParametersValues(tl->getParameters());
       auto tmp = process->getSubstitutionModelParameters(true);
+      for (unsigned int i = 0; i < tmp.size(); ++i)
+      {
+        ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
+      }
+      tmp = process->getRootFrequenciesParameters(true);
       for (unsigned int i = 0; i < tmp.size(); ++i)
       {
         ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
@@ -781,7 +815,10 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     }
   }
 
-  return tree;
+  if (previousTree)
+    return previousTree;
+  else
+    return tree;
 }
 
 /******************************************************************************/

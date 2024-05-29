@@ -12,10 +12,9 @@
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include "../Model/SubstitutionModel.h"
+#include "../Likelihood/SubstitutionProcess.h"
 #include "../PseudoNewtonOptimizer.h"
 #include "../Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
-#include "../Likelihood/RateAcrossSitesSubstitutionProcess.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Container/AlignmentData.h>
@@ -29,8 +28,7 @@ class DistanceEstimation :
   public virtual Clonable
 {
 private:
-  std::shared_ptr<BranchModelInterface> model_;
-  std::shared_ptr<DiscreteDistributionInterface> rateDist_;
+  std::shared_ptr<SubstitutionProcessInterface> process_;
   std::shared_ptr<const AlignmentDataInterface> sites_;
   std::shared_ptr<DistanceMatrix> dist_;
   std::shared_ptr<OptimizerInterface> optimizer_;
@@ -42,9 +40,7 @@ public:
   /**
    * @brief Create a new DistanceEstimation object according to a given substitution model and a rate distribution.
    *
-   * This instance will own the model and distribution, and will take car of their recopy and destruction.
-   *
-   * @param model    The substitution model to use.
+   * @param process  The substitution process to use.
    * @param rateDist The discrete rate distribution to use.
    * @param verbose  The verbose level:
    *  - 0=Off,
@@ -54,11 +50,9 @@ public:
    *  - 4=3 + likelihood object verbose enabled
    */
   DistanceEstimation(
-      std::shared_ptr<BranchModelInterface> model,
-      std::shared_ptr<DiscreteDistributionInterface> rateDist,
+      std::shared_ptr<SubstitutionProcessInterface> process,
       size_t verbose = 1) :
-    model_(model),
-    rateDist_(rateDist),
+    process_(process),
     sites_(0),
     dist_(0),
     optimizer_(0),
@@ -75,8 +69,7 @@ public:
    *
    * This instance will own the model and distribution, and will take car of their recopy and destruction.
    *
-   * @param model    The substitution model to use.
-   * @param rateDist The discrete rate distribution to use.
+   * @param process  The substitution process to use.
    * @param sites    The sequence data.
    * @param verbose  The verbose level:
    *  - 0=Off,
@@ -87,13 +80,11 @@ public:
    *  @param computeMat if true the computeMatrix() method is called.
    */
   DistanceEstimation(
-      std::shared_ptr<BranchModelInterface> model,
-      std::shared_ptr<DiscreteDistributionInterface> rateDist,
+      std::shared_ptr<SubstitutionProcessInterface> process,
       std::shared_ptr<const AlignmentDataInterface> sites,
       size_t verbose = 1,
       bool computeMat = true) :
-    model_(model),
-    rateDist_(rateDist),
+    process_(process),
     sites_(sites),
     dist_(0),
     optimizer_(0),
@@ -113,8 +104,7 @@ public:
    * @param distanceEstimation The object to copy.
    */
   DistanceEstimation(const DistanceEstimation& distanceEstimation) :
-    model_(distanceEstimation.model_),
-    rateDist_(distanceEstimation.rateDist_),
+    process_(distanceEstimation.process_),
     sites_(distanceEstimation.sites_),
     dist_(0),
     optimizer_(distanceEstimation.optimizer_),
@@ -138,8 +128,7 @@ public:
    */
   DistanceEstimation& operator=(const DistanceEstimation& distanceEstimation)
   {
-    model_      = distanceEstimation.model_;
-    rateDist_   = distanceEstimation.rateDist_;
+    process_    = distanceEstimation.process_;
     sites_      = distanceEstimation.sites_;
     if (distanceEstimation.dist_)
       dist_     = std::make_shared<DistanceMatrix>(*distanceEstimation.dist_);
@@ -164,9 +153,10 @@ private:
     name.push_back("BrLen0");
     name.push_back("BrLen1");
     desc->addOptimizer("Branch length", std::make_shared<PseudoNewtonOptimizer>(nullptr), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
-    ParameterList tmp = model_->getParameters();
-    tmp.addParameters(rateDist_->getParameters());
-    desc->addOptimizer("substitution model and rate distribution", std::make_shared<SimpleMultiDimensions>(nullptr), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+    ParameterList tmp = process_->getSubstitutionModelParameters(true);
+    tmp.addParameters(process_->getRateDistributionParameters(true));
+    tmp.addParameters(process_->getRootFrequenciesParameters(true));
+    desc->addOptimizer("substitution model, root and rate distribution", std::make_shared<SimpleMultiDimensions>(nullptr), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
 
     defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, std::move(desc));
     defaultOptimizer_->setMessageHandler(nullptr);
@@ -196,39 +186,22 @@ public:
     return dist_ == nullptr ? nullptr : std::make_unique<DistanceMatrix>(*dist_);
   }
 
-  bool hasModel() const { return model_.get(); }
+  bool hasProcess() const { return process_.get(); }
 
-  const BranchModelInterface& model() const
+  const SubstitutionProcessInterface& process() const
   {
-    if (hasModel())
-      return *model_;
+    if (hasProcess())
+      return *process_;
     else
-      throw Exception("DistanceEstimation::getSubstitutionModel(). No model associated to this instance.");
+      throw Exception("DistanceEstimation::getSubstitutionModel(). No process associated to this instance.");
   }
 
-  std::shared_ptr<const BranchModelInterface> getModel() const
+  std::shared_ptr<const SubstitutionProcessInterface> getProcess() const
   {
-    return model_;
+    return process_;
   }
 
-  void setModel(std::shared_ptr<BranchModelInterface> model = nullptr) { model_ = model; }
-
-  bool hasRateDistribution() const { return rateDist_.get(); }
-
-  const DiscreteDistributionInterface& rateDistribution() const
-  {
-    if (hasRateDistribution())
-      return *rateDist_;
-    else
-      throw Exception("DistanceEstimation::getRateDistribution(). No rate distribution associated to this instance.");
-  }
-
-  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const
-  {
-    return rateDist_;
-  }
-
-  void setRateDistribution(std::shared_ptr<DiscreteDistributionInterface> rateDist = nullptr) { rateDist_ = rateDist; }
+  void setProcess(std::shared_ptr<SubstitutionProcessInterface> process = nullptr) { process_ = process; }
 
   void setData(std::shared_ptr<const AlignmentDataInterface> sites = nullptr) { sites_ = sites; }
 
