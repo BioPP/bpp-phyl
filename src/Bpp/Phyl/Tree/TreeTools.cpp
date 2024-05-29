@@ -918,6 +918,7 @@ unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<uniqu
   {
     vecBipL.push_back(make_unique<BipartitionList>(*vecTr[i]));
   }
+
   mergedBipL = BipartitionTools::mergeBipartitionLists(vecBipL);
 
   mergedBipL->removeTrivialBipartitions();
@@ -1073,7 +1074,9 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<unique_ptr<Tree>
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, &index);
+
   vector<size_t> occurences;
+
   auto bpList = bipartitionOccurrences(vecTr, occurences);
 
   vector< Number<double>> bootstrapValues(bpTree.getNumberOfBipartitions());

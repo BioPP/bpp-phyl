@@ -8,15 +8,18 @@
 #include <Bpp/Numeric/Random/RandomTools.h>
 
 #include "TreeTools.h"
+#include "Node.h"
 
 // From the STL:
 #include <string>
 #include <vector>
 
+
 namespace bpp
 {
 template<class N> class TreeTemplate;
 
+class PhyloTree;
 
 /**
  * @brief Utilitary methods working with TreeTemplate and Node objects.
@@ -88,17 +91,7 @@ public:
    * @param node The node that defines the subtree.
    * @param ids A vector of ids.
    */
-  static void getLeavesId(const Node& node, std::vector<int>& ids)
-  {
-    if (node.isLeaf())
-    {
-      ids.push_back(node.getId());
-    }
-    for (size_t i = 0; i < node.getNumberOfSons(); i++)
-    {
-      getLeavesId(*node.getSon(i), ids);
-    }
-  }
+  static void getLeavesId(const Node& node, std::vector<int>& ids);
 
   /**
    * @brief Retrieve all nodes ids that are ancestors of a node.
@@ -106,17 +99,7 @@ public:
    * @param node The node
    * @return A vector of ids.
    */
-  static std::vector<int> getAncestorsId(const Node& node)
-  {
-    std::vector<int> ids;
-    const Node* n = &node;
-    while (n->hasFather())
-    {
-      n = n->getFather();
-      ids.push_back(n->getId());
-    }
-    return ids;
-  }
+  static std::vector<int> getAncestorsId(const Node& node);
 
   /**
    * @brief Get the id of a leaf given its name in a subtree.
@@ -147,21 +130,7 @@ public:
    * @param id The id of the node.
    * @throw NodeNotFoundException If the node is not found.
    */
-  static void searchLeaf(const Node& node, const std::string& name, int*& id)
-  {
-    if (node.hasNoSon())
-    {
-      if (node.getName() == name)
-      {
-        id = new int(node.getId());
-        return;
-      }
-    }
-    for (size_t i = 0; i < node.getNumberOfSons(); i++)
-    {
-      searchLeaf(*node.getSon(i), name, id);
-    }
-  }
+  static void searchLeaf(const Node& node, const std::string& name, int*& id);
 
   /**
    * @brief Remove a leaf node and its parent node, while correcting for branch lengths.
@@ -170,6 +139,7 @@ public:
    * @param leafName The name of the leaf node.
    * @throw NodeNotFoundException If the node is not found.
    */
+  
   template<class N>
   static void dropLeaf(TreeTemplate<N>& tree, const std::string& leafName)
   {
@@ -1000,6 +970,8 @@ public:
    *
    * @{
    */
+
+  static std::unique_ptr<TreeTemplate<Node>> buildFromPhyloTree(const PhyloTree& treetemp);
 
   /**
    * @brief Draw a random tree from a list of taxa, using a Yule process.

@@ -19,9 +19,12 @@
 #include <iostream>
 #include <algorithm>
 #include <cstddef>
+#include <memory>
 
 namespace bpp
 {
+  class PhyloTree;
+  class PhyloNode;
 /**
  * @brief The phylogenetic node class.
  *
@@ -440,9 +443,17 @@ public:
   virtual void swap(size_t branch1, size_t branch2);
 
   virtual size_t getSonPosition(const Node* son) const;
-
+  
   /** @} */
 
+  // From PhyloNode
+
+  /*
+   * Add PhyloNode tree as Son of this Node
+   */
+  
+  void addSubTree(const PhyloTree& tree, std::shared_ptr<PhyloNode> phyloNode);
+  
   // These functions must not be declared as virtual!!
 
   std::vector<const Node*> getNeighbors() const;

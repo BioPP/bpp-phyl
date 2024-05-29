@@ -11,6 +11,7 @@
 
 #include "TreeTemplate.h"
 #include "TreeTemplateTools.h"
+#include "PhyloTree.h"
 
 using namespace bpp;
 
@@ -73,6 +74,47 @@ vector<string> TreeTemplateTools::getLeavesNames(const Node& node)
   }
   return names;
 }
+
+void TreeTemplateTools::getLeavesId(const Node& node, std::vector<int>& ids)
+{
+  if (node.isLeaf())
+  {
+    ids.push_back(node.getId());
+  }
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
+  {
+    getLeavesId(*node.getSon(i), ids);
+  }
+}
+
+std::vector<int> TreeTemplateTools::getAncestorsId(const Node& node)
+{
+  std::vector<int> ids;
+  const Node* n = &node;
+  while (n->hasFather())
+  {
+    n = n->getFather();
+    ids.push_back(n->getId());
+  }
+  return ids;
+}
+
+void TreeTemplateTools::searchLeaf(const Node& node, const std::string& name, int*& id)
+{
+  if (node.hasNoSon())
+  {
+    if (node.getName() == name)
+    {
+      id = new int(node.getId());
+      return;
+    }
+  }
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
+  {
+    searchLeaf(*node.getSon(i), name, id);
+  }
+}
+
 
 /******************************************************************************/
 
@@ -535,6 +577,16 @@ void TreeTemplateTools::scaleTree(Node& node, double factor)
 }
 
 /******************************************************************************/
+
+unique_ptr<TreeTemplate<Node>> TreeTemplateTools::buildFromPhyloTree(const PhyloTree& treetemp)
+{
+  Node* root = new Node();
+  auto phroot = treetemp.getRoot();
+  root->addSubTree(treetemp, phroot);
+  
+  auto tree = make_unique<TreeTemplate<Node>>(root);
+  return tree;
+}
 
 unique_ptr<TreeTemplate<Node>> TreeTemplateTools::getRandomTree(vector<string>& leavesNames, bool rooted)
 {
