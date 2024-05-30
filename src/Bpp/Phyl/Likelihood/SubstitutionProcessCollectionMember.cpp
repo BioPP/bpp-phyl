@@ -358,7 +358,8 @@ bool SubstitutionProcessCollectionMember::hasMixedTransitionModel() const
 
 bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters)
 {
-  return collection().matchParametersValues(parameters);
+  collection().matchParametersValues(parameters);
+  return AbstractSubstitutionProcess::matchParametersValues(parameters);
 }
 
 /**
