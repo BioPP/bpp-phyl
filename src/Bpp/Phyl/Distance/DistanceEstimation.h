@@ -29,6 +29,7 @@ class DistanceEstimation :
 {
 private:
   std::shared_ptr<SubstitutionProcessInterface> process_;
+  size_t numProc_; // needed if in Collection Process
   std::shared_ptr<const AlignmentDataInterface> sites_;
   std::shared_ptr<DistanceMatrix> dist_;
   std::shared_ptr<OptimizerInterface> optimizer_;
@@ -53,6 +54,7 @@ public:
       std::shared_ptr<SubstitutionProcessInterface> process,
       size_t verbose = 1) :
     process_(process),
+    numProc_(0),
     sites_(0),
     dist_(0),
     optimizer_(0),
@@ -85,6 +87,7 @@ public:
       size_t verbose = 1,
       bool computeMat = true) :
     process_(process),
+    numProc_(0),
     sites_(sites),
     dist_(0),
     optimizer_(0),
@@ -105,6 +108,7 @@ public:
    */
   DistanceEstimation(const DistanceEstimation& distanceEstimation) :
     process_(distanceEstimation.process_),
+    numProc_(distanceEstimation.numProc_),
     sites_(distanceEstimation.sites_),
     dist_(0),
     optimizer_(distanceEstimation.optimizer_),
@@ -129,6 +133,7 @@ public:
   DistanceEstimation& operator=(const DistanceEstimation& distanceEstimation)
   {
     process_    = distanceEstimation.process_;
+    numProc_    = distanceEstimation.numProc_;
     sites_      = distanceEstimation.sites_;
     if (distanceEstimation.dist_)
       dist_     = std::make_shared<DistanceMatrix>(*distanceEstimation.dist_);
@@ -146,24 +151,7 @@ public:
   DistanceEstimation* clone() const override { return new DistanceEstimation(*this); }
 
 private:
-  void init_()
-  {
-    auto desc = make_unique<MetaOptimizerInfos>();
-    std::vector<std::string> name;
-    name.push_back("BrLen0");
-    name.push_back("BrLen1");
-    desc->addOptimizer("Branch length", std::make_shared<PseudoNewtonOptimizer>(nullptr), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
-    ParameterList tmp = process_->getSubstitutionModelParameters(true);
-    tmp.addParameters(process_->getRateDistributionParameters(true));
-    tmp.addParameters(process_->getRootFrequenciesParameters(true));
-    desc->addOptimizer("substitution model, root and rate distribution", std::make_shared<SimpleMultiDimensions>(nullptr), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-
-    defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, std::move(desc));
-    defaultOptimizer_->setMessageHandler(nullptr);
-    defaultOptimizer_->setProfiler(nullptr);
-    defaultOptimizer_->getStopCondition()->setTolerance(0.0001);
-    optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_);
-  }
+  void init_();
 
 public:
   /**
@@ -224,6 +212,13 @@ public:
 
   void resetOptimizer() { optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_); }
 
+  bool matchParametersValues(const ParameterList& parameters)
+  {
+    if (hasProcess())
+      return process_->matchParametersValues(parameters);
+    return false;
+  }
+  
   /**
    * @brief Specify a list of parameters to be estimated.
    *
