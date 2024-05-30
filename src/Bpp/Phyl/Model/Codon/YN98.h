@@ -85,13 +85,6 @@ public:
   {
     return AbstractWrappedModel::frequencySet();
   }
-// std::cerr << "frqqq" << std::endl;
-
-//     return pmodel_->frequencySet();
-//   }
-
-// using AbstractBiblioMixedTransitionModel::frequencySet;
-
 
   double getCodonsMulRate(size_t i, size_t j) const override
   {
