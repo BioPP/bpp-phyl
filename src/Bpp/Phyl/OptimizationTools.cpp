@@ -59,7 +59,7 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
   optMethodModel(OPTIMIZATION_BRENT)
 {
   /// Get the method
-  string optimization = ApplicationTools::getStringParameter("optimization", params, "Brent(derivatives=Newton)", suffix, suffixIsOptional, warn);
+  string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
 
   map<string, string> optArgs;
   KeyvalTools::parseProcedure(optimization, optMethodModel, optArgs);
@@ -69,7 +69,9 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
     optMethodModel = OptimizationTools::OPTIMIZATION_BRENT;
   else if (optMethodModel == "D-BFGS")
     optMethodModel = OptimizationTools::OPTIMIZATION_BFGS;
-
+  else if (optMethodModel != "FullD")
+    throw Exception("Unknown optimization method " + optMethodModel);
+  
   nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, warn + 1);
 
 
