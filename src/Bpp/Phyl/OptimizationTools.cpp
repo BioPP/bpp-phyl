@@ -59,7 +59,7 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
   optMethodModel(OPTIMIZATION_BRENT)
 {
   /// Get the method
-  string optimization = ApplicationTools::getStringParameter("optimization", params, "Brent(derivatives=Newton)", suffix, suffixIsOptional, warn);
+  string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
 
   map<string, string> optArgs;
   KeyvalTools::parseProcedure(optimization, optMethodModel, optArgs);
@@ -69,7 +69,9 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
     optMethodModel = OptimizationTools::OPTIMIZATION_BRENT;
   else if (optMethodModel == "D-BFGS")
     optMethodModel = OptimizationTools::OPTIMIZATION_BFGS;
-
+  else if (optMethodModel != "FullD")
+    throw Exception("Unknown optimization method " + optMethodModel);
+  
   nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, warn + 1);
 
 
@@ -665,6 +667,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     tmp = tmp.getCommonParametersWith(optopt.parameters);
     estimationMethod.setAdditionalParameters(tmp);
   }
+  
   unique_ptr<TreeTemplate<Node>> tree = nullptr;
   unique_ptr<TreeTemplate<Node>> previousTree = nullptr;
 
@@ -744,12 +747,13 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     tree = make_unique<TreeTemplate<Node>>(reconstructionMethod.tree());
     if (optopt.verbose > 0)
       ApplicationTools::displayTaskDone();
-    if (previousTree && optopt.verbose > 0)
+    if (previousTree)
     {
       auto vn = previousTree->getLeavesNames();
       auto vn3 = tree->getLeavesNames();
       int rf = TreeTools::robinsonFouldsDistance(*previousTree, *tree, false);
-      ApplicationTools::displayResult("Topo. distance with previous iteration", TextTools::toString(rf));
+      if (optopt.verbose > 0)
+        ApplicationTools::displayResult("Topo. distance with previous iteration", TextTools::toString(rf));
       test = (rf != 0);
     }
 
@@ -767,36 +771,26 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
       {
         auto& coll = procMb->collection();
         size_t maxTNb = procMb->getTreeNumber();
-
         coll.replaceTree(phyloTree, maxTNb);
       }
-    
+
     auto lik     = make_shared<LikelihoodCalculationSingleProcess>(context, estimationMethod.getData(), process);
     auto tl      = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
-    if (optopt.verbose>0)
-      optopt.verbose--;
+    // hide opt verbose
+    optopt.verbose=0;
 
     optimizeNumericalParameters(tl, optopt);
+    process->matchParametersValues(tl->getParameters());
 
-    if (autoProc)
-      autoProc->matchParametersValues(tl->getParameters());
-    else
-      if (procMb)
-      {
-        auto& coll = procMb->collection();
-        coll.matchParametersValues(tl->getParameters());
-      }
-
+    estimationMethod.matchParametersValues(process->getParameters());
+    
     auto trtemp = std::make_shared<ParametrizablePhyloTree>(*tl->tree());
     const PhyloTree trt2(*trtemp);
     tree.reset(TreeTemplateTools::buildFromPhyloTree(trt2).release());
 
-    optopt.verbose++;
-    
     if (optopt.verbose > 0)
     {
-      process -> matchParametersValues(tl->getParameters());
       auto tmp = process->getSubstitutionModelParameters(true);
       for (unsigned int i = 0; i < tmp.size(); ++i)
       {
