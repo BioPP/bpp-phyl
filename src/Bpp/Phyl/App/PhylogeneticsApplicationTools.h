@@ -268,6 +268,24 @@ public:
       bool verbose = true,
       int warn = 1);
 
+  static std::unique_ptr<FrequencySetInterface> getRootFrequencySet(
+    std::shared_ptr<const Alphabet> alphabet,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    const std::map<std::string, std::string>& params,
+    std::map<std::string, std::string>& sharedparams,
+    const std::vector<double>& rateFreqs,
+    const std::string& suffix = "",
+    bool suffixIsOptional = true,
+    bool verbose = true,
+    int warn = 1)
+  {
+    std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
+    mData[1]=data;
+    
+    return getRootFrequencySet(alphabet, gCode, mData, 1, params, sharedparams, rateFreqs, suffix, suffixIsOptional, verbose, warn);
+  }
+
   /**
    * @brief The same, but returns a map <number, shared_ptr<FrequencySetInterface>>.
    */

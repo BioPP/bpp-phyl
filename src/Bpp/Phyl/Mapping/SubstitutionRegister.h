@@ -277,7 +277,7 @@ public:
  *
  */
 
-class VectorOfSubstitionRegisters :
+class VectorOfSubstitutionRegisters :
   public AbstractSubstitutionRegister
 {
 private:
@@ -287,29 +287,29 @@ private:
   std::vector< std::shared_ptr<SubstitutionRegisterInterface>> vSubReg_;
 
 public:
-  VectorOfSubstitionRegisters(std::shared_ptr<const StateMapInterface> stateMap) :
+  VectorOfSubstitutionRegisters(std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractSubstitutionRegister(stateMap, "Combination"),
     vSubReg_()
   {}
 
-  VectorOfSubstitionRegisters(const VectorOfSubstitionRegisters& vosr) :
+  VectorOfSubstitutionRegisters(const VectorOfSubstitutionRegisters& vosr) :
     AbstractSubstitutionRegister(vosr),
     vSubReg_(vosr.vSubReg_)
   {}
 
-  VectorOfSubstitionRegisters* clone() const override
+  VectorOfSubstitutionRegisters* clone() const override
   {
-    return new VectorOfSubstitionRegisters(*this);
+    return new VectorOfSubstitutionRegisters(*this);
   }
 
-  virtual ~VectorOfSubstitionRegisters() {}
+  virtual ~VectorOfSubstitutionRegisters() {}
 
   void addRegister(std::shared_ptr<SubstitutionRegisterInterface> reg)
   {
     if (reg)
     {
       if (reg->stateMap() != stateMap())
-        throw Exception("VectorOfSubstitionRegisters::addRegister : mismatch between state maps");
+        throw Exception("VectorOfSubstitutionRegisters::addRegister : mismatch between state maps");
 
       vSubReg_.push_back(reg);
     }

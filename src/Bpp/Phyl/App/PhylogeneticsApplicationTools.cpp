@@ -3746,7 +3746,7 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
     shared_ptr<AlphabetIndex2> w2;
     shared_ptr<AlphabetIndex2> d2;
 
-    auto vreg = make_unique<VectorOfSubstitionRegisters>(stateMap);
+    auto vreg = make_unique<VectorOfSubstitutionRegisters>(stateMap);
 
     size_t i = 0;
     while (++i)
@@ -3759,6 +3759,9 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
 
       vreg->addRegister(std::move(sreg));
     }
+
+    if (vreg->getNumberOfSubstitutionTypes()==0)
+      throw Exception("Missing registers reg1, reg2, ... in description of Combination");
 
     reg = std::move(vreg);
   }
