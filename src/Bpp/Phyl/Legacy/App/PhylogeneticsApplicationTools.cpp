@@ -768,9 +768,9 @@ shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimiz
   ParameterList parametersToEstimate = parameters;
   vector<string> parNames = parametersToEstimate.getParameterNames();
 
-  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, warn);
+  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, warn + 1);
   if (paramListDesc.length() == 0)
-    paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn);
+    paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn + 1);
   StringTokenizer st(paramListDesc, ",");
   while (st.hasMoreToken())
   {

@@ -78,7 +78,7 @@ public:
       double threshold = -1,
       bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.substitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.substitutionProcess().parametrizablePhyloTree().getAllEdgesIndexes();
     return computeCounts(rltc, edgeIds, substitutionCount, unresolvedOption, threshold, verbose);
   }
 
@@ -109,7 +109,7 @@ public:
       double threshold = -1,
       bool verbose = true)
   {
-    std::vector<uint> edgeIds = rltc.substitutionProcess().getParametrizablePhyloTree()->getAllEdgesIndexes();
+    std::vector<uint> edgeIds = rltc.substitutionProcess().parametrizablePhyloTree().getAllEdgesIndexes();
     return computeCounts(rltc, edgeIds, reg, weights, distances, unresolvedOption, threshold, verbose);
   }
 
@@ -317,8 +317,7 @@ public:
 
   /**
    * @}
-   *
-   **/
+   */
 
   /**
    *
@@ -327,8 +326,7 @@ public:
    * computeCounts and computeNormalizedCounts methods).
    *
    * @{
-   *
-   **/
+   */
 
   /**
    * @brief Sum all sites substitutions a given type.
@@ -338,7 +336,6 @@ public:
    *
    * @return A PhyloTree where branch lengths carry the branch counts.
    */
-
   static std::unique_ptr<PhyloTree> getTreeForType(
       const ProbabilisticSubstitutionMapping& counts,
       size_t type);
@@ -362,7 +359,7 @@ public:
    * @brief Methods to get std::vectors of counts
    *
    * @{
-   **/
+   */
 
   /**
    * @brief PER BRANCH methods can use raw or normalized counting
@@ -370,8 +367,7 @@ public:
    * computeNormalizedCounts methods).
    *
    * @{
-   *
-   **/
+   */
 
   /**
    * @brief Sum all type of substitutions for each site for each
