@@ -103,7 +103,7 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProce
   {
     for (size_t j = 0; j < nbProcess; ++j)
     {
-      pb[i][j] = convert(pb[i][j] * freq[j] / l[i]);
+      pb[i][j] = pb[i][j] * freq[j] / convert(l[i]);
     }
   }
   return pb;

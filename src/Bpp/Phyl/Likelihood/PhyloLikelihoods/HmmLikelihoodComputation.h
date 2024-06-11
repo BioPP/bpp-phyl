@@ -185,7 +185,6 @@ public:
     if (hmmEq.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad dimension for starting vector", size_t(hmmEq.rows()), size_t(targetDimension_.rows));
 
-
     const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd>>(this->dependency(1))->targetValue();
 
     if (hmmTrans.cols() != hmmTrans.rows())
