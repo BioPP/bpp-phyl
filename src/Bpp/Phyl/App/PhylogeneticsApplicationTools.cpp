@@ -1599,25 +1599,17 @@ unique_ptr<SubstitutionProcessCollection> PhylogeneticsApplicationTools::getSubs
   // ////// Aliasing
   // Finally check parameter aliasing:
 
-  string aliasDesc = ApplicationTools::getStringParameter("likelihood.alias", params, "", suffix, suffixIsOptional, warn);
-
-  StringTokenizer st(aliasDesc, ",");
-  while (st.hasMoreToken())
+  for (const auto& param : params)
   {
-    string alias = st.nextToken();
-    string::size_type index = alias.find("->");
-    if (index == string::npos)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcessCollection. Bad alias syntax, should contain `->' symbol: " + alias);
-    string p1 = alias.substr(0, index);
-    string p2 = alias.substr(index + 2);
     try
     {
-      auto v2 = TextTools::toDouble(p2);
-      SPC->setParameterValue(p1, v2);
+      auto v2 = TextTools::toDouble(param.second);
+      SPC->setParameterValue(param.first, v2);
     }
     catch (Exception& e)
     {
-      unparsedParams[p1] = p2;
+      if (SPC->hasParameter(param.first))
+        unparsedParams[param.first] = param.second;
     }
   }
 
