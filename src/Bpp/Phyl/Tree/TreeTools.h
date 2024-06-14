@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: TreeTools.h
-// Authors:
-//   Julien Dutheil
-// Created: 2003-08-06 13:45:28
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_TREE_TREETOOLS_H
 #define BPP_PHYL_TREE_TREETOOLS_H
@@ -321,7 +285,7 @@ public:
   /**
    * @brief Compute branch lengths using Grafen's method.
    *
-   * The 'height' of each node is devided by the total height of the tree, and the ratio is raised at power 'rho'.
+   * The 'height' of each node is divided by the total height of the tree, and the ratio is raised at power 'rho'.
    * A value of rho=0 hence returns a star tree.
    *
    * Reference:
@@ -344,7 +308,7 @@ public:
    * @brief Modify a tree's branch lengths to make a clock tree, by rebalancing branch lengths.
    *
    * The height of each node is set to the mean height of all son nodes.
-   * This may however lead to negative branch lengths, since the mean heigth
+   * This may however lead to negative branch lengths, since the mean height
    * may be inferior to one of the son heights, due to short branch lengths.
    * If the 'noneg' is set to yes, the mean height is checked against all son
    * heights. If it is inferior to one of the son heights, the maximum son
@@ -445,7 +409,7 @@ public:
    *
    * @param tree The tree
    * @param nodeId The node defining the subtree.
-   * @param bootstrap Tell is bootstrap values must be writen.
+   * @param bootstrap Tell is bootstrap values must be written.
    * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
    * The property should be a Number<double> object.
    * Otherwise, the content of the property with name 'propertyName' will be written.
@@ -471,7 +435,7 @@ public:
    * @brief Get the parenthesis description of a tree.
    *
    * @param tree The tree to convert.
-   * @param bootstrap Tell is bootstrap values must be writen.
+   * @param bootstrap Tell is bootstrap values must be written.
    * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
    * The property should be a Number<double> object.
    * Otherwise, the content of the property with name 'propertyName' will be written.
@@ -538,7 +502,7 @@ public:
    *
    * @param tree The tree to check.
    * @param throwException If set to true, the function throws qn exception if a duplicated is found.
-   * @return true if the tree has uniqe ids.
+   * @return true if the tree has unique ids.
    */
   static bool checkIds(const Tree& tree, bool throwException);
 
@@ -607,7 +571,7 @@ public:
    * @param bipScore Output as the numbers of occurrences of the returned distinct bipartitions
    * @return A BipartitionList object including only distinct bipartitions
    */
-  static std::unique_ptr<BipartitionList> bipartitionOccurrences(const std::vector<std::unique_ptr<Tree> >& vecTr, std::vector<size_t>& bipScore);
+  static std::unique_ptr<BipartitionList> bipartitionOccurrences(const std::vector<std::unique_ptr<Tree>>& vecTr, std::vector<size_t>& bipScore);
 
   /**
    * @brief General greedy consensus tree method
@@ -622,7 +586,7 @@ public:
    * @param threshold Minimal acceptable score =number of occurrence of a bipartition/number of trees (0.<=threshold<=1.)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static std::unique_ptr<TreeTemplate<Node>> thresholdConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, double threshold, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> thresholdConsensus(const std::vector<std::unique_ptr<Tree>>& vecTr, double threshold, bool checkNames = true);
 
   /**
    * @brief Fully-resolved greedy consensus tree method
@@ -634,7 +598,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static std::unique_ptr<TreeTemplate<Node>> fullyResolvedConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> fullyResolvedConsensus(const std::vector<std::unique_ptr<Tree>>& vecTr, bool checkNames = true);
 
   /**
    * @brief Majority consensus tree method
@@ -645,7 +609,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static std::unique_ptr<TreeTemplate<Node>> majorityConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> majorityConsensus(const std::vector<std::unique_ptr<Tree>>& vecTr, bool checkNames = true);
 
   /**
    * @brief Strict consensus tree method
@@ -656,7 +620,7 @@ public:
    * @param vecTr Vector of input trees (must share a common set of leaves - checked if checkNames is true)
    * @param checkNames Tell whether we should check the trees first.
    */
-  static std::unique_ptr<TreeTemplate<Node>> strictConsensus(const std::vector<std::unique_ptr<Tree> >& vecTr, bool checkNames = true);
+  static std::unique_ptr<TreeTemplate<Node>> strictConsensus(const std::vector<std::unique_ptr<Tree>>& vecTr, bool checkNames = true);
 
   /** @} */
 
@@ -676,13 +640,13 @@ public:
   /**
    * @brief Compute bootstrap values.
    *
-   * @param tree Input tree. the BOOTSTRAP banch property of the tree will be modified if it already exists.
+   * @param tree Input tree. the BOOTSTRAP branch property of the tree will be modified if it already exists.
    * @param vecTr A list of trees to compare to 'tree'.
    * @param verbose Tell if a progress bar should be displayed.
    * @param format The output format of the tree.
    */
 
-  static void computeBootstrapValues(Tree& tree, const std::vector<std::unique_ptr<Tree> >& vecTr, bool verbose = true, int format = 0);
+  static void computeBootstrapValues(Tree& tree, const std::vector<std::unique_ptr<Tree>>& vecTr, bool verbose = true, int format = 0);
 
   /**
    * @brief Determine the mid-point position of the root along the branch that already contains the root. Consequently, the topology of the rooted tree remains identical.

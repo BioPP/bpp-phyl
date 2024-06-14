@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractWrappedModel.h
-// Authors:
-//   Laurent Guéguen
-// Created: mardi 26 septembre 2017, ÃÂ  16h 18
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_ABSTRACTWRAPPEDMODEL_H
 #define BPP_PHYL_MODEL_ABSTRACTWRAPPEDMODEL_H
@@ -53,7 +17,7 @@ namespace bpp
  * @brief Abstract class of Wrapping model class, where all methods
  * are redirected from model().
  */
-  
+
 class AbstractWrappedModel :
   public virtual AbstractParameterAliasable,
   public virtual WrappedModelInterface
@@ -62,7 +26,7 @@ public:
   AbstractWrappedModel(const std::string& prefix) :
     AbstractParameterAliasable(prefix)
   {}
-  
+
   virtual ~AbstractWrappedModel() {}
 
 public:
@@ -87,15 +51,16 @@ public:
 
 
   const Alphabet& alphabet() const override { return model().alphabet(); }
-  
+
   std::shared_ptr<const Alphabet> getAlphabet() const override { return model().getAlphabet(); }
 
   size_t getNumberOfStates() const override { return model().getNumberOfStates(); }
 
-  const FrequencySetInterface& frequencySet() const override {
+  const FrequencySetInterface& frequencySet() const override
+  {
     return model().frequencySet();
   }
-  
+
   /**
    * @}
    */
@@ -104,9 +69,6 @@ public:
     return model().getName();
   }
 
-  /**
-   * @}
-   */
 };
 
 class AbstractWrappedTransitionModel :
@@ -115,16 +77,16 @@ class AbstractWrappedTransitionModel :
   public virtual WrappedTransitionModelInterface
 {
 public:
-  AbstractWrappedTransitionModel(const std::string& prefix):
-      AbstractWrappedModel(prefix)
+  AbstractWrappedTransitionModel(const std::string& prefix) :
+    AbstractWrappedModel(prefix)
   {}
-  
+
 protected:
   BranchModelInterface& model_()
   {
     return transitionModel_();
   }
-  
+
   virtual TransitionModelInterface& transitionModel_() = 0;
 
 public:
@@ -137,7 +99,6 @@ public:
   {
     return transitionModel();
   }
-  
 };
 
 
@@ -145,9 +106,9 @@ class AbstractTotallyWrappedTransitionModel :
   public virtual AbstractWrappedTransitionModel
 {
 public:
-  AbstractTotallyWrappedTransitionModel(const std::string& prefix):
-      AbstractWrappedTransitionModel(prefix) {}
-  
+  AbstractTotallyWrappedTransitionModel(const std::string& prefix) :
+    AbstractWrappedTransitionModel(prefix) {}
+
   virtual ~AbstractTotallyWrappedTransitionModel() {}
 
 public:
@@ -254,9 +215,9 @@ class AbstractTotallyWrappedSubstitutionModel :
   public virtual AbstractWrappedSubstitutionModel
 {
 public:
-  AbstractTotallyWrappedSubstitutionModel(const std::string& prefix):
-       AbstractTotallyWrappedTransitionModel(prefix),
-       AbstractWrappedSubstitutionModel(prefix)
+  AbstractTotallyWrappedSubstitutionModel(const std::string& prefix) :
+    AbstractTotallyWrappedTransitionModel(prefix),
+    AbstractWrappedSubstitutionModel(prefix)
   {}
 
   virtual ~AbstractTotallyWrappedSubstitutionModel() {}
@@ -268,9 +229,9 @@ public:
    */
   double Qij(size_t i, size_t j) const { return substitutionModel().Qij(i, j); }
 
-  const Matrix<double>& getGenerator() const { return substitutionModel().getGenerator(); }
+  const Matrix<double>& generator() const { return substitutionModel().generator(); }
 
-  const Matrix<double>& getExchangeabilityMatrix() const { return substitutionModel().getExchangeabilityMatrix(); }
+  const Matrix<double>& exchangeabilityMatrix() const { return substitutionModel().exchangeabilityMatrix(); }
 
   double Sij(size_t i, size_t j) const { return substitutionModel().Sij(i, j); }
 
@@ -324,9 +285,6 @@ public:
     substitutionModel_().setScale(scale);
   }
 
-  /**
-   * @}
-   */
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTWRAPPEDMODEL_H

@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: Nhx.cpp
-// Authors:
-//   Bastien Boussau
-// Created: 2010-10-19 11:06:03
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "../Tree/PhyloBranch.h"
 #include "../Tree/PhyloBranch.h"
@@ -114,7 +77,7 @@ unique_ptr<TreeTemplate<Node>> Nhx::readTreeTemplate(istream& in) const
   }
 
   // We concatenate all line in file till we reach the ending semi colon:
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   // Main loop : for all file lines
   while (!in.eof())
   {
@@ -145,7 +108,7 @@ unique_ptr<PhyloTree> Nhx::readPhyloTree(istream& in) const
   }
 
   // We concatenate all line in file till we reach the ending semi colon:
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   // Main loop : for all file lines
   while (!in.eof())
   {
@@ -176,7 +139,7 @@ void Nhx::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
   }
 
   // Main loop : for all file lines
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   string::size_type index;
   vector<string> beginnings, endings;
   beginnings.push_back("[&&NHX:");
@@ -211,7 +174,7 @@ void Nhx::readPhyloTrees(istream& in, vector<unique_ptr<PhyloTree>>& trees) cons
   }
 
   // Main loop : for all file lines
-  string temp, description;// Initialization
+  string temp, description; // Initialization
   string::size_type index;
   vector<string> beginnings, endings;
   beginnings.push_back("[&&NHX:");
@@ -448,7 +411,7 @@ unique_ptr<PhyloTree> Nhx::parenthesisToPhyloTree(const string& description) con
   if (semi == string::npos)
     throw Exception("Nhx::parenthesisToPhyloTree(). Bad format: no semi-colon found.");
   string content = description.substr(0, semi);
-  
+
   auto tree = make_unique<PhyloTree>();
   shared_ptr<PhyloNode> root = parenthesisToNode(*tree, 0, content);
 
@@ -470,7 +433,7 @@ void Nhx::checkNodesId_(PhyloTree& tree) const
   std::unique_ptr<PhyloTree::NodeIterator> nIT = tree.allNodesIterator();
 
   Vuint nid;
-  vector<shared_ptr<PhyloNode> > vNode;
+  vector<shared_ptr<PhyloNode>> vNode;
 
   for ( ; !nIT->end(); nIT->next())
   {
@@ -709,7 +672,7 @@ void Nhx::changeTagsToNames(PhyloTree& tree, shared_ptr<PhyloNode> node) const
     }
   }
 
-  vector<shared_ptr<PhyloNode> > vs = tree.getSons(node);
+  vector<shared_ptr<PhyloNode>> vs = tree.getSons(node);
 
   for (unsigned int i = 0; i < vs.size(); ++i)
   {
@@ -746,7 +709,7 @@ void Nhx::changeNamesToTags(PhyloTree& tree, shared_ptr<PhyloNode> node) const
     }
   }
 
-  vector<shared_ptr<PhyloNode> > vs = tree.getSons(node);
+  vector<shared_ptr<PhyloNode>> vs = tree.getSons(node);
 
   for (unsigned int i = 0; i < vs.size(); ++i)
   {
@@ -906,9 +869,9 @@ string Nhx::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Phylo
   {
     s << "(";
 
-    vector<shared_ptr<PhyloNode> > vSons = tree.getSons(node);
+    vector<shared_ptr<PhyloNode>> vSons = tree.getSons(node);
 
-    for (vector<shared_ptr<PhyloNode> >::const_iterator it = vSons.begin(); it != vSons.end(); it++)
+    for (vector<shared_ptr<PhyloNode>>::const_iterator it = vSons.begin(); it != vSons.end(); it++)
     {
       if (it != vSons.begin())
         s << ",";
@@ -936,7 +899,7 @@ string Nhx::treeToParenthesis(const PhyloTree& tree) const
   s << "(";
 
   shared_ptr<PhyloNode>  root = tree.getRoot();
-  std::vector<shared_ptr<PhyloNode> > rSons = tree.getSons(root);
+  std::vector<shared_ptr<PhyloNode>> rSons = tree.getSons(root);
 
   if (tree.isRooted())
   {
@@ -1066,7 +1029,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type)
     if (castedPptObject)
       return castedPptObject->toSTL();
     else
-      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class BppString.");
+      throw Exception("Nhx::propertyToString_. Invalid property type, should be of class BppString.");
   }
   else if (type == 1)
   {
@@ -1074,7 +1037,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type)
     if (castedPptObject)
       return TextTools::toString(castedPptObject->getValue());
     else
-      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class Number<int>.");
+      throw Exception("Nhx::propertyToString_. Invalid property type, should be of class Number<int>.");
   }
   else if (type == 2)
   {
@@ -1082,7 +1045,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type)
     if (castedPptObject)
       return TextTools::toString(castedPptObject->getValue());
     else
-      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class Number<double>.");
+      throw Exception("Nhx::propertyToString_. Invalid property type, should be of class Number<double>.");
   }
   else if (type == 3)
   {
@@ -1090,7 +1053,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type)
     if (castedPptObject)
       return TextTools::toString(castedPptObject->getValue());
     else
-      throw Exception("Nhx::propertyToString_. Unvalid property type, should be of class BppBoolean.");
+      throw Exception("Nhx::propertyToString_. Invalid property type, should be of class BppBoolean.");
   }
   else
   {

@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: TransitionMatrix.cpp
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: vendredi 3 juillet 2020, ÃÂ  17h 54
-// Last modified: vendredi 3 juillet 2020, ÃÂ  17h 54
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Phyl/Likelihood/DataFlow/DataFlowCWiseComputing.h>
@@ -51,7 +14,7 @@ using namespace bpp;
 // TransitionMatrix node
 
 ConfiguredTransitionMatrix::ConfiguredTransitionMatrix (Context& context, NodeRefVec&& deps, std::unique_ptr<HmmTransitionMatrix>&& hmm)
-  : Value<const HmmTransitionMatrix*>(std::move (deps), hmm.get ()), AbstractParametrizable(hmm->getNamespace())// , context_(context)
+  : Value<const HmmTransitionMatrix*>(std::move (deps), hmm.get ()), AbstractParametrizable(hmm->getNamespace()) // , context_(context)
   , hmm_(std::move(hmm))
 {
   for (const auto& dep:dependencies())
@@ -102,7 +65,7 @@ NodeRef ConfiguredTransitionMatrix::recreate (Context& c, NodeRefVec&& deps)
 // EquilibriumFrequenciesFromTransitionMatrix
 
 EquilibriumFrequenciesFromTransitionMatrix::EquilibriumFrequenciesFromTransitionMatrix (
-  NodeRefVec&& deps, const Dimension<T>& dim)
+    NodeRefVec&& deps, const Dimension<T>& dim)
   : Value<T>(std::move (deps)), targetDimension_ (dim) {}
 
 std::string EquilibriumFrequenciesFromTransitionMatrix::debugInfo () const
@@ -123,13 +86,13 @@ NodeRef EquilibriumFrequenciesFromTransitionMatrix::derive (Context& c, const No
   auto hmmDep = this->dependency (0);
   auto& hmm = static_cast<Dep&>(*hmmDep);
   auto buildFWithNewTransitionMatrix = [this, &c](NodeRef&& newTransitionMatrix) {
-                                         return ConfiguredParametrizable::createVector<Dep, Self>(c, {std::move (newTransitionMatrix)}, targetDimension_);
-                                       };
+        return ConfiguredParametrizable::createVector<Dep, Self>(c, {std::move (newTransitionMatrix)}, targetDimension_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T>(
-    c, hmm, node, targetDimension_, buildFWithNewTransitionMatrix);
+        c, hmm, node, targetDimension_, buildFWithNewTransitionMatrix);
 
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef EquilibriumFrequenciesFromTransitionMatrix::recreate (Context& c, NodeRefVec&& deps)
@@ -150,7 +113,7 @@ void EquilibriumFrequenciesFromTransitionMatrix::compute ()
 // TransitionMatrixFromTransitionMatrix
 
 TransitionMatrixFromTransitionMatrix::TransitionMatrixFromTransitionMatrix (NodeRefVec&& deps,
-                                                                            const Dimension<Eigen::MatrixXd>& dim)
+    const Dimension<Eigen::MatrixXd>& dim)
   : Value<Eigen::MatrixXd>(std::move (deps)), targetDimension_ (dim) {}
 
 std::string TransitionMatrixFromTransitionMatrix::debugInfo () const
@@ -173,13 +136,13 @@ NodeRef TransitionMatrixFromTransitionMatrix::derive (Context& c, const Node_DF&
   // TransitionMatrix part
   auto& hmm = static_cast<Dep&>(*hmmDep);
   auto buildFWithNewTransitionMatrix = [this, &c](NodeRef&& newTransitionMatrix) {
-                                         return ConfiguredParametrizable::createMatrix<Dep, Self>(c, {std::move (newTransitionMatrix)}, targetDimension_);
-                                       };
+        return ConfiguredParametrizable::createMatrix<Dep, Self>(c, {std::move (newTransitionMatrix)}, targetDimension_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T>(
-    c, hmm, node, targetDimension_, buildFWithNewTransitionMatrix);
+        c, hmm, node, targetDimension_, buildFWithNewTransitionMatrix);
 
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef TransitionMatrixFromTransitionMatrix::recreate (Context& c, NodeRefVec&& deps)

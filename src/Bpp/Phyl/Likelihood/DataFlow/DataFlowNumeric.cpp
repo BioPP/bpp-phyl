@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: DataFlowNumeric.cpp
-// Authors:
-//   Francois Gindraud (2017)
-// Created: 2018-06-07 00:00:00
-// Last modified: 2018-07-11 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Exceptions.h>
 
@@ -74,9 +37,9 @@ void copyBppToEigen (const std::vector<ExtendedFloatVectorXd>& bppVector, Extend
 
   eigenVector.exponent_part() = maxE;
   eigenVector.float_part() = Eigen::MatrixXd::NullaryExpr(static_cast<Eigen::Index>(bppVector[0].rows()),
-                                                          static_cast<Eigen::Index>(bppVector.size()),
-                                                          [&maxE, &bppVector](int i, int j){
-      return bppVector[(size_t)j].float_part()(i) * bpp::constexpr_power<double>(bpp::ExtendedFloat::radix, bppVector[(size_t)j].exponent_part () - maxE);
+        static_cast<Eigen::Index>(bppVector.size()),
+        [&maxE, &bppVector](int i, int j){
+      return bppVector[(size_t)j].float_part()(i) * bpp::constexpr_power<double> (bpp::ExtendedFloat::radix, bppVector[(size_t)j].exponent_part () - maxE);
     });
 }
 
@@ -145,11 +108,11 @@ void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, Eigen::MatrixXd& eige
 /*****************************************/
 /* copyEigenToBpp */
 
-template void copyEigenToBpp(const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<double> >& bppMatrix);
-template void copyEigenToBpp(const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat> >& bppMatrix);
+template void copyEigenToBpp(const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<double>>& bppMatrix);
+template void copyEigenToBpp(const ExtendedFloatMatrixXd& eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>>& bppMatrix);
 
-template void copyEigenToBpp(const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<double> >& bppMatrix);
-template void copyEigenToBpp(const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat> >& bppMatrix);
+template void copyEigenToBpp(const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<double>>& bppMatrix);
+template void copyEigenToBpp(const Eigen::MatrixXd& eigenMatrix, std::vector<std::vector<bpp::ExtendedFloat>>& bppMatrix);
 
 void copyEigenToBpp (const MatrixLik& eigenMatrix, bpp::Matrix<double>& bppMatrix)
 {
@@ -201,7 +164,7 @@ void checkDimensionIsSquare (const MatrixDimension& dim)
   if (dim.rows != dim.cols)
   {
     throw Exception ("MatrixDimension is not square: " + std::to_string (dim.rows) + "x" +
-                     std::to_string (dim.cols));
+          std::to_string (dim.cols));
   }
 }
 } // namespace numeric
@@ -211,7 +174,7 @@ void checkRecreateWithoutDependencies (const std::type_info& contextNodeType, co
   if (!deps.empty ())
   {
     throw Exception (prettyTypeName (contextNodeType) +
-                     "recreate called with dependencies, but node does not have dependencies");
+          "recreate called with dependencies, but node does not have dependencies");
   }
 }
 
@@ -287,8 +250,8 @@ template class Convert<ExtendedFloatVectorXd, double>;
 template class Convert<ExtendedFloatVectorXd, ExtendedFloatVectorXd>;
 template class Convert<ExtendedFloatVectorXd, Eigen::VectorXd>;
 template class Convert<ExtendedFloatVectorXd, Eigen::VectorXi>;
-template class Convert<ExtendedFloatVectorXd, Transposed<ExtendedFloatRowVectorXd> >;
-template class Convert<ExtendedFloatVectorXd, Transposed<Eigen::RowVectorXd> >;
+template class Convert<ExtendedFloatVectorXd, Transposed<ExtendedFloatRowVectorXd>>;
+template class Convert<ExtendedFloatVectorXd, Transposed<Eigen::RowVectorXd>>;
 
 template class Convert<Eigen::VectorXd, ExtendedFloatVectorXd>;
 
@@ -296,26 +259,26 @@ template class Convert<ExtendedFloatRowVectorXd, double>;
 template class Convert<ExtendedFloatRowVectorXd, ExtendedFloatRowVectorXd>;
 template class Convert<ExtendedFloatRowVectorXd, Eigen::RowVectorXd>;
 template class Convert<ExtendedFloatRowVectorXd, Eigen::RowVectorXi>;
-template class Convert<ExtendedFloatRowVectorXd, Transposed<ExtendedFloatVectorXd> >;
-template class Convert<ExtendedFloatRowVectorXd, Transposed<Eigen::VectorXd> >;
+template class Convert<ExtendedFloatRowVectorXd, Transposed<ExtendedFloatVectorXd>>;
+template class Convert<ExtendedFloatRowVectorXd, Transposed<Eigen::VectorXd>>;
 
 template class Convert<ExtendedFloatMatrixXd, double>;
 template class Convert<ExtendedFloatMatrixXd, ExtendedFloatMatrixXd>;
 template class Convert<ExtendedFloatMatrixXd, Eigen::MatrixXd>;
-template class Convert<ExtendedFloatMatrixXd, Transposed<ExtendedFloatMatrixXd> >;
-template class Convert<ExtendedFloatMatrixXd, Transposed<Eigen::MatrixXd> >;
+template class Convert<ExtendedFloatMatrixXd, Transposed<ExtendedFloatMatrixXd>>;
+template class Convert<ExtendedFloatMatrixXd, Transposed<Eigen::MatrixXd>>;
 
 template class Convert<Eigen::VectorXd, double>;
 template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
 template class Convert<Eigen::VectorXd, Eigen::VectorXi>;
-template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd> >;
+template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
 
 template class Convert<Eigen::RowVectorXd, double>;
 template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXd>;
 template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXi>;
-template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd> >;
+template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
 
 template class Convert<Eigen::MatrixXd, double>;
 template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
-template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd> >;
+template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
 } // namespace bpp

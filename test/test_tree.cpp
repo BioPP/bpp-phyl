@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: test_tree.cpp
-// Created by: Julien Dutheil
-// Created on: Sun Nov 14 10:20 2010
-//
-
-/*
-Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
-
-This software is a computer program whose purpose is to provide classes
-for numerical calculus. This file is part of the Bio++ project.
-
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
-
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
-
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
-
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Tree/TreeTemplateTools.h>
@@ -47,35 +12,39 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
-int main() {
-  //Get some leaf names:
+int main()
+{
+  // Get some leaf names:
   vector<string> leaves(100);
   for (size_t i = 0; i < leaves.size(); ++i)
+  {
     leaves[i] = "leaf" + TextTools::toString(i);
-  
-  for (unsigned int j = 0; j < 1000; ++j) {
-    //Generate a random tree, without branch lengths:
+  }
+
+  for (unsigned int j = 0; j < 1000; ++j)
+  {
+    // Generate a random tree, without branch lengths:
     auto tree = TreeTemplateTools::getRandomTree(leaves, true);
     auto tree2 = new TreeTemplate<Node>(*tree);
     if (!tree->hasSameTopologyAs(*tree2))
-      return 1; //Error!!!
-    tree2->getRootNode()->swap(0,1);
-    //cout << "First test passed." << endl;
+      return 1; // Error!!!
+    tree2->getRootNode()->swap(0, 1);
+    // cout << "First test passed." << endl;
     if (!tree->hasSameTopologyAs(*tree2))
-      return 1; //Error!!!
-    //cout << "Second test passed." << endl;
-  
-    //Convert tree to string and read it again:
+      return 1; // Error!!!
+    // cout << "Second test passed." << endl;
+
+    // Convert tree to string and read it again:
     string newick = TreeTemplateTools::treeToParenthesis(*tree);
     auto tree3 = TreeTemplateTools::parenthesisToTree(newick, true, TreeTools::BOOTSTRAP, false, false);
     if (!tree->hasSameTopologyAs(*tree3))
-      return 1; //Error!!!
-    //cout << "Third test passed." << endl;
-    
-    //-------------
+      return 1; // Error!!!
+    // cout << "Third test passed." << endl;
+
+    // -------------
   }
 
-  //Try to parse a string:
+  // Try to parse a string:
   auto tree4 = TreeTemplateTools::parenthesisToTree("((A:1,B:2):3,C:4);");
   cout << TreeTemplateTools::treeToParenthesis(*tree4) << endl;
 
@@ -86,7 +55,7 @@ int main() {
   istringstream iss6("((A,B),C);");
   auto tree6 = tReader.readTree(iss6);
   cout << TreeTemplateTools::treeToParenthesis(*tree6) << endl;
-  
+
   istringstream iss7("((A:1,B:2):3,C:4):5;");
   auto tree7 = tReader.readTree(iss7);
   cout << TreeTemplateTools::treeToParenthesis(*tree7) << endl;
@@ -95,7 +64,8 @@ int main() {
   auto tree8 = tReader.readTreeTemplate(iss8);
   cout << TreeTemplateTools::treeToParenthesis(*tree8) << endl;
   vector<int> ids = tree8->getNodesId();
-  for (size_t i = 0; i < ids.size(); ++i) {
+  for (size_t i = 0; i < ids.size(); ++i)
+  {
     cout << "Node " << ids[i] << ":" << endl;
     if (tree8->getNode(ids[i])->hasBranchProperty(TreeTools::BOOTSTRAP))
       cout << "N: BOOTSTRAP=" << dynamic_cast<Number<double>*>(tree8->getNode(ids[i])->getBranchProperty(TreeTools::BOOTSTRAP))->getValue() << endl;
@@ -107,19 +77,24 @@ int main() {
   auto tree9 = tReader.readTreeTemplate(iss9);
   cout << TreeTemplateTools::treeToParenthesis(*tree9) << endl;
   ids = tree9->getNodesId();
-  for (size_t i = 0; i < ids.size(); ++i) {
+  for (size_t i = 0; i < ids.size(); ++i)
+  {
     cout << "Node " << ids[i] << ":" << endl;
     vector<string> nodePpt = tree9->getNode(ids[i])->getNodePropertyNames();
     for (size_t j = 0; j < nodePpt.size(); ++j)
+    {
       if (tree9->getNode(ids[i])->hasNodeProperty(nodePpt[j]))
         cout << "N: " << nodePpt[j] << "=" << dynamic_cast<BppString*>(tree9->getNode(ids[i])->getNodeProperty(nodePpt[j]))->toSTL() << endl;
+    }
     vector<string> branchPpt = tree9->getNode(ids[i])->getBranchPropertyNames();
     for (size_t j = 0; j < branchPpt.size(); ++j)
+    {
       if (tree9->getNode(ids[i])->hasBranchProperty(branchPpt[j]))
         cout << "B: " << branchPpt[j] << "=" << dynamic_cast<BppString*>(tree9->getNode(ids[i])->getBranchProperty(branchPpt[j]))->toSTL() << endl;
+    }
   }
 
-  //Test file parsing:
+  // Test file parsing:
   auto tree10 = TreeTemplateTools::getRandomTree(leaves, true);
   Newick tWriter;
   tWriter.writeTree(*tree10, "tmp_tree.dnd", true);
@@ -128,9 +103,10 @@ int main() {
     return 1;
   cout << "Newick I/O ok." << endl;
 
-  //Multiple trees:
-  vector<const Tree *> trees;
-  for (unsigned int i = 0; i < 100; ++i) {
+  // Multiple trees:
+  vector<const Tree*> trees;
+  for (unsigned int i = 0; i < 100; ++i)
+  {
     trees.push_back(TreeTemplateTools::getRandomTree(leaves, true).release());
   }
   tWriter.writeTrees(trees, "tmp_trees.dnd", true);
@@ -138,7 +114,8 @@ int main() {
   vector<unique_ptr<Tree>> trees2;
   tReader.readTrees("tmp_trees.dnd", trees2);
 
-  for (unsigned int i = 0; i < 100; ++i) {
+  for (unsigned int i = 0; i < 100; ++i)
+  {
     if (!TreeTools::haveSameTopology(*trees[i], *trees2[i]))
     {
       cerr << "Tree " << i << " failed to write and/or read!" << endl;
@@ -147,42 +124,54 @@ int main() {
   }
   cout << "Newick multiple I/O ok." << endl;
 
-  for (unsigned int i = 0; i < 100; ++i) {
+  for (unsigned int i = 0; i < 100; ++i)
+  {
     delete trees[i];
   }
 
-  //Try newick read on non-file:
+  // Try newick read on non-file:
   cout << "Testing parsing a directory..." << endl;
-  try {
+  try
+  {
     auto tmp = tReader.readTree("test/");
     cerr << "Arg, reading on directory should fail!" << endl;
-    if (tmp) {
+    if (tmp)
+    {
       cerr << "Output of read on directory is not NULL!" << endl;
     }
     return 1;
-  } catch (Exception& ex) {
+  }
+  catch (Exception& ex)
+  {
     cout << "Ok, reading on directory throws exception!" << endl;
   }
 
   cout << "Testing parsing a directory for multiple trees..." << endl;
-  try {
+  try
+  {
     vector<unique_ptr<Tree>> treesTmp;
     tReader.readTrees("test/", treesTmp);
-    if (treesTmp.size() != 0) {
+    if (treesTmp.size() != 0)
+    {
       cerr << "Output of multiple read on directory is not 0!" << endl;
       return 1;
-    } else {
+    }
+    else
+    {
       cout << "Ok, reading on directory returns a vector of size 0!" << endl;
     }
-  } catch(Exception& ex) {
+  }
+  catch (Exception& ex)
+  {
     cout << "Error, no exception should be thrown here!" << endl;
   }
 
-  //Now try some weird cases, to see if we handle them properly:
-  //single node tree:
+  // Now try some weird cases, to see if we handle them properly:
+  // single node tree:
   cout << "Testing a tree with a node of degree 2:" << endl;
   auto weird1 = TreeTemplateTools::parenthesisToTree("((A:1):2.0,B);");
-  if (weird1->getNodes().size() != 4) {
+  if (weird1->getNodes().size() != 4)
+  {
     cout << "Error, tree has " << weird1->getNodes().size() << " node(s) instead of 4!" << endl;
     VectorTools::print(weird1->getLeavesNames());
     return 1;
@@ -191,7 +180,8 @@ int main() {
 
   cout << "Testing a tree with a node of degree 2, without branch length:" << endl;
   auto weird2 = TreeTemplateTools::parenthesisToTree("((A),B);");
-  if (weird2->getNodes().size() != 4) {
+  if (weird2->getNodes().size() != 4)
+  {
     cout << "Error, tree has " << weird2->getNodes().size() << " node(s) instead of 4!" << endl;
     VectorTools::print(weird2->getLeavesNames());
     return 1;
@@ -200,7 +190,8 @@ int main() {
 
   cout << "Testing a tree with several single nodes:" << endl;
   auto weird3 = TreeTemplateTools::parenthesisToTree("((((((A)):1)):3),B);");
-  if (weird3->getNodes().size() != 8) {
+  if (weird3->getNodes().size() != 8)
+  {
     cout << "Error, tree has " << weird3->getNodes().size() << " node(s) instead of 8!" << endl;
     VectorTools::print(weird3->getLeavesNames());
     return 1;
@@ -209,7 +200,8 @@ int main() {
 
   cout << "Testing a tree with a single leaf:" << endl;
   auto weird4 = TreeTemplateTools::parenthesisToTree("(A:1.0);");
-  if (weird4->getNodes().size() != 2) {
+  if (weird4->getNodes().size() != 2)
+  {
     cout << "Error, tree has " << weird4->getNodes().size() << " node(s) instead of 2!" << endl;
     VectorTools::print(weird4->getLeavesNames());
     return 1;
@@ -218,7 +210,8 @@ int main() {
 
   cout << "Testing a tree with a single node:" << endl;
   auto weird5 = TreeTemplateTools::parenthesisToTree("((A:1.0));");
-  if (weird5->getNodes().size() != 3) {
+  if (weird5->getNodes().size() != 3)
+  {
     cout << "Error, tree has " << weird5->getNodes().size() << " node(s) instead of 3!" << endl;
     VectorTools::print(weird5->getLeavesNames());
     return 1;
@@ -227,12 +220,13 @@ int main() {
 
   cout << "Testing a tree with a single node and branch lengths:" << endl;
   auto weird6 = TreeTemplateTools::parenthesisToTree("((A:1.0):2.0);");
-  if (weird6->getNodes().size() != 3) {
+  if (weird6->getNodes().size() != 3)
+  {
     cout << "Error, tree has " << weird6->getNodes().size() << " node(s) instead of 3!" << endl;
     VectorTools::print(weird6->getLeavesNames());
     return 1;
   }
   cout << TreeTemplateTools::treeToParenthesis(*weird6) << endl;
- 
+
   return 0;
 }

@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: MultiProcessSequencePhyloLikelihood.h
-// Authors:
-//   Laurent Guéguen
-// Created: jeudi 11 juillet 2013, ÃÂ  21h 51
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_MULTIPROCESSSEQUENCEPHYLOLIKELIHOOD_H
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_MULTIPROCESSSEQUENCEPHYLOLIKELIHOOD_H
@@ -79,23 +43,21 @@ protected:
    * vector of pointers towards LikelihoodCalculationSingleProcess, used
    * for the global likelihood.
    */
-  mutable std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess> > vLikCal_;
+  mutable std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess>> vLikCal_;
 
 public:
-
   MultiProcessSequencePhyloLikelihood(
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<MultiProcessSequenceEvolution> processSeqEvol,
-    std::shared_ptr<CollectionNodes> collNodes,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<MultiProcessSequenceEvolution> processSeqEvol,
+      std::shared_ptr<CollectionNodes> collNodes,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
 protected:
-  
-  MultiProcessSequencePhyloLikelihood(const MultiProcessSequencePhyloLikelihood& mpspl):
-      AbstractParametrizableSequencePhyloLikelihood(mpspl),
-      mSeqEvol_(mpspl.mSeqEvol_),
-      vLikCal_(mpspl.vLikCal_)
+  MultiProcessSequencePhyloLikelihood(const MultiProcessSequencePhyloLikelihood& mpspl) :
+    AbstractParametrizableSequencePhyloLikelihood(mpspl),
+    mSeqEvol_(mpspl.mSeqEvol_),
+    vLikCal_(mpspl.vLikCal_)
   {}
 
   MultiProcessSequencePhyloLikelihood& operator=(const MultiProcessSequencePhyloLikelihood& mpspl)
@@ -107,9 +69,8 @@ protected:
   }
 
 public:
-
   virtual ~MultiProcessSequencePhyloLikelihood() {}
-  
+
 public:
   /**
    * @name The Likelihood interface.
@@ -173,7 +134,7 @@ public:
    * @brief Set the dataset for which the likelihood must be evaluated.
    *
    * @param sites The data set to use.
-   * @param nData the number of the data (optionnal, default 0).
+   * @param nData the number of the data (optional, default 0).
    */
 
   void setData(std::shared_ptr<const AlignmentDataInterface> sites, size_t nData = 0) override;
@@ -183,7 +144,6 @@ public:
    */
   size_t getNumberOfSubstitutionProcess() const { return vLikCal_.size(); }
 
-  /** @} */
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_MULTIPROCESSSEQUENCEPHYLOLIKELIHOOD_H

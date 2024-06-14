@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: TreeTemplateTools.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2003-08-06 13:45:28
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/BppString.h>
 #include <Bpp/Numeric/Number.h>
@@ -47,6 +11,7 @@
 
 #include "TreeTemplate.h"
 #include "TreeTemplateTools.h"
+#include "PhyloTree.h"
 
 using namespace bpp;
 
@@ -109,6 +74,47 @@ vector<string> TreeTemplateTools::getLeavesNames(const Node& node)
   }
   return names;
 }
+
+void TreeTemplateTools::getLeavesId(const Node& node, std::vector<int>& ids)
+{
+  if (node.isLeaf())
+  {
+    ids.push_back(node.getId());
+  }
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
+  {
+    getLeavesId(*node.getSon(i), ids);
+  }
+}
+
+std::vector<int> TreeTemplateTools::getAncestorsId(const Node& node)
+{
+  std::vector<int> ids;
+  const Node* n = &node;
+  while (n->hasFather())
+  {
+    n = n->getFather();
+    ids.push_back(n->getId());
+  }
+  return ids;
+}
+
+void TreeTemplateTools::searchLeaf(const Node& node, const std::string& name, int*& id)
+{
+  if (node.hasNoSon())
+  {
+    if (node.getName() == name)
+    {
+      id = new int(node.getId());
+      return;
+    }
+  }
+  for (size_t i = 0; i < node.getNumberOfSons(); i++)
+  {
+    searchLeaf(*node.getSon(i), name, id);
+  }
+}
+
 
 /******************************************************************************/
 
@@ -572,10 +578,20 @@ void TreeTemplateTools::scaleTree(Node& node, double factor)
 
 /******************************************************************************/
 
+unique_ptr<TreeTemplate<Node>> TreeTemplateTools::buildFromPhyloTree(const PhyloTree& treetemp)
+{
+  Node* root = new Node();
+  auto phroot = treetemp.getRoot();
+  root->addSubTree(treetemp, phroot);
+  
+  auto tree = make_unique<TreeTemplate<Node>>(root);
+  return tree;
+}
+
 unique_ptr<TreeTemplate<Node>> TreeTemplateTools::getRandomTree(vector<string>& leavesNames, bool rooted)
 {
   if (leavesNames.size() == 0)
-    return 0;                                               // No taxa.
+    return 0; // No taxa.
   // This vector will contain all nodes.
   // Start with all leaves, and then group nodes randomly 2 by 2.
   // Att the end, contains only the root node of the tree.
@@ -772,7 +788,7 @@ double TreeTemplateTools::getDistanceBetweenAnyTwoNodes(const Node& node1, const
 
 /******************************************************************************/
 
-void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, vector< std::pair<string, double> >& distsToNodeFather)
+void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, vector< std::pair<string, double>>& distsToNodeFather)
 {
   distsToNodeFather.clear();
 
@@ -785,7 +801,7 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
 
   // For all leaves in node's subtree, get leaf-to-node distances.
   // Leaves are classified upon node's sons.
-  map<const Node*, vector< pair<string, double> > > leavesDists;
+  map<const Node*, vector< pair<string, double>>> leavesDists;
   for (size_t i = 0; i < node->getNumberOfSons(); ++i)
   {
     const Node* son = node->getSon(i);
@@ -801,16 +817,16 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
       const Node* son1 = node->getSon(son1_loc);
       const Node* son2 = node->getSon(son2_loc);
 
-      for (vector< pair<string, double> >::iterator son1_leaf = leavesDists[son1].begin();
-           son1_leaf != leavesDists[son1].end();
-           ++son1_leaf)
+      for (vector< pair<string, double>>::iterator son1_leaf = leavesDists[son1].begin();
+          son1_leaf != leavesDists[son1].end();
+          ++son1_leaf)
       {
-        for (vector< pair<string, double> >::iterator son2_leaf = leavesDists[son2].begin();
-             son2_leaf != leavesDists[son2].end();
-             ++son2_leaf)
+        for (vector< pair<string, double>>::iterator son2_leaf = leavesDists[son2].begin();
+            son2_leaf != leavesDists[son2].end();
+            ++son2_leaf)
         {
           matrix(son1_leaf->first, son2_leaf->first) =
-            matrix(son2_leaf->first, son1_leaf->first) =
+              matrix(son2_leaf->first, son1_leaf->first) =
               ( son1_leaf->second + son2_leaf->second );
         }
       }
@@ -824,9 +840,9 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
     if (node->hasNoSon() )
     {
       string root_name = node->getName();
-      for (vector< pair<string, double> >::iterator other_leaf = leavesDists[node->getSon(0)].begin();
-           other_leaf != leavesDists[node->getSon(0)].end();
-           ++other_leaf)
+      for (vector< pair<string, double>>::iterator other_leaf = leavesDists[node->getSon(0)].begin();
+          other_leaf != leavesDists[node->getSon(0)].end();
+          ++other_leaf)
       {
         matrix(root_name, other_leaf->first) = matrix( other_leaf->first, root_name) = other_leaf->second;
       }
@@ -838,19 +854,19 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
   // Get distances from node's father to considered leaves
   distsToNodeFather.clear();
   double nodeToFather = node->getDistanceToFather();
-  for (map<const Node*, vector<pair<string, double> > >::iterator son = leavesDists.begin(); son != leavesDists.end(); ++son)
+  for (map<const Node*, vector<pair<string, double>>>::iterator son = leavesDists.begin(); son != leavesDists.end(); ++son)
   {
-    for (vector< pair<string, double> >::iterator leaf = (son->second).begin(); leaf != (son->second).end(); ++leaf)
+    for (vector< pair<string, double>>::iterator leaf = (son->second).begin(); leaf != (son->second).end(); ++leaf)
     {
       distsToNodeFather.push_back(make_pair(leaf->first, (leaf->second + nodeToFather)));
     }
   }
 }
 
-DistanceMatrix* TreeTemplateTools::getDistanceMatrix(const TreeTemplate<Node>& tree)
+unique_ptr<DistanceMatrix> TreeTemplateTools::getDistanceMatrix(const TreeTemplate<Node>& tree)
 {
-  DistanceMatrix* matrix = new DistanceMatrix(tree.getLeavesNames());
-  vector< pair<string, double> > distsToRoot;
+  auto matrix = make_unique<DistanceMatrix>(tree.getLeavesNames());
+  vector< pair<string, double>> distsToRoot;
   processDistsInSubtree_(tree.getRootNode(), *matrix, distsToRoot);
   return matrix;
 }
@@ -1105,7 +1121,7 @@ void TreeTemplateTools::midRoot(TreeTemplate<Node>& tree, short criterion, bool 
   // -- the best position of the root on the branch : .second["position"]
   //      0 is toward the original root, 1 is away from it
   //
-  pair<Node*, map<string, double> > best_root_branch;
+  pair<Node*, map<string, double>> best_root_branch;
   best_root_branch.first = ref_root; // nota: the root does not correspond to a branch as it has no father
   best_root_branch.second ["position"] = -1;
   best_root_branch.second ["score"] = numeric_limits<double>::max();
@@ -1153,7 +1169,7 @@ void TreeTemplateTools::midRoot(TreeTemplate<Node>& tree, short criterion, bool 
     {
       Node* nearest = root_sons.at(0);
       for (vector<Node*>::iterator n = root_sons.begin(); n !=
-           root_sons.end(); ++n)
+          root_sons.end(); ++n)
       {
         if ((**n).getDistanceToFather() < nearest->getDistanceToFather())
           nearest = *n;
@@ -1219,7 +1235,7 @@ void TreeTemplateTools::unresolveUncertainNodes(Node& subtree, double threshold,
   }
 }
 
-void TreeTemplateTools::getBestRootInSubtree_(TreeTemplate<Node>& tree, short criterion, Node* node, pair<Node*, map<string, double> >& bestRoot)
+void TreeTemplateTools::getBestRootInSubtree_(TreeTemplate<Node>& tree, short criterion, Node* node, pair<Node*, map<string, double>>& bestRoot)
 {
   const vector<Node*> sons = node->getSons(); // copy
   tree.rootAt(node);

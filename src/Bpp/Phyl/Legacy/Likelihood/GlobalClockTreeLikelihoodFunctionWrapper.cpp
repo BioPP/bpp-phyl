@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: GlobalClockTreeLikelihoodFunctionWrapper.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2011-07-14 10:53:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "GlobalClockTreeLikelihoodFunctionWrapper.h"
 
@@ -58,7 +21,7 @@ void GlobalClockTreeLikelihoodFunctionWrapper::fireParameterChanged(const bpp::P
   if (recomputeHeights)
   {
     TreeTemplate<Node> tree(tl_->tree());
-    computeBranchLengthsFromHeights_(tree.getRootNode(), getParameter("TotalHeight").getValue(), pl2);
+    computeBranchLengthsFromHeights_(tree.getRootNode(), parameter("TotalHeight").getValue(), pl2);
   }
   tl_->setParameters(pl2);
 }
@@ -118,7 +81,7 @@ void GlobalClockTreeLikelihoodFunctionWrapper::computeBranchLengthsFromHeights_(
     }
     else
     {
-      double sonHeightP = getParameter("HeightP" + TextTools::toString(son->getId())).getValue();
+      double sonHeightP = parameter("HeightP" + TextTools::toString(son->getId())).getValue();
       double sonHeight = sonHeightP * height;
       brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height - sonHeight), std::make_shared<IntervalConstraint>(1, 0.000001, false)));
       computeBranchLengthsFromHeights_(son, sonHeight, brlenPl);

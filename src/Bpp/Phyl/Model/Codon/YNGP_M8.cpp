@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: YNGP_M8.cpp
-// Authors:
-//   Laurent Gueguen
-// Created: 2010-05-08 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/MixtureOfDiscreteDistributions.h>
@@ -73,24 +38,24 @@ YNGP_M8::YNGP_M8(
 
   vector<double> val = { neutral_ ? 1. : 2. };
   vector<double> prob = { 1. };
-  auto psdd = make_unique<SimpleDiscreteDistribution>(val, move(prob));
+  auto psdd = make_unique<SimpleDiscreteDistribution>(val, std::move(prob));
 
-  vector<unique_ptr<DiscreteDistribution>> v_distr;
-  v_distr.push_back(move(pbdd)); 
-  v_distr.push_back(move(psdd));
-  prob.clear(); 
+  vector<unique_ptr<DiscreteDistributionInterface>> v_distr;
+  v_distr.push_back(std::move(pbdd));
+  v_distr.push_back(std::move(psdd));
+  prob.clear();
   prob.push_back(0.5);
   prob.push_back(0.5);
 
   // Distribution on omega = mixture (Beta + Simple of size 1)
   auto pmodd = make_unique<MixtureOfDiscreteDistributions>(v_distr, prob);
 
-  map<string, unique_ptr<DiscreteDistribution>> mpdd;
-  mpdd["omega"] = move(pmodd);
+  map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
+  mpdd["omega"] = std::move(pmodd);
 
-  auto yn98 = make_unique<YN98>(gc, move(codonFreqs));
+  auto yn98 = make_unique<YN98>(gc, std::move(codonFreqs));
 
-  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), move(yn98), mpdd));
+  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), std::move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
   vector<int> supportedChars = mixedSubModelPtr_->getAlphabetStates();
@@ -100,7 +65,7 @@ YNGP_M8::YNGP_M8(
   ParameterList pl = mixedModelPtr_->getParameters();
   for (size_t i = 0; i < pl.size(); ++i)
   {
-    if (neutral_ && pl[i].getName()=="YN98.omega_Mixture.2_Simple.V1")
+    if (neutral_ && pl[i].getName() == "YN98.omega_Mixture.2_Simple.V1")
       continue;
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
@@ -126,8 +91,8 @@ YNGP_M8::YNGP_M8(
   {
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     if (it.second != "omegas")
-      addParameter_(new Parameter(getName()+"." + it.second, mixedModelPtr_->getParameterValue(st),
-                                  mixedModelPtr_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+      addParameter_(new Parameter(getName() + "." + it.second, mixedModelPtr_->getParameterValue(st),
+            mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   if (!neutral_)
@@ -170,4 +135,3 @@ void YNGP_M8::updateMatrices_()
 
   mixedModelPtr_->setVRates(vd);
 }
-

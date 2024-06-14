@@ -1,15 +1,12 @@
-# CMake script for Bio++ Phylogenetic Library
-# Authors:
-#   Sylvain Gaillard
-#   Julien Dutheil
-#   Francois Gindraud (2017)
-# Created: 20/08/2009
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
 
-cmake_minimum_required (VERSION 3.0) #3.0 needed for Eigen inclusion to work
+cmake_minimum_required (VERSION 3.5)
 project (bpp-phyl3 CXX)
 
 # Compile options
-set (CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wshadow -Wconversion")
+add_compile_options(-std=c++14 -Wall -Wshadow -Wconversion)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -123,7 +120,7 @@ SET(CPACK_PACKAGE_VERSION_MAJOR "3")
 SET(CPACK_PACKAGE_VERSION_MINOR "0")
 SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Phylogenetics library")
-SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING.txt")
+SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSES/CECILL-2.1.txt")
 SET(CPACK_RESOURCE_FILE_AUTHORS "${CMAKE_SOURCE_DIR}/AUTHORS.txt")
 SET(CPACK_RESOURCE_FILE_INSTALL "${CMAKE_SOURCE_DIR}/INSTALL.txt")
 SET(CPACK_SOURCE_GENERATOR "TGZ")

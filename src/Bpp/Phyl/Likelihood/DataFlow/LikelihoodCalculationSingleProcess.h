@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: LikelihoodCalculationSingleProcess.h
-// Authors:
-//   François Gindraud, Laurent Guéguen (2018)
-// Created: jeudi 28 février 2019, à 07h 22
-//
-
-/*
-  Copyright or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_DATAFLOW_LIKELIHOODCALCULATIONSINGLEPROCESS_H
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_LIKELIHOODCALCULATIONSINGLEPROCESS_H
@@ -97,10 +61,10 @@ class BackwardLikelihoodTree;
  */
 
 using LikelihoodFromRootConditional =
-  MatrixProduct<RowLik, RowLik, MatrixLik>;
+    MatrixProduct<RowLik, RowLik, MatrixLik>;
 
 using LikelihoodFromRootConditionalAtRoot =
-  MatrixProduct<RowLik, Eigen::RowVectorXd, MatrixLik>;
+    MatrixProduct<RowLik, Eigen::RowVectorXd, MatrixLik>;
 
 /** @brief totalLikelihood = product_site likelihood(site).
  * - likelihood: RowVector (site).
@@ -116,7 +80,7 @@ using TotalLogLikelihood = SumOfLogarithms<RowLik>;
  */
 
 using BuildConditionalLikelihood =
-  CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik> >;
+    CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;
 
 using ConditionalLikelihood = Value<MatrixLik>;
 using ConditionalLikelihoodRef = ValueRef<MatrixLik>;
@@ -180,6 +144,8 @@ public:
      * computed.
      */
     std::shared_ptr<SiteLikelihoodsTree> speciesLt;
+
+    ~RateCategoryTrees();
   };
 
   /**
@@ -236,17 +202,24 @@ public:
   /* Likelihood Trees with for all rate categories */
   std::vector<RateCategoryTrees> vRateCatTrees_;
 
+  /*
+   * Node for the probabilities of the rate classes
+   *
+   */
+
+  ValueRef<Eigen::RowVectorXd> catProb_;
+
   /* Likelihood tree on mean likelihoods on rate categories */
   std::shared_ptr<ConditionalLikelihoodTree> condLikelihoodTree_;
   /**************************************/
 
 public:
   LikelihoodCalculationSingleProcess(Context& context,
-                                     std::shared_ptr<const AlignmentDataInterface> sites,
-                                     std::shared_ptr<const SubstitutionProcessInterface> process);
+      std::shared_ptr<const AlignmentDataInterface> sites,
+      std::shared_ptr<const SubstitutionProcessInterface> process);
 
   LikelihoodCalculationSingleProcess(Context& context,
-                                     std::shared_ptr<const SubstitutionProcessInterface> process);
+      std::shared_ptr<const SubstitutionProcessInterface> process);
 
   /*
    * @brief Build using Nodes of CollectionNodes.
@@ -256,12 +229,12 @@ public:
    * @param nData the data Number in the collection
    */
   LikelihoodCalculationSingleProcess(std::shared_ptr<CollectionNodes> collection,
-                                     std::shared_ptr<const AlignmentDataInterface> sites,
-                                     size_t nProcess);
+      std::shared_ptr<const AlignmentDataInterface> sites,
+      size_t nProcess);
 
 
   LikelihoodCalculationSingleProcess(std::shared_ptr<CollectionNodes> collection,
-                                     size_t nProcess);
+      size_t nProcess);
 
 
   /*
@@ -278,6 +251,9 @@ public:
 
   void setData(std::shared_ptr<const AlignmentDataInterface> sites)
   {
+    if (psites_)
+      cleanAllLikelihoods();
+
     psites_ = sites;
     setPatterns_();
     if (isInitialized())
@@ -286,7 +262,7 @@ public:
       makeLikelihoodsAtRoot_();
     }
   }
-  
+
   /**
    * @brief Set derivation procedure (see DataFlowNumeric.h)
    */
@@ -398,6 +374,11 @@ public:
 
   const PatternType& getRootArrayPositions() const { return rootPatternLinks_->targetValue(); }
 
+  ValueRef<PatternType> getRootPatternLinks() const
+  {
+    return rootPatternLinks_;
+  }
+
   const AlignmentDataInterface& shrunkData() const
   {
     return *shrunkData_;
@@ -479,6 +460,15 @@ public:
   }
 
   /*
+   * @brief Get the number of rate classes
+   *
+   */
+  size_t getNumberOfClasses() const
+  {
+    return vRateCatTrees_.size();
+  }
+
+  /*
    * @brief Get forward shrunked likelihood matrix at Node (ie just
    * above the node), for a given rate class.
    *
@@ -492,10 +482,10 @@ public:
   ConditionalLikelihoodRef getForwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
 
   /*
-   * @brief Get backward shrunked likelihood matrix at Edge (ie at
-   * the top of the edge), for a given rate class.
+   * @brief Get backward shrunked likelihood matrix at Node (ie at the
+   * top of the node), for a given rate class.
    *
-   * @param edgeId Edge Index in the backward tree (! ie in the
+   * @param nodeId Node Index in the backward tree (! ie in the
    * computation tree, not the species tree).
    *
    * @param nCat  Rate class category
@@ -505,12 +495,12 @@ public:
   ConditionalLikelihoodRef getBackwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
 
   /*
-   * @brief Get backward shrunked likelihood matrix at Node (ie at
+   * @brief Get backward shrunked likelihood matrix at Edge (ie at
    * the top of the edge), for a given rate class.
    *
-   * These likelihoods are multiplied by the probability of the node
+   * These likelihoods are multiplied by the probability of the edge
    *
-   * @param edgeId Node Index in the backward tree (! ie in the
+   * @param edgeId Edge Index in the backward tree (! ie in the
    * computation tree, not the species tree).
    *
    * @param nCat  Rate class category
@@ -596,6 +586,8 @@ public:
 
   std::shared_ptr<ForwardLikelihoodTree> getForwardLikelihoodTree(size_t nCat);
 
+  std::shared_ptr<BackwardLikelihoodTree> getBackwardLikelihoodTree(size_t nCat);
+
 private:
   void setPatterns_();
 
@@ -635,6 +627,11 @@ private:
   void makeLikelihoodsAtDAGNode_(uint nodeId);
 
   std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);
+
+public:
+  void cleanAllLikelihoods();
+
+  friend class LikelihoodCalculationOnABranch;
 };
 } // namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_LIKELIHOODCALCULATIONSINGLEPROCESS_H

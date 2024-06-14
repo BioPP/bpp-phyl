@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: OneChangeRegisterTransitionModel.cpp
-// Authors:
-//   Laurent Gueguen
-// Created: samedi 24 octobre 2015, Ã  18h 50
-//
-
-/*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/IntegerAlphabet.h>
@@ -53,7 +17,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
   AbstractParameterAliasable("OneChange."),
   AbstractWrappedModel("OneChange."),
   AbstractWrappedTransitionModel("OneChange."),
-  AbstractFromSubstitutionModelTransitionModel(move(originalModel), "OneChange."),
+  AbstractFromSubstitutionModelTransitionModel(std::move(originalModel), "OneChange."),
   noChangedStates_(getNumberOfStates(), getNumberOfStates()),
   modelChanged_(),
   registerName_(reg.getName()),
@@ -63,11 +27,12 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
     throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
 
   // new alphabet to handle pit state
-  auto ialph = make_shared<IntegerAlphabet>(alphabet().getSize());
+  auto ialph = make_shared<IntegerAlphabet>(alphabet().getSize() + 1);
 
   modelChanged_.reset(new AnonymousSubstitutionModel(ialph, make_shared<CanonicalStateMap>(ialph, false)));
   modelChanged_->setScalable(false);
 
+  // setting nonchanging states
   for (size_t i = 0; i < size_; ++i)
   {
     vector<uint>& chS_i = noChangedStates_.getRow(i);
@@ -88,7 +53,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
   AbstractParameterAliasable("OneChange."),
   AbstractWrappedModel("OneChange."),
   AbstractWrappedTransitionModel("OneChange."),
-  AbstractFromSubstitutionModelTransitionModel(move(originalModel), "OneChange."),
+  AbstractFromSubstitutionModelTransitionModel(std::move(originalModel), "OneChange."),
   noChangedStates_(getNumberOfStates(), getNumberOfStates()),
   modelChanged_(),
   registerName_(reg.getName()),
@@ -100,7 +65,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
       throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
   }
 
-  auto ialph = make_shared<IntegerAlphabet>(getAlphabet()->getSize());
+  auto ialph = make_shared<IntegerAlphabet>(getAlphabet()->getSize() + 1);
 
   modelChanged_.reset(new AnonymousSubstitutionModel(ialph, make_shared<CanonicalStateMap>(ialph, false)));
   modelChanged_->setScalable(false);
@@ -122,7 +87,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
 
 void OneChangeRegisterTransitionModel::updateMatrices_()
 {
-  const RowMatrix<double>& gen = substitutionModel().getGenerator();
+  const RowMatrix<double>& gen = substitutionModel().generator();
 
   for (size_t i = 0; i < size_; ++i)
   {
@@ -155,7 +120,7 @@ double OneChangeRegisterTransitionModel::Pij_t(size_t i, size_t j, double t) con
 
   if (t == 0)
   {
-    const Matrix<double>& gen = substitutionModel().getGenerator();
+    const Matrix<double>& gen = substitutionModel().generator();
     if (ch_ist != 0)
       return (gen(i, j) - ch_ijt) / ch_ist;
     else
@@ -175,7 +140,7 @@ double OneChangeRegisterTransitionModel::dPij_dt(size_t i, size_t j, double t) c
 
   if (t == 0)
   {
-    const RowMatrix<double>& Qch = modelChanged_->getGenerator();
+    const RowMatrix<double>& Qch = modelChanged_->generator();
     double si = Qch(i, size_);
 
     if (si == 0)
@@ -186,7 +151,7 @@ double OneChangeRegisterTransitionModel::dPij_dt(size_t i, size_t j, double t) c
     MatrixTools::mult<double>(Qch, Qch, Qch2);
     double dsi = Qch2(i, size_);
 
-    const RowMatrix<double>& Q = substitutionModel().getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().generator();
     double q2ij(0);
 
     for (size_t k = 0; k < size_; ++k)
@@ -213,8 +178,8 @@ double OneChangeRegisterTransitionModel::d2Pij_dt2(size_t i, size_t j, double t)
 
   if (t == 0)
   {
-    const RowMatrix<double>& Q = substitutionModel().getGenerator();
-    const RowMatrix<double>& Qch = modelChanged_->getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().generator();
+    const RowMatrix<double>& Qch = modelChanged_->generator();
     double si = Qch(i, size_);
 
     if (si == 0)
@@ -266,8 +231,8 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
 
   if (t == 0)
   {
-    const RowMatrix<double>& Q = substitutionModel().getGenerator();
-    const RowMatrix<double>& Qch = modelChanged_->getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().generator();
+    const RowMatrix<double>& Qch = modelChanged_->generator();
 
     for (size_t i = 0; i < size_; ++i)
     {
@@ -325,8 +290,8 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
 
   if (t == 0)
   {
-    const RowMatrix<double>& Q = substitutionModel().getGenerator();
-    const RowMatrix<double>& Qch = modelChanged_->getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().generator();
+    const RowMatrix<double>& Qch = modelChanged_->generator();
 
     RowMatrix<double> Qch2;
     MatrixTools::mult<double>(Qch, Qch, Qch2);
@@ -405,8 +370,8 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
 
   if (t == 0)
   {
-    const RowMatrix<double>& Q = substitutionModel().getGenerator();
-    const RowMatrix<double>& Qch = modelChanged_->getGenerator();
+    const RowMatrix<double>& Q = substitutionModel().generator();
+    const RowMatrix<double>& Qch = modelChanged_->generator();
 
     RowMatrix<double> Qch2, Qch3;
     MatrixTools::mult<double>(Qch, Qch, Qch2);

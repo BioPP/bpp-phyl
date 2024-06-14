@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SimpleSubstitutionProcessSiteSimulator.h
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: dimanche 24 mai 2020, ÃÂ  07h 30
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_SIMULATION_SIMPLESUBSTITUTIONPROCESSSITESIMULATOR_H
 #define BPP_PHYL_SIMULATION_SIMPLESUBSTITUTIONPROCESSSITESIMULATOR_H
@@ -71,7 +35,7 @@ private:
   VVdouble cumProb_;
 
   // Sons in case of mixture node
-  std::vector<std::shared_ptr<SimProcessNode> > sons_;
+  std::vector<std::shared_ptr<SimProcessNode>> sons_;
 
 public:
   SimProcessNode(const ProcessComputationNode& pcn) :
@@ -99,9 +63,6 @@ public:
 typedef AssociationTreeGlobalGraphObserver<SimProcessNode, SimProcessEdge>  SPTree;
 
 
-
-
-
 /**
  * @brief Site simulation under a unique substitution process.
  */
@@ -109,7 +70,6 @@ class SimpleSubstitutionProcessSiteSimulator :
   public virtual DetailedSiteSimulatorInterface
 {
 protected:
-  
   std::shared_ptr<const SubstitutionProcessInterface> process_;
   std::shared_ptr<const ParametrizablePhyloTree> phyloTree_;
 
@@ -144,7 +104,7 @@ protected:
    * @brief Map between species Indexes & used nodes, may change at
    * each simulation.
    */
-  mutable std::map<size_t, std::shared_ptr<SimProcessNode> > speciesNodes_;
+  mutable std::map<size_t, std::shared_ptr<SimProcessNode>> speciesNodes_;
 
   size_t nbNodes_;
   size_t nbClasses_;
@@ -152,7 +112,7 @@ protected:
 
   bool continuousRates_;
 
-  // Should we ouptut internal sequences as well?
+  // Should we output internal sequences as well?
   bool outputInternalSites_;
 
   /**
@@ -163,7 +123,7 @@ protected:
 
 public:
   SimpleSubstitutionProcessSiteSimulator(
-    std::shared_ptr<const SubstitutionProcessInterface> process);
+      std::shared_ptr<const SubstitutionProcessInterface> process);
 
   virtual ~SimpleSubstitutionProcessSiteSimulator() {}
 
@@ -203,7 +163,7 @@ public:
   }
 
   SimpleSubstitutionProcessSiteSimulator* clone() const override
-  { 
+  {
     return new SimpleSubstitutionProcessSiteSimulator(*this);
   }
 
@@ -243,7 +203,7 @@ public:
    * @{
    */
   std::shared_ptr<const Alphabet> getAlphabet() const override { return process_->stateMap().getAlphabet(); }
-  
+
   const Alphabet& alphabet() const override { return process_->stateMap().alphabet(); }
   /** @} */
 
@@ -269,7 +229,7 @@ public:
    * @return The substitution process associated to this instance.
    */
   std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const
-  { 
+  {
     return process_;
   }
 
@@ -279,7 +239,7 @@ public:
    * @return The Tree object associated to this instance.
    */
   std::shared_ptr<const ParametrizablePhyloTree> getTree() const
-  { 
+  {
     return phyloTree_;
   }
 
@@ -315,7 +275,7 @@ protected:
    * This method uses the states_ variable for saving ancestral states.
    */
   void evolveInternal(
-      std::shared_ptr<SimProcessNode> node, 
+      std::shared_ptr<SimProcessNode> node,
       size_t rateClass, SiteSimulationResult* ssr = nullptr) const;
 
   /**

@@ -1,44 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: NonHomogeneousSubstitutionProcess.cpp
-// Authors:
-//   Bastien Boussau
-//   Julien Dutheil
-//   Laurent GuÃÂ©guen
-// Created: vendredi 21 juin 2013, ÃÂ  12h 16
-//
-
-/*
-  Copyright or <A9> or Copr. CNRS, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Utils/MapTools.h>
 #include <algorithm>
@@ -55,7 +17,7 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
   AbstractParameterAliasable(set),
   AbstractAutonomousSubstitutionProcess(set),
   modelSet_(set.modelSet_.size()),
-  rDist_                (set.rDist_ ? dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()) : 0),
+  rDist_                (set.rDist_ ? dynamic_cast<DiscreteDistributionInterface*>(set.rDist_->clone()) : 0),
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
   modelParameters_      (set.modelParameters_)
@@ -83,7 +45,7 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
   modelToNodes_        = set.modelToNodes_;
   modelParameters_     = set.modelParameters_;
 
-  rDist_.reset(rDist_ ? dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()) : 0);
+  rDist_.reset(rDist_ ? dynamic_cast<DiscreteDistributionInterface*>(set.rDist_->clone()) : 0);
 
   // Duplicate all model objects:
 
@@ -127,7 +89,7 @@ void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsign
 void NonHomogeneousSubstitutionProcess::addModel(shared_ptr<BranchModelInterface> model, const vector<unsigned int>& nodesId)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
-    throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
+    throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
@@ -158,7 +120,7 @@ void NonHomogeneousSubstitutionProcess::addModel(shared_ptr<BranchModelInterface
 void NonHomogeneousSubstitutionProcess::setModel(shared_ptr<BranchModelInterface> model, size_t modelIndex)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
-    throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
+    throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
@@ -276,7 +238,7 @@ bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
   unsigned int id;
   unsigned int rootId = getParametrizablePhyloTree()->getNodeIndex(getParametrizablePhyloTree()->getRoot());
 
-  map<size_t, vector<unsigned int> >::const_iterator it;
+  map<size_t, vector<unsigned int>>::const_iterator it;
 
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
@@ -312,7 +274,7 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(shared_ptr<ModelScenari
   for (auto& mod:vmod)
   {
     if (find(modelSet_.begin(), modelSet_.end(), mod) == modelSet_.end())
-      throw Exception("NonHomogeneousSubstitutionProcess::setModelPath: unknown model " + mod->getName());
+      throw Exception("NonHomogeneousSubstitutionProcess::setModelScenario: unknown model " + mod->getName());
   }
 
   modelScenario_ = modelscenario;
@@ -320,15 +282,15 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(shared_ptr<ModelScenari
 
 
 unique_ptr<AutonomousSubstitutionProcessInterface> NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
-  shared_ptr<BranchModelInterface> model,
-  shared_ptr<DiscreteDistribution> rdist,
-  shared_ptr<PhyloTree> tree,
-  shared_ptr<FrequencySetInterface> rootFreqs,
-  shared_ptr<ModelScenario> scenario)
+    shared_ptr<BranchModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rdist,
+    shared_ptr<PhyloTree> tree,
+    shared_ptr<FrequencySetInterface> rootFreqs,
+    shared_ptr<ModelScenario> scenario)
 {
   if (!tree)
     throw Exception("NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess: missing tree.");
-  
+
   // Check alphabet:
   if  (rootFreqs && model->alphabet().getAlphabetType() != rootFreqs->alphabet().getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet().get(), rootFreqs->getAlphabet().get());
@@ -350,12 +312,12 @@ unique_ptr<AutonomousSubstitutionProcessInterface> NonHomogeneousSubstitutionPro
 }
 
 unique_ptr<NonHomogeneousSubstitutionProcess> NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-  shared_ptr<BranchModelInterface> model,
-  shared_ptr<DiscreteDistribution> rdist,
-  shared_ptr<PhyloTree> tree,
-  shared_ptr<FrequencySetInterface> rootFreqs,
-  const vector<string>& globalParameterNames,
-  shared_ptr<ModelScenario> scenario)
+    shared_ptr<BranchModelInterface> model,
+    shared_ptr<DiscreteDistributionInterface> rdist,
+    shared_ptr<PhyloTree> tree,
+    shared_ptr<FrequencySetInterface> rootFreqs,
+    const vector<string>& globalParameterNames,
+    shared_ptr<ModelScenario> scenario)
 {
   if (!tree)
     throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess: missing tree.");

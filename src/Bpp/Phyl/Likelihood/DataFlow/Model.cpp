@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: Model.cpp
-// Authors:
-// Created: mercredi 10 octobre 2018, ÃÂ  15h 34
-// Last modified: mercredi 10 octobre 2018, ÃÂ  15h 34
-//
-
-/*
-   Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
-
-   This software is governed by the CeCILL license under French law and
-   abiding by the rules of distribution of free software. You can use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
-
-   As a counterpart to the access to the source code and rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty and the software's author, the holder of the
-   economic rights, and the successive licensors have only limited
-   liability.
-
-   In this respect, the user's attention is drawn to the risks associated
-   with loading, using, modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean that it is complicated to manipulate, and that also
-   therefore means that it is reserved for developers and experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and, more generally, to use and operate it in the
-   same conditions as regards security.
-
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Phyl/Likelihood/DataFlow/Model.h>
@@ -52,11 +16,11 @@ using namespace bpp;
 ConfiguredModel::ConfiguredModel(
     Context& context,
     NodeRefVec&& deps,
-    shared_ptr<BranchModelInterface>&& model):
+    shared_ptr<BranchModelInterface>&& model) :
   Value<std::shared_ptr<BranchModelInterface>>(
-    std::move(deps),
-    model),
-  AbstractParametrizable(model->getNamespace()),// , context_(context)
+      std::move(deps),
+      model),
+  AbstractParametrizable(model->getNamespace()), // , context_(context)
   model_(model)
 {
   for (const auto& dep : dependencies())
@@ -107,7 +71,7 @@ NodeRef ConfiguredModel::recreate (Context& c, NodeRefVec&& deps)
 // EquilibriumFrequenciesFromModel
 
 EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (
-  NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
+    NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
   : Value<Eigen::RowVectorXd>(std::move (deps)), targetDimension_ (dim)
 {}
 
@@ -130,12 +94,12 @@ NodeRef EquilibriumFrequenciesFromModel::derive (Context& c, const Node_DF& node
   auto& model = static_cast<Dep&>(*modelDep);
   NodeRef subNode = this->nbDependencies() == 1 ? 0 : this->dependency (1);
   auto buildFWithNewModel = [this, &c, &subNode](NodeRef&& newModel) {
-                              return ConfiguredParametrizable::createRowVector<Dep, Self>(c, {std::move (newModel), subNode}, targetDimension_);
-                            };
+        return ConfiguredParametrizable::createRowVector<Dep, Self>(c, {std::move (newModel), subNode}, targetDimension_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T>(
-    c, model, node, targetDimension_, buildFWithNewModel);
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+        c, model, node, targetDimension_, buildFWithNewModel);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef EquilibriumFrequenciesFromModel::recreate (Context& c, NodeRefVec&& deps)
@@ -168,7 +132,7 @@ void EquilibriumFrequenciesFromModel::compute ()
 // TransitionMatrixFromModel
 
 TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec&& deps,
-                                                      const Dimension<Eigen::MatrixXd>& dim)
+    const Dimension<Eigen::MatrixXd>& dim)
   : Value<Eigen::MatrixXd>(std::move (deps)), targetDimension_ (dim)
 {}
 
@@ -199,10 +163,10 @@ NodeRef TransitionMatrixFromModel::derive (Context& c, const Node_DF& node)
   // Model part
   auto& model = static_cast<Dep&>(*modelDep);
   auto buildFWithNewModel = [this, &c, &brlenDep, &derivNode, &subNode](NodeRef&& newModel) {
-                              return ConfiguredParametrizable::createMatrix<Dep, Self>(c, {std::move (newModel), brlenDep, derivNode, subNode}, targetDimension_);
-                            };
+        return ConfiguredParametrizable::createMatrix<Dep, Self>(c, {std::move (newModel), brlenDep, derivNode, subNode}, targetDimension_);
+      };
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T>(
-    c, model, node, targetDimension_, buildFWithNewModel);
+        c, model, node, targetDimension_, buildFWithNewModel);
   // Brlen part, use specific node
   auto dbrlen_dn = brlenDep->derive (c, node);
   if (!dbrlen_dn->hasNumericalProperty (NumericalProperty::ConstantZero))
@@ -210,11 +174,11 @@ NodeRef TransitionMatrixFromModel::derive (Context& c, const Node_DF& node)
     auto nDerivp = NumericConstant<size_t>::create(c, nDeriv + 1);
 
     auto df_dbrlen =
-      ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModel>(c, {modelDep, brlenDep, nDerivp, subNode}, targetDimension_);
-    derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T> >::create (
-                                      c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
+        ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModel>(c, {modelDep, brlenDep, nDerivp, subNode}, targetDimension_);
+    derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
+          c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
   }
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef TransitionMatrixFromModel::recreate (Context& c, NodeRefVec&& deps)
@@ -237,7 +201,7 @@ void TransitionMatrixFromModel::compute ()
   std::cerr << "=== TransitionMatrixFromModel::compute === " << this << std::endl;
   std::cerr << "brlen= " << brlen << std::endl;
   std::cerr << "nDeriv=" << nDeriv << std::endl;
-  std::cerr << "model= "<< model1 << " : " << model1->getName() << std::endl;
+  std::cerr << "model= " << model1 << " : " << model1->getName() << std::endl;
   model1->getParameters().printParameters(std::cerr);
   std::cerr << "=== end TransitionMatrixFromModel::compute === " << this << std::endl << std::endl;
 #endif
@@ -289,7 +253,7 @@ void TransitionMatrixFromModel::compute ()
 // TransitionFunctionFromModel
 
 TransitionFunctionFromModel::TransitionFunctionFromModel (NodeRefVec&& deps,
-                                                          const Dimension<T>& dim)
+    const Dimension<T>& dim)
   : Value<TransitionFunction>(std::move (deps)), targetDimension_ (dim) {}
 
 std::string TransitionFunctionFromModel::debugInfo () const
@@ -321,7 +285,7 @@ NodeRef TransitionFunctionFromModel::derive (Context& c, const Node_DF& node)
 {
   // df(v)/dn = sum_i df(v)/dx_i * dx_i/dn + df(v)/dbrlen * dbrlen/dn + df(v)/dv * dv/dn (x_i = model parameters, v = variable of f).
   if (&node == &NodeX)
-    throw Exception("TransitionFunctionFromModel::derive : Jacobian not implemented. Ask developpers.");
+    throw Exception("TransitionFunctionFromModel::derive : Jacobian not implemented. Ask developers.");
 
   auto modelDep = this->dependency (0);
   auto brlenDep = this->dependency (1);
@@ -331,8 +295,8 @@ NodeRef TransitionFunctionFromModel::derive (Context& c, const Node_DF& node)
   // Model part
   auto& model = static_cast<Dep&>(*modelDep);
   auto buildFWithNewModel = [this, &c, &brlenDep, &derivNode](NodeRef&& newModel) {
-                              return TransitionFunctionFromModel::create(c, {std::move (newModel), brlenDep, derivNode}, targetDimension_);
-                            };
+        return TransitionFunctionFromModel::create(c, {std::move (newModel), brlenDep, derivNode}, targetDimension_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T>(c, model, node, targetDimension_, buildFWithNewModel);
 
@@ -342,14 +306,14 @@ NodeRef TransitionFunctionFromModel::derive (Context& c, const Node_DF& node)
   {
     auto nDerivp = NumericConstant<size_t>::create(c, nDeriv + 1);
     auto df_dbrlen = TransitionFunctionFromModel::create(c, {modelDep, brlenDep, nDerivp}, targetDimension_);
-    derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T> >::create (
-                                      c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
+    derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
+          c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
   }
 
   // Vector part, use specific node
 
 
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), targetDimension_);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
 }
 
 NodeRef TransitionFunctionFromModel::recreate (Context& c, NodeRefVec&& deps)
@@ -365,8 +329,8 @@ void TransitionFunctionFromModel::compute ()
 
   auto& r = this->accessValueMutable ();
 
-  auto dimin = VectorDimension(Eigen::Dynamic);// ttargetDimension_;
-  auto dimout = Dimension<VectorLik>(Eigen::Dynamic, 1);// ttargetDimension_;
+  auto dimin = VectorDimension(Eigen::Dynamic); // ttargetDimension_;
+  auto dimout = Dimension<VectorLik>(Eigen::Dynamic, 1); // ttargetDimension_;
 
   r = [model, brlen, nDeriv, dimin, dimout](const VectorLik& values)
       {
@@ -390,7 +354,7 @@ void TransitionFunctionFromModel::compute ()
 // ProbabilitiesFromMixedModel
 
 ProbabilitiesFromMixedModel::ProbabilitiesFromMixedModel (
-  NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
+    NodeRefVec&& deps, const Dimension<Eigen::RowVectorXd>& dim)
   : Value<Eigen::RowVectorXd>(std::move (deps)), nbClass_ (dim) {}
 
 
@@ -412,12 +376,12 @@ NodeRef ProbabilitiesFromMixedModel::derive (Context& c, const Node_DF& node)
   auto modelDep = this->dependency (0);
   auto& model = static_cast<ConfiguredModel&>(*modelDep);
   auto buildPWithNewModel = [this, &c](NodeRef&& newModel) {
-                              return ConfiguredParametrizable::createRowVector<Dep, Self>(c, {std::move (newModel)}, nbClass_);
-                            };
+        return ConfiguredParametrizable::createRowVector<Dep, Self>(c, {std::move (newModel)}, nbClass_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T >(
-    c, model, node, nbClass_, buildPWithNewModel);
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), nbClass_);
+        c, model, node, nbClass_, buildPWithNewModel);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), nbClass_);
 }
 
 NodeRef ProbabilitiesFromMixedModel::recreate (Context& c, NodeRefVec&& deps)
@@ -445,7 +409,7 @@ std::shared_ptr<ProbabilitiesFromMixedModel> ProbabilitiesFromMixedModel::create
     failureDependencyTypeMismatch(typeid(Self), 0, typeid(MixedTransitionModelInterface), typeid(deps0));
 
   size_t nbCat = mixmodel->getNumberOfModels();
-  return cachedAs<ProbabilitiesFromMixedModel>(c, make_shared<ProbabilitiesFromMixedModel>(move(deps), RowVectorDimension(Eigen::Index(nbCat))));
+  return cachedAs<ProbabilitiesFromMixedModel>(c, make_shared<ProbabilitiesFromMixedModel>(std::move(deps), RowVectorDimension(Eigen::Index(nbCat))));
 }
 
 
@@ -453,7 +417,7 @@ std::shared_ptr<ProbabilitiesFromMixedModel> ProbabilitiesFromMixedModel::create
 // ProbabilityFromMixedModel
 
 ProbabilityFromMixedModel::ProbabilityFromMixedModel (
-  NodeRefVec&& deps, size_t nCat)
+    NodeRefVec&& deps, size_t nCat)
   : Value<double>(std::move (deps)), nCat_ (nCat) {}
 
 
@@ -490,12 +454,12 @@ NodeRef ProbabilityFromMixedModel::derive (Context& c, const Node_DF& node)
   auto modelDep = this->dependency (0);
   auto& model = static_cast<Dep&>(*modelDep);
   auto buildPWithNewModel = [this, &c](NodeRef&& newModel) {
-                              return this->create (c, {std::move (newModel)}, nCat_);
-                            };
+        return this->create (c, {std::move (newModel)}, nCat_);
+      };
 
   NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T >(
-    c, model, node, 1, buildPWithNewModel);
-  return CWiseAdd<T, ReductionOf<T> >::create (c, std::move (derivativeSumDeps), 1);
+        c, model, node, 1, buildPWithNewModel);
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), 1);
 }
 
 NodeRef ProbabilityFromMixedModel::recreate (Context& c, NodeRefVec&& deps)

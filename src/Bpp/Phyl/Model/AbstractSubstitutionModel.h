@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractSubstitutionModel.h
-// Authors:
-//   Julien Dutheil
-// Created: 2003-05-27 10:31:49
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_ABSTRACTSUBSTITUTIONMODEL_H
 #define BPP_PHYL_MODEL_ABSTRACTSUBSTITUTIONMODEL_H
@@ -51,20 +15,18 @@ namespace bpp
 {
 /**
  * @brief Partial implementation of the TransitionModel interface, with function for likelihood computations.
- */	
+ */
 class AbstractLkTransitionModel :
   public virtual TransitionModelInterface
 {
 private:
-
   mutable Eigen::VectorXd lik_;
 
 public:
-  AbstractLkTransitionModel(): lik_() {}
+  AbstractLkTransitionModel() : lik_() {}
   virtual ~AbstractLkTransitionModel() {}
 
 public:
-  
   const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const override
   {
     lik_ = Eigen::VectorXd::Zero(values.size());
@@ -120,7 +82,7 @@ public:
   friend class AbstractFromSubstitutionModelTransitionModel;
   friend class InMixedSubstitutionModel;
 };
-	
+
 /**
  * @brief Partial implementation of the TransitionModel interface.
  *
@@ -187,37 +149,17 @@ protected:
   mutable RowMatrix<double> dpijt_;
   mutable RowMatrix<double> d2pijt_;
 
+  short verboseLevel_;
+
 public:
   AbstractTransitionModel(
       std::shared_ptr<const Alphabet> alpha,
       std::shared_ptr<const StateMapInterface> stateMap,
       const std::string& prefix);
 
-  AbstractTransitionModel(const AbstractTransitionModel& model) :
-    AbstractParameterAliasable(model),
-    alphabet_(model.alphabet_),
-    stateMap_(model.stateMap_),
-    size_(model.size_),
-    rate_(model.rate_),
-    freq_(model.freq_),
-    pijt_(model.pijt_),
-    dpijt_(model.dpijt_),
-    d2pijt_(model.d2pijt_)
-  {}
+  AbstractTransitionModel(const AbstractTransitionModel& model) = default;
 
-  AbstractTransitionModel& operator=(const AbstractTransitionModel& model)
-  {
-    AbstractParameterAliasable::operator=(model);
-    alphabet_          = model.alphabet_;
-    stateMap_          = model.stateMap_;
-    size_              = model.size_;
-    rate_              = model.rate_;
-    freq_              = model.freq_;
-    pijt_              = model.pijt_;
-    dpijt_             = model.dpijt_;
-    d2pijt_            = model.d2pijt_;
-    return *this;
-  }
+  AbstractTransitionModel& operator=(const AbstractTransitionModel& model) = default;
 
   virtual ~AbstractTransitionModel() {}
 
@@ -231,7 +173,7 @@ public:
   std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
 
   size_t getNumberOfStates() const override { return stateMap_->getNumberOfModelStates();}
-  
+
   const std::vector<int>& getAlphabetStates() const override { return stateMap_->getAlphabetStates(); }
 
   std::string getAlphabetStateAsChar(size_t index) const override { return stateMap_->getAlphabetStateAsChar(index); }
@@ -266,7 +208,7 @@ public:
   {
     throw Exception("TransitionModel::frequencySet(). No associated FrequencySet object.");
   }
-  
+
   /**
    * @brief Tells the model that a parameter value has changed.
    *
@@ -293,6 +235,10 @@ public:
    *
    */
   void addRateParameter() override;
+
+  void setVerboseLevel(short level) { verboseLevel_ = level; }
+
+  short verboseLevel() const { return verboseLevel_; }
 
 protected:
   /**
@@ -359,7 +305,7 @@ protected:
   /**
    * @brief The exchangeability matrix \f$S\f$ of the model, defined
    * as \f$ S_{ij}=\frac{Q_{ij}}{\pi_j}\f$. When the model is
-   * reversible, this matrix is symetric.
+   * reversible, this matrix is symmetric.
    */
   RowMatrix<double> exchangeability_;
 
@@ -403,7 +349,7 @@ protected:
    * @brief vector of the powers of generator_ for Taylor development (if
    * rightEigenVectors_ is singular).
    */
-  std::vector< RowMatrix<double> > vPowGen_;
+  std::vector< RowMatrix<double>> vPowGen_;
 
   /**
    * @brief For computational issues
@@ -459,9 +405,9 @@ public:
 
   void computeFrequencies(bool yn) { computeFreq_ = yn; }
 
-  const Matrix<double>& getGenerator() const { return generator_; }
+  const Matrix<double>& generator() const { return generator_; }
 
-  const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
+  const Matrix<double>& exchangeabilityMatrix() const { return exchangeability_; }
 
   const Matrix<double>& getPij_t(double t) const;
   const Matrix<double>& getdPij_dt(double t) const;
@@ -508,7 +454,6 @@ protected:
   virtual void updateMatrices_();
 
 public:
-
   /**
    * @brief sets if model is scalable, ie scale can be changed.
    * Default : true, set to false to avoid normalization for example.
@@ -590,6 +535,13 @@ public:
     isDiagonalizable_ = true;
     isNonSingular_    = true;
     computeFreq_      = false;
+
+    // to ensure non null freq_ at construction
+    for (auto& fr : freq_)
+    {
+      fr = 1.0 / static_cast<double>(size_);
+    }
+
   }
 
   virtual ~AbstractReversibleSubstitutionModel() {}
@@ -619,7 +571,6 @@ protected:
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
    */
   virtual void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTSUBSTITUTIONMODEL_H

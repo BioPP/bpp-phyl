@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: BppOTransitionModelFormat.cpp
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: mercredi 4 juillet 2012, ÃÂ  13h 58
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
@@ -92,10 +56,11 @@ using namespace bpp;
 using namespace std;
 
 unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionModel(
-  std::shared_ptr<const Alphabet> alphabet,
-  const std::string& modelDescription,
-  const AlignmentDataInterface& data,
-  bool parseArguments)
+    std::shared_ptr<const Alphabet> alphabet,
+    const std::string& modelDescription,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData,
+    bool parseArguments)
 {
   unparsedArguments_.clear();
   unique_ptr<TransitionModelInterface> model;
@@ -103,12 +68,17 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
+  // get data number
+
+  if (args.find("data") != args.end())
+    nData = TextTools::to<size_t>(args["data"]);
+
   // //////////////////////////////////
   // / MIXED MODELS
   // ////////////////////////////////
 
   if ((modelName == "MixedModel" || (modelName == "Mixture")) && allowMixed_)
-    model = readMixed_(alphabet, modelDescription, data);
+    model = readMixed_(alphabet, modelDescription, mData, nData);
   else if (modelName == "OneChange")
   {
     // We have to parse the nested model first:
@@ -119,12 +89,12 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, nData, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
     if (args.find("register") == args.end())
-      model = make_unique<OneChangeTransitionModel>(move(nestedModel));
+      model = make_unique<OneChangeTransitionModel>(std::move(nestedModel));
     else
     {
       shared_ptr<AlphabetIndex2> weights;
@@ -152,7 +122,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
         }
       }
 
-      model = make_unique<OneChangeRegisterTransitionModel>(move(nestedModel), *reg, vNumRegs);
+      model = make_unique<OneChangeRegisterTransitionModel>(std::move(nestedModel), *reg, vNumRegs);
     }
 
     // Then we update the parameter set:
@@ -171,7 +141,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the k of Gamma law:
@@ -219,7 +189,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
     if (!geneticCode_)
       throw Exception("BppOTransitionModelFormat::readTransitionModel(). No genetic code specified! Consider using 'setGeneticCode'.");
 
-    if (!AlphabetTools::isCodonAlphabet(alphabet.get()))
+    if (!AlphabetTools::isCodonAlphabet(*alphabet))
       throw Exception("Alphabet should be Codon Alphabet.");
     auto pCA = dynamic_pointer_cast<const CodonAlphabet>(alphabet);
 
@@ -241,7 +211,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
       BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
       freqReader.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model.
 
-      auto tmpP = freqReader.readFrequencySet(pCA, freqOpt, data, false);
+      auto tmpP = freqReader.readFrequencySet(pCA, freqOpt, mData, nData, false);
       codonFreqs = unique_ptr<CodonFrequencySetInterface>(dynamic_cast<CodonFrequencySetInterface*>(tmpP.release()));
       for (const auto& it : freqReader.getUnparsedArguments())
       {
@@ -252,16 +222,16 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
       throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "YNGP_M1")
-      model = make_unique<YNGP_M1>(geneticCode_, move(codonFreqs));
+      model = make_unique<YNGP_M1>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "YNGP_M2")
-      model = make_unique<YNGP_M2>(geneticCode_, move(codonFreqs));
+      model = make_unique<YNGP_M2>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "RELAX")
-      model = make_unique<RELAX>(geneticCode_, move(codonFreqs));
+      model = make_unique<RELAX>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "YNGP_M3")
       if (args.find("n") == args.end())
-        model = make_unique<YNGP_M3>(geneticCode_, move(codonFreqs));
+        model = make_unique<YNGP_M3>(geneticCode_, std::move(codonFreqs));
       else
-        model = make_unique<YNGP_M3>(geneticCode_, move(codonFreqs), TextTools::to<unsigned int>(args["n"]));
+        model = make_unique<YNGP_M3>(geneticCode_, std::move(codonFreqs), TextTools::to<unsigned int>(args["n"]));
     else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8" || modelName == "YNGP_M8a")
     {
       if (args.find("n") == args.end())
@@ -271,11 +241,11 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
         ApplicationTools::displayResult("Number of classes in model", nbClasses);
 
       if (modelName == "YNGP_M7")
-        model = make_unique<YNGP_M7>(geneticCode_, move(codonFreqs), nbClasses);
+        model = make_unique<YNGP_M7>(geneticCode_, std::move(codonFreqs), nbClasses);
       else if (modelName == "YNGP_M8")
-        model = make_unique<YNGP_M8>(geneticCode_, move(codonFreqs), nbClasses);
+        model = make_unique<YNGP_M8>(geneticCode_, std::move(codonFreqs), nbClasses);
       else if (modelName == "YNGP_M8a")
-        model = make_unique<YNGP_M8>(geneticCode_, move(codonFreqs), nbClasses, true);
+        model = make_unique<YNGP_M8>(geneticCode_, std::move(codonFreqs), nbClasses, true);
     }
     else if (modelName == "YNGP_M9" || modelName == "YNGP_M10")
     {
@@ -289,9 +259,9 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
         ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
 
       if (modelName == "YNGP_M9")
-        model = make_unique<YNGP_M9>(geneticCode_, move(codonFreqs), nbBeta, nbGamma);
+        model = make_unique<YNGP_M9>(geneticCode_, std::move(codonFreqs), nbBeta, nbGamma);
       else
-        model = make_unique<YNGP_M10>(geneticCode_, move(codonFreqs), nbBeta, nbGamma);
+        model = make_unique<YNGP_M10>(geneticCode_, std::move(codonFreqs), nbBeta, nbGamma);
     }
     else if (modelName == "DFP07")
     {
@@ -300,19 +270,19 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
 
       BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
       auto tmpP = nestedProtReader.readSubstitutionModel(
-				      geneticCode_->getTargetAlphabet(),
-				      args["protmodel"], data, false);
+            geneticCode_->getTargetAlphabet(),
+            args["protmodel"], mData, nData, false);
       auto nestedProtModel = unique_ptr<ProteinSubstitutionModelInterface>(
-		      dynamic_cast<ProteinSubstitutionModelInterface*>(tmpP.release())
-		      );
+            dynamic_cast<ProteinSubstitutionModelInterface*>(tmpP.release())
+            );
 
       auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
       unparsedArguments_.insert(unparsedParameterValuesNested.begin(), unparsedParameterValuesNested.end());
 
-      model = make_unique<DFP07>(geneticCode_, move(nestedProtModel), move(codonFreqs));
+      model = make_unique<DFP07>(geneticCode_, std::move(nestedProtModel), std::move(codonFreqs));
     }
   }
-  else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+  else if (AlphabetTools::isProteicAlphabet(*alphabet))
   {
     if (!(alphabetCode_ & PROTEIN))
       throw Exception("BppOTransitionModelFormat::read. Protein alphabet not supported.");
@@ -341,7 +311,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
   }
 
   if (!model)
-    model = readSubstitutionModel(alphabet, modelDescription, data, parseArguments);
+    model = readSubstitutionModel(alphabet, modelDescription, mData, nData, parseArguments);
   else
   {
     if (verbose_)
@@ -350,7 +320,12 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
     updateParameters_(*model, args);
 
     if (parseArguments)
-      initialize_(*model, data);
+    {
+      if (nData)
+        initialize_(*model, mData.at(nData));
+      else
+        initialize_(*model, 0);
+    }
   }
 
   return model;
@@ -359,7 +334,8 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
 unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& modelDescription,
-    const AlignmentDataInterface& data)
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData)
 {
   unique_ptr<MixedTransitionModelInterface> model;
 
@@ -379,11 +355,11 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
     // instance as the one
     // that will be used
     // by the model.
-    pSM = nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false);
+    pSM = nestedReader.readTransitionModel(alphabet, nestedModelDescription, mData, nData, false);
 
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
-    map<string, unique_ptr<DiscreteDistribution> > mdist;
+    map<string, unique_ptr<DiscreteDistributionInterface>> mdist;
     map<string, string> unparsedParameterValuesNested2;
 
     for (auto& it : unparsedParameterValuesNested)
@@ -416,7 +392,7 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
       ti = alphabet->charToInt(args["to"]);
 
     string sModN = pSM->getName();
-    model = make_unique<MixtureOfATransitionModel>(alphabet, move(pSM), mdist, fi, ti);
+    model = make_unique<MixtureOfATransitionModel>(alphabet, std::move(pSM), mdist, fi, ti);
 
     vector<string> v = model->getParameters().getParameterNames();
 
@@ -429,7 +405,7 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
   else if (modelName == "Mixture")
   {
     vector<string> v_nestedModelDescription;
-    vector< std::unique_ptr<TransitionModelInterface> > v_pSM;
+    vector< std::unique_ptr<TransitionModelInterface>> v_pSM;
 
     if (args.find("model1") == args.end())
     {
@@ -451,7 +427,7 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
       if (geneticCode_)
         nestedReader.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model.
 
-      pSM = nestedReader.readTransitionModel(alphabet, v_nestedModelDescription[i], data, false);
+      pSM = nestedReader.readTransitionModel(alphabet, v_nestedModelDescription[i], mData, nData, false);
 
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (auto& it : unparsedParameterValuesNested)
@@ -459,7 +435,7 @@ unique_ptr<MixedTransitionModelInterface> BppOTransitionModelFormat::readMixed_(
         unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
       }
 
-      v_pSM.push_back(move(pSM));
+      v_pSM.push_back(std::move(pSM));
     }
 
     model = make_unique<MixtureOfTransitionModels>(alphabet, v_pSM);

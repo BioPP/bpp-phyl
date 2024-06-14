@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: ProcessTree.cpp
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: mardi 11 juin 2019, ÃÂ  09h 39
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
 #include <Bpp/Phyl/Likelihood/DataFlow/CollectionNodes.h>
@@ -54,14 +18,10 @@ using namespace bpp;
 using namespace std;
 
 ProcessTree::ProcessTree(Context& context,
-                         const ParametrizablePhyloTree& tree) :
+    const ParametrizablePhyloTree& tree) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()),
   context_(context)
 {
-#ifdef DEBUG
-  cerr << "ProcessTree::ProcessTree(Context, ParametrizablePhyloTree){" << endl;
-#endif
-  
   // Set Nodes
   auto vNodes = tree.getAllNodes();
 
@@ -75,28 +35,23 @@ ProcessTree::ProcessTree(Context& context,
 
   // Set Edges
 
-  std::vector<std::shared_ptr<PhyloBranchParam> > vB = tree.getAllEdges();
+  std::vector<std::shared_ptr<PhyloBranchParam>> vB = tree.getAllEdges();
 
   for (auto& branch:vB)
   {
     const auto& bp = branch->getParameters()[0]; // Get BrLen Parameter
 
     auto parDF = ConfiguredParameter::create(context, bp);
-
     auto index = tree.getEdgeIndex(branch);
     auto brref = make_shared<ProcessEdge>(index, parDF, nullptr);
 
     associateEdge(brref, tree.getEdgeGraphid(branch));
     setEdgeIndex(brref, index);
   }
-#ifdef DEBUG
-  cerr << "processtree::processtree(context, parametrizablephylotree)}" << endl;
-#endif
-
 }
 
 ProcessTree::ProcessTree(const ProcessTree& tree,
-                         ValueRef<double> rate) :
+    ValueRef<double> rate) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree)
 {
   // Adjust Edges
@@ -108,7 +63,7 @@ ProcessTree::ProcessTree(const ProcessTree& tree,
 
     if (edge->getBrLen())
     {
-      auto mulref = CWiseMul<double, std::tuple<double, double> >::create (context_, {edge->getBrLen()->dependency(0), rate}, Dimension<double>());
+      auto mulref = CWiseMul<double, std::tuple<double, double>>::create (context_, {edge->getBrLen()->dependency(0), rate}, Dimension<double>());
       auto confpar = std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(context_, {std::move(mulref)}));
       edge->setBrLen(confpar);
     }
@@ -117,15 +72,12 @@ ProcessTree::ProcessTree(const ProcessTree& tree,
 }
 
 ProcessTree::ProcessTree(Context& context,
-                         const ParametrizablePhyloTree& tree,
-                         const ParameterList& parList,
-                         const std::string& suff) :
+    const ParametrizablePhyloTree& tree,
+    const ParameterList& parList,
+    const std::string& suff) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()),
   context_(context)
 {
-#ifdef DEBUG
-  cerr << "ProcessTree::ProcessTree(Context, ParametrizablePhyloTree, parList, suff){" << endl;
-#endif
   // Set Nodes
   auto vNodes = tree.getAllNodes();
 
@@ -139,7 +91,7 @@ ProcessTree::ProcessTree(Context& context,
 
   // Set Edges
 
-  std::vector<std::shared_ptr<PhyloBranchParam> > vB = tree.getAllEdges();
+  std::vector<std::shared_ptr<PhyloBranchParam>> vB = tree.getAllEdges();
 
   for (auto& branch:vB)
   {
@@ -154,7 +106,7 @@ ProcessTree::ProcessTree(Context& context,
         name = bp.getName() + "_1";
     }
 
-    auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
+    auto confPar = dynamic_cast<ConfiguredParameter*>(parList.getParameter(name).get());
     if (!confPar)
       throw Exception("ProcessTree::ProcessTree: unknown ConfiguredParameter " + name);
 
@@ -166,19 +118,13 @@ ProcessTree::ProcessTree(Context& context,
     associateEdge(brref, tree.getEdgeGraphid(branch));
     setEdgeIndex(brref, index);
   }
-#ifdef DEBUG
-  cerr << "processtree::processtree(context, parametrizablephylotree, parlist, suff)}" << endl;
-#endif
 }
 
 ProcessTree::ProcessTree(const ProcessComputationTree& tree,
-                         ParametrizableCollection<ConfiguredModel>& modelColl,
-                         const ProcessTree& phyloTree) :
+    ParametrizableCollection<ConfiguredModel>& modelColl,
+    const ProcessTree& phyloTree) :
   AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree.getGraph()), context_(phyloTree.context_)
 {
-#ifdef DEBUG
-  cerr << "ProcessTree::ProcessTree(ProcessComputationTree, ConfiguredModel, ProcessTree){" << endl;
-#endif
   // Set Nodes
   auto vNodes = tree.getAllNodes();
 
@@ -218,7 +164,7 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
 
     auto vNb = edge->subModelNumbers();
     if (vNb.size() > 1)
-      throw Exception("ProcessTree::ProcessTree : only simple submodels are used, not combinations. Ask developpers");
+      throw Exception("ProcessTree::ProcessTree : only simple submodels are used, not combinations. Ask developers");
 
     if (!edge->useProb()) // model transition is used
     {
@@ -249,9 +195,6 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
     associateEdge(brref, id);
     setEdgeIndex(brref, tree.getEdgeIndex(edge));
   }
-#ifdef DEBUG
-  cerr << "processtree::processtree(processcomputationtree, configuredmodel, processtree)}" << endl;
-#endif
 }
 
 
@@ -278,7 +221,7 @@ shared_ptr<ProcessTree> ProcessTree::makeProcessTree(
 
   if (!parTree)
     throw Exception("ProcessTree::makeProcessTree: missing Tree in process.");
-  
+
   auto modelColl = makeConfiguredModelCollection(context, *process, parList);
 
   ProcessTree pt(context, *parTree, parList, suff); // tree with only branches
@@ -288,4 +231,18 @@ shared_ptr<ProcessTree> ProcessTree::makeProcessTree(
   // then process tree with DF objects
 
   return std::make_shared<ProcessTree>(tree, modelColl, pt);
+}
+
+DAGindexes ProcessTree::getDAGEdgesIndexes(const Speciesindex speciesIndex) const
+{
+  auto vB = getAllEdges();
+
+  DAGindexes dag;
+  for (auto& branch:vB)
+  {
+    if (branch->getSpeciesIndex() == speciesIndex)
+      dag.push_back(getEdgeIndex(branch));
+  }
+
+  return dag;
 }

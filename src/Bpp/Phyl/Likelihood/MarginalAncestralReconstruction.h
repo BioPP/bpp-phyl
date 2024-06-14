@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: MarginalAncestralReconstruction.h
-// Authors:
-//   Julien Dutheil
-// Created: 2005-07-08 13:32:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_MARGINALANCESTRALRECONSTRUCTION_H
 #define BPP_PHYL_LIKELIHOOD_MARGINALANCESTRALRECONSTRUCTION_H
@@ -82,8 +46,8 @@ public:
     alphabet_        (drl->stateMap().getAlphabet()),
     nbSites_         (drl->getNumberOfSites()),
     nbDistinctSites_ (drl->getNumberOfDistinctSites()),
-  nbStates_        (drl->stateMap().getNumberOfModelStates()),
-  rootPatternLinks_(drl->getRootArrayPositions())
+    nbStates_        (drl->stateMap().getNumberOfModelStates()),
+    rootPatternLinks_(drl->getRootArrayPositions())
   {
     if (!tree_)
       throw Exception("MarginalAncestralReconstruction::MarginalAncestralReconstruction: missing ParametrizablePhyloTree.");
@@ -95,10 +59,9 @@ public:
     alphabet_        (masr.alphabet_),
     nbSites_         (masr.nbSites_),
     nbDistinctSites_ (masr.nbDistinctSites_),
-  nbStates_        (masr.nbStates_),
-  rootPatternLinks_(masr.rootPatternLinks_)
-  {
-  }
+    nbStates_        (masr.nbStates_),
+    rootPatternLinks_(masr.rootPatternLinks_)
+  {}
 
   MarginalAncestralReconstruction& operator=(const MarginalAncestralReconstruction& masr)
   {
@@ -122,7 +85,7 @@ public:
   {
     return alphabet_;
   }
-  
+
   /**
    * @brief Get ancestral states  for a given node as a vector of int.
    *
@@ -151,7 +114,7 @@ public:
     return getAncestralStatesForNode(nodeId, probs, false);
   }
 
-  std::map<uint, std::vector<size_t> > getAllAncestralStates() const override;
+  std::map<uint, std::vector<size_t>> getAllAncestralStates() const override;
 
   /**
    * @brief Get an ancestral sequence for a given node.
@@ -186,9 +149,9 @@ public:
 
 private:
   void recursiveMarginalAncestralStates(
-    const std::shared_ptr<PhyloNode> node,
-    std::map<uint, std::vector<size_t> >& ancestors,
-    AlignmentDataInterface& data) const;
+      const std::shared_ptr<PhyloNode> node,
+      std::map<uint, std::vector<size_t>>& ancestors,
+      AlignmentDataInterface& data) const;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_MARGINALANCESTRALRECONSTRUCTION_H

@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: TreeTemplate.h
-// Authors:
-//   Julien Dutheil
-//   Celine Scornavacca
-// Created: 2003-03-13 12:03:18
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_TREE_TREETEMPLATE_H
 #define BPP_PHYL_TREE_TREETEMPLATE_H
@@ -267,7 +230,7 @@ public:
     {
       N* son1 = dynamic_cast<N*>(root_->getSon(0));
       N* son2 = dynamic_cast<N*>(root_->getSon(1));
-      if (son1->isLeaf() && son2->isLeaf()) return false;                                                             // We can't unroot a single branch!
+      if (son1->isLeaf() && son2->isLeaf()) return false; // We can't unroot a single branch!
 
       // We manage to have a subtree in position 0:
       if (son1->isLeaf())
@@ -327,7 +290,7 @@ public:
    *
    * This method compares recursively all subtrees. The comparison is performed only on the nodes names and the parental relationships.
    * Nodes ids are ignored, and so are branch lengths and any branch/node properties. The default is to ignore the ordering of the descendants,
-   * that is (A,B),C) will be considered as having the same topology as (B,A),C). Multifurcations are permited.
+   * that is (A,B),C) will be considered as having the same topology as (B,A),C). Multifurcations are permitted.
    * If ordering is ignored, a copy of the two trees to be compared is performed and are ordered before comparison, making the whole comparison
    * slower and more memory greedy.
    *
@@ -533,7 +496,7 @@ public:
     {
       for (size_t i = 0; i < root_->getNumberOfSons(); i++)
       {
-        if (root_->getSon(i) == outGroup) return;                                                     // This tree is already rooted appropriately.
+        if (root_->getSon(i) == outGroup) return; // This tree is already rooted appropriately.
       }
       rootId = getRootId();
       unroot();

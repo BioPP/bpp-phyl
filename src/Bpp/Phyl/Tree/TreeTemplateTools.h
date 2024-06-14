@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: TreeTemplateTools.h
-// Authors:
-//   Julien Dutheil
-// Created: 2003-08-06 13:45:28
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_TREE_TREETEMPLATETOOLS_H
 #define BPP_PHYL_TREE_TREETEMPLATETOOLS_H
@@ -44,15 +8,18 @@
 #include <Bpp/Numeric/Random/RandomTools.h>
 
 #include "TreeTools.h"
+#include "Node.h"
 
 // From the STL:
 #include <string>
 #include <vector>
 
+
 namespace bpp
 {
 template<class N> class TreeTemplate;
 
+class PhyloTree;
 
 /**
  * @brief Utilitary methods working with TreeTemplate and Node objects.
@@ -124,17 +91,7 @@ public:
    * @param node The node that defines the subtree.
    * @param ids A vector of ids.
    */
-  static void getLeavesId(const Node& node, std::vector<int>& ids)
-  {
-    if (node.isLeaf())
-    {
-      ids.push_back(node.getId());
-    }
-    for (size_t i = 0; i < node.getNumberOfSons(); i++)
-    {
-      getLeavesId(*node.getSon(i), ids);
-    }
-  }
+  static void getLeavesId(const Node& node, std::vector<int>& ids);
 
   /**
    * @brief Retrieve all nodes ids that are ancestors of a node.
@@ -142,17 +99,7 @@ public:
    * @param node The node
    * @return A vector of ids.
    */
-  static std::vector<int> getAncestorsId(const Node& node)
-  {
-    std::vector<int> ids;
-    const Node* n = &node;
-    while (n->hasFather())
-    {
-      n = n->getFather();
-      ids.push_back(n->getId());
-    }
-    return ids;
-  }
+  static std::vector<int> getAncestorsId(const Node& node);
 
   /**
    * @brief Get the id of a leaf given its name in a subtree.
@@ -183,21 +130,7 @@ public:
    * @param id The id of the node.
    * @throw NodeNotFoundException If the node is not found.
    */
-  static void searchLeaf(const Node& node, const std::string& name, int*& id)
-  {
-    if (node.hasNoSon())
-    {
-      if (node.getName() == name)
-      {
-        id = new int(node.getId());
-        return;
-      }
-    }
-    for (size_t i = 0; i < node.getNumberOfSons(); i++)
-    {
-      searchLeaf(*node.getSon(i), name, id);
-    }
-  }
+  static void searchLeaf(const Node& node, const std::string& name, int*& id);
 
   /**
    * @brief Remove a leaf node and its parent node, while correcting for branch lengths.
@@ -206,6 +139,7 @@ public:
    * @param leafName The name of the leaf node.
    * @throw NodeNotFoundException If the node is not found.
    */
+  
   template<class N>
   static void dropLeaf(TreeTemplate<N>& tree, const std::string& leafName)
   {
@@ -418,7 +352,7 @@ public:
       getInnerNodes<N>(*dynamic_cast<N*>(node.getSon(i)), nodes);
     }
     if (!node.isLeaf())
-      nodes.push_back(&node);                                 // Do not add leaves!
+      nodes.push_back(&node); // Do not add leaves!
   }
 
   /**
@@ -449,7 +383,7 @@ public:
       getInnerNodesId(*node.getSon(i), ids);
     }
     if (!node.isLeaf())
-      ids.push_back(node.getId());                                      // Do not add leaves!
+      ids.push_back(node.getId()); // Do not add leaves!
   }
 
   /**
@@ -750,11 +684,10 @@ public:
    * @param node The basal node of the subtree.
    * @return The basal node of the new copy.
    */
-
   template<class N>
   static N* cloneSubtree(const Node& node)
   {
-    // First we copy this node using default copy constuctor:
+    // First we copy this node using default copy constructor:
     N* clone = new N(node);
     // We remove the link toward the father:
     // clone->removeFather();
@@ -787,7 +720,7 @@ public:
   template<class N>
   static N* cloneSubtree(const Tree& tree, int nodeId)
   {
-    // First we copy this node using default copy constuctor:
+    // First we copy this node using default copy constructor:
     N* clone = tree.hasNodeName(nodeId) ? new N(nodeId, tree.getNodeName(nodeId)) : new N(nodeId);
     // Then we set the length:
     if (tree.hasDistanceToFather(nodeId))
@@ -904,7 +837,7 @@ public:
    * @param tree The tree to use.
    * @return The distance matrix computed from tree.
    */
-  static DistanceMatrix* getDistanceMatrix(const TreeTemplate<Node>& tree);
+  static std::unique_ptr<DistanceMatrix> getDistanceMatrix(const TreeTemplate<Node>& tree);
 
 private:
   /**
@@ -916,9 +849,9 @@ private:
    *
    * @param node The current node in the recursion.
    * @param matrix The output matrix which will be filled.
-   * @param distsToNodeFather Intermediate computations contianing the distances of the node to the leaves.
+   * @param distsToNodeFather Intermediate computations containing the distances of the node to the leaves.
    */
-  static void processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, std::vector< std::pair<std::string, double> >& distsToNodeFather);
+  static void processDistsInSubtree_(const Node* node, DistanceMatrix& matrix, std::vector< std::pair<std::string, double>>& distsToNodeFather);
 
 public:
   /** @} */
@@ -995,7 +928,7 @@ public:
    * @brief Get the parenthesis description of a subtree.
    *
    * @param node The node defining the subtree.
-   * @param bootstrap Tell is bootstrap values must be writen.
+   * @param bootstrap Tell is bootstrap values must be written.
    * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
    * The property should be a Number<double> object.
    * Otherwise, the content of the property with name 'propertyName' will be written.
@@ -1020,7 +953,7 @@ public:
    * @brief Get the parenthesis description of a tree.
    *
    * @param tree The tree to convert.
-   * @param bootstrap Tell is bootstrap values must be writen.
+   * @param bootstrap Tell is bootstrap values must be written.
    * If so, the content of the property with name TreeTools::BOOTSTRAP will be written as bootstrap value.
    * The property should be a Number<double> object.
    * Otherwise, the content of the property with name 'propertyName' will be written.
@@ -1037,6 +970,8 @@ public:
    *
    * @{
    */
+
+  static std::unique_ptr<TreeTemplate<Node>> buildFromPhyloTree(const PhyloTree& treetemp);
 
   /**
    * @brief Draw a random tree from a list of taxa, using a Yule process.
@@ -1215,7 +1150,7 @@ public:
   static void midRoot(TreeTemplate<Node>& tree, short criterion, bool forceBranchRoot);
 
   /**
-   * @brief Get the caracteristic radius of a tree (average distance to the root minimizing the sum of squared distances).
+   * @brief Get the characteristic radius of a tree (average distance to the root minimizing the sum of squared distances).
    *
    * @param tree The tree (which is rerooted in the process).
    */
@@ -1289,7 +1224,7 @@ private:
    *
    * @author Nicolas Rochette, Manolo Gouy
    */
-  static void getBestRootInSubtree_(bpp::TreeTemplate<bpp::Node>& tree, short criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double> >& bestRoot);
+  static void getBestRootInSubtree_(bpp::TreeTemplate<bpp::Node>& tree, short criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double>>& bestRoot);
 
 public:
   static const short MIDROOT_VARIANCE;

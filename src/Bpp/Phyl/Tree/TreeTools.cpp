@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: TreeTools.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2003-08-06 13:45:28
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/BppString.h>
@@ -445,7 +409,7 @@ vector<int> TreeTools::getPathBetweenAnyTwoNodes(const Tree& tree, int nodeId1, 
     path.push_back(pathMatrix1[y]);
   }
   if (includeAncestor)
-    path.push_back(pathMatrix1[tmp1]);                                          // pushing once, the Node that was common to both.
+    path.push_back(pathMatrix1[tmp1]); // pushing once, the Node that was common to both.
   for (size_t j = tmp2; j > 0; --j)
   {
     path.push_back(pathMatrix2[j - 1]);
@@ -584,12 +548,12 @@ void TreeTools::initBranchLengthsGrafen(Tree& tree)
 /******************************************************************************/
 
 void TreeTools::computeBranchLengthsGrafen(
-  Tree& tree,
-  int nodeId,
-  double power,
-  double total,
-  double& height,
-  double& heightRaised)
+    Tree& tree,
+    int nodeId,
+    double power,
+    double total,
+    double& height,
+    double& heightRaised)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::computeBranchLengthsGrafen", nodeId);
@@ -624,7 +588,7 @@ void TreeTools::computeBranchLengthsGrafen(Tree& tree, double power, bool init)
   {
     initBranchLengthsGrafen(tree);
   }
-  // Scale by total heigth:
+  // Scale by total height:
   double totalHeight = getHeight(tree, rootId);
   double h, hr;
   computeBranchLengthsGrafen(tree, rootId, power, totalHeight, h, hr);
@@ -942,7 +906,7 @@ int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool che
 
 /******************************************************************************/
 
-unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<unique_ptr<Tree> >& vecTr, vector<size_t>& bipScore)
+unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<unique_ptr<Tree>>& vecTr, vector<size_t>& bipScore)
 {
   vector<unique_ptr<BipartitionList>> vecBipL;
   unique_ptr<BipartitionList> mergedBipL;
@@ -954,6 +918,7 @@ unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<uniqu
   {
     vecBipL.push_back(make_unique<BipartitionList>(*vecTr[i]));
   }
+
   mergedBipL = BipartitionTools::mergeBipartitionLists(vecBipL);
 
   mergedBipL->removeTrivialBipartitions();
@@ -1002,7 +967,7 @@ unique_ptr<BipartitionList> TreeTools::bipartitionOccurrences(const vector<uniqu
 
 /******************************************************************************/
 
-unique_ptr<TreeTemplate<Node>> TreeTools::thresholdConsensus(const vector<unique_ptr<Tree> >& vecTr, double threshold, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::thresholdConsensus(const vector<unique_ptr<Tree>>& vecTr, double threshold, bool checkNames)
 {
   vector<size_t> bipScore;
   vector<string> tr0leaves;
@@ -1052,31 +1017,31 @@ unique_ptr<TreeTemplate<Node>> TreeTools::thresholdConsensus(const vector<unique
 
 /******************************************************************************/
 
-unique_ptr<TreeTemplate<Node>> TreeTools::fullyResolvedConsensus(const vector<unique_ptr<Tree> >& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::fullyResolvedConsensus(const vector<unique_ptr<Tree>>& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 0., checkNames);
 }
 
 /******************************************************************************/
 
-unique_ptr<TreeTemplate<Node>> TreeTools::majorityConsensus(const vector<unique_ptr<Tree > >& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::majorityConsensus(const vector<unique_ptr<Tree >>& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 0.5, checkNames);
 }
 
 /******************************************************************************/
 
-unique_ptr<TreeTemplate<Node>> TreeTools::strictConsensus(const vector<unique_ptr<Tree> >& vecTr, bool checkNames)
+unique_ptr<TreeTemplate<Node>> TreeTools::strictConsensus(const vector<unique_ptr<Tree>>& vecTr, bool checkNames)
 {
   return thresholdConsensus(vecTr, 1., checkNames);
 }
 
 /******************************************************************************/
 
-unique_ptr<Tree> TreeTools::MRP(const vector<unique_ptr<Tree> >& vecTr)
+unique_ptr<Tree> TreeTools::MRP(const vector<unique_ptr<Tree>>& vecTr)
 {
   throw Exception("TreeTools::MRP not updated.");
-  
+
   // // matrix representation
   // VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
 
@@ -1105,14 +1070,16 @@ unique_ptr<Tree> TreeTools::MRP(const vector<unique_ptr<Tree> >& vecTr)
 
 /******************************************************************************/
 
-void TreeTools::computeBootstrapValues(Tree& tree, const vector<unique_ptr<Tree> >& vecTr, bool verbose, int format)
+void TreeTools::computeBootstrapValues(Tree& tree, const vector<unique_ptr<Tree>>& vecTr, bool verbose, int format)
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, &index);
+
   vector<size_t> occurences;
+
   auto bpList = bipartitionOccurrences(vecTr, occurences);
 
-  vector< Number<double> > bootstrapValues(bpTree.getNumberOfBipartitions());
+  vector< Number<double>> bootstrapValues(bpTree.getNumberOfBipartitions());
 
   for (size_t i = 0; i < bpTree.getNumberOfBipartitions(); i++)
   {
@@ -1155,7 +1122,7 @@ int TreeTools::getLastCommonAncestor(const Tree& tree, const vector<int>& nodeId
 {
   if (nodeIds.size() == 0)
     throw Exception("TreeTools::getLastCommonAncestor(). You must provide at least one node id.");
-  vector< vector<int> > ancestors(nodeIds.size());
+  vector< vector<int>> ancestors(nodeIds.size());
   for (size_t i = 0; i < nodeIds.size(); i++)
   {
     ancestors[i] = getAncestors(tree, nodeIds[i]);
@@ -1269,7 +1236,7 @@ TreeTools::Moments_ TreeTools::statFromNode_(Tree& tree, int rootId)
 Tree* TreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
 {
   throw Exception("TreeTools::MRPMultilabel not updated.");
-  
+
   // // matrix representation
   // VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
 

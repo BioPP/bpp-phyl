@@ -1,8 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: TreeIterator.cpp
-// Authors:
-//
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "TreeIterator.h"
 
@@ -220,7 +218,7 @@ const Node* InOrderTreeIterator::next()
 
   // while curNode still has unvisited left sons -> do another step
   while (nodeToVisited_[currNode_->getId()]
-         || (!nodeToSonVisited_[currNode_->getId()] && !currNode_->isLeaf()) || (nodeToSonVisited_[currNode_->getId()] && nodeToLastVisitedSonIndex_[currNode_->getId()] < static_cast<size_t>(floor(currNode_->getNumberOfSons() / 2) - 1) && !currNode_->isLeaf()))
+      || (!nodeToSonVisited_[currNode_->getId()] && !currNode_->isLeaf()) || (nodeToSonVisited_[currNode_->getId()] && nodeToLastVisitedSonIndex_[currNode_->getId()] < static_cast<size_t>(floor(currNode_->getNumberOfSons() / 2) - 1) && !currNode_->isLeaf()))
   {
     currNode_ = doStep(currNode_);
   }

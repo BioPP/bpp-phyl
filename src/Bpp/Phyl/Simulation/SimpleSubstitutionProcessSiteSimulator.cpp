@@ -1,44 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SimpleSubstitutionProcessSiteSimulator.cpp
-// Authors:
-//   Julien Dutheil
-//   Bastien Boussau
-//   Laurent GuÃÂ©guen
-// Created: 2004-02-04 16:30:51
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/VectorTools.h>
@@ -220,7 +182,7 @@ unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite() const
 
 unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(double rate) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   // Use rate class 0
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[0]);
@@ -243,7 +205,7 @@ unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(double rat
 
 unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(size_t rateClass) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[rateClass]);
 
@@ -301,7 +263,7 @@ unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimula
 
 unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimulateSite(double rate) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   // Use rate class 0
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[0]);
@@ -318,7 +280,7 @@ unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimula
 
 unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimulateSite(size_t rateClass) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to equilibrium frequencies:
   // Use rate class 0
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[rateClass]);

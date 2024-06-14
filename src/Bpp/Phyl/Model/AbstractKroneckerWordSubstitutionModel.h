@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractKroneckerWordSubstitutionModel.h
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: lundi 25 juillet 2016, ÃÂ  17h 00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_ABSTRACTKRONECKERWORDSUBSTITUTIONMODEL_H
 #define BPP_PHYL_MODEL_ABSTRACTKRONECKERWORDSUBSTITUTIONMODEL_H
@@ -47,7 +11,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Abstract Kronecker Word Model.
  *
@@ -85,12 +48,12 @@ private:
    * Shortcut : if empty, any number of any positions can change
    * simultaneously
    */
-  std::vector<std::set< size_t> > sChangingPos_;
+  std::vector<std::set< size_t>> sChangingPos_;
 
   /**
    * @brief vector of generators for computation purposes
    */
-  std::vector< RowMatrix<double> > vGenerators_;
+  std::vector< RowMatrix<double>> vGenerators_;
 
 protected:
   void initGenerators_();
@@ -101,14 +64,12 @@ protected:
   bool checkChangingPositions_();
 
 private:
-  
   /**
    * @brief First fill of the generator, from the position model
    */
   void fillBasicGenerator_();
 
 public:
-
   /**
    * @brief Build a new AbstractKroneckerWordSubstitutionModel
    * object from a vector of pointers to SubstitutionModels,
@@ -122,8 +83,8 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    ModelList& modelList,
-    const std::string& prefix);
+      ModelList& modelList,
+      const std::string& prefix);
 
   /**
    * @brief Build a new AbstractKroneckerWordSubstitutionModel
@@ -140,9 +101,9 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    ModelList& modelList,
-    const std::vector<std::set< size_t> >& vPos,
-    const std::string& prefix);
+      ModelList& modelList,
+      const std::vector<std::set< size_t>>& vPos,
+      const std::string& prefix);
 
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a
@@ -155,9 +116,9 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface> pmodel,
-    unsigned int num,
-    const std::string& prefix);
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
+      unsigned int num,
+      const std::string& prefix);
 
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a
@@ -172,10 +133,10 @@ public:
    * @param prefix the Namespace.
    */
   AbstractKroneckerWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface> pmodel,
-    unsigned int num,
-    const std::vector<std::set< size_t> >& vPos,
-    const std::string& prefix);
+      std::unique_ptr<SubstitutionModelInterface> pmodel,
+      unsigned int num,
+      const std::vector<std::set< size_t>>& vPos,
+      const std::string& prefix);
 
 
   virtual ~AbstractKroneckerWordSubstitutionModel() {}
@@ -185,7 +146,6 @@ public:
   AbstractKroneckerWordSubstitutionModel& operator=(const AbstractKroneckerWordSubstitutionModel&);
 
 protected:
-  
   /**
    * @brief Constructor for the derived classes only
    */
@@ -194,8 +154,7 @@ protected:
       std::shared_ptr<const StateMapInterface> stateMap,
       const std::string& prefix);
 
-  void setChangingPositions(const std::vector<std::set<size_t> >& vPos);
+  void setChangingPositions(const std::vector<std::set<size_t>>& vPos);
 };
-
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ABSTRACTKRONECKERWORDSUBSTITUTIONMODEL_H

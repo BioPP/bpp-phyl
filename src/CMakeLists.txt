@@ -1,9 +1,6 @@
-# CMake script for Bio++ PhylLib
-# Authors:
-#   Sylvain Gaillard
-#   Julien Dutheil
-#   Francois Gindraud (2017)
-# Created: 20/08/2009
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
 
 # File list
 set (CPP_FILES
@@ -31,7 +28,6 @@ set (CPP_FILES
   Bpp/Phyl/Io/BppOTransitionModelFormat.cpp
   Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
-  Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
   Bpp/Phyl/Io/IoFrequencySetFactory.cpp
   Bpp/Phyl/Legacy/Io/IoPairedSiteLikelihoods.cpp
   Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
@@ -42,7 +38,6 @@ set (CPP_FILES
   Bpp/Phyl/Io/Newick.cpp
   Bpp/Phyl/Io/NexusIoTree.cpp
   Bpp/Phyl/Io/Nhx.cpp
-  Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
   Bpp/Phyl/Legacy/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -57,13 +52,18 @@ set (CPP_FILES
   Bpp/Phyl/Legacy/Likelihood/MarginalAncestralStateReconstruction.cpp
   Bpp/Phyl/Legacy/Likelihood/NNIHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/PairedSiteLikelihoods.cpp
-  Bpp/Phyl/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Legacy/Likelihood/RASTools.cpp
   Bpp/Phyl/Legacy/Likelihood/RHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Legacy/Likelihood/TreeLikelihoodTools.cpp
+  Bpp/Phyl/Legacy/Mapping/ProbabilisticRewardMapping.cpp 
+  Bpp/Phyl/Legacy/Mapping/ProbabilisticSubstitutionMapping.cpp
+  Bpp/Phyl/Legacy/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Legacy/Mapping/RewardMappingTools.cpp 
+  Bpp/Phyl/Legacy/Simulation/NonHomogeneousSequenceSimulator.cpp
+  Bpp/Phyl/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Likelihood/DataFlow/BackwardLikelihoodTree.cpp
   Bpp/Phyl/Likelihood/DataFlow/CollectionNodes.cpp
   Bpp/Phyl/Likelihood/DataFlow/DataFlow.cpp
@@ -74,6 +74,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/DataFlow/ForwardLikelihoodTree.cpp
   Bpp/Phyl/Likelihood/DataFlow/ExtendedFloat.cpp
   Bpp/Phyl/Likelihood/DataFlow/FrequencySet.cpp
+  Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationOnABranch.cpp
   Bpp/Phyl/Likelihood/DataFlow/LikelihoodCalculationSingleProcess.cpp
   Bpp/Phyl/Likelihood/DataFlow/Model.cpp
   Bpp/Phyl/Likelihood/DataFlow/Parameter.cpp
@@ -98,23 +99,24 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/HmmSequenceEvolution.cpp
   Bpp/Phyl/Likelihood/AutoCorrelationSequenceEvolution.cpp
   Bpp/Phyl/Likelihood/ParametrizablePhyloTree.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmLikelihood_DF.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmLikelihoodComputation.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmPhyloEmissionProbabilities.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.cpp
-  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodAutoCorrelation.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodHmm.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodMixture.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodProduct.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodSet.cpp
   Bpp/Phyl/Likelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmLikelihoodComputation.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmLikelihood_DF.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmPhyloEmissionProbabilities.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/OnABranchPhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/PhyloLikelihoodFormula.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/PhyloLikelihoodSet.cpp
+  Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
   Bpp/Phyl/Likelihood/MarginalAncestralReconstruction.cpp
   Bpp/Phyl/Mapping/DecompositionMethods.cpp
   Bpp/Phyl/Mapping/DecompositionReward.cpp

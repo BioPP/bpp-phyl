@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: MixtureOfATransitionModel.h
-// Authors:
-//   David Fournier, Laurent Gueguen
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_MIXTUREOFATRANSITIONMODEL_H
 #define BPP_PHYL_MODEL_MIXTUREOFATRANSITIONMODEL_H
@@ -54,7 +19,7 @@ namespace bpp
 /**
  * @brief Transition models defined as a mixture of nested
  * substitution models.
- * @author Laurent GuÃÂ©guen
+ * @author Laurent Guéguen
  *
  * All the nested models are of the same type (for example T92 or
  * GY94), and their parameter values can follow discrete
@@ -74,7 +39,7 @@ namespace bpp
  *
  * defines 3*4*5=60 different HKY85 nested models with rate one.
  *
- * Optionnal arguments are used to homogeneize the rates of the nested
+ * Optional arguments are used to homogenize the rates of the nested
  * models. Default values sets all the rates to 1, and given values
  * are the two letters (from_ & to_) between which the substitution
  * rates are the same in all nested models.
@@ -93,7 +58,7 @@ namespace bpp
  * this parameter, there is an Exception at the creation of the
  * wrong model, if any.
  *
- * When used through a MixedTreeLikelihood objets, all the models have
+ * When used through a MixedTreeLikelihood objects, all the models have
  * a specific probability, defined through the probabilities of the
  * several parameter distributions. The computing of the likelihoods
  * and probabilities are the expectation of the "simple" models
@@ -104,17 +69,17 @@ class MixtureOfATransitionModel :
   public AbstractMixedTransitionModel
 {
 private:
-  std::map<std::string, std::unique_ptr<DiscreteDistribution> > distributionMap_;
+  std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>> distributionMap_;
 
 protected:
   int from_, to_;
 
 public:
   MixtureOfATransitionModel(
-    std::shared_ptr<const Alphabet> alpha,
-    std::unique_ptr<TransitionModelInterface> model,
-    std::map<std::string, std::unique_ptr<DiscreteDistribution> >& parametersDistributionsList,
-    int ffrom = -1, int tto = -1);
+      std::shared_ptr<const Alphabet> alpha,
+      std::unique_ptr<TransitionModelInterface> model,
+      std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
+      int ffrom = -1, int tto = -1);
 
   MixtureOfATransitionModel(const MixtureOfATransitionModel&);
 
@@ -148,7 +113,7 @@ public:
   {
     return AbstractMixedTransitionModel::nModel(i);
   }
-  
+
   /**
    * @brief Returns the vector of numbers of the submodels in the
    * mixture that match a description of the parameters numbers.
@@ -172,7 +137,7 @@ public:
    */
   bool hasDistribution(std::string& parName) const
   {
-    return (distributionMap_.find(parName) != distributionMap_.end());
+    return distributionMap_.find(parName) != distributionMap_.end();
   }
 
   /**
@@ -180,7 +145,7 @@ public:
    * parameter name.
    * @param parName name of the parameter
    */
-  const DiscreteDistribution& distribution(std::string& parName) const
+  const DiscreteDistributionInterface& distribution(std::string& parName) const
   {
     if (distributionMap_.find(parName) != distributionMap_.end())
       return *distributionMap_.find(parName)->second;
@@ -200,9 +165,7 @@ public:
   int to() const { return to_; }
 
 protected:
-
   void updateMatrices_() override;
-  
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_MIXTUREOFATRANSITIONMODEL_H

@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: BppOSubstitutionModelFormat.cpp
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: mercredi 4 juillet 2012, ÃÂ  13h 58
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
@@ -153,10 +117,11 @@ unsigned char BppOSubstitutionModelFormat::ALL = 1 | 2 | 4 | 8 | 16 | 32 | 64;
 
 
 unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitutionModel(
-  shared_ptr<const Alphabet> alphabet,
-  const string& modelDescription,
-  const AlignmentDataInterface& data,
-  bool parseArguments)
+    shared_ptr<const Alphabet> alphabet,
+    const string& modelDescription,
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData,
+    bool parseArguments)
 {
   unparsedArguments_.clear();
   unique_ptr<SubstitutionModelInterface> model;
@@ -191,7 +156,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
     nestedReader.setGeneticCode(geneticCode_); // This uses the same instance as the o
 
-    unique_ptr<TransitionModelInterface> nestedModelTmp = nestedReader.readTransitionModel(alphabet, modelDesc2, data, false);
+    unique_ptr<TransitionModelInterface> nestedModelTmp = nestedReader.readTransitionModel(alphabet, modelDesc2, mData, nData, false);
     unique_ptr<MixedTransitionModelInterface> nestedModel(dynamic_cast<MixedTransitionModelInterface*>(nestedModelTmp.release()));
 
     // Check that nestedModel is fine and has subModel of given name
@@ -202,18 +167,21 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
 
     if (nameMod != "")
     {
-      try {
-	nestedModel->model(nameMod);
-      } catch (NullPointerException&) {
+      try
+      {
+        nestedModel->model(nameMod);
+      }
+      catch (NullPointerException&)
+      {
         throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'InMixed' has no submodel with name " + nameMod + ".");
       }
-      model = make_unique<InMixedSubstitutionModel>(move(nestedModel), nameMod, modelDesc2);
+      model = make_unique<InMixedSubstitutionModel>(std::move(nestedModel), nameMod, modelDesc2);
     }
     else
     {
       if (numMod == 0 || (nestedModel->getNumberOfModels() < numMod))
         throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'InMixed' has no submodel with number " + TextTools::toString(numMod) + ".");
-      model = make_unique<InMixedSubstitutionModel>(move(nestedModel), numMod - 1, modelDesc2);
+      model = make_unique<InMixedSubstitutionModel>(std::move(nestedModel), numMod - 1, modelDesc2);
     }
 
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
@@ -238,7 +206,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, nData, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
@@ -257,7 +225,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (args.find("isNormalized") != args.end() && args["isNormalized"] == "true")
       isNorm = true;
 
-    model = make_unique<RegisterRatesSubstitutionModel>(move(nestedModel), *reg, isNorm);
+    model = make_unique<RegisterRatesSubstitutionModel>(std::move(nestedModel), *reg, isNorm);
 
     if (TextTools::isEmpty(registerDescription))
       throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'register' for model 'FromRegister'.");
@@ -272,7 +240,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
   else if (modelName == "POMO")
   {
     auto allelic = dynamic_pointer_cast<const AllelicAlphabet>(alphabet);
-    if (!allelic) 
+    if (!allelic)
       throw Exception("BppOSubstitutionModelFormat;;read. POMO model with no allelic alphabet.");
 
     // We have to parse the nested model first:
@@ -282,31 +250,33 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     map<string, string> unparsedParameterValuesNested;
     // fitness
     unique_ptr<FrequencySetInterface> nestedFreq(nullptr);
-    
+
     if (args.find("fitness") != args.end())
     {
       string nestedFreqDescription = args["fitness"];
       BppOFrequencySetFormat nestedFreqReader(ALL, false, warningLevel_);
 
-      nestedFreq = nestedFreqReader.readFrequencySet(allelic->getStateAlphabet(), nestedFreqDescription, data, false);
-      unparsedParameterValuesNested=nestedFreqReader.getUnparsedArguments();
+      nestedFreq = nestedFreqReader.readFrequencySet(allelic->getStateAlphabet(), nestedFreqDescription, mData, nData, false);
+      unparsedParameterValuesNested = nestedFreqReader.getUnparsedArguments();
 
-      for (auto & it : unparsedParameterValuesNested)
+      for (auto& it : unparsedParameterValuesNested)
+      {
         unparsedParameterValuesNested["fit_" + it.first] = it.second;
+      }
     }
 
     // model
-    
+
     string nestedModelDescription = args["model"];
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
     nestedReader.setGeneticCode(geneticCode_);
 
-    auto nestedModel = nestedReader.readSubstitutionModel(allelic->getStateAlphabet(), nestedModelDescription, data, false);
+    auto nestedModel = nestedReader.readSubstitutionModel(allelic->getStateAlphabet(), nestedModelDescription, mData, nData, false);
     unparsedParameterValuesNested.insert(nestedReader.getUnparsedArguments().begin(),
-                                         nestedReader.getUnparsedArguments().end());
-    
+        nestedReader.getUnparsedArguments().end());
 
-    model = make_unique<POMO>(allelic, move(nestedModel), move(nestedFreq));
+
+    model = make_unique<POMO>(allelic, std::move(nestedModel), std::move(nestedFreq));
 
     // Then we update the parameter set:
     for (auto& it : unparsedParameterValuesNested)
@@ -321,22 +291,22 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
   // ///////////////////////////////
 
   else if ((modelName == "Word") || (modelName.substr(0, 4) == "Kron") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon") || (modelName == "SENCA") )
-    model = readWord_(alphabet, modelDescription, data);
+    model = readWord_(alphabet, modelDescription, mData, nData);
 
 
   // //////////////////
   // PREDEFINED CODON MODELS
 
   else if (((modelName == "MG94") || (modelName == "YN98") || (modelName == "YNGP_M0") ||
-            (modelName == "GY94") ||  (modelName.substr(0, 3) == "KCM") || (modelName == "SameAARate"))
-           && (alphabetCode_ & CODON))
+      (modelName == "GY94") ||  (modelName.substr(0, 3) == "KCM") || (modelName == "SameAARate"))
+      && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("BppOSubstitutionModelFormat::read. Codon alphabet not supported.");
     if (!geneticCode_)
       throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). No genetic code specified! Consider using 'setGeneticCode'.");
 
-    if (!AlphabetTools::isCodonAlphabet(alphabet.get()))
+    if (!AlphabetTools::isCodonAlphabet(*alphabet))
       throw Exception("Alphabet should be Codon Alphabet.");
 
     auto pCA = dynamic_pointer_cast<const CodonAlphabet>(alphabet);
@@ -355,10 +325,10 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (args.find("frequencies") != args.end())
     {
       string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
-      BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
+      BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, false, warningLevel_);
       freqReader.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model.
 
-      auto tmpFreqs = freqReader.readFrequencySet(pCA, freqOpt, data);
+      auto tmpFreqs = freqReader.readFrequencySet(pCA, freqOpt, mData, nData);
       codonFreqs = unique_ptr<CodonFrequencySetInterface>(dynamic_cast<CodonFrequencySetInterface*>(tmpFreqs.release()));
       for (const auto& it : freqReader.getUnparsedArguments())
       {
@@ -371,13 +341,13 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       throw Exception("Missing 'frequencies' for model " + modelName);
 
     if (modelName == "MG94")
-      model = make_unique<MG94>(geneticCode_, move(codonFreqs));
+      model = make_unique<MG94>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "GY94")
-      model = make_unique<GY94>(geneticCode_, move(codonFreqs));
+      model = make_unique<GY94>(geneticCode_, std::move(codonFreqs));
     else if ((modelName == "YN98") || (modelName == "YNGP_M0"))
-      model = make_unique<YN98>(geneticCode_, move(codonFreqs));
+      model = make_unique<YN98>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "KCM7")
-      model= make_unique<KCM>(geneticCode_, true);
+      model = make_unique<KCM>(geneticCode_, true);
     else if (modelName == "KCM19")
       model = make_unique<KCM>(geneticCode_, false);
     else if (modelName == "SameAARate")
@@ -386,7 +356,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         throw Exception("Missing 'protmodel in model " + modelName + ".");
 
       BppOSubstitutionModelFormat nestedProtReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
-      auto tmpProtModel = nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], data, false);
+      auto tmpProtModel = nestedProtReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), args["protmodel"], mData, nData, false);
       auto nestedProtModel = unique_ptr<ProteinSubstitutionModelInterface>(dynamic_cast<ProteinSubstitutionModelInterface*>(tmpProtModel.release()));
 
       auto unparsedParameterValuesNested  = nestedProtReader.getUnparsedArguments();
@@ -398,7 +368,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       BppOSubstitutionModelFormat nestedCodonReader(CODON, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
       nestedCodonReader.setGeneticCode(geneticCode_); // This uses the same instance as the o
 
-      auto tmpSubstitutionModel = nestedCodonReader.readSubstitutionModel(alphabet, args["codonmodel"], data, false);
+      auto tmpSubstitutionModel = nestedCodonReader.readSubstitutionModel(alphabet, args["codonmodel"], mData, nData, false);
       auto nestedCodonModel = unique_ptr<CodonSubstitutionModelInterface>(dynamic_cast<CodonSubstitutionModelInterface*>(tmpSubstitutionModel.release()));
 
       unparsedParameterValuesNested = nestedCodonReader.getUnparsedArguments();
@@ -407,7 +377,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         unparsedArguments_["SameAARate." + it.first] = it.second;
       }
 
-      model = make_unique<CodonSameAARateSubstitutionModel>(move(nestedProtModel), move(nestedCodonModel), move(codonFreqs), geneticCode_);
+      model = make_unique<CodonSameAARateSubstitutionModel>(std::move(nestedProtModel), std::move(nestedCodonModel), std::move(codonFreqs), geneticCode_);
     }
     else
       throw Exception("Unknown Codon model: " + modelName);
@@ -430,9 +400,9 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (TextTools::isEmpty(nestedModelDescription))
       throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'YpR_sym'.");
     if (verbose_)
-      ApplicationTools::displayResult("Symetric YpR model", modelName);
+      ApplicationTools::displayResult("Symmetric YpR model", modelName);
     BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, false, false, false, verbose_, warningLevel_);
-    auto tmpModel = nestedReader.readSubstitutionModel(prny->getLetterAlphabet(), nestedModelDescription, data, false);
+    auto tmpModel = nestedReader.readSubstitutionModel(prny->getLetterAlphabet(), nestedModelDescription, mData, nData, false);
     unique_ptr<NucleotideSubstitutionModelInterface> nestedModel(dynamic_cast<NucleotideSubstitutionModelInterface*>(tmpModel.release()));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (auto& it : unparsedParameterValuesNested)
@@ -440,7 +410,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       unparsedArguments_["YpR_Sym." + it.first] = it.second;
     }
 
-    model = make_unique<YpR_Sym>(prny, move(nestedModel));
+    model = make_unique<YpR_Sym>(prny, std::move(nestedModel));
   }
   else if (modelName == "YpR_Gen")
   {
@@ -456,7 +426,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     if (verbose_)
       ApplicationTools::displayResult("General YpR model", modelName);
     BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, false, false, false, verbose_, warningLevel_);
-    auto tmpModel = nestedReader.readSubstitutionModel(prny->getLetterAlphabet(), nestedModelDescription, data, false);
+    auto tmpModel = nestedReader.readSubstitutionModel(prny->getLetterAlphabet(), nestedModelDescription, mData, nData, false);
     unique_ptr<NucleotideSubstitutionModelInterface> nestedModel(dynamic_cast<NucleotideSubstitutionModelInterface*>(tmpModel.release()));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
@@ -465,7 +435,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       unparsedArguments_["YpR_Gen." + it.first] = it.second;
     }
 
-    model = make_unique<YpR_Gen>(prny, move(nestedModel));
+    model = make_unique<YpR_Gen>(prny, std::move(nestedModel));
   }
 
 
@@ -487,42 +457,42 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     BppOSubstitutionModelFormat nestedReader(ALL, allowCovarions_, false, false, verbose_, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
-    auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+    auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, nData, false);
 
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // Now we create the RE08 substitution model:
-    if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
+    if (AlphabetTools::isNucleicAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & NUCLEOTIDE))
         throw Exception("BppOSubstitutionModelFormat::read. Nucleic alphabet not supported.");
       unique_ptr<NucleotideReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<NucleotideReversibleSubstitutionModelInterface*>(tmpModel.release()));
-      model = make_unique<RE08Nucleotide>(move(nestedModel));
+      model = make_unique<RE08Nucleotide>(std::move(nestedModel));
       if (!model)
         throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). Invalid submodel, must be 'reversible' and 'nucleotide'.");
     }
-    else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isProteicAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & PROTEIN))
         throw Exception("BppOSubstitutionModelFormat::read. Protein alphabet not supported.");
       unique_ptr<ProteinReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<ProteinReversibleSubstitutionModelInterface*>(tmpModel.release()));
-      model = make_unique<RE08Protein>(move(nestedModel));
+      model = make_unique<RE08Protein>(std::move(nestedModel));
       if (!model)
         throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). Invalid submodel, must be 'reversible' and 'protein'.");
     }
-    else if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+    else if (AlphabetTools::isCodonAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & CODON))
         throw Exception("BppOSubstitutionModelFormat::read. Codon alphabet not supported.");
       unique_ptr<CodonReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<CodonReversibleSubstitutionModelInterface*>(tmpModel.release()));
-      model = make_unique<RE08Codon>(move(nestedModel));
+      model = make_unique<RE08Codon>(std::move(nestedModel));
       if (!model)
         throw Exception("BppOSubstitutionModelFormat::readSubstitionModel(). Invalid submodel, must be 'reversible' and 'codon'.");
     }
     else
     {
       unique_ptr<ReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<ReversibleSubstitutionModelInterface*>(tmpModel.release()));
-      model = make_unique<RE08>(move(nestedModel));
+      model = make_unique<RE08>(std::move(nestedModel));
     }
 
     // Then we update the parameter set:
@@ -550,12 +520,12 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, false, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
-    auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+    auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, nData, false);
     unique_ptr<ReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<ReversibleSubstitutionModelInterface*>(tmpModel.release()));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // Now we create the TS98 substitution model:
-    model = make_unique<TS98>(move(nestedModel));
+    model = make_unique<TS98>(std::move(nestedModel));
 
     // Then we update the parameter set:
     for (auto& it : unparsedParameterValuesNested)
@@ -585,16 +555,16 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
-    auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+    auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, nData, false);
     unique_ptr<ReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<ReversibleSubstitutionModelInterface*>(tmpModel.release()));
     map<string, string> unparsedParameterValuesNestedModel(nestedReader.getUnparsedArguments());
-    
+
     BppORateDistributionFormat rateReader(false);
     auto nestedRDist = rateReader.readDiscreteDistribution(nestedRateDistDescription, false);
     map<string, string> unparsedParameterValuesNestedDist(rateReader.getUnparsedArguments());
 
     // Now we create the G01 substitution model:
-    model = make_unique<G2001>(move(nestedModel), move(nestedRDist));
+    model = make_unique<G2001>(std::move(nestedModel), std::move(nestedRDist));
 
     // Then we update the parameter set:
     for (auto& it : unparsedParameterValuesNestedModel)
@@ -625,7 +595,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       model.reset(new EquiprobableSubstitutionModel(alphabet));
     ///////////////////////////////////////////////////
     // nucleotidic model
-    else if (AlphabetTools::isNucleicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isNucleicAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & NUCLEOTIDE))
         throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
@@ -652,12 +622,12 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         }
 
         BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
-        auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
+        auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, nData, false);
         unique_ptr<NucleotideSubstitutionModelInterface> nestedModel(dynamic_cast<NucleotideSubstitutionModelInterface*>(tmpModel.release()));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
         // Now we create the gBGC substitution model:
-        model = make_unique<gBGC>(alpha, move(nestedModel));
+        model = make_unique<gBGC>(alpha, std::move(nestedModel));
 
         // Then we update the parameter set:
         for (auto& it : unparsedParameterValuesNested)
@@ -778,7 +748,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit nucleic alphabet.");
     }
-    else if (AlphabetTools::isProteicAlphabet(alphabet.get()))
+    else if (AlphabetTools::isProteicAlphabet(*alphabet))
     {
       ////////////////////////////////////
       //// Proteic model
@@ -791,7 +761,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       {
         string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, warningLevel_);
         BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, false, warningLevel_);
-        auto tmpFreq = freqReader.readFrequencySet(alpha, freqOpt, data, true);
+        auto tmpFreq = freqReader.readFrequencySet(alpha, freqOpt, mData, nData, true);
         unique_ptr<ProteinFrequencySetInterface> protFreq(dynamic_cast<ProteinFrequencySetInterface*>(tmpFreq.release()));
 
         map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
@@ -802,15 +772,15 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         }
 
         if (modelName == "JC69+F")
-          model = make_unique<JCprot>(alpha, move(protFreq));
+          model = make_unique<JCprot>(alpha, std::move(protFreq));
         else if (modelName == "DSO78+F")
-          model = make_unique<DSO78>(alpha, move(protFreq));
+          model = make_unique<DSO78>(alpha, std::move(protFreq));
         else if (modelName == "JTT92+F")
-          model = make_unique<JTT92>(alpha, move(protFreq));
+          model = make_unique<JTT92>(alpha, std::move(protFreq));
         else if (modelName == "LG08+F")
-          model = make_unique<LG08>(alpha, move(protFreq));
+          model = make_unique<LG08>(alpha, std::move(protFreq));
         else if (modelName == "WAG01+F")
-          model =make_unique<WAG01>(alpha, move(protFreq));
+          model = make_unique<WAG01>(alpha, std::move(protFreq));
         else if (modelName == "Empirical+F")
         {
           string prefix = args["name"];
@@ -819,7 +789,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
           string fname = args["file"];
           if (TextTools::isEmpty(fname))
             throw Exception("'file' argument missing for user-defined substitution model.");
-          model = make_unique<UserProteinSubstitutionModel>(alpha, args["file"], move(protFreq), prefix + "+F.");
+          model = make_unique<UserProteinSubstitutionModel>(alpha, args["file"], std::move(protFreq), prefix + "+F.");
         }
       }
       else if (modelName == "JC69")
@@ -843,18 +813,21 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
 
         BppOTransitionModelFormat nestedReader(PROTEIN, true, true, false, verbose_, warningLevel_);
 
-        auto tmpModel = nestedReader.readTransitionModel(alphabet, modelDesc2, data, false);
+        auto tmpModel = nestedReader.readTransitionModel(alphabet, modelDesc2, mData, nData, false);
         auto nestedModel = unique_ptr<MixedTransitionModelInterface>(dynamic_cast<MixedTransitionModelInterface*>(tmpModel.release()));
 
         // Check that nestedModel is fine and has subModel of given name
         if (!nestedModel)
           throw Exception("Unknown model " + modelName + ".");
 
-        try {
+        try
+        {
           nestedModel->model(subModelName);
-	} catch (NullPointerException&) {
+        }
+        catch (NullPointerException&)
+        {
           throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromMixture' has no submodel with name " + subModelName + ".");
-	}
+        }
 
         // Now we create the FromMixture substitution model:
         model = make_unique<FromMixtureSubstitutionModel>(*nestedModel, subModelName, modelDesc2);
@@ -875,20 +848,20 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         if (exchangeability == "Empirical" && TextTools::isEmpty(prefix))
           throw Exception("'name' argument missing to specify the exchangeabilities of the user-defined empirical model.");
         BppOSubstitutionModelFormat nestedReader(PROTEIN, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
-        auto tmpModel = nestedReader.readSubstitutionModel(alphabet, exchangeability, data, false);
+        auto tmpModel = nestedReader.readSubstitutionModel(alphabet, exchangeability, mData, nData, false);
         unique_ptr<ProteinSubstitutionModelInterface> nestedModel(dynamic_cast<ProteinSubstitutionModelInterface*>(tmpModel.release()));
         string nbrOfParametersPerBranch = args["nbrAxes"];
         if (TextTools::isEmpty(nbrOfParametersPerBranch))
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
-        // Now we create the Coala model:
+        // Now we create the Coala model
         model = make_unique<Coala>(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch));
-        if (data.getNumberOfSites()!=0)
-          model->setFreqFromData(data);
+        if (nData)
+          model->setFreqFromData(*mData.at(nData));
       }
       else
         throw Exception("Model '" + modelName + "' is unknown, or does not fit proteic alphabet.");
     }
-    else if (AlphabetTools::isBinaryAlphabet(alphabet.get()))
+    else if (AlphabetTools::isBinaryAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & BINARY))
         throw Exception("BppOSubstitutionModelFormat::read. Binary alphabet not supported.");
@@ -902,7 +875,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit binary alphabet.");
     }
-    else if (AlphabetTools::isIntegerAlphabet(alphabet.get()))
+    else if (AlphabetTools::isIntegerAlphabet(*alphabet))
     {
       if (!(alphabetCode_ & INTEGER))
         throw Exception("BppOSubstitutionModelFormat::read. Integer alphabet not supported.");
@@ -923,9 +896,15 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
 
   updateParameters_(*model, args);
 
-  if (parseArguments)
-    initialize_(*model, data);
 
+  if (parseArguments)
+  {
+    if (nData)
+      initialize_(*model, mData.at(nData));
+    else
+      initialize_(*model, 0);
+  }
+  
   return model;
 }
 
@@ -972,7 +951,7 @@ void BppOSubstitutionModelFormat::updateParameters_(
       if (pval == pname2)
       {
         // This is an alias...
-        // NB: this may throw an exception if uncorrect! We leave it as is for now :s
+        // NB: this may throw an exception if incorrect! We leave it as is for now :s
         model.aliasParameters(pname2, pname);
         if (verbose_)
           ApplicationTools::displayResult("Parameter alias found", pname + "->" + pname2);
@@ -990,7 +969,9 @@ void BppOSubstitutionModelFormat::updateParameters_(
     throw Exception("useObservedFreqs.pseudoCount argument is obsolete. Please use 'initFreqs.observedPseudoCount' instead.");
 
   if (args.find("initFreqs") != args.end())
-    unparsedArguments_[pref + "initFreqs"] = args["initFreqs"];
+    // Specific case since already used
+    if (pref!="Coala.")
+      unparsedArguments_[pref + "initFreqs"] = args["initFreqs"];
   if (args.find("initFreqs.observedPseudoCount") != args.end())
     unparsedArguments_[pref + "initFreqs.observedPseudoCount"] = args["initFreqs.observedPseudoCount"];
 
@@ -1005,7 +986,8 @@ void BppOSubstitutionModelFormat::updateParameters_(
 unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     std::shared_ptr<const Alphabet> alphabet,
     const std::string& modelDescription,
-    const AlignmentDataInterface& data)
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+    size_t nData)
 {
   unique_ptr<SubstitutionModelInterface> model;
   string modelName = "";
@@ -1013,16 +995,16 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
   vector<string> v_nestedModelDescription;
-  vector< unique_ptr<SubstitutionModelInterface> > v_pSM;
+  vector< unique_ptr<SubstitutionModelInterface>> v_pSM;
   shared_ptr<const CoreWordAlphabet> pWA;
 
   string s, nestedModelDescription;
   unsigned int nbmodels;
 
-  if (((modelName == "Word" || modelName == "Kron") && !AlphabetTools::isWordAlphabet(alphabet.get())) ||
-      ((!(modelName == "Word" || modelName == "Kron")) && !AlphabetTools::isCodonAlphabet(alphabet.get())))
+  if (((modelName == "Word" || modelName == "Kron") && !AlphabetTools::isWordAlphabet(*alphabet)) ||
+      ((!(modelName == "Word" || modelName == "Kron")) && !AlphabetTools::isCodonAlphabet(*alphabet)))
     throw Exception("Bad alphabet type "
-                    + alphabet->getAlphabetType() + " for  model " + modelName + ".");
+          + alphabet->getAlphabetType() + " for  model " + modelName + ".");
 
   pWA = dynamic_pointer_cast<const CoreWordAlphabet>(alphabet);
 
@@ -1051,12 +1033,12 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
   if (pWA->getLength() != nbmodels)
     throw Exception("Bad alphabet type "
-                    + alphabet->getAlphabetType() + " for  model " + modelName + ".");
+          + alphabet->getAlphabetType() + " for  model " + modelName + ".");
 
   if (v_nestedModelDescription.size() != nbmodels)
   {
     BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, false, true, false, false, warningLevel_);
-    model = nestedReader.readSubstitutionModel(pWA->getNAlphabet(0), v_nestedModelDescription[0], data, false);
+    model = nestedReader.readSubstitutionModel(pWA->getNAlphabet(0), v_nestedModelDescription[0], mData, nData, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     string pref = "";
     for (unsigned int i = 0; i < nbmodels; ++i)
@@ -1069,21 +1051,21 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       unparsedArguments_[modelName + "." + pref + "_" + it.first] = it.second;
     }
 
-    v_pSM.push_back(move(model));
+    v_pSM.push_back(std::move(model));
   }
   else
   {
     for (unsigned i = 0; i < v_nestedModelDescription.size(); ++i)
     {
       BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
-      model = nestedReader.readSubstitutionModel(pWA->getNAlphabet(i), v_nestedModelDescription[i], data, false);
+      model = nestedReader.readSubstitutionModel(pWA->getNAlphabet(i), v_nestedModelDescription[i], mData, nData, false);
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (auto& it : unparsedParameterValuesNested)
       {
         unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
       }
 
-      v_pSM.push_back(move(model));
+      v_pSM.push_back(std::move(model));
     }
   }
 
@@ -1092,7 +1074,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
   // check the vector of simultaneous changing positions
 
-  vector<set<size_t> > vposKron;
+  vector<set<size_t>> vposKron;
   if (modelName.substr(0, 4) == "Kron")
   {
     if (args.find("positions") != args.end())
@@ -1124,7 +1106,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
   {
     if (v_nestedModelDescription.size() != nbmodels)
     {
-      model = make_unique<WordSubstitutionModel>(move(v_pSM[0]), nbmodels);
+      model = make_unique<WordSubstitutionModel>(std::move(v_pSM[0]), nbmodels);
     }
     else
     {
@@ -1143,7 +1125,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     {
       if (v_nestedModelDescription.size() != nbmodels)
       {
-        model = make_unique<KroneckerWordSubstitutionModel>(move(v_pSM[0]), nbmodels);
+        model = make_unique<KroneckerWordSubstitutionModel>(std::move(v_pSM[0]), nbmodels);
       }
       else
       {
@@ -1155,7 +1137,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     {
       if (v_nestedModelDescription.size() != nbmodels)
       {
-        model = make_unique<KroneckerWordSubstitutionModel>(move(v_pSM[0]), nbmodels, vposKron);
+        model = make_unique<KroneckerWordSubstitutionModel>(std::move(v_pSM[0]), nbmodels, vposKron);
       }
       else
       {
@@ -1180,8 +1162,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
     if ((!dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].get())) ||
         ((v_nestedModelDescription.size() == 3) &&
-         (!dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].get()) || !dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].get()))))
-      throw Exception("Non simple NucleotideSubstitutionModel imbedded in " + modelName + " model.");
+        (!dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].get()) || !dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].get()))))
+      throw Exception("Non simple NucleotideSubstitutionModel embedded in " + modelName + " model.");
 
     if (args.find("genetic_code") != args.end())
     {
@@ -1209,7 +1191,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
       BppOFrequencySetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_); // This uses the same instance as the one that will be used by the model
-      auto tmp = bIOFreq.readFrequencySet(pCA, args["frequencies"], data);
+      auto tmp = bIOFreq.readFrequencySet(pCA, args["frequencies"], mData, nData);
       pFS = unique_ptr<CodonFrequencySetInterface>(dynamic_cast<CodonFrequencySetInterface*>(tmp.release()));
       if (!pFS)
         throw IOException("BppOSubstitutionModelFormat::readWord_(). Incorrect codon frequencies.");
@@ -1227,27 +1209,27 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
     if (modelName == "Triplet")
       model = (v_nestedModelDescription.size() != 3)
                   ? make_unique<TripletSubstitutionModel>(
-                    pCA,
-                    unique_ptr<NucleotideSubstitutionModelInterface>(
-			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-			    )
-		    )
+            pCA,
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+            dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+            )
+            )
                   : make_unique<TripletSubstitutionModel>(
-                    pCA,
-                    unique_ptr<NucleotideSubstitutionModelInterface>(
-			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-			    ),
-                    unique_ptr<NucleotideSubstitutionModelInterface>(
-			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
-			    ),
-                    unique_ptr<NucleotideSubstitutionModelInterface>(
-			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
-			    )
-		    );
+            pCA,
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+            dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+            ),
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+            dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+            ),
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+            dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+            )
+            );
 
     else if (modelName.find("Codon") != string::npos)
     {
-      vector< unique_ptr<CoreCodonSubstitutionModelInterface> > vCSM;
+      vector< unique_ptr<CoreCodonSubstitutionModelInterface>> vCSM;
       string name = "Codon";
       map<string, string> unparsedParameterValuesNested;
 
@@ -1255,7 +1237,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       {
         name += "Dist";
 
-        vCSM.push_back(make_unique<AbstractCodonDistanceSubstitutionModel>(move(pai2), geneticCode_, ""));
+        vCSM.push_back(make_unique<AbstractCodonDistanceSubstitutionModel>(std::move(pai2), geneticCode_, ""));
       }
       else if (modelName.find("BGC") != string::npos)
       {
@@ -1273,7 +1255,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
         nestedModelDescription = args["protmodel"];
         BppOSubstitutionModelFormat nestedReader(PROTEIN, false, false, allowGaps_, verbose_, warningLevel_);
 
-        shared_ptr<SubstitutionModelInterface> tmpModel = nestedReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), nestedModelDescription, data, false);
+        shared_ptr<SubstitutionModelInterface> tmpModel = nestedReader.readSubstitutionModel(geneticCode_->getTargetAlphabet(), nestedModelDescription, mData, nData, false);
         auto nestedModel = dynamic_pointer_cast<ProteinSubstitutionModelInterface>(tmpModel);
 
         unparsedParameterValuesNested.insert(nestedReader.getUnparsedArguments().begin(), nestedReader.getUnparsedArguments().end());
@@ -1299,7 +1281,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
             make_unique<AbstractCodonClusterAASubstitutionModel>(geneticCode_, "", partition) :
             make_unique<AbstractCodonClusterAASubstitutionModel>(geneticCode_, "");
 
-        vCSM.push_back(move(aca));
+        vCSM.push_back(std::move(aca));
       }
 
       /// Default name in none used before
@@ -1322,19 +1304,19 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
         string nestedFreqDescription = args["fitness"];
         BppOFrequencySetFormat nestedReader(PROTEIN, verbose_, warningLevel_);
 
-        auto nestedFreq = nestedReader.readFrequencySet(geneticCode_->getTargetAlphabet(), nestedFreqDescription, data, false);
+        auto nestedFreq = nestedReader.readFrequencySet(geneticCode_->getTargetAlphabet(), nestedFreqDescription, mData, nData, false);
 
         for (auto it : nestedReader.getUnparsedArguments())
         {
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
         }
 
-        auto aca = make_unique<AbstractCodonAAFitnessSubstitutionModel>(move(nestedFreq), geneticCode_, "");
+        auto aca = make_unique<AbstractCodonAAFitnessSubstitutionModel>(std::move(nestedFreq), geneticCode_, "");
 
         if (args.find("Ns") != args.end())
           aca->addNsParameter();
 
-        vCSM.push_back(move(aca));
+        vCSM.push_back(std::move(aca));
       }
       else if (modelName.find("Fit") != string::npos)
       {
@@ -1345,25 +1327,25 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
         BppOFrequencySetFormat nestedReader(alphabetCode_, verbose_, warningLevel_);
         nestedReader.setGeneticCode(geneticCode_);
 
-        auto nestedFreq = nestedReader.readFrequencySet(alphabet, nestedFreqDescription, data, false);
+        auto nestedFreq = nestedReader.readFrequencySet(alphabet, nestedFreqDescription, mData, nData, false);
 
         for (auto it : nestedReader.getUnparsedArguments())
         {
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
         }
 
-        vCSM.push_back(make_unique<AbstractCodonFitnessSubstitutionModel>(move(nestedFreq), geneticCode_, ""));
+        vCSM.push_back(make_unique<AbstractCodonFitnessSubstitutionModel>(std::move(nestedFreq), geneticCode_, ""));
       }
 
       if (modelName.find("PhasFreq") != string::npos)
       {
         name += "PhasFreq";
-        vCSM.push_back(make_unique<AbstractCodonPhaseFrequenciesSubstitutionModel>(move(pFS), ""));
+        vCSM.push_back(make_unique<AbstractCodonPhaseFrequenciesSubstitutionModel>(std::move(pFS), ""));
       }
       else if (modelName.find("Freq") != string::npos)
       {
         name += "Freq";
-        vCSM.push_back(make_unique<AbstractCodonFrequenciesSubstitutionModel>(move(pFS), ""));
+        vCSM.push_back(make_unique<AbstractCodonFrequenciesSubstitutionModel>(std::move(pFS), ""));
       }
 
       // Then we update the parameter set:
@@ -1374,25 +1356,25 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 
       model = (v_nestedModelDescription.size() != 3)
                   ? make_unique<CodonAdHocSubstitutionModel>(
-                    geneticCode_,
-                    unique_ptr<NucleotideSubstitutionModelInterface>(
-			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-			    ),
-                    vCSM,
-                    name)
+            geneticCode_,
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+            dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+            ),
+            vCSM,
+            name)
                   : make_unique<CodonAdHocSubstitutionModel>(
-                    geneticCode_,
-                    unique_ptr<NucleotideSubstitutionModelInterface>(
-			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-			    ),
-                    unique_ptr<NucleotideSubstitutionModelInterface>(
-			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
-			    ),
-                    unique_ptr<NucleotideSubstitutionModelInterface>(
-			    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
-			    ),
-                    vCSM,
-                    name);
+            geneticCode_,
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+            dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+            ),
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+            dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+            ),
+            unique_ptr<NucleotideSubstitutionModelInterface>(
+            dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+            ),
+            vCSM,
+            name);
     }
     else if (modelName == "KronDistFreq")
     {
@@ -1400,46 +1382,46 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       {
         if (vposKron.size() == 0)
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(geneticCode_,
-               unique_ptr<NucleotideSubstitutionModelInterface>(
-		       dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
-		       move(pFS), move(pai2));
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
+                std::move(pFS), std::move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(geneticCode_,
-               unique_ptr<NucleotideSubstitutionModelInterface>(
-		       dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
-		       vposKron, move(pFS), move(pai2));
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
+                vposKron, std::move(pFS), std::move(pai2));
       }
       else
       {
         if (vposKron.size() != 0)
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(
-                        geneticCode_,
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-				),
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
-				),
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
-				),
-                        move(pFS),
-                        move(pai2));
+                geneticCode_,
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+                ),
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+                ),
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+                ),
+                std::move(pFS),
+                std::move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceFrequenciesSubstitutionModel>(
-                        geneticCode_,
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-				),
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
-				),
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
-				),
-                        vposKron,
-                        move(pFS),
-                        move(pai2));
+                geneticCode_,
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+                ),
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+                ),
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+                ),
+                vposKron,
+                std::move(pFS),
+                std::move(pai2));
       }
     }
     else if (modelName == "KronDist")
@@ -1448,42 +1430,42 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       {
         if (vposKron.size() == 0)
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(geneticCode_,
-               unique_ptr<NucleotideSubstitutionModelInterface>(dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
-	       move(pai2));
+                unique_ptr<NucleotideSubstitutionModelInterface>(dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
+                std::move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(geneticCode_,
-	       unique_ptr<NucleotideSubstitutionModelInterface>(dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
-	       vposKron, move(pai2));
+                unique_ptr<NucleotideSubstitutionModelInterface>(dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())),
+                vposKron, std::move(pai2));
       }
       else
       {
         if (vposKron.size() != 0)
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(
-                        geneticCode_,
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-				),
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
-				),
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
-				),
-                        move(pai2));
+                geneticCode_,
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+                ),
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+                ),
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+                ),
+                std::move(pai2));
         else
           model = make_unique<KroneckerCodonDistanceSubstitutionModel>(
-                        geneticCode_,
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-			        ),
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
-				),
-                        unique_ptr<NucleotideSubstitutionModelInterface>(
-				dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
-				),
-                        vposKron,
-                        move(pai2));
+                geneticCode_,
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+                ),
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+                ),
+                unique_ptr<NucleotideSubstitutionModelInterface>(
+                dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+                ),
+                vposKron,
+                std::move(pai2));
       }
     }
 
@@ -1495,7 +1477,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       BppOFrequencySetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_);
 
-      auto pFit(bIOFreq.readFrequencySet(pCA, args["fitness"], data, false));
+      auto pFit(bIOFreq.readFrequencySet(pCA, args["fitness"], mData, nData, false));
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
       for (auto& it : unparsedParameterValuesNested)
@@ -1506,25 +1488,25 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
       if (v_nestedModelDescription.size() != 3)
       {
         model = make_unique<SENCA>(geneticCode_,
-            unique_ptr<NucleotideSubstitutionModelInterface>(
-		    dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-		    ),
-            move(pFit), move(pai2));
+              unique_ptr<NucleotideSubstitutionModelInterface>(
+              dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+              ),
+              std::move(pFit), std::move(pai2));
       }
       else
         model = make_unique<SENCA>(
-                      geneticCode_,
-                      unique_ptr<NucleotideSubstitutionModelInterface>(
-			      dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
-			      ),
-                      unique_ptr<NucleotideSubstitutionModelInterface>(
-			      dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
-			      ),
-                      unique_ptr<NucleotideSubstitutionModelInterface>(
-			      dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
-			      ),
-                      move(pFit),
-                      move(pai2));
+              geneticCode_,
+              unique_ptr<NucleotideSubstitutionModelInterface>(
+              dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[0].release())
+              ),
+              unique_ptr<NucleotideSubstitutionModelInterface>(
+              dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[1].release())
+              ),
+              unique_ptr<NucleotideSubstitutionModelInterface>(
+              dynamic_cast<NucleotideSubstitutionModelInterface*>(v_pSM[2].release())
+              ),
+              std::move(pFit),
+              std::move(pai2));
     }
   }
 
@@ -1532,9 +1514,9 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
 }
 
 void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
-                                        OutputStream& out,
-                                        std::map<std::string, std::string>& globalAliases,
-                                        std::vector<std::string>& writtenNames) const
+    OutputStream& out,
+    std::map<std::string, std::string>& globalAliases,
+    std::vector<std::string>& writtenNames) const
 {
   bool comma = false;
 
@@ -1552,7 +1534,8 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   out << (parend ? name.substr(0, name.size() - 1) : name + "(");
 
   // Is it a protein user defined model?
-  try {
+  try
+  {
     const UserProteinSubstitutionModel& userModel = dynamic_cast<const UserProteinSubstitutionModel&>(model);
     out << "file=" << userModel.getPath();
     string ns = userModel.getNamespace();
@@ -1562,52 +1545,70 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     else
       ns = ns.substr(0, ns.size() - 1);
 
-    out << ",name=" << ns;
+    out << ", name=" << ns;
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // Is it a markov-modulated model?
-  try {
+  try
+  {
     const MarkovModulatedSubstitutionModel& mmModel = dynamic_cast<const MarkovModulatedSubstitutionModel&>(model);
     out << "model=";
     write(mmModel.nestedModel(), out, globalAliases, writtenNames);
 
-    try {
+    try
+    {
       const G2001& gModel = dynamic_cast<const G2001&>(model);
       // Also print distribution here:
-      out << ",rdist=";
-      const DiscreteDistribution& nestedDist = gModel.rateDistribution();
+      out << ", rdist=";
+      const DiscreteDistributionInterface& nestedDist = gModel.rateDistribution();
       const BppODiscreteDistributionFormat bIO;
       bIO.writeDiscreteDistribution(nestedDist, out, globalAliases, writtenNames);
-    } catch (bad_cast&) {}
+    }
+    catch (bad_cast&)
+    {}
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // Is it a model with gaps?
-  try {
+  try
+  {
     const RE08& reModel = dynamic_cast<const RE08&>(model);
     out << "model=";
     write(reModel.nestedModel(), out, globalAliases, writtenNames);
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // Is it a YpR model?
-  try {
+  try
+  {
     const YpR& yprModel = dynamic_cast<const YpR&>(model);
     out << "model=";
     write(yprModel.nestedModel(), out, globalAliases, writtenNames);
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // Is it a OneChange model?
-  try {
+  try
+  {
     const OneChangeTransitionModel& oneChangeTransitionModel = dynamic_cast<const OneChangeTransitionModel&>(model);
     out << "model=";
     write(oneChangeTransitionModel.model(), out, globalAliases, writtenNames);
     comma = true;
-  } catch(bad_cast&) {
+  }
+  catch (bad_cast&)
+  {
     // Is it a model with register?
-    try {
+    try
+    {
       const OneChangeRegisterTransitionModel& oneChangeRegisterTransitionModel = dynamic_cast<const OneChangeRegisterTransitionModel&>(model);
       out << "model=";
       write(oneChangeRegisterTransitionModel.model(), out, globalAliases, writtenNames);
@@ -1615,16 +1616,21 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
       out << ", register=";
       out << oneChangeRegisterTransitionModel.getRegisterName();
       out << ", numReg=" << VectorTools::paste(oneChangeRegisterTransitionModel.getRegisterNumbers(), "+");
-    } catch(bad_cast&) {}
+    }
+    catch (bad_cast&)
+    {}
 
-    try {
-     const RegisterRatesSubstitutionModel& registerRatesSubstitutionModel = dynamic_cast<const RegisterRatesSubstitutionModel&>(model);
+    try
+    {
+      const RegisterRatesSubstitutionModel& registerRatesSubstitutionModel = dynamic_cast<const RegisterRatesSubstitutionModel&>(model);
       out << "model=";
       write(registerRatesSubstitutionModel.model(), out, globalAliases, writtenNames);
       comma = true;
       out << ", register=";
       out << registerRatesSubstitutionModel.getRegisterName();
-    } catch(bad_cast&) {}
+    }
+    catch (bad_cast&)
+    {}
   }
   // Is it an Integration model
   try {
@@ -1671,7 +1677,8 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   } catch(bad_cast&) {}
 
   // Is it a gBGC model?
-  try {
+  try
+  {
     const gBGC& gbgcModel = dynamic_cast<const gBGC&>(model);
     StdStr sout;
     write(gbgcModel.nestedModel(), sout, globalAliases, writtenNames);
@@ -1683,10 +1690,13 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     out << ss.substr(begin + 1, end - begin - 1);
 
     comma = true;
-  } catch(bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // Is it a word model?
-  try {
+  try
+  {
     const AbstractWordSubstitutionModel& wM = dynamic_cast<const AbstractWordSubstitutionModel&>(model);
     size_t nmod = wM.getNumberOfModels();
     const TransitionModelInterface& mod0 = wM.nModel(0);
@@ -1709,32 +1719,40 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
         write(mod0, out, globalAliases, writtenNames);
         for (unsigned int i = 1; i < nmod; ++i)
         {
-          out << ",model" + TextTools::toString(i + 1) + "=";
+          out << ", model" + TextTools::toString(i + 1) + "=";
           write(wM.nModel(i), out, globalAliases, writtenNames);
         }
       }
     }
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // Is it a COaLA model ?
-  try {
+  try
+  {
     const Coala& coalaModel = dynamic_cast<const Coala&>(model);
     out << "exch=" << coalaModel.getExch() << ", nbrAxes=" << coalaModel.getNbrOfAxes();
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // Is it a InMixed model?
-  try {
+  try
+  {
     const InMixedSubstitutionModel& inModel = dynamic_cast<const InMixedSubstitutionModel&>(model);
     out << "model=";
     write(inModel.mixedModel(), out, globalAliases, writtenNames);
     out << ", numMod=" << TextTools::toString(inModel.getSubModelNumber());
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // Is it a POMO model?
-  const POMO* pomo=dynamic_cast<const POMO*>(&model);
+  const POMO* pomo = dynamic_cast<const POMO*>(&model);
   if (pomo)
   {
     out << "model=";
@@ -1752,135 +1770,177 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
 
   // Is it a model with FrequencySet?
 
-  try {
+  try
+  {
     auto& pfs = model.frequencySet();
-    if (comma)
-      out << ",";
-    out << "frequencies=";
 
+    StdStr freqdesc;
     BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-    bIOFreq.writeFrequencySet(pfs, out, globalAliases, writtenNames);
+    bIOFreq.writeFrequencySet(pfs, freqdesc, globalAliases, writtenNames);
+    string fd = freqdesc.str();
+    if (fd.size() != 0)
+    {
+      if (comma)
+        out << ", ";
+      out << "frequencies=" + fd;
+    }
     comma = true;
-  } catch (exception&) {}
+  }
+  catch (exception&)
+  {}
 
   // Is it a codon model with Protein Model or partition in it?
-  try {
+  try
+  {
     auto& casm = dynamic_cast<const CodonAdHocSubstitutionModel&>(model);
     for (size_t i = 0; i < casm.getNumberOfModels(); ++i)
     {
-      try {
+      try
+      {
         auto& acr = dynamic_cast<const AbstractCodonAARateSubstitutionModel&>(casm.layerModel(i));
         if (comma)
-          out << ",";
+          out << ", ";
         out << "protmodel=";
 
         write(acr.aaModel(), out, globalAliases, writtenNames);
         comma = true;
-      } catch (bad_cast&) {}
+      }
+      catch (bad_cast&)
+      {}
 
-      try {
+      try
+      {
         auto& acf = dynamic_cast<const AbstractCodonAAFitnessSubstitutionModel&>(casm.layerModel(i));
         if (comma)
-          out << ",";
+          out << ", ";
         out << "fitness=";
 
         BppOFrequencySetFormat bIOFreq(PROTEIN, false, warningLevel_);
         bIOFreq.writeFrequencySet(acf.aaFitness(), out, globalAliases, writtenNames);
         comma = true;
-      }  catch (bad_cast&) {}
+      }
+      catch (bad_cast&)
+      {}
 
-      try {
+      try
+      {
         auto& acc = dynamic_cast<const AbstractCodonClusterAASubstitutionModel&>(casm.layerModel(i));
         if (comma)
-          out << ",";
+          out << ", ";
         out << "partition=(";
         const vector<uint>& vass = acc.getAssign();
 
         for (size_t j = 0; j < vass.size(); ++j)
         {
           if (j != 0)
-            out << ",";
+            out << ", ";
           out << vass[j];
         }
         out << ")";
         comma = true;
-      } catch (bad_cast&) {}
+      }
+      catch (bad_cast&)
+      {}
     }
-  } catch (bad_cast&) {}
-  
+  }
+  catch (bad_cast&)
+  {}
+
   // Specific case of SENCA
 
-  try {
+  try
+  {
     auto& pCF = dynamic_cast<const SENCA&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
     out << "fitness=";
 
     BppOFrequencySetFormat bIOFreq(alphabetCode_, false, warningLevel_);
     bIOFreq.writeFrequencySet(pCF.fitness(), out, globalAliases, writtenNames);
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   // and bibliomixed models
 
-  try {
+  try
+  {
     auto& pM7 = dynamic_cast<const YNGP_M7&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
     out << "n=" << pM7.getNumberOfModels();
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
-  try {
+  try
+  {
     auto& pM8 = dynamic_cast<const YNGP_M8&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
     out << "n=" << pM8.getNumberOfModels() - 1;
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
-  try {
+  try
+  {
     auto& pM9 = dynamic_cast<const YNGP_M9&>(model);
     if (comma)
-      out << ",";
-    out << "nbeta=" << pM9.getNBeta() << ",ngamma=" << pM9.getNGamma();
+      out << ", ";
+    out << "nbeta=" << pM9.getNBeta() << ", ngamma=" << pM9.getNGamma();
 
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
-  try {
+  try
+  {
     auto& pM10 = dynamic_cast<const YNGP_M10&>(model);
     if (comma)
-      out << ",";
-    out << "nbeta=" << pM10.getNBeta() << ",ngamma=" << pM10.getNGamma();
+      out << ", ";
+    out << "nbeta=" << pM10.getNBeta() << ", ngamma=" << pM10.getNGamma();
 
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
-  try {
+  try
+  {
     auto& pLGL = dynamic_cast<const LGL08_CAT&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
     out << "nbCat=" << pLGL.getNumberOfCategories();
 
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
-  try {
+  try
+  {
     auto& pDFP = dynamic_cast<const DFP07&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
 
     out << "protmodel=";
     write(pDFP.proteinModel(), out, globalAliases, writtenNames);
 
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
-  try {
+  try
+  {
     auto& pSameAA = dynamic_cast<const CodonSameAARateSubstitutionModel&>(model);
     if (comma)
-      out << ",";
+      out << ", ";
 
     out << "codonmodel=";
     write(pSameAA.codonModel(), out, globalAliases, writtenNames);
@@ -1889,12 +1949,15 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     write(pSameAA.proteinModel(), out, globalAliases, writtenNames);
 
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
 
   // case of Biblio models, update writtenNames
 
-  try {
+  try
+  {
     auto& absm = dynamic_cast<const AbstractBiblioTransitionModel&>(model);
     size_t wNs = writtenNames.size();
 
@@ -1904,9 +1967,12 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
       {
         writtenNames.push_back(absm.getNamespace() + absm.getParNameFromPmodel(writtenNames[i]));
       }
-      catch (Exception&) {}
+      catch (Exception&)
+      {}
     }
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
   BppOParametrizableFormat bIO;
   bIO.write(model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
@@ -1915,11 +1981,12 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
 
 
 void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModelInterface& model,
-                                              OutputStream& out,
-                                              std::map<std::string, std::string>& globalAliases,
-                                              std::vector<std::string>& writtenNames) const
+    OutputStream& out,
+    std::map<std::string, std::string>& globalAliases,
+    std::vector<std::string>& writtenNames) const
 {
-  try {
+  try
+  {
     auto& pMS = dynamic_cast<const MixtureOfTransitionModels&>(model);
 
     out << "Mixture(";
@@ -1930,38 +1997,43 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModelInterfac
       out << "model" + TextTools::toString(i + 1) + "=";
       write(pMS.nModel(i), out, globalAliases, writtenNames);
     }
-  } catch (bad_cast&) {
-  
-  try { 
-    auto& pMS = dynamic_cast<const MixtureOfATransitionModel&>(model);
-    out << "MixedModel(model=";
-    auto& eM = pMS.model(0);
-
-    ParameterList pl = eM.getIndependentParameters();
-    vector<string> vpl = pl.getParameterNames();
-
-    for (auto& pn : vpl)
+  }
+  catch (bad_cast&)
+  {
+    try
     {
-      if (find(writtenNames.begin(), writtenNames.end(), pn) == writtenNames.end())
+      auto& pMS = dynamic_cast<const MixtureOfATransitionModel&>(model);
+      out << "MixedModel(model=";
+      auto& eM = pMS.model(0);
+
+      ParameterList pl = eM.getIndependentParameters();
+      vector<string> vpl = pl.getParameterNames();
+
+      for (auto& pn : vpl)
       {
-        if (pMS.hasDistribution(pn)) {
-	  auto& pDD = pMS.distribution(pn);
-          if (!dynamic_cast<const ConstantDistribution*>(&pDD))
+        if (find(writtenNames.begin(), writtenNames.end(), pn) == writtenNames.end())
+        {
+          if (pMS.hasDistribution(pn))
           {
-            const BppODiscreteDistributionFormat bIO;
-            StdStr sout;
-            bIO.writeDiscreteDistribution(pDD, sout, globalAliases, writtenNames);
-            globalAliases[pn] = sout.str();
-	  }
+            auto& pDD = pMS.distribution(pn);
+            if (!dynamic_cast<const ConstantDistribution*>(&pDD))
+            {
+              const BppODiscreteDistributionFormat bIO;
+              StdStr sout;
+              bIO.writeDiscreteDistribution(pDD, sout, globalAliases, writtenNames);
+              globalAliases[pn] = sout.str();
+            }
+          }
         }
       }
+
+      write(eM, out, globalAliases, writtenNames);
+
+      if (pMS.from() != -1)
+        out << ", from=" << model.getAlphabet()->intToChar(pMS.from()) << ", to=" << model.getAlphabet()->intToChar(pMS.to());
     }
-
-    write(eM, out, globalAliases, writtenNames);
-
-    if (pMS.from() != -1)
-      out << ",from=" << model.getAlphabet()->intToChar(pMS.from()) << ",to=" << model.getAlphabet()->intToChar(pMS.to());
-  } catch (bad_cast&) {}
+    catch (bad_cast&)
+    {}
   }
 
   const BppOParametrizableFormat bIO;
@@ -1970,8 +2042,8 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModelInterfac
 }
 
 void BppOSubstitutionModelFormat::initialize_(
-  BranchModelInterface& model,
-  const AlignmentDataInterface& data)
+    BranchModelInterface& model,
+    std::shared_ptr<const AlignmentDataInterface> data)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedArguments_, "", "", true, warningLevel_);
   if (verbose_)
@@ -1979,14 +2051,15 @@ void BppOSubstitutionModelFormat::initialize_(
 
   if (initFreqs != "")
   {
-    try {
+    try
+    {
       auto& tmodel = dynamic_cast<TransitionModelInterface&>(model);
       if (initFreqs == "observed")
       {
-        if (data.getNumberOfSites()==0)
+        if (!data)
           throw Exception("BppOSubstitutionModelFormat::initialize_(). Missing data for observed frequencies");
         unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedArguments_, 0, "", true, warningLevel_);
-        tmodel.setFreqFromData(data, psi);
+        tmodel.setFreqFromData(*data, psi);
       }
       else if (initFreqs.substr(0, 6) == "values")
       {
@@ -2002,7 +2075,9 @@ void BppOSubstitutionModelFormat::initialize_(
       }
       else
         throw Exception("Unknown initFreqs argument");
-    } catch (bad_cast&) {
+    }
+    catch (bad_cast&)
+    {
       ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
     }
     unparsedArguments_.erase(unparsedArguments_.find(model.getNamespace() + "initFreqs"));

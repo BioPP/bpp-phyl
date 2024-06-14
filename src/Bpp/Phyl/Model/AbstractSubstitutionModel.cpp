@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractSubstitutionModel.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2003-05-27 10:31:49
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Matrix/EigenValue.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
@@ -66,7 +30,8 @@ AbstractTransitionModel::AbstractTransitionModel(
   freq_(size_),
   pijt_(size_, size_),
   dpijt_(size_, size_),
-  d2pijt_(size_, size_)
+  d2pijt_(size_, size_),
+  verboseLevel_(0)
 {
   if (computeFrequencies())
     for (auto& fr : freq_)
@@ -302,17 +267,17 @@ void AbstractSubstitutionModel::updateMatrices_()
 
       vector<size_t> vNullEv;
       double fact = 0.1;
+
       while (vNullEv.size() == 0 && fact < 1000)
       {
         fact *= 10;
 
         for (size_t i = 0; i < salph - nbStop; i++)
         {
-          if ((abs(eigenValues_[i]) < fact * NumConstants::SMALL()) && (abs(iEigenValues_[i]) < NumConstants::SMALL()))
+          if ((abs(eigenValues_[i]) < fact * NumConstants::NANO()) && (abs(iEigenValues_[i]) < NumConstants::NANO()))
             vNullEv.push_back(i);
         }
       }
-
 
       // pb to find unique null eigenvalue
       isNonSingular_ = (vNullEv.size() == 1);
@@ -320,7 +285,7 @@ void AbstractSubstitutionModel::updateMatrices_()
       size_t nulleigen;
 
       double val;
-      if (!isNonSingular_)
+      if (vNullEv.size() > 1)
       {
         // look or check which non-stop right eigen vector elements are
         // equal.
@@ -372,14 +337,16 @@ void AbstractSubstitutionModel::updateMatrices_()
       }
       else
       {
-        ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Unable to find eigenvector for eigenvalue 0. Taylor series used instead.");
+        if (verboseLevel_ > 0)
+          ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Unable to find eigenvector for eigenvalue 0. Taylor series used instead.");
         isDiagonalizable_ = false;
       }
     }
     // if rightEigenVectors_ is singular
     catch (ZeroDivisionException& e)
     {
-      ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Singularity during diagonalization. Taylor series used instead.");
+      if (verboseLevel_ > 0)
+        ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Singularity during diagonalization. Taylor series used instead.");
       isNonSingular_ = false;
       isDiagonalizable_ = false;
     }
@@ -485,7 +452,7 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
       s *= v / static_cast<double>(i);   // v^n/n!
       MatrixTools::add(pijt_, s, vPowGen_[i]);
     }
-    
+
     while (m > 0)  // recover the 2^m
     {
       MatrixTools::mult(pijt_, pijt_, tmpMat_);
@@ -494,7 +461,6 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
     }
   }
 
-//  MatrixTools::print(pijt_);
 
   // Check to avoid numerical issues
   // if (t<= NumConstants::SMALL())
@@ -611,11 +577,11 @@ const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
           s = std::sin(iEigenValues_[i] * l);
           c = std::cos(iEigenValues_[i] * l);
           vdia[i] = NumTools::sqr(rate_)
-                    * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * c
-                       - 2 * eigenValues_[i] * iEigenValues_[i] * s) * e;
+              * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * c
+              - 2 * eigenValues_[i] * iEigenValues_[i] * s) * e;
           vup[i] = NumTools::sqr(rate_)
-                   * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * s
-                      - 2 * eigenValues_[i] * iEigenValues_[i] * c) * e;
+              * ((NumTools::sqr(eigenValues_[i]) - NumTools::sqr(iEigenValues_[i])) * s
+              - 2 * eigenValues_[i] * iEigenValues_[i] * c) * e;
           vlo[i] = -vup[i];
           vdia[i + 1] = vdia[i]; // trick to avoid computation
           i++;

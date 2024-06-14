@@ -1,52 +1,14 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: MarginalAncestralStateReconstruction.h
-// Authors:
-//   Julien Dutheil
-// Created: 2005-07-08 13:32:00
-//
+// SPDX-License-Identifier: CECILL-2.1
 
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+#ifndef _LEGACY_MARGINAL_ANCESTRAL_STATES_RECONSTRUCTION_H_
+#define _LEGACY_MARGINAL_ANCESTRAL_STATES_RECONSTRUCTION_H_
 
-#ifndef BPP_PHYL_LEGACY_LIKELIHOOD_MARGINALANCESTRALSTATERECONSTRUCTION_H
-#define BPP_PHYL_LEGACY_LIKELIHOOD_MARGINALANCESTRALSTATERECONSTRUCTION_H
-
-
-#include "../../AncestralStateReconstruction.h"
-#include "../../Tree/TreeTemplate.h"
+#include "../AncestralStateReconstruction.h"
 #include "DRTreeLikelihood.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 #include <Bpp/Seq/Sequence.h>
@@ -62,13 +24,13 @@ namespace bpp
  * Reference:
  * Z Yang, S Kumar and M Nei (1995), _Genetics_ 141(4) 1641-50.
  */
-class MarginalAncestralStateReconstruction :
-  public virtual AncestralStateReconstruction
+class LegacyMarginalAncestralStateReconstruction :
+  public virtual LegacyAncestralStateReconstruction
 {
 private:
   std::shared_ptr<const DRTreeLikelihoodInterface> likelihood_;
   TreeTemplate<Node> tree_;
-  mutable std::shared_ptr<const Alphabet> alphabet_;
+  std::shared_ptr<const Alphabet> alphabet_;
   size_t nbSites_;
   size_t nbDistinctSites_;
   size_t nbClasses_;
@@ -78,7 +40,7 @@ private:
   std::vector<double> l_;
 
 public:
-  MarginalAncestralStateReconstruction(std::shared_ptr<const DRTreeLikelihoodInterface> drl) :
+  LegacyMarginalAncestralStateReconstruction(std::shared_ptr<const DRTreeLikelihoodInterface> drl) :
     likelihood_      (drl),
     tree_            (drl->tree()),
     alphabet_        (drl->getAlphabet()),
@@ -91,17 +53,15 @@ public:
     l_               (drl->likelihoodData().getRootRateSiteLikelihoodArray())
   {}
 
-  MarginalAncestralStateReconstruction* clone() const
-  { 
-    return new MarginalAncestralStateReconstruction(*this);
-  }
+  LegacyMarginalAncestralStateReconstruction(const LegacyMarginalAncestralStateReconstruction& masr) = default;
+
+  LegacyMarginalAncestralStateReconstruction& operator=(const LegacyMarginalAncestralStateReconstruction& masr) = default;
+
+  LegacyMarginalAncestralStateReconstruction* clone() const { return new LegacyMarginalAncestralStateReconstruction(*this); }
+
+  virtual ~LegacyMarginalAncestralStateReconstruction() {}
 
 public:
-  std::shared_ptr<const Alphabet> getAlphabet() const
-  {
-    return alphabet_;
-  }
-  
   /**
    * @brief Get ancestral states for a given node as a vector of int.
    *
@@ -117,15 +77,15 @@ public:
    * @return A vector of states indices.
    * @see getAncestralSequenceForNode
    */
-  std::vector<size_t> getAncestralStatesForNode(uint nodeId, VVdouble& probs, bool sample) const;
+  std::vector<size_t> getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const;
 
-  std::vector<size_t> getAncestralStatesForNode(uint nodeId) const
+  std::vector<size_t> getAncestralStatesForNode(int nodeId) const override
   {
     VVdouble probs(nbSites_);
     return getAncestralStatesForNode(nodeId, probs, false);
   }
 
-  std::map<uint, std::vector<size_t> > getAllAncestralStates() const;
+  std::map<int, std::vector<size_t>> getAllAncestralStates() const override;
 
   /**
    * @brief Get the ancestral sequence for a given node.
@@ -138,25 +98,26 @@ public:
    * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
    * @return A sequence object.
    */
-  std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const;
+  std::unique_ptr<Sequence> getAncestralSequenceForNode(int nodeId, VVdouble* probs, bool sample) const;
 
-  std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId) const
+  std::unique_ptr<Sequence> getAncestralSequenceForNode(int nodeId) const override
   {
     return getAncestralSequenceForNode(nodeId, 0, false);
   }
 
-  std::unique_ptr<AlignedSequenceContainer> getAncestralSequences() const
+  std::unique_ptr<SiteContainerInterface> getAncestralSequences() const override
   {
     return getAncestralSequences(false);
   }
 
-  std::unique_ptr<AlignedSequenceContainer> getAncestralSequences(bool sample) const;
+  std::unique_ptr<SiteContainerInterface> getAncestralSequences(bool sample) const;
 
 private:
   void recursiveMarginalAncestralStates(
-    const Node* node,
-    std::map<uint, std::vector<size_t> >& ancestors,
-    const AlignmentDataInterface& data) const;
+      const Node* node,
+      std::map<int, std::vector<size_t>>& ancestors,
+      AlignedSequenceContainer& data) const;
 };
 } // end of namespace bpp.
-#endif // BPP_PHYL_LEGACY_LIKELIHOOD_MARGINALANCESTRALSTATERECONSTRUCTION_H
+
+#endif // _LEGACY_MARGINAL_ANCESTRAL_STATES_RECONSTRUCTION_H_

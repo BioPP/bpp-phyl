@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: ForwardLikelihoodTree.h
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: mardi 23 juin 2015, ÃÂ  09h 19
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_DATAFLOW_FORWARDLIKELIHOODTREE_H
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_FORWARDLIKELIHOODTREE_H
@@ -71,7 +35,7 @@ inline MatrixDimension conditionalLikelihoodDimension (Eigen::Index nbState, Eig
  * Using member wise multiply: c = prod_member_i f_i.
  */
 
-using SpeciationForward = CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
+using SpeciationForward = CWiseMul<MatrixLik, ReductionOf<MatrixLik>>;
 
 /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
  * conditionalLikelihood: Matrix(state, site).
@@ -81,7 +45,7 @@ using SpeciationForward = CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
  * Using member wise addition: c = sum_member_i f_i
  */
 
-using MixtureForward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
+using MixtureForward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>;
 
 /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
  * - forwardLikelihood: Matrix(state, site).
@@ -92,10 +56,10 @@ using MixtureForward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
  */
 
 using ForwardTransition =
-  MatrixProduct<MatrixLik, Eigen::MatrixXd, MatrixLik>;
+    MatrixProduct<MatrixLik, Eigen::MatrixXd, MatrixLik>;
 
 using ForwardTransitionFunction =
-  CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
+    CWiseApply<MatrixLik, MatrixLik, TransitionFunction>;
 
 /** @brief forwardLikelihood = f(transitionMatrix, proportion).
  * - forwardLikelihood: Matrix(state, site).
@@ -106,23 +70,26 @@ using ForwardTransitionFunction =
  */
 
 using ForwardProportion =
-  CWiseMul<MatrixLik, std::tuple<double, MatrixLik> >;
+    CWiseMul<MatrixLik, std::tuple<double, MatrixLik>>;
 
 /**
  * @brief Interface LikelihoodTree data structure.
  *
  * Stores all the inner computations:
  * - conditional likelihoods for each node,
- * - correspondance between sites in the dataset and array indices.
+ * - correspondence between sites in the dataset and array indices.
  *
  * The structure is initiated according to a tree topology, and
  * data can be retrieved through node ids.
  *
  * @see LikelihoodNode
  */
+
+// Lower Conditional Likelihood under nodes
 using ConditionalLikelihoodForward = Value<MatrixLik>;
 using ConditionalLikelihoodForwardRef = ValueRef<MatrixLik>;
 
+// Lower Likelihood at top of edges
 using ForwardLikelihoodBelow = Value<MatrixLik>;
 using ForwardLikelihoodBelowRef = ValueRef<MatrixLik>;
 
@@ -153,8 +120,8 @@ private:
 
 public:
   ForwardLikelihoodTree(Context& c,
-                        std::shared_ptr<ProcessTree> tree,
-                        const StateMapInterface& statemap) :
+      std::shared_ptr<ProcessTree> tree,
+      const StateMapInterface& statemap) :
     DAClass(),
     context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0)
   {}
@@ -179,7 +146,7 @@ public:
 private:
   /**
    * @brief Compute ConditionalLikelihood after reading edge on
-   * the forward proces (ie at top of the edge).
+   * the forward process (ie at top of the edge).
    */
   ForwardLikelihoodBelowRef makeForwardLikelihoodAtEdge(
       std::shared_ptr<ProcessEdge> edge,
@@ -187,7 +154,7 @@ private:
 
   /*
    * @brief Compute ConditionalLikelihood after reading node on
-   * the forward proces (ie just above node).
+   * the forward process (ie just above node).
    */
   ConditionalLikelihoodForwardRef makeForwardLikelihoodAtNode(
       std::shared_ptr<ProcessNode> node,
@@ -231,6 +198,10 @@ public:
     return mapNodesIndexes_.at(speciesIndex);
   }
 
+  /*
+   * @brief Get the edges indexes of the DAG that correspond to
+   * the species Index (of the Process tree).
+   */
   const DAGindexes& getDAGEdgesIndexes(const Speciesindex speciesIndex) const
   {
     return mapEdgesIndexes_.at(speciesIndex);
@@ -264,13 +235,13 @@ public:
 
 
 using Proba = Value<double>;
-using ProbaRef = std::shared_ptr<Value<double> >;
+using ProbaRef = std::shared_ptr<Value<double>>;
 
 using DAProb = AssociationDAGlobalGraphObserver<Proba, Proba>;
 
-using ProbaMul = CWiseMul<double, std::tuple<double, double> >;
+using ProbaMul = CWiseMul<double, std::tuple<double, double>>;
 
-using ProbaSum = CWiseAdd<double, ReductionOf<double> >;
+using ProbaSum = CWiseAdd<double, ReductionOf<double>>;
 
 class ProbabilityDAG :
   public DAProb

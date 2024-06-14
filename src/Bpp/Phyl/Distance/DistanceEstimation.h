@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: DistanceEstimation.h
-// Authors:
-//   Julien Dutheil
-//   Vincent Ranwez
-// Created: 2005-06-08 10:39:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_DISTANCE_DISTANCEESTIMATION_H
 #define BPP_PHYL_DISTANCE_DISTANCEESTIMATION_H
@@ -49,10 +12,9 @@
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include "../Model/SubstitutionModel.h"
+#include "../Likelihood/SubstitutionProcess.h"
 #include "../PseudoNewtonOptimizer.h"
 #include "../Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
-#include "../Likelihood/RateAcrossSitesSubstitutionProcess.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Container/AlignmentData.h>
@@ -62,12 +24,12 @@
 
 namespace bpp
 {
-  class DistanceEstimation :
+class DistanceEstimation :
   public virtual Clonable
 {
 private:
-  std::shared_ptr<BranchModelInterface> model_;
-  std::shared_ptr<DiscreteDistribution> rateDist_;
+  std::shared_ptr<SubstitutionProcessInterface> process_;
+  size_t numProc_; // needed if in Collection Process
   std::shared_ptr<const AlignmentDataInterface> sites_;
   std::shared_ptr<DistanceMatrix> dist_;
   std::shared_ptr<OptimizerInterface> optimizer_;
@@ -79,9 +41,7 @@ public:
   /**
    * @brief Create a new DistanceEstimation object according to a given substitution model and a rate distribution.
    *
-   * This instance will own the model and distribution, and will take car of their recopy and destruction.
-   *
-   * @param model    The substitution model to use.
+   * @param process  The substitution process to use.
    * @param rateDist The discrete rate distribution to use.
    * @param verbose  The verbose level:
    *  - 0=Off,
@@ -91,11 +51,10 @@ public:
    *  - 4=3 + likelihood object verbose enabled
    */
   DistanceEstimation(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rateDist,
-    size_t verbose = 1) :
-    model_(model),
-    rateDist_(rateDist),
+      std::shared_ptr<SubstitutionProcessInterface> process,
+      size_t verbose = 1) :
+    process_(process),
+    numProc_(0),
     sites_(0),
     dist_(0),
     optimizer_(0),
@@ -112,8 +71,7 @@ public:
    *
    * This instance will own the model and distribution, and will take car of their recopy and destruction.
    *
-   * @param model    The substitution model to use.
-   * @param rateDist The discrete rate distribution to use.
+   * @param process  The substitution process to use.
    * @param sites    The sequence data.
    * @param verbose  The verbose level:
    *  - 0=Off,
@@ -124,13 +82,12 @@ public:
    *  @param computeMat if true the computeMatrix() method is called.
    */
   DistanceEstimation(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rateDist,
-    std::shared_ptr<const AlignmentDataInterface> sites,
-    size_t verbose = 1,
-    bool computeMat = true) :
-    model_(model),
-    rateDist_(rateDist),
+      std::shared_ptr<SubstitutionProcessInterface> process,
+      std::shared_ptr<const AlignmentDataInterface> sites,
+      size_t verbose = 1,
+      bool computeMat = true) :
+    process_(process),
+    numProc_(0),
     sites_(sites),
     dist_(0),
     optimizer_(0),
@@ -150,8 +107,8 @@ public:
    * @param distanceEstimation The object to copy.
    */
   DistanceEstimation(const DistanceEstimation& distanceEstimation) :
-    model_(distanceEstimation.model_),
-    rateDist_(distanceEstimation.rateDist_),
+    process_(distanceEstimation.process_),
+    numProc_(distanceEstimation.numProc_),
     sites_(distanceEstimation.sites_),
     dist_(0),
     optimizer_(distanceEstimation.optimizer_),
@@ -166,7 +123,7 @@ public:
   }
 
   /**
-   * @brief Assigment operator.
+   * @brief Assignment operator.
    *
    * Only the distance matrix is hard-copied, if there is one.
    *
@@ -175,8 +132,8 @@ public:
    */
   DistanceEstimation& operator=(const DistanceEstimation& distanceEstimation)
   {
-    model_      = distanceEstimation.model_;
-    rateDist_   = distanceEstimation.rateDist_;
+    process_    = distanceEstimation.process_;
+    numProc_    = distanceEstimation.numProc_;
     sites_      = distanceEstimation.sites_;
     if (distanceEstimation.dist_)
       dist_     = std::make_shared<DistanceMatrix>(*distanceEstimation.dist_);
@@ -194,23 +151,7 @@ public:
   DistanceEstimation* clone() const override { return new DistanceEstimation(*this); }
 
 private:
-  void init_()
-  {
-    auto desc = make_unique<MetaOptimizerInfos>();
-    std::vector<std::string> name;
-    name.push_back("BrLen0");
-    name.push_back("BrLen1");
-    desc->addOptimizer("Branch length", std::make_shared<PseudoNewtonOptimizer>(nullptr), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
-    ParameterList tmp = model_->getParameters();
-    tmp.addParameters(rateDist_->getParameters());
-    desc->addOptimizer("substitution model and rate distribution", std::make_shared<SimpleMultiDimensions>(nullptr), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-
-    defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, move(desc));
-    defaultOptimizer_->setMessageHandler(nullptr);
-    defaultOptimizer_->setProfiler(nullptr);
-    defaultOptimizer_->getStopCondition()->setTolerance(0.0001);
-    optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_);
-  }
+  void init_();
 
 public:
   /**
@@ -233,44 +174,27 @@ public:
     return dist_ == nullptr ? nullptr : std::make_unique<DistanceMatrix>(*dist_);
   }
 
-  bool hasModel() const { return model_.get(); }
+  bool hasProcess() const { return process_.get(); }
 
-  const BranchModelInterface& model() const
+  const SubstitutionProcessInterface& process() const
   {
-    if (hasModel())
-      return *model_;
+    if (hasProcess())
+      return *process_;
     else
-      throw Exception("DistanceEstimation::getSubstitutionModel(). No model associated to this instance.");
+      throw Exception("DistanceEstimation::getSubstitutionModel(). No process associated to this instance.");
   }
 
-  std::shared_ptr<const BranchModelInterface> getModel() const
+  std::shared_ptr<const SubstitutionProcessInterface> getProcess() const
   {
-    return model_;
+    return process_;
   }
 
-  void setModel(std::shared_ptr<BranchModelInterface> model = nullptr) { model_ = model; }
-
-  bool hasRateDistribution() const { return rateDist_.get(); }
-
-  const DiscreteDistribution& rateDistribution() const
-  {
-    if (hasRateDistribution())
-      return *rateDist_;
-    else
-      throw Exception("DistanceEstimation::getRateDistribution(). No rate distribution associated to this instance.");
-  }
-
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const
-  {
-     return rateDist_;
-  }
-  
-  void setRateDistribution(std::shared_ptr<DiscreteDistribution> rateDist = nullptr) { rateDist_ = rateDist; }
+  void setProcess(std::shared_ptr<SubstitutionProcessInterface> process = nullptr) { process_ = process; }
 
   void setData(std::shared_ptr<const AlignmentDataInterface> sites = nullptr) { sites_ = sites; }
 
   std::shared_ptr<const AlignmentDataInterface> getData() const { return sites_; }
-  
+
   const AlignmentDataInterface& data() const { return *sites_; }
 
   void setOptimizer(std::shared_ptr<OptimizerInterface> optimizer)
@@ -279,15 +203,22 @@ public:
   }
 
   std::shared_ptr<const OptimizerInterface> getOptimizer() const { return optimizer_; }
-  
+
   std::shared_ptr<OptimizerInterface> getOptimizer() { return optimizer_; }
 
   const OptimizerInterface& optimizer() const { return *optimizer_; }
-  
+
   OptimizerInterface& optimizer() { return *optimizer_; }
 
   void resetOptimizer() { optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_); }
 
+  bool matchParametersValues(const ParameterList& parameters)
+  {
+    if (hasProcess())
+      return process_->matchParametersValues(parameters);
+    return false;
+  }
+  
   /**
    * @brief Specify a list of parameters to be estimated.
    *

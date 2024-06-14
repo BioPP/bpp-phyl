@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SimpleSubstitutionProcess.h
-// Authors:
-//   Julien Dutheil
-// Created: 2012-05-15 13:11:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_SIMPLESUBSTITUTIONPROCESS_H
 #define BPP_PHYL_LIKELIHOOD_SIMPLESUBSTITUTIONPROCESS_H
@@ -115,7 +79,7 @@ public:
 
   const std::vector<unsigned int> getNodesWithModel(size_t i) const override
   {
-    throw Exception("SimpleSubstitutionProcess::getNodesWithModel not finished. Ask developpers.");
+    throw Exception("SimpleSubstitutionProcess::getNodesWithModel not finished. Ask developers.");
     return Vuint(0);
   }
 
@@ -129,27 +93,27 @@ public:
     return model_;
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const override
   {
     return nullptr;
   }
 
-  std::shared_ptr<DiscreteDistribution> getRateDistribution() override
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution() override
   {
     return nullptr;
   }
 
-  const DiscreteDistribution& rateDistribution() const override
+  const DiscreteDistributionInterface& rateDistribution() const override
   {
     throw NullPointerException("SimpleSubstitutionProcess::rateDistribution. This process does not model a rate distribution.");
   }
 
-  DiscreteDistribution& rateDistribution() override
+  DiscreteDistributionInterface& rateDistribution() override
   {
     throw NullPointerException("SimpleSubstitutionProcess::rateDistribution. This process does not model a rate distribution.");
   }
 
- ParameterList getSubstitutionModelParameters(bool independent) const override
+  ParameterList getSubstitutionModelParameters(bool independent) const override
   {
     return independent ? model_->getIndependentParameters() : model_->getParameters();
   }
@@ -207,23 +171,8 @@ public:
     return 1;
   }
 
-  // bool transitionProbabilitiesHaveChanged() const { return true; }
-
 protected:
   void fireParameterChanged(const ParameterList& pl) override; // Forward parameters and updates probabilities if needed.
-
-  bool modelChangesWithParameter_(size_t i, const ParameterList& pl) const
-  {
-    if (pl.getCommonParametersWith(model_->getParameters()).size() > 0)
-      return true;
-    if (pTree_)
-    {
-      ParameterList plbl = pTree_->getBranchLengthParameters(i);
-      if (plbl.getCommonParametersWith(pl).size() > 0)
-        return true;
-    }
-    return false;
-  }
 };
 } // end namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_SIMPLESUBSTITUTIONPROCESS_H

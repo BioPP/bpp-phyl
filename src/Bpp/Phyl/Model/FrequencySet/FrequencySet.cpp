@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: FrequencySet.cpp
-// Authors:
-//   Bastien Boussau
-//   Julien Dutheil
-// Created: 2007-08-21 00:00:00
-//
-
-/*
-  Copyright or (c) or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/Simplex.h>
@@ -110,9 +73,9 @@ FullFrequencySet::FullFrequencySet(
     unsigned short method,
     const string& name) :
   AbstractFrequencySet(
-    stateMap,
-    "Full.",
-    name),
+      stateMap,
+      "Full.",
+      name),
   sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
   vector<double> vd;
@@ -129,15 +92,15 @@ FullFrequencySet::FullFrequencySet(
 }
 
 FullFrequencySet::FullFrequencySet(
-    shared_ptr<const StateMapInterface> stateMap, 
-    const vector<double>& initFreqs, 
-    bool allowNullFreqs, 
-    unsigned short method, 
+    shared_ptr<const StateMapInterface> stateMap,
+    const vector<double>& initFreqs,
+    bool allowNullFreqs,
+    unsigned short method,
     const string& name) :
   AbstractFrequencySet(
-    stateMap,
-    "Full.",
-    name),
+      stateMap,
+      "Full.",
+      name),
   sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
   sFreq_.setFrequencies(initFreqs);
@@ -181,9 +144,9 @@ FixedFrequencySet::FixedFrequencySet(
     const vector<double>& initFreqs,
     const string& name) :
   AbstractFrequencySet(
-    stateMap,
-    "Fixed.",
-    name)
+      stateMap,
+      "Fixed.",
+      name)
 {
   if (stateMap->getNumberOfModelStates() != initFreqs.size())
     throw Exception("FixedFrequencySet::constructor. size of init vector does not match the number of states in the model.");
@@ -194,12 +157,12 @@ FixedFrequencySet::FixedFrequencySet(
     shared_ptr<const StateMapInterface> stateMap,
     const string& name) :
   AbstractFrequencySet(
-    stateMap,
-    "Fixed.",
-    name)
+      stateMap,
+      "Fixed.",
+      name)
 {
   size_t n = stateMap->getNumberOfModelStates();
-  setFrequencies_(std::vector<double>(n , 1./(double)n));
+  setFrequencies_(std::vector<double>(n, 1. / (double)n));
 }
 
 void FixedFrequencySet::setFrequencies(const vector<double>& frequencies)
@@ -220,10 +183,10 @@ MarkovModulatedFrequencySet::MarkovModulatedFrequencySet(
     unique_ptr<FrequencySetInterface> freqSet,
     const std::vector<double>& rateFreqs) :
   AbstractFrequencySet(
-    make_shared<MarkovModulatedStateMap>(freqSet->stateMap(), static_cast<unsigned int>(rateFreqs.size())),
-    "MarkovModulated.",
-    "MarkovModulated." + freqSet->getName()),
-  freqSet_(move(freqSet)),
+      make_shared<MarkovModulatedStateMap>(freqSet->stateMap(), static_cast<unsigned int>(rateFreqs.size())),
+      "MarkovModulated.",
+      "MarkovModulated." + freqSet->getName()),
+  freqSet_(std::move(freqSet)),
   rateFreqs_(rateFreqs)
 {
   freqSet_->setNamespace(std::string("MarkovModulated.") + freqSet_->getNamespace());
@@ -293,9 +256,9 @@ UserFrequencySet::UserFrequencySet(
     const std::string& path,
     size_t nCol) :
   AbstractFrequencySet(
-    stateMap,
-    "Empirical.",
-    "Empirical"),
+      stateMap,
+      "Empirical.",
+      "Empirical"),
   path_(path),
   nCol_(nCol)
 {

@@ -1,9 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: CollectionNodes.cpp
-// Authors:
-//   Laurent Guéguen (2018)
-// Created: mercredi 8 avril 2020, ÃÂ  00h 31
-//
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 
@@ -32,10 +29,10 @@ CollectionNodes::CollectionNodes(
   for (size_t i = 0; i < paramProc.size(); ++i)
   {
     auto vs = collection_->getAlias(paramProc[i].getName());
-    auto dep = dynamic_cast<const ConfiguredParameter*>(&getParameter(paramProc[i].getName()))->dependency(0);
+    auto dep = dynamic_cast<const ConfiguredParameter*>(&parameter(paramProc[i].getName()))->dependency(0);
     for (const auto& s:vs)
     {
-      auto newacp = ConfiguredParameter::create(this->context(), {dep}, collection_->getParameter(s));
+      auto newacp = ConfiguredParameter::create(this->context(), {dep}, collection_->parameter(s));
       shareParameter_(newacp);
     }
   }
@@ -51,7 +48,7 @@ CollectionNodes::CollectionNodes(
     auto obj = collection_->getRateDistribution(num);
 
     if (!dynamic_pointer_cast<const ConstantRateDistribution>(obj))
-      distColl_.addObject(ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(this->context(), *obj, getParameters_(), suff), num);
+      distColl_.addObject(ConfiguredParametrizable::createConfigured<DiscreteDistributionInterface, ConfiguredDistribution>(this->context(), *obj, getParameters_(), suff), num);
   }
 
   // models nodes

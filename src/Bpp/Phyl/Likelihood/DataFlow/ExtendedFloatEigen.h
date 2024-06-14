@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: ExtendedFloatEigen.h
-// Authors:
-//   Laurent GuÃÂ©guen (2021)
-// Created: samedi 17 avril 2021, ÃÂ  08h 11
-// Last modified: 2018-07-11 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_DATAFLOW_EXTENDEDFLOATEIGEN_H
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_EXTENDEDFLOATEIGEN_H
@@ -48,14 +11,11 @@
 
 namespace bpp
 {
-/*
+/**
  * Base Class to allow generic type declaration with no
  * consideration on dimensions. This class knows the
  * Extendedfloatmatrix from which it is inherited (function derived)
- *
- *
  */
-
 struct ExtendedFloatEigenCore {};
 
 template<typename Derived>
@@ -98,18 +58,18 @@ template< int R,  int C>
 using EFArray = Eigen::Array<double, R, C>;
 
 /*
- * Class associating Eigen::Matrix & exponant to hanble underflow.
+ * Class associating Eigen::Matrix & exponent to hanble underflow.
  *
  *
  */
 
 template< int R,  int C, template< int R2,  int C2> class EigenType>
-class ExtendedFloatEigen : public ExtendedFloatEigenBase<ExtendedFloatEigen<R, C, EigenType> >
+class ExtendedFloatEigen : public ExtendedFloatEigenBase<ExtendedFloatEigen<R, C, EigenType>>
 {
   using ExtType =  int;
   using MatType = EigenType<R, C>;
 
-  using RefMatType = Eigen::Ref<EigenType<R, C> >;
+  using RefMatType = Eigen::Ref<EigenType<R, C>>;
 
   using Self = ExtendedFloatEigen<R, C, EigenType>;
 
@@ -164,7 +124,7 @@ public:
   {}
 
   ExtendedFloatEigen(Eigen::DenseBase<MatType>& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat.derived()),
     exp_(exp),
@@ -172,7 +132,7 @@ public:
   {}
 
   ExtendedFloatEigen(MatType& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat),
     exp_(exp),
@@ -180,7 +140,7 @@ public:
   {}
 
   ExtendedFloatEigen(const Eigen::DenseBase<MatType>& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat.derived()),
     exp_(exp),
@@ -188,7 +148,7 @@ public:
   {}
 
   ExtendedFloatEigen(const Eigen::internal::traits<MatType>& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat),
     exp_(exp),
@@ -209,7 +169,7 @@ public:
     EFtmp_(*this) {}
 
   ExtendedFloatEigen(const MatType& mat,
-                     ExtType exp = 0) :
+      ExtType exp = 0) :
     ExtendedFloatEigenBase<Self>(*this),
     mat_(mat),
     exp_(exp),
@@ -227,6 +187,8 @@ public:
     mat_(MatType::Zero(cols)),
     exp_(0),
     EFtmp_(*this) {}
+
+  virtual ~ExtendedFloatEigen() {}
 
   // Specific constructors
 
@@ -333,17 +295,20 @@ public:
 
   bool normalize_small ()
   {
-    const auto& fabs= float_part().cwiseAbs();
-    auto max=fabs.maxCoeff();
-    if (max > 0){
+    const auto& fabs = float_part().cwiseAbs();
+    auto max = fabs.maxCoeff();
+    if (max > 0)
+    {
       // not a vector of zeros
-      auto min=fabs.unaryExpr([max](double d){return d>0?d:max;}).minCoeff();
+      auto min = fabs.unaryExpr([max](double d){return d > 0 ? d : max;}).minCoeff();
       bool normalized = false;
-      while (min< ExtendedFloat::smallest_normalized_value) {
-        //to prevent overflow
-        if (max * ExtendedFloat::normalize_small_factor >=ExtendedFloat::biggest_normalized_value){
+      while (min < ExtendedFloat::smallest_normalized_value)
+      {
+        // to prevent overflow
+        if (max * ExtendedFloat::normalize_small_factor >= ExtendedFloat::biggest_normalized_value)
+        {
           break;
-        } 
+        }
         float_part() *= (double)ExtendedFloat::normalize_small_factor;
         min *= (double)ExtendedFloat::normalize_small_factor;
         max *= (double)ExtendedFloat::normalize_small_factor;
@@ -354,7 +319,7 @@ public:
     }
     return false;
   }
-  
+
   void normalize () noexcept
   {
     if (!normalize_big())
@@ -481,10 +446,9 @@ public:
    * Operators
    *
    */
-
   template<typename T>
   typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value
-                          || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+      || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
   inline operator+(const T& rhs) const
   {
     auto r = denorm_add (*this, rhs);
@@ -502,7 +466,7 @@ public:
 
   template<typename T>
   typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value
-                          || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
+      || std::is_floating_point<T>::value || std::is_integral<T>::value, Self>::type
   inline operator-(const T& rhs) const
   {
     auto r = denorm_sub (*this, rhs);
@@ -592,7 +556,6 @@ public:
    * Modifying operators
    *
    */
-
   template<typename T>
   typename std::enable_if<std::is_same<T, Self>::value || std::is_same<T, ExtendedFloat>::value, Self&>::type
   inline operator*=(const T& rhs)
@@ -794,7 +757,7 @@ public:
   }
 
   template<typename M = MatType>
-  typename std::enable_if<std::is_same<M, EFMatrix<R, C> >::value, ExtendedFloatCol<R, C, EigenType > >::type
+  typename std::enable_if<std::is_same<M, EFMatrix<R, C>>::value, ExtendedFloatCol<R, C, EigenType >>::type
   col(Eigen::Index pos)
   {
     return ExtendedFloatCol<R, C, EigenType>(*this, pos);
@@ -806,7 +769,7 @@ public:
   }
 
   template<typename M = MatType>
-  typename std::enable_if<std::is_same<M, EFMatrix<R, C> >::value, ExtendedFloatRow<R, C, EigenType > >::type
+  typename std::enable_if<std::is_same<M, EFMatrix<R, C>>::value, ExtendedFloatRow<R, C, EigenType >>::type
   row(Eigen::Index pos)
   {
     return ExtendedFloatRow<R, C, EigenType>(*this, pos);
@@ -842,7 +805,7 @@ public:
   }
 
   template<typename M = MatType>
-  typename std::enable_if<std::is_same<M, EFArray<R, C> >::value, const ExtendedFloat&>::type
+  typename std::enable_if<std::is_same<M, EFArray<R, C>>::value, const ExtendedFloat&>::type
   operator[](Eigen::Index pos) const
   {
     EFtmp_.set_exponent_part(exponent_part());
@@ -967,8 +930,8 @@ inline ExtendedFloatArray<R, C> pow (const ExtendedFloatArray<R, C>& obj, int ex
 
 template<int R, int C, template< int R2 = R,  int C2 = C> class MatType, typename T>
 typename std::enable_if<std::is_same<T, ExtendedFloat>::value
-  || std::is_floating_point<T>::value || std::is_integral<T>::value,
-                        ExtendedFloatEigen<R, C, MatType> >::type
+    || std::is_floating_point<T>::value || std::is_integral<T>::value,
+    ExtendedFloatEigen<R, C, MatType>>::type
 inline operator+(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 {
   return rhs + d;
@@ -976,8 +939,8 @@ inline operator+(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 
 template<int R, int C, template< int R2 = R, int C2 = C> class MatType, typename T>
 typename std::enable_if<std::is_same<T, ExtendedFloat>::value
-                        || std::is_floating_point<T>::value || std::is_integral<T>::value,
-                        ExtendedFloatEigen<R, C, MatType> >::type
+    || std::is_floating_point<T>::value || std::is_integral<T>::value,
+    ExtendedFloatEigen<R, C, MatType>>::type
 inline operator-(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 {
   return -(rhs - d);
@@ -985,8 +948,8 @@ inline operator-(const T& d, const ExtendedFloatEigen<R, C, MatType> rhs)
 
 template<int R, int C, template< int R2 = R,  int C2 = C> class MatType, typename T>
 typename std::enable_if<std::is_same<T, ExtendedFloat>::value
-                        || std::is_floating_point<T>::value || std::is_integral<T>::value,
-                        ExtendedFloatEigen<R, C, MatType> >::type
+    || std::is_floating_point<T>::value || std::is_integral<T>::value,
+    ExtendedFloatEigen<R, C, MatType>>::type
 inline operator*(const T& fact, const ExtendedFloatEigen<R, C, MatType> mat)
 {
   auto r = ExtendedFloatEigen<R, C, MatType>::denorm_mul (mat, fact);
@@ -996,7 +959,7 @@ inline operator*(const T& fact, const ExtendedFloatEigen<R, C, MatType> mat)
 
 template<typename Derived, typename EFType>
 inline EFType operator*(const Eigen::EigenBase<Derived>& lhs,
-                        const ExtendedFloatEigenBase<EFType>& rhs)
+    const ExtendedFloatEigenBase<EFType>& rhs)
 {
   auto r = EFType::denorm_mul(lhs.derived(), rhs);
   r.normalize ();
@@ -1066,7 +1029,7 @@ public:
 
 template<int R, int C>
 inline ExtendedFloatArray<R, C> operator*(const ExtendedFloatArray<R, C>& lhs,
-                                          const ExtendedFloatArrayWrapper<R, C>& rhs)
+    const ExtendedFloatArrayWrapper<R, C>& rhs)
 {
   return rhs * lhs; // cwise * is commutative
 }

@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: YNGP_M9.cpp
-// Authors:
-//   Laurent Gueguen
-// Created: lundi 15 dÃÂ©cembre 2014, ÃÂ  15h 21
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
@@ -75,20 +40,20 @@ YNGP_M9::YNGP_M9(
   auto pbdd = make_unique<BetaDiscreteDistribution>(nbBeta, 2, 2);
   auto pgdd = make_unique<GammaDiscreteDistribution>(nbGamma, 1, 1);
 
-  vector<unique_ptr<DiscreteDistribution>> v_distr;
-  v_distr.push_back(move(pbdd));
-  v_distr.push_back(move(pgdd));
+  vector<unique_ptr<DiscreteDistributionInterface>> v_distr;
+  v_distr.push_back(std::move(pbdd));
+  v_distr.push_back(std::move(pgdd));
   vector<double> prob;
   prob.push_back(0.5);
   prob.push_back(0.5);
 
   auto pmodd = make_unique<MixtureOfDiscreteDistributions>(v_distr, prob);
 
-  map<string, unique_ptr<DiscreteDistribution>> mpdd;
-  mpdd["omega"] = move(pmodd);
+  map<string, unique_ptr<DiscreteDistributionInterface>> mpdd;
+  mpdd["omega"] = std::move(pmodd);
 
-  auto yn98 = make_unique<YN98>(gc, move(codonFreqs));
-  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), move(yn98), mpdd));
+  auto yn98 = make_unique<YN98>(gc, std::move(codonFreqs));
+  mixedModelPtr_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), std::move(yn98), mpdd));
   mixedSubModelPtr_ = dynamic_cast<const MixtureOfASubstitutionModel*>(&mixedModel());
 
   vector<int> supportedChars = mixedModelPtr_->getAlphabetStates();
@@ -122,7 +87,7 @@ YNGP_M9::YNGP_M9(
   {
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     addParameter_(new Parameter("YNGP_M9." + it.second, mixedModelPtr_->getParameterValue(st),
-                                mixedModelPtr_->getParameter(st).hasConstraint() ? shared_ptr<Constraint>(mixedModelPtr_->getParameter(st).getConstraint()->clone()) : 0));
+          mixedModelPtr_->parameter(st).hasConstraint() ? shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   // look for synonymous codons
@@ -162,4 +127,3 @@ void YNGP_M9::updateMatrices_()
 
   mixedModelPtr_->setVRates(vd);
 }
-

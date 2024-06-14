@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: StochasticMapping.h
-// Authors:
-//   Keren Halabi
-// Created: 2018-06-08 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MAPPING_STOCHASTICMAPPING_H
 #define BPP_PHYL_MAPPING_STOCHASTICMAPPING_H
@@ -57,11 +21,11 @@ using namespace std;
 /* Store the countings on a DAG similar to the computing DAG */
 
 
-typedef vector<vector<vector<double> > > VVVDouble;
-typedef vector<vector<double> > VVDouble;
+typedef vector<vector<vector<double>>> VVVDouble;
+typedef vector<vector<double>> VVDouble;
 typedef vector<double> VDouble;
 
-/* class for reprenting the framework of Stochastic mapping
+/* class for representing the framework of Stochastic mapping
  *
  *   A StochasticMapping instance can be used to sample histories of
  *   state transitions along a tree, given a substitution model and the
@@ -118,9 +82,9 @@ public:
     likelihood_(sm.likelihood_),
     tree_(sm.tree_),
 //      mappingParameters_(likelihood_->getSubstitutionProcess()),
-  fractionalProbabilities_(sm.fractionalProbabilities_),
-  ConditionalProbabilities_(sm.ConditionalProbabilities_),
-  nodesCounter_(0), numOfMappings_(sm.numOfMappings_)
+    fractionalProbabilities_(sm.fractionalProbabilities_),
+    ConditionalProbabilities_(sm.ConditionalProbabilities_),
+    nodesCounter_(0), numOfMappings_(sm.numOfMappings_)
   { }
 
   /**
@@ -140,7 +104,7 @@ public:
    *
    */
 
-  void generateStochasticMapping(std::vector<std::shared_ptr<PhyloTree> >& mappings);
+  void generateStochasticMapping(std::vector<std::shared_ptr<PhyloTree>>& mappings);
 
   /**
    *@brief Creates a single expected (i.e, average) history based on
@@ -159,10 +123,10 @@ public:
    *
    **/
 
-  std::shared_ptr<PhyloTree> generateExpectedMapping(std::vector<std::shared_ptr<PhyloTree> >& mappings, size_t divMethod = 0);
+  std::shared_ptr<PhyloTree> generateExpectedMapping(std::vector<std::shared_ptr<PhyloTree>>& mappings, size_t divMethod = 0);
 
   /**
-   *@brief Creates a single expected (i.e, average) history based the rewards provided by te algorithm of Minin and Suchard (2008)
+   *@brief Creates a single expected (i.e, average) history based the rewards provided by the algorithm of Minin and Suchard (2008)
    * the function assumes that there is only one site to simulate history for
    *
    *@param divMethod The method used in the case that the son and
@@ -192,12 +156,12 @@ private:
    */
   void setNodeState(PhyloNode* node, size_t state);
 
-  /* set the character states of the leafs as properties of thier nodes instances
+  /* set the character states of the leafs as properties of their nodes instances
    * @param mapping - the tree to sets the properties in
    */
   void setLeafsStates(std::shared_ptr<PhyloTree> mapping);
 
-  /* compute the fractional probabilities of all the nodes assignements
+  /* compute the fractional probabilities of all the nodes assignments
    * @param                     A vector of the fractional probabilities probabilities to fill in (node**state combinaion in each entry)
    */
   void computeFractionals();
@@ -211,7 +175,7 @@ private:
    * @param                     A vector of the posterior probabilities probabilities to fill in (node**state combinaion in each entry)
    * @param                     A vector of mappings to base the frequencies on
    */
-  void computeStatesFrequencies(VVDouble& ancestralStatesFreuquencies, vector<shared_ptr<PhyloTree> >& mappings);
+  void computeStatesFrequencies(VVDouble& ancestralStatesFreuquencies, vector<shared_ptr<PhyloTree>>& mappings);
 
   /* auxiliary function that samples a state based on a given discrete distribution
    * @param distibution       The distribution to sample states based on

@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: RNonHomogeneousTreeLikelihood.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2007-10-09 16:07:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/TextTools.h>
@@ -54,12 +18,12 @@ using namespace std;
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
-  const Tree& tree,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<DiscreteDistribution> rDist,
-  bool verbose,
-  bool usePatterns,
-  bool reparametrizeRoot) :
+    const Tree& tree,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose,
+    bool usePatterns,
+    bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -72,13 +36,13 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
-  const Tree& tree,
-  const AlignmentDataInterface& data,
-  std::shared_ptr<SubstitutionModelSet> modelSet,
-  std::shared_ptr<DiscreteDistribution> rDist,
-  bool verbose,
-  bool usePatterns,
-  bool reparametrizeRoot) :
+    const Tree& tree,
+    const AlignmentDataInterface& data,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose,
+    bool usePatterns,
+    bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(),
   minusLogLik_(-1.)
@@ -94,15 +58,15 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 void RNonHomogeneousTreeLikelihood::init_(bool usePatterns)
 {
   likelihoodData_ = make_shared<DRASRTreeLikelihoodData>(
-    tree_,
-    rateDistribution_->getNumberOfCategories(),
-    usePatterns);
+        tree_,
+        rateDistribution_->getNumberOfCategories(),
+        usePatterns);
 }
 
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
-  const RNonHomogeneousTreeLikelihood& lik) :
+    const RNonHomogeneousTreeLikelihood& lik) :
   AbstractNonHomogeneousTreeLikelihood(lik),
   likelihoodData_(),
   minusLogLik_(lik.minusLogLik_)
@@ -114,7 +78,7 @@ RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 RNonHomogeneousTreeLikelihood& RNonHomogeneousTreeLikelihood::operator=(
-  const RNonHomogeneousTreeLikelihood& lik)
+    const RNonHomogeneousTreeLikelihood& lik)
 {
   AbstractNonHomogeneousTreeLikelihood::operator=(lik);
   likelihoodData_ = shared_ptr<DRASRTreeLikelihoodData>(lik.likelihoodData_->clone());
@@ -145,7 +109,7 @@ void RNonHomogeneousTreeLikelihood::setData(const AlignmentDataInterface& sites)
 
   if (verbose_)
     ApplicationTools::displayResult("Number of distinct sites",
-                                    TextTools::toString(nbDistinctSites_));
+        TextTools::toString(nbDistinctSites_));
   initialized_ = false;
 }
 
@@ -320,8 +284,8 @@ double RNonHomogeneousTreeLikelihood::getValue() const
 *                           First Order Derivatives                          *
 ******************************************************************************/
 double RNonHomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
-  size_t site,
-  size_t rateClass) const
+    size_t site,
+    size_t rateClass) const
 {
   double dl = 0;
   Vdouble* dla = &likelihoodData_->getDLikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
@@ -791,8 +755,8 @@ void RNonHomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node* no
 *                           Second Order Derivatives                         *
 ******************************************************************************/
 double RNonHomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
-  size_t site,
-  size_t rateClass) const
+    size_t site,
+    size_t rateClass) const
 {
   double d2l = 0;
   Vdouble* d2la = &likelihoodData_->getD2LikelihoodArray(tree_->getRootNode()->getId())[likelihoodData_->getRootArrayPosition(site)][rateClass];
@@ -1299,7 +1263,7 @@ void RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
     VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      // For each rate classe,
+      // For each rate class,
       Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
       for (size_t x = 0; x < nbStates_; x++)
       {
@@ -1328,7 +1292,7 @@ void RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
       VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
       for (size_t c = 0; c < nbClasses_; c++)
       {
-        // For each rate classe,
+        // For each rate class,
         Vdouble* _likelihoods_son_i_c = &(*_likelihoods_son_i)[c];
         Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
         VVdouble* pxy__son_c = &(*pxy__son)[c];

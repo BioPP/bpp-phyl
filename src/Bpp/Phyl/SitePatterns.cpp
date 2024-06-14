@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SitePatterns.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2005-11-29 15:37:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "SitePatterns.h"
 
@@ -70,11 +33,12 @@ void SitePatterns::init_(
     const AlignmentDataInterface& sequences,
     std::vector<std::string> names)
 {
-
   // positions of the names in sequences list
   std::vector<size_t> posseq;
   for (const auto& n : names)
+  {
     posseq.push_back(sequences.getSequencePosition(n));
+  }
 
   int nbSeq = static_cast<int>(sequences.getNumberOfSequences());
   std::vector<size_t> posnseq;
@@ -94,7 +58,9 @@ void SitePatterns::init_(
   {
     CoreSiteInterface* currentSite = sequences.site(i).clone();
     for (auto pos : posnseq)
+    {
       currentSite->deleteElement(pos);
+    }
 
     SortableSite* ssi = &ss[i];
     ssi->siteS = currentSite->toString();
@@ -148,23 +114,28 @@ unique_ptr<AlignmentDataInterface> SitePatterns::getSites() const
 
   unique_ptr<AlignmentDataInterface> sites;
 
-  if (dynamic_pointer_cast<const Site>(sites_[0])) {
-    //Copy the sites
+  if (dynamic_pointer_cast<const Site>(sites_[0]))
+  {
+    // Copy the sites
     vector<unique_ptr<Site>> vSites;
-    for (auto& s : sites_) {
+    for (auto& s : sites_)
+    {
       auto ptr = unique_ptr<Site>(dynamic_cast<Site*>(s->clone()));
-      vSites.push_back(move(ptr));
+      vSites.push_back(std::move(ptr));
     }
     sites.reset(new VectorSiteContainer(vSites, alpha_));
     sites->setSequenceNames(names_, true);
     return sites;
   }
 
-  if (dynamic_pointer_cast<const ProbabilisticSite>(sites_[0])) {
-    //Copy the sites
+  if (dynamic_pointer_cast<const ProbabilisticSite>(sites_[0]))
+  {
+    // Copy the sites
     vector<unique_ptr<ProbabilisticSite>> vSites;
     for (auto& s : sites_)
+    {
       vSites.push_back(unique_ptr<ProbabilisticSite>(dynamic_cast<ProbabilisticSite*>(s->clone())));
+    }
     sites.reset(new ProbabilisticVectorSiteContainer(vSites, alpha_));
     sites->setSequenceNames(names_, true);
     return sites;

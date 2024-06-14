@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractNonHomogeneousTreeLikelihood.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2007-10-09 16:07:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "../../PatternTools.h"
 #include "AbstractNonHomogeneousTreeLikelihood.h"
@@ -57,11 +22,11 @@ using namespace std;
 /******************************************************************************/
 
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
-  const Tree& tree,
-  shared_ptr<SubstitutionModelSet> modelSet,
-  shared_ptr<DiscreteDistribution> rDist,
-  bool verbose,
-  bool reparametrizeRoot) :
+    const Tree& tree,
+    shared_ptr<SubstitutionModelSet> modelSet,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose,
+    bool reparametrizeRoot) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   modelSet_(0),
   brLenParameters_(),
@@ -90,7 +55,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
-  const AbstractNonHomogeneousTreeLikelihood& lik) :
+    const AbstractNonHomogeneousTreeLikelihood& lik) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
   modelSet_(lik.modelSet_),
   brLenParameters_(lik.brLenParameters_),
@@ -126,7 +91,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
 /******************************************************************************/
 
 AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::operator=(
-  const AbstractNonHomogeneousTreeLikelihood& lik)
+    const AbstractNonHomogeneousTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
   modelSet_          = lik.modelSet_;
@@ -145,7 +110,7 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
   verbose_           = lik.verbose_;
   minimumBrLen_      = lik.minimumBrLen_;
   maximumBrLen_      = lik.maximumBrLen_;
-  brLenConstraint_   = std::shared_ptr<Constraint>(lik.brLenConstraint_->clone());
+  brLenConstraint_   = std::shared_ptr<ConstraintInterface>(lik.brLenConstraint_->clone());
   reparametrizeRoot_ = lik.reparametrizeRoot_;
   root1_             = lik.root1_;
   root2_             = lik.root2_;
@@ -161,13 +126,13 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
 /******************************************************************************/
 
 void AbstractNonHomogeneousTreeLikelihood::init_(
-  const Tree& tree,
-  shared_ptr<SubstitutionModelSet> modelSet,
-  shared_ptr<DiscreteDistribution> rDist,
-  bool verbose)
+    const Tree& tree,
+    shared_ptr<SubstitutionModelSet> modelSet,
+    shared_ptr<DiscreteDistributionInterface> rDist,
+    bool verbose)
 {
   TreeTools::checkIds(tree, true);
-  tree_ = make_unique< TreeTemplate<Node> >(tree);
+  tree_ = make_unique< TreeTemplate<Node>>(tree);
   root1_ = tree_->getRootNode()->getSon(0)->getId();
   root2_ = tree_->getRootNode()->getSon(1)->getId();
   nodes_ = tree_->getNodes();
@@ -192,8 +157,8 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
 /******************************************************************************/
 
 void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(
-     shared_ptr<SubstitutionModelSet> modelSet
-     )
+    shared_ptr<SubstitutionModelSet> modelSet
+    )
 {
   // Check:
   if (data_)
@@ -327,19 +292,19 @@ void AbstractNonHomogeneousTreeLikelihood::applyParameters()
     int id = nodes_[i]->getId();
     if (reparametrizeRoot_ && id == root1_)
     {
-      const Parameter* rootBrLen = &getParameter("BrLenRoot");
-      const Parameter* rootPos = &getParameter("RootPosition");
+      const Parameter* rootBrLen = &parameter("BrLenRoot");
+      const Parameter* rootPos = &parameter("RootPosition");
       nodes_[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
     }
     else if (reparametrizeRoot_ && id == root2_)
     {
-      const Parameter* rootBrLen = &getParameter("BrLenRoot");
-      const Parameter* rootPos = &getParameter("RootPosition");
+      const Parameter* rootBrLen = &parameter("BrLenRoot");
+      const Parameter* rootPos = &parameter("RootPosition");
       nodes_[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
     }
     else
     {
-      const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+      const Parameter* brLen = &parameter(string("BrLen") + TextTools::toString(i));
       if (brLen)
         nodes_[i]->setDistanceToFather(brLen->getValue());
     }

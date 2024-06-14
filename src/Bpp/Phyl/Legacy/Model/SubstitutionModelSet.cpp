@@ -1,38 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SubstitutionModelSet.cpp
-// Authors:
-//   Bastien Boussau
-//   Julien Dutheil
-// Created: 2007-08-21 00:00:00
-//
-
-/*
-  Copyright or <A9> or Copr. CNRS, (November 16, 2004)
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Utils/MapTools.h>
 
@@ -127,7 +95,7 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
   return inode;
 }
 
-void SubstitutionModelSet::addModel(shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId)// , const vector<string>& newParams)
+void SubstitutionModelSet::addModel(shared_ptr<TransitionModelInterface> model, const std::vector<int>& nodesId) // , const vector<string>& newParams)
 {
   if (model->alphabet().getAlphabetType() != alphabet_->getAlphabetType())
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
@@ -155,7 +123,7 @@ void SubstitutionModelSet::addModel(shared_ptr<TransitionModelInterface> model, 
   for (size_t i  = 0; i < nplm.size(); i++)
   {
     pname = nplm[i];
-    Parameter* p = new Parameter(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
+    Parameter* p = new Parameter(model->getParameters().parameter(pname)); // We work with namespaces here, so model->parameter(pname) does not work.
     p->setName(pname + "_" + TextTools::toString(thisModelIndex + 1));
     addParameter_(p);
   }
@@ -219,7 +187,7 @@ void SubstitutionModelSet::replaceModel(size_t modelIndex, shared_ptr<Transition
   for (size_t i  = 0; i < nplm.size(); i++)
   {
     pname = nplm[i];
-    Parameter* p = new Parameter(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
+    Parameter* p = new Parameter(model->getParameters().parameter(pname)); // We work with namespaces here, so model->parameter(pname) does not work.
     p->setName(pname + "_" + TextTools::toString(modelIndex + 1));
     addParameter_(p);
   }

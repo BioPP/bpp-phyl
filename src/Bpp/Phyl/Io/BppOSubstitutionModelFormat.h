@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: BppOSubstitutionModelFormat.h
-// Authors:
-//   Laurent Guéguen
-// Created: mercredi 4 juillet 2012, ÃÂ  13h 26
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_IO_BPPOSUBSTITUTIONMODELFORMAT_H
 #define BPP_PHYL_IO_BPPOSUBSTITUTIONMODELFORMAT_H
@@ -55,7 +19,7 @@ namespace bpp
  * @brief Substitution model I/O in BppO format.
  *
  * Creates a new substitution model object according to model description syntax
- * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
+ * (see the Bio++ Program Suite manual for a detailed description of this syntax).
  */
 class BppOSubstitutionModelFormat :
   public ISubstitutionModel,
@@ -148,7 +112,8 @@ public:
   std::unique_ptr<SubstitutionModelInterface> readSubstitutionModel(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface& data,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData,
       bool parseArguments = true) override;
 
   const std::map<std::string, std::string>& getUnparsedArguments() const override
@@ -165,7 +130,7 @@ public:
    * output will be "name=alias_name";
    * @param writtenNames is the vector of the written
    * parameters so far [in, out];
-   * @throw Exception If an error occured.
+   * @throw Exception If an error occurred.
    */
   void write(const BranchModelInterface& model,
       OutputStream& out,
@@ -178,7 +143,8 @@ private:
   std::unique_ptr<SubstitutionModelInterface> readWord_(
       std::shared_ptr<const Alphabet> alphabet,
       const std::string& modelDescription,
-      const AlignmentDataInterface& data);
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData);
 
   void writeMixed_(const MixedTransitionModelInterface& model,
       OutputStream& out,
@@ -205,12 +171,11 @@ protected:
    * @param data   A pointer toward the AlignmentDataInterface for which the substitution model is designed.
    *               The alphabet associated to the data must be of the same type as the one specified for the model.
    *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-   * @throw Exception if an error occured.
+   * @throw Exception if an error occurred.
    */
   void initialize_(
       BranchModelInterface& model,
-      const AlignmentDataInterface& data);
-  
+      std::shared_ptr<const AlignmentDataInterface> data);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_BPPOSUBSTITUTIONMODELFORMAT_H

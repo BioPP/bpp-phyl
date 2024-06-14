@@ -1,44 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: DistanceEstimation.cpp
-// Authors:
-//   Julien Dutheil
-//   Vincent Ranwez
-// Created: 2005-06-08 10:39:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "../SitePatterns.h"
 #include "../Tree/Tree.h"
@@ -57,6 +19,9 @@
 #include <Bpp/Seq/Container/AlignedSequenceContainer.h>
 #include <Bpp/Seq/DistanceMatrix.h>
 
+// bpp-phyl
+#include <Bpp/Phyl/Likelihood/AutonomousSubstitutionProcess.h>
+
 using namespace bpp;
 
 // From the STL:
@@ -68,18 +33,62 @@ using namespace bpp;
 using namespace std;
 
 /******************************************************************************/
+void DistanceEstimation::init_()
+{
+  auto desc = make_unique<MetaOptimizerInfos>();
+
+  // Br Len optimizer
+  std::vector<std::string> name;
+  auto procMb = dynamic_pointer_cast<SubstitutionProcessCollectionMember>(process_);
+  if (!procMb)
+  {
+    name.push_back("BrLen0");
+    name.push_back("BrLen1");
+  }
+  else
+  {
+    const auto& vTn = procMb->getCollection()->getTreeNumbers();
+    numProc_ = *std::max_element(vTn.begin(),vTn.end())+1;
+
+    name.push_back("BrLen0_"+TextTools::toString(numProc_));
+    name.push_back("BrLen1_"+TextTools::toString(numProc_));
+  }
+  
+  desc->addOptimizer("Branch length", std::make_shared<PseudoNewtonOptimizer>(nullptr), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
+
+  // Process optimizer
+  ParameterList tmp = process_->getSubstitutionModelParameters(true);
+  tmp.addParameters(process_->getRateDistributionParameters(true));
+  tmp.addParameters(process_->getRootFrequenciesParameters(true));
+  desc->addOptimizer("substitution model, root and rate distribution", std::make_shared<SimpleMultiDimensions>(nullptr), tmp.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
+
+  defaultOptimizer_ = std::make_shared<MetaOptimizer>(nullptr, std::move(desc));
+  defaultOptimizer_->setMessageHandler(nullptr);
+  defaultOptimizer_->setProfiler(nullptr);
+  defaultOptimizer_->getStopCondition()->setTolerance(0.0001);
+  optimizer_ = dynamic_pointer_cast<OptimizerInterface>(defaultOptimizer_);
+}
 
 void DistanceEstimation::computeMatrix()
 {
+  Context context;
+
   size_t n = sites_->getNumberOfSequences();
   vector<string> names = sites_->getSequenceNames();
   dist_ = std::shared_ptr<DistanceMatrix>(new DistanceMatrix(names));
   optimizer_->setVerbose(static_cast<unsigned int>(max(static_cast<int>(verbose_) - 2, 0)));
 
-  // const SiteContainer* sc = dynamic_cast<const SiteContainer*>(sites_);
-  // const VectorProbabilisticSiteContainer* psc = dynamic_cast<const VectorProbabilisticSiteContainer*>(sites_);
   Newick reader;
 
+  auto autoProc = dynamic_pointer_cast<AutonomousSubstitutionProcessInterface>(process_);
+  auto procMb = dynamic_pointer_cast<SubstitutionProcessCollectionMember>(process_);
+  if (!autoProc && !procMb)
+    throw Exception("DistanceMatrix::computeMatrix : unknown process type. Ask developpers.");
+
+  size_t treeN = 0;
+  if (procMb)
+    treeN = procMb->getTreeNumber();
+  
   for (size_t i = 0; i < n; ++i)
   {
     (*dist_)(i, i) = 0;
@@ -94,38 +103,48 @@ void DistanceEstimation::computeMatrix()
         ApplicationTools::displayGauge(j - i - 1, n - i - 2, '=');
       }
 
-      Context context;
-  
-      auto phyloTree = std::shared_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(" + names[i] + ":0.01," + names[j] + ":0.01);", false, "", false, false));
+      auto phyloTree = make_shared<bpp::ParametrizablePhyloTree>(*reader.parenthesisToPhyloTree("(" + names[j] + ":0.01," + names[i] + ":0.01);", false, "", false, false));
 
-      auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model_, rateDist_, phyloTree);
-      
-      auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites_, process);
+      if (autoProc)
+        autoProc->setPhyloTree(*phyloTree);
+      else
+        if (procMb)
+        {
+          auto& coll = procMb->collection();
+          if (!coll.hasTreeNumber(numProc_))
+            coll.addTree(phyloTree, numProc_);
+          else
+            coll.replaceTree(phyloTree, numProc_);
+          procMb->setTreeNumber(numProc_, false);
+        }
 
+      auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites_, process_);
       auto llh = std::make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
-      // size_t d = sc ?
-      //            SymbolListTools::getNumberOfDistinctPositions(sc->getSequence(i), sc->getSequence(j)) :
-      //            SymbolListTools::getNumberOfDistinctPositions(*psc->getSequence(i), *psc->getSequence(j));
-      // size_t g = sc ?
-      //            SymbolListTools::getNumberOfPositionsWithoutGap(sc->getSequence(i), sc->getSequence(j)) :
-      //            SymbolListTools::getNumberOfPositionsWithoutGap(*psc->getSequence(i), *psc->getSequence(j));
-
-      // llh.setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
       optimizer_->setFunction(llh);
       optimizer_->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
       ParameterList params = llh->getBranchLengthParameters();
       params.addParameters(parameters_);
+
       optimizer_->init(params);
       optimizer_->optimize();
+
       // Store results:
-      (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0") + llh->getParameterValue("BrLen1");
+      if (autoProc)
+        (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0") + llh->getParameterValue("BrLen1");
+      else
+        (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0_"+TextTools::toString(numProc_)) + llh->getParameterValue("BrLen1_"+TextTools::toString(numProc_));
 
     }
     if (verbose_ > 1 && ApplicationTools::message)
       ApplicationTools::message->endLine();
   }
+
+  // set back correct number for process, if needed
+  if (procMb) // set back correct process number for pro
+    procMb->setTreeNumber(treeN, false);
+
 }
 
 /******************************************************************************/

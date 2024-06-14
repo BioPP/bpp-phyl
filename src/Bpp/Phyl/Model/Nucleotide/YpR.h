@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: YpR.h
-// Authors:
-//   Laurent Gueguen
-// Created: 2007-08-03 00:00:00
-//
-
-/*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_NUCLEOTIDE_YPR_H
 #define BPP_PHYL_MODEL_NUCLEOTIDE_YPR_H
@@ -155,8 +119,8 @@ public:
 
 protected:
   void updateMatrices_(double, double, double, double,
-                      double, double, double, double);
-  
+      double, double, double, double);
+
   virtual void updateMatrices_() override;
 
   string getNestedPrefix() const
@@ -168,7 +132,7 @@ public:
   //  virtual std::string getName() const;
 
   const NucleotideSubstitutionModelInterface& nestedModel() const { return *pmodel_; }
-  
+
   size_t getNumberOfStates() const override { return 36; }
 
   virtual void setNamespace(const std::string&) override;
@@ -179,10 +143,9 @@ public:
     pmodel_->matchParametersValues(parameters);
     updateMatrices_();
   }
-  
+
   // Check that the model is good for YpR
   void checkModel(const SubstitutionModelInterface& model) const;
-
 };
 }
 
@@ -193,12 +156,12 @@ public:
 namespace bpp
 {
 /**
- * @brief symetrical YpR  model.
+ * @brief symmetrical YpR  model.
  *
- * Model YpR, on RNY triplets with symetrical dependency parameters
+ * Model YpR, on RNY triplets with symmetrical dependency parameters
  *
  * The neighbour dependency parameters are noted as: XyZ for
- *  XpY -> ZpY substitution. Since the process are symetrical,
+ *  XpY -> ZpY substitution. Since the process are symmetrical,
  *  only these are necessary.
  * @see YpR
  *
@@ -229,9 +192,7 @@ public:
   std::string getName() const override;
 
 protected:
-
   void updateMatrices_() override;
-  
 };
 
 // //////////////////////////////////////
@@ -275,7 +236,6 @@ public:
   std::string getName() const override;
 
 protected:
-
   void updateMatrices_() override;
 };
 }

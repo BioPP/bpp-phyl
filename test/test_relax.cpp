@@ -1,35 +1,6 @@
-/*
-Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
-
-This software is a computer program whose purpose is to provide classes
-for numerical calculus. This file is part of the Bio++ project.
-
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
-
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
-
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encoutaged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
-
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-FileCopyrightText: The Bio++ Development Group
+//
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Phyl/Model/Codon/YNGP_M2.h>
@@ -46,7 +17,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Legacy/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
 #include <Bpp/Phyl/Legacy/Likelihood/DRNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Legacy/Likelihood/RASTools.h>
-#include <Bpp/Phyl/Legacy/PatternTools.h>
+#include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Legacy/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
@@ -68,7 +39,7 @@ void printModelParameters(const TreeLikelihoodInterface& tl)
 }
 
 
-int main() 
+int main()
 {
 /*    try
     {
@@ -97,13 +68,13 @@ int main()
         params["nonhomogeneous"]="general";
         params["nonhomogeneous.number_of_models"] = "2";
         params["nonhomogeneous.stationarity"] = "yes";
-        params["site.number_of_paths"] = "2";                               // the 3rd path mapping omega3 in the branches under chatacter states 0 and 1 is imlies the the other two paths
-        params["site.path1"] = "model1[YN98.omega_1]&model2[YN98.omega_1]"; // map omega1 in the branches under character state 0 (=model1) to omega1 in the branches under character state 1 (=model2) 
+        params["site.number_of_paths"] = "2";                               // the 3rd path mapping omega3 in the branches under character states 0 and 1 is imlies the the other two paths
+        params["site.path1"] = "model1[YN98.omega_1]&model2[YN98.omega_1]"; // map omega1 in the branches under character state 0 (=model1) to omega1 in the branches under character state 1 (=model2)
         params["site.path2"] = "model1[YN98.omega_2]&model2[YN98.omega_2]"; // these to complement the path of omega2
         params["model1.nodes_id"] = "0";
         params["model2.nodes_id"] = "1,2,3,4,5";
         SubstitutionModelSet* RELAXModel = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), dynamic_cast<const SiteContainer*>(&sites), params);
-		MixedSubstitutionModelSet* RELAXModel_1 = dynamic_cast<MixedSubstitutionModelSet*>(RELAXModel);
+    MixedSubstitutionModelSet* RELAXModel_1 = dynamic_cast<MixedSubstitutionModelSet*>(RELAXModel);
 
         // create likelihood function
         ConstantRateDistribution* rdist = new ConstantRateDistribution();
@@ -135,17 +106,17 @@ int main()
         if (abs(RELAXLogLikelihood_1 - M2LogLikelihood) > 0.001)
         {
             cout << "Error! RELAX when k=1 yields different likelihood than M2 model" << endl;
-			cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_1 << endl;
-			printModelParameters(RELAXTreeLikelihood_1);
-			cout << "M2 Log Likelihood: " << M2LogLikelihood << endl;
-			printModelParameters(M2TreeLikelihood);
+      cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_1 << endl;
+      printModelParameters(RELAXTreeLikelihood_1);
+      cout << "M2 Log Likelihood: " << M2LogLikelihood << endl;
+      printModelParameters(M2TreeLikelihood);
             //return 1;
         }
-        
-        // set k to 2 -> fit two YNGP_M2 copies with the induced omega values and make sure the smae likelihood is obtained
+
+        // set k to 2 -> fit two YNGP_M2 copies with the induced omega values and make sure the same likelihood is obtained
         RELAXTreeLikelihood_2->setParameterValue("RELAX.k_2", 2);
-		RELAXTreeLikelihood_2->computeTreeLikelihood();
-        // make sure that updating other parameters except for k is done sucessfully 
+    RELAXTreeLikelihood_2->computeTreeLikelihood();
+        // make sure that updating other parameters except for k is done successfully
         double RELAXLogLikelihood_3 = -1*RELAXTreeLikelihood_2->getValue();
 
         params["model1"] = "YNGP_M2(kappa=2.0,omega0=0.1,omega2=2.0,theta1=0.5,theta2=0.8,Frequency=F0)";
@@ -153,16 +124,16 @@ int main()
         MixedSubstitutionModelSet* DoubleM2Model = dynamic_cast<MixedSubstitutionModelSet*>(PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), dynamic_cast<const SiteContainer*>(&sites), params));
         RNonHomogeneousMixedTreeLikelihood* DoubleM2TreeLikelihood = new RNonHomogeneousMixedTreeLikelihood(*ttree, dynamic_cast<const SiteContainer&>(sites), DoubleM2Model, rdist, true, false);
         DoubleM2TreeLikelihood->initialize();
-        double DoubleM2LogLikelihood = -1*DoubleM2TreeLikelihood->getValue(); 
+        double DoubleM2LogLikelihood = -1*DoubleM2TreeLikelihood->getValue();
         if (abs(RELAXLogLikelihood_3 - DoubleM2LogLikelihood) > 0.001)
         {
             cout << "Error! RELAX yields different likelihood from two copies of YNGP_M2 that produce the same BG and FG as RELAX" << endl;
-			cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_3 << endl;
-			printModelParameters(RELAXTreeLikelihood_2);
-			cout << "M2 Log Likelihood: " << DoubleM2LogLikelihood << endl;
-			printModelParameters(DoubleM2TreeLikelihood);
+      cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_3 << endl;
+      printModelParameters(RELAXTreeLikelihood_2);
+      cout << "M2 Log Likelihood: " << DoubleM2LogLikelihood << endl;
+      printModelParameters(DoubleM2TreeLikelihood);
             return 1;
-        }  
+        }
 
         // free resources
         delete rdist;
@@ -180,6 +151,6 @@ int main()
         cout << e.what() << endl;
         return 1;
     }
-*/
+ */
   return 0;
 }

@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: OneProcessSequencePhyloLikelihood.h
-// Authors:
-//   Laurent Guéguen
-// Created: mardi 28 avril 2015, ÃÂ  12h 17
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_ONEPROCESSSEQUENCEPHYLOLIKELIHOOD_H
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_ONEPROCESSSEQUENCEPHYLOLIKELIHOOD_H
@@ -74,7 +38,6 @@ class OneProcessSequencePhyloLikelihood :
   public AbstractParametrizableSequencePhyloLikelihood
 {
 private:
-
   /**
    * @brief to avoid the dynamic casts
    */
@@ -83,39 +46,36 @@ private:
   /**
    * @brief For Dataflow computing
    */
-  mutable std::unordered_map<std::string, ValueRef<RowLik> > firstOrderDerivativeVectors_;
+  mutable std::unordered_map<std::string, ValueRef<RowLik>> firstOrderDerivativeVectors_;
 
   mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>,
-                             StringPairHash>
+      StringPairHash>
   secondOrderDerivativeVectors_;
 
 protected:
-
   mutable std::shared_ptr<LikelihoodCalculationSingleProcess> likCal_;
 
 public:
+  OneProcessSequencePhyloLikelihood(
+      Context& context,
+      std::shared_ptr<OneProcessSequenceEvolution> evol,
+      size_t nSeqEvol = 0);
 
   OneProcessSequencePhyloLikelihood(
-    Context& context,
-    std::shared_ptr<OneProcessSequenceEvolution> evol,
-    size_t nSeqEvol = 0);
+      Context& context,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<OneProcessSequenceEvolution> evol,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
   OneProcessSequencePhyloLikelihood(
-    Context& context,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<OneProcessSequenceEvolution> evol,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
-
-  OneProcessSequencePhyloLikelihood(
-    std::shared_ptr<const AlignmentDataInterface> data,
-    std::shared_ptr<OneProcessSequenceEvolution> evol,
-    std::shared_ptr<CollectionNodes> collNodes,
-    size_t nSeqEvol = 0,
-    size_t nData = 0);
+      std::shared_ptr<const AlignmentDataInterface> data,
+      std::shared_ptr<OneProcessSequenceEvolution> evol,
+      std::shared_ptr<CollectionNodes> collNodes,
+      size_t nSeqEvol = 0,
+      size_t nData = 0);
 
 protected:
-
   OneProcessSequencePhyloLikelihood(const OneProcessSequencePhyloLikelihood& lik) :
     AbstractPhyloLikelihood(lik),
     AbstractAlignedPhyloLikelihood(lik),
@@ -136,16 +96,14 @@ protected:
   }
 
   OneProcessSequencePhyloLikelihood* clone() const override
-  { 
+  {
     return new OneProcessSequencePhyloLikelihood(*this);
   }
-  
+
 public:
-  
   virtual ~OneProcessSequencePhyloLikelihood() {}
 
 public:
-  
   /**
    * @name Handling of data
    *
@@ -190,7 +148,7 @@ public:
    * the LikelihoodCalculationSingleProcess.
    */
   const SubstitutionProcessInterface& substitutionProcess() const { return mSeqEvol_->substitutionProcess(); }
-  
+
   std::shared_ptr<const SubstitutionProcessInterface> getSubstitutionProcess() const { return mSeqEvol_->getSubstitutionProcess(); }
 
   /**
@@ -205,7 +163,6 @@ public:
    * Warning; the process parameter values may not be up to date
    * with some of the LikelihoodCalculationSingleProcess
    */
-  
   std::shared_ptr<const ParametrizablePhyloTree> tree() const
   {
     return mSeqEvol_->substitutionProcess().getParametrizablePhyloTree();
@@ -275,13 +232,13 @@ public:
   }
 
   ValueRef<RowLik> getSecondOrderDerivativeVector (const std::string& variable1,
-                                                   const std::string& variable2) const
+      const std::string& variable2) const
   {
     return secondOrderDerivativeVector (variable1, variable2);
   }
 
   ValueRef<RowLik> secondOrderDerivativeVector (const std::string& variable1,
-                                                const std::string& variable2) const
+      const std::string& variable2) const
   {
     const auto key = std::make_pair (variable1, variable2);
     const auto it = secondOrderDerivativeVectors_.find (key);
@@ -293,7 +250,7 @@ public:
     {
       // Reuse firstOrderDerivative() to generate the first derivative with caching
       auto vector =
-        firstOrderDerivativeVector (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
+          firstOrderDerivativeVector (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
       secondOrderDerivativeVectors_.emplace (key, vector);
       return vector;
     }

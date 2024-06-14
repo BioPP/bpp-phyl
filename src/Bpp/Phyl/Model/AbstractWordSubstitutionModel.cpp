@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractWordSubstitutionModel.cpp
-// Authors:
-//   Laurent Gueguen
-// Created: 2009-01-08 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Matrix/EigenValue.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
@@ -61,13 +26,13 @@ using namespace std;
 /******************************************************************************/
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  ModelList& modelList,
-  const std::string& prefix) :
+    ModelList& modelList,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(
-    modelList.getWordAlphabet(),
-    std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
-    prefix),
+      modelList.getWordAlphabet(),
+      std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
+      prefix),
   newAlphabet_(true),
   VSubMod_      (),
   VnestedPrefix_(),
@@ -126,9 +91,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  shared_ptr<const Alphabet> alph,
-  shared_ptr<const StateMapInterface> stateMap,
-  const string& prefix) :
+    shared_ptr<const Alphabet> alph,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(alph, stateMap, prefix),
   newAlphabet_(false),
@@ -138,9 +103,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 {}
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const std::string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(make_unique<WordAlphabet>(pmodel->getAlphabet(), num), 0, prefix),
   newAlphabet_(true),
@@ -153,7 +118,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   size_t i;
 
   string t = "";
-  shared_ptr<SubstitutionModelInterface> pmodel2 = move(pmodel);
+  shared_ptr<SubstitutionModelInterface> pmodel2 = std::move(pmodel);
   for (i = 0; i < num; i++)
   {
     VSubMod_.push_back(pmodel2);
@@ -166,7 +131,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  const AbstractWordSubstitutionModel& wrsm) :
+    const AbstractWordSubstitutionModel& wrsm) :
   AbstractParameterAliasable(wrsm),
   AbstractSubstitutionModel(wrsm),
   newAlphabet_(wrsm.newAlphabet_),
@@ -191,7 +156,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel& AbstractWordSubstitutionModel::operator=(
-  const AbstractWordSubstitutionModel& model)
+    const AbstractWordSubstitutionModel& model)
 {
   AbstractParameterAliasable::operator=(model);
   AbstractSubstitutionModel::operator=(model);
@@ -355,7 +320,7 @@ void AbstractWordSubstitutionModel::fillBasicGenerator_()
 
   for (size_t k = nbmod; k > 0; k--)
   {
-    gk = VSubMod_[k - 1]->getGenerator();
+    gk = VSubMod_[k - 1]->generator();
     for (size_t i = 0; i < vsize[k - 1]; i++)
     {
       const vector<double>& row_gi = gk.getRow(i);

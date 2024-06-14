@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SubstitutionProcessCollection.h
-// Authors:
-//   Laurent Guéguen
-// Created: mercredi 12 juin 2013, ÃÂ  14h 07
-//
-
-/*
-  Copyright or (c) or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSCOLLECTION_H
 #define BPP_PHYL_LIKELIHOOD_SUBSTITUTIONPROCESSCOLLECTION_H
@@ -94,7 +58,7 @@ private:
    * A map from each BranchModel number to the SubProcess
    * members that are linked to it.
    */
-  std::map<size_t, std::vector<size_t> > mModelToSubPro_;
+  std::map<size_t, std::vector<size_t>> mModelToSubPro_;
 
   /**
    * A collection of Frequencies Sets
@@ -105,12 +69,12 @@ private:
    * A map from each FrequencySet number to the SubProcess members
    * that are linked to it.
    */
-  std::map<size_t, std::vector<size_t> > mFreqToSubPro_;
+  std::map<size_t, std::vector<size_t>> mFreqToSubPro_;
 
   /**
    * A collection of DiscreteDistributions
    */
-  ParametrizableCollection<DiscreteDistribution> distColl_;
+  ParametrizableCollection<DiscreteDistributionInterface> distColl_;
 
   /**
    * A map from the DiscreteDistribution numbers to the numbers of
@@ -119,13 +83,13 @@ private:
    * These ConstantDistributions are stored in distColl_ with numbers
    * 10000*(numberOfDiscreteDistribution+1) + numberOfTheCategory.
    */
-  std::map<size_t, std::vector<size_t> > mVConstDist_;
+  std::map<size_t, std::vector<size_t>> mVConstDist_;
 
   /**
    * A map from each DiscreteDistribution number to the SubProcess
    * members that are linked to it.
    */
-  std::map<size_t, std::vector<size_t> > mDistToSubPro_;
+  std::map<size_t, std::vector<size_t>> mDistToSubPro_;
 
   /**
    * A collection of trees
@@ -136,17 +100,17 @@ private:
    * A map from each Tree number to the SubProcess members that are
    * linked to it.
    */
-  std::map<size_t, std::vector<size_t> > mTreeToSubPro_;
+  std::map<size_t, std::vector<size_t>> mTreeToSubPro_;
 
   /**
    * A map of ModelScenario
    */
-  std::map<size_t, std::shared_ptr<ModelScenario> > mModelScenario_;
+  std::map<size_t, std::shared_ptr<ModelScenario>> mModelScenario_;
 
   /**
    * A map of SubstitutionProcessCollectionMember
    */
-  std::map<size_t, std::shared_ptr<SubstitutionProcessCollectionMember> > mSubProcess_; //Need a specific deleter because the destructor is private.
+  std::map<size_t, std::shared_ptr<SubstitutionProcessCollectionMember>> mSubProcess_; // Need a specific deleter because the destructor is private.
 
 public:
   /**
@@ -204,6 +168,8 @@ public:
    */
   void addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters = true);
 
+  void replaceParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters = true);
+
   /**
    * @brief specific methods to add specific objects.
    */
@@ -217,12 +183,22 @@ public:
     addParametrizable(model, modelIndex);
   }
 
+  void replaceModel(std::shared_ptr<BranchModelInterface> model, size_t modelIndex)
+  {
+    replaceParametrizable(model, modelIndex);
+  }
+
   void addFrequencies(std::shared_ptr<FrequencySetInterface> frequencies, size_t frequenciesIndex)
   {
     addParametrizable(frequencies, frequenciesIndex);
   }
 
-  void addDistribution(std::shared_ptr<DiscreteDistribution> distribution, size_t distributionIndex)
+  void replaceFrequencies(std::shared_ptr<FrequencySetInterface> frequencies, size_t frequenciesIndex)
+  {
+    addParametrizable(frequencies, frequenciesIndex);
+  }
+
+  void addDistribution(std::shared_ptr<DiscreteDistributionInterface> distribution, size_t distributionIndex)
   {
     addParametrizable(distribution, distributionIndex, (distributionIndex < 10000));
 
@@ -230,9 +206,15 @@ public:
       mVConstDist_[distributionIndex / 10000 - 1].push_back(distributionIndex % 10000);
   }
 
+
   void addTree(std::shared_ptr<ParametrizablePhyloTree> tree, size_t treeIndex)
   {
     addParametrizable(tree, treeIndex);
+  }
+
+  void replaceTree(std::shared_ptr<ParametrizablePhyloTree> tree, size_t treeIndex)
+  {
+    replaceParametrizable(tree, treeIndex);
   }
 
   void addScenario(std::shared_ptr<ModelScenario> scen, size_t scenIndex)
@@ -296,7 +278,6 @@ public:
    * @param frequenciesIndex The index of the frequencies set in the collection.
    * @return the got FrequencySet*.
    */
-
   FrequencySetInterface& frequencySet(size_t frequenciesIndex)
   {
     return *freqColl_[frequenciesIndex];
@@ -323,22 +304,22 @@ public:
    * @param distributionIndex The index of the distribution in the collection.
    * @return a pointer towards a DiscreteDistribution.
    */
-  std::shared_ptr<DiscreteDistribution> getRateDistribution(size_t distributionIndex)
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution(size_t distributionIndex)
   {
     return distColl_[distributionIndex];
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution(size_t distributionIndex) const
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution(size_t distributionIndex) const
   {
     return distColl_[distributionIndex];
   }
 
-  DiscreteDistribution& rateDistribution(size_t distributionIndex)
+  DiscreteDistributionInterface& rateDistribution(size_t distributionIndex)
   {
     return *distColl_[distributionIndex];
   }
-  
-  const DiscreteDistribution& rateDistribution(size_t distributionIndex) const
+
+  const DiscreteDistributionInterface& rateDistribution(size_t distributionIndex) const
   {
     return *distColl_[distributionIndex];
   }
@@ -515,7 +496,7 @@ public:
    * @throw an Exception if the built SubstitutionModelSet is not complete or well built.
    *
    */
-  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate, size_t nFreq);
+  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int>> mModBr, size_t nTree, size_t nRate, size_t nFreq);
 
   /*
    * @brief Method to add a SubstitutionProcess.
@@ -528,7 +509,7 @@ public:
    * @throw an Exception if the built SubstitutionModelSet is not complete or well built.
    *
    */
-  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate);
+  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int>> mModBr, size_t nTree, size_t nRate);
 
   /*
    * @brief Method to add a one per branch SubstitutionProcess. A new

@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: PhylogeneticsApplicationTools.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2005-10-21 16:49:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "../../App/PhylogeneticsApplicationTools.h"
 #include "../../Io/BppOBranchModelFormat.h"
@@ -100,15 +63,15 @@ using namespace std;
 /******************************************************************************/
 
 
-map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
-  const map<string, string>& params,
-  const map<size_t, std::shared_ptr<AlignmentDataInterface> >& mSeq,
-  map<string, string>& unparsedParams,
-  const string& prefix,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+map<size_t, shared_ptr<Tree>> LegacyPhylogeneticsApplicationTools::getTrees(
+    const map<string, string>& params,
+    const map<size_t, std::shared_ptr<AlignmentDataInterface>>& mSeq,
+    map<string, string>& unparsedParams,
+    const string& prefix,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
@@ -167,7 +130,7 @@ map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
       else if (format == "NHX")
         treeReader.reset(new Nhx());
       else
-        throw Exception("Unknow format for tree reading: " + format);
+        throw Exception("Unknown format for tree reading: " + format);
 
       vector<unique_ptr<Tree>> trees;
       treeReader->readTrees(treeFilePath, trees);
@@ -194,7 +157,7 @@ map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
             ApplicationTools::displayWarning("Tree " + TextTools::toString(i2 + 1) + " already assigned, replaced by new one.");
           }
 
-          mTree[i2 + 1] = move(trees[i2]);
+          mTree[i2 + 1] = std::move(trees[i2]);
           ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
         }
       }
@@ -209,7 +172,7 @@ map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
           {
             ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
           }
-          mTree[num] = move(trees[0]);
+          mTree[num] = std::move(trees[0]);
           ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
         }
       }
@@ -238,7 +201,7 @@ map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
       {
         ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
       }
-      mTree[num] = move(tree);
+      mTree[num] = std::move(tree);
       ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
 
@@ -379,13 +342,13 @@ map<size_t, shared_ptr<Tree>> PhylogeneticsApplicationToolsOld::getTrees(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValuesWithAliases(
-  BranchModelInterface& model,
-  map<string, string>& unparsedParameterValues,
-  size_t modelNumber,
-  std::shared_ptr<const AlignmentDataInterface> data,
-  map<string, string>& sharedParams,
-  bool verbose)
+void LegacyPhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
+    BranchModelInterface& model,
+    map<string, string>& unparsedParameterValues,
+    size_t modelNumber,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    map<string, string>& sharedParams,
+    bool verbose)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, 2);
 
@@ -394,7 +357,8 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValu
 
   if (initFreqs != "")
   {
-    try {
+    try
+    {
       auto& tmodel = dynamic_cast<TransitionModelInterface&>(model);
       if (initFreqs == "observed")
       {
@@ -417,7 +381,9 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValu
       }
       else
         throw Exception("Unknown initFreqs argument");
-    } catch(exception&e) {
+    }
+    catch (exception& e)
+    {
       ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
     }
   }
@@ -463,15 +429,15 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelParametersInitialValu
 
 /******************************************************************************/
 
-unique_ptr<SubstitutionModelSet> PhylogeneticsApplicationToolsOld::getSubstitutionModelSet(
-  shared_ptr<const Alphabet> alphabet,
-  shared_ptr<const GeneticCode> gCode,
-  shared_ptr<const AlignmentDataInterface> data,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+unique_ptr<SubstitutionModelSet> LegacyPhylogeneticsApplicationTools::getSubstitutionModelSet(
+    shared_ptr<const Alphabet> alphabet,
+    shared_ptr<const GeneticCode> gCode,
+    shared_ptr<const AlignmentDataInterface> data,
+    const map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
     throw Exception("A value is needed for this parameter: nonhomogeneous.number_of_models .");
@@ -500,23 +466,23 @@ unique_ptr<SubstitutionModelSet> PhylogeneticsApplicationToolsOld::getSubstituti
     completeMixedSubstitutionModelSet(dynamic_cast<MixedSubstitutionModelSet&>(*modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
   }
   else
-    modelSet = move(modelSet1);
+    modelSet = std::move(modelSet1);
 
   return modelSet;
 }
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
-  SubstitutionModelSet& modelSet,
-  shared_ptr<const Alphabet> alphabet,
-  shared_ptr<const GeneticCode> gCode,
-  shared_ptr<const AlignmentDataInterface> data,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
+    SubstitutionModelSet& modelSet,
+    shared_ptr<const Alphabet> alphabet,
+    shared_ptr<const GeneticCode> gCode,
+    shared_ptr<const AlignmentDataInterface> data,
+    const map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   modelSet.clear();
   if (!ApplicationTools::parameterExists("nonhomogeneous.number_of_models", params))
@@ -535,19 +501,22 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
 
   vector<double> rateFreqs;
   string tmpDesc;
-  if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+  if (AlphabetTools::isCodonAlphabet(*alphabet))
   {
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instanciating a codon model.");
+      throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instantiating a codon model.");
     bIO.setGeneticCode(gCode);
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
   }
-  else if (AlphabetTools::isWordAlphabet(alphabet.get()))
+  else if (AlphabetTools::isWordAlphabet(*alphabet))
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  shared_ptr<TransitionModelInterface> tmp = bIO.readTransitionModel(alphabet, tmpDesc, *data, false);
+  std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
+  mData[1]=data;
+
+  shared_ptr<TransitionModelInterface> tmp = bIO.readTransitionModel(alphabet, tmpDesc, mData, 1, false);
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
@@ -567,7 +536,7 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
   std::shared_ptr<FrequencySetInterface> rootFrequencies(0);
   if (!stationarity)
   {
-    rootFrequencies = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode, *data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
+    rootFrequencies = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode, mData, 1, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
     stationarity = !rootFrequencies;
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
     if (freqDescription.substr(0, 10) == "MVAprotein")
@@ -595,24 +564,24 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
   {
     string prefix = "model" + TextTools::toString(i + 1);
     string modelDesc;
-    if (AlphabetTools::isCodonAlphabet(alphabet.get()))
+    if (AlphabetTools::isCodonAlphabet(*alphabet))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
-    else if (AlphabetTools::isWordAlphabet(alphabet.get()))
+    else if (AlphabetTools::isWordAlphabet(*alphabet))
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    auto model = bIO.readTransitionModel(alphabet, modelDesc, *data, false);
+    auto model = bIO.readTransitionModel(alphabet, modelDesc, mData, 1, false);
 
     map<string, string> unparsedModelParameters = bIO.getUnparsedArguments();
     map<string, string> sharedParameters;
 
 
     setSubstitutionModelParametersInitialValuesWithAliases(
-      *model,
-      unparsedModelParameters, i + 1, data,
-      sharedParameters,
-      verbose);
+        *model,
+        unparsedModelParameters, i + 1, data,
+        sharedParameters,
+        verbose);
 
     unparsedParameters.insert(sharedParameters.begin(), sharedParameters.end());
 
@@ -621,7 +590,7 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
-    modelSet.addModel(move(model), nodesId);
+    modelSet.addModel(std::move(model), nodesId);
   }
 
   // Finally check parameter aliasing:
@@ -644,15 +613,15 @@ void PhylogeneticsApplicationToolsOld::setSubstitutionModelSet(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
-  MixedSubstitutionModelSet& mixedModelSet,
-  shared_ptr<const Alphabet> alphabet,
-  shared_ptr<const AlignmentDataInterface> data,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+void LegacyPhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
+    MixedSubstitutionModelSet& mixedModelSet,
+    shared_ptr<const Alphabet> alphabet,
+    shared_ptr<const AlignmentDataInterface> data,
+    const map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   // /////////////////////////////////////////
   // Looks for the allowed paths
@@ -699,8 +668,8 @@ void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
       auto pSM = dynamic_pointer_cast<const MixedTransitionModelInterface>(mixedModelSet.getModel(static_cast<size_t>(num - 1)));
-      if (pSM == NULL)
-        throw BadIntegerException("PhylogeneticsApplicationToolsOld::setMixedSubstitutionModelSet: Wrong model for number", num - 1);
+      if (!pSM)
+        throw BadIntegerException("LegacyPhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", num - 1);
       Vuint submodnb = pSM->getSubmodelNumbers(p2);
 
       mixedModelSet.addToHyperNode(static_cast<size_t>(num - 1), submodnb);
@@ -731,21 +700,20 @@ void PhylogeneticsApplicationToolsOld::completeMixedSubstitutionModelSet(
 }
 
 
-
 /*************************************************************/
 /*****  OPTIMIZATORS *****************************************/
 /*************************************************************/
 
 /******************************************************************************/
 
-shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizeParameters(
-  shared_ptr<TreeLikelihoodInterface> tl,
-  const ParameterList& parameters,
-  const map<string, string>& params,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  int warn)
+shared_ptr<TreeLikelihoodInterface> LegacyPhylogeneticsApplicationTools::optimizeParameters(
+    shared_ptr<TreeLikelihoodInterface> tl,
+    const ParameterList& parameters,
+    const map<string, string>& params,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    int warn)
 {
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
   if (optimization == "None")
@@ -758,17 +726,17 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
 
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional);
   shared_ptr<OutputStream> messageHandler =
-    (mhPath == "none") ? nullptr :
-    (mhPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
+      (mhPath == "none") ? nullptr :
+      (mhPath == "std") ? ApplicationTools::message :
+      make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional);
   shared_ptr<OutputStream> profiler =
-    (prPath == "none") ? nullptr :
-    (prPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
+      (prPath == "none") ? nullptr :
+      (prPath == "std") ? ApplicationTools::message :
+      make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
@@ -786,12 +754,12 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
     unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
     if (verbose)
       ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
-    OptimizationToolsOld::optimizeTreeScale(
-      tl,
-      tolerance,
-      nbEvalMax,
-      messageHandler,
-      profiler);
+    LegacyOptimizationTools::optimizeTreeScale(
+        tl,
+        tolerance,
+        nbEvalMax,
+        messageHandler,
+        profiler);
     if (verbose)
       ApplicationTools::displayResult("New tree likelihood", -tl->getValue());
   }
@@ -800,9 +768,9 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
   ParameterList parametersToEstimate = parameters;
   vector<string> parNames = parametersToEstimate.getParameterNames();
 
-  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, warn);
+  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, warn + 1);
   if (paramListDesc.length() == 0)
-    paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn);
+    paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn + 1);
   StringTokenizer st(paramListDesc, ",");
   while (st.hasMoreToken())
   {
@@ -881,7 +849,7 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
     }
     catch (ParameterNotFoundException& pnfe)
     {
-      ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
+      ApplicationTools::displayWarning("Parameter '" + pnfe.parameter() + "' not found, and so can't be ignored!");
     }
   }
 
@@ -941,23 +909,23 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
 
       for (size_t i = 0; i < parNames2.size(); ++i)
       {
-        Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
+        Parameter& par = parametersToEstimate.parameter(parNames2[i]);
         if (par.hasConstraint())
         {
-          par.setConstraint(std::shared_ptr<Constraint>(*ic & (*par.getConstraint())));
-          if (par.getConstraint()->isEmpty())
-            throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
+          par.setConstraint(std::shared_ptr<ConstraintInterface>(*ic & (*par.getConstraint())));
+          if (par.constraint().isEmpty())
+            throw Exception("Empty interval for parameter " + parNames[i] + par.constraint().getDescription());
         }
         else
           par.setConstraint(ic);
 
         if (verbose)
-          ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
+          ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.constraint().getDescription());
       }
     }
     catch (ParameterNotFoundException& pnfe)
     {
-      ApplicationTools::displayWarning("Parameter '" + pnfe.getParameter() + "' not found, and so can't be constrained!");
+      ApplicationTools::displayWarning("Parameter '" + pnfe.parameter() + "' not found, and so can't be constrained!");
     }
     catch (ConstraintException& pnfe)
     {
@@ -1097,18 +1065,18 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
       unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
       double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional, warn + 1);
       double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, warn + 1);
-      tl = OptimizationToolsOld::optimizeTreeNNI(
-        dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
-        optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-        reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
+      tl = LegacyOptimizationTools::optimizeTreeNNI(
+            dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
+            optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
+            reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
     }
 
     if (verbose && nstep > 1)
       ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
     parametersToEstimate.matchParametersValues(tl->getParameters());
-    n = OptimizationToolsOld::optimizeNumericalParameters(
-      dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
-      backupListener, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
+    n = LegacyOptimizationTools::optimizeNumericalParameters(
+          dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
+          backupListener, nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
   }
   else if (optName == "FullD")
   {
@@ -1120,16 +1088,16 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
       unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
       double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional, warn + 1);
       double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional, warn + 1);
-      tl = OptimizationToolsOld::optimizeTreeNNI2(
-        dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
-        optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-        reparam, optVerbose, optMethodDeriv, nniAlgo);
+      tl = LegacyOptimizationTools::optimizeTreeNNI2(
+            dynamic_pointer_cast<NNIHomogeneousTreeLikelihood>(tl), parametersToEstimate,
+            optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
+            reparam, optVerbose, optMethodDeriv, nniAlgo);
     }
 
     parametersToEstimate.matchParametersValues(tl->getParameters());
-    n = OptimizationToolsOld::optimizeNumericalParameters2(
-      dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
-      backupListener, tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+    n = LegacyOptimizationTools::optimizeNumericalParameters2(
+          dynamic_pointer_cast<DiscreteRatesAcrossSitesTreeLikelihoodInterface>(tl), parametersToEstimate,
+          backupListener, tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
   }
   else
     throw Exception("Unknown optimization method: " + optName);
@@ -1180,15 +1148,15 @@ shared_ptr<TreeLikelihoodInterface> PhylogeneticsApplicationToolsOld::optimizePa
 /**************** Output ************************************/
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::writeTrees(
-  const vector<const Tree*>& trees,
-  const map<string, string>& params,
-  const string& prefix,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
-  bool checkOnly,
-  int warn)
+void LegacyPhylogeneticsApplicationTools::writeTrees(
+    const vector<const Tree*>& trees,
+    const map<string, string>& params,
+    const string& prefix,
+    const string& suffix,
+    bool suffixIsOptional,
+    bool verbose,
+    bool checkOnly,
+    int warn)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional, "none", warn);
@@ -1200,7 +1168,7 @@ void PhylogeneticsApplicationToolsOld::writeTrees(
   else if (format == "NHX")
     treeWriter = new Nhx();
   else
-    throw Exception("Unknow format for tree writing: " + format);
+    throw Exception("Unknown format for tree writing: " + format);
 
   if (!checkOnly)
     treeWriter->writeTrees(trees, file, true);
@@ -1213,23 +1181,27 @@ void PhylogeneticsApplicationToolsOld::writeTrees(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn, bool withAlias)
+void LegacyPhylogeneticsApplicationTools::printParameters(
+    const SubstitutionModelSet& modelSet,
+    OutputStream& out,
+    int warn,
+    bool withAlias)
 {
   (out << "nonhomogeneous=general").endLine();
-  (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
+  (out << "nonhomogeneous.number_of_models=" << modelSet.getNumberOfModels()).endLine();
 
-  if (modelSet->isStationary())
+  if (modelSet.isStationary())
     (out << "nonhomogeneous.stationarity = yes");
 
   // Get the parameter links:
-  map< size_t, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
-  map< string, set<size_t> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
+  map< size_t, vector<string>> modelLinks; // for each model index, stores the list of global parameters.
+  map< string, set<size_t>> parameterLinks; // for each parameter name, stores the list of model indices, which should be sorted.
   vector<string> writtenNames;
 
   // Loop over all models:
-  for (size_t i = 0; i < modelSet->getNumberOfModels(); ++i)
+  for (size_t i = 0; i < modelSet.getNumberOfModels(); ++i)
   {
-    shared_ptr<const BranchModelInterface> model = modelSet->getModel(i);
+    shared_ptr<const BranchModelInterface> model = modelSet.getModel(i);
 
     // First get the aliases for this model:
 
@@ -1240,7 +1212,7 @@ void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSe
     {
       for (size_t np = 0; np < pl.size(); np++)
       {
-        string nfrom = modelSet->getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
+        string nfrom = modelSet.getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
         if (nfrom != "")
           aliases[pl[np].getName()] = nfrom;
       }
@@ -1253,7 +1225,7 @@ void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSe
     bIOsm.write(*model, out, aliases, writtenNames);
 
     out.endLine();
-    vector<int> ids = modelSet->getNodesWithModel(i);
+    vector<int> ids = modelSet.getNodesWithModel(i);
     out << "model" << (i + 1) << ".nodes_id=" << ids[0];
     for (size_t j = 1; j < ids.size(); ++j)
     {
@@ -1264,11 +1236,10 @@ void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSe
 
   // First get the aliases for this frequencies set
 
-  if (!modelSet->isStationary())
+  if (!modelSet.isStationary())
   {
-    const auto pFS = modelSet->getRootFrequencySet();
-
-    ParameterList plf = pFS->getParameters();
+    const auto& pFS = modelSet.rootFrequencySet();
+    ParameterList plf = pFS.getParameters();
 
     map<string, string> aliases;
 
@@ -1276,7 +1247,7 @@ void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSe
     {
       for (size_t np = 0; np < plf.size(); np++)
       {
-        string nfrom = modelSet->getFrom(plf[np].getName());
+        string nfrom = modelSet.getFrom(plf[np].getName());
         if (nfrom != "")
           aliases[plf[np].getName()] = nfrom;
       }
@@ -1288,7 +1259,6 @@ void PhylogeneticsApplicationToolsOld::printParameters(const SubstitutionModelSe
     out << "nonhomogeneous.root_freq=";
 
     BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
-    bIO.writeFrequencySet(*pFS, out, aliases, writtenNames);
+    bIO.writeFrequencySet(pFS, out, aliases, writtenNames);
   }
 }
-

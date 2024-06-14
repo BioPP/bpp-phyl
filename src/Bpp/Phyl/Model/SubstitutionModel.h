@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SubstitutionModel.h
-// Authors:
-//   Julien Dutheil
-// Created: 2003-05-26 14:52:34
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_SUBSTITUTIONMODEL_H
 #define BPP_PHYL_MODEL_SUBSTITUTIONMODEL_H
@@ -65,7 +29,6 @@
 
 namespace bpp
 {
-
 /**
  * @brief Interface for all Branch models.
  *
@@ -337,9 +300,9 @@ protected:
   friend class AbstractTotallyWrappedTransitionModel;
   friend class AbstractFromSubstitutionModelTransitionModel;
   friend class InMixedSubstitutionModel;
+
   friend class IntegrationOfSubstitutionModel;
 };
-
 
 
 /**
@@ -450,7 +413,7 @@ protected:
   /**
    * @brief A method for computing all necessary matrices
    */
-  //virtual void updateMatrices() = 0;
+  // virtual void updateMatrices() = 0;
 
 public:
   /**
@@ -469,20 +432,20 @@ public:
    * (ii) \f$ \sum_i Q_{i,i} \times \pi_i = -1\f$.
    * This means that, under normalization, the mean rate of replacement at
    * equilibrium is 1 and that time \f$t\f$ are measured in units of
-   * expected number of changes per site. Additionnaly, the rate_ attibute provides
+   * expected number of changes per site. Additionally, the rate_ attribute provides
    * the possibility to increase or decrease this mean rate.
    *
    * See Kosiol and Goldman (2005), Molecular Biology And Evolution 22(2) 193-9.
    * @see Qij()
    */
-  virtual const Matrix<double>& getGenerator() const = 0;
+  virtual const Matrix<double>& generator() const = 0;
 
   /**
    * @return The matrix of exchangeability terms.
    * It is recommended that exchangeability matrix be normalized so that the normalized
    * generator be obtained directly by the dot product \f$S . \pi\f$.
    */
-  virtual const Matrix<double>& getExchangeabilityMatrix() const = 0;
+  virtual const Matrix<double>& exchangeabilityMatrix() const = 0;
 
   /**
    * @return The exchangeability between state i and state j.
@@ -580,11 +543,11 @@ public:
  *
  * For reversible models,
  * \f[ Q = S . \pi, \f]
- * where \f$S\f$ is a symetric matrix called the exchangeability matrix, and
+ * where \f$S\f$ is a symmetric matrix called the exchangeability matrix, and
  * \f$\Pi\f$ the diagonal matrix with all equilibrium frequencies.
  * The frequencies may be retrieved as a vector by the getFrequencies() method
  * or individually by the freq() method.
- * The \f$S\f$ matrix may be obtained by the getExchangeabilityMatrix().
+ * The \f$S\f$ matrix may be obtained by the exchangeabilityMatrix().
  */
 class ReversibleSubstitutionModelInterface :
   public virtual SubstitutionModelInterface

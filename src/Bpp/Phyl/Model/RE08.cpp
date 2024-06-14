@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: RE08.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2008-12-29 10:15:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "RE08.h"
 
@@ -55,7 +18,7 @@ RE08::RE08(
     double mu) :
   AbstractParameterAliasable("RE08."),
   AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), make_shared<CanonicalStateMap>(simpleModel->stateMap(), true), "RE08."),
-  simpleModel_(move(simpleModel)),
+  simpleModel_(std::move(simpleModel)),
   simpleGenerator_(),
   simpleExchangeabilities_(),
   exp_(), p_(), lambda_(lambda), mu_(mu),
@@ -92,8 +55,8 @@ void RE08::updateMatrices_()
 
   freq_[size_ - 1] = (1. - f);
 
-  simpleGenerator_ = simpleModel_->getGenerator();
-  simpleExchangeabilities_ = simpleModel_->getExchangeabilityMatrix();
+  simpleGenerator_ = simpleModel_->generator();
+  simpleExchangeabilities_ = simpleModel_->exchangeabilityMatrix();
 
   // Generator and exchangeabilities:
   for (size_t i = 0; i < size_ - 1; ++i)
@@ -226,7 +189,7 @@ const Matrix<double>& RE08::getPij_t(double d) const
     for (size_t j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
-                 + freq_[j] + (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
+          + freq_[j] + (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
     }
   }
   for (size_t j = 0; j < size_ - 1; j++)
@@ -253,8 +216,8 @@ const Matrix<double>& RE08::getdPij_dt(double d) const
     for (size_t j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = simpleDP(i, j) * exp(-mu_ * d)
-                 - mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
-                 - (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
+          - mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
+          - (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
     }
   }
   for (size_t j = 0; j < size_ - 1; j++)
@@ -282,9 +245,9 @@ const Matrix<double>& RE08::getd2Pij_dt2(double d) const
     for (size_t j = 0; j < size_ - 1; j++)
     {
       p_(i, j) = simpleD2P(i, j) * exp(-mu_ * d)
-                 - 2 * mu_ * simpleDP(i, j) * exp(-mu_ * d)
-                 + mu_ * mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
-                 + (lambda_ + mu_) * (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
+          - 2 * mu_ * simpleDP(i, j) * exp(-mu_ * d)
+          + mu_ * mu_ * (simpleP(i, j) - simpleModel_->freq(j)) * exp(-mu_ * d)
+          + (lambda_ + mu_) * (lambda_ + mu_) * (simpleModel_->freq(j) - freq_[j]) * exp(-(lambda_ + mu_) * d);
     }
   }
   for (size_t j = 0; j < size_ - 1; j++)

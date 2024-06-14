@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractKroneckerWordSubstitutionModel.cpp
-// Authors:
-//   Laurent Gueguen
-// Created: mardi 26 juillet 2016, ÃÂ  10h 56
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/VectorTools.h>
@@ -49,8 +14,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  ModelList& modelList,
-  const std::string& prefix) :
+    ModelList& modelList,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(modelList, prefix),
   sChangingPos_(),
@@ -66,9 +31,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  ModelList& modelList,
-  const std::vector<std::set<size_t> >& vPos,
-  const std::string& prefix) :
+    ModelList& modelList,
+    const std::vector<std::set<size_t>>& vPos,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(modelList, prefix),
   sChangingPos_(vPos),
@@ -87,11 +52,11 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(move(pmodel), num, prefix),
+  AbstractWordSubstitutionModel(std::move(pmodel), num, prefix),
   sChangingPos_(),
   vGenerators_()
 {
@@ -105,12 +70,12 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const std::vector<std::set<size_t> >& vPos,
-  const std::string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const std::vector<std::set<size_t>>& vPos,
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(move(pmodel), num, prefix),
+  AbstractWordSubstitutionModel(std::move(pmodel), num, prefix),
   sChangingPos_(vPos),
   vGenerators_()
 {
@@ -127,9 +92,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  shared_ptr<const Alphabet> alph,
-  shared_ptr<const StateMapInterface> stateMap,
-  const string& prefix) :
+    shared_ptr<const Alphabet> alph,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(alph, stateMap, prefix),
   sChangingPos_(),
@@ -143,7 +108,7 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-  const AbstractKroneckerWordSubstitutionModel& wrsm) :
+    const AbstractKroneckerWordSubstitutionModel& wrsm) :
   AbstractParameterAliasable(wrsm),
   AbstractWordSubstitutionModel(wrsm),
   sChangingPos_(wrsm.sChangingPos_),
@@ -154,7 +119,7 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 
 
 AbstractKroneckerWordSubstitutionModel& AbstractKroneckerWordSubstitutionModel::operator=(
-  const AbstractKroneckerWordSubstitutionModel& model)
+    const AbstractKroneckerWordSubstitutionModel& model)
 {
   AbstractParameterAliasable::operator=(model);
   AbstractWordSubstitutionModel::operator=(model);
@@ -165,7 +130,7 @@ AbstractKroneckerWordSubstitutionModel& AbstractKroneckerWordSubstitutionModel::
 }
 
 
-void AbstractKroneckerWordSubstitutionModel::setChangingPositions(const vector<std::set<size_t> >& vPos)
+void AbstractKroneckerWordSubstitutionModel::setChangingPositions(const vector<std::set<size_t>>& vPos)
 {
   sChangingPos_ = vPos;
 
@@ -210,14 +175,14 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator_()
 
   if (sChangingPos_.size() == 0)
   {
-    vGenerators_[0] = VSubMod_[0]->getGenerator();
+    vGenerators_[0] = VSubMod_[0]->generator();
 
     for (size_t k = 1; k < nbmod - 1; k++)
     {
-      MatrixTools::kroneckerMult(vGenerators_[k - 1], VSubMod_[k]->getGenerator(), 1., 1., vGenerators_[k], false);
+      MatrixTools::kroneckerMult(vGenerators_[k - 1], VSubMod_[k]->generator(), 1., 1., vGenerators_[k], false);
     }
 
-    MatrixTools::kroneckerMult(vGenerators_[nbmod - 2], VSubMod_[nbmod - 1]->getGenerator(), 1., 1., generator_, false);
+    MatrixTools::kroneckerMult(vGenerators_[nbmod - 2], VSubMod_[nbmod - 1]->generator(), 1., 1., generator_, false);
   }
   else
   {
@@ -242,10 +207,10 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator_()
           if (ss != 1)
           {
             MatrixTools::getId(ss, vGenerators_[posok - 1]);
-            MatrixTools::kroneckerMult(vGenerators_[posok - 1], VSubMod_[posok]->getGenerator(), 1., 0., vGenerators_[posok], false);
+            MatrixTools::kroneckerMult(vGenerators_[posok - 1], VSubMod_[posok]->generator(), 1., 0., vGenerators_[posok], false);
           }
           else
-            vGenerators_[posok] = VSubMod_[0]->getGenerator();
+            vGenerators_[posok] = VSubMod_[0]->generator();
 
           MatrixTools::fillDiag(vGenerators_[posok], 0.);
         }
@@ -256,7 +221,7 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator_()
             MatrixTools::kroneckerMult(vGenerators_[pos - 1], VSubMod_[pos]->getNumberOfStates(), 1., vGenerators_[pos], false);
             pos++;
           }
-          MatrixTools::kroneckerMult(vGenerators_[posok - 1], VSubMod_[posok]->getGenerator(), 0., 0., vGenerators_[posok], false);
+          MatrixTools::kroneckerMult(vGenerators_[posok - 1], VSubMod_[posok]->generator(), 0., 0., vGenerators_[posok], false);
         }
 
         pos++;

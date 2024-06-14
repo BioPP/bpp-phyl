@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: HmmLikelihood_DF.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2007-10-26 11:57:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "HmmLikelihoodComputation.h"
 #include "HmmLikelihood_DF.h"
@@ -49,11 +12,11 @@ using namespace bpp;
 using namespace std;
 
 HmmLikelihood_DF::HmmLikelihood_DF(
-  Context& context,
-  std::shared_ptr<HmmStateAlphabet> hiddenAlphabet,
-  std::shared_ptr<HmmTransitionMatrix> transitionMatrix,
-  std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities,
-  const std::string& prefix) :
+    Context& context,
+    std::shared_ptr<HmmStateAlphabet> hiddenAlphabet,
+    std::shared_ptr<HmmTransitionMatrix> transitionMatrix,
+    std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities,
+    const std::string& prefix) :
   AlignedLikelihoodCalculation(context),
   context_(context),
   hiddenAlphabet_(hiddenAlphabet),
@@ -141,11 +104,11 @@ HmmLikelihood_DF::HmmLikelihood_DF(
 
   auto forwardNode = dynamic_pointer_cast<ForwardHmmLikelihood_DF>(forwardLik_);
 
-  hiddenPostProb_ = CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd> >::create(context_, {forwardNode->getForwardCondLikelihood(), backwardLik_}, MatrixDimension(nbStates_, nbSites_));
+  hiddenPostProb_ = CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>::create(context_, {forwardNode->getForwardCondLikelihood(), backwardLik_}, MatrixDimension(nbStates_, nbSites_));
 
   // and site likelihoods
 
-  auto statesLog = CWiseMul<MatrixLik, std::tuple<Eigen::MatrixXd, MatrixLik> >::create(context_, {hiddenPostProb_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
+  auto statesLog = CWiseMul<MatrixLik, std::tuple<Eigen::MatrixXd, MatrixLik>>::create(context_, {hiddenPostProb_, hmmEmis_}, MatrixDimension(nbStates_, nbSites_));
 
   setSiteLikelihoods(CWiseAdd<RowLik, MatrixLik>::create(context_, {statesLog}, RowVectorDimension(nbSites_)));
 }

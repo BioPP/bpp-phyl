@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: BipartitionTools.h
-// Authors:
-//   Nicolas Galtier & Julien Dutheil
-// Created: 2007-04-13 15:09:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_TREE_BIPARTITIONTOOLS_H
 #define BPP_PHYL_TREE_BIPARTITIONTOOLS_H
@@ -141,7 +105,7 @@ public:
    * The input BipartitionList objects must share the same set of elements. This will be checked or not
    * depending on checkElements
    */
-  static std::unique_ptr<BipartitionList> mergeBipartitionLists(const std::vector<std::unique_ptr<BipartitionList> >& vecBipartL, bool checkElements = true);
+  static std::unique_ptr<BipartitionList> mergeBipartitionLists(const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL, bool checkElements = true);
 
   /**
    * @brief Construct a BipartitionList containing two bipartitions taken from distinct input lists
@@ -166,17 +130,17 @@ public:
    * according to the MRP supertree method.
    */
   static std::unique_ptr<VectorSiteContainer> MRPEncode(
-    const std::vector<std::unique_ptr<BipartitionList> >& vecBipartL);
+      const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
 
   /**
-   * @brief Create a sequence data set corresponding to the Matrix Representation of the input BipartitionList objects and accomodates multilabel trees
+   * @brief Create a sequence data set corresponding to the Matrix Representation of the input BipartitionList objects and accommodates multilabel trees
    *
    * The input BipartitionList objects can have distinct sets of elements - missing data will be represented as 'N'.
    * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
    * according to the MRP supertree method.
    */
   static std::unique_ptr<VectorSiteContainer> MRPEncodeMultilabel(
-    const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
+      const std::vector<std::unique_ptr<BipartitionList>>& vecBipartL);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_TREE_BIPARTITIONTOOLS_H

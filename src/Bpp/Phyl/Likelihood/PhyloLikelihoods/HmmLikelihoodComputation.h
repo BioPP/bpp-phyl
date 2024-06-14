@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: HmmLikelihoodComputation.h
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: jeudi 13 aoÃÂ»t 2020, ÃÂ  17h 46
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_HMMLIKELIHOODCOMPUTATION_H
 #define BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_HMMLIKELIHOODCOMPUTATION_H
@@ -54,7 +18,7 @@
 
 namespace bpp
 {
-  class CondLikelihood : public Value<Eigen::MatrixXd>
+class CondLikelihood : public Value<Eigen::MatrixXd>
 {
 private:
   /**
@@ -74,7 +38,7 @@ public:
     // dependency on the name, to make objects different
     checkNthDependencyIsValue<std::string>(typeid(CondLikelihood), deps, 1);
 
-    return cachedAs<Value<Eigen::MatrixXd> >(c, std::make_shared<CondLikelihood>(std::move (deps), dim));
+    return cachedAs<Value<Eigen::MatrixXd>>(c, std::make_shared<CondLikelihood>(std::move (deps), dim));
   }
 
   CondLikelihood (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
@@ -168,7 +132,7 @@ private:
    * parCondLik_(i,j) corresponds to Pr(x_1...x_j, y_{j+1}=i)/Pr(x_1...x_j),
    * where the x are the observed states, and y the hidden states.
    *
-   * @f$ \sum_i \text{parCondLik\_(i,j)} = 1 @f$   
+   * @f$ \sum_i \text{parCondLik\_(i,j)} = 1 @f$
    */
 
   std::vector<Eigen::VectorXd> parCondLik_;
@@ -196,7 +160,7 @@ public:
     auto sself = std::make_shared<Self>(std::move (deps), dim);
     sself->build(c);
 
-    return cachedAs<Value<RowLik> >(c, sself);
+    return cachedAs<Value<RowLik>>(c, sself);
   }
 
   ForwardHmmLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
@@ -216,20 +180,19 @@ public:
 
     condLik_ = CondLikelihood::create(c, {this->shared_from_this(), fname}, targetDimension_);
 
-    const auto& hmmEq = dynamic_pointer_cast<Value<Eigen::VectorXd> >(this->dependency(0))->targetValue();
+    const auto& hmmEq = dynamic_pointer_cast<Value<Eigen::VectorXd>>(this->dependency(0))->targetValue();
 
     if (hmmEq.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad dimension for starting vector", size_t(hmmEq.rows()), size_t(targetDimension_.rows));
 
-
-    const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd> >(this->dependency(1))->targetValue();
+    const auto& hmmTrans = dynamic_pointer_cast<Value<Eigen::MatrixXd>>(this->dependency(1))->targetValue();
 
     if (hmmTrans.cols() != hmmTrans.rows())
       throw BadSizeException("ForwardHmmLikelihood_DF: Transition matrix should be square", size_t(hmmTrans.cols()), size_t(hmmTrans.rows()));
     if (hmmTrans.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad number of rows for transition matrix", size_t(hmmTrans.rows()), size_t(targetDimension_.rows));
 
-    const auto& hmmEmis = dynamic_pointer_cast<Value<MatrixLik> >(this->dependency(2))->targetValue();
+    const auto& hmmEmis = dynamic_pointer_cast<Value<MatrixLik>>(this->dependency(2))->targetValue();
 
     if (hmmEmis.rows() != targetDimension_.rows)
       throw BadSizeException("ForwardHmmLikelihood_DF: bad number of states for emission matrix", size_t(hmmEmis.rows()), size_t(targetDimension_.rows));
@@ -347,7 +310,7 @@ public:
     auto sself = std::make_shared<Self>(std::move (deps), dim);
     sself->build(c);
 
-    return cachedAs<Value<RowLik> >(c, sself);
+    return cachedAs<Value<RowLik>>(c, sself);
   }
 
   ForwardHmmDLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
@@ -480,7 +443,7 @@ public:
     auto sself = std::make_shared<Self>(std::move (deps), dim);
     sself->build(c);
 
-    return cachedAs<Value<RowLik> >(c, sself);
+    return cachedAs<Value<RowLik>>(c, sself);
   }
 
   ForwardHmmD2Likelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)
@@ -573,7 +536,7 @@ public:
     checkNthDependencyIsValue<Eigen::MatrixXd>(typeid (Self), deps, 1);
     checkNthDependencyIsValue<MatrixLik>(typeid (Self), deps, 2);
 
-    return cachedAs<Value<Eigen::MatrixXd> >(c, std::make_shared<Self>(std::move (deps), dim));
+    return cachedAs<Value<Eigen::MatrixXd>>(c, std::make_shared<Self>(std::move (deps), dim));
   }
 
   BackwardHmmLikelihood_DF (NodeRefVec&& deps, const Dimension<Eigen::MatrixXd>& dim)

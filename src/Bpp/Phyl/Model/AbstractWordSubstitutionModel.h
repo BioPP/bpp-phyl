@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractWordSubstitutionModel.h
-// Authors:
-//   Laurent Gueguen
-// Created: 2009-01-08 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_ABSTRACTWORDSUBSTITUTIONMODEL_H
 #define BPP_PHYL_MODEL_ABSTRACTWORDSUBSTITUTIONMODEL_H
@@ -74,7 +38,7 @@ public:
    *
    * !! All pointers of the vector will be emptied.
    */
-  
+
   ModelList(std::vector<std::unique_ptr<SubstitutionModelInterface>>& models) :
     models_(models.size()), wordAlphabet_(nullptr)
   {
@@ -82,12 +46,12 @@ public:
     for (size_t i = 0; i < models.size(); ++i)
     {
       alphabets[i] = models[i]->getAlphabet();
-      models_[i] = move(models[i]);
+      models_[i] = std::move(models[i]);
     }
     wordAlphabet_ = std::make_shared<WordAlphabet>(alphabets);
   }
 
- private:
+private:
   ModelList(const ModelList& ml) {}
 
   ModelList& operator=(const ModelList& ml) { return *this; }
@@ -145,12 +109,11 @@ private:
   bool newAlphabet_;
 
 protected:
-  
   /**
    * Vector of shared_ptr, to allow multiple positions to share the same model.
    */
   std::vector<std::shared_ptr<SubstitutionModelInterface>> VSubMod_;
-  
+
   std::vector<std::string> VnestedPrefix_;
 
   std::vector<double> Vrate_;
@@ -182,23 +145,24 @@ public:
    * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
-    ModelList& modelList,
-    const std::string& prefix);
+      ModelList& modelList,
+      const std::string& prefix);
 
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a
    * pointer to an SubstitutionModel and a number of
    * desired models.
    *
-   * @param pmodel A pointer to the substitution model to use in all
+   * @param model A pointer to the substitution model to use in all
    * the positions. It will be owned by the instance.
    * @param num The number of models involved.
    * @param prefix the Namespace.
    */
+  
   AbstractWordSubstitutionModel(
-    std::unique_ptr<SubstitutionModelInterface> model,
-    unsigned int num,
-    const std::string& prefix);
+      std::unique_ptr<SubstitutionModelInterface> model,
+      unsigned int num,
+      const std::string& prefix);
 
   AbstractWordSubstitutionModel(const AbstractWordSubstitutionModel&);
 
@@ -218,7 +182,6 @@ protected:
       const std::string& prefix);
 
 public:
-
   /**
    * @brief returns the ith model, or throw an exception if i is not a valid number.
    */

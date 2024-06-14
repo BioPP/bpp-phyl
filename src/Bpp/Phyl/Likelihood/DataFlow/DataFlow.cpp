@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: DataFlow.cpp
-// Authors:
-//   Francois Gindraud (2017)
-// Created: 2017-05-30 00:00:00
-// Last modified: 2017-05-30 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Exceptions.h>
 #include <algorithm>
@@ -96,29 +59,29 @@ void failureNodeConversion (const std::type_info& handleType, const Node_DF& nod
 }
 
 void failureDependencyNumberMismatch (const std::type_info& contextNodeType, std::size_t expectedSize,
-                                      std::size_t givenSize)
+    std::size_t givenSize)
 {
   throw Exception (prettyTypeName (contextNodeType) + ": expected " + std::to_string (expectedSize) +
-                   " dependencies, got " + std::to_string (givenSize));
+        " dependencies, got " + std::to_string (givenSize));
 }
 
 void failureEmptyDependency (const std::type_info& contextNodeType, std::size_t depIndex)
 {
   throw Exception (prettyTypeName (contextNodeType) + ": " + std::to_string (depIndex) +
-                   "-th dependency is empty (nullptr)");
+        "-th dependency is empty (nullptr)");
 }
 
 void failureDependencyTypeMismatch (const std::type_info& contextNodeType, std::size_t depIndex,
-                                    const std::type_info& expectedType,
-                                    const std::type_info& givenNodeType)
+    const std::type_info& expectedType,
+    const std::type_info& givenNodeType)
 {
   throw Exception (prettyTypeName (contextNodeType) + ": expected class derived from " +
-                   prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
-                   "-th dependency, got " + prettyTypeName (givenNodeType));
+        prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
+        "-th dependency, got " + prettyTypeName (givenNodeType));
 }
 
 void checkDependencyVectorSize (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                                std::size_t expectedSize)
+    std::size_t expectedSize)
 {
   auto size = deps.size ();
   if (size != expectedSize)
@@ -128,7 +91,7 @@ void checkDependencyVectorSize (const std::type_info& contextNodeType, const Nod
 }
 
 void checkDependencyVectorMinSize (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                                   std::size_t expectedMinSize)
+    std::size_t expectedMinSize)
 {
   auto size = deps.size ();
   if (size < expectedMinSize)
@@ -282,7 +245,7 @@ void Node_DF::registerNode (Node_DF* n)
 void Node_DF::unregisterNode (const Node_DF* n)
 {
   dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
-                         dependentNodes_.end ());
+      dependentNodes_.end ());
 }
 
 /*****************************************************************************
@@ -307,7 +270,7 @@ bool isTransitivelyDependentOn (const Node_DF& searchedDependency, const Node_DF
 }
 
 NodeRef recreateWithSubstitution(Context& c, const NodeRef& node,
-                                  const std::unordered_map<const Node_DF*, NodeRef>& substitutions)
+    const std::unordered_map<const Node_DF*, NodeRef>& substitutions)
 {
   if (node == 0)
     return node;
@@ -346,10 +309,9 @@ NodeRef recreateWithSubstitution(Context& c, const NodeRef& node,
  */
 
 Context::Context() : nodeCache_(), zero_(ConstantZero<size_t>::create(*this, Dimension<size_t>()))
-{
-}
+{}
 
-                           
+
 NodeRef Context::cached(NodeRef&& newNode)
 {
   assert (newNode != nullptr);
@@ -362,46 +324,59 @@ NodeRef Context::cached (NodeRef& newNode)
 {
   assert (newNode != nullptr);
   // First remove this object from the set if it is already
-  for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
-  {
-    if (it->ref == newNode)
-      it = nodeCache_.erase(it);
-    else
-      ++it;
-  }
+  // for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
+  // {
+  //   if (it->ref == newNode)
+  //     it = nodeCache_.erase(it);
+  //   else
+  //     ++it;
+  // }
 
   // Try inserting it, which will fail if already present and return the old one
   auto r = nodeCache_.emplace (newNode);
   return r.first->ref;
 }
 
+void Context::clear()
+{
+  while (nodeCache_.size()!=0)
+  {
+    auto it =  nodeCache_.begin();
+    erase(it->ref);
+  }
+
+  nodeCache_.clear();
+}
+
+
 std::vector<const Node_DF*> Context::getAllNodes() const
 {
   std::vector<const Node_DF*> ret;
   for (const auto& it : nodeCache_)
+  {
     ret.push_back(it.ref.get());
-  return(ret);
+  }
+  return ret;
 }
-    
+
 
 bool Context::erase(const NodeRef& node)
 {
   if (!node)
     return false;
 
-  size_t nb=0;
-  
   std::set<NodeRef> sNodes;
   sNodes.emplace(node);
 
-  bool flag=true;
-  bool ret=false;
-  while(flag)
+  bool flag = true;
+  bool ret = false;
+  while (flag)
   {
-    flag=false;
+    flag = false;
     for (auto n : sNodes)
     {
-      if (n->nbDependentNodes()==0) {
+      if (n->nbDependentNodes() == 0)
+      {
         for (auto it = nodeCache_.begin(); it != nodeCache_.end();)
         {
           if (it->ref == n)
@@ -414,11 +389,9 @@ bool Context::erase(const NodeRef& node)
               sNodes.emplace(dep);
               dep->unregisterNode (n.get());
             }
-            
-            it=nodeCache_.erase(it);
-            nb++;
-            flag=true;
-            ret=true;
+            it = nodeCache_.erase(it);
+            flag = true;
+            ret = true;
           }
           else
             ++it;
@@ -481,7 +454,7 @@ static std::string dotLabelEscape (const std::string& s)
   for (const char c : s)
   {
     if (std::any_of (std::begin (toEscape), std::end (toEscape),
-                     [c](const char c2) {
+          [c](const char c2) {
         return c == c2;
       }))
     {
@@ -542,21 +515,21 @@ static void writeDotEdge (std::ostream& os, const Node_DF& from, std::size_t dep
 
 // Write dot lines for graph structure, starting from the given entry points.
 static void writeGraphStructure (std::ostream& os, const std::vector<const Node_DF*>& entryPoints,
-                                 DotOptions opt)
+    DotOptions opt)
 {
   std::stack<const Node_DF*> nodesToVisit;
   std::unordered_set<const Node_DF*> discoveredNodes;
 
   const auto discover = [&nodesToVisit, &discoveredNodes](const Node_DF* n) {
-                          if (!n)
-                            return;
-                          const bool discovered = discoveredNodes.find (n) != discoveredNodes.end ();
-                          if (!discovered)
-                          {
-                            nodesToVisit.emplace (n);
-                            discoveredNodes.emplace (n);
-                          }
-                        };
+        if (!n)
+          return;
+        const bool discovered = discoveredNodes.find (n) != discoveredNodes.end ();
+        if (!discovered)
+        {
+          nodesToVisit.emplace (n);
+          discoveredNodes.emplace (n);
+        }
+      };
 
   for (const auto* n : entryPoints)
   {
@@ -596,7 +569,7 @@ void writeGraphToDot (std::ostream& os, const std::vector<const Node_DF*>& nodes
 }
 
 void writeGraphToDot (const std::string& filename, const std::vector<const Node_DF*>& nodes,
-                      DotOptions opt)
+    DotOptions opt)
 {
   std::ofstream file{filename};
   writeGraphToDot (file, nodes, opt);

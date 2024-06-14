@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: AbstractNonHomogeneousTreeLikelihood.h
-// Authors:
-//   Julien Dutheil
-// Created: 2007-10-09 16:07:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LEGACY_LIKELIHOOD_ABSTRACTNONHOMOGENEOUSTREELIKELIHOOD_H
 #define BPP_PHYL_LEGACY_LIKELIHOOD_ABSTRACTNONHOMOGENEOUSTREELIKELIHOOD_H
@@ -116,27 +80,27 @@ protected:
 
   // some values we'll need:
   size_t nbSites_,         // the number of sites in the container
-         nbDistinctSites_, // the number of distinct sites
-         nbClasses_,       // the number of rate classes
-         nbStates_,        // the number of states in the alphabet
-         nbNodes_;         // the number of nodes in the tree
+      nbDistinctSites_, // the number of distinct sites
+      nbClasses_,       // the number of rate classes
+      nbStates_,        // the number of states in the alphabet
+      nbNodes_;         // the number of nodes in the tree
 
   bool verbose_;
 
   double minimumBrLen_;
   double maximumBrLen_;
-  std::shared_ptr<Constraint> brLenConstraint_;
+  std::shared_ptr<ConstraintInterface> brLenConstraint_;
 
   bool reparametrizeRoot_;
   int root1_, root2_;
 
 public:
   AbstractNonHomogeneousTreeLikelihood(
-    const Tree& tree,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistribution> rDist,
-    bool verbose = true,
-    bool reparametrizeRoot = true);
+      const Tree& tree,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose = true,
+      bool reparametrizeRoot = true);
 
   /**
    * @brief Copy constructor
@@ -159,10 +123,10 @@ private:
    * @brief Method called by constructor.
    */
   void init_(
-    const Tree& tree,
-    std::shared_ptr<SubstitutionModelSet> modelSet,
-    std::shared_ptr<DiscreteDistribution> rDist,
-    bool verbose);
+      const Tree& tree,
+      std::shared_ptr<SubstitutionModelSet> modelSet,
+      std::shared_ptr<DiscreteDistributionInterface> rDist,
+      bool verbose);
 
 public:
   /**
@@ -225,11 +189,11 @@ public:
    * @{
    */
   std::shared_ptr<const SubstitutionModelSet> getSubstitutionModelSet() const override { return modelSet_; }
-  
+
   const SubstitutionModelSet& substitutionModelSet() const override { return *modelSet_; }
 
   std::shared_ptr<SubstitutionModelSet> getSubstitutionModelSet() override { return modelSet_; }
-  
+
   SubstitutionModelSet& substitutionModelSet() override { return *modelSet_; }
 
   void setSubstitutionModelSet(std::shared_ptr<SubstitutionModelSet> modelSet) override;
@@ -261,7 +225,7 @@ public:
   virtual void setMinimumBranchLength(double minimum)
   {
     if (minimum > maximumBrLen_)
-      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
+      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length should be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
     minimumBrLen_ = minimum;
     brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
     initBranchLengthsParameters();
@@ -270,7 +234,7 @@ public:
   virtual void setMaximumBranchLength(double maximum)
   {
     if (maximum < minimumBrLen_)
-      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
+      throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length should be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
     maximumBrLen_ = maximum;
     brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
     initBranchLengthsParameters();

@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SubstitutionProcessCollection.cpp
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: jeudi 13 juin 2013, ÃÂ  11h 57
-//
-
-/*
-  Copyright or <A9> or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/VectorTools.h>
@@ -83,7 +47,7 @@ SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const Su
   treeColl_ = set.treeColl_;
   mTreeToSubPro_ = set.mTreeToSubPro_;
 
-  for (const auto & it : set.mSubProcess_)
+  for (const auto& it : set.mSubProcess_)
   {
     mSubProcess_[it.first] = shared_ptr<SubstitutionProcessCollectionMember>(it.second->clone(), SubstitutionProcessCollectionMember::Deleter());
   }
@@ -110,9 +74,9 @@ void SubstitutionProcessCollection::clear()
 
 void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters)
 {
-  if (parametrizableIndex<1)
-    throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.",(int)parametrizableIndex);
-  
+  if (parametrizableIndex < 1)
+    throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.", (int)parametrizableIndex);
+
   ParameterList pl;
   if (std::dynamic_pointer_cast<BranchModelInterface>(parametrizable))
   {
@@ -124,14 +88,73 @@ void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametriz
     freqColl_.addObject(std::dynamic_pointer_cast<FrequencySetInterface>(parametrizable), parametrizableIndex);
     pl = freqColl_.getParametersForObject(parametrizableIndex);
   }
-  else if (std::dynamic_pointer_cast<DiscreteDistribution>(parametrizable))
+  else if (std::dynamic_pointer_cast<DiscreteDistributionInterface>(parametrizable))
   {
-    distColl_.addObject(std::dynamic_pointer_cast<DiscreteDistribution>(parametrizable), parametrizableIndex);
+    distColl_.addObject(std::dynamic_pointer_cast<DiscreteDistributionInterface>(parametrizable), parametrizableIndex);
     pl = distColl_.getParametersForObject(parametrizableIndex);
   }
   else if (std::dynamic_pointer_cast<ParametrizablePhyloTree>(parametrizable))
   {
     treeColl_.addObject(std::dynamic_pointer_cast<ParametrizablePhyloTree>(parametrizable), parametrizableIndex);
+    pl = treeColl_.getParametersForObject(parametrizableIndex);
+  }
+
+  else
+    throw Exception("Unknown parametrizable object in SubstitutionProcessCollection::addParametrizable.");
+
+  if (withParameters)
+    addParameters_(pl);
+}
+
+void SubstitutionProcessCollection::replaceParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters)
+{
+  if (parametrizableIndex < 1)
+    throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.", (int)parametrizableIndex);
+
+  
+  ParameterList pl;
+  if (std::dynamic_pointer_cast<BranchModelInterface>(parametrizable))
+  {
+    if (!hasModelNumber(parametrizableIndex))
+    {
+      addParametrizable(parametrizable, parametrizableIndex, withParameters);
+      return;
+    }
+    getParameters_().deleteParameters(modelColl_.getParametersForObject(parametrizableIndex).getParameterNames(),false);
+    modelColl_.replaceObject(std::dynamic_pointer_cast<BranchModelInterface>(parametrizable), parametrizableIndex);
+    pl = modelColl_.getParametersForObject(parametrizableIndex);
+  }
+  else if (std::dynamic_pointer_cast<FrequencySetInterface>(parametrizable))
+  {
+    if (!hasFrequenciesNumber(parametrizableIndex))
+    {
+      addParametrizable(parametrizable, parametrizableIndex, withParameters);
+      return;
+    }
+    getParameters_().deleteParameters(freqColl_.getParametersForObject(parametrizableIndex).getParameterNames(),false);
+    freqColl_.replaceObject(std::dynamic_pointer_cast<FrequencySetInterface>(parametrizable), parametrizableIndex);
+    pl = freqColl_.getParametersForObject(parametrizableIndex);
+  }
+  else if (std::dynamic_pointer_cast<DiscreteDistributionInterface>(parametrizable))
+  {
+    if (!hasDistributionNumber(parametrizableIndex))
+    {
+      addParametrizable(parametrizable, parametrizableIndex, withParameters);
+      return;
+    }
+    getParameters_().deleteParameters(distColl_.getParametersForObject(parametrizableIndex).getParameterNames(),false);
+    distColl_.replaceObject(std::dynamic_pointer_cast<DiscreteDistributionInterface>(parametrizable), parametrizableIndex);
+    pl = distColl_.getParametersForObject(parametrizableIndex);
+  }
+  else if (std::dynamic_pointer_cast<ParametrizablePhyloTree>(parametrizable))
+  {
+    if (!hasTreeNumber(parametrizableIndex))
+    {
+      addParametrizable(parametrizable, parametrizableIndex, withParameters);
+      return;
+    }
+    getParameters_().deleteParameters(treeColl_.getParametersForObject(parametrizableIndex).getParameterNames(),false);
+    treeColl_.replaceObject(std::dynamic_pointer_cast<ParametrizablePhyloTree>(parametrizable), parametrizableIndex);
     pl = treeColl_.getParametersForObject(parametrizableIndex);
   }
 
@@ -275,7 +298,7 @@ void SubstitutionProcessCollection::aliasParameters(std::map<std::string, std::s
 }
 
 
-void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
+void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int>> mModBr, size_t nTree, size_t nRate, size_t nFreq)
 {
   addSubstitutionProcess(nProc, mModBr, nTree, nRate);
 
@@ -288,30 +311,30 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   mFreqToSubPro_[nFreq].push_back(nProc);
 }
 
-void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate)
+void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int>> mModBr, size_t nTree, size_t nRate)
 {
   if (mSubProcess_.find(nProc) != mSubProcess_.end())
     throw BadIntegerException("Already assigned substitution process", (int)nProc);
 
-  if (nTree!=0 && !treeColl_.hasObject(nTree))
+  if (nTree != 0 && !treeColl_.hasObject(nTree))
     throw BadIntegerException("Wrong Tree number", (int)nTree);
 
   if (!distColl_.hasObject(nRate))
     throw BadIntegerException("Wrong Rate distribution number", (int)nRate);
 
   auto pSMS = shared_ptr<SubstitutionProcessCollectionMember>(
-		  new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate),
-		  SubstitutionProcessCollectionMember::Deleter()
-	      );
+        new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate),
+        SubstitutionProcessCollectionMember::Deleter()
+        );
 
-  std::map<size_t, std::vector<unsigned int> >::iterator it;
+  std::map<size_t, std::vector<unsigned int>>::iterator it;
   for (it = mModBr.begin(); it != mModBr.end(); it++)
   {
     pSMS->addModel(it->first, it->second);
     mModelToSubPro_[it->first].push_back(nProc);
   }
 
-  pSMS->isFullySetUp(nTree!=0);
+  pSMS->isFullySetUp(nTree != 0);
 
   mTreeToSubPro_[nTree].push_back(nProc);
   mDistToSubPro_[nRate].push_back(nProc);
@@ -365,7 +388,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
 
   size_t maxMod = *max_element(vModN.begin(), vModN.end());
 
-  std::map<size_t, std::vector<unsigned int> > mModBr;
+  std::map<size_t, std::vector<unsigned int>> mModBr;
   mModBr[nMod] = vector<uint>(1, ids[0]);
 
   for (auto it = ids.begin() + 1; it != ids.end(); it++)

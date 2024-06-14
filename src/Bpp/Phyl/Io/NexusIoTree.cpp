@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: NexusIoTree.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2009-05-27 19:06:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Numeric/VectorTools.h>
@@ -125,7 +89,7 @@ void NexusIOTree::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
       string tok = TextTools::removeSurroundingWhiteSpaces(st.nextToken());
       NestedStringTokenizer nst(tok, "'", "'", " \t");
       if (nst.numberOfRemainingTokens() != 2)
-        throw Exception("NexusIOTree::readTrees(). Unvalid translation description.");
+        throw Exception("NexusIOTree::readTrees(). Invalid translation description.");
       string name = nst.nextToken();
       string tln  = nst.nextToken();
       translation[name] = tln;
@@ -142,10 +106,10 @@ void NexusIOTree::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
   while (cmdFound && cmdName != "END")
   {
     if (cmdName != "TREE")
-      throw Exception("NexusIOTree::readTrees(). Unvalid command found: " + cmdName);
+      throw Exception("NexusIOTree::readTrees(). Invalid command found: " + cmdName);
     string::size_type pos = cmdArgs.find("=");
     if (pos == string::npos)
-      throw Exception("NexusIOTree::readTrees(). unvalid format, should be tree-name=tree-description");
+      throw Exception("NexusIOTree::readTrees(). invalid format, should be tree-name=tree-description");
     string description = cmdArgs.substr(pos + 1);
     auto tree = TreeTemplateTools::parenthesisToTree(description + ";", true);
 
@@ -164,7 +128,7 @@ void NexusIOTree::readTrees(istream& in, vector<unique_ptr<Tree>>& trees) const
         leaves[i]->setName(translation[name]);
       }
     }
-    trees.push_back(move(tree));
+    trees.push_back(std::move(tree));
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (cmdFound)
       cmdName = TextTools::toUpper(cmdName);
@@ -179,7 +143,7 @@ unique_ptr<PhyloTree> NexusIOTree::readPhyloTree(istream& in) const
   readPhyloTrees(in, trees);
   if (trees.size() == 0)
     throw IOException("NexusIOTree::readPhyloTree(). No tree found in file.");
-  return move(trees[0]);
+  return std::move(trees[0]);
 }
 
 /******************************************************************************/
@@ -219,7 +183,7 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloT
       string tok = TextTools::removeSurroundingWhiteSpaces(st.nextToken());
       NestedStringTokenizer nst(tok, "'", "'", " \t");
       if (nst.numberOfRemainingTokens() != 2)
-        throw Exception("NexusIOTree::readTrees(). Unvalid translation description.");
+        throw Exception("NexusIOTree::readTrees(). Invalid translation description.");
       string name = nst.nextToken();
       string tln  = nst.nextToken();
       translation[name] = tln;
@@ -236,10 +200,10 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloT
   while (cmdFound && cmdName != "END")
   {
     if (cmdName != "TREE")
-      throw Exception("NexusIOTree::readTrees(). Unvalid command found: " + cmdName);
+      throw Exception("NexusIOTree::readTrees(). Invalid command found: " + cmdName);
     string::size_type pos = cmdArgs.find("=");
     if (pos == string::npos)
-      throw Exception("NexusIOTree::readTrees(). unvalid format, should be tree-name=tree-description");
+      throw Exception("NexusIOTree::readTrees(). invalid format, should be tree-name=tree-description");
     string description = cmdArgs.substr(pos + 1);
 
     Newick treeReader;
@@ -251,7 +215,7 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloT
     // (we assume that all trees share the same translation! ===> check!)
     if (hasTranslation)
     {
-      vector<shared_ptr<PhyloNode> > leaves = tree->getAllLeaves();
+      vector<shared_ptr<PhyloNode>> leaves = tree->getAllLeaves();
       for (size_t i = 0; i < leaves.size(); i++)
       {
         string name = leaves[i]->getName();
@@ -262,7 +226,7 @@ void NexusIOTree::readPhyloTrees(std::istream& in, std::vector<unique_ptr<PhyloT
         leaves[i]->setName(translation[name]);
       }
     }
-    trees.push_back(move(tree));
+    trees.push_back(std::move(tree));
     cmdFound = NexusTools::getNextCommand(in, cmdName, cmdArgs, false);
     if (cmdFound)
       cmdName = TextTools::toUpper(cmdName);
@@ -399,7 +363,7 @@ void NexusIOTree::write_(const vector<const PhyloTree*>& trees, ostream& out) co
   vector<PhyloTree*> translatedTrees;
   for (size_t i = 0; i < trees.size(); i++)
   {
-    vector<shared_ptr<PhyloNode> > leaves = trees[i]->getAllLeaves();
+    vector<shared_ptr<PhyloNode>> leaves = trees[i]->getAllLeaves();
 
     PhyloTree* tree = trees[i]->clone();
 

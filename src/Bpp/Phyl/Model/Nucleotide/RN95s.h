@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: RN95s.h
-// Authors:
-//   Laurent Guéguen
-// Created: samedi 12 mars 2011, ÃÂ  06h 49
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_NUCLEOTIDE_RN95S_H
 #define BPP_PHYL_MODEL_NUCLEOTIDE_RN95S_H
@@ -150,28 +114,25 @@ private:
 
 public:
   RN95s(std::shared_ptr<const NucleicAlphabet> alphabet,
-        double alpha = 0.25,
-        double beta = 0.25,
-        double gamma = 0.25,
-        double delta = 0.25);
+      double alpha = 0.25,
+      double beta = 0.25,
+      double gamma = 0.25,
+      double delta = 0.25);
 
   virtual ~RN95s() {}
 
   RN95s* clone() const override { return new RN95s(*this); }
 
 public:
-
   std::string getName() const override { return "RN95s"; }
 
   /**
    * @brief This method takes the average value between observed @f$\pi_A@f$ and @f$\pi_T@f$.
    */
   void setFreq(std::map<int, double>&) override;
-  
-protected:
-  
-  void updateMatrices_() override;
 
+protected:
+  void updateMatrices_() override;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_RN95S_H

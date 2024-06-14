@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: BackwardLikelihoodTree.h
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: mercredi 12 dÃÂ©cembre 2018, ÃÂ  17h 00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_DATAFLOW_BACKWARDLIKELIHOODTREE_H
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_BACKWARDLIKELIHOODTREE_H
@@ -61,7 +25,7 @@ namespace bpp
  * Using member wise multiplication: c(state, site) = prod_i f_i(state, site).
  */
 
-using SpeciationBackward = CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
+using SpeciationBackward = CWiseMul<MatrixLik, ReductionOf<MatrixLik>>;
 
 /** @brief : At the top of each edge below a mixture node
  *
@@ -74,7 +38,7 @@ using SpeciationBackward = CWiseMul<MatrixLik, ReductionOf<MatrixLik> >;
  * Using member wise multiplication: c(state, site) = prod_i f_i(state, site).
  */
 
-using MixtureBackward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
+using MixtureBackward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik>>;
 
 /** @brief : Above each node : bottom of an edge in case of transition from upper
  *
@@ -89,7 +53,7 @@ using MixtureBackward = CWiseAdd<MatrixLik, ReductionOf<MatrixLik> >;
  */
 
 using BackwardTransition =
-  MatrixProduct<MatrixLik, Transposed<Eigen::MatrixXd>, MatrixLik>;
+    MatrixProduct<MatrixLik, Transposed<Eigen::MatrixXd>, MatrixLik>;
 
 /** @brief : Above each node : in case of mixture of above edges
  *
@@ -100,7 +64,7 @@ using BackwardTransition =
  * f(State, site) = c(fromState, site) * prop
  */
 
-using BackwardProportion = CWiseMul<MatrixLik, std::tuple<double, MatrixLik> >;
+using BackwardProportion = CWiseMul<MatrixLik, std::tuple<double, MatrixLik>>;
 
 // Upper Likelihood in nodes
 using ConditionalLikelihood = Value<MatrixLik>;
@@ -119,7 +83,7 @@ class BackwardLikelihoodTree : public AssociationDAGlobalGraphObserver<Condition
 {
   using DAClass = AssociationDAGlobalGraphObserver<ConditionalLikelihood, BackwardLikelihoodAbove>;
 
-  /** For a given rate catagory, stores ProcessTree,
+  /** For a given rate category, stores ProcessTree,
    * ForwardlikelihoodTree and BackwardLikelihoodTree
    **/
 
@@ -135,11 +99,11 @@ private:
 
 public:
   BackwardLikelihoodTree(Context& c,
-                         std::shared_ptr<ForwardLikelihoodTree> forwardTree,
-                         std::shared_ptr<ProcessTree> tree,
-                         ValueRef<Eigen::RowVectorXd> rFreqs,
-                         const StateMapInterface& statemap,
-                         Eigen::Index nbSite) :
+      std::shared_ptr<ForwardLikelihoodTree> forwardTree,
+      std::shared_ptr<ProcessTree> tree,
+      ValueRef<Eigen::RowVectorXd> rFreqs,
+      const StateMapInterface& statemap,
+      Eigen::Index nbSite) :
     DAClass(forwardTree->getGraph()),
     context_(c), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSite_(nbSite), forwardTree_(forwardTree), processTree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)
   {}

@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: MixtureProcessPhyloLikelihood.cpp
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: vendredi 12 juillet 2013, ÃÂ  14h 55
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/VectorTools.h>
 
@@ -49,11 +13,11 @@ using namespace numeric;
 /******************************************************************************/
 
 MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
-  shared_ptr<const AlignmentDataInterface> data,
-  shared_ptr<MixtureSequenceEvolution> processSeqEvol,
-  shared_ptr<CollectionNodes> collNodes,
-  size_t nSeqEvol,
-  size_t nData) :
+    shared_ptr<const AlignmentDataInterface> data,
+    shared_ptr<MixtureSequenceEvolution> processSeqEvol,
+    shared_ptr<CollectionNodes> collNodes,
+    size_t nSeqEvol,
+    size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
@@ -61,7 +25,7 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
       data->getNumberOfSites(),
       (processSeqEvol->getSubstitutionProcessNumbers().size() != 0)
           ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates()
-	  : 0,
+    : 0,
       nData),
   AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nData),
   AbstractParametrizable(""),
@@ -98,7 +62,7 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   auto fsf = ConfiguredParametrizable::createRowVector<ConfiguredSimplex, FrequenciesFromSimplex, Eigen::RowVectorXd>(context(), {simplex_}, RowVectorDimension (Eigen::Index(simplex.dimension())));
 
   // get RowVectorXd for each single Calculation
-  std::vector<std::shared_ptr<Node_DF> > vSL;
+  std::vector<std::shared_ptr<Node_DF>> vSL;
 
   for (auto& lik : vLikCal_)
   {
@@ -139,7 +103,7 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProce
   {
     for (size_t j = 0; j < nbProcess; ++j)
     {
-      pb[i][j] = convert(pb[i][j] * freq[j] / l[i]);
+      pb[i][j] = pb[i][j] * freq[j] / convert(l[i]);
     }
   }
   return pb;

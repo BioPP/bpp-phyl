@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: NonHomogeneousSubstitutionProcess.h
-// Authors:
-//   Julien Dutheil, Bastien Boussau, Laurent Guéguen
-// Created: jeudi 20 juin 2013, ÃÂ  23h 08
-//
-
-/*
-  Copyright or (c) or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_NONHOMOGENEOUSSUBSTITUTIONPROCESS_H
 #define BPP_PHYL_LIKELIHOOD_NONHOMOGENEOUSSUBSTITUTIONPROCESS_H
@@ -86,9 +50,9 @@ namespace bpp
  * In the non-homogeneous and homogeneous non-reversible cases, the
  * likelihood depends on the position of the root. The states
  * frequencies at the root of the tree are hence distinct parameters.
- * Theses are accounted by a FrequencySet objet, managed by the
+ * These are accounted by a FrequencySet object, managed by the
  * NonHomogeneousSubstitutionProcess class. The corresponding
- * parameters, if any, are added at the begining of the global
+ * parameters, if any, are added at the beginning of the global
  * parameter list.
  *
  * If the heterogenity of the model does not affect the equilibrium
@@ -99,14 +63,14 @@ namespace bpp
  * stationarity" option is set when building the set, then no
  * FrequencySet object is used, but the frequencies are taken to be
  * the same as the one at the first model in the set. Nothing hence
- * prevents you to build a "supposingly stationary model which
+ * prevents you to build a "supposedly stationary model which
  * actually is not", so be careful!!
  *
  * This class provides several methods to specify which model and/or
  * which parameter is associated to which branch/clade. Several check
  * points are provided, but some are probably missing due to the large
  * set of possible models that this class allows to build, so be
- * carefull!
+ * careful!
  *
  */
 
@@ -124,7 +88,7 @@ private:
   /**
    *  @brief Rate Distribution
    */
-  std::shared_ptr<DiscreteDistribution> rDist_;
+  std::shared_ptr<DiscreteDistributionInterface> rDist_;
 
   /**
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
@@ -138,7 +102,6 @@ private:
   std::vector<ParameterList> modelParameters_;
 
 public:
-
   /**
    * @brief Create a model set according to the specified alphabet and root frequencies.
    * Stationarity is not assumed.
@@ -148,7 +111,7 @@ public:
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
   NonHomogeneousSubstitutionProcess(
-      std::shared_ptr<DiscreteDistribution> rdist,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
       std::shared_ptr<const PhyloTree> tree = 0,
       std::shared_ptr<FrequencySetInterface> rootFreqs = 0) :
     AbstractParameterAliasable(""),
@@ -162,7 +125,7 @@ public:
     if (rDist_)
       addParameters_(rDist_->getIndependentParameters());
   }
-  
+
   /**
    * @brief Create a model set according to the specified alphabet and root frequencies.
    * Stationarity is not assumed.
@@ -172,7 +135,7 @@ public:
    * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
    */
   NonHomogeneousSubstitutionProcess(
-      std::shared_ptr<DiscreteDistribution> rdist,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
       std::shared_ptr<ParametrizablePhyloTree> tree,
       std::shared_ptr<FrequencySetInterface> rootFreqs = 0) :
     AbstractParameterAliasable(""),
@@ -379,26 +342,26 @@ public:
     return rDist_.get() ? (independent ? rDist_->getIndependentParameters() : rDist_->getParameters()) : ParameterList();
   }
 
-  const DiscreteDistribution& rateDistribution() const override
+  const DiscreteDistributionInterface& rateDistribution() const override
   {
     if (!rDist_)
       throw NullPointerException("NonHomogeneousSubstitutionProcess::rateDistribution. No associated rate distribution.");
     return *rDist_;
   }
 
-  DiscreteDistribution& rateDistribution() override
+  DiscreteDistributionInterface& rateDistribution() override
   {
     if (!rDist_)
       throw NullPointerException("NonHomogeneousSubstitutionProcess::rateDistribution. No associated rate distribution.");
     return *rDist_;
   }
 
-  std::shared_ptr<const DiscreteDistribution> getRateDistribution() const override
+  std::shared_ptr<const DiscreteDistributionInterface> getRateDistribution() const override
   {
     return rDist_ ? rDist_ : nullptr;
   }
 
-  std::shared_ptr<DiscreteDistribution> getRateDistribution() override
+  std::shared_ptr<DiscreteDistributionInterface> getRateDistribution() override
   {
     return rDist_ ? rDist_ : nullptr;
   }
@@ -425,7 +388,6 @@ public:
   }
 
 protected:
-
   /**
    * @name Check function.
    *
@@ -510,12 +472,12 @@ public:
    * @param scenario (optional) the scenario used (in case of Mixed Models)
    */
   static std::unique_ptr<AutonomousSubstitutionProcessInterface> createHomogeneousSubstitutionProcess(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rdist,
-    std::shared_ptr<PhyloTree> tree,
-    std::shared_ptr<FrequencySetInterface> rootFreqs = 0,
-    std::shared_ptr<ModelScenario> scenario = 0
-    );
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
+      std::shared_ptr<PhyloTree> tree,
+      std::shared_ptr<FrequencySetInterface> rootFreqs = 0,
+      std::shared_ptr<ModelScenario> scenario = 0
+      );
 
   /**
    * @brief Create a NonHomogeneousSubstitutionProcess object, with one model per branch.
@@ -533,13 +495,13 @@ public:
    * @param scenario (optional) the scenario used (in case of Mixed Models)
    */
   static std::unique_ptr<NonHomogeneousSubstitutionProcess> createNonHomogeneousSubstitutionProcess(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistribution> rdist,
-    std::shared_ptr<PhyloTree> tree,
-    std::shared_ptr<FrequencySetInterface> rootFreqs,
-    const std::vector<std::string>& globalParameterNames,
-    std::shared_ptr<ModelScenario> scenario = 0
-    );
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rdist,
+      std::shared_ptr<PhyloTree> tree,
+      std::shared_ptr<FrequencySetInterface> rootFreqs,
+      const std::vector<std::string>& globalParameterNames,
+      std::shared_ptr<ModelScenario> scenario = 0
+      );
 
 
   /** @} */

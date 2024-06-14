@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SubstitutionRegister.h
-// Authors:
-//   Julien Dutheil
-// Created: 2010-12-06 16:32:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MAPPING_SUBSTITUTIONREGISTER_H
 #define BPP_PHYL_MAPPING_SUBSTITUTIONREGISTER_H
@@ -163,11 +127,11 @@ public:
 
 public:
   const StateMapInterface& stateMap() const override { return *stateMap_; }
-  
+
   std::shared_ptr<const StateMapInterface> getStateMap() const override { return stateMap_; }
 
   const Alphabet& alphabet() const override { return *stateMap_->getAlphabet(); }
-  
+
   std::shared_ptr<const Alphabet> getAlphabet() const override { return stateMap_->getAlphabet(); }
 
   const std::string& getName() const override
@@ -313,39 +277,39 @@ public:
  *
  */
 
-class VectorOfSubstitionRegisters :
+class VectorOfSubstitutionRegisters :
   public AbstractSubstitutionRegister
 {
 private:
   /**
    * @brief the vector of pointers to SubstitutionRegisters.
    */
-  std::vector< std::shared_ptr<SubstitutionRegisterInterface> > vSubReg_;
+  std::vector< std::shared_ptr<SubstitutionRegisterInterface>> vSubReg_;
 
 public:
-  VectorOfSubstitionRegisters(std::shared_ptr<const StateMapInterface> stateMap) :
+  VectorOfSubstitutionRegisters(std::shared_ptr<const StateMapInterface> stateMap) :
     AbstractSubstitutionRegister(stateMap, "Combination"),
     vSubReg_()
   {}
 
-  VectorOfSubstitionRegisters(const VectorOfSubstitionRegisters& vosr) :
+  VectorOfSubstitutionRegisters(const VectorOfSubstitutionRegisters& vosr) :
     AbstractSubstitutionRegister(vosr),
     vSubReg_(vosr.vSubReg_)
   {}
 
-  VectorOfSubstitionRegisters* clone() const override
+  VectorOfSubstitutionRegisters* clone() const override
   {
-    return new VectorOfSubstitionRegisters(*this);
+    return new VectorOfSubstitutionRegisters(*this);
   }
 
-  virtual ~VectorOfSubstitionRegisters() {}
+  virtual ~VectorOfSubstitutionRegisters() {}
 
   void addRegister(std::shared_ptr<SubstitutionRegisterInterface> reg)
   {
     if (reg)
     {
       if (reg->stateMap() != stateMap())
-        throw Exception("VectorOfSubstitionRegisters::addRegister : mismatch between state maps");
+        throw Exception("VectorOfSubstitutionRegisters::addRegister : mismatch between state maps");
 
       vSubReg_.push_back(reg);
     }
@@ -438,7 +402,7 @@ protected:
    *
    * This is the reverse information of matrix_
    */
-  std::map<size_t, std::map<size_t, std::vector<size_t> > > types_;
+  std::map<size_t, std::map<size_t, std::vector<size_t>>> types_;
 
 public:
   GeneralSubstitutionRegister(std::shared_ptr<const StateMapInterface> stateMap) :
@@ -815,7 +779,7 @@ public:
     int x = stateMap().getAlphabetStateAsInt(fromState);
     int y = stateMap().getAlphabetStateAsInt(toState);
     if (x == y)
-      return 0;                                        // nothing happens
+      return 0; // nothing happens
 
 
     if (genCode_)
@@ -843,7 +807,7 @@ public:
     while (d != 0)
     {
       if (d == 2)
-        return 1;                                          // This is a transition
+        return 1; // This is a transition
       else
         d /= 4;
     }
@@ -927,7 +891,7 @@ public:
     int x = stateMap().getAlphabetStateAsInt(fromState);
     int y = stateMap().getAlphabetStateAsInt(toState);
     if (x == y)
-      return 0;                                        // nothing happens
+      return 0; // nothing happens
 
     int nd, na;
     if (genCode_)
@@ -1061,7 +1025,7 @@ public:
         || genCode_->isStop(y))
       return 0;
     if (x == y)
-      return 0;                                        // nothing happens
+      return 0; // nothing happens
     if (!countMultiple_)
     {
       size_t countPos = 0;
@@ -1111,7 +1075,7 @@ class KrKcSubstitutionRegister :
   public AbstractSubstitutionRegister
 {
 private:
-  std::vector< std::vector<bool> > types_;
+  std::vector< std::vector<bool>> types_;
 
   // In case of codon model
   std::shared_ptr<const GeneticCode> genCode_;
@@ -1260,7 +1224,7 @@ public:
   size_t getType(size_t fromState, size_t toState) const
   {
     if (fromState == toState)
-      return 0;                     // nothing happens
+      return 0; // nothing happens
     int x = stateMap().getAlphabetStateAsInt(fromState);
     int y = stateMap().getAlphabetStateAsInt(toState);
 

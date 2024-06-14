@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: MarginalAncestralReconstruction.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2005-07-08 13:32:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Numeric/VectorTools.h>
@@ -88,9 +52,9 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
   return ancestors;
 }
 
-map<uint, vector<size_t> > MarginalAncestralReconstruction::getAllAncestralStates() const
+map<uint, vector<size_t>> MarginalAncestralReconstruction::getAllAncestralStates() const
 {
-  map<uint, vector<size_t> > ancestors;
+  map<uint, vector<size_t>> ancestors;
   // Clone the data into a AlignedSequenceContainer for more efficiency:
   shared_ptr<AlignmentDataInterface> data = make_shared<AlignedSequenceContainer>(dynamic_cast<const SiteContainerInterface&>(likelihood_->shrunkData()));
   recursiveMarginalAncestralStates(tree_->getRoot(), ancestors, *data);
@@ -110,26 +74,31 @@ unique_ptr<Sequence> MarginalAncestralReconstruction::getAncestralSequenceForNod
   {
     auto states = getAncestralStatesForNode(nodeId, *probs, sample);
     for (size_t i = 0; i < nbSites_; ++i)
+    {
       allStates[i] = stateMap.getAlphabetStateAsInt(states[i]);
+    }
   }
   else
   {
     auto states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     for (size_t i = 0; i < nbSites_; ++i)
+    {
       allStates[i] = stateMap.getAlphabetStateAsInt(states[i]);
+    }
   }
 
   return make_unique<Sequence>(name, allStates, alphabet_);
 }
 
 void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
-  const std::shared_ptr<PhyloNode> node,
-  map<uint, vector<size_t> >& ancestors,
-  AlignmentDataInterface& data) const
+    const std::shared_ptr<PhyloNode> node,
+    map<uint, vector<size_t>>& ancestors,
+    AlignmentDataInterface& data) const
 {
   if (tree_->isLeaf(node))
   {
-    try {
+    try
+    {
       auto& sc = dynamic_cast<const SiteContainerInterface&>(data);
       const Sequence& seq = sc.sequence(node->getName());
       vector<size_t>* v = &ancestors[tree_->getNodeIndex(node)];
@@ -151,7 +120,7 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   else
   {
     ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
-    vector<shared_ptr<PhyloNode> > vsons = tree_->getSons(node);
+    vector<shared_ptr<PhyloNode>> vsons = tree_->getSons(node);
 
     for (size_t i = 0; i < vsons.size(); i++)
     {
@@ -163,7 +132,7 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
 unique_ptr<AlignedSequenceContainer> MarginalAncestralReconstruction::getAncestralSequences(bool sample) const
 {
   auto asc = make_unique<AlignedSequenceContainer>(alphabet_);
-  vector<shared_ptr<PhyloNode> > inNodes = tree_->getAllInnerNodes();
+  vector<shared_ptr<PhyloNode>> inNodes = tree_->getAllInnerNodes();
   for (size_t i = 0; i < inNodes.size(); ++i)
   {
     auto seq = getAncestralSequenceForNode(tree_->getNodeIndex(inNodes[i]), nullptr, sample);

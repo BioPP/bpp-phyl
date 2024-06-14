@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: PartitionProcessPhyloLikelihood.cpp
-// Authors:
-//   Laurent GuÃÂ©guen
-// Created: samedi 16 mai 2015, ÃÂ  13h 54
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 
@@ -56,11 +20,11 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
   AbstractSingleDataPhyloLikelihood(
-	context, processSeqEvol->getNumberOfSites(),
-       	(processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, 0),
+      context, processSeqEvol->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, 0),
   AbstractParametrizable(""),
   AbstractSequencePhyloLikelihood(context, processSeqEvol, nSeqEvol),
-  AbstractSetOfPhyloLikelihood(context, std::make_shared<PhyloLikelihoodContainer>(context, processSeqEvol->getCollection())),
+  AbstractPhyloLikelihoodSet(context, std::make_shared<PhyloLikelihoodContainer>(context, processSeqEvol->getCollection())),
   mSeqEvol_(processSeqEvol),
   vProcPos_(),
   mData_(),
@@ -71,7 +35,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
 
   //
 
-  map<size_t, vector<size_t> >& mProcPos = processSeqEvol->mapOfProcessSites();
+  map<size_t, vector<size_t>>& mProcPos = processSeqEvol->mapOfProcessSites();
 
   vProcPos_.resize(processSeqEvol->getNumberOfSites());
 
@@ -110,11 +74,11 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
-	context, data->getNumberOfSites(),
-       	(processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+      context, data->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
   AbstractParametrizable(""),
   AbstractSequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
-  AbstractSetOfPhyloLikelihood(context, std::make_shared<PhyloLikelihoodContainer>(context, processSeqEvol->getCollection())),
+  AbstractPhyloLikelihoodSet(context, std::make_shared<PhyloLikelihoodContainer>(context, processSeqEvol->getCollection())),
   mSeqEvol_(processSeqEvol),
   vProcPos_(),
   mData_(),
@@ -127,7 +91,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   auto collNodes = pPhyloCont_->getCollectionNodes();
 
 
-  map<size_t, vector<size_t> >& mProcPos = processSeqEvol->mapOfProcessSites();
+  map<size_t, vector<size_t>>& mProcPos = processSeqEvol->mapOfProcessSites();
 
   vProcPos_.resize(processSeqEvol->getNumberOfSites());
 
@@ -168,11 +132,11 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   AbstractPhyloLikelihood(collNodes->context()),
   AbstractAlignedPhyloLikelihood(collNodes->context(), data->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(
-	collNodes->context(), data->getNumberOfSites(),
-       	(processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
+      collNodes->context(), data->getNumberOfSites(),
+      (processSeqEvol->getSubstitutionProcessNumbers().size() != 0) ? processSeqEvol->substitutionProcess(processSeqEvol->getSubstitutionProcessNumbers()[0]).getNumberOfStates() : 0, nData),
   AbstractParametrizable(""),
   AbstractSequencePhyloLikelihood(collNodes->context(), processSeqEvol, nSeqEvol, nData),
-  AbstractSetOfPhyloLikelihood(collNodes->context(), std::make_shared<PhyloLikelihoodContainer>(collNodes->context(), collNodes)),
+  AbstractPhyloLikelihoodSet(collNodes->context(), std::make_shared<PhyloLikelihoodContainer>(collNodes->context(), collNodes)),
   mSeqEvol_(processSeqEvol),
   vProcPos_(),
   mData_(),
@@ -181,7 +145,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   if (data->getNumberOfSites() != processSeqEvol->getNumberOfSites())
     throw BadIntegerException("PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood, data and sequence process lengths do not match.", static_cast<int>(data->getNumberOfSites()));
 
-  map<size_t, vector<size_t> >& mProcPos = processSeqEvol->mapOfProcessSites();
+  map<size_t, vector<size_t>>& mProcPos = processSeqEvol->mapOfProcessSites();
 
   vProcPos_.resize(processSeqEvol->getNumberOfSites());
 
@@ -246,7 +210,7 @@ void PartitionProcessPhyloLikelihood::makeLikCal_()
   // get the RowVectors of site likelihoods
   for (const auto& lik : vLikCal_)
   {
-    vLik.push_back(dynamic_pointer_cast<LikelihoodCalculationSingleProcess>(lik)->getSiteLikelihoods(false));
+    vLik.push_back(dynamic_pointer_cast<AlignedLikelihoodCalculation>(lik)->getSiteLikelihoods(false));
   }
 
   // build the reverse map of Phylo indexes
@@ -276,7 +240,7 @@ void PartitionProcessPhyloLikelihood::makeLikCal_()
 
   vLik.push_back(matchingDF);
 
-  auto sL = CWiseMatching<RowLik, ReductionOf<RowLik> >::create(context(), std::move(vLik), RowVectorDimension (getNumberOfSites()));
+  auto sL = CWiseMatching<RowLik, ReductionOf<RowLik>>::create(context(), std::move(vLik), RowVectorDimension (getNumberOfSites()));
 
   likCal_->setSiteLikelihoods(sL);
 
@@ -288,4 +252,3 @@ void PartitionProcessPhyloLikelihood::makeLikCal_()
   // writeGraphToDot(
   //   "partition.dot", {lik.get()});//, DotOptions::DetailedNodeInfo | DotOp
 }
-

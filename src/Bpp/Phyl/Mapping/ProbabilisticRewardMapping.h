@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: ProbabilisticRewardMapping.h
-// Authors:
-//   Laurent Guéguen
-// Created: lundi 20 novembre 2017, ÃÂ  16h 55
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MAPPING_PROBABILISTICREWARDMAPPING_H
 #define BPP_PHYL_MAPPING_PROBABILISTICREWARDMAPPING_H
@@ -100,7 +64,7 @@ public:
    * @param numberOfSites The number of sites to map.
    */
   ProbabilisticRewardMapping(const PhyloTree& tree, size_t numberOfSites) :
-    AbstractMapping(numberOfSites), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(numberOfSites)
+    AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(numberOfSites)
   {
     std::unique_ptr<mapTree::EdgeIterator> nIT = allEdgesIterator();
     for ( ; !nIT->end(); nIT->next())
@@ -113,7 +77,7 @@ public:
    * @brief the same with rootPatternLinks
    */
   ProbabilisticRewardMapping(const PhyloTree& tree, const PatternType& rootpatterns, size_t nbDistinctSites) :
-    AbstractMapping(size_t(rootpatterns.size())), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
+    AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
   {
     std::unique_ptr<mapTree::EdgeIterator> nIT = allEdgesIterator();
     for ( ; !nIT->end(); nIT->next())
@@ -128,14 +92,14 @@ public:
    * @param tree The tree object to use. It will be cloned for internal use.
    */
   ProbabilisticRewardMapping(const PhyloTree& tree) :
-    AbstractMapping(), AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(0)
+    AbstractRewardMapping(), mapTree(tree), rootPatternLinks_(), usePatterns_(false), numberOfDistinctSites_(0)
   {}
 
 
-  ProbabilisticRewardMapping* clone() const { return new ProbabilisticRewardMapping(*this); }
+  ProbabilisticRewardMapping* clone() const override { return new ProbabilisticRewardMapping(*this); }
 
   ProbabilisticRewardMapping(const ProbabilisticRewardMapping& prm) :
-    AbstractMapping(prm), AbstractRewardMapping(prm), mapTree(prm), rootPatternLinks_(prm.rootPatternLinks_), usePatterns_(prm.usePatterns_), numberOfDistinctSites_(prm.numberOfDistinctSites_)
+    AbstractRewardMapping(prm), mapTree(prm), rootPatternLinks_(prm.rootPatternLinks_), usePatterns_(prm.usePatterns_), numberOfDistinctSites_(prm.numberOfDistinctSites_)
   {}
 
   ProbabilisticRewardMapping& operator=(const ProbabilisticRewardMapping& prm)
@@ -157,17 +121,17 @@ public:
    *
    * @{
    */
-  const PhyloBranch& getBranch(unsigned int branchIndex) const
+  const PhyloBranch& getBranch(unsigned int branchIndex) const override
   {
     return *getEdge(branchIndex);
   }
 
-  PhyloBranch& getBranch(unsigned int branchIndex)
+  PhyloBranch& getBranch(unsigned int branchIndex) override
   {
     return *getEdge(branchIndex);
   }
 
-  size_t getNumberOfBranches() const
+  size_t getNumberOfBranches() const override
   {
     return getNumberOfEdges();
   }
@@ -190,7 +154,7 @@ public:
     return getEdge((uint)branchId)->getSiteReward(getSiteIndex(site));
   }
 
-  virtual void setNumberOfSites(size_t numberOfSites);
+  virtual void setNumberOfSites(size_t numberOfSites) override;
 
   /**
    * @brief Direct access to rewards, with COMPRESSED
@@ -198,7 +162,7 @@ public:
    *
    * @warning No index checking is performed, use with care!
    */
-  virtual double operator()(uint branchId, size_t siteIndex) const
+  virtual double operator()(uint branchId, size_t siteIndex) const override
   {
     return (*getEdge(branchId))(siteIndex);
   }
@@ -209,7 +173,7 @@ public:
    *
    * @warning No index checking is performed, use with care!
    */
-  virtual double& operator()(uint branchId, size_t siteIndex)
+  virtual double& operator()(uint branchId, size_t siteIndex) override
   {
     return (*getEdge(branchId))(siteIndex);
   }

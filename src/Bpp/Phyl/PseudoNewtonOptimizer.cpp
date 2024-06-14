@@ -1,44 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: PseudoNewtonOptimizer.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2004-11-16 12:33:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
-
+// SPDX-License-Identifier: CECILL-2.1
 
 /**************************************************************************/
 
@@ -60,8 +22,8 @@ using namespace bpp;
 double PseudoNewtonOptimizer::PNStopCondition::getCurrentTolerance() const
 {
   return NumTools::abs<double>(
-    dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
-    dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_);
+        dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->currentValue_ -
+        dynamic_cast<const PseudoNewtonOptimizer*>(optimizer_)->previousValue_);
 }
 
 /**************************************************************************/
@@ -121,7 +83,7 @@ double PseudoNewtonOptimizer::doStep()
     {
       printMessage("!!! Second order derivative is negative for parameter " + params_[i] + "(" + TextTools::toString(getParameters()[i].getValue()) + "). Moving in the other direction.");
       // movements[i] = 0;  // We want to reach a minimum, not a maximum!
-      // My personnal improvement:
+      // My personal improvement:
       movements[i] = -firstOrderDerivative / secondOrderDerivative;
     }
     else
@@ -132,7 +94,7 @@ double PseudoNewtonOptimizer::doStep()
       movements[i] = 0; // Either first or second order derivative is infinity. This may happen when the function == inf at this point.
     }
     // DEBUG:
-    //    cerr << "PN[" << params_[i] << "]=" << getParameters().getParameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
+    // cerr << "PN[" << params_[i] << "]=" << getParameters().parameter(params_[i]).getValue() << "\t" << movements[i] << "\t " << firstOrderDerivative << "\t" << secondOrderDerivative << endl;
     newPoint[i].setValue(getParameters()[i].getValue() - movements[i]);
     // Correct the movement in case of constraint (this is used in case of Felsenstein-Churchill correction:
     movements[i] = getParameters()[i].getValue() - newPoint[i].getValue();

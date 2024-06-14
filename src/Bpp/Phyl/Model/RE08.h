@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: RE08.h
-// Authors:
-//   Julien Dutheil
-// Created: 2008-12-29 10:15:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_RE08_H
 #define BPP_PHYL_MODEL_RE08_H
@@ -54,7 +18,7 @@ namespace bpp
  * @brief The Rivas-Eddy substitution model with gap characters.
  *
  * This model expends any reversible substitution model with gaps as an additional state.
- * Although the conditionnal subtitution process is reversible, the insertion/deletion process
+ * Although the conditional substitution process is reversible, the insertion/deletion process
  * needs not be. The model hence adds two parameters for insertion and deletions, @f$\lambda@f$ and @f$\mu@f$.
  * If we note @f$Q@f$ the (simple) transition matrix (= Markov generator) and @f$Q^\epsilon@f$ the extended one, we have:
  * @f[
@@ -198,14 +162,13 @@ public:
   void setNamespace(const std::string& prefix) override;
 
   const ReversibleSubstitutionModelInterface& nestedModel() const
-  { 
-    return *simpleModel_; 
+  {
+    return *simpleModel_;
   }
 
 protected:
-  
   void updateMatrices_() override;
-  
+
   ReversibleSubstitutionModelInterface& nestedModel_() { return *simpleModel_; }
 };
 
@@ -287,14 +250,14 @@ public:
 
   virtual ~RE08Protein() {}
 
-  RE08Protein* clone() const override{ return new RE08Protein(*this); }
+  RE08Protein* clone() const override { return new RE08Protein(*this); }
 
 public:
   std::shared_ptr<const ProteicAlphabet> getProteicAlphabet() const override
   {
     return std::dynamic_pointer_cast<const ProteicAlphabet>(alphabet_);
   }
-  
+
   const ProteinReversibleSubstitutionModelInterface& nestedModel() const
   {
     return dynamic_cast<const ProteinReversibleSubstitutionModelInterface&>(RE08::nestedModel());

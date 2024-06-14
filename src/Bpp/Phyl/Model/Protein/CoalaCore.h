@@ -1,46 +1,9 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: CoalaCore.h
-// Authors:
-//   Mathieu Groussin
-//   Modified on: Sun Mar 13 12:00:00 2011
-//
-
-/*
-  Copyright or (C) or Copr. Bio++ Development Team, (November 16, 2004)
-  PCA
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_PROTEIN_COALACORE_H
 #define BPP_PHYL_MODEL_PROTEIN_COALACORE_H
-
 
 
 // From bpp-core:
@@ -63,21 +26,20 @@ namespace bpp
  * @author Mathieu Groussin
  * @param nbAxes The number of principal axes of the COA that have to be taken into account to optimize the 20 branch-specific equilibrium frequencies. This number is common to all branches, as
  * well as on the root, where frequencies are optimized with a MVAprotein object (See the ProteinFrequencySet class).
- * @param exch The exchangeability matrix. The matrices currently available are DSO78, JTT92, WAG01 or LG08. A user-defined matrix can be specified with the 'file' argument.
- */
+ **/
+  
 class CoalaCore
 {
 protected:
   bool init_;
   size_t nbrOfAxes_;
-  std::string exch_;
   RowMatrix<double> P_;
   RowMatrix<double> R_;
   std::vector<double> colWeights_;
-  std::map<std::string, std::string> paramValues_;
+  ParameterList paramValues_;
 
 public:
-  CoalaCore(size_t nbAxes = 0, const std::string& exch = "LG08");
+  CoalaCore(size_t nbAxes = 0);
 
   virtual ~CoalaCore() {}
 
@@ -88,10 +50,20 @@ public:
   const RowMatrix<double>& getTppalAxesMatrix() const { return P_; }
   const RowMatrix<double>& getRowCoordinates() const { return R_; }
   const std::vector<double>& getColumnWeights() const { return colWeights_; }
-  void setParamValues(const std::map<std::string, std::string>& valuesSettings) { paramValues_ = valuesSettings; }
 
 protected:
-  ParameterList computeCOA(const SequenceDataInterface& data, bool param = true);
+  /**
+   * @brief Comoute COA from data and return the axis position parameters
+   *
+   * @param data the Data used
+   * @param pseudoCount double pseudo-counts added to amino acids
+   * counts (default: 0). If set to 0, null counted amino acids are
+   * added 10e-6.
+   * @param param boolean true if new parameters must be built (default: true)
+   *
+   **/
+  
+  ParameterList computeCOA(const SequenceDataInterface& data, double pseudoCount = 0, bool param = true);
 
   std::vector<double> prodMatrixVector(RowMatrix<double>& P, std::vector<double>& V);
 };

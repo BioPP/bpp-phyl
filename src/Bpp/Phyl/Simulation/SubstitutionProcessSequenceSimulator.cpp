@@ -1,44 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: SubstitutionProcessSequenceSimulator.cpp
-// Authors:
-//   Julien Dutheil
-//   Bastien Boussau
-//   Laurent GuÃÂ©guen
-// Created: 2004-02-04 16:30:51
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/VectorTools.h>
 #include <algorithm>
@@ -65,10 +27,10 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
 {
   vector<size_t> nProc = evol.getSubstitutionProcessNumbers();
 
-  vector<shared_ptr<PhyloNode> > vpn = evol.substitutionProcess(nProc[0]).getParametrizablePhyloTree()->getAllLeaves();
+  vector<shared_ptr<PhyloNode>> vpn = evol.substitutionProcess(nProc[0]).getParametrizablePhyloTree()->getAllLeaves();
 
   // set ups seqnames for all processes
-  for (auto & vi : vpn)
+  for (auto& vi : vpn)
   {
     seqNames_.push_back(vi->getName());
   }
@@ -81,7 +43,7 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
 
     vector<string> seqNames2;
 
-    vector<shared_ptr<PhyloNode> > vpn2 = sp->getParametrizablePhyloTree()->getAllLeaves();
+    vector<shared_ptr<PhyloNode>> vpn2 = sp->getParametrizablePhyloTree()->getAllLeaves();
     for (size_t i2 = 0; i2 < vpn2.size(); i2++)
     {
       seqNames2.push_back(vpn2[i2]->getName());
@@ -106,7 +68,7 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
     setMap(pse->getProcessNumbersPerSite());
   }
   else
-    throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(SequenceEvolution) not set for this type of process. Ask developpers.");
+    throw Exception("SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(SequenceEvolution) not set for this type of process. Ask developers.");
 }
 
 /******************************************************************************/
@@ -188,7 +150,7 @@ unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulat
     size_t numberOfSites) const
 {
   if (numberOfSites > vMap_.size())
-    throw BadIntegerException("SubstitutionProcessSequenceSimulator::simulate. Too many sites to simulate.",(int)numberOfSites);
+    throw BadIntegerException("SubstitutionProcessSequenceSimulator::simulate. Too many sites to simulate.", (int)numberOfSites);
 
   auto sites = make_unique<VectorSiteContainer>(seqNames_, getAlphabet());
   sites->setSequenceNames(seqNames_, true);
@@ -214,7 +176,7 @@ unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulat
 /******************************************************************************/
 
 unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
-  const vector<double>& rates) const
+    const vector<double>& rates) const
 {
   size_t numberOfSites = rates.size();
 
@@ -245,7 +207,7 @@ unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulat
 /******************************************************************************/
 
 unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
-  const vector<size_t>& states) const
+    const vector<size_t>& states) const
 {
   size_t numberOfSites = states.size();
 
@@ -273,8 +235,8 @@ unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulat
 /******************************************************************************/
 
 unique_ptr<SiteContainerInterface> SubstitutionProcessSequenceSimulator::simulate(
-  const vector<double>& rates,
-  const vector<size_t>& states) const
+    const vector<double>& rates,
+    const vector<size_t>& states) const
 {
   size_t numberOfSites = rates.size();
   if (states.size() != numberOfSites)

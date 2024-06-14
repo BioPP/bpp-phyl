@@ -1,44 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: NeighborJoining.cpp
-// Authors:
-//   Julien Dutheil
-//   Vincent Ranwez
-// Created: 2005-06-23 10:39:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. CNRS, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "../Tree/Tree.h"
 #include "NeighborJoining.h"
@@ -141,13 +103,13 @@ void NeighborJoining::finalStep(int idRoot)
     size_t i3 = it->first;
     Node* n3       = it->second;
     double d1 = positiveLengths_ ?
-                std::max(matrix_(i1, i2) + matrix_(i1, i3) - matrix_(i2, i3), 0.)
+        std::max(matrix_(i1, i2) + matrix_(i1, i3) - matrix_(i2, i3), 0.)
                 :          matrix_(i1, i2) + matrix_(i1, i3) - matrix_(i2, i3);
     double d2 = positiveLengths_ ?
-                std::max(matrix_(i2, i1) + matrix_(i2, i3) - matrix_(i1, i3), 0.)
+        std::max(matrix_(i2, i1) + matrix_(i2, i3) - matrix_(i1, i3), 0.)
                 :          matrix_(i2, i1) + matrix_(i2, i3) - matrix_(i1, i3);
     double d3 = positiveLengths_ ?
-                std::max(matrix_(i3, i1) + matrix_(i3, i2) - matrix_(i1, i2), 0.)
+        std::max(matrix_(i3, i1) + matrix_(i3, i2) - matrix_(i1, i2), 0.)
                 :          matrix_(i3, i1) + matrix_(i3, i2) - matrix_(i1, i2);
     root->addSon(n1);
     root->addSon(n2);

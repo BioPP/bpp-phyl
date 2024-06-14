@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: KroneckerWordSubstitutionModel.cpp
-// Authors:
-//   Laurent Gueguen
-// Created: mercredi 27 juillet 2016, ÃÂ  00h 12
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/Numeric/Matrix/EigenValue.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
@@ -57,20 +22,20 @@ using namespace std;
 /******************************************************************************/
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  ModelList& modelList,
-  const string& prefix) :
+    ModelList& modelList,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(
-    modelList,
-    (prefix == "") ? "Kron." : prefix)
+      modelList,
+      (prefix == "") ? "Kron." : prefix)
 {
   updateMatrices_();
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  shared_ptr<const Alphabet> alph,
-  shared_ptr<const StateMapInterface> stateMap,
-  const string& prefix) :
+    shared_ptr<const Alphabet> alph,
+    shared_ptr<const StateMapInterface> stateMap,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Kron." : prefix)
 {
@@ -78,40 +43,40 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
-  AbstractKroneckerWordSubstitutionModel(move(pmodel),
-                                         num,
-                                         (prefix == "") ? "Kron." : prefix)
+  AbstractKroneckerWordSubstitutionModel(std::move(pmodel),
+      num,
+      (prefix == "") ? "Kron." : prefix)
 {
   enableEigenDecomposition(true);
   updateMatrices_();
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  ModelList& modelList,
-  const vector<set< size_t> >& vPos,
-  const string& prefix) :
+    ModelList& modelList,
+    const vector<set< size_t>>& vPos,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(
-    modelList, vPos,
-    (prefix == "") ? "Kron." : prefix)
+      modelList, vPos,
+      (prefix == "") ? "Kron." : prefix)
 {
   enableEigenDecomposition(true);
   updateMatrices_();
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-  unique_ptr<SubstitutionModelInterface> pmodel,
-  unsigned int num,
-  const vector<set< size_t> >& vPos,
-  const string& prefix) :
+    unique_ptr<SubstitutionModelInterface> pmodel,
+    unsigned int num,
+    const vector<set< size_t>>& vPos,
+    const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
-  AbstractKroneckerWordSubstitutionModel(move(pmodel),
-                                         num, vPos,
-                                         (prefix == "") ? "Kron." : prefix)
+  AbstractKroneckerWordSubstitutionModel(std::move(pmodel),
+      num, vPos,
+      (prefix == "") ? "Kron." : prefix)
 {
   enableEigenDecomposition(true);
   updateMatrices_();

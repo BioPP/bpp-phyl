@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: DataFlow.h
-// Authors:
-//   Francois Gindraud (2017)
-// Created: 2017-04-18 00:00:00
-// Last modified: 2017-04-18 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOW_H
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOW_H
@@ -96,7 +59,7 @@ void writeGraphToDot (std::ostream& os, const std::vector<const Node_DF*>& nodes
 
 /// Write dataflow graph starting at nodes to file at filename, overwriting it.
 void writeGraphToDot (const std::string& filename, const std::vector<const Node_DF*>& nodes,
-                      DotOptions opt  = DotOptions::None);
+    DotOptions opt  = DotOptions::None);
 
 /// Output with given precision
 template<typename T>
@@ -134,12 +97,12 @@ enum class NumericalProperty
 [[noreturn]] void failureComputeWasCalled (const std::type_info& nodeType);
 [[noreturn]] void failureNodeConversion (const std::type_info& handleType, const Node_DF& node);
 [[noreturn]] void failureDependencyNumberMismatch (const std::type_info& contextNodeType,
-                                                   std::size_t expectedSize, std::size_t givenSize);
+    std::size_t expectedSize, std::size_t givenSize);
 [[noreturn]] void failureEmptyDependency (const std::type_info& contextNodeType, std::size_t depIndex);
 [[noreturn]] void failureDependencyTypeMismatch (const std::type_info& contextNodeType,
-                                                 std::size_t depIndex,
-                                                 const std::type_info& expectedType,
-                                                 const std::type_info& givenNodeType);
+    std::size_t depIndex,
+    const std::type_info& expectedType,
+    const std::type_info& givenNodeType);
 ///@}
 
 /**
@@ -182,7 +145,7 @@ enum class NumericalProperty
  *
  * Specific features are present in the base class as virtual functions.
  * This include derivation (numerical values), debug, etc.
- * These features have no-op or failure defaults which can be overriden in derived classes.
+ * These features have no-op or failure defaults which can be overridden in derived classes.
  */
 
 class Node_DF : public std::enable_shared_from_this<Node_DF>
@@ -206,19 +169,17 @@ public:
    * @brief Number of dependent nodes (ie nodes that depend on this)
    *
    */
-  
   std::size_t nbDependentNodes () const noexcept { return dependentNodes_.size (); }
 
-  
+
   const std::vector<Node_DF*>& dependentNodes () const noexcept { return dependentNodes_; }
 
   /**
    * @brief Number of dependencies (ie nodes we depend on)
    *
    */
-  
   std::size_t nbDependencies () const noexcept { return dependencyNodes_.size (); }
-  
+
   const NodeRefVec& dependencies () const noexcept { return dependencyNodes_; }
 
   const NodeRef& dependency (std::size_t i) const noexcept { return dependencyNodes_[i]; }
@@ -369,7 +330,7 @@ bool isTransitivelyDependentOn (const Node_DF& searchedDependency, const Node_DF
 
 /// Recreate node by transitively replacing dependencies according to substitutions mapping.
 NodeRef recreateWithSubstitution (Context& c, const NodeRef& node,
-                                  const std::unordered_map<const Node_DF*, NodeRef>& substitutions);
+    const std::unordered_map<const Node_DF*, NodeRef>& substitutions);
 
 
 /** @brief Abstract Node storing a value of type T.
@@ -392,7 +353,7 @@ template<typename T> class Value : public Node_DF
 public:
   // Init deps
   template<typename ... Args>
-  Value(const NodeRefVec& deps, Args&&... args) : 
+  Value(const NodeRefVec& deps, Args&&... args) :
     Node_DF(deps),
     value_(std::forward<Args>(args)...)
   {}
@@ -403,7 +364,7 @@ public:
     value_(std::forward<Args>(args)...)
   {}
 
-  /** 
+  /**
    * @brief Access value, recompute if needed.
    *
    * Recompute the value if it is not up to date.
@@ -416,7 +377,7 @@ public:
     return accessValueConst();
   }
 
-  /** 
+  /**
    * @brief Raw value access (const).
    *
    * Value is not guaranteed to be valid (no recomputation).
@@ -430,10 +391,10 @@ public:
     return convertRef<Value<T>>(this->derive(c, node));
   }
 
-  /** 
+  /**
    * @brief General case for modification of the T object.
    *
-   * Takes a callable object (lamda, function pointer) that performs the modification.
+   * Takes a callable object (lambda, function pointer) that performs the modification.
    * It must take a single T& as argument, which will refer to the T object to modify.
    * The callable is called exactly once.
    *
@@ -470,11 +431,11 @@ template<typename T> const T& accessValueConstCast(const Node_DF& node)
 ///@{
 /// Checks the size of a dependency vector, throws if mismatch.
 void checkDependencyVectorSize (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                                std::size_t expectedSize);
+    std::size_t expectedSize);
 
 /// Checks the minimum size of a dependency vector, throws if mismatch.
 void checkDependencyVectorMinSize (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                                   std::size_t expectedMinSize);
+    std::size_t expectedMinSize);
 
 /// Checks that all dependencies are not null, throws if not.
 void checkDependenciesNotNull (const std::type_info& contextNodeType, const NodeRefVec& deps);
@@ -484,7 +445,7 @@ void checkNthDependencyNotNull (const std::type_info& contextNodeType, const Nod
 /// Checks that deps[index] is a T node, throws if not.
 template<typename T>
 void checkNthDependencyIs (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                           std::size_t index)
+    std::size_t index)
 {
   const auto& dep = *deps[index];
   if (dynamic_cast<const T*>(&dep) == nullptr)
@@ -494,23 +455,23 @@ void checkNthDependencyIs (const std::type_info& contextNodeType, const NodeRefV
 /// Checks that deps[index] is a T1 or a T2 node, throws if not.
 template<typename T1, typename T2>
 void checkNthDependencyIs (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                           std::size_t index)
+    std::size_t index)
 {
   const auto& dep = *deps[index];
   if (dynamic_cast<const T1*>(&dep) == nullptr &&
       (dynamic_cast<const T2*>(&dep) == nullptr))
 
     throw Exception (prettyTypeName (contextNodeType) + ": expected class derived from " +
-                     prettyTypeName (typeid(T1))
-                     + " or " + prettyTypeName (typeid(T2))
-                     + " as " + std::to_string (index)
-                     + "-th dependency, got " + prettyTypeName (typeid (dep)));
+          prettyTypeName (typeid(T1))
+          + " or " + prettyTypeName (typeid(T2))
+          + " as " + std::to_string (index)
+          + "-th dependency, got " + prettyTypeName (typeid (dep)));
 }
 
 /// Check that deps[start, end[ contains T, throws if not.
 template<typename T>
 void checkDependencyRangeIs (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                             std::size_t start, std::size_t end)
+    std::size_t start, std::size_t end)
 {
   for (std::size_t i = start; i < end; ++i)
   {
@@ -521,15 +482,15 @@ void checkDependencyRangeIs (const std::type_info& contextNodeType, const NodeRe
 /// Checks that deps[index] is a Value<T> node, throws if not.
 template<typename T>
 void checkNthDependencyIsValue (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                                std::size_t index)
+    std::size_t index)
 {
-  checkNthDependencyIs<Value<T> >(contextNodeType, deps, index);
+  checkNthDependencyIs<Value<T>>(contextNodeType, deps, index);
 }
 
 /// Check that deps[start, end[ contains Value<T> nodes, throws if not.
 template<typename T>
 void checkDependencyRangeIsValue (const std::type_info& contextNodeType, const NodeRefVec& deps,
-                                  std::size_t start, std::size_t end)
+    std::size_t start, std::size_t end)
 {
   for (std::size_t i = start; i < end; ++i)
   {
@@ -567,7 +528,7 @@ class Context
 public:
   Context ();
 
-  /** 
+  /**
    * @brief For a newly created node, return its equivalent from the cache.
    * If not already present in the cache, add it and return newNode.
    * If already present in the cache, return the stored one.
@@ -587,10 +548,7 @@ public:
   /**
    * @brief Clear the context
    */
-  void clear()
-  {
-    nodeCache_.clear();
-  }
+  void clear();
 
   /**
    * @brief Remove an element from the map, only if it has no
@@ -600,14 +558,13 @@ public:
    *
    * @return boolean: if the node has been removed from the map.
    */
-  
+
   bool erase(const NodeRef& r);
 
   /*
    * @brief Get a size_t 0 NodeRef
    *
    */
-
   NodeRef getZero()
   {
     return zero_;
@@ -633,9 +590,9 @@ private:
   {
     NodeRef ref;
 
-    CachedNodeRef(NodeRef&& r) : ref(std::move(r)) {}
+    CachedNodeRef(NodeRef && r) : ref(std::move(r)) {}
 
-    CachedNodeRef(NodeRef& r) : ref(r) {}
+    CachedNodeRef(NodeRef & r) : ref(r) {}
 
     bool operator==(const CachedNodeRef& other) const;
   };

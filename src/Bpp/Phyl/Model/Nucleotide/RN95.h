@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: RN95.h
-// Authors:
-//   Laurent Guéguen
-// Created: jeudi 24 fÃÂ©vrier 2011, ÃÂ  20h 43
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_MODEL_NUCLEOTIDE_RN95_H
 #define BPP_PHYL_MODEL_NUCLEOTIDE_RN95_H
@@ -88,11 +52,11 @@ namespace bpp
  * \gamma + \lambda + \delta + \kappa=1\\
  * c_1 = \kappa + \delta + \sigma + \beta\\
  * c_2 = \lambda + \gamma - (\sigma + \beta)  = 1 - c_1\\
- * c_3 = \lambda + \gamma + \alpha + \epsilon \\ 
+ * c_3 = \lambda + \gamma + \alpha + \epsilon \\
  * c_4 = \kappa + \delta - (\alpha + \epsilon) = 1 - c_3 \\
  * \end{cases}
  *\f]
- 
+
  * The stationnary distribution is then:
  * \f[
  * \pi = \frac{\delta\,(\lambda+\gamma)+\epsilon\,(\kappa+\delta)}{c_3} ,
@@ -125,7 +89,7 @@ namespace bpp
  * \f]
  *
  *
- * and 4 other positive parameters: \f[ \alpha, \beta, \epsilon, \sigma \f] 
+ * and 4 other positive parameters: \f[ \alpha, \beta, \epsilon, \sigma \f]
  *
  * The eigen values are \f$\left(-\frac{1}{P}, - \frac{c_3}{P}, -\frac{c_1}{P}, 0\right)\f$,
  *
@@ -139,7 +103,7 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  *
- * 
+ *
  * and the left eigen vectors are, by row:
  * \f[
  * U = \begin{pmatrix}
@@ -168,30 +132,27 @@ private:
 
 public:
   RN95(
-    std::shared_ptr<const NucleicAlphabet> alphabet,
-    double alpha = 1,
-    double beta = 1,
-    double gamma = 0.25,
-    double delta = 0.25,
-    double epsilon = 1,
-    double kappa = 0.25,
-    double lambda = 0.25,
-    double sigma = 1);
+      std::shared_ptr<const NucleicAlphabet> alphabet,
+      double alpha = 1,
+      double beta = 1,
+      double gamma = 0.25,
+      double delta = 0.25,
+      double epsilon = 1,
+      double kappa = 0.25,
+      double lambda = 0.25,
+      double sigma = 1);
 
   virtual ~RN95() {}
 
   RN95* clone() const override { return new RN95(*this); }
 
 public:
-
   std::string getName() const override { return "RN95"; }
 
   void setFreq(std::map<int, double>&) override;
 
 protected:
-
   void updateMatrices_() override;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_NUCLEOTIDE_RN95_H

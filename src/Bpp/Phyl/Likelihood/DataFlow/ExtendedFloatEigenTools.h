@@ -1,43 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: ExtendedFloatEigenTools.h
-// Authors:
-//   Laurent GuÃÂ©guen (2021)
-// Created: samedi 17 avril 2021, ÃÂ  08h 11
-// Last modified: 2018-07-11 00:00:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_LIKELIHOOD_DATAFLOW_EXTENDEDFLOATEIGENTOOLS_H
 #define BPP_PHYL_LIKELIHOOD_DATAFLOW_EXTENDEDFLOATEIGENTOOLS_H
@@ -180,9 +143,8 @@ protected:
   Eigen::Index nrow_;
 
 private:
-
   VecType tmp_;
-  
+
 public:
   ExtendedFloatRow(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index nrow) :
     efMat_(der), nrow_(nrow), tmp_(efMat_.float_part().row(nrow_)) {}
@@ -200,14 +162,12 @@ public:
    * of both are to be fit, as in denorm_add method.
    *
    */
-  
   ExtendedFloatRow& operator=(const ExtendedFloatEigen<1, C, EigenType>& row)
   {
-    efMat_.float_part().row(nrow_) = row.float_part() * constexpr_power<double>(ExtendedFloat::radix, row.exponent_part()-efMat_.exponent_part());
+    efMat_.float_part().row(nrow_) = row.float_part() * constexpr_power<double>(ExtendedFloat::radix, row.exponent_part() - efMat_.exponent_part());
     efMat_.normalize();
     return *this;
   }
-
 };
 
 /*
@@ -226,9 +186,8 @@ protected:
   Eigen::Index ncol_;
 
 private:
-
   VecType tmp_;
-  
+
 public:
   ExtendedFloatCol(ExtendedFloatEigen<R, C, EigenType>& der, Eigen::Index ncol) :
     efMat_(der), ncol_(ncol), tmp_(efMat_.float_part().col(ncol_)) {}
@@ -238,25 +197,29 @@ public:
    * of both are to be fit, as in denorm_add method.
    *
    */
-
-  const ExtType& exponent_part () const {
-    return efMat_.exponent_part(); }
-
-  const VecType& float_part () const {
-    return tmp_;
-  }
-
-  ExtType& exponent_part () {
+  const ExtType& exponent_part () const
+  {
     return efMat_.exponent_part();
   }
 
-  VecType& float_part () {
+  const VecType& float_part () const
+  {
+    return tmp_;
+  }
+
+  ExtType& exponent_part ()
+  {
+    return efMat_.exponent_part();
+  }
+
+  VecType& float_part ()
+  {
     return tmp_;
   }
 
   ExtendedFloatCol& operator=(const ExtendedFloatEigen<R, 1, EigenType>& col)
   {
-    efMat_.float_part().col(ncol_) = col.float_part() * constexpr_power<double>(ExtendedFloat::radix, col.exponent_part()-efMat_.exponent_part());
+    efMat_.float_part().col(ncol_) = col.float_part() * constexpr_power<double>(ExtendedFloat::radix, col.exponent_part() - efMat_.exponent_part());
     efMat_.normalize();
     return *this;
   }
@@ -272,7 +235,6 @@ public:
   //   EFtmp_.set_exponent_part(exponent_part());
   //   return EFtmp_;
   // }
-
 };
 }
 

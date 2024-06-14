@@ -1,44 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: BppORateDistributionFormat.cpp
-// Authors:
-//   Laurent GuÃÂ©guen
-//   Julien Dutheil
-// Created: 2012-11-16 13:44:00
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
-
+// SPDX-License-Identifier: CECILL-2.1
 
 #include "../Model/RateDistribution/ConstantRateDistribution.h"
 #include "../Model/RateDistribution/ExponentialDiscreteRateDistribution.h"
@@ -61,15 +23,15 @@ using namespace bpp;
 using namespace std;
 
 
-unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistribution(
-  const std::string& distDescription,
-  bool parseArguments)
+unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscreteDistribution(
+    const std::string& distDescription,
+    bool parseArguments)
 {
   unparsedArguments_.clear();
   string distName;
   map<string, string> args;
   KeyvalTools::parseProcedure(distDescription, distName, args);
-  unique_ptr<DiscreteDistribution> rDist;
+  unique_ptr<DiscreteDistributionInterface> rDist;
 
   if (distName == "Uniform")
     throw Exception("BppO Warning: Uniform distribution is deprecated, use Constant instead.");
@@ -87,7 +49,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
     map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
     // Now we create the Invariant rate distribution:
-    rDist = make_unique<InvariantMixedDiscreteDistribution>(move(nestedDistribution), 0.1, 0.000001);
+    rDist = make_unique<InvariantMixedDiscreteDistribution>(std::move(nestedDistribution), 0.1, 0.000001);
 
     // Then we update the parameter set:
     for (auto it : unparsedArgumentsNested)
@@ -125,7 +87,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
     while (strtok2.hasMoreToken())
       probas.push_back(TextTools::toDouble(strtok2.nextToken()));
 
-    std::map<size_t, std::vector<double> > ranges;
+    std::map<size_t, std::vector<double>> ranges;
 
     if (args.find("ranges") != args.end())
     {
@@ -167,7 +129,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
     if (args.find("probas") == args.end())
       throw Exception("Missing argument 'probas' in Mixture distribution");
     vector<double> probas;
-    vector< unique_ptr<DiscreteDistribution> > v_pdd;
+    vector<unique_ptr<DiscreteDistributionInterface>> v_pdd;
     string rf = args["probas"];
     StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
     while (strtok2.hasMoreToken())
@@ -192,7 +154,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
       {
         unparsedArguments_[distName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
       }
-      v_pdd.push_back(move(pdd));
+      v_pdd.push_back(std::move(pdd));
     }
     rDist = make_unique<MixtureOfDiscreteDistributions>(v_pdd, probas);
   }
@@ -200,7 +162,7 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
   {
     if (args.find("n") == args.end())
       throw Exception("Missing argument 'n' (number of classes) in " + distName
-                      + " distribution");
+            + " distribution");
     size_t nbClasses = TextTools::to<size_t>(args["n"]);
 
     if (distName == "Gamma")
@@ -233,7 +195,6 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
   }
   if (verbose_)
   {
-    ApplicationTools::displayMessage("");
     ApplicationTools::displayResult("Distribution", distName);
     ApplicationTools::displayResult("Number of classes", TextTools::toString((int)rDist->getNumberOfCategories()));
   }
@@ -246,10 +207,10 @@ unique_ptr<DiscreteDistribution> BppORateDistributionFormat::readDiscreteDistrib
 
 
 void BppORateDistributionFormat::writeDiscreteDistribution(
-  const DiscreteDistribution& dist,
-  OutputStream& out,
-  std::map<std::string, std::string>& globalAliases,
-  std::vector<std::string>& writtenNames) const
+    const DiscreteDistributionInterface& dist,
+    OutputStream& out,
+    std::map<std::string, std::string>& globalAliases,
+    std::vector<std::string>& writtenNames) const
 {
   bool comma = false;
 
@@ -266,7 +227,8 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
   }
   else
   {
-    try {
+    try
+    {
       auto& mix = dynamic_cast<const MixtureOfDiscreteDistributions&>(dist);
       size_t nd = mix.getNumberOfDistributions();
       for (size_t i = 0; i < nd; ++i)
@@ -289,7 +251,9 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
       {
         writtenNames.push_back(mix.getNamespace() + "theta" + TextTools::toString(i));
       }
-    } catch (bad_cast&) {}
+    }
+    catch (bad_cast&)
+    {}
   }
   if (dynamic_cast<const ExponentialDiscreteRateDistribution*>(&dist) ||
       dynamic_cast<const GammaDiscreteRateDistribution*>(&dist) ||
@@ -301,7 +265,8 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
     comma = true;
   }
 
-  try {
+  try
+  {
     auto& ps = dynamic_cast<const SimpleDiscreteDistribution&>(dist);
     size_t nd = ps.getNumberOfCategories();
     if (comma)
@@ -349,7 +314,9 @@ void BppORateDistributionFormat::writeDiscreteDistribution(
     }
 
     comma = true;
-  } catch (bad_cast&) {}
+  }
+  catch (bad_cast&)
+  {}
 
 
   // Writing the parameters

@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: PhyloTreeTools.cpp
-// Authors:
-//   Julien Dutheil
-// Created: 2003-08-06 13:45:28
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/BppString.h>
@@ -69,17 +33,19 @@ const string PhyloTreeTools::BOOTSTRAP = "bootstrap";
 
 std::shared_ptr<PhyloTree> PhyloTreeTools::buildFromTreeTemplate(const TreeTemplate<Node>& treetemp)
 {
-  auto phyloT=std::make_shared<PhyloTree>(true);
+  auto phyloT = std::make_shared<PhyloTree>(true);
   const Node& root = *treetemp.getRootNode();
 
-  auto rooti=std::make_shared<PhyloNode>(root.hasName()?root.getName():"");
+  auto rooti = std::make_shared<PhyloNode>(root.hasName() ? root.getName() : "");
   phyloT->createNode(rooti);
   phyloT->setRoot(rooti);
   phyloT->setNodeIndex(rooti, (uint)root.getId());
 
   auto propi = root.getNodePropertyNames();
   for (const auto& prop:propi)
+  {
     rooti->setProperty(prop, *root.getNodeProperty(prop));
+  }
 
   phyloT->addSubTree(rooti, root);
 
@@ -90,7 +56,7 @@ double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNo
 {
   double d = 0;
 
-  vector<shared_ptr<PhyloBranch> > edges = tree.getOutgoingEdges(node);
+  vector<shared_ptr<PhyloBranch>> edges = tree.getOutgoingEdges(node);
   for (size_t i = 0; i < edges.size(); i++)
   {
     double dist = 0;
@@ -110,7 +76,7 @@ double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNo
 
 size_t PhyloTreeTools::initBranchLengthsGrafen(PhyloTree& tree, shared_ptr<PhyloNode> node)
 {
-  vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
+  vector<shared_ptr<PhyloNode>> sons = tree.getSons(node);
   vector<size_t> h(sons.size());
   for (size_t i = 0; i < sons.size(); i++)
   {
@@ -131,14 +97,14 @@ void PhyloTreeTools::initBranchLengthsGrafen(PhyloTree& tree)
 }
 
 void PhyloTreeTools::computeBranchLengthsGrafen(
-  PhyloTree& tree,
-  shared_ptr<PhyloNode> node,
-  double power,
-  double total,
-  double& height,
-  double& heightRaised)
+    PhyloTree& tree,
+    shared_ptr<PhyloNode> node,
+    double power,
+    double total,
+    double& height,
+    double& heightRaised)
 {
-  vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
+  vector<shared_ptr<PhyloNode>> sons = tree.getSons(node);
   vector<double> hr(sons.size());
   height = 0;
   for (size_t i = 0; i < sons.size(); i++)
@@ -171,7 +137,7 @@ void PhyloTreeTools::computeBranchLengthsGrafen(PhyloTree& tree, double power, b
   {
     initBranchLengthsGrafen(tree);
   }
-  // Scale by total heigth:
+  // Scale by total height:
   double totalHeight = getHeight(tree, root);
   double h, hr;
   computeBranchLengthsGrafen(tree, root, power, totalHeight, h, hr);
@@ -179,7 +145,7 @@ void PhyloTreeTools::computeBranchLengthsGrafen(PhyloTree& tree, double power, b
 
 double PhyloTreeTools::convertToClockTree(PhyloTree& tree, shared_ptr<PhyloNode> node)
 {
-  vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
+  vector<shared_ptr<PhyloNode>> sons = tree.getSons(node);
 
   vector<double> h(sons.size());
   // We compute the mean height:
@@ -213,7 +179,7 @@ double PhyloTreeTools::convertToClockTree(PhyloTree& tree, shared_ptr<PhyloNode>
 
 double PhyloTreeTools::convertToClockTree2(PhyloTree& tree, shared_ptr<PhyloNode> node)
 {
-  vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
+  vector<shared_ptr<PhyloNode>> sons = tree.getSons(node);
   vector<double> h(sons.size());
   // We compute the mean height:
   double l = 0;
@@ -248,7 +214,7 @@ void PhyloTreeTools::constrainedMidPointRooting(PhyloTree& tree)
   if (!tree.isRooted())
     throw Exception("The tree has to be rooted on the branch of interest to determine the midpoint position of the root");
 
-  vector<shared_ptr<PhyloNode> > sons = tree.getSons(tree.getRoot());
+  vector<shared_ptr<PhyloNode>> sons = tree.getSons(tree.getRoot());
 
   if (sons.size() > 2)
     throw Exception("The tree is multifurcated at the root, which is not allowed.");
@@ -312,7 +278,7 @@ PhyloTreeTools::Moments_ PhyloTreeTools::statFromNode_(const PhyloTree& tree, co
   }
   else
   {
-    vector<shared_ptr<PhyloNode> > sons = tree.getSons(root);
+    vector<shared_ptr<PhyloNode>> sons = tree.getSons(root);
     for (size_t i = 0; i < sons.size(); i++)
     {
       mtmp = statFromNode_(tree, sons[i]);

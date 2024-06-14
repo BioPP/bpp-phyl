@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: MutationProcess.h
-// Authors:
-//   Julien Dutheil
-// Created: 2003-03-12 16:11:44
-//
-
-/*
-  Copyright or ÃÂ© or Copr. Bio++ Development Team, (November 16, 2004)
-  
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
-  
-  This software is governed by the CeCILL license under French law and
-  abiding by the rules of distribution of free software. You can use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-  
-  As a counterpart to the access to the source code and rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty and the software's author, the holder of the
-  economic rights, and the successive licensors have only limited
-  liability.
-  
-  In this respect, the user's attention is drawn to the risks associated
-  with loading, using, modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean that it is complicated to manipulate, and that also
-  therefore means that it is reserved for developers and experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and, more generally, to use and operate it in the
-  same conditions as regards security.
-  
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 #ifndef BPP_PHYL_SIMULATION_MUTATIONPROCESS_H
 #define BPP_PHYL_SIMULATION_MUTATIONPROCESS_H
@@ -56,7 +20,6 @@ namespace bpp
 class MutationPath
 {
 private:
-  
   std::shared_ptr<const Alphabet> alphabet_;
 
   /**
@@ -208,7 +171,7 @@ public:
   /**
    * @brief Retrieve the final state of this path.
    *
-   * @return The initial state if no mutation occured, otherwise sends the state after last mutation event.
+   * @return The initial state if no mutation occurred, otherwise sends the state after last mutation event.
    */
   size_t getFinalState() const
   {
@@ -220,7 +183,7 @@ public:
 /**
  * @brief Interface for simulations.
  *
- * A mutation process defines the rules for mutations to occure.
+ * A mutation process defines the rules for mutations to occur.
  * The MutationProcess interface provides two methods, one for mutating a character in
  * state i in another character, another for achieving this task n times.
  */
@@ -259,7 +222,7 @@ public:
    * according to the given substitution model and send the final state.
    *
    * @param initialState The state before beginning evolution.
-   * @param time         The time during which evolution must occure.
+   * @param time         The time during which evolution must occur.
    * @return The resulting state after evolution is completed.
    */
   virtual size_t evolve(size_t initialState, double time) const = 0;
@@ -270,7 +233,7 @@ public:
    * with all intermediate states and times between mutation events.
    *
    * @param initialState The state before beginning evolution.
-   * @param time         The time during which evolution must occure.
+   * @param time         The time during which evolution must occur.
    * @return The resulting mutation path.
    */
   virtual MutationPath detailedEvolve(size_t initialState, double time) const = 0;
@@ -283,7 +246,7 @@ public:
    *
    * @param initialState The state before beginning evolution.
    * @param finalState The state after  evolution.
-   * @param time         The time during which evolution must occure.
+   * @param time         The time during which evolution must occur.
    * @return The resulting mutation path.
    */
   virtual MutationPath detailedEvolve(size_t initialState, size_t finalState, double time) const = 0;
@@ -297,7 +260,7 @@ public:
 };
 
 /**
- * @brief Partial implmentation of the MutationProcess interface.
+ * @brief Partial implementation of the MutationProcess interface.
  *
  * This class provides an implementation of the MutationProcess interface.
  * It assumes that there are size_ states allowed for the character of interest,
@@ -359,7 +322,7 @@ public:
  * @f[ \frac{Q_{i,j}}{\sum_k Q_{i,k}}. @f]</li>
  * </ol>
  */
-class SimpleMutationProcess : 
+class SimpleMutationProcess :
   public AbstractMutationProcess
 {
 public:
@@ -378,7 +341,7 @@ public:
    * @brief Method redefinition for better performance.
    *
    * @param initialState The state before beginning evolution.
-   * @param time         The time during which evolution must occure.
+   * @param time         The time during which evolution must occur.
    * @return The resulting state after evolution is completed.
    */
   size_t evolve(size_t initialState, double time) const;
