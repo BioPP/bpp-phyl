@@ -2222,7 +2222,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   {
     try
     {
-      nP = TextTools::toInt(resultDesc.substr(5));
+      nP = TextTools::to<size_t>(resultDesc.substr(5));
     }
     catch (Exception& e)
     {

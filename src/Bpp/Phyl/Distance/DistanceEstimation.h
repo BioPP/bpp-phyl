@@ -15,6 +15,7 @@
 #include "../Likelihood/SubstitutionProcess.h"
 #include "../PseudoNewtonOptimizer.h"
 #include "../Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
+#include "../Likelihood/RateAcrossSitesSubstitutionProcess.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Container/AlignmentData.h>
@@ -39,10 +40,9 @@ private:
 
 public:
   /**
-   * @brief Create a new DistanceEstimation object according to a given substitution model and a rate distribution.
+   * @brief Create a new DistanceEstimation object according to a given substitution process.
    *
    * @param process  The substitution process to use.
-   * @param rateDist The discrete rate distribution to use.
    * @param verbose  The verbose level:
    *  - 0=Off,
    *  - 1=one * by row computation
@@ -66,10 +66,37 @@ public:
   }
 
   /**
-   * @brief Create a new DistanceEstimation object and compute distances
-   * according to a given substitution model and a rate distribution.
+   * @brief Create a new DistanceEstimation object according to a given substitution model and a rate distribution.
    *
-   * This instance will own the model and distribution, and will take car of their recopy and destruction.
+   * @param model  The substitution model to use.
+   * @param rateDist The discrete rate distribution to use.
+   * @param verbose  The verbose level:
+   *  - 0=Off,
+   *  - 1=one * by row computation
+   *  - 2=one * by row computation and one . by column computation
+   *  - 3=2 + optimization verbose enabled
+   *  - 4=3 + likelihood object verbose enabled
+   */
+  DistanceEstimation(
+    std::shared_ptr<BranchModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rateDist,
+    size_t verbose = 1) :
+    process_(),
+    numProc_(0),
+    sites_(0),
+    dist_(0),
+    optimizer_(0),
+    defaultOptimizer_(0),
+    verbose_(verbose),
+    parameters_()
+  {
+    process_ = std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rateDist);
+    init_();
+  }
+
+  /**
+   * @brief Create a new DistanceEstimation object and compute
+   * distances according to a given substitution process.
    *
    * @param process  The substitution process to use.
    * @param sites    The sequence data.
@@ -95,6 +122,42 @@ public:
     verbose_(verbose),
     parameters_()
   {
+    init_();
+    if (computeMat) computeMatrix();
+  }
+
+  /**
+   * @brief Create a new DistanceEstimation object and compute distances
+   * according to a given substitution model and a rate distribution.
+   *
+   * @param model  The substitution model to use.
+   * @param rateDist The discrete rate distribution to use.
+   * @param sites    The sequence data.
+   * @param verbose  The verbose level:
+   *  - 0=Off,
+   *  - 1=one * by row computation
+   *  - 2=one * by row computation and one . by column computation
+   *  - 3=2 + optimization verbose enabled
+   *  - 4=3 + likelihood object verbose enabled
+   *  @param computeMat if true the computeMatrix() method is called.
+   */
+
+  DistanceEstimation(
+    std::shared_ptr<BranchModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rateDist,
+    std::shared_ptr<const AlignmentDataInterface> sites,
+    size_t verbose = 1,
+    bool computeMat = true) :
+    process_(),
+    numProc_(0),
+    sites_(sites),
+    dist_(0),
+    optimizer_(0),
+    defaultOptimizer_(0),
+    verbose_(verbose),
+    parameters_()
+  {
+    process_ = std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rateDist);
     init_();
     if (computeMat) computeMatrix();
   }
