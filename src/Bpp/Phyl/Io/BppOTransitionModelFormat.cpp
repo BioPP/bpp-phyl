@@ -141,7 +141,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, false);
+    auto nestedModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, nData, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the k of Gamma law:
@@ -152,7 +152,6 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
 
     if (args.find("n") == args.end() &&  args.find("zetas") == args.end())
       throw Exception("Missing argument 'n' (number of gamma distributions) or argument 'zetas' (vector of gamma scales in Integrate model.");
-
 
     if (args.find("n") != args.end())
     {

@@ -980,6 +980,7 @@ void BppOSubstitutionModelFormat::updateParameters_(
     model.addRateParameter();
     unparsedArguments_[pref + "rate"] = args["rate"];
   }
+
 }
 
 

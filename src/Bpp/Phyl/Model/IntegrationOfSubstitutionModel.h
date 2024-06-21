@@ -156,8 +156,9 @@ public:
   {
     std::map<int, double> freqs;
     SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
-    // Re-compute generator and eigen values:
+    // Re-compute transition Model:
     transitionModel_().setFreq(freqs);
+    matchParametersValues(transitionModel_().getParameters());
   }
 
   double freq(size_t i) const override { return transitionModel().freq(i); }
