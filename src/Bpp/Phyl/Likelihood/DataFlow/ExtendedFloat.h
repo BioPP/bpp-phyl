@@ -196,6 +196,13 @@ public:
     return *this;
   }
 
+  inline ExtendedFloat& assigns(const FloatType& ft, const ExtType& et)
+  {
+    f_ = ft;
+    exp_ = et;
+    return *this;
+  }
+
   inline ExtendedFloat operator+(const ExtendedFloat& rhs) const
   {
     auto r = denorm_add (*this, rhs);

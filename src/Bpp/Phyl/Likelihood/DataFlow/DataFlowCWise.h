@@ -420,40 +420,63 @@ template<typename R, typename T>  class CWiseCompound<R, ReductionOf<T>> : publi
   {
     const std::vector<const T*>& m_arg_;
 
+    // For exponent_part if T = ExtendedFloat
+    ExtendedFloat::ExtType refExp;
+    mutable ExtendedFloat ret_;
+    
 public:
-    compound_functor(const std::vector<const T*>& arg) :
-      m_arg_(arg) {}
+    template<typename R2 = R>
+    compound_functor(const std::vector<const T*>& arg, typename std::enable_if<! std::is_base_of<ExtendedFloatEigenBase<R2>, R2>::value>::type* = 0) :
+      m_arg_(arg),
+      refExp(0)
+    {}
+
+    // Specific ExtendedFloatEigenBase constructor
+    template<typename R2 = R>
+    compound_functor(const std::vector<const T*>& arg, typename std::enable_if<std::is_base_of<ExtendedFloatEigenBase<R2>, R2>::value>::type* = 0) :
+      m_arg_(arg),
+      refExp(0)
+    {
+      // set exponent part
+
+      auto x = std::max_element(m_arg_.begin(), m_arg_.end(), [](const T* t1, const T* t2){return (t1->exponent_part()<t2->exponent_part());});
+      this->refExp = (*x)->exponent_part();
+    }
 
     const typename R::Scalar& operator()(Eigen::Index row, Eigen::Index col) const
     {
       return compute<T>(row, col);
     }
 
-    template<typename T2 = T>
+    // Specific for ExtendedFloat
+    template<typename R2 = R, typename T2 = T>
     const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-        typename std::enable_if< std::is_same<T2, RowLik>::value, T*>::type* = 0) const
+                                      typename std::enable_if< ((std::is_same<T2, RowLik>::value || std::is_same<T2, VectorLik>::value)
+                                                                && std::is_base_of<ExtendedFloatEigenBase<R2>, R2>::value), T*>::type* = 0) const
     {
-      return (*m_arg_[size_t(row)])(col);
+      const auto& mij = (*m_arg_[size_t(row)])(col);
+      if (mij.exponent_part() - refExp == 0)
+        return mij;
+      else
+      {
+        ret_.assigns(mij.float_part() * std::pow(ExtendedFloat::radix, mij.exponent_part() - refExp), refExp);
+        return ret_;
+      }
     }
 
-    template<typename T2 = T>
+    template<typename R2 = R, typename T2 = T>
     const typename R::Scalar& compute(Eigen::Index row, Eigen::Index col,
-        typename std::enable_if< std::is_same<T2, VectorLik>::value, T*>::type* = 0) const
+                                      typename std::enable_if< ((std::is_same<T2, RowLik>::value || std::is_same<T2, VectorLik>::value)
+                                                                && ! std::is_base_of<ExtendedFloatEigenBase<R2>, R2>::value), T*>::type* = 0) const
     {
-      return (*m_arg_[size_t(col)])(row);
+      return (*m_arg_[size_t(row)])(col);
     }
 
     // Specific for ExtendedFloat
     template<typename R2 = R>
     ExtendedFloat::ExtType exponent_part(typename std::enable_if< std::is_base_of<ExtendedFloatEigenBase<R2>, R2>::value>::type* = 0) const
     {
-      std::vector<ExtendedFloat::ExtType> vexp(m_arg_.size());
-      std::transform(m_arg_.begin(), m_arg_.end(), vexp.begin(), [](const T* t){return t->exponent_part();});
-
-      if (!std::equal(vexp.begin() + 1, vexp.end(), vexp.begin()) )
-        throw Exception("DataFlowCwise::CWiseCompound not possible on ExtendedFloatEigen data with different exponents. Ask developers.");
-
-      return vexp[0];
+      return this->refExp;
     }
   };
 
@@ -508,7 +531,23 @@ public:
   }
 
 private:
-  void compute() override
+  void compute() override { compute<T>();}
+
+  template<typename R2 = R>
+  typename std::enable_if< ! std::is_base_of<ExtendedFloatEigenBase<R2>, R2>::value, void>::type compute() 
+  {
+    const auto n = this->nbDependencies ();
+    std::vector<const T*> vR(n);
+    for (std::size_t i = 0; i < n; ++i)
+    {
+      vR[i] = &accessValueConstCast<T>(*this->dependency(i));
+    }
+
+    this->accessValueMutable() = R::NullaryExpr(targetDimension_.rows, targetDimension_.cols, compound_functor(vR));
+  }
+
+  template<typename R2 = R>
+  typename std::enable_if<std::is_base_of<ExtendedFloatEigenBase<R2>, R2>::value, void>::type compute() 
   {
     const auto n = this->nbDependencies ();
     std::vector<const T*> vR(n);
