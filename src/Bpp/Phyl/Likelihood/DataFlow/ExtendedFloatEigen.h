@@ -312,7 +312,7 @@ public:
         float_part() *= (double)ExtendedFloat::normalize_small_factor;
         min *= (double)ExtendedFloat::normalize_small_factor;
         max *= (double)ExtendedFloat::normalize_small_factor;
-        exp_ -= ExtendedFloat::biggest_normalized_radix_power;
+        exp_ += ExtendedFloat::smallest_normalized_radix_power;
         normalized = true;
       }
       return normalized;
@@ -359,7 +359,7 @@ public:
     return {lhs.float_part () * rhs, lhs.exponent_part ()};
   }
 
-  inline static Self denorm_mul (const Self& lhs, const ExtendedFloat rhs)
+  inline static Self denorm_mul (const Self& lhs, const ExtendedFloat& rhs)
   {
     return {lhs.float_part () * rhs.float_part (), lhs.exponent_part () + rhs.exponent_part ()};
   }
@@ -985,6 +985,17 @@ public:
   ExtendedFloatArrayWrapper(ExtendedFloatMatrix<R, C>& other) :
     efm_(&other) {}
 
+  ExtType exponent_part() const
+  {
+    return efm_->exponent_part();
+  }
+
+  MatType float_part() const
+  {
+    return efm_->float_part();
+  }
+
+    
   Self operator=(const Array& rhs)
   {
     efm_->float_part().array() = rhs.float_part();
@@ -1025,6 +1036,14 @@ public:
     r.normalize();
     return r;
   }
+
+  Array operator*(const Self& rhs)  const
+  {
+    Array r(efm_->float_part().array() * rhs.float_part (), efm_->exponent_part () + rhs.exponent_part ());
+    r.normalize();
+    return r;
+  }
+
 };
 
 template<int R, int C>
