@@ -1798,7 +1798,7 @@ map<size_t, unique_ptr<SequenceEvolution>> PhylogeneticsApplicationTools::getSeq
         if (verbose)
           ApplicationTools::displayResult("Process type", string("AutoCorr"));
 
-        string vs = "(" + VectorTools::paste(vector<double>(nbP, 1. / static_cast<int>(nbP)), ",") + ")";
+        string vs = "(" + VectorTools::paste(vector<double>(nbP, 0.95), ",") + ")";
 
         vector<double> v = ApplicationTools::getVectorParameter<double>("lambdas", args, ',', vs);
 
@@ -2122,7 +2122,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
 
-          string vs = "(" + VectorTools::paste(vector<double>(nbP, 1. / static_cast<double>(nbP)), ",") + ")";
+          string vs = "(" + VectorTools::paste(vector<double>(nbP, 0.95), ",") + ")";
 
           vector<double> v = ApplicationTools::getVectorParameter<double>("lambdas", args, ',', vs);
 
@@ -2348,7 +2348,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
     optopt.parameters.matchParametersValues(lik->getParameters());
     n = OptimizationTools::optimizeNumericalParameters(lik, optopt);
   }
-  else if (optopt.optMethodModel == "FullD")
+  else if (optopt.optMethodModel == OptimizationTools::OPTIMIZATION_NEWTON)
   {
     // Uses Newton-raphson algorithm with numerical derivatives when required.
     optopt.parameters.matchParametersValues(lik->getParameters());
