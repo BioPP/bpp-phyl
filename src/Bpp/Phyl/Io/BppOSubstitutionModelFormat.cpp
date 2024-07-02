@@ -391,7 +391,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
   {
     if (!(alphabetCode_ & NUCLEOTIDE))
       throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
-    if (alphabet->getAlphabetType() != "RNY alphabet")
+    if (!AlphabetTools::isRNYAlphabet(*alphabet))
       throw Exception("Mismatch alphabet: " + alphabet->getAlphabetType() + " for model: " + modelName);
     auto prny = dynamic_pointer_cast<const RNY>(alphabet);
 
@@ -415,7 +415,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
   {
     if (!(alphabetCode_ & NUCLEOTIDE))
       throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
-    if (alphabet->getAlphabetType() != "RNY alphabet")
+    if (!AlphabetTools::isRNYAlphabet(*alphabet))
       throw Exception("Mismatch alphabet: " + alphabet->getAlphabetType() + " for model: " + modelName);
     auto prny = dynamic_pointer_cast<const RNY>(alphabet);
 

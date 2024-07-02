@@ -13,6 +13,8 @@ using namespace bpp;
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Matrix/EigenValue.h>
 
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+
 #include <Bpp/Text/TextTools.h>
 
 /******************************************************************************/
@@ -62,72 +64,69 @@ void YpR::updateMatrices_(double CgT, double cGA,
     double CaT, double cAG,
     double TaC, double tAC)
 {
-  //  check_model(pmodel_);
+  checkModel(*pmodel_);
 
   // Generator:
-  auto alph = pmodel_->getAlphabet();
-  std::vector<size_t> l(4);
-
-  l[0] = alph->getStateIndex("A");
-  l[1] = alph->getStateIndex("G");
-  l[2] = alph->getStateIndex("C");
-  l[3] = alph->getStateIndex("T");
-
   unsigned int i, j, i1, i2, i3, j1, j2, j3;
 
   std::vector<double> a(4);  // a[A], a[G], a[C], a[T]
   std::vector<double> b(4);  // b[A], b[G], b[C], b[T]
 
-  for (i = 0; i < 2; ++i)
-  {
-    a[i] = pmodel_->Qij(l[1 - i], l[i]);
-    b[i] = pmodel_->Qij(l[3 - i], l[i]);
-    a[i + 2] = pmodel_->Qij(l[3 - i], l[i + 2]);
-    b[i + 2] = pmodel_->Qij(l[1 - i], l[i + 2]);
-  }
+  // From M
 
-  // M_1
+  a[0] = pmodel_->Qij(2, 0);
+  a[1] = pmodel_->Qij(0, 2);
+  a[2] = pmodel_->Qij(3, 1);
+  a[3] = pmodel_->Qij(1, 3);
+  b[0] = (pmodel_->Qij(1, 0) + pmodel_->Qij(3, 0))/2;   // To limit numerical issues
+  b[1] = (pmodel_->Qij(1, 2) + pmodel_->Qij(3, 2))/2;
+  b[2] = (pmodel_->Qij(0, 1) + pmodel_->Qij(2, 1))/2;
+  b[3] = (pmodel_->Qij(0, 3) + pmodel_->Qij(2, 3))/2;
+
+  
+
+  // M_1 on R C T
   RowMatrix<double> M1(3, 3);
 
   M1(0, 0) = 0;
   M1(0, 1) = b[2];
   M1(0, 2) = b[3];
-  M1(1, 0) = b[0] + b[1];
+  M1(1, 0) = pmodel_->Qij(1, 0) + pmodel_->Qij(1, 2);
   M1(1, 1) = 0;
-  M1(1, 2) = a[3];
-  M1(2, 0) = b[0] + b[1];
-  M1(2, 1) = a[2];
+  M1(1, 2) = pmodel_->Qij(1, 3);
+  M1(2, 0) = pmodel_->Qij(3, 0) + pmodel_->Qij(3, 2);
+  M1(2, 1) = pmodel_->Qij(3, 1);
   M1(2, 2) = 0;
 
-  // M_2
+  // M_2 on A G C T
   RowMatrix<double> M2(4, 4);
 
   M2(0, 0) = 0;
-  M2(0, 1) = a[1];
-  M2(0, 2) = b[2];
-  M2(0, 3) = b[3];
-  M2(1, 0) = a[0];
+  M2(0, 1) = pmodel_->Qij(0, 2);
+  M2(0, 2) = pmodel_->Qij(0, 1);
+  M2(0, 3) = pmodel_->Qij(0, 3);
+  M2(1, 0) = pmodel_->Qij(2, 0);
   M2(1, 1) = 0;
-  M2(1, 2) = b[2];
-  M2(1, 3) = b[3];
-  M2(2, 0) = b[0];
-  M2(2, 1) = b[1];
+  M2(1, 2) = pmodel_->Qij(2, 1);
+  M2(1, 3) = pmodel_->Qij(2, 3);
+  M2(2, 0) = pmodel_->Qij(1, 0);
+  M2(2, 1) = pmodel_->Qij(1, 2);
   M2(2, 2) = 0;
-  M2(2, 3) = a[3];
-  M2(3, 0) = b[0];
-  M2(3, 1) = b[1];
-  M2(3, 2) = a[2];
-  M2(3, 3) = 0;
+  M2(2, 3) = pmodel_->Qij(1, 3);
+  M2(3, 0) = pmodel_->Qij(3, 0);
+  M2(3, 1) = pmodel_->Qij(3, 2);
+  M2(3, 2) = pmodel_->Qij(3, 1);
+  M2(3, 3) = 0;   
 
-  // M_3
+  // M_3 on A G Y
   RowMatrix<double> M3(3, 3);
 
   M3(0, 0) = 0;
-  M3(0, 1) = a[1];
-  M3(0, 2) = b[2] + b[3];
-  M3(1, 0) = a[0];
+  M3(0, 1) = pmodel_->Qij(0, 2);
+  M3(0, 2) = pmodel_->Qij(0, 1) + pmodel_->Qij(0, 3);
+  M3(1, 0) = pmodel_->Qij(2, 0);
   M3(1, 1) = 0;
-  M3(1, 2) = b[2] + b[3];
+  M3(1, 2) = pmodel_->Qij(2, 1) + pmodel_->Qij(2, 3);
   M3(2, 0) = b[0];
   M3(2, 1) = b[1];
   M3(2, 2) = 0;
@@ -330,28 +329,15 @@ void YpR::updateMatrices_(double CgT, double cGA,
 void YpR::checkModel(const SubstitutionModelInterface& pm) const
 {
   auto alph = pm.getAlphabet();
-  if (alph->getAlphabetType() != "DNA alphabet")
+  if (!AlphabetTools::isNucleicAlphabet(*alph))
     throw Exception("Need a DNA model");
 
-  std::vector<size_t> l(4);
+  // Check that the model is good for YpR, ie transversion rates do
+  // not depend on the origin state
 
-  l[0] = alph->getStateIndex("A");
-  l[1] = alph->getStateIndex("G");
-  l[2] = alph->getStateIndex("C");
-  l[3] = alph->getStateIndex("T");
-
-  // Check that the model is good for YpR
-
-  for (size_t i = 0; i < 2; ++i)
-  {
-    if (pm.Qij(l[2], l[i]) != pm.Qij(l[3], l[i]))
+  if ((pm.Qij(0, 1) != pm.Qij(2, 1)) || (pm.Qij(0, 3) != pm.Qij(2, 3))
+      || (pm.Qij(1, 0) != pm.Qij(3, 0)) || (pm.Qij(1, 2) != pm.Qij(3, 2)))
       throw Exception("Not R/Y Model " + pm.getName());
-  }
-  for (size_t i = 2; i < 4; ++i)
-  {
-    if (pm.Qij(l[0], l[i]) != pm.Qij(l[1], l[i]))
-      throw Exception("Not R/Y Model " + pm.getName());
-  }
 }
 
 void YpR::setNamespace(const std::string& prefix)

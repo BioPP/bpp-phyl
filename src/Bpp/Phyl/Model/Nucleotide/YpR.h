@@ -25,16 +25,16 @@ namespace bpp
  *
  * This model is made from neighbourhood parameters and
  * a nucleotidic probabilistic model such that the R/Y
- * condition is respected : with letters A, T, C, G
+ * condition is respected : with letters A, C, G, T
  * @f[
  * M=\begin{pmatrix}
- * . & \beta_T & \beta_C & \alpha_G \\
- * \beta_A & . & \alpha_C & \beta_G \\
- * \beta_A & \alpha_T & . & \beta_G \\
- * \alpha_A & \beta_T & \beta_C & .
+ *     .    & \beta_C  & \alpha_G & \beta_T \\
+ * \beta_A  & .        & \beta_G & \alpha_T \\
+ * \alpha_A & \beta_C  &    .     & \beta_T \\
+ * \beta_A  & \alpha_C & \beta_G  & .
  * \end{pmatrix}
  * @f]
- *
+*
  * From this model, the rates are a multiplication of the rates for the
  * letters of the triplet.
  * For the first letter, on alphabet R, C, T:
