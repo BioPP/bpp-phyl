@@ -76,10 +76,11 @@ void copyBppToEigen (const bpp::Matrix<double>& bppMatrix, ExtendedFloatMatrixXd
     }
   }
 #ifdef DEBUG
-  std::cerr << "copyBppToEigen(" << typeid(bppMatrix).name() << ", " << typeid(eigenMatrix).name() << ")" << std::endl;
+  std::cerr << "=== copyBppToEigen(" << typeid(bppMatrix).name() << ", " << typeid(eigenMatrix).name() << ") ===" << std::endl;
   std::cerr << &bppMatrix << std::endl;
   std::cerr << eigenRows << "," << eigenCols << std::endl;
   std::cerr << eigenMatrix << std::endl;
+  std::cerr << "=== end copyBppToEigen === " << std::endl;
 #endif
 }
 

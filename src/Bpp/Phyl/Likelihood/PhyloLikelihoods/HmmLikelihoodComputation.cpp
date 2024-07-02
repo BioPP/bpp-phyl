@@ -47,7 +47,7 @@ void ForwardHmmLikelihood_DF::compute()
   {
     parCondLik_[(size_t)i] =  hmmTrans.transpose() * condLik.col(i - 1);
 
-    cwise(tmp) = cwise(parCondLik_[(size_t)i]) * cwise(hmmEmis.col(i));
+    cwise(tmp) = cwise(hmmEmis.col(i)) * cwise(parCondLik_[(size_t)i]); 
     tscales[(size_t)i] = tmp.sum();
 
     // tmp = condLik * scales
@@ -311,8 +311,8 @@ void BackwardHmmLikelihood_DF::compute()
   const auto& scales = accessValueConstCast<RowLik>(*this->dependency(0));
 
   const auto& hmmTrans = accessValueConstCast<Eigen::MatrixXd>(*this->dependency(1));
-  const auto& hmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(2));
 
+  const auto& hmmEmis = accessValueConstCast<MatrixLik>(*this->dependency(2));
 
   auto nbSites = hmmEmis.cols();
   auto nbStates = hmmEmis.rows();
@@ -334,10 +334,9 @@ void BackwardHmmLikelihood_DF::compute()
     auto tmp2 = hmmTrans * tmp;
 
     for (auto s = 0; s < nbStates; s++)
-    {
       tScales[(size_t)(i - 1)](s) = convert(tmp2(s) / scales(i));
-    }
   }
 
   copyBppToEigen(tScales, this->accessValueMutable ());
+
 }

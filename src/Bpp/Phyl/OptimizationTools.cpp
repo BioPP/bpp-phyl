@@ -69,7 +69,9 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
     optMethodModel = OptimizationTools::OPTIMIZATION_BRENT;
   else if (optMethodModel == "D-BFGS")
     optMethodModel = OptimizationTools::OPTIMIZATION_BFGS;
-  else if (optMethodModel != "FullD")
+  else if (optMethodModel == "FullD")
+    optMethodModel = OptimizationTools::OPTIMIZATION_NEWTON;
+  else
     throw Exception("Unknown optimization method " + optMethodModel);
   
   nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, warn + 1);
@@ -317,6 +319,7 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
   }
   else
     throw Exception("Unknown derivatives algorithm: '" + order + "'.");
+  
   if (verb)
     ApplicationTools::displayResult("Optimization method", optMethodModel);
   if (verb)
@@ -378,7 +381,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   else if (optopt.optMethodDeriv == OPTIMIZATION_BFGS)
     desc->addOptimizer("Branch length parameters", make_shared<BfgsMultiDimensions>(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else
-    throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optopt.optMethodDeriv);
+    throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown derivative optimization method: " + optopt.optMethodDeriv);
 
   // Other parameters
 
@@ -658,7 +661,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
 {
   estimationMethod.resetAdditionalParameters();
   estimationMethod.setVerbose(optopt.verbose);
-  
+
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
     ParameterList tmp = estimationMethod.process().getSubstitutionModelParameters(true);
@@ -667,9 +670,8 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     tmp = tmp.getCommonParametersWith(optopt.parameters);
     estimationMethod.setAdditionalParameters(tmp);
   }
-  
+
   unique_ptr<TreeTemplate<Node>> tree = nullptr;
-  unique_ptr<TreeTemplate<Node>> previousTree = nullptr;
 
   bool test = true;
 
@@ -679,7 +681,12 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
   if (!autoProc && !procMb)
     throw Exception("OptimizationTools::buildDistanceTree : unknown process type. Ask developpers.");
 
-  while (test)
+  // Vector of successive trees, to return the best one
+  std::vector<unique_ptr<TreeTemplate<Node>>> vTree;
+  std::vector<double> vLik;
+
+  size_t nstep=0;
+  while (test && nstep<100)
   {
     // Compute matrice:
     if (optopt.verbose > 0)
@@ -688,7 +695,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     estimationMethod.computeMatrix();
     auto matrix = estimationMethod.getMatrix();
 
-    if (optopt.verbose > 0)
+    if (estimationMethod.getVerbose() > 0)
       ApplicationTools::displayTaskDone();
 
     // Compute tree:
@@ -702,68 +709,46 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
       n3->setDistanceToFather((*matrix)(0, 0) / 2.);
       n1->addSon(n2);
       n1->addSon(n3);
-      tree.reset(new TreeTemplate<Node>(n1));
-      break;
+      return unique_ptr<TreeTemplate<Node>>(new TreeTemplate<Node>(n1));
     }
-    /* For future integration
-       shared_ptr<PhyloTree> tree;
-       shared_ptr<PhyloTree> previousTree;
-       bool test = true;
-       while (test)
-       {
-       // Compute matrice:
-       if (verbose > 0)
-       ApplicationTools::displayTask("Estimating distance matrix", true);
-       estimationMethod.computeMatrix();
-       DistanceMatrix* matrix = estimationMethod.getMatrix();
-       if (verbose > 0)
-       ApplicationTools::displayTaskDone();
 
-       // Compute tree:
-       if (matrix->size() == 2)
-       {
-       // Special case, there is only one possible tree:
-       auto root=std::make_shared<PhyloNode>();
-       tree.createNode(root);
-       tree.setNodeIndex(root, 0);
-       auto n1=std::make_shared<PhyloNode>(matrix->getName(0));
-       auto n2=std::make_shared<PhyloNode>(matrix->getName(1));
-       auto branch1=shared_ptr<PhyloBranch> ((*matrix)(0, 0) / 2.);
-       auto branch2=shared_ptr<PhyloBranch> ((*matrix)(0, 0) / 2.);
-       tree.createNode(root, n1, branch1);
-       tree.createNode(root, n2, branch2);
-       tree.setNodeIndex(n1, 1);
-       tree.setNodeIndex(n2, 2);
-       break;
-       }
-     */
     if (optopt.verbose > 0)
       ApplicationTools::displayTask("Building tree");
 
     reconstructionMethod.setDistanceMatrix(*matrix);
     reconstructionMethod.computeTree();
-    previousTree = std::move(tree);
     
     tree = make_unique<TreeTemplate<Node>>(reconstructionMethod.tree());
-    if (optopt.verbose > 0)
-      ApplicationTools::displayTaskDone();
-    if (previousTree)
-    {
-      auto vn = previousTree->getLeavesNames();
-      auto vn3 = tree->getLeavesNames();
-      int rf = TreeTools::robinsonFouldsDistance(*previousTree, *tree, false);
-      if (optopt.verbose > 0)
-        ApplicationTools::displayResult("Topo. distance with previous iteration", TextTools::toString(rf));
-      test = (rf != 0);
-    }
 
+    vTree.push_back(std::move(tree));
+    
+    if (estimationMethod.getVerbose() > 0)
+      ApplicationTools::displayTaskDone();
+
+    size_t nbTree = vTree.size();
+    const auto& ltree = vTree[nbTree-1];
+
+    if (vTree.size()>1)
+    {
+      for (auto iT=0; iT<int(nbTree-1); iT++)
+      {
+        const auto& pTree = vTree[iT];
+        int rf = TreeTools::robinsonFouldsDistance(*pTree, *ltree);
+       // if (optopt.verbose > 0)
+        ApplicationTools::displayResult("Topo. distance with iteration " + TextTools::toString(iT+1), TextTools::toString(rf));
+        test &= (rf != 0);
+        if (!test)
+          break;
+      }
+    }
+    
     if ((param != DISTANCEMETHOD_ITERATIONS) || !test)
       break; // Ends here.
 
     // Now, re-estimate parameters:
     Context context;
 
-    auto phyloTree  = make_shared<ParametrizablePhyloTree>(*PhyloTreeTools::buildFromTreeTemplate(*tree));
+    auto phyloTree  = make_shared<ParametrizablePhyloTree>(*PhyloTreeTools::buildFromTreeTemplate(*ltree));
     if (autoProc)
       autoProc->setPhyloTree(*phyloTree);
     else
@@ -777,8 +762,10 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     auto lik     = make_shared<LikelihoodCalculationSingleProcess>(context, estimationMethod.getData(), process);
     auto tl      = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
+    vLik.push_back(tl->getValue());
+    
     // hide opt verbose
-    optopt.verbose=0;
+    optopt.verbose= estimationMethod.getVerbose()>0?uint(estimationMethod.getVerbose()-1):0;
 
     optimizeNumericalParameters(tl, optopt);
     process->matchParametersValues(tl->getParameters());
@@ -807,12 +794,12 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
         ApplicationTools::displayResult(tmp[i].getName(), TextTools::toString(tmp[i].getValue()));
       }
     }
+    nstep++;
   }
 
-  if (previousTree)
-    return previousTree;
-  else
-    return tree;
+  const auto& posM = std::distance(vLik.begin(),std::min_element(vLik.begin(),vLik.end()));
+  
+  return std::move(vTree[posM]);
 }
 
 /******************************************************************************/
