@@ -20,7 +20,7 @@ using namespace std;
 /******************************************************************************/
 
 SimpleSubstitutionProcessSiteSimulator::SimpleSubstitutionProcessSiteSimulator(
-    shared_ptr<const SubstitutionProcessInterface> process) :
+    std::shared_ptr<const SubstitutionProcessInterface> process) :
   process_(process),
   phyloTree_(process_->getParametrizablePhyloTree()),
   tree_(ProcessComputationTree(process_)),

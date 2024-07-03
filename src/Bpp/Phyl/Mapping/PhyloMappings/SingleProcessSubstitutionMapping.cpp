@@ -8,8 +8,8 @@ using namespace bpp;
 using namespace std;
 
 SingleProcessSubstitutionMapping::SingleProcessSubstitutionMapping(
-    shared_ptr<SingleProcessPhyloLikelihood> spp,
-    shared_ptr<SubstitutionRegisterInterface> reg,
+    std::shared_ptr<SingleProcessPhyloLikelihood> spp,
+    std::shared_ptr<SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights,
     std::shared_ptr<const AlphabetIndex2> distances,
     double threshold,

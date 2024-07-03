@@ -39,8 +39,8 @@ AbstractWordFrequencySet::~AbstractWordFrequencySet()
 
 
 WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
-    shared_ptr<const WordAlphabet> pWA,
-    vector<unique_ptr<FrequencySetInterface>>& freqVector,
+    std::shared_ptr<const WordAlphabet> pWA,
+    vector<std::unique_ptr<FrequencySetInterface>>& freqVector,
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
@@ -67,8 +67,8 @@ WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
 }
 
 WordFromIndependentFrequencySet::WordFromIndependentFrequencySet(
-    shared_ptr<const CodonAlphabet> pWA,
-    vector<unique_ptr<FrequencySetInterface>>& freqVector,
+    std::shared_ptr<const CodonAlphabet> pWA,
+    vector<std::unique_ptr<FrequencySetInterface>>& freqVector,
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
@@ -237,8 +237,8 @@ std::string WordFromIndependentFrequencySet::getDescription() const
 
 
 WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
-    shared_ptr<const WordAlphabet> pWA,
-    unique_ptr<FrequencySetInterface> pabsfreq,
+    std::shared_ptr<const WordAlphabet> pWA,
+    std::unique_ptr<FrequencySetInterface> pabsfreq,
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(
@@ -264,8 +264,8 @@ WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
 }
 
 WordFromUniqueFrequencySet::WordFromUniqueFrequencySet(
-    shared_ptr<const CodonAlphabet> pWA,
-    unique_ptr<FrequencySetInterface> pabsfreq,
+    std::shared_ptr<const CodonAlphabet> pWA,
+    std::unique_ptr<FrequencySetInterface> pabsfreq,
     const string& prefix,
     const string& name) :
   AbstractWordFrequencySet(

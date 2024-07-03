@@ -12,8 +12,8 @@ using namespace std;
 /****************************************************************************************/
 
 AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(
-    shared_ptr<FrequencySetInterface> pfitset,
-    shared_ptr<const GeneticCode> pgencode,
+    std::shared_ptr<FrequencySetInterface> pfitset,
+    std::shared_ptr<const GeneticCode> pgencode,
     const string& prefix) :
   AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false)),
   protStateMap_(pfitset->getStateMap()), Ns_(1)

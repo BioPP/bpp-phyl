@@ -15,8 +15,8 @@ using namespace std;
 /******************************************************************************/
 
 DRTreeParsimonyScore::DRTreeParsimonyScore(
-    shared_ptr<TreeTemplate<Node>> tree,
-    shared_ptr<const SiteContainerInterface> data,
+    std::shared_ptr<TreeTemplate<Node>> tree,
+    std::shared_ptr<const SiteContainerInterface> data,
     bool verbose,
     bool includeGaps) :
   AbstractTreeParsimonyScore(tree, data, verbose, includeGaps),
@@ -27,9 +27,9 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 }
 
 DRTreeParsimonyScore::DRTreeParsimonyScore(
-    shared_ptr<TreeTemplate<Node>> tree,
-    shared_ptr<const SiteContainerInterface> data,
-    shared_ptr<const StateMapInterface> statesMap,
+    std::shared_ptr<TreeTemplate<Node>> tree,
+    std::shared_ptr<const SiteContainerInterface> data,
+    std::shared_ptr<const StateMapInterface> statesMap,
     bool verbose) :
   AbstractTreeParsimonyScore(tree, data, statesMap, verbose),
   parsimonyData_(new DRTreeParsimonyData(tree)),
@@ -38,7 +38,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
   init_(data, verbose);
 }
 
-void DRTreeParsimonyScore::init_(shared_ptr<const SiteContainerInterface> data, bool verbose)
+void DRTreeParsimonyScore::init_(std::shared_ptr<const SiteContainerInterface> data, bool verbose)
 {
   if (verbose)
     ApplicationTools::displayTask("Initializing data structure");

@@ -12,8 +12,8 @@ using namespace std;
 /******************************************************************************/
 
 MG94::MG94(
-    shared_ptr<const GeneticCode> gc,
-    unique_ptr<CodonFrequencySetInterface> codonFreqs) :
+    std::shared_ptr<const GeneticCode> gc,
+    std::unique_ptr<CodonFrequencySetInterface> codonFreqs) :
   AbstractParameterAliasable("MG94."),
   AbstractWrappedModel("MG94."),
   AbstractWrappedTransitionModel("MG94."),

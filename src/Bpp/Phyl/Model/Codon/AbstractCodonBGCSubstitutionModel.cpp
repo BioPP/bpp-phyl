@@ -13,7 +13,7 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonBGCSubstitutionModel::AbstractCodonBGCSubstitutionModel(
-    shared_ptr<const GeneticCode> pgencode,
+    std::shared_ptr<const GeneticCode> pgencode,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   pgencode_(pgencode),

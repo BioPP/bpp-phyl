@@ -271,7 +271,7 @@ double MixedSubstitutionModelSet::getHyperNodeProbability(const HyperNode& hn) c
 /***********************************************************/
 
 
-MixedSubstitutionModelSet::HyperNode::HyperNode(shared_ptr<const MixedSubstitutionModelSet> pMSMS) :
+MixedSubstitutionModelSet::HyperNode::HyperNode(std::shared_ptr<const MixedSubstitutionModelSet> pMSMS) :
   vNumbers_(pMSMS->getNumberOfModels()),
   vUnused_(),
   proba_(1)

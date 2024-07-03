@@ -20,8 +20,8 @@ using namespace Eigen;
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
     Context& context,
-    shared_ptr<const AlignmentDataInterface> sites,
-    shared_ptr<const SubstitutionProcessInterface> process) :
+    std::shared_ptr<const AlignmentDataInterface> sites,
+    std::shared_ptr<const SubstitutionProcessInterface> process) :
   AlignedLikelihoodCalculation(context), process_(process), psites_(sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
@@ -38,7 +38,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
     Context& context,
-    shared_ptr<const SubstitutionProcessInterface> process) :
+    std::shared_ptr<const SubstitutionProcessInterface> process) :
   AlignedLikelihoodCalculation(context),
   process_(process), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
@@ -55,8 +55,8 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
 }
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
-    shared_ptr<CollectionNodes> collection,
-    shared_ptr<const AlignmentDataInterface> sites,
+    std::shared_ptr<CollectionNodes> collection,
+    std::shared_ptr<const AlignmentDataInterface> sites,
     size_t nProcess) :
   AlignedLikelihoodCalculation(collection->context()),
   process_(collection->collection().getSubstitutionProcess(nProcess)),
@@ -77,7 +77,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
 
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
-    shared_ptr<CollectionNodes> collection,
+    std::shared_ptr<CollectionNodes> collection,
     size_t nProcess) :
   AlignedLikelihoodCalculation(collection->context()),
   process_(collection->collection().getSubstitutionProcess(nProcess)),

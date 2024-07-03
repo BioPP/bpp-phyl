@@ -7,7 +7,7 @@
 using namespace bpp;
 using namespace std;
 
-OneProcessSequenceEvolution::OneProcessSequenceEvolution(shared_ptr<SubstitutionProcessInterface> process, size_t nProc) :
+OneProcessSequenceEvolution::OneProcessSequenceEvolution(std::shared_ptr<SubstitutionProcessInterface> process, size_t nProc) :
   AbstractParameterAliasable(""),
   subsProc_(process),
   nProc_(nProc),

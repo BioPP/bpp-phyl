@@ -11,10 +11,10 @@ using namespace std;
 /******************************************************************************/
 
 CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    unique_ptr<CodonFrequencySetInterface> pfreq,
-    shared_ptr<const AlphabetIndex2> pdist,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
+    std::shared_ptr<const AlphabetIndex2> pdist,
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
   AbstractCodonSubstitutionModel(gCode, std::move(pmod), "CodonDistFreq."),
@@ -27,12 +27,12 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
 }
 
 CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    unique_ptr<CodonFrequencySetInterface> pfreq,
-    shared_ptr<const AlphabetIndex2> pdist,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::unique_ptr<CodonFrequencySetInterface> pfreq,
+    std::shared_ptr<const AlphabetIndex2> pdist,
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
   AbstractCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), "CodonDistFreq."),

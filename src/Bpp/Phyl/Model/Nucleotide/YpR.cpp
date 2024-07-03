@@ -20,8 +20,8 @@ using namespace bpp;
 /******************************************************************************/
 
 YpR::YpR(
-    shared_ptr<const RNY> alph,
-    unique_ptr<NucleotideSubstitutionModelInterface> pm,
+    std::shared_ptr<const RNY> alph,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pm,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(alph, make_shared<CanonicalStateMap>(alph, false), prefix),
@@ -36,22 +36,13 @@ YpR::YpR(
   computeFrequencies(true);
 }
 
-YpR::YpR(const YpR& ypr, const std::string& prefix) :
-  AbstractParameterAliasable(ypr),
-  AbstractSubstitutionModel(ypr),
-  pmodel_(ypr.pmodel_->clone()),
-  nestedPrefix_(ypr.getNestedPrefix())
-
-{
-  pmodel_->setNamespace(prefix + nestedPrefix_);
-}
-
 YpR::YpR(const YpR& ypr) :
   AbstractParameterAliasable(ypr),
   AbstractSubstitutionModel(ypr),
   pmodel_(ypr.pmodel_->clone()),
   nestedPrefix_(ypr.getNestedPrefix())
-{}
+{
+}
 
 void YpR::updateMatrices_()
 {
@@ -343,6 +334,7 @@ void YpR::checkModel(const SubstitutionModelInterface& pm) const
 void YpR::setNamespace(const std::string& prefix)
 {
   AbstractSubstitutionModel::setNamespace(prefix);
+  
   // We also need to update the namespace of the nested model:
   pmodel_->setNamespace(prefix + nestedPrefix_);
 }
@@ -354,8 +346,8 @@ void YpR::setNamespace(const std::string& prefix)
 /******************************************************************************/
 
 YpR_Sym::YpR_Sym(
-    shared_ptr<const RNY> alph,
-    unique_ptr<NucleotideSubstitutionModelInterface> pm,
+    std::shared_ptr<const RNY> alph,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pm,
     double CgT, double TgC,
     double CaT, double TaC) :
   AbstractParameterAliasable("YpR_Sym."),
@@ -381,7 +373,7 @@ void YpR_Sym::updateMatrices_()
 
 YpR_Sym::YpR_Sym(const YpR_Sym& ypr) :
   AbstractParameterAliasable(ypr),
-  YpR(ypr, "YpR_Sym.")
+  YpR(ypr)
 {}
 
 /******************************************************************************/
@@ -398,8 +390,8 @@ std::string YpR_Sym::getName() const
 /******************************************************************************/
 
 YpR_Gen::YpR_Gen(
-    shared_ptr<const RNY> alph,
-    unique_ptr<NucleotideSubstitutionModelInterface> pm,
+    std::shared_ptr<const RNY> alph,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pm,
     double CgT, double cGA,
     double TgC, double tGA,
     double CaT, double cAG,
@@ -435,7 +427,7 @@ void YpR_Gen::updateMatrices_()
 
 YpR_Gen::YpR_Gen(const YpR_Gen& ypr) :
   AbstractParameterAliasable(ypr),
-  YpR(ypr, "YpR_Gen.")
+  YpR(ypr)
 {
   updateMatrices_();
 }

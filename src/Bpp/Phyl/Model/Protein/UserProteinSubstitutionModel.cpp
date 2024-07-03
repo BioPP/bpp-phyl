@@ -26,7 +26,7 @@ using namespace std;
 /******************************************************************************/
 
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
-    shared_ptr<const ProteicAlphabet> alpha,
+    std::shared_ptr<const ProteicAlphabet> alpha,
     const string& path,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
@@ -40,7 +40,7 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
 }
 
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
-    shared_ptr<const ProteicAlphabet> alpha,
+    std::shared_ptr<const ProteicAlphabet> alpha,
     const string& path,
     unique_ptr<ProteinFrequencySetInterface> freqSet,
     const string& prefix,

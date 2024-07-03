@@ -15,7 +15,7 @@ using namespace std;
 
 /******************************************************************************/
 
-JTT92::JTT92(shared_ptr<const ProteicAlphabet> alpha) :
+JTT92::JTT92(std::shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("JTT92."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JTT92."),
   freqSet_(nullptr)
@@ -27,8 +27,8 @@ JTT92::JTT92(shared_ptr<const ProteicAlphabet> alpha) :
 }
 
 JTT92::JTT92(
-    shared_ptr<const ProteicAlphabet> alpha,
-    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    std::shared_ptr<const ProteicAlphabet> alpha,
+    std::unique_ptr<ProteinFrequencySetInterface> freqSet,
     bool initFreqs) :
   AbstractParameterAliasable("JTT92+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JTT92+F."),

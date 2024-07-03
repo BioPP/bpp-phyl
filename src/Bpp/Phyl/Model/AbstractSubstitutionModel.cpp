@@ -19,8 +19,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractTransitionModel::AbstractTransitionModel(
-    shared_ptr<const Alphabet> alpha,
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const Alphabet> alpha,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   alphabet_(alpha),
@@ -110,8 +110,8 @@ void AbstractTransitionModel::setFreq(map<int, double>& freqs)
 /******************************************************************************/
 
 AbstractSubstitutionModel::AbstractSubstitutionModel(
-    shared_ptr<const Alphabet> alpha,
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const Alphabet> alpha,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractTransitionModel(alpha, stateMap, prefix),

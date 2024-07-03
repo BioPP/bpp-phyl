@@ -17,7 +17,7 @@ using namespace std;
 /******************************************************************************/
 
 EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(
-    shared_ptr<const Alphabet> alpha) :
+    std::shared_ptr<const Alphabet> alpha) :
   AbstractParameterAliasable("Equi."),
   AbstractReversibleSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "Equi."),
   exp_(), p_(size_, size_), freqSet_(nullptr)
@@ -27,8 +27,8 @@ EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(
 }
 
 EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(
-    shared_ptr<const Alphabet> alpha,
-    unique_ptr<FrequencySetInterface> freqSet,
+    std::shared_ptr<const Alphabet> alpha,
+    std::unique_ptr<FrequencySetInterface> freqSet,
     bool initFreqs) :
   AbstractParameterAliasable("Equi+F."),
   AbstractReversibleSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "Equi+F."),

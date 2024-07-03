@@ -17,9 +17,9 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_MILLI(new IntervalConstraint(NumConstants::MILLI(), 1 - NumConstants::MILLI(), false, false));
-shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_CENTI(new IntervalConstraint(NumConstants::CENTI(), 1 - NumConstants::CENTI(), false, false));
-shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL(new IntervalConstraint(NumConstants::SMALL(), 1 - NumConstants::SMALL(), false, false));
+std::shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_MILLI(new IntervalConstraint(NumConstants::MILLI(), 1 - NumConstants::MILLI(), false, false));
+std::shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_CENTI(new IntervalConstraint(NumConstants::CENTI(), 1 - NumConstants::CENTI(), false, false));
+std::shared_ptr<IntervalConstraint> FrequencySetInterface::FREQUENCE_CONSTRAINT_SMALL(new IntervalConstraint(NumConstants::SMALL(), 1 - NumConstants::SMALL(), false, false));
 
 // ///////////////////////////////////////
 // AbstractFrequencySet
@@ -68,7 +68,7 @@ const std::map<int, double> AbstractFrequencySet::getAlphabetStatesFrequencies()
 // FullFrequencySet
 
 FullFrequencySet::FullFrequencySet(
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const StateMapInterface> stateMap,
     bool allowNullFreqs,
     unsigned short method,
     const string& name) :
@@ -92,7 +92,7 @@ FullFrequencySet::FullFrequencySet(
 }
 
 FullFrequencySet::FullFrequencySet(
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const vector<double>& initFreqs,
     bool allowNullFreqs,
     unsigned short method,
@@ -140,7 +140,7 @@ void FullFrequencySet::updateFreq_()
 // / FixedFrequencySet
 
 FixedFrequencySet::FixedFrequencySet(
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const vector<double>& initFreqs,
     const string& name) :
   AbstractFrequencySet(
@@ -154,7 +154,7 @@ FixedFrequencySet::FixedFrequencySet(
 }
 
 FixedFrequencySet::FixedFrequencySet(
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const string& name) :
   AbstractFrequencySet(
       stateMap,
@@ -213,7 +213,7 @@ FromModelFrequencySet& FromModelFrequencySet::operator=(const FromModelFrequency
 FromModelFrequencySet::~FromModelFrequencySet() {}
 
 FromModelFrequencySet::FromModelFrequencySet(
-    shared_ptr<TransitionModelInterface> model) :
+    std::shared_ptr<TransitionModelInterface> model) :
   AbstractFrequencySet(model->getStateMap(), "FromModel." + (model ? model->getNamespace() : ""), "FromModel"),
   model_(model)
 {
@@ -252,7 +252,7 @@ void FromModelFrequencySet::fireParameterChanged(const ParameterList& pl)
 /// User
 
 UserFrequencySet::UserFrequencySet(
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const std::string& path,
     size_t nCol) :
   AbstractFrequencySet(

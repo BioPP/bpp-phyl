@@ -15,7 +15,7 @@ using namespace std;
 /******************************************************************************/
 
 KCM::KCM(
-    shared_ptr<const GeneticCode> gc,
+    std::shared_ptr<const GeneticCode> gc,
     bool oneModel) :
   AbstractParameterAliasable("KCM" + string(oneModel ? "7" : "19") + "."),
   AbstractWrappedModel("KCM" + string(oneModel ? "7" : "19") + "."),

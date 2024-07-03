@@ -23,8 +23,8 @@ using namespace std;
 
 AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
     const Tree& tree,
-    shared_ptr<SubstitutionModelSet> modelSet,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose,
     bool reparametrizeRoot) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
@@ -127,8 +127,8 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
 
 void AbstractNonHomogeneousTreeLikelihood::init_(
     const Tree& tree,
-    shared_ptr<SubstitutionModelSet> modelSet,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<SubstitutionModelSet> modelSet,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose)
 {
   TreeTools::checkIds(tree, true);
@@ -157,7 +157,7 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
 /******************************************************************************/
 
 void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(
-    shared_ptr<SubstitutionModelSet> modelSet
+    std::shared_ptr<SubstitutionModelSet> modelSet
     )
 {
   // Check:

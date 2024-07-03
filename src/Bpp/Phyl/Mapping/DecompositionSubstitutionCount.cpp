@@ -14,10 +14,10 @@ using namespace std;
 /******************************************************************************/
 
 DecompositionSubstitutionCount::DecompositionSubstitutionCount(
-    shared_ptr<const SubstitutionModelInterface> model,
-    shared_ptr<const SubstitutionRegisterInterface> reg,
-    shared_ptr<const AlphabetIndex2> weights,
-    shared_ptr<const AlphabetIndex2> distances) :
+    std::shared_ptr<const SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights,
+    std::shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
   AbstractSubstitutionDistance(distances),
@@ -37,9 +37,9 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(
 }
 
 DecompositionSubstitutionCount::DecompositionSubstitutionCount(
-    shared_ptr<const SubstitutionRegisterInterface> reg,
-    shared_ptr<const AlphabetIndex2> weights,
-    shared_ptr<const AlphabetIndex2> distances) :
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights,
+    std::shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
   AbstractSubstitutionDistance(distances),
@@ -217,7 +217,7 @@ std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsPerT
 /******************************************************************************/
 
 void DecompositionSubstitutionCount::setSubstitutionModel(
-    shared_ptr<const SubstitutionModelInterface> model)
+    std::shared_ptr<const SubstitutionModelInterface> model)
 {
   // Check compatibility between model and substitution register:
   if (typeid(model->getAlphabet()) != typeid(register_->getAlphabet()))

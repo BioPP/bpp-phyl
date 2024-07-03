@@ -10,12 +10,12 @@ using namespace std;
 /******************************************************************************/
 
 AbstractDFPSubstitutionModel::AbstractDFPSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const GeneticCode> gCode,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(
       gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       prefix),
   gCode_(gCode),
   tr_(1), trr_(1), tvv_(1), trv_(1), tsub_(1)

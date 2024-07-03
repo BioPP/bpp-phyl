@@ -12,8 +12,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
-    shared_ptr<const AlphabetIndex2> pdist,
-    shared_ptr<const GeneticCode> pgencode,
+    std::shared_ptr<const AlphabetIndex2> pdist,
+    std::shared_ptr<const GeneticCode> pgencode,
     const string& prefix,
     bool paramSynRate) :
   AbstractParameterAliasable(prefix),

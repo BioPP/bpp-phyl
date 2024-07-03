@@ -11,9 +11,9 @@ using namespace std;
 /******************************************************************************/
 
 CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    vector<unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    vector<std::unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
     const string& name) :
   AbstractParameterAliasable(name + "."),
   AbstractCodonSubstitutionModel(gCode, std::move(pmod), name + "."),
@@ -42,11 +42,11 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
 }
 
 CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    vector<unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    vector<std::unique_ptr<CoreCodonSubstitutionModelInterface>>& vpmodel,
     const std::string& name) :
   AbstractParameterAliasable(name + "."),
   AbstractCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), name + "."),

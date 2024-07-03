@@ -23,8 +23,8 @@ using namespace std;
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
     const Tree& tree,
-    shared_ptr<TransitionModelInterface> model,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted,
     bool verbose) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),

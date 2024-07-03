@@ -28,9 +28,9 @@ using namespace std;
 unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingTools::computeCounts(
     LikelihoodCalculationSingleProcess& rltc,
     const vector<uint>& edgeIds,
-    shared_ptr<const SubstitutionRegisterInterface> reg,
-    shared_ptr<const AlphabetIndex2> weights,
-    shared_ptr<const AlphabetIndex2> distances,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights,
+    std::shared_ptr<const AlphabetIndex2> distances,
     short unresolvedOption,
     double threshold,
     bool verbose)
@@ -630,10 +630,10 @@ unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingTools::computeNo
 unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingTools::computeNormalizedCounts(
     LikelihoodCalculationSingleProcess& rltc,
     const vector<uint>& edgeIds,
-    shared_ptr<const BranchedModelSet> nullModels,
-    shared_ptr<const SubstitutionRegisterInterface> reg,
-    shared_ptr<const AlphabetIndex2> weights,
-    shared_ptr<const AlphabetIndex2> distances,
+    std::shared_ptr<const BranchedModelSet> nullModels,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights,
+    std::shared_ptr<const AlphabetIndex2> distances,
     bool perTimeUnit,
     uint siteSize,
     short unresolvedOption,
@@ -975,7 +975,7 @@ VVdouble SubstitutionMappingTools::getCountsPerTypePerBranch(
 VVdouble SubstitutionMappingTools::computeCountsPerTypePerBranch(
     LikelihoodCalculationSingleProcess& rltc,
     const vector<uint>& ids,
-    shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
     std::shared_ptr<const AlphabetIndex2> weights,
     std::shared_ptr<const AlphabetIndex2> distances,
     short unresolvedOption,

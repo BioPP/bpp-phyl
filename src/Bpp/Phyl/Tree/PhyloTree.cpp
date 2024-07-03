@@ -62,7 +62,7 @@ std::vector<std::string> PhyloTree::getAllLeavesNames() const
   return vn;
 }
 
-void PhyloTree::scaleTree(shared_ptr<PhyloNode> node, double factor)
+void PhyloTree::scaleTree(std::shared_ptr<PhyloNode> node, double factor)
 {
   vector<shared_ptr<PhyloBranch>> branches = getSubtreeEdges(node);
   for (vector<shared_ptr<PhyloBranch>>::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)

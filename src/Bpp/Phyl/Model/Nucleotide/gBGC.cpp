@@ -16,8 +16,8 @@ using namespace bpp;
 /******************************************************************************/
 
 gBGC::gBGC(
-    shared_ptr<const NucleicAlphabet> alph,
-    unique_ptr<NucleotideSubstitutionModelInterface> pm,
+    std::shared_ptr<const NucleicAlphabet> alph,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pm,
     double B) :
   AbstractParameterAliasable("gBGC."),
   AbstractNucleotideSubstitutionModel(alph, pm->getStateMap(), "gBGC."),

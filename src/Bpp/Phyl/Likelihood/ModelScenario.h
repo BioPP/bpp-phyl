@@ -170,8 +170,6 @@ public:
    */
   bool hasExclusivePaths() const;
 
-//  void fireParameterChanged(const ParameterList& parameters);
-
   /**
    * @brief compute the probabilities in all the ModelPaths
    *
@@ -180,21 +178,6 @@ public:
    */
 
   void computeModelPathsProbabilities();
-
-  /**
-   * @brief computes the probability of a ModelPath, given the
-   *     conditional probabilities of the submodels computed from the
-   *     hypernodes of this ModelScenario object. If the
-   *     ModelPath does not match the structure of allowed by this
-   *     ModelScenario, an Exception is thrown.
-   *
-   *     The probability of a ModelPath is the product -- on the set
-   *     of the mixed models -- of the sums of the conditional
-   *     probabilities of the submodels that belong to this hypernode
-   *     for each mixed model.
-   *
-   * @param hn the ModelPath which conditional probability is computed.
-   */
 
   /**
    * @brief string description

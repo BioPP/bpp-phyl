@@ -15,9 +15,9 @@ using namespace std;
 
 
 MixtureOfATransitionModel::MixtureOfATransitionModel(
-    shared_ptr<const Alphabet> alpha,
-    unique_ptr<TransitionModelInterface> model,
-    std::map<std::string, unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
+    std::shared_ptr<const Alphabet> alpha,
+    std::unique_ptr<TransitionModelInterface> model,
+    std::map<std::string, std::unique_ptr<DiscreteDistributionInterface>>& parametersDistributionsList,
     int ffrom,
     int tto) :
   AbstractParameterAliasable(model->getNamespace()),
@@ -71,7 +71,7 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
 
   for (i = 0; i < c; i++)
   {
-    modelsContainer_.push_back(unique_ptr<TransitionModelInterface>(model->clone()));
+    modelsContainer_.push_back(std::unique_ptr<TransitionModelInterface>(model->clone()));
     vProbas_.push_back(1.0 / static_cast<double>(c));
     vRates_.push_back(1.0);
   }

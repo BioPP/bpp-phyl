@@ -350,7 +350,7 @@ unique_ptr<TreeTemplate<Node>> Nhx::parenthesisToTree(const string& description)
 
 /******************************************************************************/
 
-shared_ptr<PhyloNode>  Nhx::parenthesisToNode(PhyloTree& tree, shared_ptr<PhyloNode>  father, const string& description) const
+std::shared_ptr<PhyloNode>  Nhx::parenthesisToNode(PhyloTree& tree, std::shared_ptr<PhyloNode>  father, const string& description) const
 {
   IOTree::Element elt = getElement(description);
 
@@ -527,7 +527,7 @@ bool Nhx::setNodeProperties(Node& node, const string properties) const
 
 /******************************************************************************/
 
-bool Nhx::setNodeProperties(PhyloTree& tree, shared_ptr<PhyloNode> node, const string properties) const
+bool Nhx::setNodeProperties(PhyloTree& tree, std::shared_ptr<PhyloNode> node, const string properties) const
 {
   string propsDesc = TextTools::removeChar(properties, ']');
   StringTokenizer st(propsDesc, ":", true, true);
@@ -645,7 +645,7 @@ void Nhx::changeNamesToTags(Node& node) const
 
 /******************************************************************************/
 
-void Nhx::changeTagsToNames(PhyloTree& tree, shared_ptr<PhyloNode> node) const
+void Nhx::changeTagsToNames(PhyloTree& tree, std::shared_ptr<PhyloNode> node) const
 {
   shared_ptr<PhyloBranch> branch = tree.hasFather(node) ? tree.getEdgeToFather(node) : 0;
 
@@ -682,7 +682,7 @@ void Nhx::changeTagsToNames(PhyloTree& tree, shared_ptr<PhyloNode> node) const
 
 /******************************************************************************/
 
-void Nhx::changeNamesToTags(PhyloTree& tree, shared_ptr<PhyloNode> node) const
+void Nhx::changeNamesToTags(PhyloTree& tree, std::shared_ptr<PhyloNode> node) const
 {
   shared_ptr<PhyloBranch> branch = tree.hasFather(node) ? tree.getEdgeToFather(node) : 0;
 
@@ -758,7 +758,7 @@ string Nhx::propertiesToParenthesis(const Node& node) const
 
 /******************************************************************************/
 
-string Nhx::propertiesToParenthesis(const PhyloTree& tree, const shared_ptr<PhyloNode> node) const
+string Nhx::propertiesToParenthesis(const PhyloTree& tree, const std::shared_ptr<PhyloNode> node) const
 {
   ostringstream s;
   s << "[&&NHX";

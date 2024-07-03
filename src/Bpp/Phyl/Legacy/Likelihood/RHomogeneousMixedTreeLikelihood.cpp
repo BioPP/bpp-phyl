@@ -18,8 +18,8 @@ using namespace std;
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    shared_ptr<TransitionModelInterface> model,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted,
     bool verbose,
     bool usePatterns) :

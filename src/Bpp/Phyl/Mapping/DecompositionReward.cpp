@@ -14,8 +14,8 @@ using namespace std;
 /******************************************************************************/
 
 DecompositionReward::DecompositionReward(
-    shared_ptr<const SubstitutionModelInterface> model,
-    shared_ptr<const AlphabetIndex1> alphIndex) :
+    std::shared_ptr<const SubstitutionModelInterface> model,
+    std::shared_ptr<const AlphabetIndex1> alphIndex) :
   AbstractReward(alphIndex),
   DecompositionMethods(model),
   rewards_(nbStates_, nbStates_),
@@ -37,7 +37,7 @@ DecompositionReward::DecompositionReward(
 
 DecompositionReward::DecompositionReward(
     const StateMapInterface& stateMap,
-    shared_ptr<const AlphabetIndex1> alphIndex) :
+    std::shared_ptr<const AlphabetIndex1> alphIndex) :
   AbstractReward(alphIndex),
   DecompositionMethods(stateMap),
   rewards_(nbStates_, nbStates_),
@@ -142,7 +142,7 @@ double DecompositionReward::getReward(size_t initialState, size_t finalState, do
 /******************************************************************************/
 
 void DecompositionReward::setSubstitutionModel(
-    shared_ptr<const SubstitutionModelInterface> model)
+    std::shared_ptr<const SubstitutionModelInterface> model)
 {
   DecompositionMethods::setSubstitutionModel(model);
 

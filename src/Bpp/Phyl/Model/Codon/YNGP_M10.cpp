@@ -17,8 +17,8 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M10::YNGP_M10(
-    shared_ptr<const GeneticCode> gc,
-    unique_ptr<CodonFrequencySetInterface> codonFreqs,
+    std::shared_ptr<const GeneticCode> gc,
+    std::unique_ptr<CodonFrequencySetInterface> codonFreqs,
     unsigned int nbBeta,
     unsigned int nbGamma) :
   AbstractParameterAliasable("YNGP_M10."),
@@ -88,7 +88,7 @@ YNGP_M10::YNGP_M10(
   {
     st = mixedModelPtr_->getParameterNameWithoutNamespace(it.first);
     addParameter_(new Parameter("YNGP_M10." + it.second, mixedModelPtr_->getParameterValue(st),
-          mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
+                                mixedModelPtr_->parameter(st).hasConstraint() ? std::shared_ptr<ConstraintInterface>(mixedModelPtr_->parameter(st).getConstraint()->clone()) : 0));
   }
 
   // look for synonymous codons

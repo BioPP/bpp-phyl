@@ -16,7 +16,7 @@ using namespace std;
 /******************************************************************************/
 
 AbstractDiscreteRatesAcrossSitesTreeLikelihood::AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool verbose) :
   rateDistribution_(rDist)
 {

@@ -17,8 +17,8 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M8::YNGP_M8(
-    shared_ptr<const GeneticCode> gc,
-    unique_ptr<CodonFrequencySetInterface> codonFreqs,
+    std::shared_ptr<const GeneticCode> gc,
+    std::unique_ptr<CodonFrequencySetInterface> codonFreqs,
     unsigned int nclass,
     bool neutral) :
   AbstractParameterAliasable(neutral ? "YNGP_M8a." : "YNGP_M8."),

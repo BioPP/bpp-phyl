@@ -11,9 +11,9 @@ using namespace std;
 /******************************************************************************/
 
 CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
-    shared_ptr<const AlphabetIndex2> pdist) :
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDist."),
   AbstractCodonSubstitutionModel(gCode, std::move(pmod), "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDist.")
@@ -23,11 +23,11 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
 }
 
 CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
-    shared_ptr<const AlphabetIndex2> pdist) :
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::shared_ptr<const AlphabetIndex2> pdist) :
   AbstractParameterAliasable("CodonDist."),
   AbstractCodonSubstitutionModel(gCode, std::move(pmod1), std::move(pmod2), std::move(pmod3), "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDist.")

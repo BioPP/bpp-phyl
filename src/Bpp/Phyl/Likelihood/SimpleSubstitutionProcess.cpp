@@ -8,9 +8,9 @@ using namespace bpp;
 using namespace std;
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(
-    shared_ptr<BranchModelInterface> model,
-    shared_ptr<ParametrizablePhyloTree> tree,
-    shared_ptr<FrequencySetInterface> rootFrequencies) :
+    std::shared_ptr<BranchModelInterface> model,
+    std::shared_ptr<ParametrizablePhyloTree> tree,
+    std::shared_ptr<FrequencySetInterface> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model)
@@ -23,9 +23,9 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(
 }
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(
-    shared_ptr<BranchModelInterface> model,
-    shared_ptr<const PhyloTree> tree,
-    shared_ptr<FrequencySetInterface> rootFrequencies) :
+    std::shared_ptr<BranchModelInterface> model,
+    std::shared_ptr<const PhyloTree> tree,
+    std::shared_ptr<FrequencySetInterface> rootFrequencies) :
   AbstractParameterAliasable(""),
   AbstractAutonomousSubstitutionProcess(tree, rootFrequencies, model ? model->getNamespace() : ""),
   model_(model)
@@ -58,7 +58,7 @@ SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubs
   return *this;
 }
 
-void SimpleSubstitutionProcess::setModelScenario(shared_ptr<ModelScenario> modelpath)
+void SimpleSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
 {
   auto vmod = modelpath->getModels();
 

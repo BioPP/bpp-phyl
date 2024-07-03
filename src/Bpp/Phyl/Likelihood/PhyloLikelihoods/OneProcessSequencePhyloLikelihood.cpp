@@ -12,7 +12,7 @@ using namespace numeric;
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
     Context& context,
-    shared_ptr<OneProcessSequenceEvolution> evol,
+    std::shared_ptr<OneProcessSequenceEvolution> evol,
     size_t nSeqEvol) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
@@ -35,8 +35,8 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
     Context& context,
-    shared_ptr<const AlignmentDataInterface> data,
-    shared_ptr<OneProcessSequenceEvolution> evol,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<OneProcessSequenceEvolution> evol,
     size_t nSeqEvol,
     size_t nData) :
   AbstractPhyloLikelihood(context),
@@ -58,9 +58,9 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 /******************************************************************************/
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
-    shared_ptr<const AlignmentDataInterface> data,
-    shared_ptr<OneProcessSequenceEvolution> evol,
-    shared_ptr<CollectionNodes> collNodes,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<OneProcessSequenceEvolution> evol,
+    std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol,
     size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),

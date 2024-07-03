@@ -33,7 +33,7 @@ LegacyOptimizationTools::~LegacyOptimizationTools() {}
 /******************************************************************************/
 
 LegacyOptimizationTools::ScaleFunction::ScaleFunction(
-    shared_ptr<TreeLikelihoodInterface> tl) :
+    std::shared_ptr<TreeLikelihoodInterface> tl) :
   tl_(tl),
   brLen_(),
   lambda_()
@@ -76,11 +76,11 @@ double LegacyOptimizationTools::ScaleFunction::getValue() const
 /******************************************************************************/
 
 unsigned int LegacyOptimizationTools::optimizeTreeScale(
-    shared_ptr<TreeLikelihoodInterface> tl,
+    std::shared_ptr<TreeLikelihoodInterface> tl,
     double tolerance,
     unsigned int tlEvalMax,
-    shared_ptr<OutputStream> messageHandler,
-    shared_ptr<OutputStream> profiler,
+    std::shared_ptr<OutputStream> messageHandler,
+    std::shared_ptr<OutputStream> profiler,
     unsigned int verbose)
 {
   auto sf = make_shared<ScaleFunction>(tl);
@@ -104,14 +104,14 @@ unsigned int LegacyOptimizationTools::optimizeTreeScale(
 /******************************************************************************/
 
 unsigned int LegacyOptimizationTools::optimizeNumericalParameters(
-    shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
     const ParameterList& parameters,
-    shared_ptr<OptimizationListener> listener,
+    std::shared_ptr<OptimizationListener> listener,
     unsigned int nstep,
     double tolerance,
     unsigned int tlEvalMax,
-    shared_ptr<OutputStream> messageHandler,
-    shared_ptr<OutputStream> profiler,
+    std::shared_ptr<OutputStream> messageHandler,
+    std::shared_ptr<OutputStream> profiler,
     bool reparametrization,
     unsigned int verbose,
     const string& optMethodDeriv,
@@ -206,13 +206,13 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters(
 /******************************************************************************/
 
 unsigned int LegacyOptimizationTools::optimizeNumericalParameters2(
-    shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
     const ParameterList& parameters,
-    shared_ptr<OptimizationListener> listener,
+    std::shared_ptr<OptimizationListener> listener,
     double tolerance,
     unsigned int tlEvalMax,
-    shared_ptr<OutputStream> messageHandler,
-    shared_ptr<OutputStream> profiler,
+    std::shared_ptr<OutputStream> messageHandler,
+    std::shared_ptr<OutputStream> profiler,
     bool reparametrization,
     bool useClock,
     unsigned int verbose,
@@ -300,13 +300,13 @@ unsigned int LegacyOptimizationTools::optimizeNumericalParameters2(
 /******************************************************************************/
 
 unsigned int LegacyOptimizationTools::optimizeBranchLengthsParameters(
-    shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
+    std::shared_ptr<DiscreteRatesAcrossSitesTreeLikelihoodInterface> tl,
     const ParameterList& parameters,
-    shared_ptr<OptimizationListener> listener,
+    std::shared_ptr<OptimizationListener> listener,
     double tolerance,
     unsigned int tlEvalMax,
-    shared_ptr<OutputStream> messageHandler,
-    shared_ptr<OutputStream> profiler,
+    std::shared_ptr<OutputStream> messageHandler,
+    std::shared_ptr<OutputStream> profiler,
     unsigned int verbose,
     const string& optMethodDeriv)
 {
@@ -384,15 +384,15 @@ void NNITopologyListener2::topologyChangeSuccessful(const TopologyChangeEvent& e
 // ******************************************************************************/
 
 shared_ptr<NNIHomogeneousTreeLikelihood> LegacyOptimizationTools::optimizeTreeNNI(
-    shared_ptr<NNIHomogeneousTreeLikelihood> tl,
+    std::shared_ptr<NNIHomogeneousTreeLikelihood> tl,
     const ParameterList& parameters,
     bool optimizeNumFirst,
     double tolBefore,
     double tolDuring,
     unsigned int tlEvalMax,
     unsigned int numStep,
-    shared_ptr<OutputStream> messageHandler,
-    shared_ptr<OutputStream> profiler,
+    std::shared_ptr<OutputStream> messageHandler,
+    std::shared_ptr<OutputStream> profiler,
     bool reparametrization,
     unsigned int verbose,
     const string& optMethodDeriv,
@@ -416,15 +416,15 @@ shared_ptr<NNIHomogeneousTreeLikelihood> LegacyOptimizationTools::optimizeTreeNN
 /******************************************************************************/
 
 shared_ptr<NNIHomogeneousTreeLikelihood> LegacyOptimizationTools::optimizeTreeNNI2(
-    shared_ptr<NNIHomogeneousTreeLikelihood> tl,
+    std::shared_ptr<NNIHomogeneousTreeLikelihood> tl,
     const ParameterList& parameters,
     bool optimizeNumFirst,
     double tolBefore,
     double tolDuring,
     unsigned int tlEvalMax,
     unsigned int numStep,
-    shared_ptr<OutputStream> messageHandler,
-    shared_ptr<OutputStream> profiler,
+    std::shared_ptr<OutputStream> messageHandler,
+    std::shared_ptr<OutputStream> profiler,
     bool reparametrization,
     unsigned int verbose,
     const string& optMethodDeriv,
@@ -447,7 +447,7 @@ shared_ptr<NNIHomogeneousTreeLikelihood> LegacyOptimizationTools::optimizeTreeNN
 /******************************************************************************/
 
 shared_ptr<DRTreeParsimonyScore> LegacyOptimizationTools::optimizeTreeNNI(
-    shared_ptr<DRTreeParsimonyScore> tp,
+    std::shared_ptr<DRTreeParsimonyScore> tp,
     unsigned int verbose)
 {
   auto topo = dynamic_pointer_cast<NNISearchable>(tp);

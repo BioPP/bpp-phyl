@@ -89,6 +89,7 @@ class YpR :
 protected:
   std::unique_ptr<NucleotideSubstitutionModelInterface> pmodel_;
 
+  // Prefix of the native pmodel_
   std::string nestedPrefix_;
 
 protected:
@@ -100,8 +101,6 @@ protected:
       std::shared_ptr<const RNY>,
       std::unique_ptr<NucleotideSubstitutionModelInterface> const,
       const std::string& prefix);
-
-  YpR(const YpR&, const std::string& prefix);
 
   YpR(const YpR& ypr);
 

@@ -10,7 +10,7 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmSequenceEvolution::HmmSequenceEvolution(
-    shared_ptr<SubstitutionProcessCollection> processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     vector<size_t>& nProc) :
   MultiProcessSequenceEvolution(processColl, nProc),
   hmmAlph_(),

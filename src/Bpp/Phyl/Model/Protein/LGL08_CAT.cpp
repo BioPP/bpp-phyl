@@ -14,7 +14,7 @@ using namespace std;
 /******************************************************************************/
 
 LGL08_CAT::LGL08_CAT(
-    shared_ptr<const ProteicAlphabet> alpha,
+    std::shared_ptr<const ProteicAlphabet> alpha,
     unsigned int nbCat) :
   AbstractParameterAliasable("LGL08_CAT."),
   AbstractWrappedModel("LGL08_CAT."),
@@ -60,7 +60,7 @@ LGL08_CAT::LGL08_CAT(
 /**************** sub model classes */ // ////////
 
 LGL08_CAT::EmbeddedModel::EmbeddedModel(
-    shared_ptr<const ProteicAlphabet> alpha,
+    std::shared_ptr<const ProteicAlphabet> alpha,
     string name,
     unsigned int nbCat) :
   AbstractParameterAliasable(name),

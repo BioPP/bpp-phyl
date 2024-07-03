@@ -10,13 +10,13 @@ using namespace std;
 /******************************************************************************/
 
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
       gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       prefix),
   gCode_(gCode)
 {
@@ -37,14 +37,14 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
 }
 
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const std::vector<std::set< size_t>>& vPos,
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
       gCode->getSourceAlphabet(),
-      shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
+      std::shared_ptr<const StateMapInterface>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
       prefix),
   gCode_(gCode)
 {
@@ -66,10 +66,10 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
 }
 
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractKroneckerWordSubstitutionModel(
@@ -102,10 +102,10 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
 }
 
 AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::vector<std::set< size_t>>& vPos,
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),

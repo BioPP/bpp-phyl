@@ -10,8 +10,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod,
     const string& prefix,
     bool paramRates) :
   AbstractParameterAliasable(prefix),
@@ -54,10 +54,10 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 }
 
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
-    unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod1,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod2,
+    std::unique_ptr<NucleotideSubstitutionModelInterface> pmod3,
     const std::string& prefix,
     bool paramRates) :
   AbstractParameterAliasable(prefix),

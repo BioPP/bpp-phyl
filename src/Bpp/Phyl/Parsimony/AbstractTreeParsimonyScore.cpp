@@ -12,8 +12,8 @@ using namespace bpp;
 using namespace std;
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-    shared_ptr<TreeTemplate<Node>> tree,
-    shared_ptr<const SiteContainerInterface> data,
+    std::shared_ptr<TreeTemplate<Node>> tree,
+    std::shared_ptr<const SiteContainerInterface> data,
     bool verbose,
     bool includeGaps) :
   treePtr_(std::move(tree)),
@@ -29,8 +29,8 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 
 
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
-    shared_ptr<TreeTemplate<Node>> tree,
-    shared_ptr<const SiteContainerInterface> data,
+    std::shared_ptr<TreeTemplate<Node>> tree,
+    std::shared_ptr<const SiteContainerInterface> data,
     std::shared_ptr<const StateMapInterface> statesMap,
     bool verbose) :
   treePtr_(std::move(tree)),
@@ -42,7 +42,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   init_(data, verbose);
 }
 
-void AbstractTreeParsimonyScore::init_(shared_ptr<const SiteContainerInterface> data, bool verbose)
+void AbstractTreeParsimonyScore::init_(std::shared_ptr<const SiteContainerInterface> data, bool verbose)
 {
   if (treePtr_->isRooted())
   {

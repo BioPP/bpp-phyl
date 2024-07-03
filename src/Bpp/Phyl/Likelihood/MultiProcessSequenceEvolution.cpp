@@ -10,7 +10,7 @@ using namespace bpp;
 /******************************************************************************/
 
 MultiProcessSequenceEvolution::MultiProcessSequenceEvolution(
-    shared_ptr<SubstitutionProcessCollection> processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     vector<size_t> nProc,
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),

@@ -13,9 +13,9 @@ using namespace bpp;
 /******************************************************************************/
 
 AutoCorrelationProcessPhyloLikelihood::AutoCorrelationProcessPhyloLikelihood(
-    shared_ptr<const AlignmentDataInterface> data,
-    shared_ptr<AutoCorrelationSequenceEvolution> processSeqEvol,
-    shared_ptr<CollectionNodes> collNodes,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<AutoCorrelationSequenceEvolution> processSeqEvol,
+    std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol,
     size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),

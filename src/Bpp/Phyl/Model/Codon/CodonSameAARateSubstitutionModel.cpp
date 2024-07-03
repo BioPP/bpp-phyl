@@ -10,10 +10,10 @@ using namespace std;
 /******************************************************************************/
 
 CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
-    unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
-    unique_ptr<CodonSubstitutionModelInterface> pCodonModel,
-    unique_ptr<CodonFrequencySetInterface> pFreq,
-    shared_ptr<const GeneticCode> pgencode) :
+    std::unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
+    std::unique_ptr<CodonSubstitutionModelInterface> pCodonModel,
+    std::unique_ptr<CodonFrequencySetInterface> pFreq,
+    std::shared_ptr<const GeneticCode> pgencode) :
   AbstractParameterAliasable("SameAARate."),
   AbstractSubstitutionModel(pCodonModel->getAlphabet(), pCodonModel->getStateMap(), "SameAARate."),
   pAAmodel_(std::move(pAAmodel)),

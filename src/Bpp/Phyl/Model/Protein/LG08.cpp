@@ -16,7 +16,7 @@ using namespace std;
 /******************************************************************************/
 
 LG08::LG08(
-    shared_ptr<const ProteicAlphabet> alpha) :
+    std::shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("LG08."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "LG08."),
   freqSet_(nullptr)
@@ -28,8 +28,8 @@ LG08::LG08(
 }
 
 LG08::LG08(
-    shared_ptr<const ProteicAlphabet> alpha,
-    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    std::shared_ptr<const ProteicAlphabet> alpha,
+    std::unique_ptr<ProteinFrequencySetInterface> freqSet,
     bool initFreqs) :
   AbstractParameterAliasable("LG08+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "LG08+F."),

@@ -27,8 +27,8 @@ DSO78::DSO78(std::shared_ptr<const ProteicAlphabet> alpha) :
 }
 
 DSO78::DSO78(
-    shared_ptr<const ProteicAlphabet> alpha,
-    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    std::shared_ptr<const ProteicAlphabet> alpha,
+    std::unique_ptr<ProteinFrequencySetInterface> freqSet,
     bool initFreqs) :
   AbstractParameterAliasable("DSO78+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "DSO78+F."),

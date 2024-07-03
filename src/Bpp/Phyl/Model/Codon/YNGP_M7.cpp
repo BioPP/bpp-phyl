@@ -16,8 +16,8 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M7::YNGP_M7(
-    shared_ptr<const GeneticCode> gc,
-    unique_ptr<CodonFrequencySetInterface> codonFreqs,
+    std::shared_ptr<const GeneticCode> gc,
+    std::unique_ptr<CodonFrequencySetInterface> codonFreqs,
     unsigned int nclass) :
   AbstractParameterAliasable("YNGP_M7."),
   AbstractWrappedModel("YNGP_M7."),

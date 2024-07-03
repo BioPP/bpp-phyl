@@ -13,9 +13,9 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
-    shared_ptr<const AlignmentDataInterface> data,
-    shared_ptr<HmmSequenceEvolution> processSeqEvol,
-    shared_ptr<CollectionNodes> collNodes,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<HmmSequenceEvolution> processSeqEvol,
+    std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol,
     size_t nData) :
   AbstractPhyloLikelihood(collNodes->context()),

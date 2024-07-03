@@ -14,7 +14,7 @@ using namespace std;
 
 /******************************************************************************/
 
-PhyloNodePException::PhyloNodePException(const std::string& text, const PhyloTree& tree, const shared_ptr<PhyloNode> node) :
+PhyloNodePException::PhyloNodePException(const std::string& text, const PhyloTree& tree, const std::shared_ptr<PhyloNode> node) :
   PhyloNodeException(text, tree.getNodeIndex(node)), node_(node.get())
 {}
 
@@ -36,7 +36,7 @@ PhyloNodeNotFoundException::PhyloNodeNotFoundException(const std::string& text, 
 
 /******************************************************************************/
 
-PhyloBranchPException::PhyloBranchPException(const std::string& text, const PhyloTree& tree, const shared_ptr<PhyloBranch> branch) :
+PhyloBranchPException::PhyloBranchPException(const std::string& text, const PhyloTree& tree, const std::shared_ptr<PhyloBranch> branch) :
   PhyloBranchException(text, tree.getEdgeIndex(branch)), branch_(branch.get())
 {}
 

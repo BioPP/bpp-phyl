@@ -45,8 +45,8 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
 DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
     const Tree& tree,
     const AlignmentDataInterface& data,
-    shared_ptr<TransitionModelInterface> model,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted,
     bool verbose,
     bool rootArray) :

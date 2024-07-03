@@ -91,8 +91,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-    shared_ptr<const Alphabet> alph,
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const Alphabet> alph,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(alph, stateMap, prefix),

@@ -52,7 +52,7 @@ std::shared_ptr<PhyloTree> PhyloTreeTools::buildFromTreeTemplate(const TreeTempl
   return phyloT;
 }
 
-double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNode> node)
+double PhyloTreeTools::getHeight(const PhyloTree& tree, const std::shared_ptr<PhyloNode> node)
 {
   double d = 0;
 
@@ -74,7 +74,7 @@ double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNo
 }
 
 
-size_t PhyloTreeTools::initBranchLengthsGrafen(PhyloTree& tree, shared_ptr<PhyloNode> node)
+size_t PhyloTreeTools::initBranchLengthsGrafen(PhyloTree& tree, std::shared_ptr<PhyloNode> node)
 {
   vector<shared_ptr<PhyloNode>> sons = tree.getSons(node);
   vector<size_t> h(sons.size());
@@ -98,7 +98,7 @@ void PhyloTreeTools::initBranchLengthsGrafen(PhyloTree& tree)
 
 void PhyloTreeTools::computeBranchLengthsGrafen(
     PhyloTree& tree,
-    shared_ptr<PhyloNode> node,
+    std::shared_ptr<PhyloNode> node,
     double power,
     double total,
     double& height,
@@ -143,7 +143,7 @@ void PhyloTreeTools::computeBranchLengthsGrafen(PhyloTree& tree, double power, b
   computeBranchLengthsGrafen(tree, root, power, totalHeight, h, hr);
 }
 
-double PhyloTreeTools::convertToClockTree(PhyloTree& tree, shared_ptr<PhyloNode> node)
+double PhyloTreeTools::convertToClockTree(PhyloTree& tree, std::shared_ptr<PhyloNode> node)
 {
   vector<shared_ptr<PhyloNode>> sons = tree.getSons(node);
 
@@ -177,7 +177,7 @@ double PhyloTreeTools::convertToClockTree(PhyloTree& tree, shared_ptr<PhyloNode>
 }
 
 
-double PhyloTreeTools::convertToClockTree2(PhyloTree& tree, shared_ptr<PhyloNode> node)
+double PhyloTreeTools::convertToClockTree2(PhyloTree& tree, std::shared_ptr<PhyloNode> node)
 {
   vector<shared_ptr<PhyloNode>> sons = tree.getSons(node);
   vector<double> h(sons.size());
@@ -235,7 +235,7 @@ void PhyloTreeTools::constrainedMidPointRooting(PhyloTree& tree)
 }
 
 
-double PhyloTreeTools::bestRootPosition_(const PhyloTree& tree, const shared_ptr<PhyloNode>  node1, const shared_ptr<PhyloNode> node2, double length)
+double PhyloTreeTools::bestRootPosition_(const PhyloTree& tree, const std::shared_ptr<PhyloNode>  node1, const std::shared_ptr<PhyloNode> node2, double length)
 {
   double x;
   Moments_ m1, m2;
@@ -263,7 +263,7 @@ double PhyloTreeTools::bestRootPosition_(const PhyloTree& tree, const shared_ptr
 }
 
 
-PhyloTreeTools::Moments_ PhyloTreeTools::statFromNode_(const PhyloTree& tree, const shared_ptr<PhyloNode> root)
+PhyloTreeTools::Moments_ PhyloTreeTools::statFromNode_(const PhyloTree& tree, const std::shared_ptr<PhyloNode> root)
 {
   // This function recursively calculates both the sum of the branch lengths and the sum of the squared branch lengths down the node whose ID is rootId.
   // If below a particular node there are N leaves, the branch between this node and its father is taken into account N times in the calculation.

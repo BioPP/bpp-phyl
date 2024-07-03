@@ -10,9 +10,9 @@ using namespace std;
 /******************************************************************************/
 
 POMO::POMO(
-    shared_ptr<const AllelicAlphabet> allAlph,
-    unique_ptr<SubstitutionModelInterface> pmodel,
-    unique_ptr<FrequencySetInterface> pfitness) :
+    std::shared_ptr<const AllelicAlphabet> allAlph,
+    std::unique_ptr<SubstitutionModelInterface> pmodel,
+    std::unique_ptr<FrequencySetInterface> pfitness) :
   AbstractParameterAliasable("POMO."),
   AbstractSubstitutionModel(allAlph, make_shared<CanonicalStateMap>(allAlph, false), "POMO."),
   nbAlleles_(allAlph->getNbAlleles()),

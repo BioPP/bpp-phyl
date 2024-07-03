@@ -12,7 +12,7 @@ using namespace std;
 
 /******************************************************************************/
 
-WAG01::WAG01(shared_ptr<const ProteicAlphabet> alpha) :
+WAG01::WAG01(std::shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("WAG01."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "WAG01."),
   freqSet_(nullptr)
@@ -24,8 +24,8 @@ WAG01::WAG01(shared_ptr<const ProteicAlphabet> alpha) :
 }
 
 WAG01::WAG01(
-    shared_ptr<const ProteicAlphabet> alpha,
-    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    std::shared_ptr<const ProteicAlphabet> alpha,
+    std::unique_ptr<ProteinFrequencySetInterface> freqSet,
     bool initFreqs) :
   AbstractParameterAliasable("WAG01+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "WAG01+F."),

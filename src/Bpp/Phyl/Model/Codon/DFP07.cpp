@@ -15,9 +15,9 @@ using namespace std;
 /******************************************************************************/
 
 DFP07::DFP07(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
-    unique_ptr<CodonFrequencySetInterface> codonFreqs) :
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<ProteinSubstitutionModelInterface> pAAmodel,
+    std::unique_ptr<CodonFrequencySetInterface> codonFreqs) :
   AbstractParameterAliasable("DFP07."),
   AbstractWrappedModel("DFP07."),
   AbstractWrappedTransitionModel("DFP07."),

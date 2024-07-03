@@ -16,7 +16,7 @@ using namespace std;
 // FullCodonFrequencySet
 
 FullCodonFrequencySet::FullCodonFrequencySet(
-    shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const GeneticCode> gCode,
     bool allowNullFreqs,
     unsigned short method,
     const string& name) :
@@ -41,7 +41,7 @@ FullCodonFrequencySet::FullCodonFrequencySet(
 }
 
 FullCodonFrequencySet::FullCodonFrequencySet(
-    shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const GeneticCode> gCode,
     const vector<double>& initFreqs,
     bool allowNullFreqs,
     unsigned short method,
@@ -147,8 +147,8 @@ void FullCodonFrequencySet::updateFreq_()
 // FullPerAACodonFrequencySet
 
 FullPerAACodonFrequencySet::FullPerAACodonFrequencySet(
-    shared_ptr<const GeneticCode> gencode,
-    unique_ptr<ProteinFrequencySetInterface> ppfs,
+    std::shared_ptr<const GeneticCode> gencode,
+    std::unique_ptr<ProteinFrequencySetInterface> ppfs,
     unsigned short method) :
   AbstractFrequencySet(
       make_shared<CanonicalStateMap>(gencode->getSourceAlphabet(), false),
@@ -179,7 +179,7 @@ FullPerAACodonFrequencySet::FullPerAACodonFrequencySet(
 }
 
 FullPerAACodonFrequencySet::FullPerAACodonFrequencySet(
-    shared_ptr<const GeneticCode> gencode,
+    std::shared_ptr<const GeneticCode> gencode,
     unsigned short method) :
   AbstractFrequencySet(
       make_shared<CanonicalStateMap>(gencode->getSourceAlphabet(), false),
@@ -307,7 +307,7 @@ void FullPerAACodonFrequencySet::setNamespace(const std::string& prefix)
 // / FixedCodonFrequencySet
 
 FixedCodonFrequencySet::FixedCodonFrequencySet(
-    shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const GeneticCode> gCode,
     const vector<double>& initFreqs,
     const string& name) :
   AbstractFrequencySet(
@@ -320,7 +320,7 @@ FixedCodonFrequencySet::FixedCodonFrequencySet(
 }
 
 FixedCodonFrequencySet::FixedCodonFrequencySet(
-    shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const GeneticCode> gCode,
     const string& name) :
   AbstractFrequencySet(
       make_shared<CanonicalStateMap>(gCode->getSourceAlphabet(), false),
@@ -360,7 +360,7 @@ void FixedCodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 // / UserCodonFrequencySet
 
 UserCodonFrequencySet::UserCodonFrequencySet(
-    shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const GeneticCode> gCode,
     const std::string& path,
     size_t nCol) :
   UserFrequencySet(
@@ -395,8 +395,8 @@ void UserCodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 
 
 CodonFromIndependentFrequencySet::CodonFromIndependentFrequencySet(
-    shared_ptr<const GeneticCode> gCode,
-    vector<unique_ptr<FrequencySetInterface>>& freqvector,
+    std::shared_ptr<const GeneticCode> gCode,
+    vector<std::unique_ptr<FrequencySetInterface>>& freqvector,
     const string& name,
     const string& mgmtStopCodon) :
   WordFromIndependentFrequencySet(
@@ -522,8 +522,8 @@ void CodonFromIndependentFrequencySet::updateFrequencies()
 
 
 CodonFromUniqueFrequencySet::CodonFromUniqueFrequencySet(
-    shared_ptr<const GeneticCode> gCode,
-    unique_ptr<FrequencySetInterface> pfreq,
+    std::shared_ptr<const GeneticCode> gCode,
+    std::unique_ptr<FrequencySetInterface> pfreq,
     const string& name,
     const string& mgmtStopCodon) :
   WordFromUniqueFrequencySet(gCode->getCodonAlphabet(), std::move(pfreq), "", name),
@@ -640,7 +640,7 @@ void CodonFromUniqueFrequencySet::updateFrequencies()
 
 unique_ptr<CodonFrequencySetInterface> CodonFrequencySetInterface::getFrequencySetForCodons(
     short option,
-    shared_ptr<const GeneticCode> gCode,
+    std::shared_ptr<const GeneticCode> gCode,
     const string& mgmtStopCodon,
     unsigned short method)
 {

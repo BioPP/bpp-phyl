@@ -11,8 +11,8 @@ using namespace std;
 
 
 AbstractMixedTransitionModel::AbstractMixedTransitionModel(
-    shared_ptr<const Alphabet> alpha,
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const Alphabet> alpha,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractTransitionModel(alpha, stateMap, prefix),

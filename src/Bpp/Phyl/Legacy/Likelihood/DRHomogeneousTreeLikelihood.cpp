@@ -24,8 +24,8 @@ using namespace std;
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
     const Tree& tree,
-    shared_ptr<TransitionModelInterface> model,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted,
     bool verbose) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
@@ -40,8 +40,8 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
     const Tree& tree,
     const AlignmentDataInterface& data,
-    shared_ptr<TransitionModelInterface> model,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted,
     bool verbose) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),

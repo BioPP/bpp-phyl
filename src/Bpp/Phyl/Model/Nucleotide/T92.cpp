@@ -44,6 +44,7 @@ void T92::updateMatrices_()
 {
   kappa_ = getParameterValue("kappa");
   theta_ = getParameterValue("theta");
+
   piA_ = (1 - theta_) / 2;
   piC_ = theta_ / 2;
   piG_ = theta_ / 2;

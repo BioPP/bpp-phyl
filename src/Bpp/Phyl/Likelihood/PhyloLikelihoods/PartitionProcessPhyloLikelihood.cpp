@@ -15,7 +15,7 @@ using namespace bpp;
 
 PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
     Context& context,
-    shared_ptr<PartitionSequenceEvolution> processSeqEvol,
+    std::shared_ptr<PartitionSequenceEvolution> processSeqEvol,
     size_t nSeqEvol) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
@@ -67,8 +67,8 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
 
 PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
     Context& context,
-    shared_ptr<const AlignmentDataInterface> data,
-    shared_ptr<PartitionSequenceEvolution> processSeqEvol,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<PartitionSequenceEvolution> processSeqEvol,
     size_t nSeqEvol,
     size_t nData) :
   AbstractPhyloLikelihood(context),
@@ -124,8 +124,8 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
 /******************************************************************************/
 
 PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
-    shared_ptr<const AlignmentDataInterface> data,
-    shared_ptr<PartitionSequenceEvolution> processSeqEvol,
+    std::shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<PartitionSequenceEvolution> processSeqEvol,
     std::shared_ptr<CollectionNodes> collNodes,
     size_t nSeqEvol,
     size_t nData) :
@@ -178,7 +178,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
 /******************************************************************************/
 
 void PartitionProcessPhyloLikelihood::setData(
-    shared_ptr<const AlignmentDataInterface> data,
+    std::shared_ptr<const AlignmentDataInterface> data,
     size_t nData)
 {
   if (data->getNumberOfSites() != mSeqEvol_->getNumberOfSites())

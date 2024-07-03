@@ -198,7 +198,7 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
 }
 
 
-shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& collection, size_t pNum)
+std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& collection, size_t pNum)
 {
   auto process = collection.collection().getSubstitutionProcess(pNum);
 
@@ -211,9 +211,9 @@ shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& collection
   return std::make_shared<ProcessTree>(tree, collection.getModelCollection(), pt);
 }
 
-shared_ptr<ProcessTree> ProcessTree::makeProcessTree(
+std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(
     Context& context,
-    shared_ptr<const SubstitutionProcessInterface> process,
+    std::shared_ptr<const SubstitutionProcessInterface> process,
     ParameterList& parList,
     const std::string& suff)
 {

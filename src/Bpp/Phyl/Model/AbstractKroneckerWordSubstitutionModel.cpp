@@ -92,8 +92,8 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
-    shared_ptr<const Alphabet> alph,
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const Alphabet> alph,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractWordSubstitutionModel(alph, stateMap, prefix),

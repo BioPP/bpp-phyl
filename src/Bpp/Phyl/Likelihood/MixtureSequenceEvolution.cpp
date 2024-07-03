@@ -10,7 +10,7 @@ using namespace bpp;
 /******************************************************************************/
 
 MixtureSequenceEvolution::MixtureSequenceEvolution(
-    shared_ptr<SubstitutionProcessCollection> processColl,
+    std::shared_ptr<SubstitutionProcessCollection> processColl,
     vector<size_t>& nProc) :
   MultiProcessSequenceEvolution(processColl, nProc, ""),
   simplex_(nProc.size(), 1, false, "Mixture.")

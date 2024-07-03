@@ -9,8 +9,8 @@ using namespace std;
 /****************************************************************************************/
 
 AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(
-    unique_ptr<FrequencySetInterface> pfitset,
-    shared_ptr<const GeneticCode> pgencode,
+    std::unique_ptr<FrequencySetInterface> pfitset,
+    std::shared_ptr<const GeneticCode> pgencode,
     const string& prefix) :
   AbstractParameterAliasable(prefix),
   pfitset_(std::move(pfitset)),

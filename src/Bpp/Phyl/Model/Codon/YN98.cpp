@@ -14,8 +14,8 @@ using namespace std;
 /******************************************************************************/
 
 YN98::YN98(
-    shared_ptr<const GeneticCode> gc,
-    unique_ptr<CodonFrequencySetInterface> codonFreqs) :
+    std::shared_ptr<const GeneticCode> gc,
+    std::unique_ptr<CodonFrequencySetInterface> codonFreqs) :
   AbstractParameterAliasable("YN98."),
   AbstractWrappedModel("YN98."),
   AbstractWrappedTransitionModel("YN98."),

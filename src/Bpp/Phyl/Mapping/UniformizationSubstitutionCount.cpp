@@ -14,10 +14,10 @@ using namespace std;
 /******************************************************************************/
 
 UniformizationSubstitutionCount::UniformizationSubstitutionCount(
-    shared_ptr<const SubstitutionModelInterface> model,
-    shared_ptr<const SubstitutionRegisterInterface> reg,
-    shared_ptr<const AlphabetIndex2> weights,
-    shared_ptr<const AlphabetIndex2> distances) :
+    std::shared_ptr<const SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights,
+    std::shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
   AbstractSubstitutionDistance(distances),
@@ -52,9 +52,9 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(
 
 UniformizationSubstitutionCount::UniformizationSubstitutionCount(
     const StateMapInterface& stateMap,
-    shared_ptr<const SubstitutionRegisterInterface> reg,
-    shared_ptr<const AlphabetIndex2> weights,
-    shared_ptr<const AlphabetIndex2> distances) :
+    std::shared_ptr<const SubstitutionRegisterInterface> reg,
+    std::shared_ptr<const AlphabetIndex2> weights,
+    std::shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
   AbstractSubstitutionDistance(distances),
@@ -276,7 +276,7 @@ std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsPer
 /******************************************************************************/
 
 void UniformizationSubstitutionCount::setSubstitutionModel(
-    shared_ptr<const SubstitutionModelInterface> model)
+    std::shared_ptr<const SubstitutionModelInterface> model)
 {
   model_ = model;
 

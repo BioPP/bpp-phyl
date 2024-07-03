@@ -16,7 +16,7 @@ using namespace std;
 
 /******************************************************************************/
 
-JCprot::JCprot(shared_ptr<const ProteicAlphabet> alpha) :
+JCprot::JCprot(std::shared_ptr<const ProteicAlphabet> alpha) :
   AbstractParameterAliasable("JC69."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JC69."),
   exp_(), p_(size_, size_), freqSet_(nullptr), withFreq_(false)
@@ -26,8 +26,8 @@ JCprot::JCprot(shared_ptr<const ProteicAlphabet> alpha) :
 }
 
 JCprot::JCprot(
-    shared_ptr<const ProteicAlphabet> alpha,
-    unique_ptr<ProteinFrequencySetInterface> freqSet,
+    std::shared_ptr<const ProteicAlphabet> alpha,
+    std::unique_ptr<ProteinFrequencySetInterface> freqSet,
     bool initFreqs) :
   AbstractParameterAliasable("JC69+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, make_shared<CanonicalStateMap>(alpha, false), "JC69+F."),

@@ -15,8 +15,8 @@ using namespace bpp;
 /******************************************************************************/
 
 DecompositionMethods::DecompositionMethods(
-    shared_ptr<const SubstitutionModelInterface> model,
-    shared_ptr<const SubstitutionRegisterInterface> reg) :
+    std::shared_ptr<const SubstitutionModelInterface> model,
+    std::shared_ptr<const SubstitutionRegisterInterface> reg) :
   model_(model),
   nbStates_(model->getNumberOfStates()),
   nbTypes_(reg->getNumberOfSubstitutionTypes()),
@@ -35,7 +35,7 @@ DecompositionMethods::DecompositionMethods(
 }
 
 DecompositionMethods::DecompositionMethods(
-    shared_ptr<const SubstitutionRegisterInterface> reg) :
+    std::shared_ptr<const SubstitutionRegisterInterface> reg) :
   model_(0),
   nbStates_(reg->stateMap().getNumberOfModelStates()),
   nbTypes_(reg->getNumberOfSubstitutionTypes()),
@@ -71,7 +71,7 @@ DecompositionMethods::DecompositionMethods(const StateMapInterface& stateMap) :
 
 
 DecompositionMethods::DecompositionMethods(
-    shared_ptr<const SubstitutionModelInterface> model) :
+    std::shared_ptr<const SubstitutionModelInterface> model) :
   model_(model),
   nbStates_(model->getNumberOfStates()),
   nbTypes_(1),
@@ -239,7 +239,7 @@ void DecompositionMethods::initStates_()
 /******************************************************************************/
 
 void DecompositionMethods::setSubstitutionModel(
-    shared_ptr<const SubstitutionModelInterface> model)
+    std::shared_ptr<const SubstitutionModelInterface> model)
 {
   model_ = model;
   if (!model)

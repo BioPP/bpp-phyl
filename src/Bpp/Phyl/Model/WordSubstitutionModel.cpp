@@ -45,8 +45,8 @@ WordSubstitutionModel::WordSubstitutionModel(
 }
 
 WordSubstitutionModel::WordSubstitutionModel(
-    shared_ptr<const Alphabet> alph,
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const Alphabet> alph,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Word." : prefix)
@@ -57,7 +57,7 @@ WordSubstitutionModel::WordSubstitutionModel(
 }
 
 WordSubstitutionModel::WordSubstitutionModel(
-    unique_ptr<SubstitutionModelInterface> pmodel,
+    std::unique_ptr<SubstitutionModelInterface> pmodel,
     unsigned int num,
     const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),

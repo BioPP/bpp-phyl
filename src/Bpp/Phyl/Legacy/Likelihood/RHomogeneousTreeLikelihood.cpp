@@ -19,8 +19,8 @@ using namespace std;
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
     const Tree& tree,
-    shared_ptr<TransitionModelInterface> model,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted,
     bool verbose,
     bool usePatterns) :
@@ -36,8 +36,8 @@ RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
     const Tree& tree,
     const AlignmentDataInterface& data,
-    shared_ptr<TransitionModelInterface> model,
-    shared_ptr<DiscreteDistributionInterface> rDist,
+    std::shared_ptr<TransitionModelInterface> model,
+    std::shared_ptr<DiscreteDistributionInterface> rDist,
     bool checkRooted,
     bool verbose,
     bool usePatterns) :

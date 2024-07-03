@@ -16,7 +16,7 @@ using namespace std;
 
 
 FullNucleotideFrequencySet::FullNucleotideFrequencySet(
-    shared_ptr<const NucleicAlphabet> alphabet,
+    std::shared_ptr<const NucleicAlphabet> alphabet,
     bool allowNullFreqs,
     const string& name) :
   AbstractFrequencySet(
@@ -42,7 +42,7 @@ FullNucleotideFrequencySet::FullNucleotideFrequencySet(
 }
 
 FullNucleotideFrequencySet::FullNucleotideFrequencySet(
-    shared_ptr<const NucleicAlphabet> alphabet,
+    std::shared_ptr<const NucleicAlphabet> alphabet,
     double theta,
     double theta1,
     double theta2,

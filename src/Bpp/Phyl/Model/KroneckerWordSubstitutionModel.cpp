@@ -33,8 +33,8 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-    shared_ptr<const Alphabet> alph,
-    shared_ptr<const StateMapInterface> stateMap,
+    std::shared_ptr<const Alphabet> alph,
+    std::shared_ptr<const StateMapInterface> stateMap,
     const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Kron." : prefix)
@@ -43,7 +43,7 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-    unique_ptr<SubstitutionModelInterface> pmodel,
+    std::unique_ptr<SubstitutionModelInterface> pmodel,
     unsigned int num,
     const string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
@@ -69,7 +69,7 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
 }
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
-    unique_ptr<SubstitutionModelInterface> pmodel,
+    std::unique_ptr<SubstitutionModelInterface> pmodel,
     unsigned int num,
     const vector<set< size_t>>& vPos,
     const string& prefix) :

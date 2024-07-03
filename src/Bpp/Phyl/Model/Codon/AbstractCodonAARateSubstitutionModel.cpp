@@ -13,8 +13,8 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
-    shared_ptr<ProteinSubstitutionModelInterface> pmodel,
-    shared_ptr<const GeneticCode> pgencode,
+    std::shared_ptr<ProteinSubstitutionModelInterface> pmodel,
+    std::shared_ptr<const GeneticCode> pgencode,
     const string& prefix,
     bool paramSynRate) :
   AbstractParameterAliasable(prefix),

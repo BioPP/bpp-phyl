@@ -351,7 +351,7 @@ std::string OptimizationTools::OPTIMIZATION_BFGS = "BFGS";
 /******************************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters(
-    shared_ptr<PhyloLikelihoodInterface> lik,
+    std::shared_ptr<PhyloLikelihoodInterface> lik,
     const OptimizationOptions& optopt)
 {
   shared_ptr<SecondOrderDerivable> f = lik;
@@ -449,7 +449,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-    shared_ptr<PhyloLikelihoodInterface> lik,
+    std::shared_ptr<PhyloLikelihoodInterface> lik,
     const OptimizationOptions& optopt)
 {
   shared_ptr<SecondOrderDerivable> f = lik;
@@ -540,7 +540,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-    shared_ptr<SingleProcessPhyloLikelihood> lik,
+    std::shared_ptr<SingleProcessPhyloLikelihood> lik,
     const OptimizationOptions& optopt)
 {
   shared_ptr<SecondOrderDerivable> f = lik;
