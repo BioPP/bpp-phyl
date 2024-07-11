@@ -141,7 +141,6 @@ public:
    *  - 4=3 + likelihood object verbose enabled
    *  @param computeMat if true the computeMatrix() method is called.
    */
-
   DistanceEstimation(
     std::shared_ptr<BranchModelInterface> model,
     std::shared_ptr<DiscreteDistributionInterface> rateDist,

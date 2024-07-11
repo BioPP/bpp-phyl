@@ -40,7 +40,7 @@ void CladogramPlot::drawDendrogram_(GraphicDevice& gDevice) const
   {
     DrawTreeEvent treeEvent(this, &gDevice);
     fireBeforeTreeEvent_(treeEvent);
-    unsigned int* tipCounter = new unsigned int(0);
+    unsigned int tipCounter = 0;
     double y;
     recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()),
         getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 0 : getWidth() * getXUnit(),
@@ -52,7 +52,7 @@ void CladogramPlot::drawDendrogram_(GraphicDevice& gDevice) const
   }
 }
 
-void CladogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, double hDirection, double vDirection, unsigned int* tipCounter) const
+void CladogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, double hDirection, double vDirection, unsigned int& tipCounter) const
 {
   double depth = static_cast<double>(TreeTemplateTools::getDepth(node));
   double x2 = ((getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? totalDepth_ : 0) - depth) * getXUnit() * hDirection;
@@ -62,16 +62,16 @@ void CladogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
   short hpos = (getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? GraphicDevice::TEXT_HORIZONTAL_LEFT : GraphicDevice::TEXT_HORIZONTAL_RIGHT);
   if (node.isLeaf())
   {
-    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
-    (*tipCounter)++;
+    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(tipCounter) * vDirection) * getYUnit();
+    tipCounter++;
     cursor.reset(new Cursor(x2, y, 0, hpos));
     nodeEvent.reset(new DrawINodeEvent(this, &gDevice, &node, *cursor));
     fireBeforeNodeEvent_(*nodeEvent);
   }
   else if (node.getInfos().isCollapsed())
   {
-    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
-    (*tipCounter)++;
+    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(tipCounter) * vDirection) * getYUnit();
+    tipCounter++;
     cursor.reset(new Cursor(x2, y, 0, hpos));
     nodeEvent.reset(new DrawINodeEvent(this, &gDevice, &node, *cursor));
     fireBeforeNodeEvent_(*nodeEvent);

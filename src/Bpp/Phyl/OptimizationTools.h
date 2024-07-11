@@ -93,8 +93,7 @@ public:
    * \c optMethodModel Optimization type for model parameters (Brent or BFGS).
    * @see OPTIMIZATION_BRENT, OPTIMIZATION_BFGS
    * @throw Exception any exception thrown by the Optimizer.
-   **/
-  
+   */
   class OptimizationOptions
   {
   public:
@@ -150,7 +149,6 @@ public:
    * @param lik             A pointer toward the PhyloLikelihood object to optimize.
    * @param optopt   Optimization Options
    */
-  
   static unsigned int optimizeNumericalParameters(
       std::shared_ptr<PhyloLikelihoodInterface> lik,
       const OptimizationOptions& optopt);
@@ -166,7 +164,6 @@ public:
    * @param optopt   Optimization Options
    * @throw Exception any exception thrown by the Optimizer.
    */
-
   static unsigned int optimizeNumericalParameters2(
       std::shared_ptr<PhyloLikelihoodInterface> lik,
       const OptimizationOptions& optopt);

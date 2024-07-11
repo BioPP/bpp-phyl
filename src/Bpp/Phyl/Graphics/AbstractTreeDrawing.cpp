@@ -20,9 +20,8 @@ const TreeDrawingSettings AbstractTreeDrawing::DEFAULT_SETTINGS;
 Point2D<double> AbstractTreeDrawing::getNodePosition(int nodeId) const
 {
   vector<INode*> nodes = tree_->getNodes();
-  for (unsigned int i = 0; i < nodes.size(); i++)
+  for (INode* node : nodes)
   {
-    INode* node = nodes[i];
     if (node->getId() == nodeId)
     {
       return node->getInfos().getPosition();
@@ -34,9 +33,8 @@ Point2D<double> AbstractTreeDrawing::getNodePosition(int nodeId) const
 int AbstractTreeDrawing::getNodeAt(const Point2D<double>& position) const
 {
   vector<INode*> nodes = tree_->getNodes();
-  for (unsigned int i = 0; i < nodes.size(); i++)
+  for (INode* node : nodes)
   {
-    INode* node = nodes[i];
     Point2D<double> nodePos = node->getInfos().getPosition();
     if (belongsTo(position, nodePos))
     {

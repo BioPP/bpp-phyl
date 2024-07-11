@@ -43,7 +43,7 @@ void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const
   {
     DrawTreeEvent treeEvent(this, &gDevice);
     fireBeforeTreeEvent_(treeEvent);
-    unsigned int* tipCounter = new unsigned int(0);
+    unsigned int tipCounter = 0;
     double y;
     recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()),
         getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 0 : getWidth() * getXUnit(),
@@ -55,7 +55,7 @@ void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const
   }
 }
 
-void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, double hDirection, double vDirection, unsigned int* tipCounter) const
+void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, double hDirection, double vDirection, unsigned int& tipCounter) const
 {
   double x2;
   bool drawBranch = true;
@@ -84,16 +84,16 @@ void PhylogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
   short hpos = (getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? GraphicDevice::TEXT_HORIZONTAL_LEFT : GraphicDevice::TEXT_HORIZONTAL_RIGHT);
   if (node.isLeaf())
   {
-    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
-    (*tipCounter)++;
+    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(tipCounter) * vDirection) * getYUnit();
+    tipCounter++;
     cursor.reset(new Cursor(x2, y, 0, hpos));
     nodeEvent.reset(new DrawINodeEvent(this, &gDevice, &node, *cursor));
     fireBeforeNodeEvent_(*nodeEvent);
   }
   else if (node.getInfos().isCollapsed())
   {
-    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(*tipCounter) * vDirection) * getYUnit();
-    (*tipCounter)++;
+    y = ((getVerticalOrientation() == ORIENTATION_TOP_TO_BOTTOM ? 0 : getHeight()) + static_cast<double>(tipCounter) * vDirection) * getYUnit();
+    tipCounter++;
     cursor.reset(new Cursor(x2, y, 0, hpos));
     nodeEvent.reset(new DrawINodeEvent(this, &gDevice, &node, *cursor));
     fireBeforeNodeEvent_(*nodeEvent);
