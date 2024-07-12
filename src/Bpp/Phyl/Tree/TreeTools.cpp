@@ -664,10 +664,10 @@ double TreeTools::convertToClockTree2(Tree& tree, int nodeId)
 
 /******************************************************************************/
 
-DistanceMatrix* TreeTools::getDistanceMatrix(const Tree& tree)
+std::unique_ptr<DistanceMatrix> TreeTools::getDistanceMatrix(const Tree& tree)
 {
   vector<string> names = tree.getLeavesNames();
-  DistanceMatrix* mat = new DistanceMatrix(names);
+  auto mat = make_unique<DistanceMatrix>(names);
   for (size_t i = 0; i < names.size(); i++)
   {
     (*mat)(i, i) = 0;
@@ -686,7 +686,7 @@ void TreeTools::midpointRooting(Tree& tree)
   throw Exception("TreeTools::midpointRooting(Tree). This function is deprecated, use TreeTemplateTools::midRoot instead!");
   if (tree.isRooted())
     tree.unroot();
-  DistanceMatrix* dist = getDistanceMatrix(tree);
+  auto dist = getDistanceMatrix(tree);
   vector<size_t> pos = MatrixTools::whichMax(dist->asMatrix());
   double dmid = (*dist)(pos[0], pos[1]) / 2;
   int id1 = tree.getLeafId(dist->getName(pos[0]));
@@ -695,7 +695,6 @@ void TreeTools::midpointRooting(Tree& tree)
   double d1 = getDistanceBetweenAnyTwoNodes(tree, id1, rootId);
   double d2 = getDistanceBetweenAnyTwoNodes(tree, id2, rootId);
   int current = d2 > d1 ? id2 : id1;
-  delete dist;
   double l = tree.getDistanceToFather(current);
   double c = l;
   while (c < dmid)
@@ -1233,7 +1232,7 @@ TreeTools::Moments_ TreeTools::statFromNode_(Tree& tree, int rootId)
 
 /******************************************************************************/
 
-Tree* TreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
+unique_ptr<Tree> TreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
 {
   throw Exception("TreeTools::MRPMultilabel not updated.");
 

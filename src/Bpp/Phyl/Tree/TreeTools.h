@@ -367,7 +367,7 @@ public:
    * @param tree The tree to use.
    * @return The distance matrix computed from tree.
    */
-  static DistanceMatrix* getDistanceMatrix(const Tree& tree);
+  static std::unique_ptr<DistanceMatrix> getDistanceMatrix(const Tree& tree);
 
   /**
    * @brief (Re)root the tree using the midpoint method.
@@ -669,7 +669,7 @@ public:
    * @param vecTr A vector of trees.
    * @return The MRP super tree.
    */
-  static Tree* MRPMultilabel(const std::vector<Tree*>& vecTr);
+  static std::unique_ptr<Tree> MRPMultilabel(const std::vector<Tree*>& vecTr);
 
 
   /**

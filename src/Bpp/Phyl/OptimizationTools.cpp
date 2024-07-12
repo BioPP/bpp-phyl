@@ -730,12 +730,12 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
 
     if (vTree.size()>1)
     {
-      for (auto iT=0; iT<int(nbTree-1); iT++)
+      for (size_t iT = 0; iT < nbTree - 1; iT++)
       {
         const auto& pTree = vTree[iT];
         int rf = TreeTools::robinsonFouldsDistance(*pTree, *ltree);
        // if (optopt.verbose > 0)
-        ApplicationTools::displayResult("Topo. distance with iteration " + TextTools::toString(iT+1), TextTools::toString(rf));
+        ApplicationTools::displayResult("Topo. distance with iteration " + TextTools::toString(iT + 1), TextTools::toString(rf));
         test &= (rf != 0);
         if (!test)
           break;
@@ -797,7 +797,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     nstep++;
   }
 
-  const auto& posM = std::distance(vLik.begin(),std::min_element(vLik.begin(),vLik.end()));
+  size_t posM = static_cast<size_t>(std::distance(vLik.begin(), std::min_element(vLik.begin(), vLik.end())));
   
   return std::move(vTree[posM]);
 }
