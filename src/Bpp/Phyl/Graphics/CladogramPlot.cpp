@@ -27,11 +27,11 @@ Cursor CladogramDrawBranchEvent::getBranchCursor(double position) const
   return getCursor().getTranslation(offset, 0);
 }
 
-void CladogramPlot::setTree(const Tree* tree)
+void CladogramPlot::setTree(const Tree& tree)
 {
   AbstractDendrogramPlot::setTree(tree);
   if (hasTree())
-    totalDepth_ = static_cast<double>(TreeTemplateTools::getDepth(*getTree_()->getRootNode()));
+    totalDepth_ = static_cast<double>(TreeTemplateTools::getDepth(*tree_->getRootNode()));
 }
 
 void CladogramPlot::drawDendrogram_(GraphicDevice& gDevice) const
@@ -42,7 +42,7 @@ void CladogramPlot::drawDendrogram_(GraphicDevice& gDevice) const
     fireBeforeTreeEvent_(treeEvent);
     unsigned int tipCounter = 0;
     double y;
-    recursivePlot_(gDevice, *const_cast<INode*>(getTree_()->getRootNode()),
+    recursivePlot_(gDevice, *const_cast<INode*>(tree_->getRootNode()),
         getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 0 : getWidth() * getXUnit(),
         y,
         getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? 1. : -1.,

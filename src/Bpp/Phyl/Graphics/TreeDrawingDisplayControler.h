@@ -28,7 +28,7 @@ class TreeDrawingDisplayControler
 {
 private:
   std::map<std::string, TreeDrawingListener*> listeners_;
-  std::vector<TreeDrawing*> registeredTreeDrawings_;
+  std::vector<std::shared_ptr<TreeDrawing>> registeredTreeDrawings_;
 
 public:
   TreeDrawingDisplayControler() :
@@ -39,7 +39,7 @@ private:
   TreeDrawingDisplayControler(const TreeDrawingDisplayControler& tddc) :
     listeners_(), registeredTreeDrawings_(tddc.registeredTreeDrawings_)
   {
-    for (std::map<std::string, TreeDrawingListener*>::const_iterator it = tddc.listeners_.begin();
+    for (auto it = tddc.listeners_.begin();
         it != tddc.listeners_.end(); ++it)
     {
       listeners_[it->first] = dynamic_cast<TreeDrawingListener*>(it->second->clone());
@@ -86,7 +86,7 @@ public:
     return listeners_.find(propertyName)->second->isEnabled();
   }
 
-  void registerTreeDrawing(TreeDrawing* td)
+  void registerTreeDrawing(std::shared_ptr<TreeDrawing> td)
   {
     if (std::find(registeredTreeDrawings_.begin(), registeredTreeDrawings_.end(), td) != registeredTreeDrawings_.end())
       throw Exception("TreeDrawingDisplayControler::registerTreeDrawing. TreeDrawing is already associated to this controller.");
@@ -122,18 +122,18 @@ public:
   static const std::string PROPERTY_BOOTSTRAP_VALUES;
 
 private:
-  const TreeDrawingSettings* settings_;
+  std::shared_ptr<const TreeDrawingSettings> settings_;
 
 public:
-  BasicTreeDrawingDisplayControler(const TreeDrawingSettings* settings) :
+  BasicTreeDrawingDisplayControler(std::shared_ptr<const TreeDrawingSettings> settings) :
     settings_(settings)
   {
     if (!settings)
       throw NullPointerException("BasicTreeDrawingDisplayControler::constructor. Trying to use NULL settings.");
-    addListener(PROPERTY_NODE_IDS, new NodesIdTreeDrawingListener        (settings_, true));
-    addListener(PROPERTY_LEAF_NAMES, new LeafNamesTreeDrawingListener      (settings_, true));
-    addListener(PROPERTY_BRANCH_LENGTHS, new BranchLengthsTreeDrawingListener  (settings_, true));
-    addListener(PROPERTY_BOOTSTRAP_VALUES, new BootstrapValuesTreeDrawingListener(settings_, true));
+    addListener(PROPERTY_NODE_IDS, new NodesIdTreeDrawingListener(settings_.get(), true));
+    addListener(PROPERTY_LEAF_NAMES, new LeafNamesTreeDrawingListener(settings_.get(), true));
+    addListener(PROPERTY_BRANCH_LENGTHS, new BranchLengthsTreeDrawingListener(settings_.get(), true));
+    addListener(PROPERTY_BOOTSTRAP_VALUES, new BootstrapValuesTreeDrawingListener(settings_.get(), true));
   }
 
 private:

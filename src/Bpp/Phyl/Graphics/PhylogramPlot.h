@@ -43,28 +43,28 @@ public:
 
   virtual ~PhylogramPlot() {}
 
-  PhylogramPlot* clone() const { return new PhylogramPlot(*this); }
+  PhylogramPlot* clone() const override { return new PhylogramPlot(*this); }
 
 public:
-  std::string getName() const { return "Phylogram"; }
+  std::string getName() const override { return "Phylogram"; }
 
-  void setTree(const Tree* tree = 0);
+  void setTree(const Tree& tree) override;
 
-  double getWidth() const { return totalDepth_; }
-  double getHeight() const { return numberOfLeaves_; }
+  double getWidth() const override { return totalDepth_; }
+  double getHeight() const override { return numberOfLeaves_; }
 
-  void treeHasChanged()
+  void treeHasChanged() override
   {
     if (hasTree())
     {
-      getTree_()->setVoidBranchLengths(0.);
-      totalDepth_ = TreeTemplateTools::getHeight(*getTree_()->getRootNode());
-      numberOfLeaves_ = static_cast<double>(getTree_()->getNumberOfLeaves());
+      tree_->setVoidBranchLengths(0.);
+      totalDepth_ = TreeTemplateTools::getHeight(*tree_->getRootNode());
+      numberOfLeaves_ = static_cast<double>(tree_->getNumberOfLeaves());
     }
   }
 
 private:
-  void drawDendrogram_(GraphicDevice& gDevice) const;
+  void drawDendrogram_(GraphicDevice& gDevice) const override;
 
   void recursivePlot_(GraphicDevice& gDevice, INode& node, double x, double& y, double hDirection, double vDirection, unsigned int& tipCounter) const;
 };

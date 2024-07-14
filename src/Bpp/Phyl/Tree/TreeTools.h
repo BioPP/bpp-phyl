@@ -669,7 +669,7 @@ public:
    * @param vecTr A vector of trees.
    * @return The MRP super tree.
    */
-  static std::unique_ptr<Tree> MRPMultilabel(const std::vector<Tree*>& vecTr);
+  static std::unique_ptr<Tree> MRPMultilabel(const std::vector<std::unique_ptr<Tree>>& vecTr);
 
 
   /**
