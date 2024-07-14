@@ -8,18 +8,18 @@ using namespace bpp;
 
 const std::string IOFrequencySetFactory::BPPO_FORMAT = "Bpp0";
 
-IFrequencySet* IOFrequencySetFactory::createReader(const std::string& format)
+std::unique_ptr<IFrequencySet> IOFrequencySetFactory::createReader(const std::string& format)
 {
   if (format == BPPO_FORMAT)
-    return new BppOFrequencySetFormat(BppOFrequencySetFormat::ALL, true, 1);
+    return std::make_unique<BppOFrequencySetFormat>(BppOFrequencySetFormat::ALL, true, 1);
   else
     throw Exception("Format " + format + " is not supported for input.");
 }
 
-OFrequencySet* IOFrequencySetFactory::createWriter(const std::string& format)
+std::unique_ptr<OFrequencySet> IOFrequencySetFactory::createWriter(const std::string& format)
 {
   if (format == BPPO_FORMAT)
-    return new BppOFrequencySetFormat(BppOFrequencySetFormat::ALL, true, 1);
+    return std::make_unique<BppOFrequencySetFormat>(BppOFrequencySetFormat::ALL, true, 1);
   else
     throw Exception("Format " + format + " is not supported for output.");
 }

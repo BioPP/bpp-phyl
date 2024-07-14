@@ -44,7 +44,7 @@ public:
    * @return A pointer toward a new ITree object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual ITree* createReader(const std::string& format);
+  virtual std::unique_ptr<ITree> createReader(const std::string& format);
 
   /**
    * @brief Get a new dynamically created OTree object.
@@ -53,7 +53,7 @@ public:
    * @return A pointer toward a new OTree object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual OTree* createWriter(const std::string& format);
+  virtual std::unique_ptr<OTree> createWriter(const std::string& format);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_IOTREEFACTORY_H

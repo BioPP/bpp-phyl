@@ -8,18 +8,18 @@ using namespace bpp;
 
 const std::string IOSubstitutionModelFactory::BPPO_FORMAT = "Bpp0";
 
-ISubstitutionModel* IOSubstitutionModelFactory::createReader(const std::string& format)
+std::unique_ptr<ISubstitutionModel> IOSubstitutionModelFactory::createReader(const std::string& format)
 {
   if (format == BPPO_FORMAT)
-    return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true, 0);
+    return std::make_unique<BppOSubstitutionModelFormat>(BppOSubstitutionModelFormat::ALL, true, true, true, true, 0);
   else
     throw Exception("Format " + format + " is not supported for input.");
 }
 
-OSubstitutionModel* IOSubstitutionModelFactory::createWriter(const std::string& format)
+std::unique_ptr<OSubstitutionModel> IOSubstitutionModelFactory::createWriter(const std::string& format)
 {
   if (format == BPPO_FORMAT)
-    return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true, 0);
+    return std::make_unique<BppOSubstitutionModelFormat>(BppOSubstitutionModelFormat::ALL, true, true, true, true, 0);
   else
     throw Exception("Format " + format + " is not supported for output.");
 }
