@@ -15,7 +15,7 @@
 using namespace bpp;
 using namespace std;
 
-const TreeDrawingSettings AbstractTreeDrawing::DEFAULT_SETTINGS;
+auto AbstractTreeDrawing::DEFAULT_SETTINGS = make_shared<const TreeDrawingSettings>();
 
 Point2D<double> AbstractTreeDrawing::getNodePosition(int nodeId) const
 {

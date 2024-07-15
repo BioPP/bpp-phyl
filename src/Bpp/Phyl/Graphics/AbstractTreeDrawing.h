@@ -122,7 +122,7 @@ protected:
   std::vector<TreeDrawingListener*> listeners_;
 
 public:
-  AbstractTreeDrawing() : tree_(), xUnit_(1.), yUnit_(1.), settings_(&DEFAULT_SETTINGS), listeners_() {}
+  AbstractTreeDrawing() : tree_(), xUnit_(1.), yUnit_(1.), settings_(DEFAULT_SETTINGS), listeners_() {}
 
   AbstractTreeDrawing(const AbstractTreeDrawing& atd) :
     tree_(atd.tree_.get() ? dynamic_cast<TreeTemplate<INode>*>(atd.tree_->clone()) : 0),
@@ -348,7 +348,7 @@ protected:
   }
 
 public:
-  static const TreeDrawingSettings DEFAULT_SETTINGS;
+  static std::shared_ptr<const TreeDrawingSettings> DEFAULT_SETTINGS;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_GRAPHICS_ABSTRACTTREEDRAWING_H

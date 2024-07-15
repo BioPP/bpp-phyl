@@ -361,14 +361,26 @@ public:
 
   virtual const Node* getSon(size_t pos) const
   {
-    if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, sons_.size() - 1);
+    if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon() const.", pos, 0, sons_.size() - 1);
     return sons_[pos];
+  }
+
+  virtual const Node& son(size_t pos) const
+  {
+    if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::son() const.", pos, 0, sons_.size() - 1);
+    return *sons_[pos];
   }
 
   virtual Node* getSon(size_t pos)
   {
     if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, sons_.size() - 1);
     return sons_[pos];
+  }
+
+  virtual Node& son(size_t pos)
+  {
+    if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::son().", pos, 0, sons_.size() - 1);
+    return *sons_[pos];
   }
 
   virtual void addSon(size_t pos, Node* node)
