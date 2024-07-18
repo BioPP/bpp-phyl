@@ -10,8 +10,9 @@
 #include <Bpp/Graphics/GraphicDevice.h>
 #include <Bpp/Graphics/Point2D.h>
 
+#include <memory>
 
-// From PhylLib:
+// From bpp-phyl:
 #include "../Tree/Tree.h"
 
 namespace bpp
