@@ -10,8 +10,9 @@
 #include <Bpp/Graphics/GraphicDevice.h>
 #include <Bpp/Graphics/Point2D.h>
 
+#include <memory>
 
-// From PhylLib:
+// From bpp-phyl:
 #include "../Tree/Tree.h"
 
 namespace bpp
@@ -216,7 +217,6 @@ public:
  * It takes a constant pointer toward the tree to plot. Depending on the implementation however,
  * the inheriting class may chose to store a copy of the tree for convenience. Refer to the
  * documentation of the specific implementation you are using for details.
- *
  */
 class TreeDrawing :
   public virtual Clonable
@@ -241,12 +241,12 @@ public:
   /**
    * @return A pointer toward the tree associated to this drawing.
    */
-  virtual const Tree* getTree() const = 0;
+  virtual const Tree& tree() const = 0;
 
   /**
-   * @param tree A pointer toward the tree to associate with this drawing.
+   * @param tree A tree to associate with this drawing. The object will be copied.
    */
-  virtual void setTree(const Tree* tree) = 0;
+  virtual void setTree(const Tree& tree) = 0;
 
   /**
    * @brief Set the 'horizontal' expansion unit.
@@ -329,8 +329,8 @@ public:
    *
    * @{
    */
-  virtual void setDisplaySettings(const TreeDrawingSettings* tds) = 0;
-  virtual const TreeDrawingSettings& getDisplaySettings() const = 0;
+  virtual void setDisplaySettings(std::shared_ptr<const TreeDrawingSettings> tds) = 0;
+  virtual const TreeDrawingSettings& displaySettings() const = 0;
   /** @} */
 
   /**

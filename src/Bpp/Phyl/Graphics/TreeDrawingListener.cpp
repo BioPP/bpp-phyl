@@ -48,14 +48,14 @@ void LeafNamesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& event)
   {
     // Id-based event (less-efficient):
     const TreeDrawing* td = event.getTreeDrawing();
-    if (td->getTree()->isLeaf(event.getNodeId()))
+    if (td->tree().isLeaf(event.getNodeId()))
     {
       GraphicDevice* gd = event.getGraphicDevice();
       Cursor cursor     = event.getCursor();
       Font fontBck      = gd->getCurrentFont();
       if (settings_)
         gd->setCurrentFont(settings_->fontLeafNames);
-      string name = td->getTree()->getNodeName(event.getNodeId());
+      string name = td->tree().getNodeName(event.getNodeId());
       gd->drawText(cursor.getX(), cursor.getY(), name, cursor.getHPos(), cursor.getVPos(), cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
@@ -85,7 +85,7 @@ void BranchLengthsTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& ev
   {
     // Id-based event (less-efficient):
     const TreeDrawing* td = event.getTreeDrawing();
-    if (td->getTree()->hasDistanceToFather(event.getNodeId()))
+    if (td->tree().hasDistanceToFather(event.getNodeId()))
     {
       GraphicDevice* gd = event.getGraphicDevice();
       Cursor cursor     = event.getBranchCursor(0.5);
@@ -93,7 +93,7 @@ void BranchLengthsTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& ev
       if (settings_)
         gd->setCurrentFont(settings_->fontLeafNames);
       gd->drawText(cursor.getX(), cursor.getY(),
-          TextTools::toString(td->getTree()->getDistanceToFather(event.getNodeId())),
+          TextTools::toString(td->tree().getDistanceToFather(event.getNodeId())),
           GraphicDevice::TEXT_HORIZONTAL_CENTER, GraphicDevice::TEXT_VERTICAL_BOTTOM, cursor.getAngle());
       gd->setCurrentFont(fontBck);
     }
@@ -124,9 +124,9 @@ void BootstrapValuesTreeDrawingListener::afterDrawBranch(const DrawBranchEvent& 
   {
     // Id-based event (less-efficient):
     const TreeDrawing* td = event.getTreeDrawing();
-    if (td->getTree()->hasBranchProperty(event.getNodeId(), TreeTools::BOOTSTRAP))
+    if (td->tree().hasBranchProperty(event.getNodeId(), TreeTools::BOOTSTRAP))
     {
-      const Clonable* b = td->getTree()->getBranchProperty(event.getNodeId(), TreeTools::BOOTSTRAP);
+      const Clonable* b = td->tree().getBranchProperty(event.getNodeId(), TreeTools::BOOTSTRAP);
       GraphicDevice* gd = event.getGraphicDevice();
       Cursor cursor     = event.getCursor();
       Font fontBck      = gd->getCurrentFont();
@@ -165,9 +165,9 @@ void LabelInnerNodesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& even
     {
       GraphicDevice* gd = event.getGraphicDevice();
       Cursor cursor     = event.getCursor();
-      if (td->getTree()->hasNodeName(event.getNodeId()))
+      if (td->tree().hasNodeName(event.getNodeId()))
       {
-        string name = td->getTree()->getNodeName(event.getNodeId());
+        string name = td->tree().getNodeName(event.getNodeId());
         gd->drawText(cursor.getX(), cursor.getY(), name, cursor.getHPos(), cursor.getVPos(), cursor.getAngle());
       }
     }
@@ -200,10 +200,10 @@ void LabelCollapsedNodesTreeDrawingListener::afterDrawNode(const DrawNodeEvent& 
     {
       GraphicDevice* gd = event.getGraphicDevice();
       Cursor cursor     = event.getCursor();
-      size_t size = TreeTools::getNumberOfLeaves(*td->getTree(), event.getNodeId());
+      size_t size = TreeTools::getNumberOfLeaves(td->tree(), event.getNodeId());
       string text = "";
-      if (td->getTree()->hasNodeName(event.getNodeId()))
-        text += td->getTree()->getNodeName(event.getNodeId()) + " ";
+      if (td->tree().hasNodeName(event.getNodeId()))
+        text += td->tree().getNodeName(event.getNodeId()) + " ";
       text += "(" + TextTools::toString(size) + " leaves)";
       gd->drawText(cursor.getX(), cursor.getY(), text, cursor.getHPos(), cursor.getVPos(), cursor.getAngle());
     }

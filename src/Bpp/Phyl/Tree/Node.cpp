@@ -72,7 +72,7 @@ Node& Node::operator=(const Node& node)
 void Node::addSubTree(const PhyloTree& tree, std::shared_ptr<PhyloNode> phyloNode)
 {
   // set Id
-  setId(tree.getNodeIndex(phyloNode));
+  setId(static_cast<int>(tree.getNodeIndex(phyloNode)));
 
   // features of the node
   auto vnames = phyloNode->getPropertyNames();

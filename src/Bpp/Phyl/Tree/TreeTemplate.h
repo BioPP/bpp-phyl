@@ -75,7 +75,7 @@ public:
     name_(t.name_)
   {
     // Perform a hard copy of the nodes:
-    root_ = TreeTemplateTools::cloneSubtree<N>(*t.getRootNode());
+    root_ = TreeTemplateTools::cloneSubtree<N>(t.rootNode());
   }
 
   TreeTemplate(const Tree& t) :
@@ -96,7 +96,7 @@ public:
   {
     // Perform a hard copy of the nodes:
     if (root_) { TreeTemplateTools::deleteSubtree(root_); delete root_; }
-    root_ = TreeTemplateTools::cloneSubtree<N>(*t.getRootNode());
+    root_ = TreeTemplateTools::cloneSubtree<N>(t.rootNode());
     name_ = t.name_;
     return *this;
   }
@@ -312,12 +312,12 @@ public:
     {
       TreeTemplate<N>* t1tmp = this->clone();
       TreeTemplate<N2>* t2tmp = tree.clone();
-      TreeTemplateTools::orderTree(*t1tmp->getRootNode(), true, true);
-      TreeTemplateTools::orderTree(*t2tmp->getRootNode(), true, true);
+      TreeTemplateTools::orderTree(t1tmp->rootNode(), true, true);
+      TreeTemplateTools::orderTree(t2tmp->rootNode(), true, true);
       t1 = t1tmp;
       t2 = t2tmp;
     }
-    bool test = TreeTemplateTools::haveSameOrderedTopology(*t1->getRootNode(), *t2->getRootNode());
+    bool test = TreeTemplateTools::haveSameOrderedTopology(t1->rootNode(), t2->rootNode());
     if (!ordered)
     {
       delete t1;
@@ -389,6 +389,22 @@ public:
   virtual N* getRootNode() { return root_; }
 
   virtual const N* getRootNode() const { return root_; }
+
+  virtual N& rootNode() {
+    if (root_) {
+      return *root_;
+    } else {
+      throw NullPointerException("TreeTemplate::rootNode. No associated root node.");
+    }
+  }
+
+  virtual const N& rootNode() const {
+    if (root_) {
+      return *root_;
+    } else {
+      throw NullPointerException("TreeTemplate::rootNode const. No associated root node.");
+    }
+  }
 
   virtual std::vector<const N*> getLeaves() const { return TreeTemplateTools::getLeaves(*const_cast<const N*>(root_)); }
 

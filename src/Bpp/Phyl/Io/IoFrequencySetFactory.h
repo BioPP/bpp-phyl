@@ -47,7 +47,7 @@ public:
    * @return A pointer toward a new IFrequencySet object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual IFrequencySet* createReader(const std::string& format);
+  virtual std::unique_ptr<IFrequencySet> createReader(const std::string& format);
 
   /**
    * @brief Get a new dynamically created OFrequencySet object.
@@ -56,7 +56,7 @@ public:
    * @return A pointer toward a new OFrequencySet object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual OFrequencySet* createWriter(const std::string& format);
+  virtual std::unique_ptr<OFrequencySet> createWriter(const std::string& format);
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_IOFREQUENCYSETFACTORY_H

@@ -109,21 +109,20 @@ public:
  * @brief Partial implementation of the TreeDrawing interface.
  *
  * This basic implementation uses a dedicated NodeInfo structure in combination with the NodeTemplate class.
- * This structures stores the current coordinates of all nodes, so that it is easy to annotate the tree drawing.:if expand("%") == ""|browse confirm w|else|confirm w|endif
- *
+ * This structures stores the current coordinates of all nodes, so that it is easy to annotate the tree drawing.
  */
 class AbstractTreeDrawing :
   public virtual TreeDrawing
 {
-private:
+protected:
   std::unique_ptr<TreeTemplate<INode>> tree_;
   double xUnit_;
   double yUnit_;
-  const TreeDrawingSettings* settings_;
+  std::shared_ptr<const TreeDrawingSettings> settings_;
   std::vector<TreeDrawingListener*> listeners_;
 
 public:
-  AbstractTreeDrawing() : tree_(), xUnit_(1.), yUnit_(1.), settings_(&DEFAULT_SETTINGS), listeners_() {}
+  AbstractTreeDrawing() : tree_(), xUnit_(1.), yUnit_(1.), settings_(DEFAULT_SETTINGS), listeners_() {}
 
   AbstractTreeDrawing(const AbstractTreeDrawing& atd) :
     tree_(atd.tree_.get() ? dynamic_cast<TreeTemplate<INode>*>(atd.tree_->clone()) : 0),
@@ -170,25 +169,36 @@ public:
   }
 
 public:
-  bool hasTree() const { return tree_.get() != 0; }
+  bool hasTree() const override { 
+    if (tree_) return true;
+    else       return false;
+  }
 
-  const TreeTemplate<INode>* getTree() const { return tree_.get(); }
-
-  void setTree(const Tree* tree)
-  {
-    if (tree_.get())
-      tree_.reset();
-    if (!tree) tree_.reset();
-    else
-    {
-      tree_.reset(new TreeTemplate<INode>(*tree)); // We copy the tree
+  const Tree& tree() const override {
+    if (hasTree()) {
+      return *tree_;
+    } else {
+      throw Exception("AbstractTreeDrawing::tree(). No tree is associated.");
     }
+  }
+
+  const TreeTemplate<INode>& treeTemplate() const {
+    if (hasTree()) {
+      return *tree_;
+    } else {
+      throw Exception("AbstractTreeDrawing::treeTemplate(). No tree is associated.");
+    }
+  }
+
+  void setTree(const Tree& tree) override
+  {
+    tree_.reset(new TreeTemplate<INode>(tree)); // We copy the tree
     treeHasChanged();
   }
 
-  Point2D<double> getNodePosition(int nodeId) const;
+  Point2D<double> getNodePosition(int nodeId) const override;
 
-  int getNodeAt(const Point2D<double>& position) const;
+  int getNodeAt(const Point2D<double>& position) const override;
 
   /**
    * @brief Utilitary function, telling if a point belongs to a specified area.
@@ -231,42 +241,42 @@ public:
    */
   virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const std::string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
 
-  void setDisplaySettings(const TreeDrawingSettings* tds)
+  void setDisplaySettings(std::shared_ptr<const TreeDrawingSettings> tds) override
   {
     if (!tds)
       throw NullPointerException("AbstractTreeDrawing::setDisplaySettings. Null pointer provided.");
     settings_ = tds;
   }
-  const TreeDrawingSettings& getDisplaySettings() const { return *settings_; }
+  const TreeDrawingSettings& displaySettings() const override { return *settings_; }
 
-  double getXUnit() const { return xUnit_; }
+  double getXUnit() const override { return xUnit_; }
 
-  double getYUnit() const { return yUnit_; }
+  double getYUnit() const override { return yUnit_; }
 
-  void setXUnit(double xu) { xUnit_ = xu; }
+  void setXUnit(double xu) override { xUnit_ = xu; }
 
-  void setYUnit(double yu) { yUnit_ = yu; }
+  void setYUnit(double yu) override { yUnit_ = yu; }
 
-  void collapseNode(int nodeId, bool yn)
+  void collapseNode(int nodeId, bool yn) override
   {
     if (!tree_.get()) throw Exception("AbstractTreeDrawing::collapseNode. No tree is associated to the drawing.");
     tree_->getNode(nodeId)->getInfos().collapse(yn);
   }
 
-  bool isNodeCollapsed(int nodeId) const
+  bool isNodeCollapsed(int nodeId) const override
   {
     if (!tree_.get()) throw Exception("AbstractTreeDrawing::isNodeCollapsed. No tree is associated to the drawing.");
     return tree_->getNode(nodeId)->getInfos().isCollapsed();
   }
 
-  void addTreeDrawingListener(TreeDrawingListener* listener)
+  void addTreeDrawingListener(TreeDrawingListener* listener) override
   {
     if (find(listeners_.begin(), listeners_.end(), listener) != listeners_.end())
       throw Exception("AbstractTreeDrawing::addTreeDrawingListener. Listener is already associated to this drawing.");
     listeners_.push_back(listener);
   }
 
-  void removeTreeDrawingListener(TreeDrawingListener* listener)
+  void removeTreeDrawingListener(TreeDrawingListener* listener) override
   {
     std::vector<TreeDrawingListener*>::iterator it = std::find(listeners_.begin(), listeners_.end(), listener);
     if (it == listeners_.end())
@@ -282,9 +292,7 @@ public:
   virtual void treeHasChanged() = 0;
 
 protected:
-  TreeTemplate<INode>* getTree_() { return tree_.get(); }
-  const TreeTemplate<INode>* getTree_() const { return tree_.get(); }
-
+  
   void fireBeforeTreeEvent_(const DrawTreeEvent& event) const
   {
     for (unsigned int i = 0; i < listeners_.size(); i++)
@@ -340,7 +348,7 @@ protected:
   }
 
 public:
-  static const TreeDrawingSettings DEFAULT_SETTINGS;
+  static std::shared_ptr<const TreeDrawingSettings> DEFAULT_SETTINGS;
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_GRAPHICS_ABSTRACTTREEDRAWING_H
