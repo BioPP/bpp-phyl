@@ -21,9 +21,8 @@ namespace bpp
 {
 /**
  * @brief gBGC model.
- * @author Laurent Guéguen
  *
- * modelling of GC biased gene-conversion.
+ * Modelling of GC biased gene-conversion.
  *
  * This model adds strand symmetric GC biased gene conversion to a
  * given nucleotidic substitution model.

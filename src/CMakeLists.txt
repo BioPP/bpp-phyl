@@ -32,9 +32,7 @@ set (CPP_FILES
   Bpp/Phyl/Legacy/Io/IoPairedSiteLikelihoods.cpp
   Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
   Bpp/Phyl/Io/IoTreeFactory.cpp
-  Bpp/Phyl/Io/Newick.cpp
-  Bpp/Phyl/Io/NexusIoTree.cpp
-  Bpp/Phyl/Io/Nhx.cpp
+  Bpp/Phyl/Io/ExtendedNewick.cpp
   Bpp/Phyl/Io/Newick.cpp
   Bpp/Phyl/Io/NexusIoTree.cpp
   Bpp/Phyl/Io/Nhx.cpp
@@ -258,6 +256,7 @@ set (CPP_FILES
   Bpp/Phyl/Tree/TreeExceptions.cpp
   Bpp/Phyl/Tree/TreeTemplateTools.cpp
   Bpp/Phyl/Tree/TreeTools.cpp
+  Bpp/Phyl/Tree/PhyloDAG.cpp
   Bpp/Phyl/Tree/PhyloTree.cpp
   Bpp/Phyl/Tree/PhyloNode.cpp
   Bpp/Phyl/Tree/PhyloBranch.cpp

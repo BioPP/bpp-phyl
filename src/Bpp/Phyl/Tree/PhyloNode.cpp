@@ -11,6 +11,7 @@ using namespace std;
 
 const NodeEvent NodeEvent::speciationEvent(NodeEvent::NodeType::Speciation);
 const NodeEvent NodeEvent::mixtureEvent(NodeEvent::NodeType::Mixture);
+const NodeEvent NodeEvent::hybridizationEvent(NodeEvent::NodeType::Hybridization);
 
 /** Copy constructor: *********************************************************/
 

@@ -25,7 +25,8 @@ class NodeEvent : public Clonable
   enum class NodeType
   {
     Speciation = 0,
-    Mixture = 1
+    Mixture = 1,
+    Hybridization = 2
   };
 
   NodeType nodeType_;
@@ -39,18 +40,24 @@ public:
   NodeEvent* clone() const { return new NodeEvent(*this);}
 
   bool isSpeciation() const { return nodeType_ == NodeType::Speciation;}
+
   bool isMixture() const {return nodeType_ == NodeType::Mixture;}
+
+  bool isHybridization() const { return nodeType_ == NodeType::Hybridization;}
 
 public:
   static const NodeEvent speciationEvent;
   static const NodeEvent mixtureEvent;
+  static const NodeEvent hybridizationEvent;
 
   std::string toString() const
   {
     if (isSpeciation())
       return "speciation";
-    else
+    else if (isMixture())
       return "mixture";
+    else
+      return "hybridization";
   }
 };
 

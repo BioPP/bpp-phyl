@@ -42,7 +42,7 @@ namespace bpp
  *
  * The stationnary distribution is:
  * \f[
- * \pi = \left(\frac{\delta + \beta}2, \frac{\alpha+ \gamma}2, \frac{\alpha+ \gamma}2, , \frac{\alpha+ \gamma}2\right)
+ * \pi = \left(\frac{\delta + \beta}2, \frac{\alpha+ \gamma}2, \frac{\alpha+ \gamma}2, \frac{\alpha+ \gamma}2\right)
  * \f]
  *
  * We use as  parameters:
