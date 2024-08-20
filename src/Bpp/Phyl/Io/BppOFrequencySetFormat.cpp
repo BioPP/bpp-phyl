@@ -54,6 +54,12 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   KeyvalTools::parseProcedure(freqDescription, freqName, args);
   unique_ptr<FrequencySetInterface> pFS;
 
+  if (args.find("data") != args.end())
+    nData = TextTools::to<size_t>(args["data"]);
+
+  if (nData && mData.find(nData)==mData.end())
+    throw Exception("Unknown data for number " + TextTools::toString(nData));
+     
   if (freqName == "Fixed")
   {
     if (AlphabetTools::isNucleicAlphabet(*alphabet))
@@ -827,8 +833,11 @@ void BppOFrequencySetFormat::initialize_(
     // Initialization using the "init" option
     string init = unparsedArguments_["init"];
 
-    if (init == "observed" && data)
+    if (init == "observed")
     {
+      if (!data)
+        throw Exception("Missing data number for init 'observed'.");
+      
       unsigned int psc = 0;
       if (unparsedArguments_.find("init.observedPseudoCount") != unparsedArguments_.end())
         psc = TextTools::to<unsigned int>(unparsedArguments_["init.observedPseudoCount"]);

@@ -898,8 +898,12 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
 
   if (parseArguments)
   {
-    if (nData)
+    if (nData){
+      if (mData.find(nData)==mData.end())
+        throw Exception("Unknown data for number " + TextTools::toString(nData));
+
       initialize_(*model, mData.at(nData));
+    }
     else
       initialize_(*model, 0);
   }

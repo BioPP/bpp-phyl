@@ -2517,6 +2517,7 @@ void PhylogeneticsApplicationTools::writePhyloTrees(
 
   if (!checkOnly)
   {
+    string outtrees="";
     vector<size_t> vTN = spc.getTreeNumbers();
 
     for (size_t i = 0; i < vTN.size(); i++)
@@ -2538,9 +2539,10 @@ void PhylogeneticsApplicationTools::writePhyloTrees(
         nt->enableExtendedBootstrapProperty("NodeId");
 
       treeWriter->writePhyloTree(*tree, file + "_" + TextTools::toString(vTN[i]), true);
+      outtrees += (i==0?"":" ") + file + "_" + TextTools::toString(vTN[i]);
     }
     if (verbose)
-      ApplicationTools::displayResult("Wrote trees to files : ", file + "_...");
+      ApplicationTools::displayResult("Wrote trees to files : ", outtrees);
   }
 
   delete treeWriter;
