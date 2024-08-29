@@ -200,7 +200,7 @@ int main()
   Pasta pasta;
 
   auto sites = make_shared<ProbabilisticVectorSiteContainer>(alphabet);
-  pasta.readAlignment("exemple1.pa", *sites);
+  pasta.readAlignment("example1.pa", *sites);
 
   auto model = make_shared<T92>(nucAlphabet, 3.);
   auto rdist = make_shared<ConstantRateDistribution>();
