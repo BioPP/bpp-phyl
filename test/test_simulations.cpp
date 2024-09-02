@@ -62,9 +62,8 @@ int main()
   for (unsigned int i = 0; i < n; ++i)
   {
     auto simSite = simulator.simulateSite();
-    unique_ptr<Site> site(dynamic_cast<Site*>(simSite.release()));
-    site->setCoordinate(static_cast<int>(i));
-    sites->addSite(site, false);
+    simSite->setCoordinate(static_cast<int>(i));
+    sites->addSite(simSite, false);
   }
 
   cout << "fit model" << endl;
@@ -91,7 +90,10 @@ int main()
     cout << thetas[i] << "\t" << process->model(i + 1).parameter("theta").getValue() << endl;
     double diff = abs(thetas[i] - process->model(i + 1).parameter("theta").getValue());
     if (diff > 0.1)
+    {
+      cout << "difference too large" << endl;
       return 1;
+    }
   }
 
   // Now try detailed simulations:
@@ -104,9 +106,8 @@ int main()
   {
     auto result = simulator.dSimulateSite();
     auto simSite = result->getSite(dynamic_cast<const TransitionModelInterface&>(*simulator.getSubstitutionProcess()->getModel(1)));
-    unique_ptr<Site> site(dynamic_cast<Site*>(simSite.release()));
-    site->setCoordinate(static_cast<int>(i));
-    sites2->addSite(site, false);
+    simSite->setCoordinate(static_cast<int>(i));
+    sites2->addSite(simSite, false);
   }
 
   // Now fit model:

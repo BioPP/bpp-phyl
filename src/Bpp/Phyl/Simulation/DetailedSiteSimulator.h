@@ -147,7 +147,7 @@ public:
   /**
    * @return The site corresponding to this simulation.
    */
-  virtual std::unique_ptr<SiteInterface> getSite(const TransitionModelInterface& model) const
+  virtual std::unique_ptr<Site> getSite(const TransitionModelInterface& model) const
   {
     std::vector<size_t> mstates = getFinalStates();
     std::vector<int> astates(mstates.size());
