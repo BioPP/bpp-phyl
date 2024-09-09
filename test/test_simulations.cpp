@@ -25,7 +25,7 @@ using namespace std;
 int main()
 {
   Newick reader;
-  auto phyloTree = std::shared_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+  auto phyloTree = std::shared_ptr<PhyloTree>(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.4):0.1,D:0.5);", false, "", false, false));
 
   vector<string> seqNames = phyloTree->getAllLeavesNames();
   // -------------
@@ -36,18 +36,24 @@ int main()
   auto rootFreqs = std::make_shared<GCFrequencySet>(nucAlphabet);
   std::vector<std::string> globalParameterNames({"T92.kappa"});
 
+  shared_ptr<SubstitutionProcessInterface> process_sim = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, rdist, phyloTree, rootFreqs, globalParameterNames);
   shared_ptr<SubstitutionProcessInterface> process = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, rdist, phyloTree, rootFreqs, globalParameterNames);
+  shared_ptr<SubstitutionProcessInterface> process2 = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, rdist, phyloTree, rootFreqs, globalParameterNames);
 
   vector<double> thetas;
-  for (unsigned int i = 0; i < process->getNumberOfModels(); ++i)
+  for (unsigned int i = 0; i < process_sim->getNumberOfModels(); ++i)
   {
-    double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
+    double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.8) + 0.1;
     cout << "Theta" << i + 1 << " set to " << theta << endl;
-    process->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
+    process_sim->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas.push_back(theta);
   }
 
-  SimpleSubstitutionProcessSiteSimulator simulator(process);
+  double theta= RandomTools::giveRandomNumberBetweenZeroAndEntry(0.8) + 0.1;
+  cout << "Theta root set to " << theta << endl;
+  process_sim->setParameterValue("GC.theta", theta);
+
+  SimpleSubstitutionProcessSiteSimulator simulator(process_sim);
 
   unsigned int n = 100000;
   auto profiler  = make_shared<StlOutputStream>(make_unique<ofstream>("profile.txt", ios::out));
@@ -103,21 +109,21 @@ int main()
   for (unsigned int i = 0; i < n; ++i)
   {
     auto result = simulator.dSimulateSite();
-    auto simSite = result->getSite(dynamic_cast<const TransitionModelInterface&>(*simulator.getSubstitutionProcess()->getModel(1)));
+    auto simSite = result->getSite();
     unique_ptr<Site> site(dynamic_cast<Site*>(simSite.release()));
     site->setCoordinate(static_cast<int>(i));
     sites2->addSite(site, false);
   }
 
   // Now fit model:
-  auto process2 = shared_ptr<SubstitutionProcessInterface>(process->clone());
+
   auto l2 = make_shared<LikelihoodCalculationSingleProcess>(context, sites2, process2);
   auto llh2 = make_shared<SingleProcessPhyloLikelihood>(context, l2);
 
   optopt.parameters = llh2->getParameters();
-  
+ 
   OptimizationTools::optimizeNumericalParameters2(llh2, optopt);
-  
+ 
   process2->matchParametersValues(llh2->getParameters());
 
   // Now compare estimated values to real ones:
@@ -153,7 +159,13 @@ int main()
     const auto& seq1 = sites2->sequence(name);
     const auto& seq2 = vec2->sequence(name);
 
-    cerr << name << ":" << SiteContainerTools::computeSimilarity(seq1, seq2) << endl;
+    auto sim = SiteContainerTools::computeSimilarity(seq1, seq2);
+    cout << name << ":" << sim << endl;
+    if (sim!=1)
+    {
+      cout << "Bad similarity in sequence " << name << endl;
+      return 1;
+    }
   }
 
   return 0;

@@ -47,6 +47,7 @@ public:
   {
     indexes_[tree->getRootIndex()] = 0;
     // Warning, watch out the indices there!
+    paths_.push_back(MutationPath(getAlphabet(), ancestralState, 0));
     ancestralStates_.push_back(ancestralState);
   }
 
@@ -84,15 +85,15 @@ public:
 
   virtual void addNode(unsigned int nodeId, MutationPath path)
   {
-    indexes_[nodeId] = currentIndex_;
     currentIndex_++;
+    indexes_[nodeId] = currentIndex_;
     paths_.push_back(path);
     ancestralStates_.push_back(path.getFinalState());
   }
 
   virtual size_t getAncestralState(size_t i) const { return ancestralStates_[i]; }
 
-  virtual size_t getAncestralState(unsigned int nodeId) const { return ancestralStates_[1 + indexes_[nodeId]]; }
+  virtual size_t getAncestralState(unsigned int nodeId) const { return ancestralStates_[indexes_[nodeId]]; }
 
   virtual const MutationPath& getMutationPath(size_t i) const { return paths_[i]; }
 
@@ -139,7 +140,7 @@ public:
     std::vector<size_t> states(n);
     for (size_t i = 0; i < n; i++)
     {
-      states[i] = ancestralStates_[1 + indexes_[leavesId_[i]]];
+      states[i] = ancestralStates_[indexes_[leavesId_[i]]];
     }
     return states;
   }
@@ -147,14 +148,13 @@ public:
   /**
    * @return The site corresponding to this simulation.
    */
-  virtual std::unique_ptr<SiteInterface> getSite(const TransitionModelInterface& model) const
+  virtual std::unique_ptr<SiteInterface> getSite() const
   {
     std::vector<size_t> mstates = getFinalStates();
     std::vector<int> astates(mstates.size());
     for (size_t i = 0; i < mstates.size(); ++i)
-    {
       astates[i] = statemap_->getAlphabetStateAsInt(mstates[i]);
-    }
+
     auto alphabet = statemap_->getAlphabet();
     return std::make_unique<Site>(astates, alphabet);
   }

@@ -289,7 +289,7 @@ unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimula
   root->state_ = initialStateIndex;
 
   auto ssr = make_unique<SiteSimulationResult>(phyloTree_, process_->getStateMap(), initialStateIndex);
-
+  
   evolveInternal(root, rateClass, ssr.get());
 
   return ssr;
@@ -337,7 +337,6 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(
           SimpleMutationProcess process(tm);
 
           double brlen = process_->getRateDistribution()->getCategory(rateClass) * phyloTree_->getEdge(edge->getSpeciesIndex())->getLength();
-
           MutationPath mp(tm->getAlphabet(), node->state_, brlen);
           if (dynamic_cast<const GivenDataSubstitutionProcessSiteSimulator*>(this) == 0)
           {
@@ -351,7 +350,7 @@ void SimpleSubstitutionProcessSiteSimulator::evolveInternal(
           }
 
           // Now append infos in ssr:
-          ssr->addNode(edge->getSpeciesIndex(), mp);
+          ssr->addNode(tree_.getNodeIndex(tree_.getSon(edge)), mp);
         }
         else
           son->state_ = RandomTools::pickFromCumSum(edge->cumpxy_[rateClass][node->state_]);

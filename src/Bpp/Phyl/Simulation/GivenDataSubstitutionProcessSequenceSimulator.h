@@ -60,7 +60,7 @@ public:
    */
   std::unique_ptr<SiteContainerInterface> simulate() const
   {
-    return simulate(0);
+    return simulate(calcul_->getNumberOfSites());
   }
 
   std::unique_ptr<SiteContainerInterface> simulate(size_t numberOfSites) const override;

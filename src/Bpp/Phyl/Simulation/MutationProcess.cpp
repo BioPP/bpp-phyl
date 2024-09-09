@@ -46,8 +46,8 @@ size_t AbstractMutationProcess::mutate(size_t state, unsigned int n) const
 /******************************************************************************/
 
 double AbstractMutationProcess::getTimeBeforeNextMutationEvent(size_t state) const
-{
-  return RandomTools::randExponential(-1. / model_->Qij(state, state));
+{  
+  return RandomTools::randExponential(-model_->Qij(state, state));
 }
 
 /******************************************************************************/

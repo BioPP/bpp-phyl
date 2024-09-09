@@ -85,7 +85,7 @@ int main()
           return 1;
         }
       }
-      auto simSite = result->getSite(*model);
+      auto simSite = result->getSite();
       unique_ptr<Site> site(dynamic_cast<Site*>(simSite.release()));
       site->setCoordinate(static_cast<int>(i));
       sites->addSite(site, false);
