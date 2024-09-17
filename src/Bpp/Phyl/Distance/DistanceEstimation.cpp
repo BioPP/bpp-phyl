@@ -33,6 +33,7 @@ using namespace bpp;
 using namespace std;
 
 /******************************************************************************/
+
 void DistanceEstimation::init_()
 {
   auto desc = make_unique<MetaOptimizerInfos>();
@@ -75,7 +76,7 @@ void DistanceEstimation::computeMatrix()
 
   size_t n = sites_->getNumberOfSequences();
   vector<string> names = sites_->getSequenceNames();
-  dist_ = std::shared_ptr<DistanceMatrix>(new DistanceMatrix(names));
+  dist_ = std::make_shared<DistanceMatrix>(names);
   optimizer_->setVerbose(static_cast<unsigned int>(max(static_cast<int>(verbose_) - 2, 0)));
 
   Newick reader;
