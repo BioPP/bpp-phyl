@@ -75,9 +75,12 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
     const auto model = edge->getModel();
     auto outid = tree_.getEdgeIndex(edge);
 
+    
     if (edge->useProb())
       continue;
 
+    bool useLik = (std::find(vPriorBranch_.begin(), vPriorBranch_.end(), edge->getSpeciesIndex()) == vPriorBranch_.end());
+    
     const auto transmodel = dynamic_pointer_cast<const TransitionModelInterface>(model);
     if (!transmodel)
       throw Exception("SubstitutionProcessSiteSimulator::init : model "  + model->getName() + " on branch " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a TransitionModel.");
@@ -114,25 +117,42 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
         P = &model2->getPij_t(brlen);
       }
 
+      /* Use posterior likelihoods if branchid not in prior list */
       /* Get likelihoods on this node for all states at this position*/
 
-      const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(calcul_->getForwardLikelihoodTree(c)->getSon(outid), c)->targetValue().col(pos_);
-
-      for (size_t x = 0; x < size_t(nbStates_); x++)
+      if (useLik)
       {
-        for (size_t y = 0; y < size_t(nbStates_); y++)
-        {
-          postTrans[y] = std::max((*P)(x, y), NumConstants::PICO()) * siteForwLik(Eigen::Index(y)); // to avoid null trans prob on short branches, and then null sum of the postTrans
-        }
-        postTrans /= VectorTools::sum(postTrans);
+        const auto& siteForwLik = calcul_->getForwardLikelihoodsAtNodeForClass(calcul_->getForwardLikelihoodTree(c)->getSon(outid), c)->targetValue().col(pos_);
 
-        Vdouble pT2(postTrans.size());
-        for (size_t i = 0; i < postTrans.size(); i++)
+        for (size_t x = 0; x < size_t(nbStates_); x++)
         {
-          pT2[i] = convert(postTrans[i]);
-        }
+          for (size_t y = 0; y < size_t(nbStates_); y++)
+          {
+            postTrans[y] = std::max((*P)(x, y), NumConstants::PICO()) * siteForwLik(Eigen::Index(y)); // to avoid null trans prob on short branches, and then null sum of the postTrans
+          }
+          postTrans /= VectorTools::sum(postTrans);
 
-        (*cumpxy_node_c_)[x] = VectorTools::cumSum(pT2);
+          Vdouble pT2(postTrans.size());
+          for (size_t i = 0; i < postTrans.size(); i++)
+          {
+            pT2[i] = convert(postTrans[i]);
+          }
+
+          (*cumpxy_node_c_)[x] = VectorTools::cumSum(pT2);
+        }
+      }
+      else
+      {
+        for (size_t x = 0; x < nbStates_; x++)
+        {
+          Vdouble* cumpxy_node_c_x_ = &(*cumpxy_node_c_)[x];
+          cumpxy_node_c_x_->resize(nbStates_);
+          (*cumpxy_node_c_x_)[0] = (*P)(x, 0);
+          for (size_t y = 1; y < nbStates_; y++)
+          {
+            (*cumpxy_node_c_x_)[y] = (*cumpxy_node_c_x_)[y - 1] + (*P)(x, y);
+          }
+        }
       }
     }
   }
@@ -151,6 +171,7 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
       for (auto edge : outEdges)
       {
         auto outid = tree_.getEdgeIndex(edge);
+        bool useLik = (std::find(vPriorBranch_.begin(), vPriorBranch_.end(), edge->getSpeciesIndex()) == vPriorBranch_.end());
 
         auto model = dynamic_pointer_cast<const MixedTransitionModelInterface>(edge->getModel());
         if (!model)
@@ -166,15 +187,23 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
         }
 
         // forward lik
-        for (size_t c = 0; c < nbClasses_; c++)
+        if (useLik)
         {
-          auto forwLik = calcul_->getForwardLikelihoodTree(c)->getEdge(outid)->targetValue().col(pos_).sum();
-          vprob[c].push_back(x * forwLik);
+          for (size_t c = 0; c < nbClasses_; c++)
+          {
+            auto forwLik = calcul_->getForwardLikelihoodTree(c)->getEdge(outid)->targetValue().col(pos_).sum();
+            vprob[c].push_back(x * forwLik);
+          }
         }
-
+        else
+        {
+          for (size_t c = 0; c < nbClasses_; c++)
+            vprob[c].push_back(x);
+        }
+        
         node->sons_.push_back(tree_.getSon(edge));
       }
-
+      
       for (size_t c = 0; c < nbClasses_; c++)
       {
         vprob[c] /= VectorTools::sum(vprob[c]);

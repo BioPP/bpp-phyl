@@ -33,8 +33,10 @@ public:
    */
   SimpleSubstitutionProcessSequenceSimulator(
       std::shared_ptr<LikelihoodCalculationSingleProcess> calcul,
-      size_t pos) :
-    siteSim_(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul, pos))
+      size_t pos,
+      bool shrunked = false,
+      std::vector<uint> vPrior = std::vector<uint>()) :
+    siteSim_(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul, pos, shrunked, vPrior))
   {}
 
   SimpleSubstitutionProcessSequenceSimulator(std::shared_ptr<SiteSimulatorInterface> simul) :

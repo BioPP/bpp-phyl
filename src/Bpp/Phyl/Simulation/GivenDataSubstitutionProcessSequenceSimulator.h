@@ -30,13 +30,21 @@ private:
 
   std::vector<std::shared_ptr<GivenDataSubstitutionProcessSiteSimulator>> vSiteSim_;
 
+  /*
+   * @brief Vector of branch indexes where the data is not used, and
+   * substitution probabilities are computed from the prior process.
+   *
+   */
+
+  std::vector<uint> vPriorBranch_;
+  
 public:
-  GivenDataSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul) :
-    calcul_(calcul), vSiteSim_()
+  GivenDataSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, std::vector<uint> vPrior = std::vector<uint>()) :
+    calcul_(calcul), vSiteSim_(), vPriorBranch_(vPrior)
   {
     for (size_t i = 0; i < calcul_->getNumberOfDistinctSites(); i++)
     {
-      vSiteSim_.push_back(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul_, i, true));
+      vSiteSim_.push_back(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul_, i, true, vPriorBranch_));
     }
   }
 
