@@ -40,3 +40,13 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy
   ${CMAKE_SOURCE_DIR}/test/lysozymeLarge.dnd
   ${CMAKE_CURRENT_BINARY_DIR}/)
+add_custom_command(
+  TARGET test_likelihood_allelic POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${CMAKE_SOURCE_DIR}/test/counts.pa
+  ${CMAKE_CURRENT_BINARY_DIR}/)
+add_custom_command(
+  TARGET test_likelihood_allelic POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${CMAKE_SOURCE_DIR}/test/example1.pa
+  ${CMAKE_CURRENT_BINARY_DIR}/)

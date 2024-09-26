@@ -69,14 +69,11 @@ int main()
 
   shared_ptr<SubstitutionProcessInterface> process = NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, phyloTree, rootFreqs);
 
-//  auto process = make_shared<SimpleSubstitutionProcess>(model, phyloTree);
-
   Context context;
 
   auto lik = make_shared<LikelihoodCalculationSingleProcess>(context, sites2, process);
 
   auto llh = make_shared<SingleProcessPhyloLikelihood>(context, lik);
-
 
   cout << "NewTL: " << setprecision(20) << llh->getValue() << endl;
 
@@ -93,9 +90,9 @@ int main()
   
   OptimizationTools::optimizeNumericalParameters2(llh, optopt);
 
+  cerr << setprecision(20);
   llh->getParameters().printParameters(cerr);
 
-  cout << setprecision(20) << llh->getValue() << endl;
-
+  cerr << llh->getValue() << endl;
   return 0;
 }

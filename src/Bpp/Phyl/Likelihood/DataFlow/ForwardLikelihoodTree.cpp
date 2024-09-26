@@ -22,6 +22,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
 
   const auto sequenceIndex = sites.getSequencePosition (sequenceName);
   Eigen::MatrixXd initCondLik ((int)nbState_, (int)nbSites);
+
   for (size_t site = 0; site < nbSites; ++site)
   {
     for (auto state = 0; state < nbState_; ++state)
@@ -30,7 +31,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
           sites (site, sequenceIndex, statemap_.getAlphabetStateAsInt(size_t(state)));
     }
   }
-
+  
   return Sequence_DF::create (context_, std::move(initCondLik), sequenceName);
 }
 
