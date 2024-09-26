@@ -29,7 +29,6 @@
  * @see NodeTemplate
  * @see TreeTools
  */
-
 using namespace std;
 namespace bpp
 {

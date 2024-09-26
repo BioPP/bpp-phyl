@@ -254,6 +254,7 @@ set (CPP_FILES
   Bpp/Phyl/Tree/Node.cpp
   Bpp/Phyl/Legacy/Tree/AwareNode.cpp
   Bpp/Phyl/Tree/TreeExceptions.cpp
+  Bpp/Phyl/Tree/TreeIterator.cpp
   Bpp/Phyl/Tree/TreeTemplateTools.cpp
   Bpp/Phyl/Tree/TreeTools.cpp
   Bpp/Phyl/Tree/PhyloDAG.cpp
