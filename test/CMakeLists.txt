@@ -50,3 +50,13 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy
   ${CMAKE_SOURCE_DIR}/test/example1.pa
   ${CMAKE_CURRENT_BINARY_DIR}/)
+add_custom_command(
+  TARGET test_likelihood_allelic POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${CMAKE_SOURCE_DIR}/test/example1.mp.dnd
+  ${CMAKE_CURRENT_BINARY_DIR}/)
+add_custom_command(
+  TARGET test_likelihood_allelic POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${CMAKE_SOURCE_DIR}/test/example1.ph
+  ${CMAKE_CURRENT_BINARY_DIR}/)
