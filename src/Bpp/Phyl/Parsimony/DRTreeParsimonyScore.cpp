@@ -7,6 +7,7 @@
 
 #include "../PatternTools.h"
 #include "../Tree/TreeTemplateTools.h" // Needed for NNIs
+#include "../Tree/TreeIterator.h" // Needed for parsimony solution
 #include "DRTreeParsimonyScore.h"
 
 using namespace bpp;
@@ -371,86 +372,84 @@ void DRTreeParsimonyScore::doNNI(int nodeId)
 
 /******************************************************************************/
 
-// /******************************************************************************/
-//
-// void DRTreeParsimonyScore::setNodeState(Node* node, size_t state)
-// {
-//     Number<size_t>* stateProperty = new Number<size_t>(state);
-//     node->setNodeProperty(STATE, *stateProperty);
-//     delete stateProperty;
-// }
-//
-// /******************************************************************************/
-//
-// size_t DRTreeParsimonyScore::getNodeState(const Node* node)
-// {
-//   return (dynamic_cast<const Number<size_t>*>(node->getNodeProperty(STATE)))->getValue(); // exception on root on the true history - why didn't the root receive a state?
-// }
-//
-// /******************************************************************************/
-//
-// void DRTreeParsimonyScore::computeSolution()
-// {
-//   map< int, vector<size_t> > nodeToPossibleStates;
-//   TreeTemplate<Node>* tree = getTreeP_();
-//   vector<Node*> nodes = tree->getNodes();
-//   vector<Bitset> nodeBitsets;
-//   for (size_t n = 0; n < nodes.size(); ++n)
-//   {
-//     // extract the node's bisets (i.e, possible states assignments)
-//     if (nodes[n]->isLeaf())
-//     {
-//       nodeBitsets = (&parsimonyData_->getLeafData(nodes[n]->getId()))->getBitsetsArray();
-//     }
-//     else if (nodes[n]->hasFather())
-//     {
-//       nodeBitsets = (&parsimonyData_->getNodeData(nodes[n]->getFather()->getId()))->getBitsetsArrayForNeighbor(nodes[n]->getId());  // extract the bitset corresponding to the son from its father's bitSet array
-//     }
-//     else // get the node's possible states from its first internal neighbor
-//     {
-//       int neighborId = 0;
-//       vector<Node*> neighbors = nodes[n]->getNeighbors();
-//       for (unsigned int nn=0; nn<neighbors.size(); ++nn)
-//       {
-//         if (!neighbors[nn]->isLeaf())
-//         {
-//           neighborId = neighbors[nn]->getId();
-//           break;
-//         }
-//       }
-//        nodeBitsets = (&parsimonyData_->getNodeData(neighborId))->getBitsetsArrayForNeighbor(nodes[n]->getId());
-//     }
-//     // map the node id to its possible states
-//     vector <size_t> possibleStates;
-//     for (size_t s = 0; s < getStateMap().getNumberOfModelStates(); ++s)
-//     {
-//       if (nodeBitsets[0].test(s))
-//       {
-//         possibleStates.push_back(s);
-//       }
-//     }
-//     nodeToPossibleStates[nodes[n]->getId()] = possibleStates;
-//   }
-//
-//   // set states for the nodes according to their possible assignments and parent state
-//   TreeIterator* treeIt = new PreOrderTreeIterator(*tree);
-//   for (const Node* node = treeIt->begin(); node != treeIt->end(); node = treeIt->next())
-//   {
-//     size_t nodeState;
-//     vector<size_t> possibleStates = nodeToPossibleStates[node->getId()];
-//     if (possibleStates.size() == 1)
-//     {
-//       nodeState = possibleStates[0];
-//     }
-//     else if (node->hasFather()) // if the node has a father -> set its state according to its father's state
-//     {
-//       nodeState = getNodeState(node->getFather());
-//     }
-//     else                       // if there is no restriction from the father -> set the state randomely
-//     {
-//       nodeState = RandomTools::pickOne(possibleStates);
-//     }
-//     setNodeState(tree->getNode(node->getId()), nodeState);
-//   }
-//   delete treeIt;
-// }
+string DRTreeParsimonyScore::PARSIMONY_SOLUTION_STATE = "state";
+
+void DRTreeParsimonyScore::setNodeState(Node* node, size_t state)
+{
+  Number<size_t> stateProperty(state);
+  node->setNodeProperty(PARSIMONY_SOLUTION_STATE, stateProperty);
+}
+
+/******************************************************************************/
+
+size_t DRTreeParsimonyScore::getNodeState(const Node* node)
+{
+  return (dynamic_cast<const Number<size_t>*>(node->getNodeProperty(PARSIMONY_SOLUTION_STATE)))->getValue(); // exception on root on the true history - why didn't the root receive a state?
+}
+
+/******************************************************************************/
+
+void DRTreeParsimonyScore::computeSolution()
+{
+  map< int, vector<size_t> > nodeToPossibleStates;
+  vector<Node*> nodes = treeTemplate_().getNodes();
+  vector<Bitset> nodeBitsets;
+  for (size_t n = 0; n < nodes.size(); ++n)
+  {
+    // extract the node's bisets (i.e, possible states assignments)
+    if (nodes[n]->isLeaf())
+    {
+      nodeBitsets = parsimonyData_->leafData(nodes[n]->getId()).getBitsetsArray();
+    }    
+    else if (nodes[n]->hasFather())
+    {
+      nodeBitsets = parsimonyData_->nodeData(nodes[n]->getFather()->getId()).getBitsetsArrayForNeighbor(nodes[n]->getId());  // extract the bitset corresponding to the son from its father's bitSet array
+    }
+    else // get the node's possible states from its first internal neighbor
+    {
+      int neighborId = 0;
+      vector<Node*> neighbors = nodes[n]->getNeighbors();
+      for (size_t nn = 0; nn < neighbors.size(); ++nn)
+      {
+        if (!neighbors[nn]->isLeaf())
+        {
+          neighborId = neighbors[nn]->getId();
+          break;
+        }
+      }
+      nodeBitsets = parsimonyData_->nodeData(neighborId).getBitsetsArrayForNeighbor(nodes[n]->getId());
+    }
+    // map the node id to its possible states
+    vector <size_t> possibleStates;
+    for (size_t s = 0; s < stateMap().getNumberOfModelStates(); ++s)
+    {
+      if (nodeBitsets[0].test(s))
+      {
+        possibleStates.push_back(s);
+      }
+    }
+    nodeToPossibleStates[nodes[n]->getId()] = possibleStates;
+  }
+
+  // set states for the nodes according to their possible assignments and parent state
+  TreeIterator* treeIt = new PreOrderTreeIterator(treeTemplate_());
+  for (const Node* node = treeIt->begin(); node != treeIt->end(); node = treeIt->next())
+  {
+    size_t nodeState;
+    vector<size_t> possibleStates = nodeToPossibleStates[node->getId()];
+    if (possibleStates.size() == 1)
+    {
+      nodeState = possibleStates[0];
+    }
+    else if (node->hasFather()) // if the node has a father -> set its state according to its father's state
+    {
+      nodeState = getNodeState(node->getFather());
+    }
+    else                       // if there is no restriction from the father -> set the state randomely
+    {
+      nodeState = RandomTools::pickOne(possibleStates);
+    }
+    setNodeState(treeTemplate_().getNode(node->getId()), nodeState);
+  }
+  delete treeIt;
+}

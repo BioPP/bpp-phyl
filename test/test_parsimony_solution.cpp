@@ -60,7 +60,7 @@ int main()
     }
 
     // make sure the solution is: (((((((S1{0},S2{1})N2{0},S3{0})N4{0},S4{1})N6{1},S5{1})N8{1},S6{1})N10{1},S7{0})N12{0},S8{0})N14{0}
-
+    mpData->computeSolution();
     auto solution = make_shared<TreeTemplate<Node>>(mpData->tree());
     giveNamesToInternalNodes(*solution); // give internal names to nodes in post-order
     map<string, int> nodeToState;
@@ -79,20 +79,20 @@ int main()
     nodeToState["N12"] = 0;
     nodeToState["S8"] = 0;
     nodeToState["N14"] = 0;
-    // vector<Node*> nodes = solution->getNodes();
-    // string nodeName;
-    // int nodeState;
-    // for (size_t i = 0; i < nodes.size(); ++i)
-    // {
-    //   nodeName = nodes[i]->getName();
-    //   throw Exception("test_parsimony_solution: missing method getNodeState");
-    //   // nodeState = (int) mpData->getNodeState(nodes[i]);
-    //   if (nodeState != nodeToState[nodeName])
-    //   {
-    //     cerr << "Error! assignment of state in node " << nodeName << " is " << nodeState << " instead of " << nodeToState[nodeName] << endl;
-    //     return 1;
-    //   }
-    // }
+    vector<Node*> nodes = solution->getNodes();
+    string nodeName;
+    int nodeState;
+    for (size_t i = 0; i < nodes.size(); ++i)
+    {
+      nodeName = nodes[i]->getName();
+      nodeState = (int) mpData->getNodeState(nodes[i]);
+      if (nodeState != nodeToState[nodeName])
+      {
+        cerr << "Error! assignment of state in node " << nodeName << " is " << nodeState << " instead of " << nodeToState[nodeName] << endl;
+        return 1;
+      }
+    }
+    cout << "all good :)" << endl;
   }
   catch (Exception& ex)
   {
