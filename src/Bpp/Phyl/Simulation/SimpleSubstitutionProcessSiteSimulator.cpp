@@ -182,7 +182,7 @@ unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite() const
 
 unique_ptr<Site> SimpleSubstitutionProcessSiteSimulator::simulateSite(double rate) const
 {
-  // Draw an initial state randomly according to equilibrium frequencies:
+  // Draw an initial state randomly according to given frequencies:
   // Use rate class 0
 
   size_t initialStateIndex = RandomTools::pickFromCumSum(qRoots_[0]);

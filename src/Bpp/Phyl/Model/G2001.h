@@ -16,8 +16,8 @@ namespace bpp
  * @brief Galtier's 2001 covarion model.
  *
  * This model is a subclass of the so-called Markov-modulated substitution models,
- * with a Jukes-Cantor rate matrix, of parameter @f$\nu@f$.
- * the original version uses a discrete @f$\Gamma@f$ distribution for rates, but you can
+ * with an intra-model autocorrelation rate, of parameter @f$\nu@f$.
+ * The original version uses a discrete @f$\Gamma@f$ distribution for rates, but you can
  * use it with virtually any rate distribution.
  *
  * @see MarkovModulatedSubstitutionModel
@@ -50,7 +50,7 @@ public:
       bool normalizeRateChanges = false) :
     MarkovModulatedSubstitutionModel(std::move(model), static_cast<unsigned int>(rDist->getNumberOfCategories()), normalizeRateChanges, "G01."),
     rDist_(std::move(rDist)),
-    nestedRatePrefix_("rdist_" + rDist->getNamespace())
+    nestedRatePrefix_("rdist_" + rDist_->getNamespace())
   {
     ratesFreq_ = std::vector<double>(nbRates_, 1. / static_cast<double>(nbRates_));
     rDist_->setNamespace(getNamespace() + nestedRatePrefix_);

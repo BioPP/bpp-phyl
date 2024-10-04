@@ -556,6 +556,9 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
       nestedReader.setGeneticCode(geneticCode_);
     auto tmpModel = nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, mData, nData, false);
     unique_ptr<ReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<ReversibleSubstitutionModelInterface*>(tmpModel.release()));
+    if (!nestedModel.get())
+      throw Exception("G01 model restricted to Reversible models. Ask developpers to fix it.");
+        
     map<string, string> unparsedParameterValuesNestedModel(nestedReader.getUnparsedArguments());
 
     BppORateDistributionFormat rateReader(false);
