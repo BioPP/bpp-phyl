@@ -1018,61 +1018,97 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
     bool complete = false;
     size_t numpath;
 
-    StringTokenizer st(desc, "&");
+    StringTokenizer st(desc, "|");
     while (st.hasMoreToken())
     {
       string path = st.nextToken();
       bool numok = true;
-      try
+
+      if (path == "complete")
+        complete = true;
+      else if (path.substr(0, 5) == "split")
       {
-        if (path == "complete")
-          complete = true;
-        else if (path.substr(0, 5) == "split")
+        auto pos = path.find("model");
+        
+        if (pos == string::npos)
+          throw Exception("PhylogeneticsApplicationTools::getModelScenarios. Missing identifier 'model' in scenario description: " + path);
+        
+        auto poseq = path.find("=", pos);
+        StringTokenizer stm(path.substr(poseq + 1), " ,()");
+
+        // get all models in the split
+        std::vector<std::shared_ptr<MixedTransitionModelInterface>> vpSM;
+        while (stm.hasMoreToken())
         {
-          auto pos = path.find("model");
-          if (pos == string::npos)
-            throw Exception("PhylogeneticsApplicationTools::getModelScenarios. Missing identifier 'model' in scenario description: " + path);
-
-          auto poseq = path.find("=", pos);
-          size_t num2 = TextTools::to<size_t>(path.substr(poseq + 1));
-
+          string dmod = stm.nextToken();
+          size_t num2 = TextTools::to<size_t>(dmod);
+        
           if (mModel.find(num2) == mModel.end())
             throw BadIntegerException("PhylogeneticsApplicationTools::getModelScenarios: Wrong model number", static_cast<int>(num2));
-
+        
           auto pSM = std::dynamic_pointer_cast<MixedTransitionModelInterface>(mModel.at(num2));
           if (!pSM)
             throw Exception("PhylogeneticsApplicationTools::getModelScenarios: Model number " + TextTools::toString(num2) + " ( " + mModel.at(num2)->getName() + " ) is not Mixed.");
 
-          std::vector<std::shared_ptr<ModelPath>> modelPaths;
+          vpSM.push_back(pSM);
+        }
 
+        // Then makes all combinations of paths
+        vector<vector<uint>> vvnmod;
+        for (const auto& pSM:vpSM)
+        {
           auto nmod = pSM->getNumberOfModels();
 
-          for (unsigned int nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
+          vector<vector<uint>> vvnmod2;
+          
+          if (vvnmod.size()==0)
           {
-            auto mp = std::make_shared<ModelPath>();
-            mp->setModel(pSM, Vuint({nm}));
-            mp->setLeadModel(pSM);
-            somp[num]->addModelPath(mp);
+            for (uint nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
+            {
+              auto v2=vector<uint>({nm});
+              vvnmod2.push_back(v2);
+            }
           }
-        }
-        else
-        {
-          numpath = TextTools::to<size_t>(path.substr(4));
-          if (mModelPath.find(numpath) == mModelPath.end())
-            numok = false;
           else
-            somp[num]->addModelPath(mModelPath.at(numpath));
+          {
+            for (const auto& vnmod:vvnmod)
+            {
+              for (uint nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
+              {
+                auto v2=vnmod;
+                v2.push_back(nm);
+                vvnmod2.push_back(v2);
+              }
+            }
+          }
+          vvnmod = vvnmod2;
+        }
+
+        // Finally, sets all paths
+        
+        for (const auto& vn:vvnmod)
+        {
+          auto mp = std::make_shared<ModelPath>();
+
+          for (size_t j = 0; j<vpSM.size(); j++)
+            mp->setModel(vpSM[j], Vuint({vn[j]}));
+
+          mp->setLeadModel(vpSM[0]);
+          somp[num]->addModelPath(mp);
         }
       }
-      catch (Exception& e)
+      else
       {
-        Exception("PhylogeneticsApplicationTools::getModelScenarios: wrong path description " + path);
+        numpath = TextTools::to<size_t>(path.substr(4));
+        if (mModelPath.find(numpath) == mModelPath.end())
+          numok = false;
+        else
+          somp[num]->addModelPath(mModelPath.at(numpath));
       }
 
       if (!numok)
         throw BadIntegerException("PhylogeneticsApplicationTools::getModelScenarios: Wrong path number", static_cast<int>(numpath));
     }
-
 
     if (verbose &&  (i < 10))
       ApplicationTools::displayResult("Model Scenario", desc);
@@ -1084,9 +1120,13 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
       somp[num]->complete();
     }
 
-    somp[num]->computeModelPathsProbabilities();
+    if (somp[num]->getNumberOfModelPaths()==0)
+      somp.erase(somp.find(num));
+    else
+      somp[num]->computeModelPathsProbabilities();
   }
 
+  
   return somp;
 }
 
@@ -2823,13 +2863,13 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
         vMP.push_back(mp.get());
 
       if (mpn != 0)
-        out << "&";
+        out << "|";
       out << "path" << TextTools::toString(inmp + 1);
     }
     out.endLine();
   }
 
-  // then the model path
+  // then the model paths
   for (size_t inmp = 0; inmp < vMP.size(); inmp++)
   {
     out.endLine();
