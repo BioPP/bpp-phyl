@@ -49,12 +49,12 @@ void DistanceEstimation::init_()
   else
   {
     const auto& vTn = procMb->getCollection()->getTreeNumbers();
-    numProc_ = *std::max_element(vTn.begin(),vTn.end())+1;
+    numProc_ = *std::max_element(vTn.begin(), vTn.end()) + 1;
 
-    name.push_back("BrLen0_"+TextTools::toString(numProc_));
-    name.push_back("BrLen1_"+TextTools::toString(numProc_));
+    name.push_back("BrLen0_" + TextTools::toString(numProc_));
+    name.push_back("BrLen1_" + TextTools::toString(numProc_));
   }
-  
+
   desc->addOptimizer("Branch length", std::make_shared<PseudoNewtonOptimizer>(nullptr), name, 2, MetaOptimizerInfos::IT_TYPE_FULL);
 
   // Process optimizer
@@ -89,7 +89,7 @@ void DistanceEstimation::computeMatrix()
   size_t treeN = 0;
   if (procMb)
     treeN = procMb->getTreeNumber();
-  
+
   for (size_t i = 0; i < n; ++i)
   {
     (*dist_)(i, i) = 0;
@@ -108,16 +108,15 @@ void DistanceEstimation::computeMatrix()
 
       if (autoProc)
         autoProc->setPhyloTree(*phyloTree);
-      else
-        if (procMb)
-        {
-          auto& coll = procMb->collection();
-          if (!coll.hasTreeNumber(numProc_))
-            coll.addTree(phyloTree, numProc_);
-          else
-            coll.replaceTree(phyloTree, numProc_);
-          procMb->setTreeNumber(numProc_, false);
-        }
+      else if (procMb)
+      {
+        auto& coll = procMb->collection();
+        if (!coll.hasTreeNumber(numProc_))
+          coll.addTree(phyloTree, numProc_);
+        else
+          coll.replaceTree(phyloTree, numProc_);
+        procMb->setTreeNumber(numProc_, false);
+      }
 
       auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites_, process_);
       auto llh = std::make_shared<SingleProcessPhyloLikelihood>(context, lik);
@@ -135,8 +134,7 @@ void DistanceEstimation::computeMatrix()
       if (autoProc)
         (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0") + llh->getParameterValue("BrLen1");
       else
-        (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0_"+TextTools::toString(numProc_)) + llh->getParameterValue("BrLen1_"+TextTools::toString(numProc_));
-
+        (*dist_)(i, j) = (*dist_)(j, i) = llh->getParameterValue("BrLen0_" + TextTools::toString(numProc_)) + llh->getParameterValue("BrLen1_" + TextTools::toString(numProc_));
     }
     if (verbose_ > 1 && ApplicationTools::message)
       ApplicationTools::message->endLine();
@@ -145,7 +143,6 @@ void DistanceEstimation::computeMatrix()
   // set back correct number for process, if needed
   if (procMb) // set back correct process number for pro
     procMb->setTreeNumber(treeN, false);
-
 }
 
 /******************************************************************************/

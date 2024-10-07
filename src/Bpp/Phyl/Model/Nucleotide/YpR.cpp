@@ -41,8 +41,7 @@ YpR::YpR(const YpR& ypr) :
   AbstractSubstitutionModel(ypr),
   pmodel_(ypr.pmodel_->clone()),
   nestedPrefix_(ypr.getNestedPrefix())
-{
-}
+{}
 
 void YpR::updateMatrices_()
 {
@@ -69,12 +68,11 @@ void YpR::updateMatrices_(double CgT, double cGA,
   a[1] = pmodel_->Qij(0, 2);
   a[2] = pmodel_->Qij(3, 1);
   a[3] = pmodel_->Qij(1, 3);
-  b[0] = (pmodel_->Qij(1, 0) + pmodel_->Qij(3, 0))/2;   // To limit numerical issues
-  b[1] = (pmodel_->Qij(1, 2) + pmodel_->Qij(3, 2))/2;
-  b[2] = (pmodel_->Qij(0, 1) + pmodel_->Qij(2, 1))/2;
-  b[3] = (pmodel_->Qij(0, 3) + pmodel_->Qij(2, 3))/2;
+  b[0] = (pmodel_->Qij(1, 0) + pmodel_->Qij(3, 0)) / 2;   // To limit numerical issues
+  b[1] = (pmodel_->Qij(1, 2) + pmodel_->Qij(3, 2)) / 2;
+  b[2] = (pmodel_->Qij(0, 1) + pmodel_->Qij(2, 1)) / 2;
+  b[3] = (pmodel_->Qij(0, 3) + pmodel_->Qij(2, 3)) / 2;
 
-  
 
   // M_1 on R C T
   RowMatrix<double> M1(3, 3);
@@ -107,7 +105,7 @@ void YpR::updateMatrices_(double CgT, double cGA,
   M2(3, 0) = pmodel_->Qij(3, 0);
   M2(3, 1) = pmodel_->Qij(3, 2);
   M2(3, 2) = pmodel_->Qij(3, 1);
-  M2(3, 3) = 0;   
+  M2(3, 3) = 0;
 
   // M_3 on A G Y
   RowMatrix<double> M3(3, 3);
@@ -328,13 +326,13 @@ void YpR::checkModel(const SubstitutionModelInterface& pm) const
 
   if ((pm.Qij(0, 1) != pm.Qij(2, 1)) || (pm.Qij(0, 3) != pm.Qij(2, 3))
       || (pm.Qij(1, 0) != pm.Qij(3, 0)) || (pm.Qij(1, 2) != pm.Qij(3, 2)))
-      throw Exception("Not R/Y Model " + pm.getName());
+    throw Exception("Not R/Y Model " + pm.getName());
 }
 
 void YpR::setNamespace(const std::string& prefix)
 {
   AbstractSubstitutionModel::setNamespace(prefix);
-  
+
   // We also need to update the namespace of the nested model:
   pmodel_->setNamespace(prefix + nestedPrefix_);
 }

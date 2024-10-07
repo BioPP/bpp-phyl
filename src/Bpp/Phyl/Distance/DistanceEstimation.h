@@ -78,9 +78,9 @@ public:
    *  - 4=3 + likelihood object verbose enabled
    */
   DistanceEstimation(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rateDist,
-    size_t verbose = 1) :
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rateDist,
+      size_t verbose = 1) :
     process_(),
     numProc_(0),
     sites_(0),
@@ -142,11 +142,11 @@ public:
    *  @param computeMat if true the computeMatrix() method is called.
    */
   DistanceEstimation(
-    std::shared_ptr<BranchModelInterface> model,
-    std::shared_ptr<DiscreteDistributionInterface> rateDist,
-    std::shared_ptr<const AlignmentDataInterface> sites,
-    size_t verbose = 1,
-    bool computeMat = true) :
+      std::shared_ptr<BranchModelInterface> model,
+      std::shared_ptr<DiscreteDistributionInterface> rateDist,
+      std::shared_ptr<const AlignmentDataInterface> sites,
+      size_t verbose = 1,
+      bool computeMat = true) :
     process_(),
     numProc_(0),
     sites_(sites),
@@ -280,7 +280,7 @@ public:
       return process_->matchParametersValues(parameters);
     return false;
   }
-  
+
   /**
    * @brief Specify a list of parameters to be estimated.
    *

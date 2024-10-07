@@ -214,7 +214,7 @@ public:
   inline ExtendedFloat operator-(const F& rhs) const
   {
     auto r = denorm_sub (*this, rhs);
-//      r.normalize ();
+    //      r.normalize ();
     return r;
   }
 

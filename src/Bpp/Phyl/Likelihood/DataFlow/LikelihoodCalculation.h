@@ -94,10 +94,10 @@ public:
     likelihood_.reset();
   }
 
-/*
- * @brief fix Factor such that valRef value becomes normal.
- *
- */
+  /*
+   * @brief fix Factor such that valRef value becomes normal.
+   *
+   */
 
 protected:
   /* @brief Build the likelihood DF  */

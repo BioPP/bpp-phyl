@@ -84,8 +84,8 @@ AllRatesSiteLikelihoods LikelihoodCalculationOnABranch::getSiteLikelihoodsForAll
 
 
 /****************************************
-* Construction methods
-****************************************/
+ * Construction methods
+ ****************************************/
 void LikelihoodCalculationOnABranch::makeLikelihoods()
 {
   if (!model_)

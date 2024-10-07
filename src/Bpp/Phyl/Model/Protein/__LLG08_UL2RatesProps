@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: CECILL-2.1
 
-if (getName()=="M1"){
-	rate_ = 1.446612;
-	proportion_ = 0.4883;
+if (getName() == "M1")
+{
+  rate_ = 1.446612;
+  proportion_ = 0.4883;
 }
 
 
-if (getName()=="M2"){
-	rate_ = 0.573812;
-	proportion_ = 0.5117;
+if (getName() == "M2")
+{
+  rate_ = 0.573812;
+  proportion_ = 0.5117;
 }
-
-

@@ -339,7 +339,7 @@ NodeRef Context::cached (NodeRef& newNode)
 
 void Context::clear()
 {
-  while (nodeCache_.size()!=0)
+  while (nodeCache_.size() != 0)
   {
     auto it =  nodeCache_.begin();
     erase(it->ref);

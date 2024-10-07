@@ -157,7 +157,6 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
     bool verbose,
     int warn)
 {
-  
   vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
   map<size_t, shared_ptr<PhyloTree>> mTree;
@@ -309,7 +308,7 @@ map<size_t, std::shared_ptr<PhyloTree>> PhylogeneticsApplicationTools::getPhyloT
       // Not optimal process: make random PhlyoTree directly
       auto treetemp = TreeTemplateTools::getRandomTree(names);
       treetemp->setBranchLengths(1.);
-      
+
       auto tree = PhyloTreeTools::buildFromTreeTemplate(*treetemp);
 
       if (mTree.find(num) != mTree.end())
@@ -490,8 +489,8 @@ std::unique_ptr<SubstitutionModelInterface> PhylogeneticsApplicationTools::getSu
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
   std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
-  mData[1]=data;
-  
+  mData[1] = data;
+
   auto model = bIO.readSubstitutionModel(alphabet, modelDescription, mData, 1, true);
 
   unparsedParams.insert(bIO.getUnparsedArguments().begin(), bIO.getUnparsedArguments().end());
@@ -526,7 +525,7 @@ std::unique_ptr<BranchModelInterface> PhylogeneticsApplicationTools::getBranchMo
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
   std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
-  mData[1]=data;
+  mData[1] = data;
 
   auto model = bIO.readBranchModel(alphabet, modelDescription, mData, 1, true);
   map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
@@ -584,7 +583,7 @@ map<size_t, std::shared_ptr<DiscreteDistributionInterface>> PhylogeneticsApplica
 
     string distDescription = ApplicationTools::getStringParameter(vratesName[i], paramDist, "", suffix, suffixIsOptional);
 
-    if (num!=0)
+    if (num != 0)
       mDist[num] = std::shared_ptr<DiscreteDistributionInterface>(bIO.readDiscreteDistribution(distDescription, true));
   }
 
@@ -1029,10 +1028,10 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
       else if (path.substr(0, 5) == "split")
       {
         auto pos = path.find("model");
-        
+
         if (pos == string::npos)
           throw Exception("PhylogeneticsApplicationTools::getModelScenarios. Missing identifier 'model' in scenario description: " + path);
-        
+
         auto poseq = path.find("=", pos);
         StringTokenizer stm(path.substr(poseq + 1), " ,()");
 
@@ -1042,10 +1041,10 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
         {
           string dmod = stm.nextToken();
           size_t num2 = TextTools::to<size_t>(dmod);
-        
+
           if (mModel.find(num2) == mModel.end())
             throw BadIntegerException("PhylogeneticsApplicationTools::getModelScenarios: Wrong model number", static_cast<int>(num2));
-        
+
           auto pSM = std::dynamic_pointer_cast<MixedTransitionModelInterface>(mModel.at(num2));
           if (!pSM)
             throw Exception("PhylogeneticsApplicationTools::getModelScenarios: Model number " + TextTools::toString(num2) + " ( " + mModel.at(num2)->getName() + " ) is not Mixed.");
@@ -1060,12 +1059,12 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
           auto nmod = pSM->getNumberOfModels();
 
           vector<vector<uint>> vvnmod2;
-          
-          if (vvnmod.size()==0)
+
+          if (vvnmod.size() == 0)
           {
             for (uint nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
             {
-              auto v2=vector<uint>({nm});
+              auto v2 = vector<uint>({nm});
               vvnmod2.push_back(v2);
             }
           }
@@ -1075,7 +1074,7 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
             {
               for (uint nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
               {
-                auto v2=vnmod;
+                auto v2 = vnmod;
                 v2.push_back(nm);
                 vvnmod2.push_back(v2);
               }
@@ -1085,13 +1084,15 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
         }
 
         // Finally, sets all paths
-        
+
         for (const auto& vn:vvnmod)
         {
           auto mp = std::make_shared<ModelPath>();
 
-          for (size_t j = 0; j<vpSM.size(); j++)
+          for (size_t j = 0; j < vpSM.size(); j++)
+          {
             mp->setModel(vpSM[j], Vuint({vn[j]}));
+          }
 
           mp->setLeadModel(vpSM[0]);
           somp[num]->addModelPath(mp);
@@ -1120,13 +1121,13 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
       somp[num]->complete();
     }
 
-    if (somp[num]->getNumberOfModelPaths()==0)
+    if (somp[num]->getNumberOfModelPaths() == 0)
       somp.erase(somp.find(num));
     else
       somp[num]->computeModelPathsProbabilities();
   }
 
-  
+
   return somp;
 }
 
@@ -1372,7 +1373,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       vNodes = SubProColl.tree(numTree).getAllEdgesIndexes();
     else
       vNodes = {0}
-    ;
+      ;
     mModBr[numModel] = vNodes;
 
     if (verbose)
@@ -2373,7 +2374,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
     int warn)
 {
   OptimizationTools::OptimizationOptions optopt(lik, params,  suffix, suffixIsOptional, verbose, warn);
-  
+
   if (optopt.optMethodModel == "None")
     return lik;
 
@@ -2384,7 +2385,7 @@ std::shared_ptr<PhyloLikelihoodInterface> PhylogeneticsApplicationTools::optimiz
   {
     if (verbose && optopt.nstep > 1)
       ApplicationTools::displayResult("# of precision steps", TextTools::toString(optopt.nstep));
-    
+
     optopt.parameters.matchParametersValues(lik->getParameters());
     n = OptimizationTools::optimizeNumericalParameters(lik, optopt);
   }
@@ -2557,7 +2558,7 @@ void PhylogeneticsApplicationTools::writePhyloTrees(
 
   if (!checkOnly)
   {
-    string outtrees="";
+    string outtrees = "";
     vector<size_t> vTN = spc.getTreeNumbers();
 
     for (size_t i = 0; i < vTN.size(); i++)
@@ -2579,7 +2580,7 @@ void PhylogeneticsApplicationTools::writePhyloTrees(
         nt->enableExtendedBootstrapProperty("NodeId");
 
       treeWriter->writePhyloTree(*tree, file + "_" + TextTools::toString(vTN[i]), true);
-      outtrees += (i==0?"":" ") + file + "_" + TextTools::toString(vTN[i]);
+      outtrees += (i == 0 ? "" : " ") + file + "_" + TextTools::toString(vTN[i]);
     }
     if (verbose)
       ApplicationTools::displayResult("Wrote trees to files : ", outtrees);
@@ -3668,8 +3669,8 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistributionIn
 }
 
 /************************
-* Substitution Mapping *
-************************/
+ * Substitution Mapping *
+ ************************/
 unique_ptr<SubstitutionCountInterface> PhylogeneticsApplicationTools::getSubstitutionCount(
     std::shared_ptr<const Alphabet> alphabet,
     std::shared_ptr<const SubstitutionModelInterface> model,
@@ -3794,7 +3795,7 @@ unique_ptr<SubstitutionRegisterInterface> PhylogeneticsApplicationTools::getSubs
       vreg->addRegister(std::move(sreg));
     }
 
-    if (vreg->getNumberOfSubstitutionTypes()==0)
+    if (vreg->getNumberOfSubstitutionTypes() == 0)
       throw Exception("Missing registers reg1, reg2, ... in description of Combination");
 
     reg = std::move(vreg);

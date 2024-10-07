@@ -232,7 +232,7 @@ IOTree::Element Newick::getElement(const string& elt) const
 
 shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<PhyloNode>  father, const string& description, unsigned int& nodeCounter, bool bootstrap, const string& propertyName, bool withId, bool verbose) const
 {
-//  cout << "NODE: " << description << endl;
+  //  cout << "NODE: " << description << endl;
   IOTree::Element elt = getElement(description);
 
   // New node:

@@ -27,7 +27,7 @@ namespace bpp
  * @param nbAxes The number of principal axes of the COA that have to be taken into account to optimize the 20 branch-specific equilibrium frequencies. This number is common to all branches, as
  * well as on the root, where frequencies are optimized with a MVAprotein object (See the ProteinFrequencySet class).
  **/
-  
+
 class CoalaCore
 {
 protected:
@@ -62,7 +62,7 @@ protected:
    * @param param boolean true if new parameters must be built (default: true)
    *
    **/
-  
+
   ParameterList computeCOA(const SequenceDataInterface& data, double pseudoCount = 0, bool param = true);
 
   std::vector<double> prodMatrixVector(RowMatrix<double>& P, std::vector<double>& V);

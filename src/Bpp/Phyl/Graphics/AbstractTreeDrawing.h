@@ -169,23 +169,32 @@ public:
   }
 
 public:
-  bool hasTree() const override { 
+  bool hasTree() const override
+  {
     if (tree_) return true;
-    else       return false;
+    else return false;
   }
 
-  const Tree& tree() const override {
-    if (hasTree()) {
+  const Tree& tree() const override
+  {
+    if (hasTree())
+    {
       return *tree_;
-    } else {
+    }
+    else
+    {
       throw Exception("AbstractTreeDrawing::tree(). No tree is associated.");
     }
   }
 
-  const TreeTemplate<INode>& treeTemplate() const {
-    if (hasTree()) {
+  const TreeTemplate<INode>& treeTemplate() const
+  {
+    if (hasTree())
+    {
       return *tree_;
-    } else {
+    }
+    else
+    {
       throw Exception("AbstractTreeDrawing::treeTemplate(). No tree is associated.");
     }
   }
@@ -292,7 +301,6 @@ public:
   virtual void treeHasChanged() = 0;
 
 protected:
-  
   void fireBeforeTreeEvent_(const DrawTreeEvent& event) const
   {
     for (unsigned int i = 0; i < listeners_.size(); i++)

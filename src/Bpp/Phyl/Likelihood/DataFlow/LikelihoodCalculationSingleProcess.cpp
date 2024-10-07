@@ -364,11 +364,11 @@ AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsFo
 
 
 /****************************************
-* Construction methods
-****************************************/
+ * Construction methods
+ ****************************************/
 void LikelihoodCalculationSingleProcess::makeRootFreqs_()
 {
-// Set root frequencies
+  // Set root frequencies
 
   size_t nbState = stateMap().getNumberOfModelStates();
   rFreqs_ = processNodes_.rootFreqsNode_ ? ConfiguredParametrizable::createRowVector<ConfiguredFrequencySet, FrequenciesFromFrequencySet, Eigen::RowVectorXd>(
@@ -456,7 +456,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
     // }
 
 
-//    sL = CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double> >::create(getContext_(), std::move(vLikRoot), RowVectorDimension (Eigen::Index(nbDistSite)));
+    //    sL = CWiseMean<RowLik, ReductionOf<RowLik>, ReductionOf<double> >::create(getContext_(), std::move(vLikRoot), RowVectorDimension (Eigen::Index(nbDistSite)));
 
     catProb_ = ProbabilitiesFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_});
     auto catProb = Convert<RowLik, Eigen::RowVectorXd>::create(getContext_(), {catProb_}, RowVectorDimension (Eigen::Index (vRateCatTrees_.size())));

@@ -399,8 +399,8 @@ public:
    * @return The set of root frequencies.
    */
   const FrequencySetInterface& rootFrequencySet() const
-  { 
-    if (rootFrequencies_) 
+  {
+    if (rootFrequencies_)
     {
       return *rootFrequencies_;
     }
@@ -410,7 +410,7 @@ public:
     }
   }
 
- /**
+  /**
    * @return The values of the root frequencies.
    */
   std::vector<double> getRootFrequencies() const

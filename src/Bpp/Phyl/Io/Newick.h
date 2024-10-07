@@ -136,7 +136,7 @@ public:
       bool withId = false,
       bool verbose = false) const;
 
-/** @} */
+  /** @} */
 
   /**
    * @name The OTree interface
@@ -218,58 +218,58 @@ protected:
 
   IOTree::Element getElement(const std::string& elt) const override;
 
-/**
- * @brief Get the Newick description of a subtree.
- *
- * @param tree The tree to convert.
- * @param node The top of the subtree to convert.
- * @param writeId Tells if node ids must be printed.
- *                This will overwrite bootstrap values if there are ones.
- *                Leaves id will be added to the leave names, separated by a '_' character.
- * @return A string in the parenthesis format.
- */
+  /**
+   * @brief Get the Newick description of a subtree.
+   *
+   * @param tree The tree to convert.
+   * @param node The top of the subtree to convert.
+   * @param writeId Tells if node ids must be printed.
+   *                This will overwrite bootstrap values if there are ones.
+   *                Leaves id will be added to the leave names, separated by a '_' character.
+   * @return A string in the parenthesis format.
+   */
 
   std::string nodeToParenthesis(const PhyloTree& tree, std::shared_ptr<PhyloNode> node, bool writeId = false) const;
 
-/* @brief Get the parenthesis description of a subtree.
- *
- * @param tree The tree
- * @param node The node defining the subtree.
- * @param bootstrap Tell is bootstrap values must be written.
- * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
- * The property should be a Number<double> object.
- * Otherwise, the content of the property with name 'propertyName' will be written.
- * In this later case, the property should be a String object.
- * @param propertyName The name of the property to use. Only used if bootstrap = false.
- * @return A string in the parenthesis format.
- */
+  /* @brief Get the parenthesis description of a subtree.
+   *
+   * @param tree The tree
+   * @param node The node defining the subtree.
+   * @param bootstrap Tell is bootstrap values must be written.
+   * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
+   * The property should be a Number<double> object.
+   * Otherwise, the content of the property with name 'propertyName' will be written.
+   * In this later case, the property should be a String object.
+   * @param propertyName The name of the property to use. Only used if bootstrap = false.
+   * @return A string in the parenthesis format.
+   */
 
   std::string nodeToParenthesis(const PhyloTree& tree, std::shared_ptr<PhyloNode> node, bool bootstrap, const std::string& propertyName) const;
 
-/**
- * @brief Get the parenthesis description of a tree.
- *
- * @param tree The tree to convert.
- * @param writeId Tells if node ids must be printed.
- *                This will overwrite bootstrap values if there are ones.
- *                Leaves id will be added to the leave names, separated by a '_' character.
- * @return A string in the parenthesis format.
- */
+  /**
+   * @brief Get the parenthesis description of a tree.
+   *
+   * @param tree The tree to convert.
+   * @param writeId Tells if node ids must be printed.
+   *                This will overwrite bootstrap values if there are ones.
+   *                Leaves id will be added to the leave names, separated by a '_' character.
+   * @return A string in the parenthesis format.
+   */
 
   std::string treeToParenthesis(const PhyloTree& tree, bool writeId = false) const;
 
-/**
- * @brief Get the parenthesis description of a tree.
- *
- * @param tree The tree to convert.
- * @param bootstrap Tell is bootstrap values must be written.
- * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
- * The property should be a Number<double> object.
- * Otherwise, the content of the property with name 'propertyName' will be written.
- * In this later case, the property should be a String object.
- * @param propertyName The name of the property to use. Only used if bootstrap = false.
- * @return A string in the parenthesis format.
- */
+  /**
+   * @brief Get the parenthesis description of a tree.
+   *
+   * @param tree The tree to convert.
+   * @param bootstrap Tell is bootstrap values must be written.
+   * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
+   * The property should be a Number<double> object.
+   * Otherwise, the content of the property with name 'propertyName' will be written.
+   * In this later case, the property should be a String object.
+   * @param propertyName The name of the property to use. Only used if bootstrap = false.
+   * @return A string in the parenthesis format.
+   */
   std::string treeToParenthesis(const PhyloTree& tree, bool bootstrap, const std::string& propertyName) const;
 };
 } // end of namespace bpp.

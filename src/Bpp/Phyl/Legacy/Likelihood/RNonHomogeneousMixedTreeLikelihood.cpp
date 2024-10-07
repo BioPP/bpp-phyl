@@ -537,8 +537,8 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
 }
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 void RNonHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& variable)
 {
   const Node* father, father2;
@@ -642,8 +642,8 @@ void RNonHomogeneousMixedTreeLikelihood::computeDownSubtreeDLikelihood(const Nod
 }
 
 /******************************************************************************
-*                           Second Order Derivatives                         *
-******************************************************************************/
+ *                           Second Order Derivatives                         *
+ ******************************************************************************/
 void RNonHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& variable)
 {
   const Node* father, father2;

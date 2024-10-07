@@ -2,21 +2,22 @@
 //
 // SPDX-License-Identifier: CECILL-2.1
 
-if (getName()=="Q1"){
-	rate_ = 1.647026;
-	proportion_ = 0.3203;
+if (getName() == "Q1")
+{
+  rate_ = 1.647026;
+  proportion_ = 0.3203;
 }
 
 
-if (getName()=="Q2"){
-	rate_ = 0.702126;
-	proportion_ = 0.2816;
+if (getName() == "Q2")
+{
+  rate_ = 0.702126;
+  proportion_ = 0.2816;
 }
 
 
-if (getName()=="Q3"){
-	rate_ = 0.690126;
-	proportion_ = 0.3981;
+if (getName() == "Q3")
+{
+  rate_ = 0.690126;
+  proportion_ = 0.3981;
 }
-
-

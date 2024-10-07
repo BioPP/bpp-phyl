@@ -261,7 +261,7 @@ void BppPhylogeneticsApplication::fixLikelihood(
           }
 
           shared_ptr<AlignmentDataInterface>  vDataok = SiteContainerTools::getSelectedSites(*vData, vsiteok);
-//          auto vDatamin = SiteContainerTools::getSelectedSites(*vData, vsitemin); Not taken into account yet
+          //          auto vDatamin = SiteContainerTools::getSelectedSites(*vData, vsitemin); Not taken into account yet
 
           sDP->setData(vDataok);
           logL = sDP->getValue();
@@ -283,8 +283,8 @@ void BppPhylogeneticsApplication::fixLikelihood(
 }
 
 
-void BppPhylogeneticsApplication::displayParameters(const PhyloLikelihoodInterface& tl, bool displaylL) const{
-
+void BppPhylogeneticsApplication::displayParameters(const PhyloLikelihoodInterface& tl, bool displaylL) const
+{
   // Write parameters to screen:
   if (displaylL)
     ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl.getValue(), 15));

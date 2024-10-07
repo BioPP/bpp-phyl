@@ -2,21 +2,22 @@
 //
 // SPDX-License-Identifier: CECILL-2.1
 
-if (getName()=="Other"){
-	rate_ = 0.9323975;
-	proportion_ = 0.4316;
+if (getName() == "Other")
+{
+  rate_ = 0.9323975;
+  proportion_ = 0.4316;
 }
 
 
-if (getName()=="Extended"){
-	rate_ = 0.8575975;
-	proportion_ = 0.2078;
+if (getName() == "Extended")
+{
+  rate_ = 0.8575975;
+  proportion_ = 0.2078;
 }
 
 
-if (getName()=="Helix"){
-	rate_ = 1.162975;
-	proportion_ = 0.3606;
+if (getName() == "Helix")
+{
+  rate_ = 1.162975;
+  proportion_ = 0.3606;
 }
-
-

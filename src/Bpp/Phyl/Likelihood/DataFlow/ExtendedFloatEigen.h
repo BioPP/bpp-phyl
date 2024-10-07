@@ -995,7 +995,7 @@ public:
     return efm_->float_part();
   }
 
-    
+
   Self operator=(const Array& rhs)
   {
     efm_->float_part().array() = rhs.float_part();
@@ -1043,7 +1043,6 @@ public:
     r.normalize();
     return r;
   }
-
 };
 
 template<int R, int C>

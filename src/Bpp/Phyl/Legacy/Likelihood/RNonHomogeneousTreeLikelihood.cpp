@@ -281,8 +281,8 @@ double RNonHomogeneousTreeLikelihood::getValue() const
 }
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 double RNonHomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
     size_t site,
     size_t rateClass) const
@@ -752,8 +752,8 @@ void RNonHomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node* no
 }
 
 /******************************************************************************
-*                           Second Order Derivatives                         *
-******************************************************************************/
+ *                           Second Order Derivatives                         *
+ ******************************************************************************/
 double RNonHomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
     size_t site,
     size_t rateClass) const

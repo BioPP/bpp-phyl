@@ -131,7 +131,7 @@ void RN95s::updateMatrices_()
   rightEigenVectors_(2, 3) = 1;
   rightEigenVectors_(3, 3) = 1;
 
-// Need formula
+  // Need formula
 
   if (abs(c_1) < NumConstants::TINY() ||  abs(c_2) < NumConstants::TINY())
   {

@@ -238,8 +238,8 @@ double DRHomogeneousTreeLikelihood::getValue() const
 }
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node* node)
 {
   const Node* father = node->getFather();
@@ -327,8 +327,8 @@ double DRHomogeneousTreeLikelihood::getFirstOrderDerivative(const std::string& v
 }
 
 /******************************************************************************
-*                           Second Order Derivatives                         *
-******************************************************************************/
+ *                           Second Order Derivatives                         *
+ ******************************************************************************/
 void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node* node)
 {
   const Node* father = node->getFather();
@@ -441,8 +441,8 @@ void DRHomogeneousTreeLikelihood::computeTreeLikelihood()
 
 void DRHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node* node)
 {
-//  if(node->isLeaf()) return;
-// cout << node->getId() << "\t" << (node->hasName()?node->getName():"") << endl;
+  //  if(node->isLeaf()) return;
+  // cout << node->getId() << "\t" << (node->hasName()?node->getName():"") << endl;
   if (node->getNumberOfSons() == 0)
     return;
 

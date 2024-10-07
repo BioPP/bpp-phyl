@@ -174,8 +174,8 @@ void DRHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
 }
 
 /******************************************************************************
-*                           Likelihoods                          *
-******************************************************************************/
+ *                           Likelihoods                          *
+ ******************************************************************************/
 double DRHomogeneousMixedTreeLikelihood::getLikelihood() const
 {
   double l = 1.;
@@ -356,8 +356,8 @@ void DRHomogeneousMixedTreeLikelihood::computeLikelihoodAtNode_(const Node* node
 }
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 void DRHomogeneousMixedTreeLikelihood::computeTreeDLikelihoods()
 {
   for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
@@ -410,8 +410,8 @@ double DRHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const std::stri
 
 
 /******************************************************************************
-*                           Second Order Derivatives                          *
-******************************************************************************/
+ *                           Second Order Derivatives                          *
+ ******************************************************************************/
 void DRHomogeneousMixedTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node* node)
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)

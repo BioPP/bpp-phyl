@@ -167,8 +167,8 @@ void RHomogeneousMixedTreeLikelihood::computeTreeLikelihood()
 }
 
 /******************************************************************************
-*                                   Likelihoods                              *
-******************************************************************************/
+ *                                   Likelihoods                              *
+ ******************************************************************************/
 double RHomogeneousMixedTreeLikelihood::getLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   double res = 0;
@@ -211,8 +211,8 @@ double RHomogeneousMixedTreeLikelihood::getLogLikelihoodForASiteForARateClassFor
 
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 double RHomogeneousMixedTreeLikelihood::getDLikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   double res = 0;
@@ -234,8 +234,8 @@ void RHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& varia
 }
 
 /******************************************************************************
-*                           Second Order Derivatives                          *
-******************************************************************************/
+ *                           Second Order Derivatives                          *
+ ******************************************************************************/
 double RHomogeneousMixedTreeLikelihood::getD2LikelihoodForASiteForARateClass(size_t site, size_t rateClass) const
 {
   double res = 0;

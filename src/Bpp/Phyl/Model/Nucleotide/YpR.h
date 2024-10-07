@@ -34,7 +34,7 @@ namespace bpp
  * \beta_A  & \alpha_C & \beta_G  & .
  * \end{pmatrix}
  * @f]
-*
+ *
  * From this model, the rates are a multiplication of the rates for the
  * letters of the triplet.
  * For the first letter, on alphabet R, C, T:

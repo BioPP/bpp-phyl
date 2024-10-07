@@ -259,7 +259,7 @@ public:
       std::shared_ptr<const Alphabet> alphabet,
       std::shared_ptr<const GeneticCode> gCode,
       const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
-      size_t nData, 
+      size_t nData,
       const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& sharedparams,
       const std::vector<double>& rateFreqs,
@@ -269,20 +269,20 @@ public:
       int warn = 1);
 
   static std::unique_ptr<FrequencySetInterface> getRootFrequencySet(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    std::shared_ptr<const AlignmentDataInterface> data,
-    const std::map<std::string, std::string>& params,
-    std::map<std::string, std::string>& sharedparams,
-    const std::vector<double>& rateFreqs,
-    const std::string& suffix = "",
-    bool suffixIsOptional = true,
-    bool verbose = true,
-    int warn = 1)
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      std::shared_ptr<const AlignmentDataInterface> data,
+      const std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& sharedparams,
+      const std::vector<double>& rateFreqs,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1)
   {
     std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
-    mData[1]=data;
-    
+    mData[1] = data;
+
     return getRootFrequencySet(alphabet, gCode, mData, 1, params, sharedparams, rateFreqs, suffix, suffixIsOptional, verbose, warn);
   }
 
@@ -321,7 +321,6 @@ public:
    *
    * @return A new FrequencySet object according to options specified.
    */
-  
   static std::unique_ptr<FrequencySetInterface> getFrequencySet(
       std::shared_ptr<const Alphabet> alphabet,
       std::shared_ptr<const GeneticCode> gCode,
@@ -333,7 +332,7 @@ public:
       int warn = 1)
   {
     std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
-    mData[1]=data;
+    mData[1] = data;
 
     return getFrequencySet(alphabet, gCode, freqDescription, mData, 1, sharedParams, rateFreqs, verbose, warn);
   }
@@ -362,15 +361,15 @@ public:
    * @return A new FrequencySet object according to options specified.
    */
   static std::unique_ptr<FrequencySetInterface> getFrequencySet(
-    std::shared_ptr<const Alphabet> alphabet,
-    std::shared_ptr<const GeneticCode> gCode,
-    const std::string& freqDescription,
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
-    size_t nData,
-    std::map<std::string, std::string>& sharedParams,
-    const std::vector<double>& rateFreqs,
-    bool verbose = true,
-    int warn = 1);
+      std::shared_ptr<const Alphabet> alphabet,
+      std::shared_ptr<const GeneticCode> gCode,
+      const std::string& freqDescription,
+      const std::map<size_t, std::shared_ptr<const AlignmentDataInterface>>& mData,
+      size_t nData,
+      std::map<std::string, std::string>& sharedParams,
+      const std::vector<double>& rateFreqs,
+      bool verbose = true,
+      int warn = 1);
 
   /**
    * @brief Build map of ModelPaths from a map of BranchModel.

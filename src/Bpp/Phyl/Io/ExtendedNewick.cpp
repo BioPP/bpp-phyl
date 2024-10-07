@@ -164,9 +164,9 @@ IODAG::Element ExtendedNewick::getElement(const string& elt) const
 
 /************************************************************/
 
-shared_ptr<PhyloNode>  ExtendedNewick::parenthesisToNode(PhyloDAG& dag, std::shared_ptr<PhyloNode>  father, const std::string& description, unsigned int& nodeCounter, unsigned int& branchCounter, std::map<std::string, std::shared_ptr<PhyloNode> >& mapEvent, bool withId, bool verbose) const
+shared_ptr<PhyloNode>  ExtendedNewick::parenthesisToNode(PhyloDAG& dag, std::shared_ptr<PhyloNode>  father, const std::string& description, unsigned int& nodeCounter, unsigned int& branchCounter, std::map<std::string, std::shared_ptr<PhyloNode>>& mapEvent, bool withId, bool verbose) const
 {
-//  cerr << "NODE: " << description << endl;
+  //  cerr << "NODE: " << description << endl;
   IODAG::Element elt = getElement(description);
 
   // Is the node a connecting one?
@@ -176,24 +176,24 @@ shared_ptr<PhyloNode>  ExtendedNewick::parenthesisToNode(PhyloDAG& dag, std::sha
 
   shared_ptr<PhyloNode> node;
 
-  
+
   // Check Event:
   if (poshash != string::npos)
   {
-    string evId = annot.substr(poshash+1);
+    string evId = annot.substr(poshash + 1);
     string label = annot.substr(0, poshash);
 
-    if (mapEvent.find(evId)!=mapEvent.end())
-      node=mapEvent[evId];
+    if (mapEvent.find(evId) != mapEvent.end())
+      node = mapEvent[evId];
     else
     {
       node = std::make_shared<PhyloNode>(label);
-      if (evId[0]=='H')
+      if (evId[0] == 'H')
       {
         auto event = std::make_shared<NodeEvent>(NodeEvent::hybridizationEvent);
         node->setProperty("event", *event);
       }
-      mapEvent[evId]=node;
+      mapEvent[evId] = node;
       dag.createNode(node);
     }
   }
@@ -204,17 +204,17 @@ shared_ptr<PhyloNode>  ExtendedNewick::parenthesisToNode(PhyloDAG& dag, std::sha
   }
 
   shared_ptr<PhyloBranch> branch(father ? new PhyloBranch() : 0);
-  
+
   if (father)
   {
     dag.link(father, node, branch);
-    
+
     if (!TextTools::isEmpty(elt.length))
       branch->setLength(TextTools::toDouble(elt.length));
   }
 
-  
-  if (annot.size()!=0)
+
+  if (annot.size() != 0)
   {
     if (withId)
     {
@@ -256,8 +256,9 @@ shared_ptr<PhyloNode>  ExtendedNewick::parenthesisToNode(PhyloDAG& dag, std::sha
   {
     // This is a node:
     for (size_t i = 0; i < elements.size(); i++)
+    {
       parenthesisToNode(dag, node, elements[i], nodeCounter, branchCounter, mapEvent, withId, verbose);
-
+    }
   }
 
   if (!withId)
@@ -267,8 +268,9 @@ shared_ptr<PhyloNode>  ExtendedNewick::parenthesisToNode(PhyloDAG& dag, std::sha
       dag.setNodeIndex(node, nodeCounter);
       nodeCounter++;
     }
-    
-    if (branch){
+
+    if (branch)
+    {
       dag.setEdgeIndex(branch, branchCounter);
       branchCounter++;
     }
@@ -289,8 +291,8 @@ unique_ptr<PhyloDAG> ExtendedNewick::parenthesisToPhyloDAG(const string& descrip
   string content = description.substr(0, semi);
   unsigned int nodeCounter = 0;
   unsigned int branchCounter = 0;
-  map<std::string, shared_ptr<PhyloNode> > mapEvent;
-  
+  map<std::string, shared_ptr<PhyloNode>> mapEvent;
+
   auto dag = make_unique<PhyloDAG>();
   shared_ptr<PhyloNode> root = parenthesisToNode(*dag, 0, content, nodeCounter, branchCounter, mapEvent, withId, verbose);
   dag->rootAt(root);
@@ -328,8 +330,9 @@ void ExtendedNewick::write_(const vector<const PhyloDAG*>& dags, ostream& out) c
     throw IOException ("ExtendedNewick::write: failed to write to stream");
   }
   for (unsigned int i = 0; i < dags.size(); i++)
+  {
     out << dagToParenthesis(*dags[i], writeId_);
-
+  }
 }
 
 /******************************************************************************/
@@ -339,14 +342,14 @@ string ExtendedNewick::edgeToParenthesis(const PhyloDAG& dag, const std::shared_
   ostringstream s;
   shared_ptr<PhyloNode> node = dag.getSon(edge);
 
-  if (std::find(writtenNodes.begin(), writtenNodes.end(), node)!=writtenNodes.end())
+  if (std::find(writtenNodes.begin(), writtenNodes.end(), node) != writtenNodes.end())
   {
     s << node->getName();
     if (edge->hasLength())
       s << ":" << edge->getLength();
     return s.str();
   }
-  
+
   if (dag.getNumberOfSons(node) != 0)
   {
     s << "(";
@@ -375,7 +378,7 @@ string ExtendedNewick::edgeToParenthesis(const PhyloDAG& dag, const std::shared_
     s << ":" << edge->getLength();
 
   writtenNodes.push_back(node);
-  
+
   return s.str();
 }
 
@@ -389,7 +392,7 @@ string ExtendedNewick::dagToParenthesis(const PhyloDAG& dag, bool writeId) const
   shared_ptr<PhyloNode>  root = dag.getRoot();
 
   std::vector<shared_ptr<PhyloNode>> writtenNodes;
-  
+
   std::vector<shared_ptr<PhyloBranch>> rEdges = dag.getOutgoingEdges(root);
 
   if (dag.isRooted())

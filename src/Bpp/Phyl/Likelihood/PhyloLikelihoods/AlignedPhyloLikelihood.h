@@ -97,7 +97,7 @@ public:
 
   virtual VDataLik getLikelihoodPerSite() const = 0;
 
-/** @} */
+  /** @} */
 
   friend class AlignedPhyloLikelihoodSet;
 };

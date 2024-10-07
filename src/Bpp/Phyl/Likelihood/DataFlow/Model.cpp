@@ -276,7 +276,7 @@ std::shared_ptr<TransitionFunctionFromModel> TransitionFunctionFromModel::create
   checkDependencyVectorSize (typeid (Self), deps, 3);
   checkNthDependencyIs<ConfiguredModel>(typeid (Self), deps, 0);
   checkNthDependencyIs<ConfiguredParameter>(typeid (Self), deps, 1);
-//  checkNthDependencyIs<size_t> (typeid (Self), deps, 2);
+  //  checkNthDependencyIs<size_t> (typeid (Self), deps, 2);
 
   return cachedAs<TransitionFunctionFromModel>(c, std::make_shared<TransitionFunctionFromModel>(std::move (deps), dim));
 }
@@ -342,7 +342,7 @@ void TransitionFunctionFromModel::compute ()
           return numeric::convert(model->dLik_dt(numeric::convert<Eigen::Dynamic, 1>(values, dimin), brlen), dimout);
         case 2:
           return numeric::convert(model->d2Lik_dt2(numeric::convert<Eigen::Dynamic, 1>(values, dimin), brlen), dimout);
-//          return numeric::convert<VectorLik, Eigen::VectorXd>(model->d2Lik_dt2(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen), dim);
+        //          return numeric::convert<VectorLik, Eigen::VectorXd>(model->d2Lik_dt2(numeric::convert<Eigen::VectorXd, VectorLik>(values, dim), brlen), dim);
         default:
           throw Exception("TransitionFunctionFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
         }

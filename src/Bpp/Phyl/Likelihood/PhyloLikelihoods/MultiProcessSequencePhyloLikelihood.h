@@ -143,7 +143,6 @@ public:
    * @brief Return the number of process used for computation.
    */
   size_t getNumberOfSubstitutionProcess() const { return vLikCal_.size(); }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_MULTIPROCESSSEQUENCEPHYLOLIKELIHOOD_H

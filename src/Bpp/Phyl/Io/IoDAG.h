@@ -79,11 +79,10 @@ public:
 };
 
 
-
 /**
  * @brief General interface for DAG writers.
  */
-  
+
 class OPhyloDAG :
   public virtual IODAG
 {

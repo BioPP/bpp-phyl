@@ -87,5 +87,5 @@ void AlignedPhyloLikelihoodMixture::fireParameterChanged(const ParameterList& pa
 void AlignedPhyloLikelihoodMixture::setPhyloProb(const Simplex& si)
 {
   simplex_->matchParametersValues(si.getParameters());
-//  matchParametersValues(simplex_.getParameters());
+  //  matchParametersValues(simplex_.getParameters());
 }

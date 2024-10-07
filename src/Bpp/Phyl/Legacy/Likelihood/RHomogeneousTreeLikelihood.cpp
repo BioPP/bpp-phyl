@@ -262,8 +262,8 @@ double RHomogeneousTreeLikelihood::getValue() const
 }
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 double RHomogeneousTreeLikelihood::getDLikelihoodForASiteForARateClass(
     size_t site,
     size_t rateClass) const
@@ -515,8 +515,8 @@ void RHomogeneousTreeLikelihood::computeDownSubtreeDLikelihood(const Node* node)
 }
 
 /******************************************************************************
-*                           Second Order Derivatives                         *
-******************************************************************************/
+ *                           Second Order Derivatives                         *
+ ******************************************************************************/
 double RHomogeneousTreeLikelihood::getD2LikelihoodForASiteForARateClass(
     size_t site,
     size_t rateClass) const

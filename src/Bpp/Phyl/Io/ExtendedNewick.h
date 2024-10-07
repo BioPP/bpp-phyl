@@ -43,7 +43,7 @@ protected:
   bool allowComments_;
   bool writeId_;
   bool verbose_;
-  
+
 public:
   /**
    * @brief Build a new ExtendedNewick reader/writer.
@@ -89,7 +89,7 @@ private:
       const std::string& description,
       unsigned int& nodeCounter,
       unsigned int& branchCounter,
-      std::map<std::string, std::shared_ptr<PhyloNode> >& mapEvent,
+      std::map<std::string, std::shared_ptr<PhyloNode>>& mapEvent,
       bool withId,
       bool verbose) const;
 
@@ -99,7 +99,7 @@ public:
       bool withId,
       bool verbose = false) const;
 
-/** @} */
+  /** @} */
 
   /**
    * @name The ODAGraph interface
@@ -145,29 +145,28 @@ protected:
 
   Element getElement(const std::string& elt) const override;
 
-/**
- * @brief Get the ExtendedNewick description of a subdag.
- *
- * @param dag The dag to convert.
- * @param node The top of the subdag to convert.
- * @param writeId Tells if node ids must be printed.
- *                Leaves id will be added to the leave names, separated by a '_' character.
- * @return A string in the parenthesis format.
- */
+  /**
+   * @brief Get the ExtendedNewick description of a subdag.
+   *
+   * @param dag The dag to convert.
+   * @param node The top of the subdag to convert.
+   * @param writeId Tells if node ids must be printed.
+   *                Leaves id will be added to the leave names, separated by a '_' character.
+   * @return A string in the parenthesis format.
+   */
 
   std::string edgeToParenthesis(const PhyloDAG& dag, std::shared_ptr<PhyloBranch> edge, std::vector<std::shared_ptr<PhyloNode>>& writtenNodes, bool writeId = false) const;
 
-/**
- * @brief Get the parenthesis description of a tree.
- *
- * @param dag The dag to convert.
- * @param writeId Tells if node ids must be printed.
- *                Leaves id will be added to the leave names, separated by a '_' character.
- * @return A string in the parenthesis format.
- */
+  /**
+   * @brief Get the parenthesis description of a tree.
+   *
+   * @param dag The dag to convert.
+   * @param writeId Tells if node ids must be printed.
+   *                Leaves id will be added to the leave names, separated by a '_' character.
+   * @return A string in the parenthesis format.
+   */
 
   std::string dagToParenthesis(const PhyloDAG& dag, bool writeId = false) const;
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_IO_EXTENDEDNEWICK_H

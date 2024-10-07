@@ -149,7 +149,7 @@ private:
   Dimension<T> targetDimension_;
 
 public:
-/// Build a new TransitionMatrixFromModel node with the given output dimensions.
+  /// Build a new TransitionMatrixFromModel node with the given output dimensions.
   TransitionMatrixFromModel (NodeRefVec&& deps, const Dimension<T>& dim);
 
   std::string debugInfo () const final;

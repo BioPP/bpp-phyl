@@ -123,7 +123,7 @@ private:
   Dimension<T> targetDimension_;
 
 public:
-/// Build a new TransitionMatrixFromTransitionMatrix node with the given output dimensions.
+  /// Build a new TransitionMatrixFromTransitionMatrix node with the given output dimensions.
   TransitionMatrixFromTransitionMatrix (NodeRefVec&& deps, const Dimension<T>& dim);
 
   std::string debugInfo () const final;

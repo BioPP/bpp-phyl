@@ -558,7 +558,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     unique_ptr<ReversibleSubstitutionModelInterface> nestedModel(dynamic_cast<ReversibleSubstitutionModelInterface*>(tmpModel.release()));
     if (!nestedModel.get())
       throw Exception("G01 model restricted to Reversible models. Ask developpers to fix it.");
-        
+
     map<string, string> unparsedParameterValuesNestedModel(nestedReader.getUnparsedArguments());
 
     BppORateDistributionFormat rateReader(false);
@@ -901,8 +901,9 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
 
   if (parseArguments)
   {
-    if (nData){
-      if (mData.find(nData)==mData.end())
+    if (nData)
+    {
+      if (mData.find(nData) == mData.end())
         throw Exception("Unknown data for number " + TextTools::toString(nData));
 
       initialize_(*model, mData.at(nData));
@@ -910,7 +911,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
     else
       initialize_(*model, 0);
   }
-  
+
   return model;
 }
 
@@ -976,7 +977,7 @@ void BppOSubstitutionModelFormat::updateParameters_(
 
   if (args.find("initFreqs") != args.end())
     // Specific case since already used
-    if (pref!="Coala.")
+    if (pref != "Coala.")
       unparsedArguments_[pref + "initFreqs"] = args["initFreqs"];
   if (args.find("initFreqs.observedPseudoCount") != args.end())
     unparsedArguments_[pref + "initFreqs.observedPseudoCount"] = args["initFreqs.observedPseudoCount"];

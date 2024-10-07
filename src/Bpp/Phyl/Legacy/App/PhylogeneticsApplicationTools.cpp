@@ -514,7 +514,7 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
   std::map<size_t, std::shared_ptr<const AlignmentDataInterface>> mData;
-  mData[1]=data;
+  mData[1] = data;
 
   shared_ptr<TransitionModelInterface> tmp = bIO.readTransitionModel(alphabet, tmpDesc, mData, 1, false);
 

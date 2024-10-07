@@ -256,7 +256,7 @@ unique_ptr<TransitionModelInterface> BppOTransitionModelFormat::readTransitionMo
         throw Exception("'nbCat' argument is compulsory for model 'LGL08_CAT'");
 
       unsigned int nbCat = TextTools::to<unsigned int>(args["nbCat"]);
-      if (nbCat==0)
+      if (nbCat == 0)
         throw Exception("nbCat argument has to be 10, 20, 30, 40, 50 or 60.");
       model = make_unique<LGL08_CAT>(alpha, nbCat);
     }

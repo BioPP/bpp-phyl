@@ -39,7 +39,7 @@ namespace bpp
  */
 
 class AwareNode // :
-// public std::enable_shared_from_this<AwareNode>
+    // public std::enable_shared_from_this<AwareNode>
 {
 protected:
   unsigned int id_;
@@ -107,11 +107,11 @@ public:
   void updateTree(AssociationTreeGraphImplObserver<N, E, I>* tree, unsigned int index);
 
 
-/**
- * @name Identity
- *
- * @{
- */
+  /**
+   * @name Identity
+   *
+   * @{
+   */
 
   /**
    * @brief Get the node's id.
@@ -192,7 +192,7 @@ public:
    */
   virtual AwareNode* getFather() { return father_; }
 
-//  virtual int getFatherId() const { return father_->getId(); }
+  //  virtual int getFatherId() const { return father_->getId(); }
 
   /**
    * @brief Set the father node of this node.

@@ -261,8 +261,8 @@ double DRNonHomogeneousTreeLikelihood::getValue() const
 }
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node* node)
 {
   const Node* father = node->getFather();
@@ -388,8 +388,8 @@ double DRNonHomogeneousTreeLikelihood::getFirstOrderDerivative(const string& var
 }
 
 /******************************************************************************
-*                           Second Order Derivatives                         *
-******************************************************************************/
+ *                           Second Order Derivatives                         *
+ ******************************************************************************/
 void DRNonHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node* node)
 {
   const Node* father = node->getFather();
@@ -808,8 +808,8 @@ void DRNonHomogeneousTreeLikelihood::computeTreeLikelihood()
 
 void DRNonHomogeneousTreeLikelihood::computeSubtreeLikelihoodPostfix(const Node* node)
 {
-//  if(node->isLeaf()) return;
-// cout << node->getId() << "\t" << (node->hasName()?node->getName():"") << endl;
+  //  if(node->isLeaf()) return;
+  // cout << node->getId() << "\t" << (node->hasName()?node->getName():"") << endl;
   if (node->getNumberOfSons() == 0)
     return;
 
@@ -1048,7 +1048,7 @@ void DRNonHomogeneousTreeLikelihood::computeRootLikelihood()
 
 void DRNonHomogeneousTreeLikelihood::computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const
 {
-//  const Node * node = tree_->getNode(nodeId);
+  //  const Node * node = tree_->getNode(nodeId);
   int nodeId = node->getId();
   likelihoodArray.resize(nbDistinctSites_);
   map<int, VVVdouble>* likelihoods_node = &likelihoodData_->getLikelihoodArrays(node->getId());

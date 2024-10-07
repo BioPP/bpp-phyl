@@ -57,9 +57,9 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   if (args.find("data") != args.end())
     nData = TextTools::to<size_t>(args["data"]);
 
-  if (nData && mData.find(nData)==mData.end())
+  if (nData && mData.find(nData) == mData.end())
     throw Exception("Unknown data for number " + TextTools::toString(nData));
-     
+
   if (freqName == "Fixed")
   {
     if (AlphabetTools::isNucleicAlphabet(*alphabet))
@@ -527,16 +527,16 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
     BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
 
     auto model = nestedReader.readTransitionModel(alphabet, args["model"], mData, nData, false);
-    if (dynamic_cast<Coala*>(model.get())==0)
+    if (dynamic_cast<Coala*>(model.get()) == 0)
       throw Exception("MVAprotein frequency set needs a Coala model");
 
     auto coala = unique_ptr<Coala>(dynamic_cast<Coala*>(model.release()));
-    //map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+    // map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     auto mvaFS = make_unique<MvaFrequencySet>(dynamic_pointer_cast<const ProteicAlphabet>(alphabet));
-    //mvaFS->setParamValues(args);
+    // mvaFS->setParamValues(args);
     mvaFS->initSet(*coala);
-    
+
     pFS = std::move(mvaFS);
   }
   else
@@ -598,7 +598,7 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
   std::shared_ptr<const AlignmentDataInterface> data(0);
   if (nData)
     data = mData.at(nData);
-  
+
   if (args.find("values") != args.end())
   {
     unparsedArguments_["init"] = "values" + args["values"];
@@ -813,7 +813,7 @@ void BppOFrequencySetFormat::writeFrequencySet(
   catch (bad_cast&)
   {}
 
-// All remaining parameters
+  // All remaining parameters
   if (!oValues)
   {
     BppOParametrizableFormat bIO;
@@ -837,7 +837,7 @@ void BppOFrequencySetFormat::initialize_(
     {
       if (!data)
         throw Exception("Missing data number for init 'observed'.");
-      
+
       unsigned int psc = 0;
       if (unparsedArguments_.find("init.observedPseudoCount") != unparsedArguments_.end())
         psc = TextTools::to<unsigned int>(unparsedArguments_["init.observedPseudoCount"]);

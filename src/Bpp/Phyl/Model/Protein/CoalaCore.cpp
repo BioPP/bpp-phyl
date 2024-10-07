@@ -63,17 +63,17 @@ ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, double ps
     {
       counts[k] += pseudoCount;
     }
-    
+
     // Unknown characters are now ignored:
     double t = 0;
     for (int k = 0; k < 20; ++k)
     {
       t += counts[k];
     }
-    
+
     for (int k = 0; k < 20; ++k)
     {
-      freqs.at(i)[k] = counts[k]/t;
+      freqs.at(i)[k] = counts[k] / t;
     }
   }
 
@@ -144,7 +144,7 @@ ParameterList CoalaCore::computeCOA(const SequenceDataInterface& data, double ps
       if (paramValues_.hasParameter("AxPos" + TextTools::toString(i)))
         pList.addParameter(new Parameter("Coala.AxPos" + TextTools::toString(i), paramValues_.getParameterValue("AxPos" + TextTools::toString(i).substr(0, 8)), constraint));
       else
-        pList.addParameter(new Parameter("Coala.AxPos" + TextTools::toString(i), (minCoord+maxCoord)/2, constraint));
+        pList.addParameter(new Parameter("Coala.AxPos" + TextTools::toString(i), (minCoord + maxCoord) / 2, constraint));
     }
   }
   return pList;

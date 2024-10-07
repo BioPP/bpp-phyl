@@ -70,8 +70,8 @@ public:
   /**
    * @brief ComputeCounts
    * @param unresolvedOption  mgmt of gaps in the counts (default: counted as zeros)
-   * @param threshold 
-   * @param verbose 
+   * @param threshold
+   * @param verbose
    */
 
   virtual void computeCounts(short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,

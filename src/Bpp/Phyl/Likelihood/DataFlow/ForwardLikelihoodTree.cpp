@@ -31,7 +31,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
           sites (site, sequenceIndex, statemap_.getAlphabetStateAsInt(size_t(state)));
     }
   }
-  
+
   return Sequence_DF::create (context_, std::move(initCondLik), sequenceName);
 }
 
