@@ -102,7 +102,7 @@ public:
     return *this;
   }
 
-//  ModelScenario* clone() const { return new ModelScenario(*this); }
+  //  ModelScenario* clone() const { return new ModelScenario(*this); }
 
   /**
    * @brief Resets the list of the ModelPaths
@@ -152,7 +152,7 @@ public:
    *     the list)
    */
 
-//  void addToModelPath(size_t nM, const Vint& vnS, int nH = -1);
+  //  void addToModelPath(size_t nM, const Vint& vnS, int nH = -1);
 
   size_t getNumberOfModelPaths() const { return vModelPaths_.size(); }
 

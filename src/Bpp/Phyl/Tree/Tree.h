@@ -174,7 +174,7 @@ public:
 
   virtual bool hasFather(int nodeId) const = 0;
 
-/** @} */
+  /** @} */
 
   /**
    * @name Dealing with node names.

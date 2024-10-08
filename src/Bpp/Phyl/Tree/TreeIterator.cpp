@@ -168,7 +168,7 @@ const Node* PreOrderTreeIterator::next()
 const Node* InOrderTreeIterator::doStep(const Node* node)
 {
   // if the node has unvisited left sons -> visit the leftmost unvisited son
-  size_t lastVisitedSon = 0; //jdutheil on 02/10/24: The init value is never used, but there to present a compilation warning.
+  size_t lastVisitedSon = 0; // jdutheil on 02/10/24: The init value is never used, but there to present a compilation warning.
   if (nodeToSonVisited_[node->getId()])
     lastVisitedSon = nodeToLastVisitedSonIndex_[node->getId()];
   size_t numOfSons = node->getNumberOfSons();

@@ -36,15 +36,13 @@ public:
     isLengthDefined_(false),
     length_(0),
     properties_()
-  {
-  }
+  {}
 
   PhyloBranch(double length) :
     isLengthDefined_(true),
     length_(length),
     properties_()
-  {
-  }
+  {}
 
   PhyloBranch(const PhyloBranchParam& branch);
 

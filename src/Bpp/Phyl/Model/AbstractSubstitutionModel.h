@@ -541,7 +541,6 @@ public:
     {
       fr = 1.0 / static_cast<double>(size_);
     }
-
   }
 
   virtual ~AbstractReversibleSubstitutionModel() {}

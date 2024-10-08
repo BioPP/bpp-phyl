@@ -289,7 +289,7 @@ unique_ptr<SiteSimulationResult> SimpleSubstitutionProcessSiteSimulator::dSimula
   root->state_ = initialStateIndex;
 
   auto ssr = make_unique<SiteSimulationResult>(phyloTree_, process_->getStateMap(), initialStateIndex);
-  
+
   evolveInternal(root, rateClass, ssr.get());
 
   return ssr;

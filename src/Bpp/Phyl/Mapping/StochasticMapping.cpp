@@ -32,7 +32,7 @@ using namespace std;
 StochasticMapping::StochasticMapping(std::shared_ptr<LikelihoodCalculationSingleProcess> drl, size_t numOfMappings) :
   likelihood_(drl),
   tree_(make_shared<PhyloTree>(drl->substitutionProcess().parametrizablePhyloTree())),
-//  mappingParameters_(drl->getSubstitutionProcess()),
+  //  mappingParameters_(drl->getSubstitutionProcess()),
   fractionalProbabilities_(),
   ConditionalProbabilities_(),
   nodesCounter_(0),
@@ -54,8 +54,8 @@ void StochasticMapping::generateStochasticMapping(vector<shared_ptr<PhyloTree>>&
 {
   for (size_t i = 0; i < numOfMappings_; ++i)
   {
-//    auto mapping = std::shared_ptr<PhyloTree>(*baseTree);
-//   setLeafsStates(mapping);
+    //    auto mapping = std::shared_ptr<PhyloTree>(*baseTree);
+    //   setLeafsStates(mapping);
 
     //   /* step 2: simulate a set of ancestral states, based on the fractional likelihoods from step 1 */
     //   sampleAncestrals(mapping);
@@ -318,11 +318,11 @@ void StochasticMapping::setLeafsStates(std::shared_ptr<PhyloTree> mapping)
   for (auto& leaf: leaves)
   {
     string nodeName = leaf->getName();
-//    auto lstates = likelihoods_->getNode(mapping->getNodeIndex(leaf))
-//   size_t leafState = static_cast<size_t>(tl_->getAlphabetStateAsInt(leafsStates->getSequence(nodeName).getValue(0)));
-//     //note@Laurent (Julien on 17/06/20): I thing the above line is incorrect, in particulat the use of the getAlphabetStateAsInt function. It is supposed to take as input a state index (size_t) and return the corresponding character state as an integer. Here you give as input to the method already a sequence character (integer). In most cases that will still work as the characters states for resolved characters are usually 0..n, and there corresponding states 0..n. But it will fail for models with gaps (character state -1) and Markov modulated models (character states 0..n, but state index 0..k*n)
-//     setNodeState(node, leafState);
-//   }
+    //    auto lstates = likelihoods_->getNode(mapping->getNodeIndex(leaf))
+    //   size_t leafState = static_cast<size_t>(tl_->getAlphabetStateAsInt(leafsStates->getSequence(nodeName).getValue(0)));
+    //     //note@Laurent (Julien on 17/06/20): I thing the above line is incorrect, in particulat the use of the getAlphabetStateAsInt function. It is supposed to take as input a state index (size_t) and return the corresponding character state as an integer. Here you give as input to the method already a sequence character (integer). In most cases that will still work as the characters states for resolved characters are usually 0..n, and there corresponding states 0..n. But it will fail for models with gaps (character state -1) and Markov modulated models (character states 0..n, but state index 0..k*n)
+    //     setNodeState(node, leafState);
+    //   }
   }
 }
 
@@ -547,17 +547,17 @@ void StochasticMapping::sampleAncestrals(shared_ptr<PhyloTree> mapping)
 
 void StochasticMapping::sampleMutationsGivenAncestrals(shared_ptr<PhyloTree> mapping)
 {
-//   TreeTemplate<Node>* ttree = dynamic_cast<TreeTemplate<Node>*>(mapping);
-//   vector<Node*> nodes = ttree->getNodes();
-//   nodesCounter_ = nodes.size() - 1; // initialize nodesCounter_ according to the number of nodes in the base tree
-//   for (size_t i = 0; i < nodes.size(); ++i)
-//   {
-//     Node* son = nodes[i];
-//     if (son->hasFather())
-//     {
-//       sampleMutationsGivenAncestralsPerBranch(son);
-//     }
-//   }
+  //   TreeTemplate<Node>* ttree = dynamic_cast<TreeTemplate<Node>*>(mapping);
+  //   vector<Node*> nodes = ttree->getNodes();
+  //   nodesCounter_ = nodes.size() - 1; // initialize nodesCounter_ according to the number of nodes in the base tree
+  //   for (size_t i = 0; i < nodes.size(); ++i)
+  //   {
+  //     Node* son = nodes[i];
+  //     if (son->hasFather())
+  //     {
+  //       sampleMutationsGivenAncestralsPerBranch(son);
+  //     }
+  //   }
 }
 
 /******************************************************************************/

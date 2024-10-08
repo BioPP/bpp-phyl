@@ -90,7 +90,6 @@ public:
   {
     return "OneChange";
   }
-
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_MODEL_ONECHANGETRANSITIONMODEL_H

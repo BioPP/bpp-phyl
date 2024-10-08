@@ -391,7 +391,7 @@ size_t DRTreeParsimonyScore::getNodeState(const Node* node)
 
 void DRTreeParsimonyScore::computeSolution()
 {
-  map< int, vector<size_t> > nodeToPossibleStates;
+  map< int, vector<size_t>> nodeToPossibleStates;
   vector<Node*> nodes = treeTemplate_().getNodes();
   vector<Bitset> nodeBitsets;
   for (size_t n = 0; n < nodes.size(); ++n)
@@ -400,7 +400,7 @@ void DRTreeParsimonyScore::computeSolution()
     if (nodes[n]->isLeaf())
     {
       nodeBitsets = parsimonyData_->leafData(nodes[n]->getId()).getBitsetsArray();
-    }    
+    }
     else if (nodes[n]->hasFather())
     {
       nodeBitsets = parsimonyData_->nodeData(nodes[n]->getFather()->getId()).getBitsetsArrayForNeighbor(nodes[n]->getId());  // extract the bitset corresponding to the son from its father's bitSet array
@@ -420,7 +420,7 @@ void DRTreeParsimonyScore::computeSolution()
       nodeBitsets = parsimonyData_->nodeData(neighborId).getBitsetsArrayForNeighbor(nodes[n]->getId());
     }
     // map the node id to its possible states
-    vector <size_t> possibleStates;
+    vector<size_t> possibleStates;
     for (size_t s = 0; s < stateMap().getNumberOfModelStates(); ++s)
     {
       if (nodeBitsets[0].test(s))

@@ -56,7 +56,7 @@ protected:
    * mappings.
    */
 
-//    SimpleSubstitutionProcessSequenceSimulator mappingParameters_;
+  //    SimpleSubstitutionProcessSequenceSimulator mappingParameters_;
 
   /*
    * @briefvector that holds the fractional probabilities per state
@@ -81,7 +81,7 @@ public:
   StochasticMapping(const StochasticMapping& sm) :
     likelihood_(sm.likelihood_),
     tree_(sm.tree_),
-//      mappingParameters_(likelihood_->getSubstitutionProcess()),
+    //      mappingParameters_(likelihood_->getSubstitutionProcess()),
     fractionalProbabilities_(sm.fractionalProbabilities_),
     ConditionalProbabilities_(sm.ConditionalProbabilities_),
     nodesCounter_(0), numOfMappings_(sm.numOfMappings_)

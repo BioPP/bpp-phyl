@@ -26,8 +26,7 @@ PhyloBranch::PhyloBranch(const PhyloBranchParam& branch) :
   isLengthDefined_(true),
   length_(branch.getLength()),
   properties_()
-{
-}
+{}
 
 /** Assignation operator: *****************************************************/
 

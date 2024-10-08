@@ -39,12 +39,12 @@ OptimizationTools::OptimizationTools() {}
 OptimizationTools::~OptimizationTools() {}
 
 OptimizationTools::OptimizationOptions::OptimizationOptions(
-  std::shared_ptr<PhyloLikelihoodInterface> lik,
-  const std::map<std::string, std::string>& params,
-  const std::string& suffix,
-  bool suffixIsOptional,
-  bool verb,
-  int warn) :
+    std::shared_ptr<PhyloLikelihoodInterface> lik,
+    const std::map<std::string, std::string>& params,
+    const std::string& suffix,
+    bool suffixIsOptional,
+    bool verb,
+    int warn) :
   parameters(),
   listener(nullptr),
   nstep(1),
@@ -73,36 +73,36 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
     optMethodModel = OptimizationTools::OPTIMIZATION_NEWTON;
   else
     throw Exception("Unknown optimization method " + optMethodModel);
-  
+
   nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, warn + 1);
 
 
   // VERBOSITY
-  
+
   verbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2, suffix, suffixIsOptional, warn + 1);
 
-  //MESSAGE
-  
+  // MESSAGE
+
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   messenger =
-    (mhPath == "none") ? nullptr :
-    (mhPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
+      (mhPath == "none") ? nullptr :
+      (mhPath == "std") ? ApplicationTools::message :
+      make_shared<StlOutputStream>(make_unique<ofstream>(mhPath.c_str(), ios::out));
   if (verb)
     ApplicationTools::displayResult("Message handler", mhPath);
 
   // PROFILE
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   profiler =
-    (prPath == "none") ? nullptr :
-    (prPath == "std") ? ApplicationTools::message :
-    make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
+      (prPath == "none") ? nullptr :
+      (prPath == "std") ? ApplicationTools::message :
+      make_shared<StlOutputStream>(make_unique<ofstream>(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
   if (verb)
     ApplicationTools::displayResult("Profiler", prPath);
 
-  
+
   bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, warn + 1);
   if (scaleFirst)
   {
@@ -319,7 +319,7 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
   }
   else
     throw Exception("Unknown derivatives algorithm: '" + order + "'.");
-  
+
   if (verb)
     ApplicationTools::displayResult("Optimization method", optMethodModel);
   if (verb)
@@ -337,8 +337,6 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
   useClock = (clock == "Global");
   if (verb)
     ApplicationTools::displayResult("Molecular clock", clock);
-
-
 }
 
 /******************************************************************************/
@@ -390,12 +388,12 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     ParameterList plTmp = lik->getSubstitutionModelParameters();
     plTmp.addParameters(lik->getRootFrequenciesParameters());
     ParameterList plsm = optopt.parameters.getCommonParametersWith(plTmp);
-    
+
     desc->addOptimizer("Substitution model parameters", make_shared<SimpleMultiDimensions>(f), plsm.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
 
     ParameterList plrd = optopt.parameters.getCommonParametersWith(lik->getRateDistributionParameters());
     desc->addOptimizer("Rate distribution parameters", make_shared<SimpleMultiDimensions>(f), plrd.getParameterNames(), 0, MetaOptimizerInfos::IT_TYPE_STEP);
-    
+
     poptimizer = make_unique<MetaOptimizer>(f, std::move(desc), optopt.nstep);
   }
   else if (optopt.optMethodModel == OPTIMIZATION_BFGS)
@@ -435,8 +433,8 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   poptimizer->init(pl);
   poptimizer->optimize();
 
-//  optopt.parameters.setAllParametersValues(poptimizer->getParameters());
-  
+  //  optopt.parameters.setAllParametersValues(poptimizer->getParameters());
+
   if (optopt.verbose > 0)
     ApplicationTools::displayMessage("\n");
 
@@ -552,7 +550,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
     // Reset parameters to remove constraints:
     pl = f->getParameters().createSubList(optopt.parameters.getParameterNames());
-    }
+  }
 
   // Build optimizer:
   shared_ptr<AbstractNumericalDerivative> fnum;
@@ -685,8 +683,8 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
   std::vector<unique_ptr<TreeTemplate<Node>>> vTree;
   std::vector<double> vLik;
 
-  size_t nstep=0;
-  while (test && nstep<100)
+  size_t nstep = 0;
+  while (test && nstep < 100)
   {
     // Compute matrice:
     if (optopt.verbose > 0)
@@ -717,31 +715,31 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
 
     reconstructionMethod.setDistanceMatrix(*matrix);
     reconstructionMethod.computeTree();
-    
+
     tree = make_unique<TreeTemplate<Node>>(reconstructionMethod.tree());
 
     vTree.push_back(std::move(tree));
-    
+
     if (estimationMethod.getVerbose() > 0)
       ApplicationTools::displayTaskDone();
 
     size_t nbTree = vTree.size();
-    const auto& ltree = vTree[nbTree-1];
+    const auto& ltree = vTree[nbTree - 1];
 
-    if (vTree.size()>1)
+    if (vTree.size() > 1)
     {
       for (size_t iT = 0; iT < nbTree - 1; iT++)
       {
         const auto& pTree = vTree[iT];
         int rf = TreeTools::robinsonFouldsDistance(*pTree, *ltree);
-       // if (optopt.verbose > 0)
+        // if (optopt.verbose > 0)
         ApplicationTools::displayResult("Topo. distance with iteration " + TextTools::toString(iT + 1), TextTools::toString(rf));
         test &= (rf != 0);
         if (!test)
           break;
       }
     }
-    
+
     if ((param != DISTANCEMETHOD_ITERATIONS) || !test)
       break; // Ends here.
 
@@ -751,27 +749,26 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     auto phyloTree  = make_shared<ParametrizablePhyloTree>(*PhyloTreeTools::buildFromTreeTemplate(*ltree));
     if (autoProc)
       autoProc->setPhyloTree(*phyloTree);
-    else
-      if (procMb)
-      {
-        auto& coll = procMb->collection();
-        size_t maxTNb = procMb->getTreeNumber();
-        coll.replaceTree(phyloTree, maxTNb);
-      }
+    else if (procMb)
+    {
+      auto& coll = procMb->collection();
+      size_t maxTNb = procMb->getTreeNumber();
+      coll.replaceTree(phyloTree, maxTNb);
+    }
 
     auto lik     = make_shared<LikelihoodCalculationSingleProcess>(context, estimationMethod.getData(), process);
     auto tl      = make_shared<SingleProcessPhyloLikelihood>(context, lik);
 
     vLik.push_back(tl->getValue());
-    
+
     // hide opt verbose
-    optopt.verbose= estimationMethod.getVerbose()>0?uint(estimationMethod.getVerbose()-1):0;
+    optopt.verbose = estimationMethod.getVerbose() > 0 ? uint(estimationMethod.getVerbose() - 1) : 0;
 
     optimizeNumericalParameters(tl, optopt);
     process->matchParametersValues(tl->getParameters());
 
     estimationMethod.matchParametersValues(process->getParameters());
-    
+
     auto trtemp = std::make_shared<ParametrizablePhyloTree>(*tl->tree());
     const PhyloTree trt2(*trtemp);
     tree.reset(TreeTemplateTools::buildFromPhyloTree(trt2).release());
@@ -798,7 +795,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
   }
 
   size_t posM = static_cast<size_t>(std::distance(vLik.begin(), std::min_element(vLik.begin(), vLik.end())));
-  
+
   return std::move(vTree[posM]);
 }
 

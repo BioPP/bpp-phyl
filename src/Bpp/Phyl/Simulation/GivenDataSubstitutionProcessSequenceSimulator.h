@@ -37,7 +37,7 @@ private:
    */
 
   std::vector<uint> vPriorBranch_;
-  
+
 public:
   GivenDataSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, std::vector<uint> vPrior = std::vector<uint>()) :
     calcul_(calcul), vSiteSim_(), vPriorBranch_(vPrior)

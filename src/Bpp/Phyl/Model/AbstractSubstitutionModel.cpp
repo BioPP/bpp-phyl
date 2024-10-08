@@ -282,7 +282,7 @@ void AbstractSubstitutionModel::updateMatrices_()
       // pb to find unique null eigenvalue
       isNonSingular_ = (vNullEv.size() == 1);
 
-      size_t nulleigen=0;
+      size_t nulleigen = 0;
 
       double val;
       if (vNullEv.size() > 1)

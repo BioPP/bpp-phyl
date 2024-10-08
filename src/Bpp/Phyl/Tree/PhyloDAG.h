@@ -76,7 +76,7 @@ public:
    *@brief set indexes to nodes & edges.
    * For each node, one (arbitrary) edge has the same index.
    */
-  
+
   void resetNodesId();
 
   void setBranchLengths(double l);

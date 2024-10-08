@@ -378,9 +378,9 @@ public:
    * @param check if models assignment on branches is correct
    *
    */
-  
+
   void setTreeNumber(size_t nTree, bool check = true);
-  
+
   size_t getTreeNumber() const { return nTree_; }
 
   const BranchModelInterface& model(unsigned int nodeId, size_t classIndex) const override

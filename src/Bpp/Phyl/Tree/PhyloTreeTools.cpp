@@ -246,9 +246,9 @@ double PhyloTreeTools::bestRootPosition_(const PhyloTree& tree, const std::share
   m2 = statFromNode_(tree, node2);
   A = 4 * m1.N * (m2.N * length) * length;
   B = 4 * length * (m2.N * m1.sum - m1.N * m2.sum - length * m1.N * m2.N);
-//   C = (m1.N + m2.N) * (m1.squaredSum + m2.squaredSum) + m1.N * length * m2.N * length +
-//     2 * m1.N * length * m2.sum - 2 * m2.N * length * m1.sum -
-//     (m1.sum + m2.sum) * (m1.sum + m2.sum);
+  //   C = (m1.N + m2.N) * (m1.squaredSum + m2.squaredSum) + m1.N * length * m2.N * length +
+  //     2 * m1.N * length * m2.sum - 2 * m2.N * length * m1.sum -
+  //     (m1.sum + m2.sum) * (m1.sum + m2.sum);
 
   if (A < 1e-20)
     x = 0.5;

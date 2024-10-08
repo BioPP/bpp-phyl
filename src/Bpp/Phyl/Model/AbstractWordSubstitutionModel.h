@@ -158,7 +158,7 @@ public:
    * @param num The number of models involved.
    * @param prefix the Namespace.
    */
-  
+
   AbstractWordSubstitutionModel(
       std::unique_ptr<SubstitutionModelInterface> model,
       unsigned int num,

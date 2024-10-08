@@ -75,12 +75,12 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
     const auto model = edge->getModel();
     auto outid = tree_.getEdgeIndex(edge);
 
-    
+
     if (edge->useProb())
       continue;
 
     bool useLik = (std::find(vPriorBranch_.begin(), vPriorBranch_.end(), edge->getSpeciesIndex()) == vPriorBranch_.end());
-    
+
     const auto transmodel = dynamic_pointer_cast<const TransitionModelInterface>(model);
     if (!transmodel)
       throw Exception("SubstitutionProcessSiteSimulator::init : model "  + model->getName() + " on branch " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a TransitionModel.");
@@ -198,12 +198,14 @@ void GivenDataSubstitutionProcessSiteSimulator::init()
         else
         {
           for (size_t c = 0; c < nbClasses_; c++)
+          {
             vprob[c].push_back(x);
+          }
         }
-        
+
         node->sons_.push_back(tree_.getSon(edge));
       }
-      
+
       for (size_t c = 0; c < nbClasses_; c++)
       {
         vprob[c] /= VectorTools::sum(vprob[c]);

@@ -153,7 +153,9 @@ public:
     std::vector<size_t> mstates = getFinalStates();
     std::vector<int> astates(mstates.size());
     for (size_t i = 0; i < mstates.size(); ++i)
+    {
       astates[i] = statemap_->getAlphabetStateAsInt(mstates[i]);
+    }
 
     auto alphabet = statemap_->getAlphabet();
     return std::make_unique<Site>(astates, alphabet);

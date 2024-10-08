@@ -275,8 +275,8 @@ public:
 
 protected:
   void init_(const Node* node,
-  std::shared_ptr<const SiteContainerInterface> sites,
-  std::shared_ptr<const StateMapInterface> stateMap);
+      std::shared_ptr<const SiteContainerInterface> sites,
+      std::shared_ptr<const StateMapInterface> stateMap);
 
   void reInit_(const Node* node);
 };

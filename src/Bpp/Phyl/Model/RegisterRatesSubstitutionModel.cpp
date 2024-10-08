@@ -24,7 +24,7 @@ RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(
   nbTypes_(reg.getNumberOfSubstitutionTypes()),
   vRates_(reg.getNumberOfSubstitutionTypes())
 {
-//  getSubstitutionModel().enableEigenDecomposition(false);
+  //  getSubstitutionModel().enableEigenDecomposition(false);
 
   // record register types
   isScalable_ = isNormalized;

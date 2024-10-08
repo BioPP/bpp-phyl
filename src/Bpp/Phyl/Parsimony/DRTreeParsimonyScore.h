@@ -153,14 +153,14 @@ public:
   static std::string PARSIMONY_SOLUTION_STATE;
 
   /**
-   * @brief Sets the state of a node in a mapping 
+   * @brief Sets the state of a node in a mapping
    * @param node               The node to get the state of
    * @param state              The state that needs to be assigned to the node
    */
   void setNodeState(Node* node, size_t state);
 
   /**
-   * @brief Extracts the state of a node in a mapping 
+   * @brief Extracts the state of a node in a mapping
    * @param node              The node to get the state of
    * @return                  Node state is int
    */
@@ -168,7 +168,7 @@ public:
 
   /**
    * @brief Compute a maximum parsimony solution in DELTRAN manner.
-   */  
+   */
   void computeSolution();
   /**@} */
 };

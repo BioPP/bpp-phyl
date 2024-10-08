@@ -139,7 +139,6 @@ public:
    * @param leafName The name of the leaf node.
    * @throw NodeNotFoundException If the node is not found.
    */
-  
   template<class N>
   static void dropLeaf(TreeTemplate<N>& tree, const std::string& leafName)
   {
@@ -1091,7 +1090,7 @@ public:
    */
   static void deleteBranchProperties(Node& node, const std::vector<std::string>& propertyNames);
 
-/** @} */
+  /** @} */
 
 
   /**

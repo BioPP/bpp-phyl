@@ -111,7 +111,7 @@ void SubstitutionProcessCollection::replaceParametrizable(std::shared_ptr<Parame
   if (parametrizableIndex < 1)
     throw BadIntegerException("SubstitutionProcessCollection::addParametrizable: parametrizableIndex should be at least 1.", (int)parametrizableIndex);
 
-  
+
   ParameterList pl;
   if (std::dynamic_pointer_cast<BranchModelInterface>(parametrizable))
   {
@@ -120,7 +120,7 @@ void SubstitutionProcessCollection::replaceParametrizable(std::shared_ptr<Parame
       addParametrizable(parametrizable, parametrizableIndex, withParameters);
       return;
     }
-    getParameters_().deleteParameters(modelColl_.getParametersForObject(parametrizableIndex).getParameterNames(),false);
+    getParameters_().deleteParameters(modelColl_.getParametersForObject(parametrizableIndex).getParameterNames(), false);
     modelColl_.replaceObject(std::dynamic_pointer_cast<BranchModelInterface>(parametrizable), parametrizableIndex);
     pl = modelColl_.getParametersForObject(parametrizableIndex);
   }
@@ -131,7 +131,7 @@ void SubstitutionProcessCollection::replaceParametrizable(std::shared_ptr<Parame
       addParametrizable(parametrizable, parametrizableIndex, withParameters);
       return;
     }
-    getParameters_().deleteParameters(freqColl_.getParametersForObject(parametrizableIndex).getParameterNames(),false);
+    getParameters_().deleteParameters(freqColl_.getParametersForObject(parametrizableIndex).getParameterNames(), false);
     freqColl_.replaceObject(std::dynamic_pointer_cast<FrequencySetInterface>(parametrizable), parametrizableIndex);
     pl = freqColl_.getParametersForObject(parametrizableIndex);
   }
@@ -142,7 +142,7 @@ void SubstitutionProcessCollection::replaceParametrizable(std::shared_ptr<Parame
       addParametrizable(parametrizable, parametrizableIndex, withParameters);
       return;
     }
-    getParameters_().deleteParameters(distColl_.getParametersForObject(parametrizableIndex).getParameterNames(),false);
+    getParameters_().deleteParameters(distColl_.getParametersForObject(parametrizableIndex).getParameterNames(), false);
     distColl_.replaceObject(std::dynamic_pointer_cast<DiscreteDistributionInterface>(parametrizable), parametrizableIndex);
     pl = distColl_.getParametersForObject(parametrizableIndex);
   }
@@ -153,7 +153,7 @@ void SubstitutionProcessCollection::replaceParametrizable(std::shared_ptr<Parame
       addParametrizable(parametrizable, parametrizableIndex, withParameters);
       return;
     }
-    getParameters_().deleteParameters(treeColl_.getParametersForObject(parametrizableIndex).getParameterNames(),false);
+    getParameters_().deleteParameters(treeColl_.getParametersForObject(parametrizableIndex).getParameterNames(), false);
     treeColl_.replaceObject(std::dynamic_pointer_cast<ParametrizablePhyloTree>(parametrizable), parametrizableIndex);
     pl = treeColl_.getParametersForObject(parametrizableIndex);
   }

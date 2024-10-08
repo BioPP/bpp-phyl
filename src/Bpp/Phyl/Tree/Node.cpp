@@ -77,11 +77,13 @@ void Node::addSubTree(const PhyloTree& tree, std::shared_ptr<PhyloNode> phyloNod
   // features of the node
   auto vnames = phyloNode->getPropertyNames();
   for (const auto& name:vnames)
+  {
     setNodeProperty(name, *phyloNode->getProperty(name));
+  }
 
   if (phyloNode->hasName())
     setName(phyloNode->getName());
-  
+
   // look at sons
   vector<shared_ptr<PhyloNode>> sons = tree.getSons(phyloNode);
   for (auto& son : sons)
@@ -100,7 +102,7 @@ void Node::addSubTree(const PhyloTree& tree, std::shared_ptr<PhyloNode> phyloNod
       s1->setBranchProperty(name, *phylobranch->getProperty(name));
     }
 
-    // recursive 
+    // recursive
     s1->addSubTree(tree, son);
 
     // addSon

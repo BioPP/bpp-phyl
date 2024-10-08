@@ -583,7 +583,7 @@ unique_ptr<TreeTemplate<Node>> TreeTemplateTools::buildFromPhyloTree(const Phylo
   Node* root = new Node();
   auto phroot = treetemp.getRoot();
   root->addSubTree(treetemp, phroot);
-  
+
   auto tree = make_unique<TreeTemplate<Node>>(root);
   return tree;
 }

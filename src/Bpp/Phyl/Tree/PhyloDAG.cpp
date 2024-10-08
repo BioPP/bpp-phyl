@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: CECILL-2.1
 
-//#include "../Likelihood/ParametrizablePhyloDAG.h"
+// #include "../Likelihood/ParametrizablePhyloDAG.h"
 #include "PhyloDAG.h"
 
 using namespace bpp;
@@ -40,12 +40,12 @@ void PhyloDAG::resetNodesId()
     }
   }
 
-  size_t eid=0;
+  size_t eid = 0;
   for (auto j = nodes.size(); j < branches.size(); j++)
   {
     while (hasEdgeIndex(branches[eid]))
       eid++;
-    setEdgeIndex(branches[eid],(uint)j);
+    setEdgeIndex(branches[eid], (uint)j);
   }
 }
 
@@ -105,7 +105,7 @@ void PhyloDAG::pruneDAG(std::vector<string> leaves)
 
       std::vector<shared_ptr<PhyloNode>>::iterator vfatit;  // one vector  per leaf removed to avoid too large vector
 
-      for (vfatit = vfat.begin(); vfatit!=vfat.end();)
+      for (vfatit = vfat.begin(); vfatit != vfat.end();)
       {
         if (hasNode(*vfatit) && isLeaf(*vfatit))
         {
@@ -217,4 +217,3 @@ PhyloDAG& PhyloDAG::operator*=(const PhyloDAG& phylodag)
 
   return *this;
 }
-

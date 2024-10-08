@@ -1177,9 +1177,9 @@ double TreeTools::bestRootPosition_(Tree& tree, int nodeId1, int nodeId2, double
   m2 = statFromNode_(tree, nodeId2);
   A = 4 * m1.N * (m2.N * length) * length;
   B = 4 * length * (m2.N * m1.sum - m1.N * m2.sum - length * m1.N * m2.N);
-//   C = (m1.N + m2.N) * (m1.squaredSum + m2.squaredSum) + m1.N * length * m2.N * length +
-//     2 * m1.N * length * m2.sum - 2 * m2.N * length * m1.sum -
-//     (m1.sum + m2.sum) * (m1.sum + m2.sum);
+  //   C = (m1.N + m2.N) * (m1.squaredSum + m2.squaredSum) + m1.N * length * m2.N * length +
+  //     2 * m1.N * length * m2.sum - 2 * m2.N * length * m1.sum -
+  //     (m1.sum + m2.sum) * (m1.sum + m2.sum);
 
   if (A < 1e-20)
     x = 0.5;
@@ -1249,6 +1249,6 @@ unique_ptr<Tree> TreeTools::MRPMultilabel(const vector<unique_ptr<Tree>>& vecTr)
   auto MPScore = make_shared<DRTreeParsimonyScore>(startTree, sites, false);
   MPScore = LegacyOptimizationTools::optimizeTreeNNI(MPScore, 0);
   auto retTree = make_unique<TreeTemplate<Node>>(MPScore->tree());
-  
+
   return retTree;
 }

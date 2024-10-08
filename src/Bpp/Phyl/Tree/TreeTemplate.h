@@ -390,18 +390,26 @@ public:
 
   virtual const N* getRootNode() const { return root_; }
 
-  virtual N& rootNode() {
-    if (root_) {
+  virtual N& rootNode()
+  {
+    if (root_)
+    {
       return *root_;
-    } else {
+    }
+    else
+    {
       throw NullPointerException("TreeTemplate::rootNode. No associated root node.");
     }
   }
 
-  virtual const N& rootNode() const {
-    if (root_) {
+  virtual const N& rootNode() const
+  {
+    if (root_)
+    {
       return *root_;
-    } else {
+    }
+    else
+    {
       throw NullPointerException("TreeTemplate::rootNode const. No associated root node.");
     }
   }

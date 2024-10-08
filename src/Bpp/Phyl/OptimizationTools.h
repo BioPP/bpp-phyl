@@ -96,12 +96,12 @@ public:
    */
   class OptimizationOptions
   {
-  public:
+public:
     ParameterList parameters;
     std::shared_ptr<OptimizationListener> listener;
     std::string backupFile;
     unsigned int nstep;
-    double tolerance; 
+    double tolerance;
     unsigned int nbEvalMax;
     std::shared_ptr<OutputStream> messenger;
     std::shared_ptr<OutputStream> profiler;
@@ -125,18 +125,17 @@ public:
       useClock(0),
       verbose(1),
       optMethodDeriv(OPTIMIZATION_NEWTON),
-      optMethodModel(OPTIMIZATION_BRENT){};
+      optMethodModel(OPTIMIZATION_BRENT){}
 
     OptimizationOptions(
-      std::shared_ptr<PhyloLikelihoodInterface> lik,
-      const std::map<std::string, std::string>& params,
-      const std::string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verb = true,
-      int warn = 1);
-
+        std::shared_ptr<PhyloLikelihoodInterface> lik,
+        const std::map<std::string, std::string>& params,
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verb = true,
+        int warn = 1);
   };
-  
+
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
    *
@@ -152,7 +151,7 @@ public:
   static unsigned int optimizeNumericalParameters(
       std::shared_ptr<PhyloLikelihoodInterface> lik,
       const OptimizationOptions& optopt);
-  
+
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
    *

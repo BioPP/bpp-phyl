@@ -171,7 +171,7 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator_()
 {
   size_t nbmod = VSubMod_.size();
 
-// Generator
+  // Generator
 
   if (sChangingPos_.size() == 0)
   {

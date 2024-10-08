@@ -305,7 +305,7 @@ void AbstractWordSubstitutionModel::fillBasicGenerator_()
   size_t nbmod = VSubMod_.size();
   size_t salph = getNumberOfStates();
 
-// Generator
+  // Generator
 
   RowMatrix<double> gk;
 
