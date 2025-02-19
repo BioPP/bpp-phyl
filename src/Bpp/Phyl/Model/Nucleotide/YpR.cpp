@@ -26,7 +26,8 @@ YpR::YpR(
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(alph, make_shared<CanonicalStateMap>(alph, false), prefix),
   pmodel_(pm->clone()),
-  nestedPrefix_(pm->getNamespace())
+  nestedPrefix_(pm->getNamespace()),
+  negchecked_(false)
 {
   pmodel_->setNamespace(prefix + nestedPrefix_);
   pmodel_->enableEigenDecomposition(0);
@@ -40,7 +41,8 @@ YpR::YpR(const YpR& ypr) :
   AbstractParameterAliasable(ypr),
   AbstractSubstitutionModel(ypr),
   pmodel_(ypr.pmodel_->clone()),
-  nestedPrefix_(ypr.getNestedPrefix())
+  nestedPrefix_(ypr.getNestedPrefix()),
+  negchecked_(false)
 {}
 
 void YpR::updateMatrices_()
@@ -324,9 +326,18 @@ void YpR::checkModel(const SubstitutionModelInterface& pm) const
   // Check that the model is good for YpR, ie transversion rates do
   // not depend on the origin state
 
-  if ((pm.Qij(0, 1) != pm.Qij(2, 1)) || (pm.Qij(0, 3) != pm.Qij(2, 3))
-      || (pm.Qij(1, 0) != pm.Qij(3, 0)) || (pm.Qij(1, 2) != pm.Qij(3, 2)))
-    throw Exception("Not R/Y Model " + pm.getName());
+  if (!negchecked_) // has never returned negative test
+  {
+    
+    if ((pm.Qij(0, 1) != pm.Qij(2, 1)) || (pm.Qij(0, 3) != pm.Qij(2, 3))
+        || (pm.Qij(1, 0) != pm.Qij(3, 0)) || (pm.Qij(1, 2) != pm.Qij(3, 2)))
+    {
+      negchecked_=true;
+      
+      ApplicationTools::displayWarning(pm.getName() + " is not an R/Y Model ");
+    }
+  }
+  
 }
 
 void YpR::setNamespace(const std::string& prefix)
