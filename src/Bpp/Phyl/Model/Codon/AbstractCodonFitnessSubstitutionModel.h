@@ -87,9 +87,6 @@ public:
 
   const FrequencySetInterface& fitness() const { return *pfitset_; }
 
-  // TODO (jdutheil 30/12/22) not allowed if fully encapsulated.
-  // std::shared_ptr<const FrequencySetInterface> getFitness() const { return pfitset_; }
-
   const CodonFrequencySetInterface& codonFrequencySet() const override
   {
     throw NullPointerException("AbstractCodonFitnessSubstitutionModel::frequencySet. No associated FrequencySet.");
