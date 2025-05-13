@@ -29,15 +29,13 @@ CodonSameAARateSubstitutionModel::CodonSameAARateSubstitutionModel(
   pAAmodel_->setNamespace("SameAARate." + pAAmodel_->getNamespace());
   pCodonModel_->setNamespace("SameAARate." + pCodonModel_->getNamespace());
 
-  // TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
-  if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel_.get())->codonFrequencySet()))
+  if (pFreq_)
     pFreq_->setNamespace("SameAARate." + pFreq_->getNamespace());
 
   addParameters_(pAAmodel_->getParameters());
   addParameters_(pCodonModel_->getParameters());
 
-  // TODO (jdutheil on 30/12/22): if we want this, we need to use shared_ptr for FrequencySets
-  if (pFreq_ && pFreq_.get() != &(dynamic_cast<const CoreCodonSubstitutionModelInterface*>(pCodonModel_.get())->codonFrequencySet()))
+  if (pFreq_)
     addParameters_(pFreq_->getParameters());
 
   compute_();
