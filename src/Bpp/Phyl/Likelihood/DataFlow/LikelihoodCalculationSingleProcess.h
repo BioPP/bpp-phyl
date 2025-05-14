@@ -369,7 +369,16 @@ public:
    */
   size_t getRootArrayPosition(size_t currentPosition) const
   {
-    return rootPatternLinks_ ? rootPatternLinks_->targetValue()(Eigen::Index(currentPosition)) : currentPosition;
+    if (rootPatternLinks_)
+    {
+      auto pos = Eigen::Index(currentPosition);
+      if (pos>=rootPatternLinks_->targetValue().rows())
+        throw BadSizeException("Forbidden access in getRootArrayPosition.",pos,rootPatternLinks_->targetValue().rows());
+      else
+        return rootPatternLinks_->targetValue()(pos);
+    }
+    else
+      return currentPosition;
   }
 
   const PatternType& getRootArrayPositions() const { return rootPatternLinks_->targetValue(); }
