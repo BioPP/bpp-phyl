@@ -24,9 +24,11 @@ public:
 };
 
 /**
- * @brief Nucleotide FrequencySet using only one parameter, the GC content.
+ * @brief Nucleotide FrequencySet using only one parameter, the GC
+ *        content (denoted as 'GC.theta')
  */
-class GCFrequencySet :
+
+  class GCFrequencySet :
   public virtual NucleotideFrequencySetInterface,
   public AbstractFrequencySet
 {

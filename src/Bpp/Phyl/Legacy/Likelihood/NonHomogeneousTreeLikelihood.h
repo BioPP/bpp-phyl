@@ -78,7 +78,7 @@ public:
   virtual SubstitutionModelSet& substitutionModelSet() = 0;
 
   /**
-   * @return Set the substitution models for this instance.
+   * @brief Set the substitution models for this instance.
    * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
    */
   virtual void setSubstitutionModelSet(std::shared_ptr<SubstitutionModelSet> model) = 0;

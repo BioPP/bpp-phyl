@@ -72,7 +72,7 @@ public:
   }
 
   /**
-   * @return Set if equilibrium frequencies should be computed from
+   * @brief Set if equilibrium frequencies should be computed from
    * the generator
    */
   void computeFrequencies(bool yn) override

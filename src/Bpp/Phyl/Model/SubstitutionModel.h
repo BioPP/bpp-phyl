@@ -235,7 +235,7 @@ public:
   virtual bool computeFrequencies() const = 0;
 
   /**
-   * @return Set if equilibrium frequencies should be computed
+   * @brief Set if equilibrium frequencies should be computed
    */
 
   virtual void computeFrequencies(bool yn) = 0;

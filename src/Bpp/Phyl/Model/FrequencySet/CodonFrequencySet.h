@@ -72,6 +72,7 @@ public:
  * It is very similar to FullFrequencySet, but only the non-stop codon
  *   frequencies are parameterized.
  */
+
 class FullCodonFrequencySet :
   public virtual CodonFrequencySetInterface,
   public AbstractFrequencySet
@@ -137,10 +138,9 @@ protected:
 
 
 /**
- * @brief FrequencySet useful for homogeneous and stationary models, codon implementation
- *
- * This set contains no parameter.
+ * @brief FrequencySet for codons, with  no parameter.
  */
+
 class FixedCodonFrequencySet :
   public virtual CodonFrequencySetInterface,
   public AbstractFrequencySet
@@ -194,6 +194,7 @@ protected:
   void fireParameterChanged(const ParameterList& parameters) override {}
 };
 
+
 class UserCodonFrequencySet :
   public virtual CodonFrequencySetInterface,
   public UserFrequencySet
@@ -239,6 +240,9 @@ protected:
   void fireParameterChanged(const ParameterList& parameters) override {}
 };
 
+
+
+
 /**
  * @brief FrequencySet integrating ProteinFrequencySet inside
  * CodonFrequencySet. In this case, FrequencieSet defined inside
@@ -246,7 +250,7 @@ protected:
  * there are 61-20=41 parameters in addition of the parameters of the
  * ProteinFrequencySet.
  *
- * The parametrization depends on the method used.
+ * The parameterization depends on the method used.
  * Default method is 1 (ie global ratio).
  *
  * @see Simplex
@@ -336,13 +340,50 @@ protected:
 };
 
 
+
 /**
  * @brief the Frequencies in codons are the product of Independent
  * Frequencies in letters with the frequencies of stop codons set to
  * zero.
  *
+ * Position specific nucleotide frequencies are parameterized using three independent parameters
+ * (theta, theta1, theta2) to modelize the four frequencies:
+ *
+ * \f[
+ * \begin{cases}
+ * \theta = \pi_C + \pi_G\                                            \
+ * \theta_1 = \frac{\pi_A}{1 - \theta} = \frac{\pi_A}{\pi_A + \pi_T}\ \
+ * \theta_2 = \frac{\pi_G}{\theta} = \frac{\pi_G}{\pi_C + \pi_G}\     \
+ * \end{cases}
+ * \Longleftrightarrow
+ * \begin{cases}
+ * \pi_A = \theta_1 (1 - \theta)\               \
+ * \pi_C = (1 - \theta_2) \theta\               \
+ * \pi_G = \theta_2 \theta\                     \
+ * \pi_T = (1 - \theta_1)(1 - \theta).
+ * \end{cases}
+ * \f]
+ *
+ * with \f$\pi_x\f$ the frequency of nucleotide \f$x\f$.
+ *
+ * To account for position specificity, the parameters are prefixed
+ * with '1_Full.', '2_Full.' and '3_Full.'.
+ *
+ * Stop codon frequencies are redistributed to the other codons. The
+ * available ways are:
+ *  - uniform : each stop frequency is distributed evenly
+ *  - linear : each stop frequency is distributed to the neighbour
+ *     codons (ie 1 substitution away), in proportion to each
+ *     target codon frequency.
+ *  - quadratic (default): each stop frequency is distributed to the
+ *     neighbour codons (ie 1 substitution away), in proportion to
+ *     the square of each target codon frequency.
+ *
+ * This method is set through "mgmtStopCodon" option.
+ *
  * @author Laurent Guéguen
  */
+
 class CodonFromIndependentFrequencySet :
   public virtual CodonFrequencySetInterface,
   public WordFromIndependentFrequencySet
@@ -364,16 +405,9 @@ public:
    * @param freqvector a vector of pointers to the phase specific FrequencySets
    * @param name the optional name of the FrequencySet (default codon)
    * @param mgmtStopCodon the optional way the frequencies assigned to the
-   * stop codons are redistributed to the other codons. The
-   * available values are:
-   *  - uniform : each stop frequency is distributed evenly
-   *  - linear : each stop frequency is distributed to the neighbour
-   *     codons (ie 1 substitution away), in proportion to each
-   *     target codon frequency.
-   *  - quadratic (default): each stop frequency is distributed to the
-   *     neighbour codons (ie 1 substitution away), in proportion to
-   *     the square of each target codon frequency.
+   * stop codons are redistributed to the other codons. See above.
    */
+  
   CodonFromIndependentFrequencySet(
       std::shared_ptr<const GeneticCode> gCode,
       std::vector<std::unique_ptr<FrequencySetInterface>>& freqvector,
@@ -419,7 +453,42 @@ public:
 /**
  * @brief the Frequencies in codons are the product of the frequencies
  * for a unique FrequencySet in letters, with the frequencies of
- * stop codons set to zero.
+ *
+ * Nucleotide frequencies are parameterized using three independent
+ * parameters (theta, theta1, theta2) to modelize the four
+ * frequencies:
+ *
+ * \f[
+ * \begin{cases}
+ * \theta = \pi_C + \pi_G\                                           \
+ * \theta_1 = \frac{\pi_A}{1 - \theta} = \frac{\pi_A}{\pi_A + \pi_T}\ \
+ * \theta_2 = \frac{\pi_G}{\theta} = \frac{\pi_G}{\pi_C + \pi_G}\     \
+ * \end{cases}
+ * \Longleftrightarrow
+ * \begin{cases}
+ * \pi_A = \theta_1 (1 - \theta)\              \
+ * \pi_C = (1 - \theta_2) \theta\              \
+ * \pi_G = \theta_2 \theta\                    \
+ * \pi_T = (1 - \theta_1)(1 - \theta).
+ * \end{cases}
+ * \f]
+ *
+ * with \f$\pi_x\f$ the frequency of nucleotide \f$x\f$.
+ *
+ * To inform for position homogeneity, the parameters are prefixed
+ * with '123_Full.', '123_Full.' and '123_Full.'.
+ *
+ * Stop codon frequencies are redistributed to the other codons. The
+ * available ways are:
+ *  - uniform : each stop frequency is distributed evenly
+ *  - linear : each stop frequency is distributed to the neighbour
+ *     codons (ie 1 substitution away), in proportion to each
+ *     target codon frequency.
+ *  - quadratic (default): each stop frequency is distributed to the
+ *     neighbour codons (ie 1 substitution away), in proportion to
+ *     the square of each target codon frequency.
+ *
+ * This method is set through "mgmtStopCodon" option.
  *
  * @author Laurent Guéguen
  */
@@ -445,16 +514,9 @@ public:
    * @param pfreq a pointer to the nucleotidic FrequencySet
    * @param name the optional name of the FrequencySet (default codon)
    * @param mgmtStopCodon the optional way the frequencies assigned to the
-   * stop codons are redistributed to the other codons. The
-   * available values are:
-   *  - uniform : each stop frequency is distributed evenly
-   *  - linear : each stop frequency is distributed to the neighbour
-   *      codons (ie 1 substitution away), in proportion to each
-   *      target codon frequency.
-   *  - quadratic (default): each stop frequency is distributed to the
-   *      neighbour codons (ie 1 substitution away), in proportion to
-   *      the square of each target codon frequency.
+   * stop codons are redistributed to the other codons. 
    */
+  
   CodonFromUniqueFrequencySet(
       std::shared_ptr<const GeneticCode> gCode,
       std::unique_ptr<FrequencySetInterface> pfreq,

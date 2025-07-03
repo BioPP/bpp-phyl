@@ -48,7 +48,7 @@ public:
   virtual std::shared_ptr<TransitionModelInterface> getModel() = 0;
 
   /**
-   * @return Set the substitution model for this instance.
+   * @brief Set the substitution model for this instance.
    * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
    */
   virtual void setModel(std::shared_ptr<TransitionModelInterface> model) = 0;

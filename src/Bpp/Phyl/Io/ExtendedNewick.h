@@ -149,7 +149,8 @@ protected:
    * @brief Get the ExtendedNewick description of a subdag.
    *
    * @param dag The dag to convert.
-   * @param node The top of the subdag to convert.
+   * @param edge The top of the subdag to convert.
+   * @param writtenNodes lists nodes already written.
    * @param writeId Tells if node ids must be printed.
    *                Leaves id will be added to the leave names, separated by a '_' character.
    * @return A string in the parenthesis format.
