@@ -35,7 +35,7 @@ namespace bpp
  * \end{pmatrix}
  * \f]
  * \f[
- * \pi = \left(\pi_1, \pi_2, \dots, \pi_N)
+ * \pi = \left(\pi_1, \pi_2, \dots, \pi_N\right)
  * \f]
  *
  * with a normalization factor \f$P\f$:

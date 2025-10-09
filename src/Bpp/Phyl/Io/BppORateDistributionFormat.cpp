@@ -65,9 +65,14 @@ unique_ptr<DiscreteDistributionInterface> BppORateDistributionFormat::readDiscre
     if (!allowConstant_)
       throw Exception("BppORateDistributionFormat::read(). Constant distribution not allowed.");
 
+    double rate=1;
     if (args.find("value") != args.end())
-      ApplicationTools::displayMessage("Found argument 'value' in Constant distribution. Constant distribution is defined to have an average of 1.");
-    rDist = make_unique<ConstantRateDistribution>();
+      rate=TextTools::toDouble(args["value"]);
+    else
+      if (args.find("rate") != args.end())
+        rate=TextTools::toDouble(args["rate"]);
+    
+    rDist = make_unique<ConstantRateDistribution>(rate);
   }
   else if (distName == "Simple")
   {

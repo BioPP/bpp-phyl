@@ -179,7 +179,7 @@ public:
   }
 
   /**
-   * @return Set if equilibrium frequencies should be computed
+   * @brief Set if equilibrium frequencies should be computed
    */
   void computeFrequencies(bool yn) override
   {

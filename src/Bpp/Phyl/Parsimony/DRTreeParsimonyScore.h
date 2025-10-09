@@ -170,7 +170,6 @@ public:
    * @brief Compute a maximum parsimony solution in DELTRAN manner.
    */
   void computeSolution();
-  /**@} */
 };
 } // end of namespace bpp.
 #endif // BPP_PHYL_PARSIMONY_DRTREEPARSIMONYSCORE_H

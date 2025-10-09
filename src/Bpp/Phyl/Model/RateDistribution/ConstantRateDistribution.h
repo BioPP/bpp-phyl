@@ -15,8 +15,8 @@ class ConstantRateDistribution :
   public ConstantDistribution
 {
 public:
-  ConstantRateDistribution() :
-    ConstantDistribution(1.)
+  ConstantRateDistribution(double rate = 1) :
+    ConstantDistribution(rate)
   {
     deleteParameter_(0);
   }

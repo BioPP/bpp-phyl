@@ -57,9 +57,10 @@ public:
   /**
    * @brief Build a Site Simulator of histories from the a posteriori likelihoods at a given site
    *
-   * @param calcul the a posteriori likelihood calculation
+   * @param calcul the posterior likelihood calculation
    * @param pos the position of the site to imitate
    * @param shrunked if the given position is on the shrunked data (default: false)
+   * @param vPrior the vector of branch numbers where the posterior is not used.
    */
 
   GivenDataSubstitutionProcessSiteSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos, bool shrunked = false, std::vector<uint> vPrior = std::vector<uint>()) :
