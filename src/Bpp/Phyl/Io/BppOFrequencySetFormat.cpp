@@ -530,12 +530,12 @@ std::unique_ptr<FrequencySetInterface> BppOFrequencySetFormat::readFrequencySet(
     if (dynamic_cast<Coala*>(model.get()) == 0)
       throw Exception("MVAprotein frequency set needs a Coala model");
 
-    auto coala = unique_ptr<Coala>(dynamic_cast<Coala*>(model.release()));
+    auto coala = shared_ptr<Coala>(dynamic_cast<Coala*>(model.release()));
     // map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     auto mvaFS = make_unique<MvaFrequencySet>(dynamic_pointer_cast<const ProteicAlphabet>(alphabet));
     // mvaFS->setParamValues(args);
-    mvaFS->initSet(*coala);
+    mvaFS->initSet(coala);
 
     pFS = std::move(mvaFS);
   }
@@ -723,6 +723,24 @@ void BppOFrequencySetFormat::writeFrequencySet(
   }
   catch (bad_cast&)
   {}
+
+  // MV
+
+  try
+  {
+    auto pmvaFS = dynamic_cast<const MvaFrequencySet&>(freqset);
+    if (comma)
+      out << ", ";
+    out << "model=";
+
+    BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, 0);
+
+    bIO.write(*(pmvaFS.getModel()), out, globalAliases, writtenNames);
+    comma = true;
+  }
+  catch (bad_cast&)
+  {}
+
 
 
   // FullPerAA

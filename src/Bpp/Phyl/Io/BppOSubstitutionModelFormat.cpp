@@ -856,9 +856,15 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
         if (TextTools::isEmpty(nbrOfParametersPerBranch))
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
         // Now we create the Coala model
-        model = make_unique<Coala>(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch));
-        if (nData)
-          model->setFreqFromData(*mData.at(nData));
+        auto coala = make_unique<Coala>(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch));
+        if (!nData)
+          throw Exception("'data' argument missing to build the Correspondence Analysis.");
+        else
+        {
+          coala->setNData(nData);
+          coala->setFreqFromData(*mData.at(nData));
+        }
+        model = unique_ptr<SubstitutionModelInterface>(dynamic_cast<SubstitutionModelInterface*>(coala.release()));
       }
       else
         throw Exception("Model '" + modelName + "' is unknown, or does not fit proteic alphabet.");
@@ -1698,6 +1704,8 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
   {
     const Coala& coalaModel = dynamic_cast<const Coala&>(model);
     out << "exch=" << coalaModel.getExch() << ", nbrAxes=" << coalaModel.getNbrOfAxes();
+    if (coalaModel.getNData() > 0)
+      out << ", data=" << coalaModel.getNData();
     comma = true;
   }
   catch (bad_cast&)

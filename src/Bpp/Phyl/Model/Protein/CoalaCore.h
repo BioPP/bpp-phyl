@@ -38,6 +38,7 @@ protected:
   std::vector<double> colWeights_;
   ParameterList paramValues_;
 
+  size_t nData_; // number of the used data (for output consistency)
 public:
   CoalaCore(size_t nbAxes = 0);
 
@@ -51,6 +52,16 @@ public:
   const RowMatrix<double>& getRowCoordinates() const { return R_; }
   const std::vector<double>& getColumnWeights() const { return colWeights_; }
 
+  size_t getNData() const
+  {
+    return nData_;
+  }
+
+  void setNData(size_t n)
+  {
+    nData_=n;
+  }
+  
 protected:
   /**
    * @brief Comoute COA from data and return the axis position parameters

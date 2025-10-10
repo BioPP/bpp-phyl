@@ -543,7 +543,7 @@ void LegacyPhylogeneticsApplicationTools::setSubstitutionModelSet(
     {
       auto tmp2 = dynamic_pointer_cast<Coala>(tmp);
       if (tmp2)
-        dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(*tmp2);
+        dynamic_pointer_cast<MvaFrequencySet>(rootFrequencies)->initSet(tmp2);
       else
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }

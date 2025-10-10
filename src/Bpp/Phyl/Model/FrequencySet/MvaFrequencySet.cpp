@@ -14,20 +14,21 @@ MvaFrequencySet::MvaFrequencySet(shared_ptr<const ProteicAlphabet> alpha) :
       make_shared<CanonicalStateMap>(alpha, false),
       "MVA.",
       "MVAprotein"),
+  model_(),
   tPpalAxes_(),
   rowCoords_(),
   nbrOfAxes_(0),
-  model_(),
   columnWeights_(),
   paramValues_()
 {}
 
-void MvaFrequencySet::initSet(const CoalaCore& coala)
+void MvaFrequencySet::initSet(std::shared_ptr<const Coala> coala)
 {
-  setNbrOfAxes(coala.getNbrOfAxes());
-  setTransposeMatrixOfPpalAxes(coala.getTppalAxesMatrix());
-  setMatrixOfRowCoords(coala.getRowCoordinates());
-  setVectorOfColumnWeights(coala.getColumnWeights());
+  model_=coala;
+  setNbrOfAxes(coala->getNbrOfAxes());
+  setTransposeMatrixOfPpalAxes(coala->getTppalAxesMatrix());
+  setMatrixOfRowCoords(coala->getRowCoordinates());
+  setVectorOfColumnWeights(coala->getColumnWeights());
   defineParameters();
   updateFrequencies();
 }
