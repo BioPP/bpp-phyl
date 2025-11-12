@@ -1646,6 +1646,7 @@ unique_ptr<SubstitutionProcessCollection> PhylogeneticsApplicationTools::getSubs
     {
       auto v2 = TextTools::toDouble(param.second);
       SPC->setParameterValue(param.first, v2);
+      ApplicationTools::displayResult("Parameter updated", param.first + "=" + param.second);
     }
     catch (Exception& e)
     {
@@ -1654,7 +1655,9 @@ unique_ptr<SubstitutionProcessCollection> PhylogeneticsApplicationTools::getSubs
     }
   }
 
+
   SPC->aliasParameters(unparsedParams, verbose);
+
 
   return SPC;
 }
