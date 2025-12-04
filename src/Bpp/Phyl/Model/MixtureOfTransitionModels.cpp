@@ -264,7 +264,7 @@ Vuint MixtureOfTransitionModels::getSubmodelNumbers(const string& desc) const
   if (i == getNumberOfModels())
     throw Exception("MixtureOfTransitionModels::getSubmodelNumbers model description do not match " + desc);
 
-  Vuint submodnb(1, uint(i));
+  Vuint submodnb(1, (unsigned int)i);
 
   return submodnb;
 }

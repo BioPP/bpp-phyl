@@ -252,7 +252,7 @@ Vuint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
       j = j / it.second->getNumberOfCategories();
     }
     if (stopped == msubn.size())// All requests are fulfilled
-      submodnb.push_back(uint(i));
+      submodnb.push_back((unsigned int)i);
   }
 
   return submodnb;

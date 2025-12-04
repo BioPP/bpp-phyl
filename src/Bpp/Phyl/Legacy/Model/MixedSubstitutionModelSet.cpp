@@ -105,12 +105,12 @@ bool MixedSubstitutionModelSet::complete()
       auto vs = pSM.getNumberOfModels();
       Vuint an;
 
-      uint j(0), k(0);
+      unsigned int j(0), k(0);
       while (j < vs)
       {
-        while ((k < snd) && ((uint)nd[k] < j))
+        while ((k < snd) && ((unsigned int)nd[k] < j))
           k++;
-        if ((k >= snd) || ((uint)nd[k] > j))
+        if ((k >= snd) || ((unsigned int)nd[k] > j))
           an.push_back(j);
         j++;
       }
@@ -280,7 +280,7 @@ MixedSubstitutionModelSet::HyperNode::HyperNode(std::shared_ptr<const MixedSubst
   {
     auto pSM = dynamic_cast<const MixedTransitionModelInterface*>(&pMSMS->model(i));
     if (!pSM)
-      vUnused_.push_back(uint(i));
+      vUnused_.push_back((unsigned int)i);
   }
 }
 
@@ -386,8 +386,8 @@ MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::oper
 
 void MixedSubstitutionModelSet::HyperNode::Node::insertN(const Vuint& vn)
 {
-  vector<uint>::iterator it;
-  vector<uint>::const_iterator it2;
+  vector<unsigned int>::iterator it;
+  vector<unsigned int>::const_iterator it2;
 
   for (it2 = vn.begin(); it2 != vn.end(); it2++)
   {
@@ -412,7 +412,7 @@ MixedSubstitutionModelSet::HyperNode::Node& MixedSubstitutionModelSet::HyperNode
 
 bool MixedSubstitutionModelSet::HyperNode::Node::operator<=(const Node& n) const
 {
-  vector<uint>::const_iterator it2(n.vNumb_.begin());
+  vector<unsigned int>::const_iterator it2(n.vNumb_.begin());
 
   for (const auto& it : vNumb_)
   {
@@ -431,7 +431,7 @@ bool MixedSubstitutionModelSet::HyperNode::Node::operator>=(const Node& n) const
 
 bool MixedSubstitutionModelSet::HyperNode::Node::intersects(const Node& n) const
 {
-  vector<uint>::const_iterator it2(n.vNumb_.begin());
+  vector<unsigned int>::const_iterator it2(n.vNumb_.begin());
 
   for (const auto& it : vNumb_)
   {
