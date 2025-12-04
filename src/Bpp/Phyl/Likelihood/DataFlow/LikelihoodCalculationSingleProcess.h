@@ -100,15 +100,15 @@ using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
  * likelihood DAGs.
  */
 
-using ConditionalLikelihoodDAG = AssociationDAGlobalGraphObserver<ConditionalLikelihood, uint>;
+using ConditionalLikelihoodDAG = AssociationDAGlobalGraphObserver<ConditionalLikelihood, unsigned int>;
 
-using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood, uint>;
+using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood, unsigned int>;
 
-using SiteLikelihoodsDAG = AssociationDAGlobalGraphObserver<SiteLikelihoods, uint>;
+using SiteLikelihoodsDAG = AssociationDAGlobalGraphObserver<SiteLikelihoods, unsigned int>;
 
-using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
+using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, unsigned int>;
 
-using DAGindexes = std::vector<uint>;
+using DAGindexes = std::vector<unsigned int>;
 
 class LikelihoodCalculationSingleProcess :
   public AlignedLikelihoodCalculation
@@ -303,7 +303,7 @@ public:
    *
    * @param speciesId  Looked species Index
    */
-  const DAGindexes& getNodesIds(uint speciesId) const;
+  const DAGindexes& getNodesIds(unsigned int speciesId) const;
 
   /**
    * @brief Get indexes of the non-empty edges in the Likelihood DAG
@@ -312,7 +312,7 @@ public:
    * @param speciesId  Looked species Index
    * @param nCat  Rate class category
    */
-  const DAGindexes& getEdgesIds(uint speciesId, size_t nCat) const;
+  const DAGindexes& getEdgesIds(unsigned int speciesId, size_t nCat) const;
 
   size_t getNumberOfSites() const
   {
@@ -438,7 +438,7 @@ public:
    */
   unsigned int getWeight(size_t pos) const
   {
-    return (uint)(rootWeights_->targetValue()(Eigen::Index(pos)));
+    return (unsigned int)(rootWeights_->targetValue()(Eigen::Index(pos)));
   }
 
   std::shared_ptr<SiteWeights> getRootWeights()
@@ -463,7 +463,7 @@ public:
    * @param shrunk if matrix is on shrunked data (default: false)
    *
    */
-  ConditionalLikelihoodRef getLikelihoodsAtNode(uint nodeId, bool shrunk = false)
+  ConditionalLikelihoodRef getLikelihoodsAtNode(unsigned int nodeId, bool shrunk = false)
   {
     if (!(condLikelihoodTree_ && condLikelihoodTree_->hasNode(nodeId)))
       makeLikelihoodsAtNode_(nodeId);
@@ -493,7 +493,7 @@ public:
    *
    */
 
-  ConditionalLikelihoodRef getForwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
+  ConditionalLikelihoodRef getForwardLikelihoodsAtNodeForClass(unsigned int nodeId, size_t nCat);
 
   /*
    * @brief Get backward shrunked likelihood matrix at Node (ie at the
@@ -506,7 +506,7 @@ public:
    *
    */
 
-  ConditionalLikelihoodRef getBackwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
+  ConditionalLikelihoodRef getBackwardLikelihoodsAtNodeForClass(unsigned int nodeId, size_t nCat);
 
   /*
    * @brief Get backward shrunked likelihood matrix at Edge (ie at
@@ -521,7 +521,7 @@ public:
    *
    */
 
-  ConditionalLikelihoodRef getBackwardLikelihoodsAtEdgeForClass(uint edgeId, size_t nCat);
+  ConditionalLikelihoodRef getBackwardLikelihoodsAtEdgeForClass(unsigned int edgeId, size_t nCat);
 
   /*
    * @brief Get shrunked conditional likelihood matrix at Node (ie
@@ -536,7 +536,7 @@ public:
    *
    */
 
-  ConditionalLikelihoodRef getConditionalLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
+  ConditionalLikelihoodRef getConditionalLikelihoodsAtNodeForClass(unsigned int nodeId, size_t nCat);
 
   /**
    * @brief Get shrunked conditional likelihood matrix at Node (ie
@@ -550,7 +550,7 @@ public:
    * @param nCat  Rate class category
    *
    */
-  SiteLikelihoodsRef getLikelihoodsAtNodeForClass(uint nodeId, size_t nCat);
+  SiteLikelihoodsRef getLikelihoodsAtNodeForClass(unsigned int nodeId, size_t nCat);
 
   /**
    * @brief make backward likelihood tree (only computed when needed)
@@ -628,7 +628,7 @@ private:
    *
    * @param nodeId : index of the node in the phylo Tree
    */
-  void makeLikelihoodsAtNode_(uint nodeId);
+  void makeLikelihoodsAtNode_(unsigned int nodeId);
 
   /**
    * @brief Compute the likelihood at a given node in the DAG,
@@ -638,7 +638,7 @@ private:
    *
    * @param nodeId : index of the node in the DAG
    */
-  void makeLikelihoodsAtDAGNode_(uint nodeId);
+  void makeLikelihoodsAtDAGNode_(unsigned int nodeId);
 
   std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);
 

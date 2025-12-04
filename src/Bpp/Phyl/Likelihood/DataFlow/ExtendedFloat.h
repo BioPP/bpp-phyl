@@ -377,7 +377,7 @@ public:
       while (b > 0)
       {
         auto lrc = std::lround(c);
-        res += lrc * powi(radix, uint(b));
+        res += lrc * powi(radix, (unsigned int)b);
         c -= (double)lrc;
         c *= biggest_normalized_value;
         b -= biggest_normalized_radix_power;

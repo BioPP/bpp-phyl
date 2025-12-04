@@ -389,11 +389,11 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
 
   if (processNodes_.ratesNode_)
   {
-    uint nbCat = (uint)processNodes_.ratesNode_->targetValue()->getNumberOfCategories();
+    unsigned int nbCat = (unsigned int)processNodes_.ratesNode_->targetValue()->getNumberOfCategories();
 
     vRateCatTrees_.resize(nbCat);
 
-    for (uint nCat = 0; nCat < nbCat; nCat++)
+    for (unsigned int nCat = 0; nCat < nbCat; nCat++)
     {
       ValueRef<double> catRef = CategoryFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_}, nCat);
 
@@ -453,7 +453,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
 
     // for (size_t nCat = 0; nCat < vRateCatTrees_.size(); nCat++)
     // {
-    //   vLikRoot.push_back(ProbabilityFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_}, (uint)nCat));
+    //   vLikRoot.push_back(ProbabilityFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_}, (unsigned int)nCat));
     // }
 
 
@@ -495,7 +495,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
 }
 
 
-void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
+void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(unsigned int speciesId)
 {
   // Already built
   if (condLikelihoodTree_ && condLikelihoodTree_->hasNode(speciesId))
@@ -632,7 +632,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
   //  return totalNegLogLikelihood;
 }
 
-void LikelihoodCalculationSingleProcess::makeLikelihoodsAtDAGNode_(uint nodeId)
+void LikelihoodCalculationSingleProcess::makeLikelihoodsAtDAGNode_(unsigned int nodeId)
 {
   if (vRateCatTrees_.size() == 0)
     makeForwardLikelihoodTree_();
@@ -701,7 +701,7 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
 }
 
 
-ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getForwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
+ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getForwardLikelihoodsAtNodeForClass(unsigned int nodeId, size_t nCat)
 {
   // compute forward likelihoods for all nodes (not the quickest, but
   // in practice they are all needed)
@@ -715,7 +715,7 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getForwardLikelihoo
   return vRateCatTrees_[nCat].flt->getNode(nodeId);
 }
 
-ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getConditionalLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
+ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getConditionalLikelihoodsAtNodeForClass(unsigned int nodeId, size_t nCat)
 {
   // compute likelihoods for all edges with similar species index
   // (not the quickest, but in practice they are all needed)
@@ -728,7 +728,7 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getConditionalLikel
   return vRateCatTrees_[nCat].clt->getNode(nodeId);
 }
 
-SiteLikelihoodsRef LikelihoodCalculationSingleProcess::getLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
+SiteLikelihoodsRef LikelihoodCalculationSingleProcess::getLikelihoodsAtNodeForClass(unsigned int nodeId, size_t nCat)
 {
   // compute likelihoods for all edges with similar species index
   // (not the quickest, but in practice they are all needed)
@@ -742,7 +742,7 @@ SiteLikelihoodsRef LikelihoodCalculationSingleProcess::getLikelihoodsAtNodeForCl
 }
 
 
-ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtEdgeForClass(uint edgeId, size_t nCat)
+ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtEdgeForClass(unsigned int edgeId, size_t nCat)
 {
   // compute likelihoods for all edges with similar species index
   // (not the quickest, but in practice they are all needed)
@@ -758,7 +758,7 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikeliho
   return vRateCatTrees_[nCat].blt->getEdge(edgeId);
 }
 
-ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtNodeForClass(uint nodeId, size_t nCat)
+ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikelihoodsAtNodeForClass(unsigned int nodeId, size_t nCat)
 {
   // compute likelihoods for all nodes with similar species index
   // (not the quickest, but in practice they are all needed)
@@ -772,7 +772,7 @@ ConditionalLikelihoodRef LikelihoodCalculationSingleProcess::getBackwardLikeliho
 }
 
 
-const DAGindexes& LikelihoodCalculationSingleProcess::getNodesIds(uint speciesId) const
+const DAGindexes& LikelihoodCalculationSingleProcess::getNodesIds(unsigned int speciesId) const
 {
   if (vRateCatTrees_.size() == 0)
     throw Exception("LikelihoodCalculationSingleProcess::getNodeIds. ForwardLikelihoodTree not computed.");
@@ -780,7 +780,7 @@ const DAGindexes& LikelihoodCalculationSingleProcess::getNodesIds(uint speciesId
   return vRateCatTrees_[0].flt->getDAGNodesIndexes(speciesId);
 }
 
-const DAGindexes& LikelihoodCalculationSingleProcess::getEdgesIds(uint speciesId, size_t nCat) const
+const DAGindexes& LikelihoodCalculationSingleProcess::getEdgesIds(unsigned int speciesId, size_t nCat) const
 {
   if (nCat >= vRateCatTrees_.size())
     throw Exception("LikelihoodCalculationSingleProcess::getEdgesIds : bad class number " + TextTools::toString(nCat));

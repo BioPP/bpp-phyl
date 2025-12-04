@@ -26,7 +26,7 @@ class PhyloNodeException :
   public Exception
 {
 protected:
-  uint nodeId_;
+  unsigned int nodeId_;
 
 public:
   /**
@@ -34,7 +34,7 @@ public:
    * @param text A message to be passed to the exception hierarchy.
    * @param nodeId The id of the node that threw the exception.
    */
-  PhyloNodeException(const std::string& text, uint nodeId) :
+  PhyloNodeException(const std::string& text, unsigned int nodeId) :
     Exception("PhyloNodeException: " + text + "(id:" + TextTools::toString(nodeId) + ")"),
     nodeId_(nodeId) {}
 
@@ -46,7 +46,7 @@ public:
    *
    * @return The id of the faulty node.
    */
-  virtual uint getNodeId() const { return nodeId_; }
+  virtual unsigned int getNodeId() const { return nodeId_; }
 };
 
 
@@ -80,7 +80,7 @@ public:
    * @param text A message to be passed to the exception hierarchy.
    * @param nodeId The id of the node that threw the exception.
    */
-  PhyloNodePException(const std::string& text, uint nodeId) :
+  PhyloNodePException(const std::string& text, unsigned int nodeId) :
     PhyloNodeException(text, nodeId), node_(0) {}
 
   PhyloNodePException(const PhyloNodePException& nex) :
@@ -109,7 +109,7 @@ public:
    *
    * @return The id of the faulty node.
    */
-  virtual uint getNodeId() const { return nodeId_; }
+  virtual unsigned int getNodeId() const { return nodeId_; }
 };
 
 /**
@@ -150,7 +150,7 @@ public:
    * @param propertyName The name of the property.
    * @param nodeId The id of the node that threw the exception.
    */
-  PhyloNodePropertyNotFoundException(const std::string& text, const std::string& propertyName, uint nodeId) :
+  PhyloNodePropertyNotFoundException(const std::string& text, const std::string& propertyName, unsigned int nodeId) :
     PhyloNodePException("Property not found: " + propertyName + ". " + text, nodeId),
     propertyName_(propertyName) {}
 
@@ -189,7 +189,7 @@ public:
    * @param text A message to be passed to the exception hierarchy.
    * @param id   A node identifier.
    */
-  PhyloNodeNotFoundException(const std::string& text, uint id);
+  PhyloNodeNotFoundException(const std::string& text, unsigned int id);
 
   virtual ~PhyloNodeNotFoundException() {}
 
@@ -209,7 +209,7 @@ class PhyloBranchException :
   public Exception
 {
 protected:
-  uint branchId_;
+  unsigned int branchId_;
 
 public:
   /**
@@ -217,7 +217,7 @@ public:
    * @param text A message to be passed to the exception hierarchy.
    * @param branchId The id of the branch that threw the exception.
    */
-  PhyloBranchException(const std::string& text, uint branchId) :
+  PhyloBranchException(const std::string& text, unsigned int branchId) :
     Exception("PhyloBranchException: " + text + "(id:" + TextTools::toString(branchId) + ")"),
     branchId_(branchId) {}
 
@@ -229,7 +229,7 @@ public:
    *
    * @return The id of the faulty branch.
    */
-  virtual uint getBranchId() const { return branchId_; }
+  virtual unsigned int getBranchId() const { return branchId_; }
 };
 
 
@@ -263,7 +263,7 @@ public:
    * @param text A message to be passed to the exception hierarchy.
    * @param branchId The id of the branch that threw the exception.
    */
-  PhyloBranchPException(const std::string& text, uint branchId) :
+  PhyloBranchPException(const std::string& text, unsigned int branchId) :
     PhyloBranchException(text, branchId), branch_(0) {}
 
   PhyloBranchPException(const PhyloBranchPException& nex) :
@@ -292,7 +292,7 @@ public:
    *
    * @return The id of the faulty branch.
    */
-  virtual uint getBranchId() const { return branchId_; }
+  virtual unsigned int getBranchId() const { return branchId_; }
 };
 
 /**
@@ -335,7 +335,7 @@ public:
    * @param propertyName The name of the property.
    * @param branchId The id of the branch that threw the exception.
    */
-  PhyloBranchPropertyNotFoundException(const std::string& text, const std::string& propertyName, uint branchId) :
+  PhyloBranchPropertyNotFoundException(const std::string& text, const std::string& propertyName, unsigned int branchId) :
     PhyloBranchPException("Property not found: " + propertyName + ". " + text, branchId),
     propertyName_(propertyName) {}
 
@@ -374,7 +374,7 @@ public:
    * @param text A message to be passed to the exception hierarchy.
    * @param id   A branch identifier.
    */
-  PhyloBranchNotFoundException(const std::string& text, uint id);
+  PhyloBranchNotFoundException(const std::string& text, unsigned int id);
 
   virtual ~PhyloBranchNotFoundException() {}
 

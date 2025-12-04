@@ -23,8 +23,11 @@
 // For now copy matrix cell by cell.
 // Note: if multithreading, internal model state must be removed!
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" //Remove a STL warning
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove a STL warning
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized" //Remove a STL warning
 
 namespace bpp
@@ -316,10 +319,10 @@ template<> struct Dimension<double> : NoDimension
   {}
 };
 
-template<> struct Dimension<uint> : NoDimension
+template<> struct Dimension<unsigned int> : NoDimension
 {
   Dimension () = default;
-  Dimension (const uint&)
+  Dimension (const unsigned int&)
   {}
 };
 
@@ -1422,7 +1425,7 @@ private:
 };
 
 // Precompiled instantiations
-extern template class ConstantZero<uint>;
+extern template class ConstantZero<unsigned int>;
 extern template class ConstantZero<double>;
 extern template class ConstantZero<char>;
 extern template class ConstantZero<std::string>;
@@ -1439,7 +1442,7 @@ extern template class ConstantZero<ExtendedFloatRowVectorXd>;
 extern template class ConstantZero<ExtendedFloatMatrixXd>;
 
 
-extern template class ConstantOne<uint>;
+extern template class ConstantOne<unsigned int>;
 extern template class ConstantOne<double>;
 extern template class ConstantOne<char>;
 extern template class ConstantOne<std::string>;
@@ -1461,7 +1464,7 @@ extern template class Identity<ExtendedFloatMatrixXd>;
 extern template class Identity<Eigen::MatrixXd>;
 
 
-extern template class NumericConstant<uint>;
+extern template class NumericConstant<unsigned int>;
 extern template class NumericConstant<double>;
 extern template class NumericConstant<size_t>;
 extern template class NumericConstant<std::string>;
@@ -1476,7 +1479,7 @@ extern template class NumericConstant<Eigen::MatrixXd>;
 
 extern NumericConstant<char> NodeX;
 
-extern template class NumericMutable<uint>;
+extern template class NumericMutable<unsigned int>;
 extern template class NumericMutable<double>;
 
 extern template class NumericMutable<ExtendedFloatVectorXd>;

@@ -145,7 +145,7 @@ public:
        */
       bool intersects(const Node&) const;
 
-      uint operator[](size_t i) const { return vNumb_[i]; }
+      unsigned int operator[](size_t i) const { return vNumb_[i]; }
     };
 
 private:
@@ -256,45 +256,39 @@ public:
   /**
    * @brief Resets the list of the HyperNodes
    */
-
   void clear();
 
-  /*
-   *@brief adds a new empty HyperNode to the end of the HyperNodes
+  /**
+   * @brief adds a new empty HyperNode to the end of the HyperNodes
    * list.
    */
-
   void addEmptyHyperNode();
 
-  /*
-   *@brief adds the copy of an HyperNode to the end of the
+  /**
+   * @brief adds the copy of an HyperNode to the end of the
    * HyperNodes list.
    */
-
   void addHyperNode(const HyperNode& hn);
 
-  /*
-   *@brief If necessary, adds a new HyperNode such that all
+  /**
+   * @brief If necessary, adds a new HyperNode such that all
    *       submodels of the mixture models are at least in an
    *       HyperNode.
    *
    * Returns true iff a new path has been built.
-   *
    */
-
   bool complete();
 
-  /*
-   *@brief adds a submodel number to the nMth mixed model of the
+  /**
+   * @brief adds a submodel number to the nMth mixed model of the
    *  nHth HyperNode of the list (default nH=0). Checks if all the
    *  numbers are valid.
    *
-   *@param nM number of the mixed model
-   *@param vnS number of the submodel
-   *@param nH number of the concerned HyperNode (default the last element of
+   * @param nM number of the mixed model
+   * @param vnS number of the submodel
+   * @param nH number of the concerned HyperNode (default the last element of
    *     the list)
    */
-
   void addToHyperNode(size_t nM, const Vuint& vnS, int nH = -1);
 
   size_t getNumberOfHyperNodes() const { return vpHyperNodes_.size(); }
@@ -303,24 +297,20 @@ public:
 
   const HyperNode& getHyperNode(size_t i) const {return *vpHyperNodes_[i]; }
 
-  /*
-   *@brief Checks if all the path (ie hypernodes) are exclusive.
-   *
+  /**
+   * @brief Checks if all the path (ie hypernodes) are exclusive.
    */
-
   bool hasExclusivePaths() const;
 
   void fireParameterChanged(const ParameterList& parameters);
 
-  /*
-   *@brief compute the probabilities in all the HyperNodes
-   *
+  /**
+   * @brief compute the probabilities in all the HyperNodes
    */
-
   void computeHyperNodesProbabilities();
 
-  /*
-   *@brief computes the probability of an HyperNode, given the
+  /**
+   * @brief computes the probability of an HyperNode, given the
    *     conditional probabilities of the submodels computed from the
    *     hypernodes of this MixedSubstitutionModelSet object. If the
    *     HyperNode does not match the structure of allowed by this
@@ -331,9 +321,8 @@ public:
    *     probabilities of the submodels that belon to this hypernode
    *     for each mixed model.
    *
-   *@param hn the HyperNode which conditional probability is computed.
+   * @param hn the HyperNode which conditional probability is computed.
    */
-
   double getHyperNodeProbability(const HyperNode& hn) const;
 };
 } // end of namespace bpp.

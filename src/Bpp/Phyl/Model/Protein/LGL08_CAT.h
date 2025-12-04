@@ -88,9 +88,9 @@ public:
     return *this;
   }
 
-  uint getNumberOfCategories() const
+  unsigned int getNumberOfCategories() const
   {
-    return static_cast<uint>(mixedModelPtr_->getNumberOfModels());
+    return static_cast<unsigned int>(mixedModelPtr_->getNumberOfModels());
   }
 
   std::string getName() const override { return "LGL08_CAT";}

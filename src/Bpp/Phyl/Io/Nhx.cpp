@@ -453,7 +453,7 @@ void Nhx::checkNodesId_(PhyloTree& tree) const
 
   Vuint::iterator it(nid.begin());
 
-  uint val = *(it++) + 1;
+  unsigned int val = *(it++) + 1;
   while (it != nid.end() && val == *it)
   {
     val++;

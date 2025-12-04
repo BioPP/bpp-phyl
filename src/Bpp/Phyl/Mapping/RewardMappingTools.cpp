@@ -24,7 +24,7 @@ using namespace std;
 
 unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
     LikelihoodCalculationSingleProcess& rltc,
-    const vector<uint>& edgeIds,
+    const Vuint& edgeIds,
     Reward& reward,
     short unresolvedOption,
     bool verbose)
@@ -128,7 +128,7 @@ unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
     shared_ptr<PhyloBranchReward> br = **brIt;
 
     // For each branch
-    uint speciesId = rewards->getEdgeIndex(br);
+    unsigned int speciesId = rewards->getEdgeIndex(br);
 
     if (edgeIds.size() > 0 && !VectorTools::contains(edgeIds, (int)speciesId))
       continue;
@@ -294,7 +294,7 @@ void RewardMappingTools::readFromStream(istream& in, ProbabilisticRewardMapping&
     {
       const shared_ptr<PhyloBranchReward> br = **brIt;
 
-      uint brid = rewards.getEdgeIndex(br);
+      unsigned int brid = rewards.getEdgeIndex(br);
       for (size_t j = 0; j < nbSites; j++)
       {
         (*br)(j) = TextTools::toDouble((*data)(brid, j));
@@ -325,7 +325,7 @@ double RewardMappingTools::computeSumForBranch(const ProbabilisticRewardMapping&
 {
   size_t nbSites = smap.getNumberOfSites();
   double v = 0;
-  shared_ptr<PhyloBranchReward> br = smap.getEdge((uint)branchIndex);
+  shared_ptr<PhyloBranchReward> br = smap.getEdge((unsigned int)branchIndex);
 
   for (size_t i = 0; i < nbSites; ++i)
   {

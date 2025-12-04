@@ -149,7 +149,7 @@ public:
   std::vector<RateCategoryEdge> vRateCatEdges_;
 
 public:
-  LikelihoodCalculationOnABranch(Context& context, LikelihoodCalculationSingleProcess& likcalsp, uint edgeId);
+  LikelihoodCalculationOnABranch(Context& context, LikelihoodCalculationSingleProcess& likcalsp, unsigned int edgeId);
 
 
   void setModel(std::shared_ptr<ConfiguredModel> model)
@@ -248,7 +248,7 @@ public:
    */
   unsigned int getWeight(size_t pos) const
   {
-    return (uint)(rootWeights_->targetValue()(Eigen::Index(pos)));
+    return (unsigned int)(rootWeights_->targetValue()(Eigen::Index(pos)));
   }
 
   std::shared_ptr<SiteWeights> getRootWeights()

@@ -93,8 +93,8 @@ using ConditionalLikelihoodForwardRef = ValueRef<MatrixLik>;
 using ForwardLikelihoodBelow = Value<MatrixLik>;
 using ForwardLikelihoodBelowRef = ValueRef<MatrixLik>;
 
-using DAGindexes = std::vector<uint>;
-using Speciesindex = uint;
+using DAGindexes = std::vector<unsigned int>;
+using Speciesindex = unsigned int;
 
 
 class ForwardLikelihoodTree : public AssociationDAGlobalGraphObserver<ConditionalLikelihoodForward, ForwardLikelihoodBelow>
@@ -220,7 +220,7 @@ public:
    *
    * @param nodeId : index of the node in the likelihood DAG.
    */
-  const ValueRef<MatrixLik> getForwardLikelihoodArray(uint nodeId) const
+  const ValueRef<MatrixLik> getForwardLikelihoodArray(unsigned int nodeId) const
   {
     return getNode(nodeId);
   }

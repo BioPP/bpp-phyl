@@ -135,6 +135,7 @@ public:
   }
 
 private:
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
   void compute() override { compute<T>();}
 

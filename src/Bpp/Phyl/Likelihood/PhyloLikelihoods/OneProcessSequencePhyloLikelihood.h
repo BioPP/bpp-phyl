@@ -247,29 +247,27 @@ public:
    *
    */
 
-  /*
-   *@brief return the posterior probabilities of rate classes on each site.
+  /**
+   * @brief return the posterior probabilities of rate classes on each site.
    *
-   *@return 2D-vector sites x classes
+   * @return 2D-vector sites x classes
    */
-
   VVdouble getPosteriorProbabilitiesPerSitePerClass() const;
 
   Vdouble getPosteriorProbabilitiesForSitePerClass(size_t pos) const;
 
-  /*
-   *@brief return the likelihood of rate classes on each site.
+  /**
+   * @brief return the likelihood of rate classes on each site.
    *
-   *@return 2D-vector sites x classes
+   * @return 2D-vector sites x classes
    */
-
   VVdouble getLikelihoodPerSitePerClass() const;
 
   std::vector<size_t> getClassWithMaxPostProbPerSite() const;
 
   Vdouble getPosteriorRatePerSite() const;
 
-  Vdouble getPosteriorStateFrequencies(uint nodeId);
+  Vdouble getPosteriorStateFrequencies(unsigned int nodeId);
 
   /* @} */
 };

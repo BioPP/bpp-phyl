@@ -13,7 +13,7 @@ using namespace std;
 
 ModelPath::ModelPath(const ModelPath& hn) :
   mModPath_(hn.mModPath_),
-  leadMode_(), //@Laurent: should this be copied?
+  leadMod_(), //@Laurent: should this be copied?
   proba_(hn.proba_)
 {}
 
@@ -197,7 +197,7 @@ void ModelPath::PathNode::insertN(const Vuint& vn)
 {
   for (const auto& it2 : vn)
   {
-    vector<uint>::const_iterator it(begin());
+    vector<unsigned int>::const_iterator it(begin());
 
     for ( ; it != end(); it++)
     {
@@ -214,14 +214,14 @@ void ModelPath::PathNode::insertN(const Vuint& vn)
 void ModelPath::PathNode::removeN(const Vuint& vn)
 {
   erase(std::remove_if(begin(), end(),
-        [vn](const uint x) -> bool {
+        [vn](const unsigned int x) -> bool {
     return std::find(vn.begin(), vn.end(), x) != vn.end();
   }), end());
 }
 
 bool ModelPath::PathNode::operator<=(const PathNode& n) const
 {
-  vector<uint>::const_iterator it2(n.begin());
+  vector<unsigned int>::const_iterator it2(n.begin());
 
   for (const auto& it : *this)
   {
@@ -240,7 +240,7 @@ bool ModelPath::PathNode::operator>=(const PathNode& n) const
 
 bool ModelPath::PathNode::intersects(const PathNode& n) const
 {
-  vector<uint>::const_iterator it2(n.begin());
+  vector<unsigned int>::const_iterator it2(n.begin());
 
   for (const auto& it : *this)
   {

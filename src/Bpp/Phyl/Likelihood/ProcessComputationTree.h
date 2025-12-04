@@ -30,7 +30,7 @@ class ProcessComputationNode :
   /**
    * @brief the index of the species in the phyloTree matching this node.
    */
-  const uint speciesIndex_;
+  const unsigned int speciesIndex_;
 
 public:
   /**
@@ -38,7 +38,7 @@ public:
    * speciesIndex (because indexes are not the same as in the
    * ParametrizablePhyloTree.
    */
-  ProcessComputationNode(const PhyloNode& node, uint speciesIndex) :
+  ProcessComputationNode(const PhyloNode& node, unsigned int speciesIndex) :
     PhyloNode(node),
     speciesIndex_(speciesIndex) {}
 
@@ -46,7 +46,7 @@ public:
     PhyloNode(node),
     speciesIndex_(node.speciesIndex_) {}
 
-  uint getSpeciesIndex() const
+  unsigned int getSpeciesIndex() const
   {
     return speciesIndex_;
   }
@@ -83,7 +83,7 @@ private:
   /**
    * @brief Number of the model carried by the branch
    */
-  uint nmodel_;
+  unsigned int nmodel_;
 
   /**
    * @brief numbers of the submodels used, if any.
@@ -91,7 +91,7 @@ private:
    * In practice, only vectors of size <=1 are implemented (ie
    * individual submodels), to be fixed later.
    */
-  std::vector<uint> vSubNb_;
+  std::vector<unsigned int> vSubNb_;
 
   /**
    * @brief use the probability associated to the edge in case of
@@ -103,15 +103,15 @@ private:
   /**
    * @brief the index of the species in the phyloTree matching this node.
    */
-  const uint speciesIndex_;
+  const unsigned int speciesIndex_;
 
 public:
   ProcessComputationEdge(
       std::shared_ptr<const BranchModelInterface> model,
-      uint nmodel,
-      uint speciesIndex,
+      unsigned int nmodel,
+      unsigned int speciesIndex,
       bool useProb = false,
-      const std::vector<uint>& vNb = Vuint(0)) :
+      const std::vector<unsigned int>& vNb = Vuint(0)) :
     model_(model),
     nmodel_(nmodel),
     vSubNb_(vNb),
@@ -132,17 +132,17 @@ public:
     return model_;
   }
 
-  uint getModelNumber() const
+  unsigned int getModelNumber() const
   {
     return nmodel_;
   }
 
-  uint getSpeciesIndex() const
+  unsigned int getSpeciesIndex() const
   {
     return speciesIndex_;
   }
 
-  const std::vector<uint>& subModelNumbers() const
+  const std::vector<unsigned int>& subModelNumbers() const
   {
     return vSubNb_;
   }
@@ -173,7 +173,7 @@ private:
       std::shared_ptr<ProcessComputationNode> father,
       const ModelScenario& scenario,
       std::map<std::shared_ptr<MixedTransitionModelInterface>,
-      uint>& mMrca);
+      unsigned int>& mMrca);
 
 public:
   /**

@@ -125,7 +125,7 @@ std::shared_ptr<ProbabilitiesFromDiscreteDistribution> ProbabilitiesFromDiscrete
 // ProbabilityFromDiscreteDistribution
 
 ProbabilityFromDiscreteDistribution::ProbabilityFromDiscreteDistribution (
-    NodeRefVec&& deps, uint nCat)
+    NodeRefVec&& deps, unsigned int nCat)
   : Value<double>(std::move (deps)), nCat_ (nCat) {}
 
 
@@ -142,7 +142,7 @@ bool ProbabilityFromDiscreteDistribution::compareAdditionalArguments (const Node
   return derived != nullptr && nCat_ == derived->nCat_;
 }
 
-std::shared_ptr<ProbabilityFromDiscreteDistribution> ProbabilityFromDiscreteDistribution::create (Context& c, NodeRefVec&& deps, uint nCat)
+std::shared_ptr<ProbabilityFromDiscreteDistribution> ProbabilityFromDiscreteDistribution::create (Context& c, NodeRefVec&& deps, unsigned int nCat)
 {
   checkDependenciesNotNull (typeid (Self), deps);
   checkDependencyVectorSize (typeid (Self), deps, 1);
@@ -179,7 +179,7 @@ void ProbabilityFromDiscreteDistribution::compute ()
 // CategoryFromDiscreteDistribution
 
 CategoryFromDiscreteDistribution::CategoryFromDiscreteDistribution (
-    NodeRefVec&& deps, uint nCat)
+    NodeRefVec&& deps, unsigned int nCat)
   : Value<double>(std::move (deps)), nCat_ (nCat) {}
 
 
@@ -196,7 +196,7 @@ bool CategoryFromDiscreteDistribution::compareAdditionalArguments (const Node_DF
   return derived != nullptr && nCat_ == derived->nCat_;
 }
 
-std::shared_ptr<CategoryFromDiscreteDistribution> CategoryFromDiscreteDistribution::create (Context& c, NodeRefVec&& deps, uint nCat)
+std::shared_ptr<CategoryFromDiscreteDistribution> CategoryFromDiscreteDistribution::create (Context& c, NodeRefVec&& deps, unsigned int nCat)
 {
   checkDependenciesNotNull (typeid (Self), deps);
   checkDependencyVectorSize (typeid (Self), deps, 1);

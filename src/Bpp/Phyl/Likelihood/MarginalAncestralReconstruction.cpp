@@ -10,7 +10,7 @@
 using namespace bpp;
 using namespace std;
 
-vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint nodeId, VVdouble& probs, bool sample) const
+vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(unsigned int nodeId, VVdouble& probs, bool sample) const
 {
   vector<size_t> ancestors(nbSites_);
 
@@ -18,7 +18,7 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
 
   probs.resize(nbSites_);
 
-  for (uint i = 0; i < static_cast<uint>(nbSites_); ++i)
+  for (unsigned int i = 0; i < static_cast<unsigned int>(nbSites_); ++i)
   {
     copyEigenToBpp(vv.col(i) / vv.col(i).sum(), probs[static_cast<size_t>(i)]);
   }
@@ -52,16 +52,16 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(uint n
   return ancestors;
 }
 
-map<uint, vector<size_t>> MarginalAncestralReconstruction::getAllAncestralStates() const
+map<unsigned int, vector<size_t>> MarginalAncestralReconstruction::getAllAncestralStates() const
 {
-  map<uint, vector<size_t>> ancestors;
+  map<unsigned int, vector<size_t>> ancestors;
   // Clone the data into a AlignedSequenceContainer for more efficiency:
   shared_ptr<AlignmentDataInterface> data = make_shared<AlignedSequenceContainer>(dynamic_cast<const SiteContainerInterface&>(likelihood_->shrunkData()));
   recursiveMarginalAncestralStates(tree_->getRoot(), ancestors, *data);
   return ancestors;
 }
 
-unique_ptr<Sequence> MarginalAncestralReconstruction::getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const
+unique_ptr<Sequence> MarginalAncestralReconstruction::getAncestralSequenceForNode(unsigned int nodeId, VVdouble* probs, bool sample) const
 {
   string name = tree_->getNode(nodeId)->hasName() ? tree_->getNode(nodeId)->getName() : ("" + TextTools::toString(nodeId));
   vector<int> allStates(nbSites_);
@@ -92,7 +92,7 @@ unique_ptr<Sequence> MarginalAncestralReconstruction::getAncestralSequenceForNod
 
 void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
     const std::shared_ptr<PhyloNode> node,
-    map<uint, vector<size_t>>& ancestors,
+    map<unsigned int, vector<size_t>>& ancestors,
     AlignmentDataInterface& data) const
 {
   if (tree_->isLeaf(node))

@@ -1280,14 +1280,14 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readWord_(
         name += "AAClust";
 
         // Initialization using the "assign" argument
-        vector<uint> partition;
+        vector<unsigned int> partition;
         if (args.find("partition") != args.end())
         {
           string rf = args["partition"];
 
           StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
           while (strtok.hasMoreToken())
-            partition.push_back(TextTools::to<uint>(strtok.nextToken()));
+            partition.push_back(TextTools::to<unsigned int>(strtok.nextToken()));
         }
 
         unique_ptr<AbstractCodonClusterAASubstitutionModel> aca = partition.size() != 0 ?
@@ -1800,7 +1800,7 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
         if (comma)
           out << ", ";
         out << "partition=(";
-        const vector<uint>& vass = acc.getAssign();
+        const vector<unsigned int>& vass = acc.getAssign();
 
         for (size_t j = 0; j < vass.size(); ++j)
         {

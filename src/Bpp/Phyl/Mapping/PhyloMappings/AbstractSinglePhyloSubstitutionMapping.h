@@ -32,10 +32,10 @@ public:
 class AbstractSinglePhyloSubstitutionMapping :
   virtual public BranchedModelSet,
   virtual public PhyloSubstitutionMapping,
-  public AssociationTreeGlobalGraphObserver<uint, ModelBranch>
+  public AssociationTreeGlobalGraphObserver<unsigned int, ModelBranch>
 {
 public:
-  typedef AssociationTreeGlobalGraphObserver<uint, ModelBranch> modelTree;
+  typedef AssociationTreeGlobalGraphObserver<unsigned int, ModelBranch> modelTree;
 
 private:
   std::shared_ptr<const SubstitutionRegisterInterface> pReg_;
@@ -67,7 +67,7 @@ private:
    * @brief a map <model index, vector of branch ids>
    *
    */
-  std::map<size_t, std::vector<uint>> mModBrid_;
+  std::map<size_t, std::vector<unsigned int>> mModBrid_;
 
 public:
   AbstractSinglePhyloSubstitutionMapping(
@@ -89,12 +89,12 @@ public:
    *
    * @{
    */
-  std::shared_ptr<TransitionModelInterface> getModelForBranch(uint branchId) override
+  std::shared_ptr<TransitionModelInterface> getModelForBranch(unsigned int branchId) override
   {
     return (*getEdge(branchId)).pMod_;
   }
 
-  std::shared_ptr<const TransitionModelInterface> getModelForBranch(uint branchId) const override
+  std::shared_ptr<const TransitionModelInterface> getModelForBranch(unsigned int branchId) const override
   {
     return (*getEdge(branchId)).pMod_;
   }
@@ -114,7 +114,7 @@ public:
     return modelColl_[index];
   }
 
-  std::vector<uint> getBranchesWithModel(size_t index) const override
+  std::vector<unsigned int> getBranchesWithModel(size_t index) const override
   {
     return mModBrid_.at(index);
   }

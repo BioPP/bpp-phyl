@@ -46,7 +46,7 @@ protected:
 public:
   OnABranchPhyloLikelihood (Context& context,
       std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-      uint edgeId,
+      unsigned int edgeId,
       const ParameterList& variableNodes) :
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
@@ -60,7 +60,7 @@ public:
 
   OnABranchPhyloLikelihood (Context& context,
       std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-      uint edgeId) :
+      unsigned int edgeId) :
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractParametrizable(""),
@@ -313,7 +313,7 @@ public:
 
   // Vdouble getPosteriorRatePerSite() const;
 
-  // Vdouble getPosteriorStateFrequencies(uint nodeId);
+  // Vdouble getPosteriorStateFrequencies(unsigned int nodeId);
 };
 } // namespace bpp
 

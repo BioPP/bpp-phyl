@@ -151,7 +151,7 @@ public:
    */
   virtual double getReward(int branchId, size_t site) const
   {
-    return getEdge((uint)branchId)->getSiteReward(getSiteIndex(site));
+    return getEdge((unsigned int)branchId)->getSiteReward(getSiteIndex(site));
   }
 
   virtual void setNumberOfSites(size_t numberOfSites) override;
@@ -162,7 +162,7 @@ public:
    *
    * @warning No index checking is performed, use with care!
    */
-  virtual double operator()(uint branchId, size_t siteIndex) const override
+  virtual double operator()(unsigned int branchId, size_t siteIndex) const override
   {
     return (*getEdge(branchId))(siteIndex);
   }
@@ -173,7 +173,7 @@ public:
    *
    * @warning No index checking is performed, use with care!
    */
-  virtual double& operator()(uint branchId, size_t siteIndex) override
+  virtual double& operator()(unsigned int branchId, size_t siteIndex) override
   {
     return (*getEdge(branchId))(siteIndex);
   }

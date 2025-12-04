@@ -23,6 +23,7 @@ SubstitutionProcessCollection::SubstitutionProcessCollection(const SubstitutionP
   mDistToSubPro_(set.mDistToSubPro_),
   treeColl_(set.treeColl_),
   mTreeToSubPro_(set.mTreeToSubPro_),
+  mModelScenario_(set.mModelScenario_),
   mSubProcess_()
 {
   for (const auto& it : set.mSubProcess_)
@@ -46,6 +47,7 @@ SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const Su
   mVConstDist_ = set.mVConstDist_;
   treeColl_ = set.treeColl_;
   mTreeToSubPro_ = set.mTreeToSubPro_;
+  mModelScenario_ = set.mModelScenario_;
 
   for (const auto& it : set.mSubProcess_)
   {
@@ -382,20 +384,20 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
   auto tree = getTree(nTree);
   const auto model = getModel(nMod);
 
-  vector<uint> ids = tree->getAllEdgesIndexes();
+  vector<unsigned int> ids = tree->getAllEdgesIndexes();
   sort(ids.begin(), ids.end());
   vector<size_t> vModN = getModelNumbers();
 
   size_t maxMod = *max_element(vModN.begin(), vModN.end());
 
   std::map<size_t, std::vector<unsigned int>> mModBr;
-  mModBr[nMod] = vector<uint>(1, ids[0]);
+  mModBr[nMod] = vector<unsigned int>(1, ids[0]);
 
   for (auto it = ids.begin() + 1; it != ids.end(); it++)
   {
     size_t mNb = maxMod + *it;
     addModel(std::shared_ptr<BranchModelInterface>(model->clone()), mNb);
-    mModBr[mNb] = vector<uint>(1, *it);
+    mModBr[mNb] = vector<unsigned int>(1, *it);
   }
 
   addSubstitutionProcess(nProc, mModBr, nTree, nRate);

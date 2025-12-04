@@ -81,6 +81,7 @@ public:
     return seed;
   }
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove STL warning
   NodeRef derive (Context& c, const Node_DF& node) final
   {

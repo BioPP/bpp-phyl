@@ -116,7 +116,7 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRatePerSite() const
 
 /******************************************************************************/
 
-Vdouble SingleProcessPhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
+Vdouble SingleProcessPhyloLikelihood::getPosteriorStateFrequencies(unsigned int nodeId)
 {
   auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode(nodeId)->targetValue();
 
@@ -124,13 +124,13 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
   VVdouble pp;
   pp.resize(nbSites);
 
-  for (uint i = 0; i < (uint)nbSites; i++)
+  for (unsigned int i = 0; i < (unsigned int)nbSites; i++)
   {
     copyEigenToBpp(vv.col(i) / vv.col(i).sum(), pp[size_t(i)]);
   }
 
   Vdouble v(nbStates_);
-  for (uint st = 0; st < (uint)nbStates_; st++)
+  for (unsigned int st = 0; st < (unsigned int)nbStates_; st++)
   {
     auto s = 0.0;
     for (size_t i = 0; i < (size_t)nbSites; i++)

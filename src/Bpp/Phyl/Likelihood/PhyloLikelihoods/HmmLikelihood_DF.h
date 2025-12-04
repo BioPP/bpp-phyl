@@ -28,7 +28,6 @@ namespace bpp
  * owns a HmmLikelihoodComputation object.
  *
  */
-
 class HmmLikelihood_DF :
   public AlignedLikelihoodCalculation
 {
@@ -39,7 +38,6 @@ protected:
   /**
    * @brief The alphabet describing the hidden states.
    */
-
   std::shared_ptr<HmmStateAlphabet> hiddenAlphabet_;
   std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities_;
 
@@ -52,35 +50,30 @@ protected:
    * DF TransitionMatrix
    *
    */
-
   std::shared_ptr<ConfiguredTransitionMatrix> matrix_;
 
   /**
    * DF equilibrium vector from transitionmatrix for computation
    *
    */
-
   ValueRef<Eigen::VectorXd> hmmEq_;
 
   /**
    * DF Matrix from transitionmatrix for computation
    *
    */
-
   ValueRef<Eigen::MatrixXd> hmmTrans_;
 
   /**
    * DF Matrix from emission likelihoods for computation
    *
    */
-
   ValueRef<MatrixLik> hmmEmis_;
 
   /**
    * DF Conditional Likelihoods for sites:
    *
    */
-
   ValueRef<RowLik> forwardLik_;
 
 
@@ -91,7 +84,6 @@ protected:
    * where the x are the observed states, and y the hidden states.
    *
    */
-
   ValueRef<Eigen::MatrixXd> backwardLik_;
 
   /**
@@ -101,7 +93,6 @@ protected:
    * where the x are the observed states, and y the hidden states.
    *
    */
-
   ValueRef<Eigen::MatrixXd> hiddenPostProb_;
 
   Eigen::Index nbStates_, nbSites_;
@@ -122,10 +113,30 @@ public:
       std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities,
       const std::string& prefix = "");
 
-  HmmLikelihood_DF(const HmmLikelihood_DF& lik) = default;
+private:
+  /**
+   * @brief No copy allowed
+   */
+  HmmLikelihood_DF(const HmmLikelihood_DF& lik):
+    AlignedLikelihoodCalculation(lik),
+    context_(lik.context_),
+    hiddenAlphabet_(lik.hiddenAlphabet_),
+    emissionProbabilities_(lik.emissionProbabilities_),
+    matrix_(lik.matrix_),
+    hmmEq_(lik.hmmEq_),
+    hmmTrans_(lik.hmmTrans_),
+    hmmEmis_(lik.hmmEmis_),
+    forwardLik_(lik.forwardLik_),
+    backwardLik_(lik.backwardLik_),
+    hiddenPostProb_(lik.hiddenPostProb_),
+    nbStates_(lik.nbStates_),
+    nbSites_(lik.nbSites_)
+  {}
   
   HmmLikelihood_DF& operator=(const HmmLikelihood_DF& lik) = default;
- 
+
+public:
+
   virtual ~HmmLikelihood_DF() {}
 
   HmmLikelihood_DF* clone() const { return new HmmLikelihood_DF(*this); }
@@ -137,11 +148,10 @@ public:
 
   HmmStateAlphabet& hmmStateAlphabet() { return *hiddenAlphabet_; }
 
-  /*
-   *@ brief Access to the Transition Matrix
+  /**
+   * @brief Access to the Transition Matrix
    *
-   * !! No check if DF up to date
-   *
+   * @warning No check if DF up to date
    */
   const Eigen::MatrixXd& getHmmTransitionMatrix() const { return hmmTrans_->accessValueConst(); }
 

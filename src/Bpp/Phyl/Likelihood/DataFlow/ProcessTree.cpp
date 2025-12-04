@@ -27,7 +27,7 @@ ProcessTree::ProcessTree(Context& context,
 
   for (const auto& node:vNodes)
   {
-    uint index = tree.getNodeIndex(node);
+    unsigned int index = tree.getNodeIndex(node);
     auto pn = make_shared<ProcessNode>(*node, index);
     associateNode(pn, tree.getNodeGraphid(node));
     setNodeIndex(pn, index);
@@ -84,7 +84,7 @@ ProcessTree::ProcessTree(Context& context,
 
   for (const auto& node:vNodes)
   {
-    uint index = tree.getNodeIndex(node);
+    unsigned int index = tree.getNodeIndex(node);
     auto pn = make_shared<ProcessNode>(*node, index);
     associateNode(pn, tree.getNodeGraphid(node));
     setNodeIndex(pn, index);
@@ -145,7 +145,7 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
     std::shared_ptr<ProcessEdge> brref;
 
     auto id = tree.getEdgeGraphid(edge);
-    uint spIndex = edge->getSpeciesIndex(); // index of the matching
+    unsigned int spIndex = edge->getSpeciesIndex(); // index of the matching
     // edge in the
     // ParametrizablePhyloTree
 

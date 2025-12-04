@@ -41,7 +41,7 @@ public:
    * @return A vector of states indices.
    * @see getAncestralSequenceForNode
    */
-  virtual std::vector<size_t> getAncestralStatesForNode(uint nodeId) const = 0;
+  virtual std::vector<size_t> getAncestralStatesForNode(unsigned int nodeId) const = 0;
 
   /**
    * @brief Get all ancestral states for all nodes.
@@ -51,7 +51,7 @@ public:
    * @return A map with nodes id as key, and a vector of states indices as value.
    * @see getAncestralSequenceForNode
    */
-  virtual std::map<uint, std::vector<size_t>> getAllAncestralStates() const = 0;
+  virtual std::map<unsigned int, std::vector<size_t>> getAllAncestralStates() const = 0;
 
   /**
    * @brief Get the ancestral sequence for a given node.
@@ -59,7 +59,7 @@ public:
    * @param nodeId The id of the node at which the sequence must be reconstructed.
    * @return A sequence object.
    */
-  virtual std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId) const = 0;
+  virtual std::unique_ptr<Sequence> getAncestralSequenceForNode(unsigned int nodeId) const = 0;
 
   /**
    * @brief Get all the ancestral sequences for all nodes.

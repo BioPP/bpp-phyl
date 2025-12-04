@@ -49,7 +49,7 @@ ProcessComputationTree::ProcessComputationTree(
   }
 
   // Map of the mrca of the MixedTransitionModel split in several paths
-  map<shared_ptr<MixedTransitionModelInterface>, uint> mMrca;
+  map<shared_ptr<MixedTransitionModelInterface>, unsigned int> mMrca;
 
   auto vMod = scenario->getModels();
   map<shared_ptr<MixedTransitionModelInterface>, vector<shared_ptr<PhyloNode>>> mnodes;
@@ -105,7 +105,7 @@ void ProcessComputationTree::buildFollowingScenario_(
     shared_ptr<ProcessComputationNode> father,
     const ModelScenario& scenario,
     map<shared_ptr<MixedTransitionModelInterface>,
-    uint>& mMrca)
+    unsigned int>& mMrca)
 {
   auto spInd = father->getSpeciesIndex();
 

@@ -47,7 +47,7 @@ public:
    */
   static std::unique_ptr<ProbabilisticRewardMapping> computeRewardVectors(
       LikelihoodCalculationSingleProcess& rltc,
-      const std::vector<uint>& edgeIds,
+      const Vuint& edgeIds,
       Reward& reward,
       short unresolvedOption = SubstitutionMappingTools::UNRESOLVED_ZERO,
       bool verbose = true);

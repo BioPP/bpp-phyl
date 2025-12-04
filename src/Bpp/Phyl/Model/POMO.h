@@ -86,7 +86,7 @@ class POMO :
   public AbstractSubstitutionModel
 {
 private:
-  uint nbAlleles_;
+  unsigned int nbAlleles_;
 
   std::unique_ptr<SubstitutionModelInterface> pmodel_;
   std::unique_ptr<FrequencySetInterface> pfitness_;
@@ -143,7 +143,7 @@ public:
     return dynamic_cast<const AllelicAlphabet&>(*alphabet_);
   }
 
-  uint getNbAlleles() const
+  unsigned int getNbAlleles() const
   {
     return nbAlleles_;
   }

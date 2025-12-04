@@ -352,7 +352,7 @@ public:
 
   Vdouble getPosteriorRatePerSite() const;
 
-  Vdouble getPosteriorStateFrequencies(uint nodeId);
+  Vdouble getPosteriorStateFrequencies(unsigned int nodeId);
 };
 } // namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_PHYLOLIKELIHOODS_SINGLEPROCESSPHYLOLIKELIHOOD_H

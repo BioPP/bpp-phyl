@@ -13,14 +13,17 @@
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // Disable warning coming from the STL because of std::enable_shared_from_this
+
 namespace bpp
 {
+	
 /**
  * @brief The OneProcessSequenceSubstitutionMapping class: substitution
  * mapping linked with a OneProcessSequencePhyloLikelihood
  *
  */
-
 class OneProcessSequenceSubstitutionMapping :
   public AbstractSinglePhyloSubstitutionMapping,
   public std::enable_shared_from_this<OneProcessSequenceSubstitutionMapping>
@@ -109,4 +112,5 @@ public:
   }
 };
 } // end of namespace bpp.
+#pragma GCC diagnostic pop
 #endif // BPP_PHYL_MAPPING_PHYLOMAPPINGS_ONEPROCESSSEQUENCESUBSTITUTIONMAPPING_H

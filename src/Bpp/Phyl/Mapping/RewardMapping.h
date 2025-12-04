@@ -32,8 +32,8 @@ public:
   RewardMappingInterface* clone() const override = 0;
 
 public:
-  virtual double& operator()(uint branchId, size_t siteIndex) = 0;
-  virtual double operator()(uint branchId, size_t siteIndex) const = 0;
+  virtual double& operator()(unsigned int branchId, size_t siteIndex) = 0;
+  virtual double operator()(unsigned int branchId, size_t siteIndex) const = 0;
 };
 
 

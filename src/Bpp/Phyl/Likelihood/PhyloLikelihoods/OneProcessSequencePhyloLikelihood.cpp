@@ -21,6 +21,8 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   AbstractParametrizable(""),
   AbstractParametrizableSequencePhyloLikelihood(context, evol, nSeqEvol),
   mSeqEvol_(evol),
+  firstOrderDerivativeVectors_(),
+  secondOrderDerivativeVectors_(),
   likCal_()
 {
   resetParameters_();
@@ -46,6 +48,8 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   AbstractParametrizable(""),
   AbstractParametrizableSequencePhyloLikelihood(context, evol, nSeqEvol),
   mSeqEvol_(evol),
+  firstOrderDerivativeVectors_(),
+  secondOrderDerivativeVectors_(),
   likCal_()
 {
   resetParameters_();
@@ -70,6 +74,8 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   AbstractParametrizable(""),
   AbstractParametrizableSequencePhyloLikelihood(collNodes->context(), evol, nSeqEvol),
   mSeqEvol_(evol),
+  firstOrderDerivativeVectors_(),
+  secondOrderDerivativeVectors_(),
   likCal_()
 {
   resetParameters_();
@@ -191,7 +197,7 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRatePerSite() const
 /******************************************************************************/
 
 
-Vdouble OneProcessSequencePhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
+Vdouble OneProcessSequencePhyloLikelihood::getPosteriorStateFrequencies(unsigned int nodeId)
 {
   auto vv = getLikelihoodCalculationSingleProcess()->getLikelihoodsAtNode(nodeId)->targetValue();
 
@@ -199,16 +205,16 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorStateFrequencies(uint nod
   VVdouble pp;
   pp.resize(nbSites);
 
-  for (uint i = 0; i < (uint)nbSites; i++)
+  for (unsigned int i = 0; i < (unsigned int)nbSites; i++)
   {
     copyEigenToBpp(vv.col(i) / vv.col(i).sum(), pp[size_t(i)]);
   }
 
   Vdouble v(nbStates_);
-  for (uint st = 0; st < (uint)nbStates_; st++)
+  for (unsigned int st = 0; st < (unsigned int)nbStates_; st++)
   {
     auto s = 0.0;
-    for (uint i = 0; i < (uint)nbSites; i++)
+    for (unsigned int i = 0; i < (unsigned int)nbSites; i++)
     {
       s += pp[(size_t)i][size_t(st)];
     }

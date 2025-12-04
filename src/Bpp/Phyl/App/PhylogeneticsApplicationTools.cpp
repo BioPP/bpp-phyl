@@ -1053,18 +1053,18 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
         }
 
         // Then makes all combinations of paths
-        vector<vector<uint>> vvnmod;
+        vector<vector<unsigned int>> vvnmod;
         for (const auto& pSM:vpSM)
         {
           auto nmod = pSM->getNumberOfModels();
 
-          vector<vector<uint>> vvnmod2;
+          vector<vector<unsigned int>> vvnmod2;
 
           if (vvnmod.size() == 0)
           {
-            for (uint nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
+            for (unsigned int nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
             {
-              auto v2 = vector<uint>({nm});
+              auto v2 = vector<unsigned int>({nm});
               vvnmod2.push_back(v2);
             }
           }
@@ -1072,7 +1072,7 @@ map<size_t, std::unique_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
           {
             for (const auto& vnmod:vvnmod)
             {
-              for (uint nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
+              for (unsigned int nm = 0; nm < static_cast<unsigned int>(nmod); ++nm)
               {
                 auto v2 = vnmod;
                 v2.push_back(nm);
@@ -1287,7 +1287,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     }
     if (numRate == 0)
     {
-      for (uint i = 1; i <= *std::max_element(vrdn.begin(), vrdn.end()) + 1; i++)
+      for (unsigned int i = 1; i <= *std::max_element(vrdn.begin(), vrdn.end()) + 1; i++)
       {
         if (std::find(vrdn.begin(), vrdn.end(), i) == vrdn.end())
         {
@@ -1368,7 +1368,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     map<size_t, vector<unsigned int>> mModBr;
 
-    vector<uint> vNodes;
+    vector<unsigned int> vNodes;
     if (numTree != 0)
       vNodes = SubProColl.tree(numTree).getAllEdgesIndexes();
     else
@@ -1937,7 +1937,7 @@ std::shared_ptr<PhyloLikelihoodContainer> PhylogeneticsApplicationTools::getPhyl
   // //////////////////////////////////////////
   // First the phylos that do not depend on other phylos
 
-  uint nbPh(0);
+  unsigned int nbPh(0);
   bool verbhere(verbose);
 
   for (const auto& it : phylosMap)

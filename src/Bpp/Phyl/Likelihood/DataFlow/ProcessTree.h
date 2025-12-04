@@ -29,8 +29,8 @@ class CollectionNodes;
  *  The map is indexed by branch ids.
  */
 
-using DAGindexes = std::vector<uint>;
-using Speciesindex = uint;
+using DAGindexes = std::vector<unsigned int>;
+using Speciesindex = unsigned int;
 
 
 // Branch specific DataFlow objects
@@ -70,7 +70,7 @@ public:
   /**
    * @brief Construction with model and brlen.
    */
-  ProcessEdge(uint speciesIndex,
+  ProcessEdge(unsigned int speciesIndex,
       std::shared_ptr<ConfiguredParameter> brlen,
       std::shared_ptr<ConfiguredModel> model,
       std::shared_ptr<NumericConstant<size_t>> nMod = 0) : speciesIndex_(speciesIndex), brlen_(brlen), model_(model), nMod_(nMod), transitionMatrix_(0), brprob_(0){}
@@ -78,7 +78,7 @@ public:
   /**
    * @brief Construction with probability ref from Mixture model
    */
-  ProcessEdge(uint speciesIndex,
+  ProcessEdge(unsigned int speciesIndex,
       ValueRef<double> brprob) : speciesIndex_(speciesIndex), brlen_(0), model_(0), nMod_(0), transitionMatrix_(0), brprob_(brprob){}
 
   /**
@@ -136,7 +136,7 @@ public:
     return nMod_;
   }
 
-  uint getSpeciesIndex() const
+  unsigned int getSpeciesIndex() const
   {
     return speciesIndex_;
   }

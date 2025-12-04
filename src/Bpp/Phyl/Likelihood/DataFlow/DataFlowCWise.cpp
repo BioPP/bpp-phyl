@@ -6,6 +6,7 @@
 
 #include "DataFlowCWise.h"
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
 namespace bpp
 {

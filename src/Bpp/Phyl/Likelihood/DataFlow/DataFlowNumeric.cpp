@@ -180,7 +180,7 @@ void checkRecreateWithoutDependencies (const std::type_info& contextNodeType, co
 }
 
 // Precompiled instantiations of numeric nodes
-template class ConstantZero<uint>;
+template class ConstantZero<unsigned int>;
 template class ConstantZero<double>;
 template class ConstantZero<char>;
 template class ConstantZero<std::string>;
@@ -197,7 +197,7 @@ template class ConstantZero<ExtendedFloatRowVectorXd>;
 template class ConstantZero<ExtendedFloatMatrixXd>;
 
 
-template class ConstantOne<uint>;
+template class ConstantOne<unsigned int>;
 template class ConstantOne<double>;
 template class ConstantOne<char>;
 template class ConstantOne<std::string>;
@@ -219,7 +219,7 @@ template class Identity<ExtendedFloatMatrixXd>;
 template class Identity<Eigen::MatrixXd>;
 
 
-template class NumericConstant<uint>;
+template class NumericConstant<unsigned int>;
 template class NumericConstant<double>;
 template class NumericConstant<size_t>;
 template class NumericConstant<std::string>;
@@ -234,7 +234,7 @@ template class NumericConstant<Eigen::VectorXd>;
 template class NumericConstant<Eigen::RowVectorXd>;
 template class NumericConstant<Eigen::MatrixXd>;
 
-template class NumericMutable<uint>;
+template class NumericMutable<unsigned int>;
 template class NumericMutable<double>;
 
 template class NumericMutable<ExtendedFloatVectorXd>;

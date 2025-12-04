@@ -21,7 +21,7 @@ bool ModelScenario::complete()
   auto models = nhn.getModels();
   for (const auto& model:models)
   {
-    Vuint v((uint)model->getNumberOfModels());
+    Vuint v((unsigned int)model->getNumberOfModels());
     iota(v.begin(), v.end(), 0);
     rest->setModel(model, v);
   }

@@ -129,14 +129,14 @@ public:
 class ProbabilityFromDiscreteDistribution : public Value<double>
 {
 private:
-  uint nCat_;
+  unsigned int nCat_;
 
 public:
   using Self = ProbabilityFromDiscreteDistribution;
   using Dep = ConfiguredDistribution;
   using T = double;
 
-  ProbabilityFromDiscreteDistribution (NodeRefVec&& deps, uint nCat_);
+  ProbabilityFromDiscreteDistribution (NodeRefVec&& deps, unsigned int nCat_);
 
   std::string debugInfo () const final;
 
@@ -154,7 +154,7 @@ private:
   void compute () final;
 
 public:
-  static std::shared_ptr<Self> create (Context& c, NodeRefVec&& deps, uint nCat);
+  static std::shared_ptr<Self> create (Context& c, NodeRefVec&& deps, unsigned int nCat);
 };
 
 /** Rate = f(DiscreteDistribution, Category).
@@ -168,14 +168,14 @@ public:
 class CategoryFromDiscreteDistribution : public Value<double>
 {
 private:
-  uint nCat_;
+  unsigned int nCat_;
 
 public:
   using Self = CategoryFromDiscreteDistribution;
   using Dep = ConfiguredDistribution;
   using T = double;
 
-  CategoryFromDiscreteDistribution (NodeRefVec&& deps, uint nCat_);
+  CategoryFromDiscreteDistribution (NodeRefVec&& deps, unsigned int nCat_);
 
   std::string debugInfo () const final;
 
@@ -193,7 +193,7 @@ private:
   void compute () final;
 
 public:
-  static std::shared_ptr<Self> create (Context& c, NodeRefVec&& deps, uint nCat);
+  static std::shared_ptr<Self> create (Context& c, NodeRefVec&& deps, unsigned int nCat);
 };
 } // namespace bpp
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_DISCRETEDISTRIBUTION_H

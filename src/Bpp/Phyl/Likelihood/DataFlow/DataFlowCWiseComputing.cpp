@@ -65,9 +65,9 @@ template class CWiseSub<VectorLik, std::tuple<VectorLik, DataLik>>;
 template class CWiseSub<RowLik, std::tuple<RowLik, DataLik>>;
 
 template class CWiseMul<double, std::tuple<double, double>>;
-template class CWiseMul<double, std::tuple<double, uint>>;
+template class CWiseMul<double, std::tuple<double, unsigned int>>;
 template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
-template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, uint>>;
+template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, unsigned int>>;
 template class CWiseMul<VectorLik, std::tuple<VectorLik, VectorLik>>;
 template class CWiseMul<RowLik, std::tuple<RowLik, RowLik>>;
 template class CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;

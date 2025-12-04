@@ -19,7 +19,7 @@ using namespace Eigen;
 LikelihoodCalculationOnABranch::LikelihoodCalculationOnABranch(
     Context& context,
     LikelihoodCalculationSingleProcess& likcalsp,
-    uint edgeId) :
+    unsigned int edgeId) :
   AlignedLikelihoodCalculation(context),
   numberOfSites_(likcalsp.getNumberOfSites()),
   likelihoodMatrixDim_({likcalsp.stateMap().getNumberOfModelStates(), likcalsp.getNumberOfDistinctSites()}),

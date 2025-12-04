@@ -192,7 +192,7 @@ private:
   void compute_dMultinomial_dt_(const Eigen::VectorXd& counts) const;
   void compute_d2Multinomial_dt2_(const Eigen::VectorXd& counts) const;
 
-  static uint factorial(uint n)
+  static unsigned int factorial(unsigned int n)
   {
     return (n == 0 || n == 1) ? 1 : factorial(n - 1) * n;
   }

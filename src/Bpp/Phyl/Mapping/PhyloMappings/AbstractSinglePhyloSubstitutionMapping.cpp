@@ -26,7 +26,7 @@ AbstractSinglePhyloSubstitutionMapping::AbstractSinglePhyloSubstitutionMapping(c
   for ( ; !nIT->end(); nIT->next())
   {
     (**nIT)->pMod_ = 0;
-    uint brid = getEdgeIndex(**nIT);
+    unsigned int brid = getEdgeIndex(**nIT);
 
     auto sm = sppm.getEdge(brid)->pMod_;
 
@@ -69,7 +69,7 @@ AbstractSinglePhyloSubstitutionMapping& AbstractSinglePhyloSubstitutionMapping::
   {
     (**nIT)->pMod_ = 0;
 
-    uint brid = getEdgeIndex(**nIT);
+    unsigned int brid = getEdgeIndex(**nIT);
     auto sm = sppm.getEdge(brid)->pMod_;
 
     if (sm)

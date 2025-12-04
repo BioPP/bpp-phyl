@@ -29,7 +29,7 @@ private:
    * Boolean matrix of the substitutions that are NOT considered (ie
    * for which the changes generator equal the ones of the original model).
    */
-  RowMatrix<uint> noChangedStates_;
+  RowMatrix<unsigned int> noChangedStates_;
 
   /**
    * The SubstitutionModel in which generator has registered changes

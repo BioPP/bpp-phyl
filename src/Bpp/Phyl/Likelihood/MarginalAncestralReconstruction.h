@@ -106,15 +106,15 @@ public:
    * @return A vector of states indices.
    * @see getAncestralSequenceForNode
    */
-  std::vector<size_t> getAncestralStatesForNode(uint nodeId, VVdouble& probs, bool sample) const;
+  std::vector<size_t> getAncestralStatesForNode(unsigned int nodeId, VVdouble& probs, bool sample) const;
 
-  std::vector<size_t> getAncestralStatesForNode(uint nodeId) const override
+  std::vector<size_t> getAncestralStatesForNode(unsigned int nodeId) const override
   {
     VVdouble probs(nbSites_);
     return getAncestralStatesForNode(nodeId, probs, false);
   }
 
-  std::map<uint, std::vector<size_t>> getAllAncestralStates() const override;
+  std::map<unsigned int, std::vector<size_t>> getAllAncestralStates() const override;
 
   /**
    * @brief Get an ancestral sequence for a given node.
@@ -133,9 +133,9 @@ public:
    * probability.
    * @return A sequence object.
    */
-  std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId, VVdouble* probs, bool sample) const;
+  std::unique_ptr<Sequence> getAncestralSequenceForNode(unsigned int nodeId, VVdouble* probs, bool sample) const;
 
-  std::unique_ptr<Sequence> getAncestralSequenceForNode(uint nodeId) const override
+  std::unique_ptr<Sequence> getAncestralSequenceForNode(unsigned int nodeId) const override
   {
     return getAncestralSequenceForNode(nodeId, 0, false);
   }
@@ -150,7 +150,7 @@ public:
 private:
   void recursiveMarginalAncestralStates(
       const std::shared_ptr<PhyloNode> node,
-      std::map<uint, std::vector<size_t>>& ancestors,
+      std::map<unsigned int, std::vector<size_t>>& ancestors,
       AlignmentDataInterface& data) const;
 };
 } // end of namespace bpp.

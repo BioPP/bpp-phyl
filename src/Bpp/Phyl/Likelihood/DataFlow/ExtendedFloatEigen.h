@@ -9,6 +9,7 @@
 #include "ExtendedFloat.h"
 #include "ExtendedFloatEigenTools.h"
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" //Remove a STL warning
 
 namespace bpp
@@ -997,6 +998,7 @@ public:
     return efm_->float_part();
   }
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
 
   Self operator=(const Array& rhs)

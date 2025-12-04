@@ -271,6 +271,7 @@ public:
   {
     if (&node == this)
     {
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove a STL warning
       return ConstantOne<R>::create (c, targetDimension_);
 #pragma GCC diagnostic pop
@@ -985,6 +986,7 @@ public:
   {
     if (&node == this)
     {
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove a STL warning
       return ConstantOne<R>::create(c, targetDimension_);
 #pragma GCC diagnostic pop
@@ -2128,6 +2130,7 @@ public:
         return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
       }))
     {
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
       return ConstantZero<R>::create (c, dim);
 #pragma GCC diagnostic pop
@@ -2618,9 +2621,9 @@ extern template class CWiseSub<VectorLik, std::tuple<VectorLik, DataLik>>;
 extern template class CWiseSub<RowLik, std::tuple<RowLik, DataLik>>;
 
 extern template class CWiseMul<double, std::tuple<double, double>>;
-extern template class CWiseMul<double, std::tuple<double, uint>>;
+extern template class CWiseMul<double, std::tuple<double, unsigned int>>;
 extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, ExtendedFloat>>;
-extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, uint>>;
+extern template class CWiseMul<ExtendedFloat, std::tuple<ExtendedFloat, unsigned int>>;
 extern template class CWiseMul<VectorLik, std::tuple<VectorLik, VectorLik>>;
 extern template class CWiseMul<RowLik, std::tuple<RowLik, RowLik>>;
 extern template class CWiseMul<MatrixLik, std::tuple<MatrixLik, MatrixLik>>;

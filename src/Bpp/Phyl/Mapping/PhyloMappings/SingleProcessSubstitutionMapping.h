@@ -14,14 +14,15 @@
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // Disable warning coming from the STL because of std::enable_shared_from_this
+
 namespace bpp
 {
 /**
  * @brief The SingleProcessSubstitutionMapping class: substitution
  * mapping linked with a SingleProcessPhyloLikelihood
- *
  */
-
 class SingleProcessSubstitutionMapping :
   public AbstractSinglePhyloSubstitutionMapping,
   public std::enable_shared_from_this<SingleProcessSubstitutionMapping>
@@ -60,7 +61,7 @@ public:
 
   SingleProcessSubstitutionMapping* clone() const { return new SingleProcessSubstitutionMapping(*this); }
 
-  /*
+  /**
    * @brief ComputeCounts
    *
    * @param unresolvedOption  mgmt of gaps in the counts (default: counted as zeros)
@@ -116,4 +117,7 @@ public:
   }
 };
 } // end of namespace bpp.
+
+#pragma GCC diagnostic pop
+
 #endif // BPP_PHYL_MAPPING_PHYLOMAPPINGS_SINGLEPROCESSSUBSTITUTIONMAPPING_H
