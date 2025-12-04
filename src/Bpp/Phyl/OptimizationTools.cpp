@@ -47,6 +47,7 @@ OptimizationTools::OptimizationOptions::OptimizationOptions(
     int warn) :
   parameters(),
   listener(nullptr),
+  backupFile(),
   nstep(1),
   tolerance(0.000001),
   nbEvalMax(1000000),
@@ -439,7 +440,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     ApplicationTools::displayMessage("\n");
 
   // We're done.
-  uint nb = poptimizer->getNumberOfEvaluations();
+  unsigned int nb = poptimizer->getNumberOfEvaluations();
   return nb;
 }
 
@@ -762,7 +763,7 @@ unique_ptr<TreeTemplate<Node>> OptimizationTools::buildDistanceTree(
     vLik.push_back(tl->getValue());
 
     // hide opt verbose
-    optopt.verbose = estimationMethod.getVerbose() > 0 ? uint(estimationMethod.getVerbose() - 1) : 0;
+    optopt.verbose = estimationMethod.getVerbose() > 0 ? (unsigned int)(estimationMethod.getVerbose() - 1) : 0;
 
     optimizeNumericalParameters(tl, optopt);
     process->matchParametersValues(tl->getParameters());

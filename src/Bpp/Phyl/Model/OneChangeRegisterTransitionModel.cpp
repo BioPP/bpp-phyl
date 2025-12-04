@@ -35,7 +35,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
   // setting nonchanging states
   for (size_t i = 0; i < size_; ++i)
   {
-    vector<uint>& chS_i = noChangedStates_.getRow(i);
+    auto& chS_i = noChangedStates_.getRow(i);
 
     for (size_t j = 0; j < size_; ++j)
     {
@@ -72,7 +72,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(
 
   for (size_t i = 0; i < size_; ++i)
   {
-    vector<uint>& chS_i = noChangedStates_.getRow(i);
+    Vuint& chS_i = noChangedStates_.getRow(i);
 
     for (size_t j = 0; j < size_; ++j)
     {
@@ -93,7 +93,7 @@ void OneChangeRegisterTransitionModel::updateMatrices_()
   {
     double si = 0;
     const vector<double>& gen_i = gen.getRow(i);
-    const vector<uint>& chS_i = noChangedStates_.getRow(i);
+    const Vuint& chS_i = noChangedStates_.getRow(i);
 
     for (size_t j = 0; j < size_; j++)
     {

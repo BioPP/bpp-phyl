@@ -45,15 +45,14 @@ private:
    */
   Eigen::Index pos_;
 
-  /*
+  /**
    * @brief Vector of branch indexes where the data is not used, and
    * substitution probabilities are computed from the prior process.
-   *
    */
-
-  std::vector<uint> vPriorBranch_;
+  Vuint vPriorBranch_;
 
 public:
+  
   /**
    * @brief Build a Site Simulator of histories from the a posteriori likelihoods at a given site
    *
@@ -62,8 +61,7 @@ public:
    * @param shrunked if the given position is on the shrunked data (default: false)
    * @param vPrior the vector of branch numbers where the posterior is not used.
    */
-
-  GivenDataSubstitutionProcessSiteSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos, bool shrunked = false, std::vector<uint> vPrior = std::vector<uint>()) :
+  GivenDataSubstitutionProcessSiteSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, size_t pos, bool shrunked = false, Vuint vPrior = Vuint()) :
     SimpleSubstitutionProcessSiteSimulator(calcul->getSubstitutionProcess()),
     calcul_(calcul),
     pos_(shrunked ? Eigen::Index(pos) : Eigen::Index(calcul->getRootArrayPosition(pos))),
@@ -77,7 +75,8 @@ public:
   GivenDataSubstitutionProcessSiteSimulator(const GivenDataSubstitutionProcessSiteSimulator& nhss) :
     SimpleSubstitutionProcessSiteSimulator(nhss),
     calcul_(nhss.calcul_),
-    pos_(nhss.pos_)
+    pos_(nhss.pos_),
+    vPriorBranch_(nhss.vPriorBranch_)
   {}
 
   GivenDataSubstitutionProcessSiteSimulator& operator=(const GivenDataSubstitutionProcessSiteSimulator& nhss)
@@ -85,6 +84,7 @@ public:
     SimpleSubstitutionProcessSiteSimulator::operator=(nhss);
     calcul_ = nhss.calcul_;
     pos_ = nhss.pos_;
+    vPriorBranch_ = nhss.vPriorBranch_;
 
     return *this;
   }

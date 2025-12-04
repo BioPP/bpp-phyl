@@ -35,7 +35,7 @@ public:
       std::shared_ptr<LikelihoodCalculationSingleProcess> calcul,
       size_t pos,
       bool shrunked = false,
-      std::vector<uint> vPrior = std::vector<uint>()) :
+      Vuint vPrior = Vuint()) :
     siteSim_(std::make_shared<GivenDataSubstitutionProcessSiteSimulator>(calcul, pos, shrunked, vPrior))
   {}
 

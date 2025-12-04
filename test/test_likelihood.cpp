@@ -144,7 +144,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModelInterface> model,
   cout << "Optimization : " << endl;
   cout << endl;
 
-  uint nboptim = 1000;
+  unsigned int nboptim = 1000;
 
   ///////////////
 

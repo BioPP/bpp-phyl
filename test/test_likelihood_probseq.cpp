@@ -143,7 +143,7 @@ void fitModelHSR(
   cout << "Optimization : " << endl;
   cout << endl;
 
-  uint nboptim = 1000;
+  unsigned int nboptim = 1000;
 
   auto tlop = make_shared<RHomogeneousTreeLikelihood>(tree, *sites,
         shared_ptr<SubstitutionModelInterface>(model->clone()),

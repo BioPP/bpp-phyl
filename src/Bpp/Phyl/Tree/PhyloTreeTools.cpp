@@ -39,7 +39,7 @@ std::shared_ptr<PhyloTree> PhyloTreeTools::buildFromTreeTemplate(const TreeTempl
   auto rooti = std::make_shared<PhyloNode>(root.hasName() ? root.getName() : "");
   phyloT->createNode(rooti);
   phyloT->setRoot(rooti);
-  phyloT->setNodeIndex(rooti, (uint)root.getId());
+  phyloT->setNodeIndex(rooti, (unsigned int)root.getId());
 
   auto propi = root.getNodePropertyNames();
   for (const auto& prop:propi)

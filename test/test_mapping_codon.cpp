@@ -38,7 +38,7 @@ int main()
 
   shared_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.1);", false, "", false, false));
 
-  vector<uint> ids = {0, 1, 2, 3, 4};
+  Vuint ids = {0, 1, 2, 3, 4};
 
   // -------------
 
@@ -67,11 +67,11 @@ int main()
     realMapDnDs[i].resize(ids.size());
     for (size_t j = 0; j < ids.size(); ++j)
     {
-      realMap[i][j] = static_cast<double>(result->getSubstitutionCount((uint)ids[j]));
+      realMap[i][j] = static_cast<double>(result->getSubstitutionCount((unsigned int)ids[j]));
       realMapTotal[i][j].resize(totReg->getNumberOfSubstitutionTypes());
       realMapDnDs[i][j].resize(dndsReg->getNumberOfSubstitutionTypes());
-      result->getSubstitutionCount((uint)ids[j], *totReg, realMapTotal[i][j]);
-      result->getSubstitutionCount((uint)ids[j], *dndsReg, realMapDnDs[i][j]);
+      result->getSubstitutionCount((unsigned int)ids[j], *totReg, realMapTotal[i][j]);
+      result->getSubstitutionCount((unsigned int)ids[j], *dndsReg, realMapDnDs[i][j]);
       if (realMapTotal[i][j][0] != realMap[i][j])
       {
         cerr << "Error, total substitution register provides wrong result." << endl;

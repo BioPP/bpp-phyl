@@ -127,7 +127,7 @@ PhyloTree& PhyloTree::operator+=(const PhyloTree& phylotree)
 
   for (auto& it: vpn)
   {
-    uint ei = getEdgeIndex(it);
+    auto ei = getEdgeIndex(it);
 
     if (!phylotree.hasEdge(ei))
       throw Exception("Phylotree::operator+= : argument tree does not have edge " + TextTools::toString(ei));
@@ -146,7 +146,7 @@ PhyloTree& PhyloTree::operator-=(const PhyloTree& phylotree)
 
   for (auto& it: vpn)
   {
-    uint ei = getEdgeIndex(it);
+    auto ei = getEdgeIndex(it);
 
     if (!phylotree.hasEdge(ei))
       throw Exception("Phylotree::operator+= : argument tree does not have edge " + TextTools::toString(ei));
@@ -165,7 +165,7 @@ PhyloTree& PhyloTree::operator/=(const PhyloTree& phylotree)
 
   for (auto& it: vpn)
   {
-    uint ei = getEdgeIndex(it);
+    auto ei = getEdgeIndex(it);
 
     if (!phylotree.hasEdge(ei))
       throw Exception("Phylotree::operator/= : argument tree does not have edge " + TextTools::toString(ei));
@@ -184,7 +184,7 @@ PhyloTree& PhyloTree::operator*=(const PhyloTree& phylotree)
 
   for (auto& it: vpn)
   {
-    uint ei = getEdgeIndex(it);
+    auto ei = getEdgeIndex(it);
 
     if (!phylotree.hasEdge(ei))
       throw Exception("Phylotree::operator/= : argument tree does not have edge " + TextTools::toString(ei));
@@ -205,7 +205,7 @@ void PhyloTree::addSubTree(std::shared_ptr<PhyloNode> phyloNode, const Node& nod
 
     // the son
     auto soni = std::make_shared<PhyloNode>(fils.hasName() ? fils.getName() : "");
-    setNodeIndex(soni, (uint)fils.getId());
+    setNodeIndex(soni, (unsigned int)fils.getId());
 
     auto propi = fils.getNodePropertyNames();
     for (const auto& prop:propi)
@@ -216,7 +216,7 @@ void PhyloTree::addSubTree(std::shared_ptr<PhyloNode> phyloNode, const Node& nod
     auto branchi = std::make_shared<PhyloBranch> ();
     if (fils.hasDistanceToFather())
       branchi->setLength(fils.getDistanceToFather());
-    setEdgeIndex(branchi, (uint)fils.getId());
+    setEdgeIndex(branchi, (unsigned int)fils.getId());
 
     // the branch to the son
     propi = fils.getBranchPropertyNames();

@@ -21,25 +21,21 @@ class GivenDataSubstitutionProcessSequenceSimulator :
 private:
   std::shared_ptr<LikelihoodCalculationSingleProcess> calcul_;
 
-  /*
+  /**
    * @brief Vector of site specific site simulators on SHRUNKED data
    *
    * More efficient implementation is possible (all in ona).
-   *
    */
-
   std::vector<std::shared_ptr<GivenDataSubstitutionProcessSiteSimulator>> vSiteSim_;
 
-  /*
+  /**
    * @brief Vector of branch indexes where the data is not used, and
    * substitution probabilities are computed from the prior process.
-   *
    */
-
-  std::vector<uint> vPriorBranch_;
+  Vuint vPriorBranch_;
 
 public:
-  GivenDataSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, std::vector<uint> vPrior = std::vector<uint>()) :
+  GivenDataSubstitutionProcessSequenceSimulator(std::shared_ptr<LikelihoodCalculationSingleProcess> calcul, Vuint vPrior = Vuint()) :
     calcul_(calcul), vSiteSim_(), vPriorBranch_(vPrior)
   {
     for (size_t i = 0; i < calcul_->getNumberOfDistinctSites(); i++)
@@ -52,7 +48,7 @@ public:
   {}
 
   GivenDataSubstitutionProcessSequenceSimulator(const GivenDataSubstitutionProcessSequenceSimulator& nhss) :
-    calcul_(nhss.calcul_), vSiteSim_(nhss.vSiteSim_)
+    calcul_(nhss.calcul_), vSiteSim_(nhss.vSiteSim_), vPriorBranch_(nhss.vPriorBranch_)
   {}
 
   GivenDataSubstitutionProcessSequenceSimulator* clone() const override

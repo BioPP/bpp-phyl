@@ -45,7 +45,7 @@ void PhyloDAG::resetNodesId()
   {
     while (hasEdgeIndex(branches[eid]))
       eid++;
-    setEdgeIndex(branches[eid], (uint)j);
+    setEdgeIndex(branches[eid], (unsigned int)j);
   }
 }
 
@@ -148,7 +148,7 @@ PhyloDAG& PhyloDAG::operator+=(const PhyloDAG& phylodag)
 
   for (auto& it: vpn)
   {
-    uint ei = getEdgeIndex(it);
+    auto ei = getEdgeIndex(it);
 
     if (!phylodag.hasEdge(ei))
       throw Exception("Phylodag::operator+= : argument dag does not have edge " + TextTools::toString(ei));
@@ -167,7 +167,7 @@ PhyloDAG& PhyloDAG::operator-=(const PhyloDAG& phylodag)
 
   for (auto& it: vpn)
   {
-    uint ei = getEdgeIndex(it);
+    auto ei = getEdgeIndex(it);
 
     if (!phylodag.hasEdge(ei))
       throw Exception("Phylodag::operator+= : argument dag does not have edge " + TextTools::toString(ei));
@@ -186,7 +186,7 @@ PhyloDAG& PhyloDAG::operator/=(const PhyloDAG& phylodag)
 
   for (auto& it: vpn)
   {
-    uint ei = getEdgeIndex(it);
+    auto ei = getEdgeIndex(it);
 
     if (!phylodag.hasEdge(ei))
       throw Exception("Phylodag::operator/= : argument dag does not have edge " + TextTools::toString(ei));
@@ -205,7 +205,7 @@ PhyloDAG& PhyloDAG::operator*=(const PhyloDAG& phylodag)
 
   for (auto& it: vpn)
   {
-    uint ei = getEdgeIndex(it);
+    auto ei = getEdgeIndex(it);
 
     if (!phylodag.hasEdge(ei))
       throw Exception("Phylodag::operator/= : argument dag does not have edge " + TextTools::toString(ei));

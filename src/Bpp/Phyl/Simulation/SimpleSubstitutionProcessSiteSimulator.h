@@ -39,7 +39,7 @@ private:
 
 public:
   SimProcessNode(const ProcessComputationNode& pcn) :
-    ProcessComputationNode(pcn), state_() {}
+    ProcessComputationNode(pcn), state_(), cumProb_(), sons_() {}
 
   friend class SimpleSubstitutionProcessSiteSimulator;
   friend class GivenDataSubstitutionProcessSiteSimulator;

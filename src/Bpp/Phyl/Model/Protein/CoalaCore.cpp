@@ -32,7 +32,8 @@ CoalaCore::CoalaCore(size_t nbAxes) :
   P_(),
   R_(),
   colWeights_(),
-  paramValues_()
+  paramValues_(),
+  nData_()
 {}
 
 /******************************************************************************/

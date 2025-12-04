@@ -38,7 +38,7 @@ int main()
 
     shared_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.02);", false, "", false, false));
 
-    vector<uint> ids = {0, 1, 2, 3, 4};
+    Vuint ids = {0, 1, 2, 3, 4};
 
     // -------------
 
