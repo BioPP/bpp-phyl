@@ -154,6 +154,7 @@ class ProcessTree : public AssociationTreeGlobalGraphObserver<ProcessNode, Proce
   // CollectionNodes* nodes_;
 
 public:
+
   /**
    * @brief Build a ProcessTree with same topology as a given
    * ParametrizablePhyloTree, and new ConfiguredParameter BrLen.
@@ -163,7 +164,7 @@ public:
       const ParametrizablePhyloTree& tree);
 
   /**
-   * @brief Copy a ProcessTree with all BrLen multiplied by a given rate DF double    *
+   * @brief Copy a ProcessTree with all BrLen multiplied by a given rate DF double  
    */
   ProcessTree(const ProcessTree& tree,
       ValueRef<double> rate);
@@ -191,14 +192,16 @@ public:
       ParametrizableCollection<ConfiguredModel>& modelColl,
       const ProcessTree& phyloTree);
 
-
   ProcessTree* clone() const override
   {
     throw Exception("ProcessTree::clone should not be called.");
   }
 
+private:
+
   ProcessTree(const ProcessTree& pTree) :
-    AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(pTree.getGraph())
+    AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(pTree.getGraph()),
+    context_(pTree.context_)
   {
     throw Exception("ProcessTree::ProcessTree should not be called.");
   }
@@ -210,24 +213,22 @@ public:
     return *this;
   }
 
-  /*
+public:
+  /**
    * @brief Get the edges indexes of the DAG that correspond to
    * the species Index (of the Process tree).
    */
-
   DAGindexes getDAGEdgesIndexes(const Speciesindex speciesIndex) const;
 
-  /*
+  /**
    * For inclusion in ParametrizableCollection. Not used
-   *
    */
-  const ParameterList getParameters() {return ParameterList();}
+  const ParameterList getParameters() { return ParameterList(); }
 
   bool matchParametersValues(ParameterList&) {return true;}
 
-  /*
+  /**
    * Static construction methods.
-   *
    */
 
   /**

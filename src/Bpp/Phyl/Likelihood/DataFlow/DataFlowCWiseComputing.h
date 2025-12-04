@@ -271,7 +271,9 @@ public:
   {
     if (&node == this)
     {
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove a STL warning
       return ConstantOne<R>::create (c, targetDimension_);
+#pragma GCC diagnostic pop
     }
     constexpr std::size_t n = 2;
     NodeRefVec derivedDeps (n);
@@ -983,7 +985,9 @@ public:
   {
     if (&node == this)
     {
-      return ConstantOne<R>::create (c, targetDimension_);
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove a STL warning
+      return ConstantOne<R>::create(c, targetDimension_);
+#pragma GCC diagnostic pop
     }
     constexpr std::size_t n = 2;
     NodeRefVec addDeps (n);
@@ -1842,12 +1846,7 @@ public:
   }
 
   SumOfLogarithms (NodeRefVec&& deps, const Dimension<F>& mDim)
-    : Value<DataLik>(std::move (deps)), mTargetDimension_ (mDim) // , temp_() {
-    //         if (dependencies().size()==2)
-    //         {
-    //           const auto & p = accessValueConstCast<Eigen::VectorXi> (*this->dependency (1));
-    //          temp_.resize(p.size());
-    //         }
+    : Value<DataLik>(std::move (deps)), mTargetDimension_ (mDim), temp_()
   {}
 
   std::string debugInfo () const override
@@ -2129,7 +2128,9 @@ public:
         return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
       }))
     {
+#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
       return ConstantZero<R>::create (c, dim);
+#pragma GCC diagnostic pop
     }
     // Select node implementation
     bool identityDep0 = deps[0]->hasNumericalProperty (NumericalProperty::ConstantIdentity);

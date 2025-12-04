@@ -52,7 +52,8 @@ ProcessTree::ProcessTree(Context& context,
 
 ProcessTree::ProcessTree(const ProcessTree& tree,
     ValueRef<double> rate) :
-  AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree)
+  AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(tree),
+  context_()
 {
   // Adjust Edges
   auto aEit = allEdgesIterator();

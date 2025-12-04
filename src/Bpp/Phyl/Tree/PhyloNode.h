@@ -13,13 +13,12 @@
 
 namespace bpp
 {
-/***********
- * For each PhyloNode of the tree, a description of the event at the node.
+/**
+ * @brief For each PhyloNode of the tree, a description of the event at the node.
  *
  * It will determine the choice of the computing operator on this node.
  *
  */
-
 class NodeEvent : public Clonable
 {
   enum class NodeType
@@ -32,7 +31,7 @@ class NodeEvent : public Clonable
   NodeType nodeType_;
 
 public:
-  NodeEvent(NodeType type) { nodeType_ = type;}
+  NodeEvent(NodeType type): nodeType_(type) {}
 
   // NodeEvent(const NodeEvent& event) :
   //   nodeType_(event.nodeType_) {}

@@ -54,24 +54,9 @@ public:
       size_t nData = 0);
 
 protected:
-  MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
-    AbstractPhyloLikelihood(mlc),
-    AbstractAlignedPhyloLikelihood(mlc),
-    AbstractSingleDataPhyloLikelihood(mlc),
-    AbstractSequencePhyloLikelihood(mlc),
-    AbstractParametrizable(mlc),
-    MultiProcessSequencePhyloLikelihood(mlc),
-    mSeqEvol_(mlc.mSeqEvol_),
-    likCal_(mlc.likCal_)
-  {}
+  MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) = default;
 
-  MixtureProcessPhyloLikelihood& operator=(const MixtureProcessPhyloLikelihood& mlc)
-  {
-    MultiProcessSequencePhyloLikelihood::operator=(mlc);
-    mSeqEvol_ = mlc.mSeqEvol_;
-    likCal_ = mlc.likCal_;
-    return *this;
-  }
+  MixtureProcessPhyloLikelihood& operator=(const MixtureProcessPhyloLikelihood& mlc) = default;
 
   MixtureProcessPhyloLikelihood* clone() const override
   {
@@ -79,6 +64,7 @@ protected:
   }
 
 public:
+
   /**
    * @brief return the probability of a subprocess
    *

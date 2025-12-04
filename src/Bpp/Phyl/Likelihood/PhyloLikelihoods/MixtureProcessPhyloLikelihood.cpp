@@ -31,6 +31,7 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   AbstractParametrizable(""),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData),
   mSeqEvol_(processSeqEvol),
+  simplex_(),
   likCal_(make_shared<AlignedLikelihoodCalculation>(collNodes->context()))
 {
   if (vLikCal_.size() == 0)

@@ -43,19 +43,21 @@ protected:
    */
   mutable std::unordered_map<std::string, ValueRef<DataLik>> firstOrderDerivativeNodes_;
 
-  mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<DataLik>,
-      StringPairHash>
-  secondOrderDerivativeNodes_;
+  mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<DataLik>, StringPairHash> secondOrderDerivativeNodes_;
 
 public:
   AbstractPhyloLikelihood(Context& context) :
     context_(context),
-    minusLogLik_(0)
+    minusLogLik_(0),
+    firstOrderDerivativeNodes_(),
+    secondOrderDerivativeNodes_()
   {}
 
   AbstractPhyloLikelihood(const AbstractPhyloLikelihood& apl) :
     context_(apl.context_),
-    minusLogLik_(apl.minusLogLik_)
+    minusLogLik_(apl.minusLogLik_),
+    firstOrderDerivativeNodes_(apl.firstOrderDerivativeNodes_),
+    secondOrderDerivativeNodes_(apl.secondOrderDerivativeNodes_)
   {
     shareParameters(apl.getParameters());
   }
@@ -64,6 +66,8 @@ public:
   {
     context_ = apl.context_;
     minusLogLik_ = apl.minusLogLik_;
+    firstOrderDerivativeNodes_ = apl.firstOrderDerivativeNodes_;
+    secondOrderDerivativeNodes_ = apl.secondOrderDerivativeNodes_;
     shareParameters(apl.getParameters());
     return *this;
   }

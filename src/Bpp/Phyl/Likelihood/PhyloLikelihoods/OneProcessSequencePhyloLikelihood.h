@@ -76,24 +76,9 @@ public:
       size_t nData = 0);
 
 protected:
-  OneProcessSequencePhyloLikelihood(const OneProcessSequencePhyloLikelihood& lik) :
-    AbstractPhyloLikelihood(lik),
-    AbstractAlignedPhyloLikelihood(lik),
-    AbstractSingleDataPhyloLikelihood(lik),
-    AbstractSequencePhyloLikelihood(lik),
-    AbstractParametrizable(lik),
-    AbstractParametrizableSequencePhyloLikelihood(lik),
-    mSeqEvol_(lik.mSeqEvol_),
-    likCal_(lik.likCal_)
-  {}
+  OneProcessSequencePhyloLikelihood(const OneProcessSequencePhyloLikelihood& lik) = default;
 
-  OneProcessSequencePhyloLikelihood& operator=(const OneProcessSequencePhyloLikelihood& lik)
-  {
-    AbstractParametrizableSequencePhyloLikelihood::operator=(lik);
-    mSeqEvol_ = lik.mSeqEvol_;
-    likCal_ = lik.likCal_;
-    return *this;
-  }
+  OneProcessSequencePhyloLikelihood& operator=(const OneProcessSequencePhyloLikelihood& lik) = default;
 
   OneProcessSequencePhyloLikelihood* clone() const override
   {

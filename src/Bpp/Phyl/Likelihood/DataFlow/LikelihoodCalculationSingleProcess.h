@@ -43,15 +43,15 @@ namespace bpp
  *
  */
 
-
-class ProcessTree;
+	class ProcessTree;
 class ForwardLikelihoodTree;
 class BackwardLikelihoodTree;
 
 // using RowLik = Eigen::Matrix<double, 1, Eigen::Dynamic>;
 // using MatrixLik = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
-/** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
+/**
+ * @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
  * - likelihood: RowVector(site).
  * - equilibriumFrequencies: RowVector(state).
  * - rootConditionalLikelihood: Matrix(state, site).
@@ -66,14 +66,16 @@ using LikelihoodFromRootConditional =
 using LikelihoodFromRootConditionalAtRoot =
     MatrixProduct<RowLik, Eigen::RowVectorXd, MatrixLik>;
 
-/** @brief totalLikelihood = product_site likelihood(site).
+/**
+ * @brief totalLikelihood = product_site likelihood(site).
  * - likelihood: RowVector (site).
  * - totalLikelihood: Extended float.
  */
 
 using TotalLogLikelihood = SumOfLogarithms<RowLik>;
 
-/** @brief Conditionallikelihood = AboveConditionalLikelihood * BelowConditionalLikelihood
+/**
+ * @brief Conditionallikelihood = AboveConditionalLikelihood * BelowConditionalLikelihood
  *
  * lik(state, site) = above(state, site) * below(state,site)
  * Using member wise multiply
@@ -92,11 +94,10 @@ using AllRatesSiteLikelihoods = MatrixLik;
 
 using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
 
-/*
+/**
  * @brief DAG of the conditional likelihoods (product of above and
  * below likelihoods), with same topology as forward & backward
  * likelihood DAGs.
- *
  */
 
 using ConditionalLikelihoodDAG = AssociationDAGlobalGraphObserver<ConditionalLikelihood, uint>;
@@ -145,6 +146,8 @@ public:
      */
     std::shared_ptr<SiteLikelihoodsTree> speciesLt;
 
+    RateCategoryTrees(): phyloTree(), flt(), blt(), clt(), lt(), speciesLt() {}
+
     ~RateCategoryTrees();
   };
 
@@ -161,6 +164,9 @@ public:
 
     std::shared_ptr<ConfiguredFrequencySet> rootFreqsNode_;
     std::shared_ptr<ConfiguredDistribution> ratesNode_;
+
+    ProcessNodes(): treeNode_(), modelNode_(), rootFreqsNode_(), ratesNode_() {}
+    ~ProcessNodes() = default;
   };
 
   /************************************/

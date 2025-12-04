@@ -14,6 +14,9 @@
 // From the STL:
 #include <memory>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // Disable warning coming from the STL because of enable_shared_from_this
+
 namespace bpp
 {
 /**
@@ -334,4 +337,5 @@ public:
   double getHyperNodeProbability(const HyperNode& hn) const;
 };
 } // end of namespace bpp.
+#pragma GCC diagnostic pop
 #endif // BPP_PHYL_LEGACY_MODEL_MIXEDSUBSTITUTIONMODELSET_H

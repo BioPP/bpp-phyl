@@ -107,15 +107,14 @@ protected:
   Eigen::Index nbStates_, nbSites_;
 
 public:
+  
   /**
    * @brief Build a new HmmLikelihood_DF object.
    *
    * @warning the HmmTransitionMatrix and HmmEmissionProbabilities
    * object passed as argument must be non-null and point toward the
    * same HmmStateAlphabet instance.
-   *
    */
-
   HmmLikelihood_DF(
       Context& context,
       std::shared_ptr<HmmStateAlphabet> hiddenAlphabet,
@@ -123,21 +122,10 @@ public:
       std::shared_ptr<HmmPhyloEmissionProbabilities> emissionProbabilities,
       const std::string& prefix = "");
 
-  HmmLikelihood_DF(const HmmLikelihood_DF& lik) :
-    AlignedLikelihoodCalculation(lik),
-    context_(lik.context_),
-    hiddenAlphabet_(lik.hiddenAlphabet_),
-    matrix_(lik.matrix_),
-    hmmEq_(lik.hmmEq_),
-    hmmTrans_(lik.hmmTrans_),
-    hmmEmis_(lik.hmmEmis_),
-    forwardLik_(lik.forwardLik_),
-    backwardLik_(lik.backwardLik_),
-    hiddenPostProb_(lik.hiddenPostProb_),
-    nbStates_(lik.nbStates_),
-    nbSites_(lik.nbSites_)
-  {}
-
+  HmmLikelihood_DF(const HmmLikelihood_DF& lik) = default;
+  
+  HmmLikelihood_DF& operator=(const HmmLikelihood_DF& lik) = default;
+ 
   virtual ~HmmLikelihood_DF() {}
 
   HmmLikelihood_DF* clone() const { return new HmmLikelihood_DF(*this); }

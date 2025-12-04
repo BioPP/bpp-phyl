@@ -32,23 +32,23 @@ protected:
 public:
   LikelihoodCalculation(Context& context) :
     AbstractParameterAliasable(""),
-    context_(context)
+    context_(context),
+    likelihood_()
   {}
 
   LikelihoodCalculation(Context& context,
       ParameterList& paramList) :
     AbstractParameterAliasable(""),
-    context_(context)
+    context_(context),
+    likelihood_()
   {
     shareParameters_(paramList);
   }
 
 
-  /*
+  /**
    * @brief Copy the likelihood calculation IN THE SAME CONTEXT.
-   *
    */
-
   LikelihoodCalculation(const LikelihoodCalculation& lik) :
     AbstractParameterAliasable(lik),
     context_(lik.context_),
@@ -126,10 +126,15 @@ class AlignedLikelihoodCalculation :
 {
 public:
   AlignedLikelihoodCalculation(Context& context) :
-    LikelihoodCalculation(context) {}
+    LikelihoodCalculation(context),
+    siteLikelihoods_(),
+    patternedSiteLikelihoods_()
+  {}
 
   AlignedLikelihoodCalculation(const AlignedLikelihoodCalculation& lik) :
-    LikelihoodCalculation(lik)
+    LikelihoodCalculation(lik),
+    siteLikelihoods_(),
+    patternedSiteLikelihoods_()
   {}
 
 

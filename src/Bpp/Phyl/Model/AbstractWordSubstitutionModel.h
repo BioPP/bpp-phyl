@@ -31,14 +31,14 @@ protected:
   std::shared_ptr<WordAlphabet> wordAlphabet_;
 
 public:
+
   /**
    * @brief Create a ModelList from one template substitution model.
    *
    * @param models A vector of pointers toward substitution model objects.
    *
-   * !! All pointers of the vector will be emptied.
+   * @warning All pointers of the vector will be emptied.
    */
-
   ModelList(std::vector<std::unique_ptr<SubstitutionModelInterface>>& models) :
     models_(models.size()), wordAlphabet_(nullptr)
   {
@@ -52,9 +52,9 @@ public:
   }
 
 private:
-  ModelList(const ModelList& ml) {}
+  ModelList(const ModelList& ml) = default;
 
-  ModelList& operator=(const ModelList& ml) { return *this; }
+  ModelList& operator=(const ModelList& ml) = default;
 
 public:
   size_t size() const { return models_.size(); }

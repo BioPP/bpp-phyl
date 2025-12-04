@@ -135,6 +135,7 @@ public:
   }
 
 private:
+#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
   void compute() override { compute<T>();}
 
   template<class U = T>
@@ -154,7 +155,7 @@ private:
     using namespace numeric;
     auto& result = this->accessValueMutable ();
     const auto& x0 = accessValueConstCast<T>(*this->dependency (0));
-    result.colwise() = x0.transpose();
+   result.colwise() = x0.transpose();
   }
 
   template<class U = T>
@@ -166,6 +167,7 @@ private:
     const auto& x0 = accessValueConstCast<T>(*this->dependency (0));
     result.colwise() = x0;
   }
+#pragma GCC diagnostic pop
 
   Dimension<R> targetDimension_;
 };

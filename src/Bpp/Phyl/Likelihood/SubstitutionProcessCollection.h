@@ -117,7 +117,7 @@ public:
    * @brief Create empty collections.
    */
   SubstitutionProcessCollection() :
-    AbstractParameterAliasable(""),
+    AbstractParameterAliasable(),
     modelColl_(),
     mModelToSubPro_(),
     freqColl_(),
@@ -127,9 +127,9 @@ public:
     mDistToSubPro_(),
     treeColl_(),
     mTreeToSubPro_(),
+    mModelScenario_(),
     mSubProcess_()
   {}
-
 
   SubstitutionProcessCollection(const SubstitutionProcessCollection& set);
 

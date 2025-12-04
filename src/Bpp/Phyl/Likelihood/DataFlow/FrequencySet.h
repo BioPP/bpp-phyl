@@ -45,7 +45,7 @@ public:
   using Self = ConfiguredFrequencySet;
   using Target = FrequencySetInterface;
 
-  ConfiguredFrequencySet (const Context& context, NodeRefVec&& deps, std::unique_ptr<FrequencySetInterface>&& freqset);
+  ConfiguredFrequencySet(const Context& context, NodeRefVec&& deps, std::unique_ptr<FrequencySetInterface>&& freqset);
 
   virtual ~ConfiguredFrequencySet ();
 
@@ -68,7 +68,7 @@ public:
   /// Configuration for numerical derivation of computation nodes using this FrequencySet.
   NumericalDerivativeConfiguration config;
 
-  NodeRef recreate (Context& c, NodeRefVec&& deps) final;
+  NodeRef recreate(Context& c, NodeRefVec&& deps) final;
 
   const ConfiguredParameter& getConfiguredParameter(const std::string& name)
   {
