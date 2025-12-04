@@ -354,18 +354,17 @@ public:
     return processNodes_.modelNode_->targetValue()->getStateMap();
   }
 
-  /************************************************
-   *** Patterns
+  /****************************
+   * Patterns
    ****************************/
 
-  /*
+  /**
    * @brief the relations between real position and shrunked data
    * positions.
    *
    * @param currentPosition : position in real data
    *
    * @return matching position in shrunked data
-   *
    */
   size_t getRootArrayPosition(size_t currentPosition) const
   {
@@ -373,7 +372,7 @@ public:
     {
       auto pos = Eigen::Index(currentPosition);
       if (pos>=rootPatternLinks_->targetValue().rows())
-        throw BadSizeException("Forbidden access in getRootArrayPosition.",pos,rootPatternLinks_->targetValue().rows());
+        throw BadSizeException("Forbidden access in getRootArrayPosition.",static_cast<size_t>(pos),static_cast<size_t>(rootPatternLinks_->targetValue().rows()));
       else
         return rootPatternLinks_->targetValue()(pos);
     }

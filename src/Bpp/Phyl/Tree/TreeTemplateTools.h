@@ -137,15 +137,22 @@ public:
    *
    * @param tree The tree to edit.
    * @param leafName The name of the leaf node.
+   * @param reLabel In case an inner node is removed, set a new id to the neighbor node to indicate it has been updated.
+   * @param newId When relabeling, new id to use.
+   * @return True if a new id has been assigned.
    * @throw NodeNotFoundException If the node is not found.
    */
   template<class N>
-  static void dropLeaf(TreeTemplate<N>& tree, const std::string& leafName)
+  static bool dropLeaf(TreeTemplate<N>& tree,
+		  const std::string& leafName,
+		  bool reLabel = false,
+		  int newId = -1)
   {
     N* leaf = tree.getNode(leafName);
     if (!leaf->hasFather())
       throw Exception("TreeTemplateTools::dropLeaf(). Leaf is the only node in the tree, can't remove it.");
     N* parent = leaf->getFather();
+    bool idChanged = false;
     if (parent->getNumberOfSons() > 2)
     {
       // The easy case:
@@ -165,6 +172,10 @@ public:
           brother->setDistanceToFather(brother->getDistanceToFather() + leaf->getDistanceToFather());
         }
         brother->removeFather();
+	if (reLabel) {
+	  brother->setId(newId);
+	  idChanged = true;
+	}
         tree.setRootNode(brother);
         delete parent;
         delete leaf;
@@ -176,6 +187,10 @@ public:
         {
           brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
         }
+	if (reLabel) {
+	  brother->setId(newId);
+	  idChanged = true;
+	}
         size_t pos = gParent->getSonPosition(parent);
         gParent->setSon(pos, brother);
         delete parent;
@@ -185,8 +200,9 @@ public:
     else
     {
       // Dunno what to do in that case :(
-      throw Exception("TreeTemplateTools::dropLeaf. Parent node as only one child, I don't know what to do in that case :(");
+      throw Exception("TreeTemplateTools::dropLeaf. Parent node as only one child.");
     }
+    return idChanged;
   }
 
   /**
@@ -194,14 +210,21 @@ public:
    *
    * @param tree The tree to edit.
    * @param subtree The subtree to remove, defined by its root node.
+   * @param reLabel In case an inner node is removed, set a new id to the neighbor node to indicate it has been updated.
+   * @param newId When relabeling, new id to use.
+   * @return True if a new id has been assigned.
    * @throw Exception If something unexpected happens :s
    */
   template<class N>
-  static void dropSubtree(TreeTemplate<N>& tree, Node* subtree)
+  static bool dropSubtree(TreeTemplate<N>& tree,
+		  Node* subtree,
+		  bool reLabel = false,
+		  int newId = -1)
   {
     if (!subtree->hasFather())
       throw Exception("TreeTemplateTools::dropSubtree(). Trying to remove the full tree!");
     N* parent = subtree->getFather();
+    bool idChanged = false;
     if (parent->getNumberOfSons() > 2)
     {
       // The easy case:
@@ -220,6 +243,11 @@ public:
         {
           brother->setDistanceToFather(brother->getDistanceToFather() + subtree->getDistanceToFather());
         }
+        brother->removeFather();
+	if (reLabel) {
+	  brother->setId(newId);
+	  idChanged = true;
+	}
         tree.setRootNode(brother);
         delete parent;
         deleteSubtree(subtree);
@@ -231,6 +259,10 @@ public:
         {
           brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
         }
+	if (reLabel) {
+	  brother->setId(newId);
+	  idChanged = true;
+	}
         size_t pos = gParent->getSonPosition(parent);
         gParent->setSon(pos, brother);
         delete parent;
@@ -240,8 +272,9 @@ public:
     else
     {
       // Dunno what to do in that case :(
-      throw Exception("TreeTemplateTools::dropSubtree. Parent node as only one child, I don't know what to do in that case :(");
+      throw Exception("TreeTemplateTools::dropSubtree. Parent node as only one child.");
     }
+    return idChanged;
   }
 
   /**
