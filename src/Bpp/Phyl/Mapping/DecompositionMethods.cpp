@@ -135,8 +135,9 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, double 
 void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const std::vector<double>& ilambda, double t, RowMatrix<double>& result, RowMatrix<double>& iresult) const
 {
   vector<double> expLam = VectorTools::exp(lambda * t);
-  vector<double> cosLam = expLam * VectorTools::cos(ilambda * t);
-  vector<double> sinLam = expLam * VectorTools::sin(ilambda * t);
+  auto x = ilambda * t;
+  vector<double> cosLam = expLam * VectorTools::cos(x);
+  vector<double> sinLam = expLam * VectorTools::sin(x);
 
   for (unsigned int i = 0; i < nbStates_; ++i)
   {
