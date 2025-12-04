@@ -17,6 +17,7 @@ AbstractAlignedPhyloLikelihoodSet::AbstractAlignedPhyloLikelihoodSet(
   AbstractPhyloLikelihoodSet(context, pC, inCollection, prefix),
   AbstractAlignedPhyloLikelihood(context, 0)
 {
+#pragma GCC diagnostic ignored "-Wuninitialized" //Remove warning (TODO check whether this is a real one!)
   for (auto np:nPhylo_)
   {
     auto aPL = getAlignedPhyloLikelihood(np);
@@ -28,6 +29,7 @@ AbstractAlignedPhyloLikelihoodSet::AbstractAlignedPhyloLikelihoodSet(
     else if (aPL->getNumberOfSites() != getNumberOfSites())
       throw BadSizeException("AlignedPhyloLikelihoodSet::AlignedPhyloLikelihoodSet: mismatch lengths between aligned PhyloLikelihood: ", aPL->getNumberOfSites(), getNumberOfSites());
   }
+#pragma GCC diagnostic pop
 }
 
 /*************************************************************/

@@ -6,8 +6,8 @@
 
 if (NOT @PROJECT_NAME@_FOUND)
   # Deps
-  find_package (bpp-core3 @bpp-core_VERSION@ REQUIRED)
-  find_package (bpp-seq3 @bpp-seq_VERSION@ REQUIRED)
+  find_package (bpp-core @bpp-core_VERSION@ REQUIRED)
+  find_package (bpp-seq @bpp-seq_VERSION@ REQUIRED)
   find_package (Eigen3 3.3 REQUIRED NO_MODULE)
   # Add targets
   include ("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")

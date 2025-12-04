@@ -94,27 +94,25 @@ public:
     /* Dependencies */
 
     std::shared_ptr<ConfiguredParameter> brlen_;
+
+    RateCategoryEdge(): vBotLik_(), vTopLik_(), siteLik_(), brlen_() {}
+    ~RateCategoryEdge() = default;
   };
 
 
-  /*
+  /**
    * @brief Number of sites
-   *
    */
-
   size_t numberOfSites_;
 
-  /*
+  /**
    * @brief Dimension of the shrunked data
    */
-
   MatrixDimension likelihoodMatrixDim_;
 
-  /*
-   *@brief DF Model used on this branch
-   *
+  /**
+   * @brief DF Model used on this branch
    */
-
   std::shared_ptr<ConfiguredModel> model_;
 
 

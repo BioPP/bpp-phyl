@@ -20,7 +20,8 @@ ConfiguredModel::ConfiguredModel(
   Value<std::shared_ptr<BranchModelInterface>>(
       std::move(deps),
       model),
-  AbstractParametrizable(model->getNamespace()), // , context_(context)
+  AbstractParametrizable(model->getNamespace()),
+  config(),
   model_(model)
 {
   for (const auto& dep : dependencies())

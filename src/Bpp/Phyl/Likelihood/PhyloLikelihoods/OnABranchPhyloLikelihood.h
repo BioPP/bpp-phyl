@@ -16,9 +16,9 @@
 #include "../DataFlow/Parameter.h"
 #include "AlignedPhyloLikelihood.h"
 
-/* This file contains wrappers.
+/**
+ * This file contains wrappers.
  * They are used to bridge the gap between bpp::dataflow stuff and the rest of bpp.
- *
  */
 
 namespace bpp
@@ -51,7 +51,9 @@ public:
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractParametrizable(""),
-    likCal_(std::make_shared<LikelihoodCalculationOnABranch>(context, *likCal, edgeId))
+    likCal_(std::make_shared<LikelihoodCalculationOnABranch>(context, *likCal, edgeId)),
+    firstOrderDerivativeVectors_(),
+    secondOrderDerivativeVectors_()
   {
     shareParameters_(variableNodes);
   }
@@ -62,7 +64,9 @@ public:
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractParametrizable(""),
-    likCal_(std::make_shared<LikelihoodCalculationOnABranch>(context, *likCal, edgeId))
+    likCal_(std::make_shared<LikelihoodCalculationOnABranch>(context, *likCal, edgeId)),
+    firstOrderDerivativeVectors_(),
+    secondOrderDerivativeVectors_()
   {}
 
 
@@ -72,7 +76,9 @@ public:
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractParametrizable(""),
-    likCal_(likCal)
+    likCal_(likCal),
+    firstOrderDerivativeVectors_(),
+    secondOrderDerivativeVectors_()
   {
     shareParameters_(variableNodes);
   }
@@ -85,7 +91,9 @@ public:
     AbstractPhyloLikelihood(context),
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractParametrizable(""),
-    likCal_(likCal)
+    likCal_(likCal),
+    firstOrderDerivativeVectors_(),
+    secondOrderDerivativeVectors_()
   {
 #ifdef DEBUG
     std::cerr << "OnABranchPhyloLikelihood(context, OnABranchPhyloLikelihood)" << std::endl;

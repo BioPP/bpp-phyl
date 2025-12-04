@@ -14,7 +14,12 @@ CollectionNodes::CollectionNodes(
     Context& context,
     shared_ptr<const SubstitutionProcessCollection> collection) :
   AbstractParametrizable(""),
-  collection_(collection), context_(context)
+  collection_(collection),
+  context_(context),
+  modelColl_(),
+  freqColl_(),
+  distColl_(),
+  treeColl_()
 {
   // add Independent Parameters
   const auto& paramProc = collection_->getIndependentParameters();

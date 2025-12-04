@@ -6,6 +6,7 @@
 
 #include "DataFlowCWise.h"
 
+#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
 namespace bpp
 {
 // Precompiled instantiations of numeric nodes
@@ -26,3 +27,4 @@ template class CWiseMatching<MatrixLik, ReductionOf<RowLik>>;
 template class CWiseCompound<MatrixLik, ReductionOf<RowLik>>;
 template class CWiseCompound<MatrixLik, ReductionOf<VectorLik>>;
 } // namespace bpp
+#pragma GCC diagnostic pop

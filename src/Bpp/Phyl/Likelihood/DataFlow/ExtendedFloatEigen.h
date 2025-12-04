@@ -9,6 +9,8 @@
 #include "ExtendedFloat.h"
 #include "ExtendedFloatEigenTools.h"
 
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" //Remove a STL warning
+
 namespace bpp
 {
 /**
@@ -995,6 +997,7 @@ public:
     return efm_->float_part();
   }
 
+#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
 
   Self operator=(const Array& rhs)
   {
@@ -1045,6 +1048,8 @@ public:
   }
 };
 
+#pragma GCC diagnostic pop
+
 template<int R, int C>
 inline ExtendedFloatArray<R, C> operator*(const ExtendedFloatArray<R, C>& lhs,
     const ExtendedFloatArrayWrapper<R, C>& rhs)
@@ -1052,4 +1057,6 @@ inline ExtendedFloatArray<R, C> operator*(const ExtendedFloatArray<R, C>& lhs,
   return rhs * lhs; // cwise * is commutative
 }
 }
+#pragma GCC diagnostic pop
+
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_EXTENDEDFLOATEIGEN_H

@@ -15,7 +15,8 @@ AlignedPhyloLikelihoodProduct::AlignedPhyloLikelihoodProduct(
   AbstractParametrizable(""),
   AbstractPhyloLikelihoodSet(context, pC, {}, inCollection),
   AbstractAlignedPhyloLikelihood(context, 0),
-  AbstractAlignedPhyloLikelihoodSet(context, pC, inCollection)
+  AbstractAlignedPhyloLikelihoodSet(context, pC, inCollection),
+  likCal_()
 {
   auto nPhylo = pC->getNumbersOfPhyloLikelihoods();
 

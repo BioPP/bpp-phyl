@@ -41,6 +41,7 @@ public:
     efMat_(der),
     eigenVWiseOp_(der.float_part()) {}
 
+#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
   template<typename OtherDerived>
   DerivedEF& operator=(const OtherDerived& otherDerived)
   {
@@ -49,6 +50,7 @@ public:
 
     return efMat_;
   }
+#pragma GCC diagnostic pop
 
   DerivedEF sum() const
   {
@@ -79,6 +81,7 @@ public:
   explicit ExtendedFloatNoAlias(ExtendedFloatEigenBase<DerivedEF>& der) :
     efMat_(der) {}
 
+#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
   template<typename Otherderived>
   ExtendedFloatEigenBase<DerivedEF>& operator=(const ExtendedFloatEigenBase<Otherderived>& other)
   {
@@ -124,6 +127,7 @@ public:
     efMat_.derived().normalize ();
     return efMat_;
   }
+#pragma GCC diagnostic pop
 };
 
 
@@ -162,12 +166,14 @@ public:
    * of both are to be fit, as in denorm_add method.
    *
    */
+#pragma GCC diagnostic ignored "-Weffc++" //Remove a EIGEN warning
   ExtendedFloatRow& operator=(const ExtendedFloatEigen<1, C, EigenType>& row)
   {
     efMat_.float_part().row(nrow_) = row.float_part() * constexpr_power<double>(ExtendedFloat::radix, row.exponent_part() - efMat_.exponent_part());
     efMat_.normalize();
     return *this;
   }
+#pragma GCC diagnostic pop
 };
 
 /*

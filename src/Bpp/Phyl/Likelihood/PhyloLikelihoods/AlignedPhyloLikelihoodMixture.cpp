@@ -17,6 +17,7 @@ AlignedPhyloLikelihoodMixture::AlignedPhyloLikelihoodMixture(
   AbstractPhyloLikelihoodSet(context, pC, nPhylo, inCollection),
   AbstractAlignedPhyloLikelihood(context, 0),
   AbstractAlignedPhyloLikelihoodSet(context, pC, nPhylo, inCollection, ""),
+  simplex_(),
   likCal_(make_shared<AlignedLikelihoodCalculation>(context))
 {
   Simplex simplex(getNumbersOfPhyloLikelihoods().size(), 1, false, "Mixture.");

@@ -15,11 +15,10 @@
 
 namespace bpp
 {
-/** Construction of all the DataFlow objects linked with objects in
+/** 
+ * @biref Construction of all the DataFlow objects linked with objects in
  * a SubstitutionProcessCollection.
- *
  */
-
 class CollectionNodes :
   public AbstractParametrizable
 {

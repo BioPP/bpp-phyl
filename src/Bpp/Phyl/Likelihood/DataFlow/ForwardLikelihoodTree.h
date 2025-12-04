@@ -123,7 +123,14 @@ public:
       std::shared_ptr<ProcessTree> tree,
       const StateMapInterface& statemap) :
     DAClass(),
-    context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(Eigen::Index(statemap.getNumberOfModelStates())), nbSites_(0)
+    context_(c),
+    processTree_(tree),
+    likelihoodMatrixDim_(),
+    statemap_(statemap),
+    nbState_(Eigen::Index(statemap.getNumberOfModelStates())),
+    nbSites_(0),
+    mapNodesIndexes_(),
+    mapEdgesIndexes_()
   {}
 
   void initialize(const AlignmentDataInterface& sites)

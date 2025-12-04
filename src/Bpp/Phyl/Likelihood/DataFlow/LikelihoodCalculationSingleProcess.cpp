@@ -22,7 +22,8 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(
     Context& context,
     std::shared_ptr<const AlignmentDataInterface> sites,
     std::shared_ptr<const SubstitutionProcessInterface> process) :
-  AlignedLikelihoodCalculation(context), process_(process), psites_(sites),
+  AlignedLikelihoodCalculation(context),
+  process_(process), psites_(sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
   vRateCatTrees_(), catProb_(), condLikelihoodTree_(0)

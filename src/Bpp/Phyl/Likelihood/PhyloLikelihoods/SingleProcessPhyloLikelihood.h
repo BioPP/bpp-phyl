@@ -44,9 +44,7 @@ protected:
    */
   mutable std::unordered_map<std::string, ValueRef<RowLik>> firstOrderDerivativeVectors_;
 
-  mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>,
-      StringPairHash>
-  secondOrderDerivativeVectors_;
+  mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<RowLik>, StringPairHash> secondOrderDerivativeVectors_;
 
 public:
   SingleProcessPhyloLikelihood (Context& context,
@@ -57,7 +55,10 @@ public:
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->stateMap().getNumberOfModelStates(), nData),
     AbstractParametrizable(""),
-    likCal_(likCal), nProc_(nProc)
+    likCal_(likCal),
+    nProc_(nProc),
+    firstOrderDerivativeVectors_(),
+    secondOrderDerivativeVectors_()
   {
     shareParameters_(variableNodes);
   }
@@ -72,7 +73,10 @@ public:
     AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
     AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->stateMap().getNumberOfModelStates(), nData),
     AbstractParametrizable(""),
-    likCal_(likCal), nProc_(nProc)
+    likCal_(likCal),
+    nProc_(nProc),
+    firstOrderDerivativeVectors_(),
+    secondOrderDerivativeVectors_()
   {
 #ifdef DEBUG
     std::cerr << "SingleProcessPhyloLikelihood(context, LikelihoodCalculationSingleProcess)" << std::endl;

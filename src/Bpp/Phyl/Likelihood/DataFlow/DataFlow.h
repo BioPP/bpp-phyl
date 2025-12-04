@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" //Remove a STL warning
 
 /**
  *
@@ -364,6 +365,9 @@ public:
     value_(std::forward<Args>(args)...)
   {}
 
+  Value(const Value&) = default;
+  Value& operator=(const Value&) = default;
+
   /**
    * @brief Access value, recompute if needed.
    *
@@ -620,4 +624,7 @@ template<typename T> std::shared_ptr<T> cachedAs (Context& c, std::shared_ptr<T>
   return std::static_pointer_cast<T>(c.cached(newNode));
 }
 } // namespace bpp
+
+#pragma GCC diagnostic pop
+
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOW_H
