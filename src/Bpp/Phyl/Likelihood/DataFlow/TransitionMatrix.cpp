@@ -13,9 +13,10 @@ using namespace bpp;
 
 // TransitionMatrix node
 
-ConfiguredTransitionMatrix::ConfiguredTransitionMatrix (Context& context, NodeRefVec&& deps, std::unique_ptr<HmmTransitionMatrix>&& hmm)
-  : Value<const HmmTransitionMatrix*>(std::move (deps), hmm.get ()), AbstractParametrizable(hmm->getNamespace()) // , context_(context)
-  , hmm_(std::move(hmm))
+ConfiguredTransitionMatrix::ConfiguredTransitionMatrix (Context& context, NodeRefVec&& deps, std::unique_ptr<HmmTransitionMatrix>&& hmm):
+  Value<const HmmTransitionMatrix*>(std::move (deps), hmm.get ()), AbstractParametrizable(hmm->getNamespace()),
+  config(),
+  hmm_(std::move(hmm))
 {
   for (const auto& dep:dependencies())
   {
