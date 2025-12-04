@@ -13,6 +13,7 @@ using namespace std;
 
 ModelPath::ModelPath(const ModelPath& hn) :
   mModPath_(hn.mModPath_),
+  leadMode_(), //@Laurent: should this be copied?
   proba_(hn.proba_)
 {}
 
