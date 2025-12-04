@@ -13,7 +13,7 @@ using namespace std;
 
 ModelPath::ModelPath(const ModelPath& hn) :
   mModPath_(hn.mModPath_),
-  leadMode_(), //@Laurent: should this be copied?
+  leadMode_(hn.leadMode_), 
   proba_(hn.proba_)
 {}
 
@@ -21,6 +21,7 @@ ModelPath::ModelPath(const ModelPath& hn) :
 ModelPath& ModelPath::operator=(const ModelPath& hn)
 {
   mModPath_ = hn.mModPath_;
+  leadMode_ = hn.leadMode_; 
   proba_ = hn.proba_;
 
   return *this;
