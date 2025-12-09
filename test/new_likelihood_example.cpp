@@ -131,6 +131,12 @@ struct CommonStuff
     , sites(new VectorSiteContainer(alphabet))
 //      , treeStr("(A:0.01, B:0.02);")
     , treeStr("((A:0.01, B:0.02):0.03,C:0.01);")
+    , paramModel1()
+    , paramModel2()
+    , paramBrLen1()
+    , paramBrLen2()
+    , paramRoot1()
+    , paramRoot2()
   {
     // Init sequences
     auto seqA = make_unique<Sequence>("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet);
@@ -150,6 +156,35 @@ struct CommonStuff
     paramBrLen1.addParameter(Parameter("BrLen1", 0.1));
     paramBrLen2.addParameter(Parameter("BrLen1", 0.2));
   }
+
+  CommonStuff(const CommonStuff& cs)
+    : alphabet(cs.alphabet)
+    , nucAlphabet(cs.nucAlphabet)
+    , sites(cs.sites)
+    , treeStr(cs.treeStr)
+    , paramModel1(cs.paramModel1)
+    , paramModel2(cs.paramModel2)
+    , paramBrLen1(cs.paramBrLen1)
+    , paramBrLen2(cs.paramBrLen2)
+    , paramRoot1(cs.paramRoot1)
+    , paramRoot2(cs.paramRoot2)
+  {}
+
+  CommonStuff& operator=(const CommonStuff& cs)
+  {
+    alphabet = cs.alphabet;
+    nucAlphabet = cs.nucAlphabet;
+    sites = cs.sites;
+    treeStr = cs.treeStr;
+    paramModel1 = cs.paramModel1;
+    paramModel2 = cs.paramModel2;
+    paramBrLen1 = cs.paramBrLen1;
+    paramBrLen2 = cs.paramBrLen2;
+    paramRoot1 = cs.paramRoot1;
+    paramRoot2 = cs.paramRoot2;
+    return(*this);
+  }
+
 };
 }
 
