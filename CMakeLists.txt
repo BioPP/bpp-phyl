@@ -39,7 +39,7 @@ else(NO_DEP_CHECK)
     option(USE_DEBUG "Enter Debug Mode" OFF)
 
     if(USE_DEBUG)
-	    message(STATUS "Enter Debug mode")
+        message(STATUS "Enter Debug mode")
         add_compile_options(-DDEBUG)
     endif()
 
