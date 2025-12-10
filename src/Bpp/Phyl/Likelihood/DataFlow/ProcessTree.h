@@ -154,7 +154,6 @@ class ProcessTree : public AssociationTreeGlobalGraphObserver<ProcessNode, Proce
   // CollectionNodes* nodes_;
 
 public:
-
   /**
    * @brief Build a ProcessTree with same topology as a given
    * ParametrizablePhyloTree, and new ConfiguredParameter BrLen.
@@ -164,7 +163,7 @@ public:
       const ParametrizablePhyloTree& tree);
 
   /**
-   * @brief Copy a ProcessTree with all BrLen multiplied by a given rate DF double  
+   * @brief Copy a ProcessTree with all BrLen multiplied by a given rate DF double
    */
   ProcessTree(const ProcessTree& tree,
       ValueRef<double> rate);
@@ -198,7 +197,6 @@ public:
   }
 
 private:
-
   ProcessTree(const ProcessTree& pTree) :
     AssociationTreeGlobalGraphObserver<ProcessNode, ProcessEdge>(pTree.getGraph()),
     context_(pTree.context_)

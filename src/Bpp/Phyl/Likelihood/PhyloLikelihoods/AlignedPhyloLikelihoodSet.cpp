@@ -18,7 +18,7 @@ AbstractAlignedPhyloLikelihoodSet::AbstractAlignedPhyloLikelihoodSet(
   AbstractAlignedPhyloLikelihood(context, 0)
 {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized" //Remove warning (TODO check whether this is a real one!)
+#pragma GCC diagnostic ignored "-Wuninitialized" // Remove warning (TODO check whether this is a real one!)
   for (auto np:nPhylo_)
   {
     auto aPL = getAlignedPhyloLikelihood(np);

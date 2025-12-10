@@ -39,6 +39,7 @@ protected:
   ParameterList paramValues_;
 
   size_t nData_; // number of the used data (for output consistency)
+
 public:
   CoalaCore(size_t nbAxes = 0);
 
@@ -59,9 +60,9 @@ public:
 
   void setNData(size_t n)
   {
-    nData_=n;
+    nData_ = n;
   }
-  
+
 protected:
   /**
    * @brief Comoute COA from data and return the axis position parameters

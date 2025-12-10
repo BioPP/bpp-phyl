@@ -64,7 +64,6 @@ protected:
   }
 
 public:
-
   /**
    * @brief return the probability of a subprocess
    *

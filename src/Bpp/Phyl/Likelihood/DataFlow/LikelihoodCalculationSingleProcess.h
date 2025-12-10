@@ -43,7 +43,7 @@ namespace bpp
  *
  */
 
-	class ProcessTree;
+class ProcessTree;
 class ForwardLikelihoodTree;
 class BackwardLikelihoodTree;
 
@@ -146,7 +146,7 @@ public:
      */
     std::shared_ptr<SiteLikelihoodsTree> speciesLt;
 
-    RateCategoryTrees(): phyloTree(), flt(), blt(), clt(), lt(), speciesLt() {}
+    RateCategoryTrees() : phyloTree(), flt(), blt(), clt(), lt(), speciesLt() {}
 
     ~RateCategoryTrees();
   };
@@ -165,7 +165,7 @@ public:
     std::shared_ptr<ConfiguredFrequencySet> rootFreqsNode_;
     std::shared_ptr<ConfiguredDistribution> ratesNode_;
 
-    ProcessNodes(): treeNode_(), modelNode_(), rootFreqsNode_(), ratesNode_() {}
+    ProcessNodes() : treeNode_(), modelNode_(), rootFreqsNode_(), ratesNode_() {}
     ~ProcessNodes() = default;
   };
 
@@ -377,8 +377,8 @@ public:
     if (rootPatternLinks_)
     {
       auto pos = Eigen::Index(currentPosition);
-      if (pos>=rootPatternLinks_->targetValue().rows())
-        throw BadSizeException("Forbidden access in getRootArrayPosition.",static_cast<size_t>(pos),static_cast<size_t>(rootPatternLinks_->targetValue().rows()));
+      if (pos >= rootPatternLinks_->targetValue().rows())
+        throw BadSizeException("Forbidden access in getRootArrayPosition.", static_cast<size_t>(pos), static_cast<size_t>(rootPatternLinks_->targetValue().rows()));
       else
         return rootPatternLinks_->targetValue()(pos);
     }

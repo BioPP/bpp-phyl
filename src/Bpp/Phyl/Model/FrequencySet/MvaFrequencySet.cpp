@@ -24,7 +24,7 @@ MvaFrequencySet::MvaFrequencySet(shared_ptr<const ProteicAlphabet> alpha) :
 
 void MvaFrequencySet::initSet(std::shared_ptr<const Coala> coala)
 {
-  model_=coala;
+  model_ = coala;
   setNbrOfAxes(coala->getNbrOfAxes());
   setTransposeMatrixOfPpalAxes(coala->getTppalAxesMatrix());
   setMatrixOfRowCoords(coala->getRowCoordinates());

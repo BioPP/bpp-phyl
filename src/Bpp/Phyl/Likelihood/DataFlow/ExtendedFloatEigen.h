@@ -10,7 +10,7 @@
 #include "ExtendedFloatEigenTools.h"
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" //Remove a STL warning
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // Remove a STL warning
 
 namespace bpp
 {
@@ -999,7 +999,7 @@ public:
   }
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
+#pragma GCC diagnostic ignored "-Weffc++" // Remove EIGEN warning
 
   Self operator=(const Array& rhs)
   {

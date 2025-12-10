@@ -241,8 +241,6 @@ protected:
 };
 
 
-
-
 /**
  * @brief FrequencySet integrating ProteinFrequencySet inside
  * CodonFrequencySet. In this case, FrequencieSet defined inside
@@ -340,7 +338,6 @@ protected:
 };
 
 
-
 /**
  * @brief the Frequencies in codons are the product of Independent
  * Frequencies in letters with the frequencies of stop codons set to
@@ -407,7 +404,7 @@ public:
    * @param mgmtStopCodon the optional way the frequencies assigned to the
    * stop codons are redistributed to the other codons. See above.
    */
-  
+
   CodonFromIndependentFrequencySet(
       std::shared_ptr<const GeneticCode> gCode,
       std::vector<std::unique_ptr<FrequencySetInterface>>& freqvector,
@@ -514,9 +511,9 @@ public:
    * @param pfreq a pointer to the nucleotidic FrequencySet
    * @param name the optional name of the FrequencySet (default codon)
    * @param mgmtStopCodon the optional way the frequencies assigned to the
-   * stop codons are redistributed to the other codons. 
+   * stop codons are redistributed to the other codons.
    */
-  
+
   CodonFromUniqueFrequencySet(
       std::shared_ptr<const GeneticCode> gCode,
       std::unique_ptr<FrequencySetInterface> pfreq,

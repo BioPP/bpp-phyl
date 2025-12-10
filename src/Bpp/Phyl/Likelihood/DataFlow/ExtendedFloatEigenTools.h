@@ -42,7 +42,7 @@ public:
     eigenVWiseOp_(der.float_part()) {}
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
+#pragma GCC diagnostic ignored "-Weffc++" // Remove EIGEN warning
   template<typename OtherDerived>
   DerivedEF& operator=(const OtherDerived& otherDerived)
   {
@@ -83,7 +83,7 @@ public:
     efMat_(der) {}
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
+#pragma GCC diagnostic ignored "-Weffc++" // Remove EIGEN warning
   template<typename Otherderived>
   ExtendedFloatEigenBase<DerivedEF>& operator=(const ExtendedFloatEigenBase<Otherderived>& other)
   {
@@ -169,7 +169,7 @@ public:
    *
    */
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++" //Remove a EIGEN warning
+#pragma GCC diagnostic ignored "-Weffc++" // Remove a EIGEN warning
   ExtendedFloatRow& operator=(const ExtendedFloatEigen<1, C, EigenType>& row)
   {
     efMat_.float_part().row(nrow_) = row.float_part() * constexpr_power<double>(ExtendedFloat::radix, row.exponent_part() - efMat_.exponent_part());

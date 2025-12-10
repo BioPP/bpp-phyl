@@ -1373,7 +1373,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       vNodes = SubProColl.tree(numTree).getAllEdgesIndexes();
     else
       vNodes = {0}
-      ;
+    ;
     mModBr[numModel] = vNodes;
 
     if (verbose)

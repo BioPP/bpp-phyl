@@ -7,7 +7,7 @@
 #include "DataFlowCWise.h"
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
+#pragma GCC diagnostic ignored "-Weffc++" // Remove EIGEN warning
 namespace bpp
 {
 // Precompiled instantiations of numeric nodes

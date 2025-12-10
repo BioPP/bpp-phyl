@@ -201,7 +201,7 @@ unique_ptr<ProbabilisticRewardMapping> RewardMappingTools::computeRewardVectors(
           // Nullify counts where sum likelihoods > 1 : ie unknown
           for (auto i = 0; i < ff.size(); i++)
           {
-            const auto& s = likelihoodsBotEdge.col(i).sum();
+            const auto s = likelihoodsBotEdge.col(i).sum();
             if (s >= 2.)
               ff[i] = (unresolvedOption == SubstitutionMappingTools::UNRESOLVED_ZERO) ? 0. : 1. / convert(s);
             else

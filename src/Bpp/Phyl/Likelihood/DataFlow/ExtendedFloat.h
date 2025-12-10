@@ -485,7 +485,7 @@ inline ExtendedFloat abs (const ExtendedFloat& ef)
 // !!! no check on the validation of the conversion
 inline double convert(const bpp::ExtendedFloat& ef)
 {
-  return ef.float_part () * bpp::constexpr_power<double>(bpp::ExtendedFloat::radix, ef.exponent_part ());
+  return ef.float_part() * bpp::constexpr_power<double>(bpp::ExtendedFloat::radix, ef.exponent_part());
 }
 } // namespace bpp
 

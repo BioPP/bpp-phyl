@@ -18,7 +18,6 @@
 
 namespace bpp
 {
-	
 /**
  * @brief The OneProcessSequenceSubstitutionMapping class: substitution
  * mapping linked with a OneProcessSequencePhyloLikelihood

@@ -95,7 +95,7 @@ public:
 
     std::shared_ptr<ConfiguredParameter> brlen_;
 
-    RateCategoryEdge(): vBotLik_(), vTopLik_(), siteLik_(), brlen_() {}
+    RateCategoryEdge() : vBotLik_(), vTopLik_(), siteLik_(), brlen_() {}
     ~RateCategoryEdge() = default;
   };
 
@@ -202,8 +202,8 @@ public:
     if (rootPatternLinks_)
     {
       auto pos = Eigen::Index(currentPosition);
-      if (pos>=rootPatternLinks_->targetValue().rows())
-        throw BadSizeException("Forbidden access in getRootArrayPosition.",static_cast<size_t>(pos),static_cast<size_t>(rootPatternLinks_->targetValue().rows()));
+      if (pos >= rootPatternLinks_->targetValue().rows())
+        throw BadSizeException("Forbidden access in getRootArrayPosition.", static_cast<size_t>(pos), static_cast<size_t>(rootPatternLinks_->targetValue().rows()));
       else
         return rootPatternLinks_->targetValue()(pos);
     }

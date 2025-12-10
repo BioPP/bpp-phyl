@@ -28,7 +28,7 @@ public:
  *        content (denoted as 'GC.theta')
  */
 
-  class GCFrequencySet :
+class GCFrequencySet :
   public virtual NucleotideFrequencySetInterface,
   public AbstractFrequencySet
 {

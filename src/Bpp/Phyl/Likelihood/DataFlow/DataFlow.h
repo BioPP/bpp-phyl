@@ -19,7 +19,7 @@
 #include <vector>
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" //Remove a STL warning
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // Remove a STL warning
 
 /**
  *

@@ -73,7 +73,7 @@ public:
   void setTransposeMatrixOfPpalAxes(const RowMatrix<double>& matrix) { tPpalAxes_ = matrix; }
   void setMatrixOfRowCoords(const RowMatrix<double>& matrix) { rowCoords_ = matrix; }
   void setNbrOfAxes(const size_t& nAxes) { nbrOfAxes_ = nAxes; }
-//  void setModelName(const std::string& modelName) { model_ = modelName; }
+  //  void setModelName(const std::string& modelName) { model_ = modelName; }
   void setVectorOfColumnWeights(const std::vector<double>& cw) { columnWeights_ = cw; }
   void setParamValues(std::map<std::string, std::string>& valuesSettings) {paramValues_ = valuesSettings;}
 

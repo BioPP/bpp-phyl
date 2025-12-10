@@ -61,7 +61,7 @@ public:
    * @name The SequenceSimulator interface
    * Here the numberOfSites is unused (awkward inheritance...)
    *
-   */ 
+   */
   std::unique_ptr<SiteContainerInterface> simulate() const
   {
     return simulate(calcul_->getNumberOfSites());
@@ -71,7 +71,6 @@ public:
 
   const SiteSimulatorInterface& siteSimulator(size_t pos) const override
   {
-    
     return *vSiteSim_[calcul_->getRootArrayPosition(pos)];
   }
 

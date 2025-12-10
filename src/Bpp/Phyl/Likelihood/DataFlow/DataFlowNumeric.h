@@ -24,11 +24,11 @@
 // Note: if multithreading, internal model state must be removed!
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" //Remove a STL warning
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // Remove a STL warning
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove a STL warning
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // Remove a STL warning
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized" //Remove a STL warning
+#pragma GCC diagnostic ignored "-Wuninitialized" // Remove a STL warning
 
 namespace bpp
 {
@@ -1527,8 +1527,8 @@ extern template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
 extern template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
 } // namespace bpp
 
-#pragma GCC diagnostic pop //Remove a STL warning
-#pragma GCC diagnostic pop //Remove a STL warning
-#pragma GCC diagnostic pop //Remove a STL warning
+#pragma GCC diagnostic pop // Remove a STL warning
+#pragma GCC diagnostic pop // Remove a STL warning
+#pragma GCC diagnostic pop // Remove a STL warning
 
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOWNUMERIC_H

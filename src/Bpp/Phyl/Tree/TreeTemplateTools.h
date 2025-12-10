@@ -144,9 +144,9 @@ public:
    */
   template<class N>
   static bool dropLeaf(TreeTemplate<N>& tree,
-		  const std::string& leafName,
-		  bool reLabel = false,
-		  int newId = -1)
+      const std::string& leafName,
+      bool reLabel = false,
+      int newId = -1)
   {
     N* leaf = tree.getNode(leafName);
     if (!leaf->hasFather())
@@ -172,10 +172,11 @@ public:
           brother->setDistanceToFather(brother->getDistanceToFather() + leaf->getDistanceToFather());
         }
         brother->removeFather();
-	if (reLabel) {
-	  brother->setId(newId);
-	  idChanged = true;
-	}
+        if (reLabel)
+        {
+          brother->setId(newId);
+          idChanged = true;
+        }
         tree.setRootNode(brother);
         delete parent;
         delete leaf;
@@ -187,10 +188,11 @@ public:
         {
           brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
         }
-	if (reLabel) {
-	  brother->setId(newId);
-	  idChanged = true;
-	}
+        if (reLabel)
+        {
+          brother->setId(newId);
+          idChanged = true;
+        }
         size_t pos = gParent->getSonPosition(parent);
         gParent->setSon(pos, brother);
         delete parent;
@@ -217,9 +219,9 @@ public:
    */
   template<class N>
   static bool dropSubtree(TreeTemplate<N>& tree,
-		  Node* subtree,
-		  bool reLabel = false,
-		  int newId = -1)
+      Node* subtree,
+      bool reLabel = false,
+      int newId = -1)
   {
     if (!subtree->hasFather())
       throw Exception("TreeTemplateTools::dropSubtree(). Trying to remove the full tree!");
@@ -244,10 +246,11 @@ public:
           brother->setDistanceToFather(brother->getDistanceToFather() + subtree->getDistanceToFather());
         }
         brother->removeFather();
-	if (reLabel) {
-	  brother->setId(newId);
-	  idChanged = true;
-	}
+        if (reLabel)
+        {
+          brother->setId(newId);
+          idChanged = true;
+        }
         tree.setRootNode(brother);
         delete parent;
         deleteSubtree(subtree);
@@ -259,10 +262,11 @@ public:
         {
           brother->setDistanceToFather(brother->getDistanceToFather() + parent->getDistanceToFather());
         }
-	if (reLabel) {
-	  brother->setId(newId);
-	  idChanged = true;
-	}
+        if (reLabel)
+        {
+          brother->setId(newId);
+          idChanged = true;
+        }
         size_t pos = gParent->getSonPosition(parent);
         gParent->setSon(pos, brother);
         delete parent;

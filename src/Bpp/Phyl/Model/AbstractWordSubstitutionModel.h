@@ -31,7 +31,6 @@ protected:
   std::shared_ptr<WordAlphabet> wordAlphabet_;
 
 public:
-
   /**
    * @brief Create a ModelList from one template substitution model.
    *

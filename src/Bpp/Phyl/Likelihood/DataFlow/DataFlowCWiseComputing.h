@@ -272,7 +272,7 @@ public:
     if (&node == this)
     {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove a STL warning
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // Remove a STL warning
       return ConstantOne<R>::create (c, targetDimension_);
 #pragma GCC diagnostic pop
     }
@@ -987,7 +987,7 @@ public:
     if (&node == this)
     {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" //Remove a STL warning
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // Remove a STL warning
       return ConstantOne<R>::create(c, targetDimension_);
 #pragma GCC diagnostic pop
     }
@@ -2131,7 +2131,7 @@ public:
       }))
     {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++" //Remove EIGEN warning
+#pragma GCC diagnostic ignored "-Weffc++" // Remove EIGEN warning
       return ConstantZero<R>::create (c, dim);
 #pragma GCC diagnostic pop
     }

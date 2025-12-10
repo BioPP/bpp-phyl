@@ -116,7 +116,7 @@ protected:
 private:
   // A warning of false return of checkModel has already been made
   mutable bool negchecked_;
-  
+
 public:
   virtual ~YpR() {}
 

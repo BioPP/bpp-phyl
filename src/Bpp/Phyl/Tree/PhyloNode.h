@@ -31,7 +31,7 @@ class NodeEvent : public Clonable
   NodeType nodeType_;
 
 public:
-  NodeEvent(NodeType type): nodeType_(type) {}
+  NodeEvent(NodeType type) : nodeType_(type) {}
 
   // NodeEvent(const NodeEvent& event) :
   //   nodeType_(event.nodeType_) {}

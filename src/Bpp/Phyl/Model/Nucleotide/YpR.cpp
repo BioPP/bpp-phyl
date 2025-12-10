@@ -328,16 +328,14 @@ void YpR::checkModel(const SubstitutionModelInterface& pm) const
 
   if (!negchecked_) // has never returned negative test
   {
-    
     if ((pm.Qij(0, 1) != pm.Qij(2, 1)) || (pm.Qij(0, 3) != pm.Qij(2, 3))
         || (pm.Qij(1, 0) != pm.Qij(3, 0)) || (pm.Qij(1, 2) != pm.Qij(3, 2)))
     {
-      negchecked_=true;
-      
+      negchecked_ = true;
+
       ApplicationTools::displayWarning(pm.getName() + " is not an R/Y Model ");
     }
   }
-  
 }
 
 void YpR::setNamespace(const std::string& prefix)

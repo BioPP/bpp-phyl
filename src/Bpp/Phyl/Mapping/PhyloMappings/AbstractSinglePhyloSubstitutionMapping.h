@@ -20,7 +20,7 @@ class ModelBranch
 {
 public:
   std::shared_ptr<TransitionModelInterface> pMod_;
-  ModelBranch(): pMod_() {}
+  ModelBranch() : pMod_() {}
   ~ModelBranch() = default;
 };
 

@@ -52,7 +52,6 @@ private:
   Vuint vPriorBranch_;
 
 public:
-  
   /**
    * @brief Build a Site Simulator of histories from the a posteriori likelihoods at a given site
    *

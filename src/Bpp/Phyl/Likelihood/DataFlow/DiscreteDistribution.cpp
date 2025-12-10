@@ -12,10 +12,10 @@ using namespace std;
 namespace bpp
 {
 ConfiguredDistribution::ConfiguredDistribution (Context& context, NodeRefVec&& deps, std::unique_ptr<DiscreteDistributionInterface>&& distrib) :
-    Value<const DiscreteDistributionInterface*>(std::move(deps), distrib.get()),
-    AbstractParametrizable(distrib->getNamespace()),
-    config(),
-    distrib_(std::move(distrib))
+  Value<const DiscreteDistributionInterface*>(std::move(deps), distrib.get()),
+  AbstractParametrizable(distrib->getNamespace()),
+  config(),
+  distrib_(std::move(distrib))
 {
   for (const auto& dep:dependencies())
   {

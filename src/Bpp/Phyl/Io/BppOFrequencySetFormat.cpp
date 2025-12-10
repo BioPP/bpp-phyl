@@ -742,7 +742,6 @@ void BppOFrequencySetFormat::writeFrequencySet(
   {}
 
 
-
   // FullPerAA
   try
   {

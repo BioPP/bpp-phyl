@@ -13,7 +13,7 @@ namespace bpp
 {
 // Simplex node
 
-ConfiguredSimplex::ConfiguredSimplex (const Context& context, NodeRefVec&& deps, std::unique_ptr<Simplex>&& simplex):
+ConfiguredSimplex::ConfiguredSimplex (const Context& context, NodeRefVec&& deps, std::unique_ptr<Simplex>&& simplex) :
   Value<const Simplex*>(std::move (deps), simplex.get ()), AbstractParametrizable(simplex->getNamespace()),
   config(),
   simplex_(std::move(simplex))

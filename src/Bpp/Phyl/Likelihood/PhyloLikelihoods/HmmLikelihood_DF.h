@@ -98,7 +98,6 @@ protected:
   Eigen::Index nbStates_, nbSites_;
 
 public:
-  
   /**
    * @brief Build a new HmmLikelihood_DF object.
    *
@@ -117,7 +116,7 @@ private:
   /**
    * @brief No copy allowed
    */
-  HmmLikelihood_DF(const HmmLikelihood_DF& lik):
+  HmmLikelihood_DF(const HmmLikelihood_DF& lik) :
     AlignedLikelihoodCalculation(lik),
     context_(lik.context_),
     hiddenAlphabet_(lik.hiddenAlphabet_),
@@ -132,11 +131,10 @@ private:
     nbStates_(lik.nbStates_),
     nbSites_(lik.nbSites_)
   {}
-  
+
   HmmLikelihood_DF& operator=(const HmmLikelihood_DF& lik) = default;
 
 public:
-
   virtual ~HmmLikelihood_DF() {}
 
   HmmLikelihood_DF* clone() const { return new HmmLikelihood_DF(*this); }
