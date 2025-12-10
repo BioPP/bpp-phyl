@@ -16,7 +16,7 @@
 namespace bpp
 {
 /**
- * @biref Construction of all the DataFlow objects linked with objects in
+ * @brief Construction of all the DataFlow objects linked with objects in
  * a SubstitutionProcessCollection.
  */
 class CollectionNodes :
