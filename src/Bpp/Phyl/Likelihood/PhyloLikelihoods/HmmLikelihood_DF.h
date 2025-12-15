@@ -48,31 +48,26 @@ protected:
 
   /**
    * DF TransitionMatrix
-   *
    */
   std::shared_ptr<ConfiguredTransitionMatrix> matrix_;
 
   /**
    * DF equilibrium vector from transitionmatrix for computation
-   *
    */
   ValueRef<Eigen::VectorXd> hmmEq_;
 
   /**
    * DF Matrix from transitionmatrix for computation
-   *
    */
   ValueRef<Eigen::MatrixXd> hmmTrans_;
 
   /**
    * DF Matrix from emission likelihoods for computation
-   *
    */
   ValueRef<MatrixLik> hmmEmis_;
 
   /**
    * DF Conditional Likelihoods for sites:
-   *
    */
   ValueRef<RowLik> forwardLik_;
 
@@ -82,7 +77,6 @@ protected:
    *
    * backwardLik_(i,j) corresponds to Pr(x_{j+1}...x_n | y_j=i)/Pr(x_{j+1}|x_1...x_j)
    * where the x are the observed states, and y the hidden states.
-   *
    */
   ValueRef<Eigen::MatrixXd> backwardLik_;
 
@@ -91,7 +85,6 @@ protected:
    *
    * hiddenPostProb_(i,j) corresponds to Pr(y_j=i | x_1...x_n)
    * where the x are the observed states, and y the hidden states.
-   *
    */
   ValueRef<Eigen::MatrixXd> hiddenPostProb_;
 
@@ -132,7 +125,7 @@ private:
     nbSites_(lik.nbSites_)
   {}
 
-  HmmLikelihood_DF& operator=(const HmmLikelihood_DF& lik) = default;
+  HmmLikelihood_DF& operator=(const HmmLikelihood_DF& lik) = delete;
 
 public:
   virtual ~HmmLikelihood_DF() {}

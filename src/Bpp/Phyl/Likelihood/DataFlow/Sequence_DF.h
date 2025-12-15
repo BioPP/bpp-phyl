@@ -12,13 +12,15 @@
 
 #include "Definitions.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-warning-option" // For CLang only, which does not recognize -Wmaybe-uninitialized
+
 namespace bpp
 {
-/** @brief Data flow node representing a Sequence as a
+/** 
+ * @brief Data flow node representing a Sequence as a
  * Value<Eigen::MatrixXd> with a name.
- *
  */
-
 class Sequence_DF : public Value<MatrixLik>
 {
 private:
@@ -102,4 +104,5 @@ private:
   }
 };
 } // namespace bpp
+#pragma GCC diagnostic pop
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_SEQUENCE_DF_H

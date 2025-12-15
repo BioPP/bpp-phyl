@@ -21,6 +21,9 @@
 #include "DataFlowNumeric.h"
 #include "Definitions.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-warning-option" // For CLang only, which does not recognize -Wmaybe-uninitialized
+
 namespace bpp
 {
 /******************************************************************************
@@ -2814,4 +2817,5 @@ ValueRef<NodeT> generateNumericalDerivative (Context& c,
   }
 }
 } // namespace bpp
+#pragma GCC diagnostic pop
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOWCWISECOMPUTING_H
