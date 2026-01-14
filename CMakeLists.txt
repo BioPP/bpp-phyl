@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compile options
-add_compile_options(-Wall -Weffc++ -Wshadow -Wconversion)
+add_compile_options(-Wall -Weffc++ -Wshadow -Wconversion -Wno-unknown-warning-option)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE

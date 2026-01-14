@@ -12,9 +12,6 @@
 
 #include "Definitions.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-warning-option" // For CLang only, which does not recognize -Wmaybe-uninitialized
-
 namespace bpp
 {
 /** 
@@ -104,5 +101,4 @@ private:
   }
 };
 } // namespace bpp
-#pragma GCC diagnostic pop
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_SEQUENCE_DF_H

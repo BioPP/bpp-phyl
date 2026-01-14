@@ -24,8 +24,6 @@
 // Note: if multithreading, internal model state must be removed!
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-warning-option" // For CLang only, which does not recognize -Wmaybe-uninitialized
-#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor" // Remove a STL warning
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // Remove a STL warning
@@ -1532,6 +1530,5 @@ extern template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
 #pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 #pragma GCC diagnostic pop 
-#pragma GCC diagnostic pop
 
 #endif // BPP_PHYL_LIKELIHOOD_DATAFLOW_DATAFLOWNUMERIC_H
