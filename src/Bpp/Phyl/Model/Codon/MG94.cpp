@@ -27,7 +27,7 @@ MG94::MG94(
         make_unique<K80>(gc->codonAlphabet().getNucleicAlphabet()),
         std::move(codonFreqs)))
 {
-  addParameter_(new Parameter("MG94.rho", 1, std::make_shared<IntervalConstraint>(0.002, 999, true, true)));
+  addParameter_(new Parameter("MG94.omega", 1, std::make_shared<IntervalConstraint>(0.002, 999, true, true)));
 
   pmodel_->setNamespace("MG94.");
   addParameters_(pmodel_->frequencySet().getParameters());
@@ -40,7 +40,8 @@ MG94::MG94(
     mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
   }
 
-  mapParNamesFromPmodel_["MG94.beta"] = "rho";
+  // Beta from AbstractCodonDistanceSubstitutionModel 
+  mapParNamesFromPmodel_["MG94.beta"] = "omega";
 
   updateMatrices_();
 }

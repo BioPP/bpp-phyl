@@ -167,6 +167,7 @@ set(CPP_FILES
     Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp
     Bpp/Phyl/Model/Codon/KroneckerCodonDistanceSubstitutionModel.cpp
     Bpp/Phyl/Model/Codon/MG94.cpp
+    Bpp/Phyl/Model/Codon/MG94xREV.cpp
     Bpp/Phyl/Model/Codon/RELAX.cpp
     Bpp/Phyl/Model/Codon/CodonSameAARateSubstitutionModel.cpp
     Bpp/Phyl/Model/Codon/SENCA.cpp

@@ -34,6 +34,7 @@
 #include "../Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/KroneckerCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/MG94.h"
+#include "../Model/Codon/MG94xREV.h"
 #include "../Model/Codon/SENCA.h"
 #include "../Model/Codon/TripletSubstitutionModel.h"
 #include "../Model/Codon/YN98.h"
@@ -296,7 +297,7 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
   // //////////////////
   // PREDEFINED CODON MODELS
 
-  else if (((modelName == "MG94") || (modelName == "YN98") || (modelName == "YNGP_M0") ||
+  else if (((modelName.substr(0,4) == "MG94") || (modelName == "YN98") || (modelName == "YNGP_M0") ||
       (modelName == "GY94") ||  (modelName.substr(0, 3) == "KCM") || (modelName == "SameAARate"))
       && (alphabetCode_ & CODON))
   {
@@ -341,6 +342,8 @@ unique_ptr<SubstitutionModelInterface> BppOSubstitutionModelFormat::readSubstitu
 
     if (modelName == "MG94")
       model = make_unique<MG94>(geneticCode_, std::move(codonFreqs));
+    else if (modelName == "MG94xREV")
+      model = make_unique<MG94xREV>(geneticCode_, std::move(codonFreqs));
     else if (modelName == "GY94")
       model = make_unique<GY94>(geneticCode_, std::move(codonFreqs));
     else if ((modelName == "YN98") || (modelName == "YNGP_M0"))
