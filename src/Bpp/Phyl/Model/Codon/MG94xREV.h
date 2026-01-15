@@ -70,6 +70,11 @@ public:
 
   std::shared_ptr<const GeneticCode> getGeneticCode() const override { return pmodel_->getGeneticCode(); }
 
+  const FrequencySetInterface& frequencySet() const override
+  {
+    return AbstractWrappedModel::frequencySet();
+  }
+
   double getCodonsMulRate(size_t i, size_t j) const override { return pmodel_->getCodonsMulRate(i, j); }
 
   const CodonFrequencySetInterface& codonFrequencySet() const override

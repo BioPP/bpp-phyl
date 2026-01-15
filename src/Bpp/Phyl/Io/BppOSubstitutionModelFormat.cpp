@@ -1762,7 +1762,8 @@ void BppOSubstitutionModelFormat::write(const BranchModelInterface& model,
     comma = true;
   }
   catch (exception&)
-  {}
+  {
+  }
 
   // Is it a codon model with Protein Model or partition in it?
   try
