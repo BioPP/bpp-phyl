@@ -428,7 +428,7 @@ public:
   inline static Self denorm_pow (const Self& arr, int exp)
   {
     if (exp == 0)
-      return Self::Ones(arr.rows(), arr.cols);
+      return Self::Ones(arr.rows(), arr.cols());
     if (exp & 1)
       return exp > 0 ? denorm_mul(arr, denorm_pow(arr, exp - 1)) : denorm_div(denorm_pow(arr, exp + 1), arr);
     else
