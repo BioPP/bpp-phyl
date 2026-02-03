@@ -51,7 +51,7 @@ else(NO_DEP_CHECK)
     #           library implements.
     # In other words, the library implements all the interface numbers in the
     # range from number current - age to current.
-    set(${PROJECT_NAME}_VERSION_CURRENT "3")
+    set(${PROJECT_NAME}_VERSION_CURRENT "14")
     set(${PROJECT_NAME}_VERSION_REVISION "0")
     set(${PROJECT_NAME}_VERSION_AGE "0")
 
@@ -88,7 +88,7 @@ else(NO_DEP_CHECK)
     endif(CMAKE_INSTALL_PREFIX)
 
     include(GNUInstallDirs)
-    find_package(bpp-seq 3.0.0 REQUIRED)
+    find_package(bpp-seq 14.0.0 REQUIRED)
 
     # CMake package
     set(cmake-package-location ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
@@ -115,7 +115,7 @@ else(NO_DEP_CHECK)
     )
 
     # Use eigen
-    find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+    find_package(Eigen3 REQUIRED NO_MODULE)
 
     # Define the libraries
     add_subdirectory(src)
