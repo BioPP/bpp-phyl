@@ -166,16 +166,42 @@ double TreeTemplateTools::getHeight(const Node& node)
 double TreeTemplateTools::getHeights(const Node& node, map<const Node*, double>& heights)
 {
   double d = 0;
-  for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
+  for (size_t i = 0; i < node.getNumberOfSons(); ++i)
   {
-    const Node* son = node[i];
-    double dist = son->getDistanceToFather();
-    double c = getHeights(*son, heights) + dist;
+    const Node& son = node.son(i);
+    double dist = son.getDistanceToFather();
+    double c = getHeights(son, heights) + dist;
     if (c > d)
       d = c;
   }
   heights[&node] = d;
   return d;
+}
+
+/******************************************************************************/
+
+void TreeTemplateTools::getDistancesToRoot(const Node& node, map<const Node*, double>& var, double distanceToRoot)
+{
+  var[&node] = distanceToRoot;
+  for (size_t i = 0; i < node.getNumberOfSons(); ++i)
+  {
+    const Node& son = node.son(i);
+    double dist = son.getDistanceToFather();
+    getDistancesToRoot(son, var, distanceToRoot + dist);
+  }
+}
+
+/******************************************************************************/
+
+void TreeTemplateTools::getDistancesToRoot(const Node& node, map<int, double>& var, double distanceToRoot)
+{
+  var[node.getId()] = distanceToRoot;
+  for (size_t i = 0; i < node.getNumberOfSons(); ++i)
+  {
+    const Node& son = node.son(i);
+    double dist = son.getDistanceToFather();
+    getDistancesToRoot(son, var, distanceToRoot + dist);
+  }
 }
 
 /******************************************************************************/

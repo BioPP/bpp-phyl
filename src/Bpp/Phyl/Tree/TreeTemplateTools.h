@@ -686,6 +686,30 @@ public:
   static double getHeights(const Node& node, std::map<const Node*, double>& heights);
 
   /**
+   * @brief Get the distance of all nodes to the root.
+   *
+   * This is equivalent to the variance-covariance matrix under a Brownian model.
+   *
+   * @param node The node defining the subtree to check.
+   * @param var The map that will contain all the distance of the nodes, with node pointers as keys.
+   * @param distanceToRoot The distance of the subtree to the root of the tree. 0 if the node is the root tree.
+   * @throw NodePException If a branch length is lacking.
+   */
+  static void getDistancesToRoot(const Node& node, std::map<const Node*, double>& var, double distanceToRoot = 0.);
+
+  /**
+   * @brief Get the distance of all nodes to the root.
+   *
+   * This is equivalent to the variance-covariance matrix under a Brownian model.
+   *
+   * @param node The node defining the subtree to check.
+   * @param var The map that will contain all the distance of the nodes, with node ids as keys.
+   * @param distanceToRoot The distance of the subtree to the root of the tree. 0 if the node is the root tree.
+   * @throw NodePException If a branch length is lacking.
+   */
+  static void getDistancesToRoot(const Node& node, std::map<int, double>& var, double distanceToRoot = 0.);
+
+  /**
    * @brief Tell is a subtree is multifurcating.
    *
    * @param node The root node of the subtree.

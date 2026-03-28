@@ -48,10 +48,10 @@ void GlobalClockTreeLikelihoodFunctionWrapper::initParameters_()
   if (TreeTemplateTools::isMultifurcating(*(tree.getRootNode())))
     throw Exception("GlobalClockTreeLikelihoodFunctionWrapper::initParameters_(). Tree is multifurcating.");
   std::map<const Node*, double> heights;
-  TreeTemplateTools::getHeights(*(tree.getRootNode()), heights);
+  TreeTemplateTools::getHeights(tree.rootNode(), heights);
   double totalHeight = heights[tree.getRootNode()];
   addParameter_(new Parameter("TotalHeight", totalHeight, Parameter::R_PLUS_STAR));
-  for (std::map<const Node*, double>::iterator it = heights.begin(); it != heights.end(); it++)
+  for (auto it = heights.begin(); it != heights.end(); it++)
   {
     if (!it->first->isLeaf() && it->first->hasFather())
     {
