@@ -341,7 +341,6 @@ unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingTools::computeNo
 
   auto processTree = rltc.getTreeNode(0);
 
-
   /* First, set substitution rewards */
 
   // Map from models to type-vector of rewards
@@ -620,7 +619,7 @@ unique_ptr<ProbabilisticSubstitutionMapping> SubstitutionMappingTools::computeNo
       *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
-
+  
   return normalizations;
 }
 

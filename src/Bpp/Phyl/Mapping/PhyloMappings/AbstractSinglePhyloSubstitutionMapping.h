@@ -91,17 +91,17 @@ public:
    */
   std::shared_ptr<TransitionModelInterface> getModelForBranch(unsigned int branchId) override
   {
-    return (*getEdge(branchId)).pMod_;
+    return (*getEdgeFromGraphid(branchId)).pMod_;
   }
 
   std::shared_ptr<const TransitionModelInterface> getModelForBranch(unsigned int branchId) const override
   {
-    return (*getEdge(branchId)).pMod_;
+    return (*getEdgeFromGraphid(branchId)).pMod_;
   }
 
   std::shared_ptr<const TransitionModelInterface> getModel(unsigned int branchId, size_t classIndex) const override
   {
-    return (*getEdge(branchId)).pMod_;
+    return (*getEdgeFromGraphid(branchId)).pMod_;
   }
 
   std::shared_ptr<TransitionModelInterface> getModel(size_t index)
