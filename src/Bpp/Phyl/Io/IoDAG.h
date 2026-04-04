@@ -162,7 +162,7 @@ public:
 
       std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out | std::ios::app));
       if (!output)
-        throw Exception("Problem opening file " + path + "in writePhyloDAG.");
+        throw Exception("Problem opening file " + path + " in writePhyloDAG.");
       writePhyloDAG(dag, output);
       output.close();
     }

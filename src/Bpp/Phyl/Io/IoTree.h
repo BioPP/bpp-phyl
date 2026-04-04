@@ -268,7 +268,7 @@ public:
 
       std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out | std::ios::app));
       if (!output)
-        throw Exception("Problem opening file " + path + "in write Tree.");
+        throw Exception("Problem opening file " + path + " in write Tree.");
       writeTree(tree, output);
       output.close();
     }
@@ -302,7 +302,7 @@ public:
 
       std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out | std::ios::app));
       if (!output)
-        throw Exception("Problem opening file " + path + "in writePhyloTree.");
+        throw Exception("Problem opening file " + path + " in writePhyloTree.");
       writePhyloTree(tree, output);
       output.close();
     }
