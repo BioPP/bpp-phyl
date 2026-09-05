@@ -1831,6 +1831,70 @@ private:
  * Node construction should be done with the create static method.
  */
 
+/*
+ * Normalize a double into an ExtendedFloat, as an Eigen unary functor.
+ *
+ * THIS MUST NOT BE A LAMBDA, and it must keep its result_type typedef.
+ *
+ * Eigen derives a CwiseUnaryOp's Scalar from internal::result_of (see
+ * Eigen/src/Core/CwiseUnaryOp.h). It has three implementations and picks one
+ * from two feature macros that are mutually exclusive on the WRONG side:
+ *
+ *   EIGEN_HAS_STD_RESULT_OF     needs  EIGEN_COMP_CXXVER <  17
+ *   EIGEN_HAS_STD_INVOKE_RESULT needs  EIGEN_COMP_CXXVER >= 17
+ *                                AND   EIGEN_MAX_CPP_VER >= 17
+ *
+ * So a build that compiles at C++17 or later while EIGEN_MAX_CPP_VER is capped
+ * below 17 -- which a distribution or a toolchain prefix may do through
+ * CXXFLAGS, without bpp asking for it -- gets NEITHER, and falls back to
+ * Eigen's pre-C++11 unary_result_of_select (Eigen/src/Core/util/Meta.h). That
+ * fallback looks for a result_type member and, finding none on a lambda,
+ * DEFAULTS TO THE ARGUMENT TYPE.
+ *
+ * The expression's Scalar then becomes double instead of ExtendedFloat, and
+ * Eigen tries to convert our ExtendedFloat results back with the deliberately
+ * private operator double(). The build fails inside Eigen's Redux.h and
+ * CoreEvaluators.h with "operator double() const is private within this
+ * context", naming neither this file nor the real cause.
+ *
+ * Reproduced exactly with:
+ *   g++ -std=gnu++17 -DEIGEN_MAX_CPP_VER=14 ... DataFlowCWiseComputing.cpp
+ * against Eigen 3.4.0; the same command with the cap removed compiles.
+ *
+ * A functor carrying result_type satisfies the legacy path as well as the two
+ * modern ones, so the deduced Scalar is ExtendedFloat under every combination.
+ */
+struct NormalizeToExtendedFloat
+{
+  typedef ExtendedFloat result_type;
+
+  result_type operator()(double d) const
+  {
+    ExtendedFloat ef{d};
+    ef.normalize();
+    return ef;
+  }
+};
+
+/*
+ * The same, calling normalize_small(). The two are NOT interchangeable -- the
+ * SumOfLogarithms overload for plain Eigen types normalizes small in the
+ * single-dependency branch and normalizes in the other -- so they stay two
+ * functors rather than one with a flag. Same rule as above: not a lambda, and
+ * it keeps its result_type.
+ */
+struct NormalizeSmallToExtendedFloat
+{
+  typedef ExtendedFloat result_type;
+
+  result_type operator()(double d) const
+  {
+    ExtendedFloat ef{d};
+    ef.normalize_small();
+    return ef;
+  }
+};
+
 template<typename F> class SumOfLogarithms : public Value<DataLik>
 {
 public:
@@ -1899,11 +1963,8 @@ private:
 
     if (nbDependencies() == 1)
     {
-      const ExtendedFloat product = m.unaryExpr ([](double d) {
-          ExtendedFloat ef{d};
-          ef.normalize_small ();
-          return ef;
-        }).redux ([](const ExtendedFloat& lhs, const ExtendedFloat& rhs) {
+      const ExtendedFloat product = m.unaryExpr (
+        NormalizeSmallToExtendedFloat()).redux ([](const ExtendedFloat& lhs, const ExtendedFloat& rhs) {
           auto r = ExtendedFloat::denorm_mul (lhs, rhs);
           r.normalize_small ();
           return r;
@@ -1920,11 +1981,7 @@ private:
       // Old version:
       // double resold  = (numeric::cwise(m).log() * numeric::cwise(p)).sum();
 
-      temp_ = m.unaryExpr ([](double d) {
-          ExtendedFloat ef{d};
-          ef.normalize ();
-          return ef;
-        });
+      temp_ = m.unaryExpr (NormalizeToExtendedFloat());
 
       for (Eigen::Index i = 0; i < Eigen::Index(p.size()); i++)
       {
@@ -1962,11 +2019,8 @@ private:
 
     if (nbDependencies() == 1)
     {
-      const ExtendedFloat product = m.float_part().unaryExpr ([](double d) {
-          ExtendedFloat ef{d};
-          ef.normalize ();
-          return ef;
-        }).redux ([](const ExtendedFloat& lhs, const ExtendedFloat& rhs) {
+      const ExtendedFloat product = m.float_part().unaryExpr (
+        NormalizeToExtendedFloat()).redux ([](const ExtendedFloat& lhs, const ExtendedFloat& rhs) {
           auto r = ExtendedFloat::denorm_mul (lhs, rhs);
           r.normalize_small ();
           return r;
@@ -1983,11 +2037,7 @@ private:
       // Old version:
       // double resold  = (numeric::cwise(m).log() * numeric::cwise(p)).sum();
 
-      temp_ = m.float_part().unaryExpr ([](double d) {
-          ExtendedFloat ef{d};
-          ef.normalize ();
-          return ef;
-        });
+      temp_ = m.float_part().unaryExpr (NormalizeToExtendedFloat());
 
       for (Eigen::Index i = 0; i < Eigen::Index(p.size()); i++)
       {
